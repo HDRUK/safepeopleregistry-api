@@ -53,11 +53,10 @@ RUN composer install \
     && php artisan optimize:clear \
     && php artisan optimize \
     && php artisan config:clear \
-    && php artisan ide-helper:generate \
     && composer dumpautoload
 
-# Generate Swagger
-RUN php artisan l5-swagger:generate
+# Generate Swagger - Removed for now as we don't have
+# RUN php artisan l5-swagger:generate
 
 # Starts both, laravel server and job queue
 CMD ["/var/www/docker/start.sh"]
