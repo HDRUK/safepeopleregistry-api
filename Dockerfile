@@ -1,4 +1,4 @@
-FROM php:8.2.3-fpm
+FROM php:8.3-fpm
 
 ENV COMPOSER_PROCESS_TIMEOUT=600
 
