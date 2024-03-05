@@ -23,11 +23,11 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install sockets
 
 # Install Redis
-RUN wget -O redis-5.3.7.tgz 'http://pecl.php.net/get/redis-5.3.7.tgz' \
-    && pecl install redis-5.3.7.tgz \
-    &&  rm -rf redis-5.3.7.tgz \
-    &&  rm -rf /tmp/pear \
-    &&  docker-php-ext-enable redis
+# RUN wget -O redis-5.3.7.tgz 'http://pecl.php.net/get/redis-5.3.7.tgz' \
+#     && pecl install redis-5.3.7.tgz \
+#     &&  rm -rf redis-5.3.7.tgz \
+#     &&  rm -rf /tmp/pear \
+#     &&  docker-php-ext-enable redis
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- \
@@ -56,7 +56,7 @@ RUN composer install \
     && composer dumpautoload
 
 # Generate Swagger - Removed for now as we don't have
-# RUN php artisan l5-swagger:generate
+RUN php artisan l5-swagger:generate
 
 # Starts both, laravel server and job queue
 CMD ["/var/www/docker/start.sh"]
