@@ -20,19 +20,8 @@ class TrainingController extends Controller
      *      summary="Return a list of Training entries",
      *      description="Return a list of Training entries",
      *      tags={"Training"},
-     *      summary="Training@show",
+     *      summary="Training@index",
      *      security={{"bearerAuth":{}}},
-     *      @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="List of Training entries",
-     *         required=true,
-     *         example="1",
-     *         @OA\Schema(
-     *            type="integer",
-     *            description="List of Training entries",
-     *         ),
-     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="Success",
