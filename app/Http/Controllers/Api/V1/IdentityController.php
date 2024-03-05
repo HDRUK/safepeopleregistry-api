@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use Exception;
 
-use App\Models\Registry;
+use App\Models\Identity;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -12,15 +12,15 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Exception\NotFoundException;
 
-class RegistryController extends Controller
+class IdentityController extends Controller
 {
     /**
      * @OA\Get(
-     *      path="/api/v1/registry",
-     *      summary="Return a list of Registry entries",
-     *      description="Return a list of Registry entries",
-     *      tags={"Registry"},
-     *      summary="Registry@index",
+     *      path="/api/v1/identities",
+     *      summary="Return a list of Identity entries",
+     *      description="Return a list of Identity entries",
+     *      tags={"Identity"},
+     *      summary="Identity@index",
      *      security={{"bearerAuth":{}}},
      *      @OA\Response(
      *          response=200,
@@ -31,8 +31,7 @@ class RegistryController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="integer", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="user_id", type="integer", example="243"),
-     *                  @OA\Property(property="verified", type="boolean", example=true),
+     *                  @OA\Property(property="registry_id", type="integer", example="1")
      *              )
      *          ),
      *      ),
@@ -47,31 +46,31 @@ class RegistryController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $registries = Registry::all();
+        $identities = Identities::all();
 
         return response()->json([
             'message' => 'success',
-            'data' => $registries,
+            'data' => $identities,
         ], 200);
     }
 
-    /**
+   /**
      * @OA\Get(
-     *      path="/api/v1/registry/{id}",
-     *      summary="Return a Registry entry by ID",
-     *      description="Return a Registry entry by ID",
-     *      tags={"Registry"},
-     *      summary="Registry@show",
+     *      path="/api/v1/identities/{id}",
+     *      summary="Return an Identity entry by ID",
+     *      description="Return an Identity entry by ID",
+     *      tags={"Identity"},
+     *      summary="Identity@show",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="Registry entry ID",
+     *         description="Identity ID",
      *         required=true,
      *         example="1",
      *         @OA\Schema(
      *            type="integer",
-     *            description="Registry entry ID",
+     *            description="Identity ID",
      *         ),
      *      ),
      *      @OA\Response(
@@ -83,8 +82,7 @@ class RegistryController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="integer", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="user_id", type="integer", example="243"),
-     *                  @OA\Property(property="verified", type="boolean", example=true),
+     *                  @OA\Property(property="registry_id", type="integer", example="1")
      *              )
      *          ),
      *      ),
@@ -99,11 +97,11 @@ class RegistryController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
-        $registries = Registry::findOrFail($id);
-        if ($registries) {
+        $identity = Identity::findOrFail($id);
+        if ($identity) {
             return response()->json([
-                'message' => 'success',
-                'data' => $registries,
+                'message' => 'succcess',
+                'data' => $identity,
             ], 200);
         }
 
@@ -112,20 +110,27 @@ class RegistryController extends Controller
 
     /**
      * @OA\Post(
-     *      path="/api/v1/registry",
-     *      summary="Create a Registry entry",
-     *      description="Create a Registry entry",
-     *      tags={"Registry"},
-     *      summary="Registry@store",
+     *      path="/api/v1/identities",
+     *      summary="Create an Identity entry",
+     *      description="Create a Identity entry",
+     *      tags={"Identity"},
+     *      summary="Identity@store",
      *      security={{"bearerAuth":{}}},
      *      @OA\RequestBody(
      *          required=true,
-     *          description="Registry definition",
+     *          description="Identity definition",
      *          @OA\JsonContent(
-     *              @OA\Property(property="user_id", type="integer", example="1"),
-     *              @OA\Property(property="dl_ident", type="string", example="134157839"),
-     *              @OA\Property(property="pp_ident", type="string", example="HSJFY785615630X99 123"),
-     *              @OA\Property(property="verified", type="boolean", example="true")
+     *              @OA\Property(property="registry_id", type="integer", example="1"),
+     *              @OA\Property(property="selfie_path", type="string", example="storage/path/to/selfie.jpeg"),
+     *              @OA\Property(property="passport_path", type="string", example="storage/path/to/passport.jpeg"),
+     *              @OA\Property(property="drivers_license_path", type="string", example="storage/path/to/drivers_license.jpeg"),
+     *              @OA\Property(property="address_1", type="string", example="123 Road"),
+     *              @OA\Property(property="address_2", type="string", example="Other part of Address"),
+     *              @OA\Property(property="town", type="string", example="Town"),
+     *              @OA\Property(property="county", type="string", example="County"),
+     *              @OA\Property(property="country", type="string", example="Country"),
+     *              @OA\Property(property="postcode", type="string", example="AB12 3CD"),
+     *              @OA\Property(property="dob", type="string", example="1977-07-25")
      *          ),
      *      ),
      *      @OA\Response(
@@ -142,12 +147,6 @@ class RegistryController extends Controller
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="integer", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="user_id", type="integer", example="1"),
-     *                  @OA\Property(property="dl_ident", type="string", example="134157839"),
-     *                  @OA\Property(property="pp_ident", type="string", example="HSJFY785615630X99 123"),
-     *                  @OA\Property(property="verified", type="boolean", example="true")
      *              )
      *          ),
      *      ),
@@ -164,17 +163,23 @@ class RegistryController extends Controller
     {
         try {
             $input = $request->all();
-
-            $registry = Registry::create([
-                'user_id' => $input['user_id'],
-                'dl_ident' => $input['dl_ident'],
-                'pp_ident' => $input['pp_ident'],
-                'verified' => $input['verified'],
+            $identity = Identity::create([
+                'registry_id' => $input['registry_id'],
+                'selfie_path' => $input['selfie_path'],
+                'passport_path' => $input['passport_path'],
+                'drivers_license_path' => $input['drivers_license_path'],
+                'address_1' => $input['address_1'],
+                'address_2' => $input['address_2'],
+                'town' => $input['town'],
+                'county' => $input['county'],
+                'country' => $input['country'],
+                'postcode' => $input['postcode'],
+                'dob' => $input['dob'],
             ]);
 
             return response()->json([
                 'message' => 'success',
-                'data' => $registry->id,
+                'data' => $identity->id,
             ], 201);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -183,33 +188,27 @@ class RegistryController extends Controller
 
     /**
      * @OA\Put(
-     *      path="/api/v1/registry/{id}",
-     *      summary="Update a Registry entry",
-     *      description="Update a Registry entry",
-     *      tags={"Registry"},
-     *      summary="Registry@update",
+     *      path="/api/v1/identities/{id}",
+     *      summary="Update an Identity entry",
+     *      description="Update a Identity entry",
+     *      tags={"Identity"},
+     *      summary="Identity@update",
      *      security={{"bearerAuth":{}}},
-     *      @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="Registry entry ID",
-     *         required=true,
-     *         example="1",
-     *         @OA\Schema(
-     *            type="integer",
-     *            description="Registry entry ID",
-     *         ),
-     *      ),
      *      @OA\RequestBody(
      *          required=true,
-     *          description="Registry definition",
+     *          description="Identity definition",
      *          @OA\JsonContent(
-     *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *              @OA\Property(property="updated_at", type="integer", example="2024-02-04 12:01:00"),
-     *              @OA\Property(property="user_id", type="integer", example="1"),
-     *              @OA\Property(property="dl_ident", type="string", example="134157839"),
-     *              @OA\Property(property="pp_ident", type="string", example="HSJFY785615630X99 123"),
-     *              @OA\Property(property="verified", type="boolean", example="true")
+     *              @OA\Property(property="registry_id", type="integer", example="1"),
+     *              @OA\Property(property="selfie_path", type="string", example="storage/path/to/selfie.jpeg"),
+     *              @OA\Property(property="passport_path", type="string", example="storage/path/to/passport.jpeg"),
+     *              @OA\Property(property="drivers_license_path", type="string", example="storage/path/to/drivers_license.jpeg"),
+     *              @OA\Property(property="address_1", type="string", example="123 Road"),
+     *              @OA\Property(property="address_2", type="string", example="Other part of Address"),
+     *              @OA\Property(property="town", type="string", example="Town"),
+     *              @OA\Property(property="county", type="string", example="County"),
+     *              @OA\Property(property="country", type="string", example="Country"),
+     *              @OA\Property(property="postcode", type="string", example="AB12 3CD"),
+     *              @OA\Property(property="dob", type="string", example="1977-07-25")
      *          ),
      *      ),
      *      @OA\Response(
@@ -226,12 +225,7 @@ class RegistryController extends Controller
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="integer", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="user_id", type="integer", example="1"),
-     *                  @OA\Property(property="dl_ident", type="string", example="134157839"),
-     *                  @OA\Property(property="pp_ident", type="string", example="HSJFY785615630X99 123"),
-     *                  @OA\Property(property="verified", type="boolean", example="true")
+     *                  @OA\Property(property="registry_id", type="integer", example="1")
      *              )
      *          ),
      *      ),
@@ -249,16 +243,23 @@ class RegistryController extends Controller
         try {
             $input = $request->all();
 
-            Registry::where('id', $id)->update([
-                'user_id' => $input['user_id'],
-                'dl_ident' => $input['dl_ident'],
-                'pp_ident' => $input['pp_ident'],
-                'verified' => $input['verified'],
+            Identity::where('id', $id)->update([
+                'registry_id' => $input['registry_id'],
+                'selfie_path' => $input['selfie_path'],
+                'passport_path' => $input['passport_path'],
+                'drivers_license_path' => $input['drivers_license_path'],
+                'address_1' => $input['address_1'],
+                'address_2' => $input['address_2'],
+                'town' => $input['town'],
+                'county' => $input['county'],
+                'country' => $input['country'],
+                'postcode' => $input['postcode'],
+                'dob' => $input['dob'],
             ]);
 
             return response()->json([
                 'message' => 'success',
-                'data' => Registry::where('id', $id)->first(),
+                'data' => Identity::where('id', $id)->first(),
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -267,33 +268,27 @@ class RegistryController extends Controller
 
     /**
      * @OA\Patch(
-     *      path="/api/v1/registry/{id}",
-     *      summary="Edit a Registry entry",
-     *      description="Edit a Registry entry",
-     *      tags={"Registry"},
-     *      summary="Registry@edit",
+     *      path="/api/v1/identities/{id}",
+     *      summary="Edit an Identity entry",
+     *      description="Edit a Identity entry",
+     *      tags={"Identity"},
+     *      summary="Identity@edit",
      *      security={{"bearerAuth":{}}},
-     *      @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="Registry entry ID",
-     *         required=true,
-     *         example="1",
-     *         @OA\Schema(
-     *            type="integer",
-     *            description="Registry entry ID",
-     *         ),
-     *      ),
      *      @OA\RequestBody(
      *          required=true,
-     *          description="Registry definition",
+     *          description="Identity definition",
      *          @OA\JsonContent(
-     *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *              @OA\Property(property="updated_at", type="integer", example="2024-02-04 12:01:00"),
-     *              @OA\Property(property="user_id", type="integer", example="1"),
-     *              @OA\Property(property="dl_ident", type="string", example="134157839"),
-     *              @OA\Property(property="pp_ident", type="string", example="HSJFY785615630X99 123"),
-     *              @OA\Property(property="verified", type="boolean", example="true")
+     *              @OA\Property(property="registry_id", type="integer", example="1"),
+     *              @OA\Property(property="selfie_path", type="string", example="storage/path/to/selfie.jpeg"),
+     *              @OA\Property(property="passport_path", type="string", example="storage/path/to/passport.jpeg"),
+     *              @OA\Property(property="drivers_license_path", type="string", example="storage/path/to/drivers_license.jpeg"),
+     *              @OA\Property(property="address_1", type="string", example="123 Road"),
+     *              @OA\Property(property="address_2", type="string", example="Other part of Address"),
+     *              @OA\Property(property="town", type="string", example="Town"),
+     *              @OA\Property(property="county", type="string", example="County"),
+     *              @OA\Property(property="country", type="string", example="Country"),
+     *              @OA\Property(property="postcode", type="string", example="AB12 3CD"),
+     *              @OA\Property(property="dob", type="string", example="1977-07-25")
      *          ),
      *      ),
      *      @OA\Response(
@@ -310,12 +305,7 @@ class RegistryController extends Controller
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="integer", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="user_id", type="integer", example="1"),
-     *                  @OA\Property(property="dl_ident", type="string", example="134157839"),
-     *                  @OA\Property(property="pp_ident", type="string", example="HSJFY785615630X99 123"),
-     *                  @OA\Property(property="verified", type="boolean", example="true")
+     *                  @OA\Property(property="registry_id", type="integer", example="1")
      *              )
      *          ),
      *      ),
@@ -333,16 +323,23 @@ class RegistryController extends Controller
         try {
             $input = $request->all();
 
-            Registry::where('id', $id)->update([
-                'user_id' => $input['user_id'],
-                'dl_ident' => $input['dl_ident'],
-                'pp_ident' => $input['pp_ident'],
-                'verified' => $input['verified'],
+            Identity::where('id', $id)->update([
+                'registry_id' => $input['registry_id'],
+                'selfie_path' => $input['selfie_path'],
+                'passport_path' => $input['passport_path'],
+                'drivers_license_path' => $input['drivers_license_path'],
+                'address_1' => $input['address_1'],
+                'address_2' => $input['address_2'],
+                'town' => $input['town'],
+                'county' => $input['county'],
+                'country' => $input['country'],
+                'postcode' => $input['postcode'],
+                'dob' => $input['dob'],
             ]);
 
             return response()->json([
                 'message' => 'success',
-                'data' => Registry::where('id', $id)->first(),
+                'data' => Identity::where('id', $id)->first(),
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -351,21 +348,21 @@ class RegistryController extends Controller
 
     /**
      * @OA\Delete(
-     *      path="/api/v1/registry/{id}",
-     *      summary="Delete a Registry entry from the system by ID",
-     *      description="Delete a Registry entry from the system",
-     *      tags={"Registry"},
-     *      summary="Registry@destroy",
+     *      path="/api/v1/identities/{id}",
+     *      summary="Delete an Identity entry from the system by ID",
+     *      description="Delete an Identity entry from the system",
+     *      tags={"Identity"},
+     *      summary="Identity@destroy",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="Registry entry ID",
+     *         description="Identity entry ID",
      *         required=true,
      *         example="1",
      *         @OA\Schema(
      *            type="integer",
-     *            description="Registry entry ID",
+     *            description="Identity entry ID",
      *         ),
      *      ),
      *      @OA\Response(
@@ -394,7 +391,7 @@ class RegistryController extends Controller
     public function destroy(Request $request, int $id): JsonResponse
     {
         try {
-            Registry::where('id', $id)->delete();
+            Identity::where('id', $id)->delete();
 
             return response()->json([
                 'message' => 'success',
