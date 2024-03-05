@@ -17,6 +17,18 @@ class Registry extends Model
      */
     protected $table = 'registries';
 
+    /**
+     * Whether or not this model supports timestamps
+     * 
+     * @var bool
+     */
+    public $timestamps = true;
+
+    /**
+     * What fields of this model are accepted as parameters
+     * 
+     * @var array
+     */
     protected $fillable = [
         'user_id',
         'dl_ident',
@@ -24,10 +36,21 @@ class Registry extends Model
         'verified',
     ];
 
+    /**
+     * Whether or not we have to ask Laravel to cast fields
+     * 
+     * @var array
+     */
     protected $casts = [
         'verified' => 'boolean',
     ];
 
+    /**
+     * Whether or not we want certain fields hidden from the
+     * payload
+     * 
+     * @var array
+     */
     protected $hidden = [
         'dl_ident',
         'pp_ident',

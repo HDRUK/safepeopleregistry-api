@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use Exception;
 
-use App\Models\Registry;
+use App\Models\Training;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -12,16 +12,27 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Exception\NotFoundException;
 
-class RegistryController extends Controller
+class TrainingController extends Controller
 {
     /**
      * @OA\Get(
-     *      path="/api/v1/registry",
-     *      summary="Return a list of Registry entries",
-     *      description="Return a list of Registry entries",
-     *      tags={"Registry"},
-     *      summary="Registry@index",
+     *      path="/api/v1/training",
+     *      summary="Return a list of Training entries",
+     *      description="Return a list of Training entries",
+     *      tags={"Training"},
+     *      summary="Training@show",
      *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="List of Training entries",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="List of Training entries",
+     *         ),
+     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="Success",
@@ -31,8 +42,12 @@ class RegistryController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="integer", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="user_id", type="integer", example="243"),
-     *                  @OA\Property(property="verified", type="boolean", example=true),
+     *                  @OA\Property(property="registry_id", type="integer", example="1"),
+     *                  @OA\Property(property="provider", type="string", example="ONS"),
+     *                  @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
+     *                  @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
+     *                  @OA\Property(property="expires_in_years", type="integer", example="2"),
+     *                  @OA\Property(property="training)_name", type="string", example="Safe Researcher Training")
      *              )
      *          ),
      *      ),
@@ -47,31 +62,31 @@ class RegistryController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $registries = Registry::all();
+        $trainings = Training::all();
 
         return response()->json([
             'message' => 'success',
-            'data' => $registries,
+            'data' => $trainings,
         ], 200);
     }
 
     /**
      * @OA\Get(
-     *      path="/api/v1/registry/{id}",
-     *      summary="Return a Registry entry by ID",
-     *      description="Return a Registry entry by ID",
-     *      tags={"Registry"},
-     *      summary="Registry@show",
+     *      path="/api/v1/training/{id}",
+     *      summary="Return a Training entry by ID",
+     *      description="Return a Training entry by ID",
+     *      tags={"Training"},
+     *      summary="Training@show",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="Registry entry ID",
+     *         description="Training entry ID",
      *         required=true,
      *         example="1",
      *         @OA\Schema(
      *            type="integer",
-     *            description="Registry entry ID",
+     *            description="Training entry ID",
      *         ),
      *      ),
      *      @OA\Response(
@@ -83,8 +98,12 @@ class RegistryController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="integer", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="user_id", type="integer", example="243"),
-     *                  @OA\Property(property="verified", type="boolean", example=true),
+     *                  @OA\Property(property="registry_id", type="integer", example="1"),
+     *                  @OA\Property(property="provider", type="string", example="ONS"),
+     *                  @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
+     *                  @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
+     *                  @OA\Property(property="expires_in_years", type="integer", example="2"),
+     *                  @OA\Property(property="training)_name", type="string", example="Safe Researcher Training")
      *              )
      *          ),
      *      ),
@@ -99,11 +118,11 @@ class RegistryController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
-        $registries = Registry::findOrFail($id);
-        if ($registries) {
+        $trainings = Training::findOrFail($id);
+        if ($trainings) {
             return response()->json([
                 'message' => 'success',
-                'data' => $registries,
+                'data' => $trainings,
             ], 200);
         }
 
@@ -112,20 +131,22 @@ class RegistryController extends Controller
 
     /**
      * @OA\Post(
-     *      path="/api/v1/registry",
-     *      summary="Create a Registry entry",
-     *      description="Create a Registry entry",
-     *      tags={"Registry"},
-     *      summary="Registry@store",
+     *      path="/api/v1/training",
+     *      summary="Create a Training entry",
+     *      description="Create a Training entry",
+     *      tags={"Training"},
+     *      summary="Training@store",
      *      security={{"bearerAuth":{}}},
      *      @OA\RequestBody(
      *          required=true,
-     *          description="Registry definition",
+     *          description="Training definition",
      *          @OA\JsonContent(
-     *              @OA\Property(property="user_id", type="integer", example="1"),
-     *              @OA\Property(property="dl_ident", type="string", example="134157839"),
-     *              @OA\Property(property="pp_ident", type="string", example="HSJFY785615630X99 123"),
-     *              @OA\Property(property="verified", type="boolean", example="true")
+     *              @OA\Property(property="registry_id", type="integer", example="1"),
+     *              @OA\Property(property="provider", type="string", example="ONS"),
+     *              @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
+     *              @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
+     *              @OA\Property(property="expires_in_years", type="integer", example="2"),
+     *              @OA\Property(property="training)_name", type="string", example="Safe Researcher Training")
      *          ),
      *      ),
      *      @OA\Response(
@@ -144,10 +165,12 @@ class RegistryController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="integer", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="user_id", type="integer", example="1"),
-     *                  @OA\Property(property="dl_ident", type="string", example="134157839"),
-     *                  @OA\Property(property="pp_ident", type="string", example="HSJFY785615630X99 123"),
-     *                  @OA\Property(property="verified", type="boolean", example="true")
+     *                  @OA\Property(property="registry_id", type="integer", example="1"),
+     *                  @OA\Property(property="provider", type="string", example="ONS"),
+     *                  @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
+     *                  @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
+     *                  @OA\Property(property="expires_in_years", type="integer", example="2"),
+     *                  @OA\Property(property="training)_name", type="string", example="Safe Researcher Training")
      *              )
      *          ),
      *      ),
@@ -164,52 +187,57 @@ class RegistryController extends Controller
     {
         try {
             $input = $request->all();
-
-            $registry = Registry::create([
-                'user_id' => $input['user_id'],
-                'dl_ident' => $input['dl_ident'],
-                'pp_ident' => $input['pp_ident'],
-                'verified' => $input['verified'],
+            $training = Training::create([
+                'registry_id' => $input['registry_id'],
+                'provider' => $input['provider'],
+                'awarded_at' => $input['awarded_at'],
+                'expires_at' => $input['expires_at'],
+                'expires_in_years' => $input['expires_in_years'],
+                'training_name' => $input['training_name'],
             ]);
 
             return response()->json([
                 'message' => 'success',
-                'data' => $registry->id,
+                'data' => $training->id,
             ], 201);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
     }
 
+
     /**
      * @OA\Put(
-     *      path="/api/v1/registry/{id}",
-     *      summary="Update a Registry entry",
-     *      description="Update a Registry entry",
-     *      tags={"Registry"},
-     *      summary="Registry@store",
+     *      path="/api/v1/training/{id}",
+     *      summary="Update a Training entry",
+     *      description="Update a Training entry",
+     *      tags={"Training"},
+     *      summary="Training@update",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="Registry entry ID",
+     *         description="Training entry ID",
      *         required=true,
      *         example="1",
      *         @OA\Schema(
      *            type="integer",
-     *            description="Registry entry ID",
+     *            description="Training entry ID",
      *         ),
      *      ),
      *      @OA\RequestBody(
      *          required=true,
-     *          description="Registry definition",
+     *          description="Training definition",
      *          @OA\JsonContent(
+     *              @OA\Property(property="id", type="integer", example="123"),
      *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *              @OA\Property(property="updated_at", type="integer", example="2024-02-04 12:01:00"),
-     *              @OA\Property(property="user_id", type="integer", example="1"),
-     *              @OA\Property(property="dl_ident", type="string", example="134157839"),
-     *              @OA\Property(property="pp_ident", type="string", example="HSJFY785615630X99 123"),
-     *              @OA\Property(property="verified", type="boolean", example="true")
+     *              @OA\Property(property="registry_id", type="integer", example="1"),
+     *              @OA\Property(property="provider", type="string", example="ONS"),
+     *              @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
+     *              @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
+     *              @OA\Property(property="expires_in_years", type="integer", example="2"),
+     *              @OA\Property(property="training)_name", type="string", example="Safe Researcher Training")
      *          ),
      *      ),
      *      @OA\Response(
@@ -228,10 +256,12 @@ class RegistryController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="integer", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="user_id", type="integer", example="1"),
-     *                  @OA\Property(property="dl_ident", type="string", example="134157839"),
-     *                  @OA\Property(property="pp_ident", type="string", example="HSJFY785615630X99 123"),
-     *                  @OA\Property(property="verified", type="boolean", example="true")
+     *                  @OA\Property(property="registry_id", type="integer", example="1"),
+     *                  @OA\Property(property="provider", type="string", example="ONS"),
+     *                  @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
+     *                  @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
+     *                  @OA\Property(property="expires_in_years", type="integer", example="2"),
+     *                  @OA\Property(property="training)_name", type="string", example="Safe Researcher Training")
      *              )
      *          ),
      *      ),
@@ -249,16 +279,18 @@ class RegistryController extends Controller
         try {
             $input = $request->all();
 
-            Registry::where('id', $id)->update([
-                'user_id' => $input['user_id'],
-                'dl_ident' => $input['dl_ident'],
-                'pp_ident' => $input['pp_ident'],
-                'verified' => $input['verified'],
+            Training::where('id', $id)->update([
+                'registry_id' => $input['registry_id'],
+                'provider' => $input['id'],
+                'awarded_at' => $input['awarded_at'],
+                'expires_at' => $input['expires_at'],
+                'expires_in_years' => $input['expires_in_years'],
+                'training_name' => $input['training_name'],
             ]);
 
             return response()->json([
                 'message' => 'success',
-                'data' => Registry::where('id', $id)->first(),
+                'data' => Training::where('id', $id)->first(),
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -267,33 +299,36 @@ class RegistryController extends Controller
 
     /**
      * @OA\Patch(
-     *      path="/api/v1/registry/{id}",
-     *      summary="Edit a Registry entry",
-     *      description="Edit a Registry entry",
-     *      tags={"Registry"},
-     *      summary="Registry@store",
+     *      path="/api/v1/training/{id}",
+     *      summary="Edit a Training entry",
+     *      description="Edit a Training entry",
+     *      tags={"Training"},
+     *      summary="Training@edit",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="Registry entry ID",
+     *         description="Training entry ID",
      *         required=true,
      *         example="1",
      *         @OA\Schema(
      *            type="integer",
-     *            description="Registry entry ID",
+     *            description="Training entry ID",
      *         ),
      *      ),
      *      @OA\RequestBody(
      *          required=true,
-     *          description="Registry definition",
+     *          description="Training definition",
      *          @OA\JsonContent(
+     *              @OA\Property(property="id", type="integer", example="123"),
      *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *              @OA\Property(property="updated_at", type="integer", example="2024-02-04 12:01:00"),
-     *              @OA\Property(property="user_id", type="integer", example="1"),
-     *              @OA\Property(property="dl_ident", type="string", example="134157839"),
-     *              @OA\Property(property="pp_ident", type="string", example="HSJFY785615630X99 123"),
-     *              @OA\Property(property="verified", type="boolean", example="true")
+     *              @OA\Property(property="registry_id", type="integer", example="1"),
+     *              @OA\Property(property="provider", type="string", example="ONS"),
+     *              @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
+     *              @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
+     *              @OA\Property(property="expires_in_years", type="integer", example="2"),
+     *              @OA\Property(property="training)_name", type="string", example="Safe Researcher Training")
      *          ),
      *      ),
      *      @OA\Response(
@@ -312,10 +347,12 @@ class RegistryController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="integer", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="user_id", type="integer", example="1"),
-     *                  @OA\Property(property="dl_ident", type="string", example="134157839"),
-     *                  @OA\Property(property="pp_ident", type="string", example="HSJFY785615630X99 123"),
-     *                  @OA\Property(property="verified", type="boolean", example="true")
+     *                  @OA\Property(property="registry_id", type="integer", example="1"),
+     *                  @OA\Property(property="provider", type="string", example="ONS"),
+     *                  @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
+     *                  @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
+     *                  @OA\Property(property="expires_in_years", type="integer", example="2"),
+     *                  @OA\Property(property="training)_name", type="string", example="Safe Researcher Training")
      *              )
      *          ),
      *      ),
@@ -328,21 +365,23 @@ class RegistryController extends Controller
      *      )
      * )
      */
-    public function edit(Request $request, int $id): JsonResponse
+    public function edit(Request $request): JsonResponse
     {
         try {
             $input = $request->all();
 
-            Registry::where('id', $id)->update([
-                'user_id' => $input['user_id'],
-                'dl_ident' => $input['dl_ident'],
-                'pp_ident' => $input['pp_ident'],
-                'verified' => $input['verified'],
+            Training::where('id', $id)->update([
+                'registry_id' => $input['registry_id'],
+                'provider' => $input['id'],
+                'awarded_at' => $input['awarded_at'],
+                'expires_at' => $input['expires_at'],
+                'expires_in_years' => $input['expires_in_years'],
+                'training_name' => $input['training_name'],
             ]);
 
             return response()->json([
                 'message' => 'success',
-                'data' => Registry::where('id', $id)->first(),
+                'data' => Training::where('id', $id)->first(),
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -351,21 +390,21 @@ class RegistryController extends Controller
 
     /**
      * @OA\Delete(
-     *      path="/api/v1/registry/{id}",
-     *      summary="Delete a Registry entry from the system by ID",
-     *      description="Delete a Registry entry from the system",
-     *      tags={"Registry"},
-     *      summary="Registry@destroy",
+     *      path="/api/v1/training/{id}",
+     *      summary="Delete a training entry from the system by ID",
+     *      description="Delete a training entry from the system",
+     *      tags={"Training"},
+     *      summary="Training@destroy",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="Registry entry ID",
+     *         description="Training entry ID",
      *         required=true,
      *         example="1",
      *         @OA\Schema(
      *            type="integer",
-     *            description="Registry entry ID",
+     *            description="Training entry ID",
      *         ),
      *      ),
      *      @OA\Response(
@@ -394,7 +433,7 @@ class RegistryController extends Controller
     public function destroy(Request $request, int $id): JsonResponse
     {
         try {
-            Registry::where('id', $id)->delete();
+            Training::where('id', $id)->delete();
 
             return response()->json([
                 'message' => 'success',
