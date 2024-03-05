@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
        $this->call([
             RegistrySeeder::class,
             IdentitySeeder::class,
+            AffiliationSeeder::class,
             TrainingSeeder::class,
        ]);
     }

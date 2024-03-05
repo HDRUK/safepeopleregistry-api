@@ -24,8 +24,8 @@ return new class extends Migration
             $table->string('town', 255)->nullable();
             $table->string('county', 255)->nullable();
             $table->string('country', 255)->nullable();
-            $table->string('postcode', 32)->nullable();
-            $table->string('dob', 8)->nullable();
+            $table->string('postcode', 8)->nullable();
+            $table->string('dob', 10)->nullable();
         });
     }
 
