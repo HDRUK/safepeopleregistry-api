@@ -16,7 +16,7 @@ class AffiliationController extends Controller
 {
     /**
      * @OA\Get(
-     *      path="/api/v1/training",
+     *      path="/api/v1/affiliations",
      *      summary="Return a list of Affiliations",
      *      description="Return a list of Affiliations",
      *      tags={"Affiliation"},
@@ -64,7 +64,7 @@ class AffiliationController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/api/v1/training/{id}",
+     *      path="/api/v1/affiliations/{id}",
      *      summary="Return an Affiliation entry by ID",
      *      description="Return an Affiliation entry by ID",
      *      tags={"Affiliation"},

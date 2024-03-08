@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             RegistrySeeder::class,
             IdentitySeeder::class,
             AffiliationSeeder::class,
+            ProjectSeeder::class,
             TrainingSeeder::class,
        ]);
     }
