@@ -41,6 +41,15 @@ class Affiliation extends Model
     ];
 
     /**
+     * Whether or not we have to ask Laravel to cast fields
+     * 
+     * @var array
+     */
+    protected $casts = [
+        'verified' => 'boolean',
+    ];
+
+    /**
      * Whether or not we want certain fields hidden from the payload
      * 
      * @var array
