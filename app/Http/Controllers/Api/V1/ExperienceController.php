@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use Exception;
 
-use App\Models\Training;
+use App\Models\Experience;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -12,15 +12,15 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Exception\NotFoundException;
 
-class TrainingController extends Controller
+class ExperienceController extends Controller
 {
     /**
      * @OA\Get(
-     *      path="/api/v1/training",
-     *      summary="Return a list of Training entries",
-     *      description="Return a list of Training entries",
-     *      tags={"Training"},
-     *      summary="Training@index",
+     *      path="/api/v1/experiences",
+     *      summary="Return a list of Experience entries",
+     *      description="Return a list of Experience entries",
+     *      tags={"Experience"},
+     *      summary="Experience@index",
      *      security={{"bearerAuth":{}}},
      *      @OA\Response(
      *          response=200,
@@ -30,13 +30,11 @@ class TrainingController extends Controller
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="registry_id", type="integer", example="1"),
-     *                  @OA\Property(property="provider", type="string", example="ONS"),
-     *                  @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
-     *                  @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
-     *                  @OA\Property(property="expires_in_years", type="integer", example="2"),
-     *                  @OA\Property(property="training_name", type="string", example="Safe Researcher Training")
+     *                  @OA\Property(property="updated_at", type="integer", example="2024-02-04 12:01:00"),
+     *                  @OA\Property(property="project_id", type="integer", example="1"),
+     *                  @OA\Property(property="from", type="string", example="2024-02-04 12:10:00"),
+     *                  @OA\Property(property="to", type="string", example="2026-02-04 12:09:59"),
+     *                  @OA\Property(property="affiliation_id", type="integer", example="2")
      *              )
      *          ),
      *      ),
@@ -51,31 +49,31 @@ class TrainingController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $trainings = Training::all();
+        $experiences = Experience::all();
 
         return response()->json([
             'message' => 'success',
-            'data' => $trainings,
+            'data' => $experiences,
         ], 200);
     }
 
     /**
      * @OA\Get(
-     *      path="/api/v1/training/{id}",
-     *      summary="Return a Training entry by ID",
-     *      description="Return a Training entry by ID",
-     *      tags={"Training"},
-     *      summary="Training@show",
+     *      path="/api/v1/experiences/{id}",
+     *      summary="Return an Experience entry by ID",
+     *      description="Return an Experience entry by ID",
+     *      tags={"Experience"},
+     *      summary="Experience@show",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="Training entry ID",
+     *         description="Experience entry ID",
      *         required=true,
      *         example="1",
      *         @OA\Schema(
      *            type="integer",
-     *            description="Training entry ID",
+     *            description="Experience entry ID",
      *         ),
      *      ),
      *      @OA\Response(
@@ -87,12 +85,10 @@ class TrainingController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="integer", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="registry_id", type="integer", example="1"),
-     *                  @OA\Property(property="provider", type="string", example="ONS"),
-     *                  @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
-     *                  @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
-     *                  @OA\Property(property="expires_in_years", type="integer", example="2"),
-     *                  @OA\Property(property="training_name", type="string", example="Safe Researcher Training")
+     *                  @OA\Property(property="project_id", type="integer", example="1"),
+     *                  @OA\Property(property="from", type="string", example="2024-02-04 12:10:00"),
+     *                  @OA\Property(property="to", type="string", example="2026-02-04 12:09:59"),
+     *                  @OA\Property(property="affiliation_id", type="integer", example="2")
      *              )
      *          ),
      *      ),
@@ -107,11 +103,11 @@ class TrainingController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
-        $trainings = Training::findOrFail($id);
-        if ($trainings) {
+        $experience = Experience::findOrFailt($id);
+        if ($experience) {
             return response()->json([
                 'message' => 'success',
-                'data' => $trainings,
+                'data' => $experience,
             ], 200);
         }
 
@@ -120,22 +116,23 @@ class TrainingController extends Controller
 
     /**
      * @OA\Post(
-     *      path="/api/v1/training",
-     *      summary="Create a Training entry",
-     *      description="Create a Training entry",
-     *      tags={"Training"},
-     *      summary="Training@store",
+     *      path="/api/v1/experiences",
+     *      summary="Create an Experience entry",
+     *      description="Create an Experience entry",
+     *      tags={"Experience"},
+     *      summary="Experience@store",
      *      security={{"bearerAuth":{}}},
      *      @OA\RequestBody(
      *          required=true,
-     *          description="Training definition",
+     *          description="Experience definition",
      *          @OA\JsonContent(
-     *              @OA\Property(property="registry_id", type="integer", example="1"),
-     *              @OA\Property(property="provider", type="string", example="ONS"),
-     *              @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
-     *              @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
-     *              @OA\Property(property="expires_in_years", type="integer", example="2"),
-     *              @OA\Property(property="training_name", type="string", example="Safe Researcher Training")
+     *              @OA\Property(property="id", type="integer", example="123"),
+     *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
+     *              @OA\Property(property="updated_at", type="integer", example="2024-02-04 12:01:00"),
+     *              @OA\Property(property="project_id", type="integer", example="1"),
+     *              @OA\Property(property="from", type="string", example="2024-02-04 12:10:00"),
+     *              @OA\Property(property="to", type="string", example="2026-02-04 12:09:59"),
+     *              @OA\Property(property="affiliation_id", type="integer", example="2")
      *          ),
      *      ),
      *      @OA\Response(
@@ -152,14 +149,6 @@ class TrainingController extends Controller
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="integer", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="registry_id", type="integer", example="1"),
-     *                  @OA\Property(property="provider", type="string", example="ONS"),
-     *                  @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
-     *                  @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
-     *                  @OA\Property(property="expires_in_years", type="integer", example="2"),
-     *                  @OA\Property(property="training_name", type="string", example="Safe Researcher Training")
      *              )
      *          ),
      *      ),
@@ -176,18 +165,16 @@ class TrainingController extends Controller
     {
         try {
             $input = $request->all();
-            $training = Training::create([
-                'registry_id' => $input['registry_id'],
-                'provider' => $input['provider'],
-                'awarded_at' => $input['awarded_at'],
-                'expires_at' => $input['expires_at'],
-                'expires_in_years' => $input['expires_in_years'],
-                'training_name' => $input['training_name'],
+            $experience = Experience::create([
+                'project_id' => $input['project_id'],
+                'from' => $input['from'],
+                'to' => $input['to'],
+                'affiliation_id' => $input['affiliation_id'],
             ]);
 
-            return response()->json([
+            return resposne()->json([
                 'message' => 'success',
-                'data' => $training->id,
+                'data' => $experience->id,
             ], 201);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -196,36 +183,34 @@ class TrainingController extends Controller
 
     /**
      * @OA\Put(
-     *      path="/api/v1/training/{id}",
-     *      summary="Update a Training entry",
-     *      description="Update a Training entry",
-     *      tags={"Training"},
-     *      summary="Training@update",
+     *      path="/api/v1/experiences/{id}",
+     *      summary="Update an Experience entry",
+     *      description="Update an Experience entry",
+     *      tags={"Experience"},
+     *      summary="Experience@update",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="Training entry ID",
+     *         description="Experience entry ID",
      *         required=true,
      *         example="1",
      *         @OA\Schema(
      *            type="integer",
-     *            description="Training entry ID",
+     *            description="Experience entry ID",
      *         ),
      *      ),
      *      @OA\RequestBody(
      *          required=true,
-     *          description="Training definition",
+     *          description="Experience definition",
      *          @OA\JsonContent(
      *              @OA\Property(property="id", type="integer", example="123"),
      *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *              @OA\Property(property="updated_at", type="integer", example="2024-02-04 12:01:00"),
-     *              @OA\Property(property="registry_id", type="integer", example="1"),
-     *              @OA\Property(property="provider", type="string", example="ONS"),
-     *              @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
-     *              @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
-     *              @OA\Property(property="expires_in_years", type="integer", example="2"),
-     *              @OA\Property(property="training_name", type="string", example="Safe Researcher Training")
+     *              @OA\Property(property="project_id", type="integer", example="1"),
+     *              @OA\Property(property="from", type="string", example="2024-02-04 12:10:00"),
+     *              @OA\Property(property="to", type="string", example="2026-02-04 12:09:59"),
+     *              @OA\Property(property="affiliation_id", type="integer", example="2")
      *          ),
      *      ),
      *      @OA\Response(
@@ -244,12 +229,10 @@ class TrainingController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="integer", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="registry_id", type="integer", example="1"),
-     *                  @OA\Property(property="provider", type="string", example="ONS"),
-     *                  @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
-     *                  @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
-     *                  @OA\Property(property="expires_in_years", type="integer", example="2"),
-     *                  @OA\Property(property="training_name", type="string", example="Safe Researcher Training")
+     *                  @OA\Property(property="project_id", type="integer", example="1"),
+     *                  @OA\Property(property="from", type="string", example="2024-02-04 12:10:00"),
+     *                  @OA\Property(property="to", type="string", example="2026-02-04 12:09:59"),
+     *                  @OA\Property(property="affiliation_id", type="integer", example="2")
      *              )
      *          ),
      *      ),
@@ -267,18 +250,16 @@ class TrainingController extends Controller
         try {
             $input = $request->all();
 
-            Training::where('id', $id)->update([
-                'registry_id' => $input['registry_id'],
-                'provider' => $input['id'],
-                'awarded_at' => $input['awarded_at'],
-                'expires_at' => $input['expires_at'],
-                'expires_in_years' => $input['expires_in_years'],
-                'training_name' => $input['training_name'],
+            Experience::where('id', $id)->update([
+                'project_id' => $input['project_id'],
+                'from' => $input['from'],
+                'to' => $input['to'],
+                'affiliation_id' => $input['affiliation_id'],
             ]);
 
             return response()->json([
                 'message' => 'success',
-                'data' => Training::where('id', $id)->first(),
+                'data' => Experience::where('id', $id)->first(),
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -287,36 +268,34 @@ class TrainingController extends Controller
 
     /**
      * @OA\Patch(
-     *      path="/api/v1/training/{id}",
-     *      summary="Edit a Training entry",
-     *      description="Edit a Training entry",
-     *      tags={"Training"},
-     *      summary="Training@edit",
+     *      path="/api/v1/experiences/{id}",
+     *      summary="Edit an Experience entry",
+     *      description="Edit an Experience entry",
+     *      tags={"Experience"},
+     *      summary="Experience@edit",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="Training entry ID",
+     *         description="Experience entry ID",
      *         required=true,
      *         example="1",
      *         @OA\Schema(
      *            type="integer",
-     *            description="Training entry ID",
+     *            description="Experience entry ID",
      *         ),
      *      ),
      *      @OA\RequestBody(
      *          required=true,
-     *          description="Training definition",
+     *          description="Experience definition",
      *          @OA\JsonContent(
      *              @OA\Property(property="id", type="integer", example="123"),
      *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *              @OA\Property(property="updated_at", type="integer", example="2024-02-04 12:01:00"),
-     *              @OA\Property(property="registry_id", type="integer", example="1"),
-     *              @OA\Property(property="provider", type="string", example="ONS"),
-     *              @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
-     *              @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
-     *              @OA\Property(property="expires_in_years", type="integer", example="2"),
-     *              @OA\Property(property="training_name", type="string", example="Safe Researcher Training")
+     *              @OA\Property(property="project_id", type="integer", example="1"),
+     *              @OA\Property(property="from", type="string", example="2024-02-04 12:10:00"),
+     *              @OA\Property(property="to", type="string", example="2026-02-04 12:09:59"),
+     *              @OA\Property(property="affiliation_id", type="integer", example="2")
      *          ),
      *      ),
      *      @OA\Response(
@@ -335,12 +314,10 @@ class TrainingController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="integer", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="registry_id", type="integer", example="1"),
-     *                  @OA\Property(property="provider", type="string", example="ONS"),
-     *                  @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
-     *                  @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
-     *                  @OA\Property(property="expires_in_years", type="integer", example="2"),
-     *                  @OA\Property(property="training_name", type="string", example="Safe Researcher Training")
+     *                  @OA\Property(property="project_id", type="integer", example="1"),
+     *                  @OA\Property(property="from", type="string", example="2024-02-04 12:10:00"),
+     *                  @OA\Property(property="to", type="string", example="2026-02-04 12:09:59"),
+     *                  @OA\Property(property="affiliation_id", type="integer", example="2")
      *              )
      *          ),
      *      ),
@@ -353,23 +330,21 @@ class TrainingController extends Controller
      *      )
      * )
      */
-    public function edit(Request $request): JsonResponse
+    public function edit(Request $request, int $id): JsonResponse
     {
         try {
             $input = $request->all();
 
-            Training::where('id', $id)->update([
-                'registry_id' => $input['registry_id'],
-                'provider' => $input['id'],
-                'awarded_at' => $input['awarded_at'],
-                'expires_at' => $input['expires_at'],
-                'expires_in_years' => $input['expires_in_years'],
-                'training_name' => $input['training_name'],
+            Experience::where('id', $id)->update([
+                'project_id' => $input['project_id'],
+                'from' => $input['from'],
+                'to' => $input['to'],
+                'affiliation_id' => $input['affiliation_id'],
             ]);
 
             return response()->json([
                 'message' => 'success',
-                'data' => Training::where('id', $id)->first(),
+                'data' => Experience::where('id', $id)->first(),
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -378,21 +353,21 @@ class TrainingController extends Controller
 
     /**
      * @OA\Delete(
-     *      path="/api/v1/training/{id}",
-     *      summary="Delete a training entry from the system by ID",
-     *      description="Delete a training entry from the system",
-     *      tags={"Training"},
-     *      summary="Training@destroy",
+     *      path="/api/v1/experiences/{id}",
+     *      summary="Delete an Experience entry from the system by ID",
+     *      description="Delete a Experience entry from the system",
+     *      tags={"Experience"},
+     *      summary="Experience@destroy",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="Training entry ID",
+     *         description="Experience entry ID",
      *         required=true,
      *         example="1",
      *         @OA\Schema(
      *            type="integer",
-     *            description="Training entry ID",
+     *            description="Experience entry ID",
      *         ),
      *      ),
      *      @OA\Response(
@@ -421,7 +396,7 @@ class TrainingController extends Controller
     public function destroy(Request $request, int $id): JsonResponse
     {
         try {
-            Training::where('id', $id)->delete();
+            Experience::where('id', $id)->delete();
 
             return response()->json([
                 'message' => 'success',

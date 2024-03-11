@@ -18,6 +18,9 @@ class DatabaseSeeder extends Seeder
             AffiliationSeeder::class,
             ProjectSeeder::class,
             TrainingSeeder::class,
+            HistorySeeder::class,
+            EmploymentSeeder::class,
+            ExperienceSeeder::class,
        ]);
     }
 }
