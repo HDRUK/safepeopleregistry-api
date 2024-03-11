@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             HistorySeeder::class,
             EmploymentSeeder::class,
             ExperienceSeeder::class,
+            IssuerSeeder::class,
        ]);
     }
 }
