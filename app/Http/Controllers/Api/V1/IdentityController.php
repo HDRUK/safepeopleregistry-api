@@ -30,7 +30,7 @@ class IdentityController extends Controller
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="integer", example="2024-02-04 12:01:00"),
+     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
      *                  @OA\Property(property="registry_id", type="integer", example="1")
      *              )
      *          ),
@@ -81,7 +81,7 @@ class IdentityController extends Controller
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="integer", example="2024-02-04 12:01:00"),
+     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
      *                  @OA\Property(property="registry_id", type="integer", example="1")
      *              )
      *          ),
