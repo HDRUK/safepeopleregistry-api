@@ -33,7 +33,7 @@ class InfringementController extends Controller
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
      *                  @OA\Property(property="reported_by", type="integer", example="1"),
      *                  @OA\Property(property="comment", type="string", example="Infringement detected"),
-     *                  @OA\Property(property="raised_on", type="integer", example="12"),
+     *                  @OA\Property(property="raised_against", type="integer", example="12"),
      *              )
      *          ),
      *      ),
@@ -86,7 +86,7 @@ class InfringementController extends Controller
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
      *                  @OA\Property(property="reported_by", type="integer", example="1"),
      *                  @OA\Property(property="comment", type="string", example="Infringement detected"),
-     *                  @OA\Property(property="raised_on", type="integer", example="12")
+     *                  @OA\Property(property="raised_against", type="integer", example="12")
      *              )
      *          ),
      *      ),
@@ -126,7 +126,7 @@ class InfringementController extends Controller
      *          @OA\JsonContent(
      *              @OA\Property(property="reported_by", type="integer", example="1"),
      *              @OA\Property(property="comment", type="string", example="Infringement detected"),
-     *              @OA\Property(property="raised_on", type="integer", example="12"),
+     *              @OA\Property(property="raised_against", type="integer", example="12"),
      *          ),
      *      ),
      *      @OA\Response(
@@ -147,7 +147,7 @@ class InfringementController extends Controller
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
      *                  @OA\Property(property="reported_by", type="integer", example="1"),
      *                  @OA\Property(property="comment", type="string", example="Infringement detected"),
-     *                  @OA\Property(property="raised_on", type="integer", example="12"),
+     *                  @OA\Property(property="raised_against", type="integer", example="12"),
      *              )
      *          ),
      *      ),
@@ -167,7 +167,7 @@ class InfringementController extends Controller
             $infringement = Infringement::create([
                 'reported_by' => $input['reported_by'],
                 'comment' => $input['comment'],
-                'raised_on' => $input['raised_on'],
+                'raised_against' => $input['raised_against'],
             ]);
 
             return response()->json([

@@ -103,7 +103,7 @@ class ExperienceController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
-        $experience = Experience::findOrFailt($id);
+        $experience = Experience::findOrFail($id);
         if ($experience) {
             return response()->json([
                 'message' => 'success',

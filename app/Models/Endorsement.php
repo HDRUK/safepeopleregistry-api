@@ -31,6 +31,6 @@ class Endorsement extends Model
     protected $fillable = [
         'reported_by',
         'comment',
-        'raised_on',
+        'raised_against',
     ];
 }

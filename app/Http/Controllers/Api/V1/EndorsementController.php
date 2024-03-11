@@ -33,7 +33,7 @@ class EndorsementController extends Controller
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
      *                  @OA\Property(property="reported_by", type="integer", example="1"),
      *                  @OA\Property(property="comment", type="string", example="Endorsement given"),
-     *                  @OA\Property(property="raised_on", type="integer", example="12"),
+     *                  @OA\Property(property="raised_against", type="integer", example="12"),
      *              )
      *          ),
      *      ),
@@ -86,7 +86,7 @@ class EndorsementController extends Controller
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
      *                  @OA\Property(property="reported_by", type="integer", example="1"),
      *                  @OA\Property(property="comment", type="string", example="Endorsement given"),
-     *                  @OA\Property(property="raised_on", type="integer", example="12")
+     *                  @OA\Property(property="raised_against", type="integer", example="12")
      *              )
      *          ),
      *      ),
@@ -104,8 +104,9 @@ class EndorsementController extends Controller
         $endorsement = Endorsement::findOrFail($id);
         if ($endorsement) {
             return response()->json([
-
-            ]);
+                'message' => 'success',
+                'data' => $endorsement,
+            ], 200);
         }
 
         throw new NotFoundException();
@@ -125,7 +126,7 @@ class EndorsementController extends Controller
      *          @OA\JsonContent(
      *              @OA\Property(property="reported_by", type="integer", example="1"),
      *              @OA\Property(property="comment", type="string", example="Endorsement given"),
-     *              @OA\Property(property="raised_on", type="integer", example="12"),
+     *              @OA\Property(property="raised_against", type="integer", example="12"),
      *          ),
      *      ),
      *      @OA\Response(
@@ -146,7 +147,7 @@ class EndorsementController extends Controller
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
      *                  @OA\Property(property="reported_by", type="integer", example="1"),
      *                  @OA\Property(property="comment", type="string", example="Infringement detected"),
-     *                  @OA\Property(property="raised_on", type="integer", example="12"),
+     *                  @OA\Property(property="raised_against", type="integer", example="12"),
      *              )
      *          ),
      *      ),
@@ -161,6 +162,20 @@ class EndorsementController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+        try {
+            $input = $request->all();
+            $endorsement = Endorsement::create([
+                'reported_by' => $input['reported_by'],
+                'comment' => $input['comment'],
+                'raised_against' => $input['raised_against'],
+            ]);
 
+            return response()->json([
+                'message' => 'success',
+                'data' => $endorsement->id,
+            ], 201);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
     }
 }

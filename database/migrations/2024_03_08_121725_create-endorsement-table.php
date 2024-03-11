@@ -16,7 +16,7 @@ return new class extends Migration
             $table->timestamps();
             $table->bigInteger('reported_by'); // issuer id mapping
             $table->text('comment')->nullable();
-            $table->bigInteger('raised_on'); // project id mapping
+            $table->bigInteger('raised_against'); // project id mapping
         });
     }
 
