@@ -1,0 +1,26 @@
+<?php
+
+namespace Database\Factories;
+
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Employment>
+ */
+class EmploymentFactory extends Factory
+{
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(): array
+    {
+        return [
+            'employer_name' => fake()->name(),
+            'from' => fake()->date(),
+            'to' => fake()->date(),
+            'is_current' => fake()->randomElement([0, 1]),
+        ];
+    }
+}

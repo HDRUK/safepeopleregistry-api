@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use Exception;
 
-use App\Models\Project;
+use App\Models\Experience;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -12,15 +12,15 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Exception\NotFoundException;
 
-class ProjectController extends Controller
+class ExperienceController extends Controller
 {
-   /**
+    /**
      * @OA\Get(
-     *      path="/api/v1/projects",
-     *      summary="Return a list of Projects",
-     *      description="Return a list of Projects",
-     *      tags={"Project"},
-     *      summary="Project@index",
+     *      path="/api/v1/experiences",
+     *      summary="Return a list of Experience entries",
+     *      description="Return a list of Experience entries",
+     *      tags={"Experience"},
+     *      summary="Experience@index",
      *      security={{"bearerAuth":{}}},
      *      @OA\Response(
      *          response=200,
@@ -31,11 +31,10 @@ class ProjectController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="registry_id", type="integer", example="1"),
-     *                  @OA\Property(property="name", type="string", example="My First Research Project"),
-     *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
-     *                  @OA\Property(property="runs_to", type="string", example="2026-02-04"),
-     *                  @OA\Property(property="affiliate_id", type="integer", example="2")
+     *                  @OA\Property(property="project_id", type="integer", example="1"),
+     *                  @OA\Property(property="from", type="string", example="2024-02-04 12:10:00"),
+     *                  @OA\Property(property="to", type="string", example="2026-02-04 12:09:59"),
+     *                  @OA\Property(property="affiliation_id", type="integer", example="2")
      *              )
      *          ),
      *      ),
@@ -50,31 +49,31 @@ class ProjectController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $projects = Project::all();
+        $experiences = Experience::all();
 
         return response()->json([
             'message' => 'success',
-            'data' => $projects,
+            'data' => $experiences,
         ], 200);
     }
 
     /**
      * @OA\Get(
-     *      path="/api/v1/projects/{id}",
-     *      summary="Return a Project entry by ID",
-     *      description="Return a Project entry by ID",
-     *      tags={"Project"},
-     *      summary="Project@show",
+     *      path="/api/v1/experiences/{id}",
+     *      summary="Return an Experience entry by ID",
+     *      description="Return an Experience entry by ID",
+     *      tags={"Experience"},
+     *      summary="Experience@show",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="Project entry ID",
+     *         description="Experience entry ID",
      *         required=true,
      *         example="1",
      *         @OA\Schema(
      *            type="integer",
-     *            description="Project entry ID",
+     *            description="Experience entry ID",
      *         ),
      *      ),
      *      @OA\Response(
@@ -86,11 +85,10 @@ class ProjectController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="registry_id", type="integer", example="1"),
-     *                  @OA\Property(property="name", type="string", example="My First Research Project"),
-     *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
-     *                  @OA\Property(property="runs_to", type="string", example="2026-02-04"),
-     *                  @OA\Property(property="affiliate_id", type="integer", example="2")
+     *                  @OA\Property(property="project_id", type="integer", example="1"),
+     *                  @OA\Property(property="from", type="string", example="2024-02-04 12:10:00"),
+     *                  @OA\Property(property="to", type="string", example="2026-02-04 12:09:59"),
+     *                  @OA\Property(property="affiliation_id", type="integer", example="2")
      *              )
      *          ),
      *      ),
@@ -105,11 +103,11 @@ class ProjectController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
-        $project = Project::findOrFail($id);
-        if ($project) {
+        $experience = Experience::findOrFail($id);
+        if ($experience) {
             return response()->json([
                 'message' => 'success',
-                'data' => $project,
+                'data' => $experience,
             ], 200);
         }
 
@@ -118,21 +116,23 @@ class ProjectController extends Controller
 
     /**
      * @OA\Post(
-     *      path="/api/v1/projects",
-     *      summary="Create a Project entry",
-     *      description="Create a Project entry",
-     *      tags={"Project"},
-     *      summary="Project@store",
+     *      path="/api/v1/experiences",
+     *      summary="Create an Experience entry",
+     *      description="Create an Experience entry",
+     *      tags={"Experience"},
+     *      summary="Experience@store",
      *      security={{"bearerAuth":{}}},
      *      @OA\RequestBody(
      *          required=true,
-     *          description="Project definition",
+     *          description="Experience definition",
      *          @OA\JsonContent(
-     *              @OA\Property(property="registry_id", type="integer", example="1"),
-     *              @OA\Property(property="name", type="string", example="My First Research Project"),
-     *              @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
-     *              @OA\Property(property="runs_to", type="string", example="2026-02-04"),
-     *              @OA\Property(property="affiliate_id", type="integer", example="2")
+     *              @OA\Property(property="id", type="integer", example="123"),
+     *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
+     *              @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
+     *              @OA\Property(property="project_id", type="integer", example="1"),
+     *              @OA\Property(property="from", type="string", example="2024-02-04 12:10:00"),
+     *              @OA\Property(property="to", type="string", example="2026-02-04 12:09:59"),
+     *              @OA\Property(property="affiliation_id", type="integer", example="2")
      *          ),
      *      ),
      *      @OA\Response(
@@ -143,11 +143,12 @@ class ProjectController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
-     *          response=200,
+     *          response=201,
      *          description="Success",
      *          @OA\JsonContent(
-     *                  @OA\Property(property="message", type="string", example="success"),
-     *                  @OA\Property(property="data", type="integer", example="1")
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="object",
+     *                  @OA\Property(property="id", type="integer", example="123"),
      *              )
      *          ),
      *      ),
@@ -164,17 +165,16 @@ class ProjectController extends Controller
     {
         try {
             $input = $request->all();
-            $project = Project::create([
-                'registry_id' => $input['registry_id'],
-                'name' => $input['name'],
-                'public_benefit' => $input['public_benefit'],
-                'runs_to' => $input['runs_to'],
-                'affiliate_id' => $input['affiliate_id'],
+            $experience = Experience::create([
+                'project_id' => $input['project_id'],
+                'from' => $input['from'],
+                'to' => $input['to'],
+                'affiliation_id' => $input['affiliation_id'],
             ]);
 
-            return response()->json([
+            return resposne()->json([
                 'message' => 'success',
-                'data' => $project->id,
+                'data' => $experience->id,
             ], 201);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -182,36 +182,35 @@ class ProjectController extends Controller
     }
 
     /**
-     * @OA\Patch(
-     *      path="/api/v1/projects/{id}",
-     *      summary="Update a Project entry",
-     *      description="Update a Project entry",
-     *      tags={"Project"},
-     *      summary="Project@update",
+     * @OA\Put(
+     *      path="/api/v1/experiences/{id}",
+     *      summary="Update an Experience entry",
+     *      description="Update an Experience entry",
+     *      tags={"Experience"},
+     *      summary="Experience@update",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="Project entry ID",
+     *         description="Experience entry ID",
      *         required=true,
      *         example="1",
      *         @OA\Schema(
      *            type="integer",
-     *            description="Project entry ID",
+     *            description="Experience entry ID",
      *         ),
      *      ),
      *      @OA\RequestBody(
      *          required=true,
-     *          description="Project definition",
+     *          description="Experience definition",
      *          @OA\JsonContent(
      *              @OA\Property(property="id", type="integer", example="123"),
      *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *              @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *              @OA\Property(property="registry_id", type="integer", example="1"),
-     *              @OA\Property(property="name", type="string", example="My First Research Project"),
-     *              @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
-     *              @OA\Property(property="runs_to", type="string", example="2026-02-04"),
-     *              @OA\Property(property="affiliate_id", type="integer", example="2")
+     *              @OA\Property(property="project_id", type="integer", example="1"),
+     *              @OA\Property(property="from", type="string", example="2024-02-04 12:10:00"),
+     *              @OA\Property(property="to", type="string", example="2026-02-04 12:09:59"),
+     *              @OA\Property(property="affiliation_id", type="integer", example="2")
      *          ),
      *      ),
      *      @OA\Response(
@@ -225,16 +224,15 @@ class ProjectController extends Controller
      *          response=200,
      *          description="Success",
      *          @OA\JsonContent(
-     *                  @OA\Property(property="message", type="string", example="success"),
-     *                  @OA\Property(property="data", type="object",
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="registry_id", type="integer", example="1"),
-     *                  @OA\Property(property="name", type="string", example="My First Research Project"),
-     *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
-     *                  @OA\Property(property="runs_to", type="string", example="2026-02-04"),
-     *                  @OA\Property(property="affiliate_id", type="integer", example="2")
+     *                  @OA\Property(property="project_id", type="integer", example="1"),
+     *                  @OA\Property(property="from", type="string", example="2024-02-04 12:10:00"),
+     *                  @OA\Property(property="to", type="string", example="2026-02-04 12:09:59"),
+     *                  @OA\Property(property="affiliation_id", type="integer", example="2")
      *              )
      *          ),
      *      ),
@@ -250,18 +248,18 @@ class ProjectController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         try {
-            $inpit = $request->all();
-            $project = Project::where('id', $id)->update([
-                'registry_id' => $input['registry_id'],
-                'name' => $input['name'],
-                'public_benefit' => $input['public_benefit'],
-                'runs_to' => $input['runs_to'],
-                'affiliate_id' => $input['affiliate_id'],
+            $input = $request->all();
+
+            Experience::where('id', $id)->update([
+                'project_id' => $input['project_id'],
+                'from' => $input['from'],
+                'to' => $input['to'],
+                'affiliation_id' => $input['affiliation_id'],
             ]);
 
             return response()->json([
                 'message' => 'success',
-                'data' => Project::where('id', $id)->first(),
+                'data' => Experience::where('id', $id)->first(),
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -269,36 +267,35 @@ class ProjectController extends Controller
     }
 
     /**
-     * @OA\Put(
-     *      path="/api/v1/projects/{id}",
-     *      summary="Update a Project entry",
-     *      description="Update a Project entry",
-     *      tags={"Project"},
-     *      summary="Project@edit",
+     * @OA\Patch(
+     *      path="/api/v1/experiences/{id}",
+     *      summary="Edit an Experience entry",
+     *      description="Edit an Experience entry",
+     *      tags={"Experience"},
+     *      summary="Experience@edit",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="Project entry ID",
+     *         description="Experience entry ID",
      *         required=true,
      *         example="1",
      *         @OA\Schema(
      *            type="integer",
-     *            description="Project entry ID",
+     *            description="Experience entry ID",
      *         ),
      *      ),
      *      @OA\RequestBody(
      *          required=true,
-     *          description="Project definition",
+     *          description="Experience definition",
      *          @OA\JsonContent(
      *              @OA\Property(property="id", type="integer", example="123"),
      *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *              @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *              @OA\Property(property="registry_id", type="integer", example="1"),
-     *              @OA\Property(property="name", type="string", example="My First Research Project"),
-     *              @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
-     *              @OA\Property(property="runs_to", type="string", example="2026-02-04"),
-     *              @OA\Property(property="affiliate_id", type="integer", example="2")
+     *              @OA\Property(property="project_id", type="integer", example="1"),
+     *              @OA\Property(property="from", type="string", example="2024-02-04 12:10:00"),
+     *              @OA\Property(property="to", type="string", example="2026-02-04 12:09:59"),
+     *              @OA\Property(property="affiliation_id", type="integer", example="2")
      *          ),
      *      ),
      *      @OA\Response(
@@ -312,16 +309,15 @@ class ProjectController extends Controller
      *          response=200,
      *          description="Success",
      *          @OA\JsonContent(
-     *                  @OA\Property(property="message", type="string", example="success"),
-     *                  @OA\Property(property="data", type="object",
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="registry_id", type="integer", example="1"),
-     *                  @OA\Property(property="name", type="string", example="My First Research Project"),
-     *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
-     *                  @OA\Property(property="runs_to", type="string", example="2026-02-04"),
-     *                  @OA\Property(property="affiliate_id", type="integer", example="2")
+     *                  @OA\Property(property="project_id", type="integer", example="1"),
+     *                  @OA\Property(property="from", type="string", example="2024-02-04 12:10:00"),
+     *                  @OA\Property(property="to", type="string", example="2026-02-04 12:09:59"),
+     *                  @OA\Property(property="affiliation_id", type="integer", example="2")
      *              )
      *          ),
      *      ),
@@ -338,17 +334,17 @@ class ProjectController extends Controller
     {
         try {
             $input = $request->all();
-            $project = Project::where('id', $id)->update([
-                'registry_id' => $input['registry_id'],
-                'name' => $input['name'],
-                'public_benefit' => $input['public_benefit'],
-                'runs_to' => $input['runs_to'],
-                'affiliate_id' => $input['affiliate_id'],
+
+            Experience::where('id', $id)->update([
+                'project_id' => $input['project_id'],
+                'from' => $input['from'],
+                'to' => $input['to'],
+                'affiliation_id' => $input['affiliation_id'],
             ]);
 
             return response()->json([
                 'message' => 'success',
-                'data' => Project::where('id', $id)->first(),
+                'data' => Experience::where('id', $id)->first(),
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -357,21 +353,21 @@ class ProjectController extends Controller
 
     /**
      * @OA\Delete(
-     *      path="/api/v1/projects/{id}",
-     *      summary="Delete a Project entry from the system by ID",
-     *      description="Delete a Project entry from the system",
-     *      tags={"Project"},
-     *      summary="Project@destroy",
+     *      path="/api/v1/experiences/{id}",
+     *      summary="Delete an Experience entry from the system by ID",
+     *      description="Delete a Experience entry from the system",
+     *      tags={"Experience"},
+     *      summary="Experience@destroy",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="Project entry ID",
+     *         description="Experience entry ID",
      *         required=true,
      *         example="1",
      *         @OA\Schema(
      *            type="integer",
-     *            description="Project entry ID",
+     *            description="Experience entry ID",
      *         ),
      *      ),
      *      @OA\Response(
@@ -400,7 +396,7 @@ class ProjectController extends Controller
     public function destroy(Request $request, int $id): JsonResponse
     {
         try {
-            Project::where('id', $id)->delete();
+            Experience::where('id', $id)->delete();
 
             return response()->json([
                 'message' => 'success',
