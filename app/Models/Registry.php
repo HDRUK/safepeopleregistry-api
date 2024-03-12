@@ -59,6 +59,7 @@ class Registry extends Model
      * @var array
      */
     protected $hidden = [
+        'user_id',
         'dl_ident',
         'pp_ident',
         'digi_ident',
