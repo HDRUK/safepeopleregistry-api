@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\V1\QueryController;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,4 +18,17 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+// Debug endpoint
+Route::post('v1/query', [QueryController::class, 'query']);
+
+// stop all all other routes
+Route::any('{path}', function() {
+    $response = [
+        'message' => 'Resource not found',
+    ];
+
+    return response()->json($response)
+        ->setStatusCode(404);
 });
