@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\History;
+use App\Models\RegistryHasHistory;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -14,6 +15,14 @@ class HistorySeeder extends Seeder
      */
     public function run(): void
     {
-        History::factory(1)->create();
+        History::factory(10)->create();
+
+        $histories = History::all();
+        foreach ($histories as $h) {
+            RegistryHasHistory::create([
+                'registry_id' => 1,
+                'history_id' => $h->id,
+            ]);
+        }
     }
 }

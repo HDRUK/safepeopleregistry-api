@@ -2,6 +2,9 @@
 
 namespace Database\Factories;
 
+use Hash;
+
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,10 +19,17 @@ class RegistryFactory extends Factory
      */
     public function definition(): array
     {
+        $signature = Str::random(64);
+        $digiIdent = Hash::make($signature .
+            ':' . env('REGISTRY_SALT_1') . 
+            ':' . env('REGISTRY_SALT_2')
+        );
+
         return [
             'user_id' => 1,
             'dl_ident' => 'ABCDE123456A99AA 12',
             'pp_ident' => '123456789',
+            'digi_ident' => $digiIdent,
             'verified' => fake()->boolean(),
         ];
     }

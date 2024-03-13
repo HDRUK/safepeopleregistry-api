@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
 use Hash;
 use Exception;
@@ -193,6 +193,17 @@ class IssuerController extends Controller
      *      tags={"Issuer"},
      *      summary="Issuer@update",
      *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Issuer ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Issuer ID",
+     *         ),
+     *      ),
      *      @OA\RequestBody(
      *          required=true,
      *          description="Issuer definition",
@@ -258,6 +269,17 @@ class IssuerController extends Controller
      *      tags={"Issuer"},
      *      summary="Issuer@edit",
      *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Issuer ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Issuer ID",
+     *         ),
+     *      ),
      *      @OA\RequestBody(
      *          required=true,
      *          description="Issuer definition",
@@ -279,7 +301,6 @@ class IssuerController extends Controller
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),    
