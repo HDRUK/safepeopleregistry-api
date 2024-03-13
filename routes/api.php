@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\QueryController;
 
 use Illuminate\Http\Request;
@@ -22,6 +23,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // Debug endpoint
 Route::post('v1/query', [QueryController::class, 'query']);
+
+// Debug Auth routes
+Route::middleware('api')->post('v1/login', [AuthController::class, 'login']);
+Route::middleware('api')->post('v1/logout', [AuthController::class, 'logout']);
+Route::middleware('api')->post('v1/refresh', [AuthController::class, 'refresh']);
+Route::middleware('api')->post('v1/me', [AuthController::class, 'me']);
 
 // stop all all other routes
 Route::any('{path}', function() {
