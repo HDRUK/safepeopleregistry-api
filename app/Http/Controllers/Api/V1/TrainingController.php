@@ -353,14 +353,14 @@ class TrainingController extends Controller
      *      )
      * )
      */
-    public function edit(Request $request): JsonResponse
+    public function edit(Request $request, int $id): JsonResponse
     {
         try {
             $input = $request->all();
 
             Training::where('id', $id)->update([
                 'registry_id' => $input['registry_id'],
-                'provider' => $input['id'],
+                'provider' => $input['provider'],
                 'awarded_at' => $input['awarded_at'],
                 'expires_at' => $input['expires_at'],
                 'expires_in_years' => $input['expires_in_years'],

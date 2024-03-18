@@ -249,7 +249,7 @@ class IssuerController extends Controller
 
             $issuer = Issuer::where('id', $id)->first();
             $issuer->name = $input['name'];
-            $isser->enabled = $input['enabled'];
+            $issuer->enabled = $input['enabled'];
             if ($issuer->save()) {
                 return response()->json([
                     'message' => 'success',

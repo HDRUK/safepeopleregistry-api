@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\QueryController;
+use App\Http\Controllers\Api\V1\TrainingController;
+use App\Http\Controllers\Api\V1\IssuerController;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +31,20 @@ Route::middleware('api')->post('v1/login', [AuthController::class, 'login']);
 Route::middleware('api')->post('v1/logout', [AuthController::class, 'logout']);
 Route::middleware('api')->post('v1/refresh', [AuthController::class, 'refresh']);
 Route::middleware('api')->post('v1/me', [AuthController::class, 'me']);
+
+Route::middleware('api')->get('v1/training', [TrainingController::class, 'index']);
+Route::middleware('api')->get('v1/training/{id}', [TrainingController::class, 'show']);
+Route::middleware('api')->post('v1/training', [TrainingController::class, 'store']);
+Route::middleware('api')->put('v1/training/{id}', [TrainingController::class, 'update']);
+Route::middleware('api')->patch('v1/training/{id}', [TrainingController::class, 'edit']);
+Route::middleware('api')->delete('v1/training/{id}', [TrainingController::class, 'destroy']);
+
+Route::middleware('api')->get('v1/issuers', [IssuerController::class, 'index']);
+Route::middleware('api')->get('v1/issuers/{id}', [IssuerController::class, 'show']);
+Route::middleware('api')->post('v1/issuers', [IssuerController::class, 'store']);
+Route::middleware('api')->put('v1/issuers/{id}', [IssuerController::class, 'update']);
+Route::middleware('api')->patch('v1/issuers/{id}', [IssuerController::class, 'edit']);
+Route::middleware('api')->delete('v1/issuers/{id}', [IssuerController::class, 'destroy']);
 
 // stop all all other routes
 Route::any('{path}', function() {
