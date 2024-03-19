@@ -250,7 +250,7 @@ class ProjectController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         try {
-            $inpit = $request->all();
+            $input = $request->all();
             $project = Project::where('id', $id)->update([
                 'registry_id' => $input['registry_id'],
                 'name' => $input['name'],

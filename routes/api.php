@@ -4,6 +4,8 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\QueryController;
 use App\Http\Controllers\Api\V1\TrainingController;
 use App\Http\Controllers\Api\V1\IssuerController;
+use App\Http\Controllers\Api\V1\EndorsementController;
+use App\Http\Controllers\Api\V1\ProjectController;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -45,6 +47,17 @@ Route::middleware('api')->post('v1/issuers', [IssuerController::class, 'store'])
 Route::middleware('api')->put('v1/issuers/{id}', [IssuerController::class, 'update']);
 Route::middleware('api')->patch('v1/issuers/{id}', [IssuerController::class, 'edit']);
 Route::middleware('api')->delete('v1/issuers/{id}', [IssuerController::class, 'destroy']);
+
+Route::middleware('api')->get('v1/endorsements', [EndorsementController::class, 'index']);
+Route::middleware('api')->get('v1/endorsements/{id}', [EndorsementController::class, 'show']);
+Route::middleware('api')->post('v1/endorsements', [EndorsementController::class, 'store']);
+
+Route::middleware('api')->get('v1/projects', [ProjectController::class, 'index']);
+Route::middleware('api')->get('v1/projects/{id}', [ProjectController::class, 'show']);
+Route::middleware('api')->post('v1/projects', [ProjectController::class, 'store']);
+Route::middleware('api')->put('v1/projects/{id}', [ProjectController::class, 'update']);
+Route::middleware('api')->patch('v1/projects/{id}', [ProjectController::class, 'edit']);
+Route::middleware('api')->delete('v1/projects/{id}', [ProjectController::class, 'destroy']);
 
 // stop all all other routes
 Route::any('{path}', function() {
