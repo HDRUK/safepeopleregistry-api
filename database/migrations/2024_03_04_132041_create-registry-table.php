@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('user_id');
             $table->string('dl_ident', 255)->nullable();
             $table->string('pp_ident', 255)->nullable();
-            $table->string('digi_ident', 255);
+            $table->string('digi_ident', 255)->default('');
             $table->tinyInteger('verified')->default(0);
         });
     }

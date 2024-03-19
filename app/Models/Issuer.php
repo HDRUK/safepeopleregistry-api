@@ -30,6 +30,7 @@ class Issuer extends Model
      */
     protected $fillable = [
         'name',
+        'access_key_signature',
         'enabled',
     ];
 

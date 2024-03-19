@@ -37,5 +37,6 @@ class History extends Model
         'project_id',
         'access_key_id',
         'issuer_identifier',
+        'ledger_hash',
     ];
 }

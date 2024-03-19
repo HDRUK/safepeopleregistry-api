@@ -34,6 +34,6 @@ class Project extends Model
         'name',
         'public_benefit',
         'runs_to',
-        'affiatiate_id',
+        'affiliate_id',
     ];
 }

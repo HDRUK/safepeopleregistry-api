@@ -46,7 +46,7 @@ class IdentityController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $identities = Identities::all();
+        $identities = Identity::all();
 
         return response()->json([
             'message' => 'success',
