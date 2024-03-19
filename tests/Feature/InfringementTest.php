@@ -28,7 +28,7 @@ class InfringementTest extends TestCase
 
         $this->headers = [
             'Accept' => 'application/json',
-            'Authorization' => 'beaer ' . $this->getAuthToken(),
+            'Authorization' => 'bearer ' . $this->getAuthToken(),
         ];
     }
 
