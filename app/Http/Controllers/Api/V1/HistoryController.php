@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Hash;
 use Exception;
+use Carbon\Carbon;
 
 use App\Models\History;
 
@@ -181,6 +183,19 @@ class HistoryController extends Controller
     {
         try {
             $input = $request->all();
+
+            $ledger = [
+                'employment_id' => $input['employment_id'],
+                'endorsement_id' => $input['endorsement_id'],
+                'infringement_id' => $input['infringement_id'],
+                'project_id' => $input['project_id'],
+                'access_key_id' => $input['access_key_id'],
+                'issuer_identifier' => $input['issuer_identifier'],
+                'history_entry_ts' => Carbon::now()->toDateTimeString(),
+            ];
+
+            $ledgerHash = Hash::make(json_encode($ledger));
+
             $history = History::create([
                 'employment_id' => $input['employment_id'], 
                 'endorsement_id' => $input['endorsement_id'],
@@ -188,6 +203,7 @@ class HistoryController extends Controller
                 'project_id' => $input['project_id'],
                 'access_key_id' => $input['access_key_id'],
                 'issuer_identifier' => $input['issuer_identifier'],
+                'ledger_hash' => $ledgerHash,
             ]);
 
             return response()->json([

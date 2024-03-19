@@ -12,14 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('histories', function (Blueprint $table) {
+            // Nullable in the instance that this historic entry
+            // is made up of one or more items, but not exclusively
+            // all.
             $table->id();
             $table->timestamps();
-            $table->bigInteger('employment_id');
-            $table->bigInteger('endorsement_id');
-            $table->bigInteger('infringement_id');
-            $table->bigInteger('project_id');
-            $table->bigInteger('access_key_id');
-            $table->string('issuer_identifier', 255);
+            $table->bigInteger('employment_id')->nullable();
+            $table->bigInteger('endorsement_id')->nullable();
+            $table->bigInteger('infringement_id')->nullable();
+            $table->bigInteger('project_id')->nullable();
+            $table->bigInteger('access_key_id')->nullable();
+            $table->string('issuer_identifier', 255)->nullable();
+            $table->text('ledger_hash'); // Not nullable to remain computable
         });
     }
 

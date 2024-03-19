@@ -172,7 +172,7 @@ class ExperienceController extends Controller
                 'affiliation_id' => $input['affiliation_id'],
             ]);
 
-            return resposne()->json([
+            return response()->json([
                 'message' => 'success',
                 'data' => $experience->id,
             ], 201);
