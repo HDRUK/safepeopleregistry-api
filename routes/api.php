@@ -12,7 +12,8 @@ use App\Http\Controllers\Api\V1\{
     HistoryController,
     IdentityController,
     AffiliationController,
-    InfringementController
+    InfringementController,
+    UserController
 };
 
 use Laravel\Fortify\Http\Controllers\{
@@ -57,75 +58,73 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
             ->middleware('guest:' . config('fortify.guard')) // Only guests (non-auth'd users) are allowed
             ->name('password.reset'); // Name for the route
     });
+
+    Route::get('/me', [UserController::class, 'me']);
+
+    Route::get('/training', [TrainingController::class, 'index']);
+    Route::get('/training/{id}', [TrainingController::class, 'show']);
+    Route::post('/training', [TrainingController::class, 'store']);
+    Route::put('/training/{id}', [TrainingController::class, 'update']);
+    Route::patch('/training/{id}', [TrainingController::class, 'edit']);
+    Route::delete('/training/{id}', [TrainingController::class, 'destroy']);
+
+    Route::get('/issuers', [IssuerController::class, 'index']);
+    Route::get('/issuers/{id}', [IssuerController::class, 'show']);
+    Route::post('/issuers', [IssuerController::class, 'store']);
+    Route::put('/issuers/{id}', [IssuerController::class, 'update']);
+    Route::patch('/issuers/{id}', [IssuerController::class, 'edit']);
+    Route::delete('/issuers/{id}', [IssuerController::class, 'destroy']);
+    
+    Route::get('/endorsements', [EndorsementController::class, 'index']);
+    Route::get('/endorsements/{id}', [EndorsementController::class, 'show']);
+    Route::post('/endorsements', [EndorsementController::class, 'store']);
+    
+    Route::get('/projects', [ProjectController::class, 'index']);
+    Route::get('/projects/{id}', [ProjectController::class, 'show']);
+    Route::post('/projects', [ProjectController::class, 'store']);
+    Route::put('/projects/{id}', [ProjectController::class, 'update']);
+    Route::patch('/projects/{id}', [ProjectController::class, 'edit']);
+    Route::delete('/projects/{id}', [ProjectController::class, 'destroy']);
+    
+    Route::get('/registries', [RegistryController::class, 'index']);
+    Route::get('/registries/{id}', [RegistryController::class, 'show']);
+    Route::post('/registries', [RegistryController::class, 'store']);
+    Route::put('/registries/{id}', [RegistryController::class, 'update']);
+    Route::patch('/registries/{id}', [RegistryController::class, 'edit']);
+    Route::delete('/registries/{id}', [RegistryController::class, 'destroy']);
+    
+    Route::get('/experiences', [ExperienceController::class, 'index']);
+    Route::get('/experiences/{id}', [ExperienceController::class, 'show']);
+    Route::post('/experiences', [ExperienceController::class, 'store']);
+    Route::put('/experiences/{id}', [ExperienceController::class, 'update']);
+    Route::patch('/experiences/{id}', [ExperienceController::class, 'edit']);
+    Route::delete('/experiences/{id}', [ExperienceController::class, 'destroy']);
+    
+    Route::get('/identities', [IdentityController::class, 'index']);
+    Route::get('/identities/{id}', [IdentityController::class, 'show']);
+    Route::post('/identities', [IdentityController::class, 'store']);
+    Route::put('/identities/{id}', [IdentityController::class, 'update']);
+    Route::patch('/identities/{id}', [IdentityController::class, 'edit']);
+    Route::delete('/identities/{id}', [IdentityController::class, 'destroy']);
+    
+    Route::get('/affiliations', [AffiliationController::class, 'index']);
+    Route::get('/affiliations/{id}', [AffiliationController::class, 'show']);
+    Route::post('/affiliations', [AffiliationController::class, 'store']);
+    Route::put('/affiliations/{id}', [AffiliationController::class, 'update']);
+    Route::patch('/affiliations/{id}', [AffiliationController::class, 'edit']);
+    Route::delete('/affiliations/{id}', [AffiliationController::class, 'destroy']);
+    
+    Route::get('/histories', [HistoryController::class, 'index']);
+    Route::get('/histories/{id}', [HistoryController::class, 'show']);
+    Route::post('/histories', [HistoryController::class, 'store']);
+    
+    Route::get('/infringements', [InfringementController::class, 'index']);
+    Route::get('/infringements/{id}', [InfringementController::class, 'show']);
+    Route::post('/infringements', [InfringementController::class, 'store']);    
 });
 
-
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
-
-// Route::post('v1/query', [QueryController::class, 'query']);
-
-// Route::middleware('api')->get('v1/training', [TrainingController::class, 'index']);
-// Route::middleware('api')->get('v1/training/{id}', [TrainingController::class, 'show']);
-// Route::middleware('api')->post('v1/training', [TrainingController::class, 'store']);
-// Route::middleware('api')->put('v1/training/{id}', [TrainingController::class, 'update']);
-// Route::middleware('api')->patch('v1/training/{id}', [TrainingController::class, 'edit']);
-// Route::middleware('api')->delete('v1/training/{id}', [TrainingController::class, 'destroy']);
-
-// Route::middleware('api')->get('v1/issuers', [IssuerController::class, 'index']);
-// Route::middleware('api')->get('v1/issuers/{id}', [IssuerController::class, 'show']);
-// Route::middleware('api')->post('v1/issuers', [IssuerController::class, 'store']);
-// Route::middleware('api')->put('v1/issuers/{id}', [IssuerController::class, 'update']);
-// Route::middleware('api')->patch('v1/issuers/{id}', [IssuerController::class, 'edit']);
-// Route::middleware('api')->delete('v1/issuers/{id}', [IssuerController::class, 'destroy']);
-
-// Route::middleware('api')->get('v1/endorsements', [EndorsementController::class, 'index']);
-// Route::middleware('api')->get('v1/endorsements/{id}', [EndorsementController::class, 'show']);
-// Route::middleware('api')->post('v1/endorsements', [EndorsementController::class, 'store']);
-
-// Route::middleware('api')->get('v1/projects', [ProjectController::class, 'index']);
-// Route::middleware('api')->get('v1/projects/{id}', [ProjectController::class, 'show']);
-// Route::middleware('api')->post('v1/projects', [ProjectController::class, 'store']);
-// Route::middleware('api')->put('v1/projects/{id}', [ProjectController::class, 'update']);
-// Route::middleware('api')->patch('v1/projects/{id}', [ProjectController::class, 'edit']);
-// Route::middleware('api')->delete('v1/projects/{id}', [ProjectController::class, 'destroy']);
-
-// Route::middleware('api')->get('v1/registries', [RegistryController::class, 'index']);
-// Route::middleware('api')->get('v1/registries/{id}', [RegistryController::class, 'show']);
-// Route::middleware('api')->post('v1/registries', [RegistryController::class, 'store']);
-// Route::middleware('api')->put('v1/registries/{id}', [RegistryController::class, 'update']);
-// Route::middleware('api')->patch('v1/registries/{id}', [RegistryController::class, 'edit']);
-// Route::middleware('api')->delete('v1/registries/{id}', [RegistryController::class, 'destroy']);
-
-// Route::middleware('api')->get('v1/experiences', [ExperienceController::class, 'index']);
-// Route::middleware('api')->get('v1/experiences/{id}', [ExperienceController::class, 'show']);
-// Route::middleware('api')->post('v1/experiences', [ExperienceController::class, 'store']);
-// Route::middleware('api')->put('v1/experiences/{id}', [ExperienceController::class, 'update']);
-// Route::middleware('api')->patch('v1/experiences/{id}', [ExperienceController::class, 'edit']);
-// Route::middleware('api')->delete('v1/experiences/{id}', [ExperienceController::class, 'destroy']);
-
-// Route::middleware('api')->get('v1/identities', [IdentityController::class, 'index']);
-// Route::middleware('api')->get('v1/identities/{id}', [IdentityController::class, 'show']);
-// Route::middleware('api')->post('v1/identities', [IdentityController::class, 'store']);
-// Route::middleware('api')->put('v1/identities/{id}', [IdentityController::class, 'update']);
-// Route::middleware('api')->patch('v1/identities/{id}', [IdentityController::class, 'edit']);
-// Route::middleware('api')->delete('v1/identities/{id}', [IdentityController::class, 'destroy']);
-
-// Route::middleware('api')->get('v1/affiliations', [AffiliationController::class, 'index']);
-// Route::middleware('api')->get('v1/affiliations/{id}', [AffiliationController::class, 'show']);
-// Route::middleware('api')->post('v1/affiliations', [AffiliationController::class, 'store']);
-// Route::middleware('api')->put('v1/affiliations/{id}', [AffiliationController::class, 'update']);
-// Route::middleware('api')->patch('v1/affiliations/{id}', [AffiliationController::class, 'edit']);
-// Route::middleware('api')->delete('v1/affiliations/{id}', [AffiliationController::class, 'destroy']);
-
-// Route::middleware('api')->get('v1/histories', [HistoryController::class, 'index']);
-// Route::middleware('api')->get('v1/histories/{id}', [HistoryController::class, 'show']);
-// Route::middleware('api')->post('v1/histories', [HistoryController::class, 'store']);
-
-// Route::middleware('api')->get('v1/infringements', [InfringementController::class, 'index']);
-// Route::middleware('api')->get('v1/infringements/{id}', [InfringementController::class, 'show']);
-// Route::middleware('api')->post('v1/infringements', [InfringementController::class, 'store']);
+// Public Query route
+Route::post('/query', [QueryController::class, 'query']);
 
 // stop all all other routes
 Route::any('{path}', function() {
