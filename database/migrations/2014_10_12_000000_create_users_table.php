@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->bigInteger('registry_id');
+            $table->bigInteger('registry_id')->nullable(); // On initial registration
             $table->rememberToken();
             $table->timestamps();
         });
