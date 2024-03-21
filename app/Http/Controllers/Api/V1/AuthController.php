@@ -29,7 +29,7 @@ class AuthController extends Controller
      * 
      * @return JsonResponse
      */
-    public function login()
+    public function login(Request $request)
     {
         $credentials = request([
             'email',
@@ -40,6 +40,16 @@ class AuthController extends Controller
             return response()->json([
                 'error' => 'Unauthorised',
             ], 401);
+        }
+
+        if (auth()->user()->uses_2fa) {
+            if ($request->session()->has('2fa_passed')) {
+                $request->session()->forget('2fa_passed');
+            }
+
+            $request->session()->put('2fa:user:id', auth()->user()->id);
+            $request->session()->put('2fa:auth:attempt', true);
+            $request->session()->put('2fa:auth:remember', $request->has('remember'));
         }
 
         return $this->respondWithToken($token);
