@@ -14,7 +14,7 @@ trait Authorisation
     const USER_EMAIL = 'constants.test.user.email';
     const USER_PASSWORD = 'constants.test.user.password';
 
-    const AUTH_URL = '/api/v1/auth/login';
+    const AUTH_URL = '/api/v1/login';
 
     public function getAuthToken(): mixed
     {
@@ -31,6 +31,6 @@ trait Authorisation
                 'Accept' => 'application/json',
             ]
         );
-        return $response['token'];
+        return $response['access_token'];
     }
 }
