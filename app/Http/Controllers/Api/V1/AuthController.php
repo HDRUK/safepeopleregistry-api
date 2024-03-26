@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
+use Laravel\Socialite\Facades\Socialite;
+
 use App\Http\Controllers\Controller;
 
 class AuthController extends Controller
@@ -17,11 +19,29 @@ class AuthController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', [
-            'except' => [
-                'login'
-            ]
-        ]);
+        // $this->middleware('auth:api', [
+        //     'except' => [
+        //         'login'
+        //     ]
+        // ]);
+    }
+
+    /**
+     * Spawns OAuth2 authentication flow via Keycloak OIDC.
+     */
+    public function loginKeycloak(Request $request)
+    {
+        return Socialite::driver('keycloak')->scopes(['openid'])->redirect();
+    }
+
+    /**
+     * Governs callbacks from Keycloak once successful or failed auth
+     * attempted.
+     */
+    public function loginKeycloakCallback(Request $request)
+    {
+        $user = Socialite::driver('keycloak')->stateless()->user();
+        dd($user->token);
     }
 
     /**
@@ -29,7 +49,7 @@ class AuthController extends Controller
      * 
      * @return JsonResponse
      */
-    public function login()
+    public function login(Request $request)
     {
         $credentials = request([
             'email',
@@ -50,7 +70,7 @@ class AuthController extends Controller
      * 
      * @return JsonResponse
      */
-    public function me()
+    public function me(Request $request)
     {
         return response()->json(auth()->user());
     }

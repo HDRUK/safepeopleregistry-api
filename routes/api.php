@@ -31,6 +31,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::get('keycloak', [AuthController::class, 'loginKeycloak']);
+Route::get('keycloak/callback', [AuthController::class, 'loginKeycloakCallback']);
+
 Route::post('v1/query', [QueryController::class, 'query']);
 
 Route::middleware('api')->post('v1/login', [AuthController::class, 'login']);
