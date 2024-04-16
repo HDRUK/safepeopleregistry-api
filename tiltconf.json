@@ -1,3 +1,5 @@
 {
-    "name": "speedi-as-api"
+    "name": "speedi-as-api",
+
+    "speediWebRoot": "/Users/lokisinclair/Development/HDRUK/speedi-as-web"
 }

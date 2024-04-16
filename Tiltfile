@@ -6,6 +6,8 @@
 # Load in any locally set config
 cfg = read_json('tiltconf.json')
 
+include(cfg.get('speediWebRoot') + '/Tiltfile')
+
 docker_build(
     ref='hdruk/' + cfg.get('name'),
     context='.',
