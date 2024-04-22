@@ -171,6 +171,7 @@ return [
         Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
         Laravel\Socialite\SocialiteServiceProvider::class,
         \SocialiteProviders\Manager\ServiceProvider::class,
+        Hdruk\LaravelMjml\Providers\LaravelMjmlServiceProvider::class,
     ])->toArray(),
 
     /*
