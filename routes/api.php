@@ -1,15 +1,16 @@
 <?php
 
+use App\Http\Controllers\Api\V1\RuleController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\QueryController;
-use App\Http\Controllers\Api\V1\TrainingController;
 use App\Http\Controllers\Api\V1\IssuerController;
-use App\Http\Controllers\Api\V1\EndorsementController;
-use App\Http\Controllers\Api\V1\ProjectController;
-use App\Http\Controllers\Api\V1\RegistryController;
-use App\Http\Controllers\Api\V1\ExperienceController;
 use App\Http\Controllers\Api\V1\HistoryController;
+use App\Http\Controllers\Api\V1\ProjectController;
+use App\Http\Controllers\Api\V1\TrainingController;
+use App\Http\Controllers\Api\V1\RegistryController;
 use App\Http\Controllers\Api\V1\IdentityController;
+use App\Http\Controllers\Api\V1\ExperienceController;
+use App\Http\Controllers\Api\V1\EndorsementController;
 use App\Http\Controllers\Api\V1\AffiliationController;
 use App\Http\Controllers\Api\V1\InfringementController;
 
@@ -101,6 +102,14 @@ Route::middleware('api')->post('v1/histories', [HistoryController::class, 'store
 Route::middleware('api')->get('v1/infringements', [InfringementController::class, 'index']);
 Route::middleware('api')->get('v1/infringements/{id}', [InfringementController::class, 'show']);
 Route::middleware('api')->post('v1/infringements', [InfringementController::class, 'store']);
+
+Route::middleware('api')->get('v1/rules', [RuleController::class, 'index']);
+Route::middleware('api')->get('v1/rules/{id}', [RuleController::class, 'show']);
+Route::middleware('api')->post('v1/rules', [RuleController::class, 'store']);
+Route::middleware('api')->put('v1/rules/{id}', [RuleController::class, 'update']);
+Route::middleware('api')->patch('v1/rules/{id}', [RuleController::class, 'edit']);
+Route::middleware('api')->delete('v1/rules/{id}', [RuleController::class, 'destroy']);
+
 
 // stop all all other routes
 Route::any('{path}', function() {

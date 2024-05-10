@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             ExperienceSeeder::class,
             IssuerSeeder::class,
             PermissionSeeder::class,
+            RuleSeeder::class,
        ]);
     }
 }

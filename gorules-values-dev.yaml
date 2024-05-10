@@ -1,0 +1,110 @@
+# nameOverride: ''
+# fullnameOverride: ''
+
+brms:
+  licenseKey: 'd4210fba-9ba4-440d-b4ba-7888294da592'
+  appUrl: 'https://gorules.your-site.com'
+  # hashSecret: ''
+
+# testing how to disable ssl
+# - LS - Looking at naming conventions within this file and
+# the advanced params listed at https://gorules.io/docs/developers/brms/deployment/environment-variables
+# we can infer that UPPERCASE_VAR_DECLARATION directly relates to the camelCase here, where
+# the first word of the variable loosely dictates the section
+
+#  db:
+#    sslDisabled: true
+#
+  env:
+    DB_SSL_DISABLED: true
+
+
+  session:
+    # Duration of session in minutes
+    duration: 1440
+  #    # Defaults to auto-generated
+  #    secret: ''
+
+  image:
+    repository: 'gorules/brms'
+    tag: '1.13.0'
+    pullPolicy: IfNotPresent
+
+  sso:
+    oauth2:
+      provider: ''
+      clientId: ''
+      clientSecret: ''
+      scopes: 'openid email profile groups'
+      authUrl: ''
+      tokenUrl: ''
+      groupsMapping: ''
+
+  smtp:
+    enabled: true
+  #    username: ''
+  #    password: ''
+  #    from: ''
+  #    host: ''
+  #    port: ''
+  #    secure: true
+  #    tlsRejectUnauthorized: false
+
+  postgres:
+    host: 'speedi-pgsql-postgresql'
+    username: 'speedi-as'
+    password: 'Flood15?Voice'
+    database: 'speedi-rules'
+    port: 5432
+    runMigrations: true
+
+ingress:
+  enabled: false
+  className: ''
+  annotations: {}
+  # kubernetes.io/ingress.class: nginx
+  # kubernetes.io/tls-acme: "true"
+  #  hosts:
+  #    - host: gorules.your-site.com
+  #      paths:
+  #        - path: /
+  #          pathType: ImplementationSpecific
+  tls: []
+
+service:
+  type: ClusterIP
+  port: 80
+
+#replicaCount: 2
+resources:
+  limits:
+    cpu: 2000m
+    memory: 1024Mi
+  requests:
+    cpu: 500m
+    memory: 256Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+podSecurityContext: {}
+# fsGroup: 2000
+
+securityContext:
+  {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+# runAsNonRoot: true
+# runAsUser: 1000
+
+podAnnotations: {}
+podLabels: {}
+tolerations: []
+nodeSelector: {}
+affinity: {}
