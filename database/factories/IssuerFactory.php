@@ -27,7 +27,7 @@ class IssuerFactory extends Factory
 
         return [
             'name' => fake()->name(),
-            'access_key_signature' => $accessKeySignature,
+            'unique_identifier' => $accessKeySignature,
             'enabled' => fake()->randomElement([0, 1]),
         ];
     }
