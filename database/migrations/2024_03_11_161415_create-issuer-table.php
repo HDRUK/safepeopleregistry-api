@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->timestamps();
             $table->string('name', 255);
-            $table->string('access_key_signature', 255);
+            $table->string('unique_identifier', 255);
+            $table->string('contact_email', 255);
             $table->tinyInteger('enabled')->default(true);
         });
     }

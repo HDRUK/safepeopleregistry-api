@@ -172,7 +172,8 @@ class IssuerController extends Controller
 
             $issuer = Issuer::create([
                 'name' => $input['name'],
-                'access_key_signature' => $accessKeySignature,
+                'unique_identifier' => $accessKeySignature,
+                'contact_email' => $input['contact_email'],
                 'enabled' => $input['enabled'],
             ]);
 
@@ -249,6 +250,7 @@ class IssuerController extends Controller
 
             $issuer = Issuer::where('id', $id)->first();
             $issuer->name = $input['name'];
+            $issuer->contact_email = $input['contact_email'];
             $issuer->enabled = $input['enabled'];
             if ($issuer->save()) {
                 return response()->json([
@@ -325,6 +327,7 @@ class IssuerController extends Controller
 
             $issuer = Issuer::where('id', $id)->first();
             $issuer->name = $input['name'];
+            $issuer->contact_email = $input['contact_email'];
             $isser->enabled = $input['enabled'];
             if ($issuer->save()) {
                 return response()->json([

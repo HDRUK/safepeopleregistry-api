@@ -30,7 +30,7 @@ class Issuer extends Model
      */
     protected $fillable = [
         'name',
-        'access_key_signature',
+        'unique_identifier',
         'enabled',
     ];
 
@@ -49,6 +49,6 @@ class Issuer extends Model
      * @var array
      */
     protected $hidden = [
-        'access_key_signature',
+        'unique_identifier',
     ];
 }
