@@ -51,6 +51,7 @@ Route::middleware('api')->delete('v1/training/{id}', [TrainingController::class,
 
 Route::middleware('api')->get('v1/issuers', [IssuerController::class, 'index']);
 Route::middleware('api')->get('v1/issuers/{id}', [IssuerController::class, 'show']);
+Route::middleware('api')->get('v1/issuers/identifier/{id}', [IssuerController::class, 'showByUniqueIdentifier']);
 Route::middleware('api')->post('v1/issuers', [IssuerController::class, 'store']);
 Route::middleware('api')->put('v1/issuers/{id}', [IssuerController::class, 'update']);
 Route::middleware('api')->patch('v1/issuers/{id}', [IssuerController::class, 'edit']);

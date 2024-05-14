@@ -61,20 +61,20 @@ class IssuerController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/issuers/{id}",
-     *      summary="Return an Issuer entry by ID",
-     *      description="Return an Issuer entry by ID",
+     *      summary="Return an Issuer entry by ID or unique identifier",
+     *      description="Return an Issuer entry by ID or unique identifier",
      *      tags={"Issuer"},
      *      summary="Issuer@show",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="Issuer ID",
+     *         description="Issuer ID or Unique Identifier",
      *         required=true,
      *         example="1",
      *         @OA\Schema(
-     *            type="integer",
-     *            description="Issuer ID",
+     *            type="AnyValue",
+     *            description="Issuer ID or Unique Identifier",
      *         ),
      *      ),
      *      @OA\Response(
@@ -103,6 +103,19 @@ class IssuerController extends Controller
     public function show(Request $request, int $id): JsonResponse
     {
         $issuer = Issuer::findOrFail($id);
+        if ($issuer) {
+            return response()->json([
+                'message' => 'success',
+                'data' => $issuer,
+            ], 200);
+        }
+
+        throw new NotFoundException();
+    }
+
+    public function showByUniqueIdentifier(Request $request, string $id): JsonResponse
+    {
+        $issuer = Issuer::where('unique_identifier', $id)->first();
         if ($issuer) {
             return response()->json([
                 'message' => 'success',
@@ -164,15 +177,16 @@ class IssuerController extends Controller
         try {
             $input = $request->all();
 
-            $signature = Str::random(40);
-            $accessKeySignature = Hash::make($signature . 
-                ':' . env('ISSUER_SALT_1') .
-                ':' . env('ISSUER_SALT_2')
+            $signature = Str::uuid();
+            $calculatedHash = Hash::make($signature . 
+                 ':' . env('ISSUER_SALT_1') .
+                 ':' . env('ISSUER_SALT_2')
             );
 
             $issuer = Issuer::create([
                 'name' => $input['name'],
-                'unique_identifier' => $accessKeySignature,
+                'unique_identifier' => $signature,
+                'calculated_hash' => $calculatedHash,
                 'contact_email' => $input['contact_email'],
                 'enabled' => $input['enabled'],
             ]);

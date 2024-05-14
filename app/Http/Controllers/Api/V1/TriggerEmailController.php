@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Exception;
+use Carbon\Carbon;
+
 use App\Models\User;
 use App\Models\Issuer;
 use App\Jobs\SendEmailJob;
@@ -46,6 +48,9 @@ class TriggerEmailController extends Controller
                         'id' => $issuer->id,
                         'email' => $issuer->contact_email,
                     ];
+
+                    $issuer->invite_sent_at = Carbon::now();
+                    $issuer->save();
                 } else {
                     throw new Exception('issuer ' . $issuer->id . ' already accepted invite at ' . $issuer->invite_accepted_at);
                 }

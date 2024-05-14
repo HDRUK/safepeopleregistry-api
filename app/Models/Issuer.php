@@ -31,9 +31,11 @@ class Issuer extends Model
     protected $fillable = [
         'name',
         'unique_identifier',
+        'calculated_hash',
         'contact_email',
         'enabled',
         'invite_accepted_at',
+        'invite_sent_at',
     ];
 
     /**
@@ -52,5 +54,6 @@ class Issuer extends Model
      */
     protected $hidden = [
         'unique_identifier',
+        'calculated_hash',
     ];
 }
