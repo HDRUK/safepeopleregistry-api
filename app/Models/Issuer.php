@@ -32,6 +32,7 @@ class Issuer extends Model
         'name',
         'unique_identifier',
         'enabled',
+        'invite_accepted_at',
     ];
 
     /**

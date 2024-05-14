@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\V1\HistoryController;
 use App\Http\Controllers\Api\V1\IdentityController;
 use App\Http\Controllers\Api\V1\AffiliationController;
 use App\Http\Controllers\Api\V1\InfringementController;
+use App\Http\Controllers\Api\V1\TriggerEmailController;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -101,6 +102,8 @@ Route::middleware('api')->post('v1/histories', [HistoryController::class, 'store
 Route::middleware('api')->get('v1/infringements', [InfringementController::class, 'index']);
 Route::middleware('api')->get('v1/infringements/{id}', [InfringementController::class, 'show']);
 Route::middleware('api')->post('v1/infringements', [InfringementController::class, 'store']);
+
+Route::middleware('api')->post('v1/trigger_email', [TriggerEmailController::class, 'spawnEmail']);
 
 // stop all all other routes
 Route::any('{path}', function() {
