@@ -63,6 +63,7 @@ class IssuerTest extends TestCase
             self::TEST_URL,
             [
                 'name' => 'Test Issuer',
+                'contact_email' => 'test@test.com',
                 'enabled' => true,
             ],
             $this->headers
@@ -79,6 +80,7 @@ class IssuerTest extends TestCase
             self::TEST_URL,
             [
                 'name' => 'Test Issuer',
+                'contact_email' => 'test@test.com',
                 'enabled' => true,
             ],
             $this->headers
@@ -114,6 +116,7 @@ class IssuerTest extends TestCase
             self::TEST_URL,
             [
                 'name' => 'Test Issuer',
+                'contact_email' => 'test@test.com',
                 'enabled' => true,
             ],
             $this->headers

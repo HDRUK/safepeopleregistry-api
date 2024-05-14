@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Exception;
 use App\Models\User;
 use App\Models\Issuer;
 use App\Jobs\SendEmailJob;
@@ -26,7 +27,7 @@ class TriggerEmailController extends Controller
 
         switch (strtoupper($type)) {
             case 'USER':
-                $users = User::where('id', $to)->get();
+                $users = User::where('id', $to)->first();
                 $template = EmailTemplate::where('identifier', $identifier)->first();
 
                 foreach ($users as $u) {
@@ -37,14 +38,16 @@ class TriggerEmailController extends Controller
                 }
                 break;
             case 'ISSUER':
-                $issuers = Issuer::where('id', $to)->get();
-                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $issuer = Issuer::where('id', $to)->first();
+                if ($issuer->invite_accepted_at === null) {
+                    $template = EmailTemplate::where('identifier', $identifier)->first();
 
-                foreach ($issuers as $i) {
                     $newRecipients = [
-                        'id' => $i->id,
-                        'email' => $i->contact_email,
+                        'id' => $issuer->id,
+                        'email' => $issuer->contact_email,
                     ];
+                } else {
+                    throw new Exception('issuer ' . $issuer->id . ' already accepted invite at ' . $issuer->invite_accepted_at);
                 }
                 break;
             case 'ORGANISATION':

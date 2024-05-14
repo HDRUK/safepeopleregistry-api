@@ -31,6 +31,7 @@ class Issuer extends Model
     protected $fillable = [
         'name',
         'unique_identifier',
+        'contact_email',
         'enabled',
         'invite_accepted_at',
     ];

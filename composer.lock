@@ -1270,12 +1270,12 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:HDRUK/laravel-mjml.git",
-                "reference": "57157f37ae8f49b8286d2d866137d916df4c9941"
+                "reference": "04114569389f7916e67969e35d74895216ebec82"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/HDRUK/laravel-mjml/zipball/57157f37ae8f49b8286d2d866137d916df4c9941",
-                "reference": "57157f37ae8f49b8286d2d866137d916df4c9941",
+                "url": "https://api.github.com/repos/HDRUK/laravel-mjml/zipball/04114569389f7916e67969e35d74895216ebec82",
+                "reference": "04114569389f7916e67969e35d74895216ebec82",
                 "shasum": ""
             },
             "require": {
@@ -1312,7 +1312,7 @@
                 "source": "https://github.com/HDRUK/laravel-mjml/tree/main",
                 "issues": "https://github.com/HDRUK/laravel-mjml/issues"
             },
-            "time": "2024-05-14T08:57:56+00:00"
+            "time": "2024-05-14T11:03:36+00:00"
         },
         {
             "name": "laravel/framework",

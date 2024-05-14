@@ -250,7 +250,7 @@ class IssuerController extends Controller
 
             $issuer = Issuer::where('id', $id)->first();
             $issuer->name = $input['name'];
-            $issuer->contact_email = $input['contact_email'];
+            $issuer->contact_email = isset($input['contact_email']) ? $input['contact_email'] : $issuer->contact_email;
             $issuer->enabled = $input['enabled'];
             if ($issuer->save()) {
                 return response()->json([
@@ -327,7 +327,7 @@ class IssuerController extends Controller
 
             $issuer = Issuer::where('id', $id)->first();
             $issuer->name = $input['name'];
-            $issuer->contact_email = $input['contact_email'];
+            $issuer->contact_email = isset($input['contact_email']) ? $input['contact_email'] : $issuer->contact_email;
             $isser->enabled = $input['enabled'];
             if ($issuer->save()) {
                 return response()->json([
