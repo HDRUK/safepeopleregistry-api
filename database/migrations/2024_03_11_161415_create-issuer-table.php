@@ -16,6 +16,7 @@ return new class extends Migration
             $table->timestamps();
             $table->string('name', 255);
             $table->string('unique_identifier', 255);
+            $table->string('calculated_hash', 255);
             $table->string('contact_email', 255);
             $table->tinyInteger('enabled')->default(true);
         });

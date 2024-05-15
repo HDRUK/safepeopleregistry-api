@@ -19,15 +19,16 @@ class IssuerFactory extends Factory
      */
     public function definition(): array
     {
-        $signature = Str::random(40);
-        $accessKeySignature = Hash::make($signature . 
+        $signature = Str::uuid();
+        $calculatedHash = Hash::make($signature . 
             ':' . env('ISSUER_SALT_1') .
             ':' . env('ISSUER_SALT_2')
         );
 
         return [
             'name' => fake()->name(),
-            'unique_identifier' => $accessKeySignature,
+            'unique_identifier' => $signature,
+            'calculated_hash' => $calculatedHash,
             'enabled' => fake()->randomElement([0, 1]),
         ];
     }

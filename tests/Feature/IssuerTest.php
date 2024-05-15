@@ -63,6 +63,7 @@ class IssuerTest extends TestCase
             self::TEST_URL,
             [
                 'name' => 'Test Issuer',
+                'contact_email' => 'test@test.com',
                 'enabled' => true,
             ],
             $this->headers
@@ -79,6 +80,7 @@ class IssuerTest extends TestCase
             self::TEST_URL,
             [
                 'name' => 'Test Issuer',
+                'contact_email' => 'test@test.com',
                 'enabled' => true,
             ],
             $this->headers
@@ -114,6 +116,7 @@ class IssuerTest extends TestCase
             self::TEST_URL,
             [
                 'name' => 'Test Issuer',
+                'contact_email' => 'test@test.com',
                 'enabled' => true,
             ],
             $this->headers
@@ -131,5 +134,39 @@ class IssuerTest extends TestCase
         );
 
         $response->assertStatus(200);
+    }
+
+    public function test_the_application_can_get_issuers_by_unique_identifier(): void
+    {
+        $response = $this->json(
+            'POST',
+            self::TEST_URL,
+            [
+                'name' => 'Test Issuer ABC123',
+                'contact_email' => 'test@test.com',
+                'enabled' => true,
+            ],
+            $this->headers
+        );
+
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
+
+        $content = $response->decodeResponseJson()['data'];
+
+        $issuerCreated = Issuer::where('id', $content)->first();
+        
+        $response = $this->json(
+            'GET',
+            self::TEST_URL . '/identifier/' . $issuerCreated->unique_identifier,
+            $this->headers
+        );
+
+        $response->assertStatus(200);
+        $this->assertArrayHasKey('data', $response);
+
+        $content = $response->decodeResponseJson()['data'];
+
+        $this->assertEquals($content['name'], 'Test Issuer ABC123');
     }
 }

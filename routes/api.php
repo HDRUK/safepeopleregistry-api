@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\V1\HistoryController;
 use App\Http\Controllers\Api\V1\IdentityController;
 use App\Http\Controllers\Api\V1\AffiliationController;
 use App\Http\Controllers\Api\V1\InfringementController;
+use App\Http\Controllers\Api\V1\TriggerEmailController;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -50,6 +51,7 @@ Route::middleware('api')->delete('v1/training/{id}', [TrainingController::class,
 
 Route::middleware('api')->get('v1/issuers', [IssuerController::class, 'index']);
 Route::middleware('api')->get('v1/issuers/{id}', [IssuerController::class, 'show']);
+Route::middleware('api')->get('v1/issuers/identifier/{id}', [IssuerController::class, 'showByUniqueIdentifier']);
 Route::middleware('api')->post('v1/issuers', [IssuerController::class, 'store']);
 Route::middleware('api')->put('v1/issuers/{id}', [IssuerController::class, 'update']);
 Route::middleware('api')->patch('v1/issuers/{id}', [IssuerController::class, 'edit']);
@@ -101,6 +103,8 @@ Route::middleware('api')->post('v1/histories', [HistoryController::class, 'store
 Route::middleware('api')->get('v1/infringements', [InfringementController::class, 'index']);
 Route::middleware('api')->get('v1/infringements/{id}', [InfringementController::class, 'show']);
 Route::middleware('api')->post('v1/infringements', [InfringementController::class, 'store']);
+
+Route::middleware('api')->post('v1/trigger_email', [TriggerEmailController::class, 'spawnEmail']);
 
 // stop all all other routes
 Route::any('{path}', function() {

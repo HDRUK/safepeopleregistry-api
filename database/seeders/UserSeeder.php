@@ -19,7 +19,7 @@ class UserSeeder extends Seeder
         $user = User::factory()->create([
             'name' => 'Loki Sinclair',
             'email' => 'loki.sinclair@hdruk.ac.uk',
-            'password' => '$2y$10$yRTNhYgk8tW62Nfcy0ctiuFpGKWK53ctQsGdUF58kymM7n00GjW.2',
+            'password' => '$2y$12$m.SSR/CvYjQ6VjuvW6s/lu81Nd5pVn8elFI/1FHPKNXavTPPFKjwe',
             'registry_id' => 1,
         ]);
     }

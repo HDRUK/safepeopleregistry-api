@@ -33,9 +33,12 @@ class IssuerController extends Controller
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),    
+     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
      *                  @OA\Property(property="name", type="string", example="An Issuer"),
-     *                  @OA\Property(property="enabled", type="boolean", example="true")
+     *                  @OA\Property(property="contact_email", type="string", example="person@somewhere.com"),
+     *                  @OA\Property(property="enabled", type="boolean", example="true"),
+     *                  @OA\Property(property="invite_accepted_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="invite_sent_at", type="string", example="2024-02-04 12:00:00"),
      *              )
      *          ),
      *      ),
@@ -85,9 +88,12 @@ class IssuerController extends Controller
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),    
+     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
      *                  @OA\Property(property="name", type="string", example="An Issuer"),
-     *                  @OA\Property(property="enabled", type="boolean", example="true")
+     *                  @OA\Property(property="contact_email", type="string", example="person@somewhere.com"),
+     *                  @OA\Property(property="enabled", type="boolean", example="true"),
+     *                  @OA\Property(property="invite_accepted_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="invite_sent_at", type="string", example="2024-02-04 12:00:00"),
      *              )
      *          ),
      *      ),
@@ -103,6 +109,64 @@ class IssuerController extends Controller
     public function show(Request $request, int $id): JsonResponse
     {
         $issuer = Issuer::findOrFail($id);
+        if ($issuer) {
+            return response()->json([
+                'message' => 'success',
+                'data' => $issuer,
+            ], 200);
+        }
+
+        throw new NotFoundException();
+    }
+
+    /**
+     * @OA\Get(
+     *      path="/api/v1/issuers/identifier/{id}",
+     *      summary="Return an Issuer entry by Unique Identifier",
+     *      description="Return an Issuer entry by Unique Identifier",
+     *      tags={"Issuer"},
+     *      summary="Issuer@showByUniqueIdentifier",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Issuer Unique Identifier",
+     *         required=true,
+     *         example="c3eddb33-db74-4ea7-961a-778740f17e25",
+     *         @OA\Schema(
+     *            type="string",
+     *            description="Issuer Unique Identifier",
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string"),
+     *              @OA\Property(property="data", type="object",
+     *                  @OA\Property(property="id", type="integer", example="123"),
+     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
+     *                  @OA\Property(property="name", type="string", example="An Issuer"),
+     *                  @OA\Property(property="contact_email", type="string", example="person@somewhere.com"),
+     *                  @OA\Property(property="enabled", type="boolean", example="true"),
+     *                  @OA\Property(property="invite_accepted_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="invite_sent_at", type="string", example="2024-02-04 12:00:00"),
+     *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found"),
+     *          )
+     *      )
+     * )
+     */
+    public function showByUniqueIdentifier(Request $request, string $id): JsonResponse
+    {
+        $issuer = Issuer::where('unique_identifier', $id)->first();
         if ($issuer) {
             return response()->json([
                 'message' => 'success',
@@ -144,9 +208,12 @@ class IssuerController extends Controller
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),    
+     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
      *                  @OA\Property(property="name", type="string", example="An Issuer"),
-     *                  @OA\Property(property="enabled", type="boolean", example="true")
+     *                  @OA\Property(property="contact_email", type="string", example="person@somewhere.com"),
+     *                  @OA\Property(property="enabled", type="boolean", example="true"),
+     *                  @OA\Property(property="invite_accepted_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="invite_sent_at", type="string", example="2024-02-04 12:00:00"),
      *              )
      *          ),
      *      ),
@@ -164,15 +231,16 @@ class IssuerController extends Controller
         try {
             $input = $request->all();
 
-            $signature = Str::random(40);
-            $accessKeySignature = Hash::make($signature . 
-                ':' . env('ISSUER_SALT_1') .
-                ':' . env('ISSUER_SALT_2')
+            $signature = Str::uuid();
+            $calculatedHash = Hash::make($signature . 
+                 ':' . env('ISSUER_SALT_1') .
+                 ':' . env('ISSUER_SALT_2')
             );
 
             $issuer = Issuer::create([
                 'name' => $input['name'],
-                'unique_identifier' => $accessKeySignature,
+                'unique_identifier' => $signature,
+                'calculated_hash' => $calculatedHash,
                 'contact_email' => $input['contact_email'],
                 'enabled' => $input['enabled'],
             ]);
@@ -228,9 +296,12 @@ class IssuerController extends Controller
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),    
+     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
      *                  @OA\Property(property="name", type="string", example="An Issuer"),
-     *                  @OA\Property(property="enabled", type="boolean", example="true")
+     *                  @OA\Property(property="contact_email", type="string", example="person@somewhere.com"),
+     *                  @OA\Property(property="enabled", type="boolean", example="true"),
+     *                  @OA\Property(property="invite_accepted_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="invite_sent_at", type="string", example="2024-02-04 12:00:00"),
      *              )
      *          ),
      *      ),
@@ -250,7 +321,7 @@ class IssuerController extends Controller
 
             $issuer = Issuer::where('id', $id)->first();
             $issuer->name = $input['name'];
-            $issuer->contact_email = $input['contact_email'];
+            $issuer->contact_email = isset($input['contact_email']) ? $input['contact_email'] : $issuer->contact_email;
             $issuer->enabled = $input['enabled'];
             if ($issuer->save()) {
                 return response()->json([
@@ -305,9 +376,12 @@ class IssuerController extends Controller
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),    
+     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
      *                  @OA\Property(property="name", type="string", example="An Issuer"),
-     *                  @OA\Property(property="enabled", type="boolean", example="true")
+     *                  @OA\Property(property="contact_email", type="string", example="person@somewhere.com"),
+     *                  @OA\Property(property="enabled", type="boolean", example="true"),
+     *                  @OA\Property(property="invite_accepted_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="invite_sent_at", type="string", example="2024-02-04 12:00:00"),
      *              )
      *          ),
      *      ),
@@ -327,7 +401,7 @@ class IssuerController extends Controller
 
             $issuer = Issuer::where('id', $id)->first();
             $issuer->name = $input['name'];
-            $issuer->contact_email = $input['contact_email'];
+            $issuer->contact_email = isset($input['contact_email']) ? $input['contact_email'] : $issuer->contact_email;
             $isser->enabled = $input['enabled'];
             if ($issuer->save()) {
                 return response()->json([
