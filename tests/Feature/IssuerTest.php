@@ -169,4 +169,121 @@ class IssuerTest extends TestCase
 
         $this->assertEquals($content['name'], 'Test Issuer ABC123');
     }
+
+    public function test_the_application_can_receive_issuer_pushes_with_valid_key(): void
+    {
+        $response = $this->json(
+            'POST',
+            self::TEST_URL,
+            [
+                'name' => 'Test Issuer ABCDEF',
+                'contact_email' => 'test@test.com',
+                'enabled' => true,
+            ],
+            $this->headers
+        );
+
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
+
+        $content = $response->decodeResponseJson()['data'];
+
+        $issuer = Issuer::where('id', $content)->first();
+
+        $response = $this->json(
+            'POST',
+            self::TEST_URL . '/push',
+            [
+                'researchers' => [],
+                'projects' => [],
+                'organisations' => [],
+            ],
+            [
+                'x-issuer-key' => $issuer->unique_identifier,
+            ]
+        );
+
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson()['data'];
+
+        $this->assertEquals($content['researchers'], []);
+        $this->assertEquals($content['projects'], []);
+        $this->assertEquals($content['organisations'], []);
+    }
+
+    public function test_the_application_can_refuse_pushes_with_missing_key(): void
+    {
+        $response = $this->json(
+            'POST',
+            self::TEST_URL,
+            [
+                'name' => 'Test Issuer ABCDEF',
+                'contact_email' => 'test@test.com',
+                'enabled' => true,
+            ],
+            $this->headers
+        );
+
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
+
+        $content = $response->decodeResponseJson()['data'];
+
+        $issuer = Issuer::where('id', $content)->first();
+
+        $response = $this->json(
+            'POST',
+            self::TEST_URL . '/push',
+            [
+                'researchers' => [],
+                'projects' => [],
+                'organisations' => [],
+            ],
+            [
+            ]
+        );
+
+        $response->assertStatus(401);
+        $content = $response->decodeResponseJson();
+
+        $this->assertEquals($content['message'], 'you must provide your Issuer key');
+    }
+
+    public function test_the_application_can_refuse_pushes_when_key_is_invalid(): void
+    {
+        $response = $this->json(
+            'POST',
+            self::TEST_URL,
+            [
+                'name' => 'Test Issuer ABCDEF',
+                'contact_email' => 'test@test.com',
+                'enabled' => true,
+            ],
+            $this->headers
+        );
+
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
+
+        $content = $response->decodeResponseJson()['data'];
+
+        $issuer = Issuer::where('id', $content)->first();
+
+        $response = $this->json(
+            'POST',
+            self::TEST_URL . '/push',
+            [
+                'researchers' => [],
+                'projects' => [],
+                'organisations' => [],
+            ],
+            [
+                'x-issuer-key' => $issuer->unique_identifier . 'broken_key',
+            ]
+        );
+
+        $response->assertStatus(401);
+        $content = $response->decodeResponseJson();
+        $this->assertEquals($content['message'], 'no known issuer matches the credentials provided');
+    }
 }

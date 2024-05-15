@@ -19,7 +19,7 @@ class IssuerFactory extends Factory
      */
     public function definition(): array
     {
-        $signature = Str::uuid();
+        $signature = Str::random(40);
         $calculatedHash = Hash::make($signature . 
             ':' . env('ISSUER_SALT_1') .
             ':' . env('ISSUER_SALT_2')

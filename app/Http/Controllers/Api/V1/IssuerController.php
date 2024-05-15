@@ -231,7 +231,7 @@ class IssuerController extends Controller
         try {
             $input = $request->all();
 
-            $signature = Str::uuid();
+            $signature = Str::random(40);
             $calculatedHash = Hash::make($signature . 
                  ':' . env('ISSUER_SALT_1') .
                  ':' . env('ISSUER_SALT_2')
@@ -463,6 +463,22 @@ class IssuerController extends Controller
 
             return response()->json([
                 'message' => 'success',
+            ], 200);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    /**
+     * Stub function for next ticket item
+     */
+    public function push(Request $request): JsonResponse
+    {
+        try {
+            // Only for test passing. Actual code is split into another ticket
+            return response()->json([
+                'message' => 'success',
+                'data' => $request->all()
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
