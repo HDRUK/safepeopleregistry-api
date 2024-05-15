@@ -56,6 +56,7 @@ Route::middleware('api')->post('v1/issuers', [IssuerController::class, 'store'])
 Route::middleware('api')->put('v1/issuers/{id}', [IssuerController::class, 'update']);
 Route::middleware('api')->patch('v1/issuers/{id}', [IssuerController::class, 'edit']);
 Route::middleware('api')->delete('v1/issuers/{id}', [IssuerController::class, 'destroy']);
+Route::middleware(['api', 'check.issuer.access'])->post('v1/issuers/push', [IssuerController::class, 'push']);
 
 Route::middleware('api')->get('v1/endorsements', [EndorsementController::class, 'index']);
 Route::middleware('api')->get('v1/endorsements/{id}', [EndorsementController::class, 'show']);
