@@ -29,15 +29,20 @@ class Affiliation extends Model
      * @var array
      */
     protected $fillable = [
-        'name',
+        'organisation_name',
         'address_1',
         'address_2',
         'town',
         'county',
         'country',
         'postcode',
-        'delegate',
+        'lead_applicant_organisation_name',
+        'organisation_unique_id',
+        'applicant_names',
+        'funders_and_sponsors',
+        'sub_license_arrangements',
         'verified',
+        'dsptk_ods_code',
     ];
 
     /**
@@ -55,13 +60,5 @@ class Affiliation extends Model
      * @var array
      */
     protected $hidden = [
-        'address_1',
-        'address_2',
-        'town',
-        'county',
-        'country',
-        'postcode',
-        'delegate',
-        'verified',
     ];
 }

@@ -8,6 +8,10 @@ use Tests\TestCase;
 
 use App\Models\Affiliation;
 
+use Database\Seeders\UserSeeder;
+
+use Illuminate\Support\Str;
+
 use Illuminate\Testing\Fluent\AssertableJson;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -24,7 +28,9 @@ class AffiliationTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed();
+        $this->seed([
+            UserSeeder::class,
+        ]);
 
         $this->headers = [
             'Accept' => 'application/json',
@@ -50,14 +56,18 @@ class AffiliationTest extends TestCase
             'POST',
             self::TEST_URL,
             [
-                'name' => 'Test Affiliation',
+                'organisation_name' => 'Test Affiliation',
                 'address_1' => '123 Blah blah',
                 'address_2' => '',
                 'town' => 'Town',
                 'county' => 'County',
                 'country' => 'Country',
                 'postcode' => 'BLA4 4HH',
-                'delegate' => 'Some One',
+                'lead_applicant_organisation_name' => 'Some One',
+                'organisation_unique_id' => Str::random(40),
+                'applicant_names' => 'Some One, Some Two, Some Three',
+                'funders_and_sponsors' => 'UKRI, MRC',
+                'sub_license_arrangements' => 'N/A',
                 'verified' => false,
             ],
             $this->headers
@@ -84,14 +94,18 @@ class AffiliationTest extends TestCase
             'POST',
             self::TEST_URL,
             [
-                'name' => 'Test Affiliation',
+                'organisation_name' => 'Test Affiliation',
                 'address_1' => '123 Blah blah',
                 'address_2' => '',
                 'town' => 'Town',
                 'county' => 'County',
                 'country' => 'Country',
                 'postcode' => 'BLA4 4HH',
-                'delegate' => 'Some One',
+                'lead_applicant_organisation_name' => 'Some One',
+                'organisation_unique_id' => Str::random(40),
+                'applicant_names' => 'Some One, Some Two, Some Three',
+                'funders_and_sponsors' => 'UKRI, MRC',
+                'sub_license_arrangements' => 'N/A',
                 'verified' => false,
             ],
             $this->headers
@@ -107,14 +121,18 @@ class AffiliationTest extends TestCase
             'POST',
             self::TEST_URL,
             [
-                'name' => 'Test Affiliation',
+                'organisation_name' => 'Test Affiliation',
                 'address_1' => '123 Blah blah',
                 'address_2' => '',
                 'town' => 'Town',
                 'county' => 'County',
                 'country' => 'Country',
                 'postcode' => 'BLA4 4HH',
-                'delegate' => 'Some One',
+                'lead_applicant_organisation_name' => 'Some One',
+                'organisation_unique_id' => Str::random(40),
+                'applicant_names' => 'Some One, Some Two, Some Three',
+                'funders_and_sponsors' => 'UKRI, MRC',
+                'sub_license_arrangements' => 'N/A',
                 'verified' => false,
             ],
             $this->headers
@@ -131,14 +149,18 @@ class AffiliationTest extends TestCase
             'PUT',
             self::TEST_URL . '/' . $content,
             [
-                'name' => 'Test Affiliation',
+                'organisation_name' => 'Test Affiliation',
                 'address_1' => '123 Blah blah',
                 'address_2' => '',
                 'town' => 'Town',
                 'county' => 'County',
                 'country' => 'Country',
                 'postcode' => 'BLA4 4HH',
-                'delegate' => 'Some One',
+                'lead_applicant_organisation_name' => 'Some One',
+                'organisation_unique_id' => Str::random(40),
+                'applicant_names' => 'Some One, Some Two, Some Three',
+                'funders_and_sponsors' => 'UKRI, MRC',
+                'sub_license_arrangements' => 'N/A',
                 'verified' => true,
             ],
             $this->headers
@@ -160,14 +182,18 @@ class AffiliationTest extends TestCase
             'POST',
             self::TEST_URL,
             [
-                'name' => 'Test Affiliation',
+                'organisation_name' => 'Test Affiliation',
                 'address_1' => '123 Blah blah',
                 'address_2' => '',
                 'town' => 'Town',
                 'county' => 'County',
                 'country' => 'Country',
                 'postcode' => 'BLA4 4HH',
-                'delegate' => 'Some One',
+                'lead_applicant_organisation_name' => 'Some One',
+                'organisation_unique_id' => Str::random(40),
+                'applicant_names' => 'Some One, Some Two, Some Three',
+                'funders_and_sponsors' => 'UKRI, MRC',
+                'sub_license_arrangements' => 'N/A',
                 'verified' => false,
             ],
             $this->headers

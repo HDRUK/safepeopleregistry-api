@@ -30,10 +30,15 @@ class Project extends Model
      * @var array
      */
     protected $fillable = [
-        'registry_id',
-        'name',
+        'unique_id',
+        'title',
+        'lay_summary',
         'public_benefit',
-        'runs_to',
+        'request_category_type',
+        'technical_summary',
+        'other_approval_committes',
+        'start_date',
+        'end_date',
         'affiliate_id',
     ];
 }

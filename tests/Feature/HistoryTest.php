@@ -8,6 +8,8 @@ use Tests\TestCase;
 
 use App\Models\History;
 
+use Database\Seeders\UserSeeder;
+
 use Illuminate\Testing\Fluent\AssertableJson;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -24,7 +26,9 @@ class HistoryTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed();
+        $this->seed([
+            UserSeeder::class,
+        ]);
 
         $this->headers = [
             'Accept' => 'application/json',

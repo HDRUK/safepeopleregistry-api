@@ -7,6 +7,10 @@ use Carbon\Carbon;
 use Tests\TestCase;
 
 use App\Models\Training;
+
+use Database\Seeders\UserSeeder;
+use Database\Seeders\TrainingSeeder;
+
 use Illuminate\Testing\Fluent\AssertableJson;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -23,7 +27,10 @@ class TrainingTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed();
+        $this->seed([
+            UserSeeder::class,
+            TrainingSeeder::class,
+        ]);
 
         $this->headers = [
             'Accept' => 'application/json',

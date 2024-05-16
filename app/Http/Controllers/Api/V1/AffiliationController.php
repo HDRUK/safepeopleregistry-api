@@ -178,14 +178,18 @@ class AffiliationController extends Controller
         try {
             $input = $request->all();
             $affiliation = Affiliation::create([
-                'name' => $input['name'],
+                'organisation_name' => $input['organisation_name'],
                 'address_1' => $input['address_1'],
                 'address_2' => $input['address_2'],
                 'town' => $input['town'],
                 'county' => $input['county'],
                 'country' => $input['country'],
                 'postcode' => $input['postcode'],
-                'delegate' => $input['delegate'],
+                'lead_applicant_organisation_name' => $input['lead_applicant_organisation_name'],
+                'organisation_unique_id' => $input['organisation_unique_id'],
+                'applicant_names' => $input['applicant_names'],
+                'funders_and_sponsors' => $input['funders_and_sponsors'],
+                'sub_license_arrangements' => $input['sub_license_arrangements'],
                 'verified' => $input['verified'],
             ]);
 
@@ -277,15 +281,19 @@ class AffiliationController extends Controller
         try {
             $input = $request->all();
             Affiliation::where('id', $id)->update([
-                'name' => $input['name'],
+                'organisation_name' => $input['organisation_name'],
                 'address_1' => $input['address_1'],
                 'address_2' => $input['address_2'],
                 'town' => $input['town'],
                 'county' => $input['county'],
                 'country' => $input['country'],
                 'postcode' => $input['postcode'],
-                'delegate' => $input['delegate'],
-                'verified' => $input['verified'],                
+                'lead_applicant_organisation_name' => $input['lead_applicant_organisation_name'],
+                'organisation_unique_id' => $input['organisation_unique_id'],
+                'applicant_names' => $input['applicant_names'],
+                'funders_and_sponsors' => $input['funders_and_sponsors'],
+                'sub_license_arrangements' => $input['sub_license_arrangements'],
+                'verified' => $input['verified'],            
             ]);
 
             return response()->json([
@@ -376,15 +384,19 @@ class AffiliationController extends Controller
         try {
             $input = $request->all();
             Affiliation::where('id', $id)->update([
-                'name' => $input['name'],
+                'organisation_name' => $input['organisation_name'],
                 'address_1' => $input['address_1'],
                 'address_2' => $input['address_2'],
                 'town' => $input['town'],
                 'county' => $input['county'],
                 'country' => $input['country'],
                 'postcode' => $input['postcode'],
-                'delegate' => $input['delegate'],
-                'verified' => $input['verified'],                
+                'lead_applicant_organisation_name' => $input['lead_applicant_organisation_name'],
+                'organisation_unique_id' => $input['organisation_unique_id'],
+                'applicant_names' => $input['applicant_names'],
+                'funders_and_sponsors' => $input['funders_and_sponsors'],
+                'sub_license_arrangements' => $input['sub_license_arrangements'],
+                'verified' => $input['verified'],              
             ]);
 
             return response()->json([

@@ -6,6 +6,8 @@ use Hash;
 use Exception;
 
 use App\Models\Issuer;
+use App\Models\Project;
+use App\Models\Affiliation;
 
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -475,10 +477,80 @@ class IssuerController extends Controller
     public function push(Request $request): JsonResponse
     {
         try {
-            // Only for test passing. Actual code is split into another ticket
+            $projectsAddedCount = 0;
+            $organisationsAddedCount = 0;
+            $researchersAddedCount = 0;
+
+            // Traverse incoming payload and create entities pushed to us
+            $issuerId = $request->header('x-issuer-key');
+            $input = $request->all();
+
+            if (!$issuerId) {
+                return response()->json([
+                    'message' => 'you must be a trusted issuer and provide your issuer-key within the request headers',
+                ], Response::HTTP_UNAUTHORIZED);
+            }
+
+            foreach ($input['projects'] as $p) {
+                $project = Project::firstOrCreate(
+                    [ 'unique_id' => $p['unique_id'] ],
+                    [
+                        'title' => $p['title'],
+                        'lay_summary' => $p['lay_summary'],
+                        'public_benefit' => $p['public_benefit'],
+                        'request_category_type' => $p['request_category_type'],
+                        'technical_summary' => $p['technical_summary'],
+                        'other_approval_committees' => $p['other_approval_committees'],
+                        'start_date' => $p['start_date'],
+                        'end_date' => $p['end_date'],
+                        'affiliate_id' => $p['affiliate_id'],
+                    ]
+                );
+
+                if ($project) {
+                    $projectsAddedCount++;
+                }
+            }
+
+            foreach ($input['organisations'] as $org) {
+                $organisation = Affiliation::firstOrCreate(
+                    [ 'organisation_unique_id' => $org['organisation_unique_id'] ],
+                    [
+                        'organisation_name' => $org['organisation_name'],
+                        'address_1' => $org['address_1'],
+                        'address_2' => $org['address_2'],
+                        'town' => $org['town'],
+                        'county' => $org['county'],
+                        'country' => $org['country'],
+                        'postcode' => $org['postcode'],
+                        'lead_applicant_organisation_name' => $org['lead_applicant_organisation_name'],
+                        'organisation_unique_id' => $org['organisation_unique_id'],
+                        'applicant_names' => $org['applicant_names'],
+                        'funders_and_sponsors' => $org['funders_and_sponsors'],
+                        'sub_license_arrangements' => $org['sub_license_arrangements'],
+                    ]
+                );
+
+                if ($organisation) {
+                    $organisationsAddedCount++;
+                }
+            }
+
+            foreach ($input['researchers'] as $researcher) {
+                // TBC
+                if ($researcher) {
+                    $researchersAddedCount++;
+                }
+            }
+
             return response()->json([
                 'message' => 'success',
-                'data' => $request->all()
+                'data' => [
+                    'projects_created' => $projectsAddedCount,
+                    'organisations_created' => $organisationsAddedCount,
+                    'researchers_created' => $researchersAddedCount,
+
+                ]
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());

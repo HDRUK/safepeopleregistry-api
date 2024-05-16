@@ -80,10 +80,14 @@ class Registry extends Model
         return $this->hasMany(Training::class, 'registry_id');
     }
 
-    public function projects(): HasMany
-    {
-        return $this->hasMany(Project::class, 'registry_id');
-    }
+    // Removed for now, in favour of a future _has_ relation as registry_id
+    // didn't lend itself to Projects now. Especially when receiving pushes
+    // from TRE/SDE issuers.
+    //
+    // public function projects(): HasMany
+    // {
+    //     return $this->hasMany(Project::class, 'registry_id');
+    // }
 
     public function affiliations(): BelongsToMany
     {
