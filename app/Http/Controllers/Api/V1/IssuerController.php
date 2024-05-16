@@ -491,19 +491,19 @@ class IssuerController extends Controller
                 ], Response::HTTP_UNAUTHORIZED);
             }
 
-            foreach ($input['projects'] as $project) {
+            foreach ($input['projects'] as $p) {
                 $project = Project::firstOrCreate(
-                    [ 'unique_id' => $project['unique_id'] ],
+                    [ 'unique_id' => $p['unique_id'] ],
                     [
-                        'title' => $project['title'],
-                        'lay_summary' => $project['lay_summary'],
-                        'public_benefit' => $project['public_benefit'],
-                        'request_category_type' => $project['request_category_type'],
-                        'technical_summary' => $project['technical_summary'],
-                        'other_approval_committees' => $project['other_approval_committees'],
-                        'start_date' => $project['start_date'],
-                        'end_date' => $project['end_date'],
-                        'affiliate_id' => isset($project['affiliate_id']) ? $project['affiliate_id'] : null,
+                        'title' => $p['title'],
+                        'lay_summary' => $p['lay_summary'],
+                        'public_benefit' => $p['public_benefit'],
+                        'request_category_type' => $p['request_category_type'],
+                        'technical_summary' => $p['technical_summary'],
+                        'other_approval_committees' => $p['other_approval_committees'],
+                        'start_date' => $p['start_date'],
+                        'end_date' => $p['end_date'],
+                        'affiliate_id' => $p['affiliate_id'],
                     ]
                 );
 
@@ -512,22 +512,22 @@ class IssuerController extends Controller
                 }
             }
 
-            foreach ($input['organisations'] as $organisation) {
+            foreach ($input['organisations'] as $org) {
                 $organisation = Affiliation::firstOrCreate(
-                    [ 'organisation_unique_id' => $organisation['organisation_unique_id'] ],
+                    [ 'organisation_unique_id' => $org['organisation_unique_id'] ],
                     [
-                        'organisation_name' => $organisation['organisation_name'],
-                        'address_1' => isset($organisation['address_1']) ? $organisation['address_1'] : '',
-                        'address_2' => isset($organisation['address_2']) ? $organisation['address_2'] : '',
-                        'town' => isset($organisation['town']) ? $organisation['town'] : '',
-                        'county' => isset($organisation['county']) ? $organisation['county'] : '',
-                        'country' => isset($organisation['country']) ? $organisation['country'] : '',
-                        'postcode' => isset($organisation['postcode']) ? $organisation['postcode'] : '',
-                        'lead_applicant_organisation_name' => $organisation['lead_applicant_organisation_name'],
-                        'organisation_unique_id' => $organisation['organisation_unique_id'],
-                        'applicant_names' => $organisation['applicant_names'],
-                        'funders_and_sponsors' => $organisation['funders_and_sponsors'],
-                        'sub_license_arrangements' => $organisation['sub_license_arrangements'],
+                        'organisation_name' => $org['organisation_name'],
+                        'address_1' => $org['address_1'],
+                        'address_2' => $org['address_2'],
+                        'town' => $org['town'],
+                        'county' => $org['county'],
+                        'country' => $org['country'],
+                        'postcode' => $org['postcode'],
+                        'lead_applicant_organisation_name' => $org['lead_applicant_organisation_name'],
+                        'organisation_unique_id' => $org['organisation_unique_id'],
+                        'applicant_names' => $org['applicant_names'],
+                        'funders_and_sponsors' => $org['funders_and_sponsors'],
+                        'sub_license_arrangements' => $org['sub_license_arrangements'],
                     ]
                 );
 
@@ -537,7 +537,7 @@ class IssuerController extends Controller
             }
 
             foreach ($input['researchers'] as $researcher) {
-
+                // TBC
                 if ($researcher) {
                     $researchersAddedCount++;
                 }
