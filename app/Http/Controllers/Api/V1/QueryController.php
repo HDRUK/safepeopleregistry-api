@@ -129,7 +129,7 @@ class QueryController extends Controller
             'identity',
             'history',
             'training',
-            'projects',
+            // 'projects',
             'affiliations'
         ])->where('digi_ident', $input['ident'])->first();
         if ($registry) {

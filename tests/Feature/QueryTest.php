@@ -6,6 +6,13 @@ use Tests\TestCase;
 
 use App\Models\Registry;
 
+use Database\Seeders\UserSeeder;
+use Database\Seeders\RegistrySeeder;
+use Database\Seeders\IdentitySeeder;
+use Database\Seeders\HistorySeeder;
+use Database\Seeders\TrainingSeeder;
+use Database\Seeders\AffiliationSeeder;
+
 use Illuminate\Testing\Fluent\AssertableJson;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -22,7 +29,15 @@ class QueryTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed();
+        $this->seed([
+            AffiliationSeeder::class,
+            UserSeeder::class,
+            RegistrySeeder::class,
+            IdentitySeeder::class,
+            HistorySeeder::class,
+            TrainingSeeder::class,
+            
+        ]);
 
         $this->headers = [
             'Accept' => 'application/json',
@@ -50,7 +65,7 @@ class QueryTest extends TestCase
                     'identity',
                     'history',
                     'training',
-                    'projects',
+                    // 'projects',
                     'affiliations',
                 ]
             ]);

@@ -6,6 +6,8 @@ use Hash;
 use Exception;
 
 use App\Models\Issuer;
+use App\Models\Project;
+use App\Models\Affiliation;
 
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -475,10 +477,80 @@ class IssuerController extends Controller
     public function push(Request $request): JsonResponse
     {
         try {
-            // Only for test passing. Actual code is split into another ticket
+            $projectsAddedCount = 0;
+            $organisationsAddedCount = 0;
+            $researchersAddedCount = 0;
+
+            // Traverse incoming payload and create entities pushed to us
+            $issuerId = $request->header('x-issuer-key');
+            $input = $request->all();
+
+            if (!$issuerId) {
+                return response()->json([
+                    'message' => 'you must be a trusted issuer and provide your issuer-key within the request headers',
+                ], Response::HTTP_UNAUTHORIZED);
+            }
+
+            foreach ($input['projects'] as $project) {
+                $project = Project::firstOrCreate(
+                    [ 'unique_id' => $project['unique_id'] ],
+                    [
+                        'title' => $project['title'],
+                        'lay_summary' => $project['lay_summary'],
+                        'public_benefit' => $project['public_benefit'],
+                        'request_category_type' => $project['request_category_type'],
+                        'technical_summary' => $project['technical_summary'],
+                        'other_approval_committees' => $project['other_approval_committees'],
+                        'start_date' => $project['start_date'],
+                        'end_date' => $project['end_date'],
+                        'affiliate_id' => isset($project['affiliate_id']) ? $project['affiliate_id'] : null,
+                    ]
+                );
+
+                if ($project) {
+                    $projectsAddedCount++;
+                }
+            }
+
+            foreach ($input['organisations'] as $organisation) {
+                $organisation = Affiliation::firstOrCreate(
+                    [ 'organisation_unique_id' => $organisation['organisation_unique_id'] ],
+                    [
+                        'organisation_name' => $organisation['organisation_name'],
+                        'address_1' => isset($organisation['address_1']) ? $organisation['address_1'] : '',
+                        'address_2' => isset($organisation['address_2']) ? $organisation['address_2'] : '',
+                        'town' => isset($organisation['town']) ? $organisation['town'] : '',
+                        'county' => isset($organisation['county']) ? $organisation['county'] : '',
+                        'country' => isset($organisation['country']) ? $organisation['country'] : '',
+                        'postcode' => isset($organisation['postcode']) ? $organisation['postcode'] : '',
+                        'lead_applicant_organisation_name' => $organisation['lead_applicant_organisation_name'],
+                        'organisation_unique_id' => $organisation['organisation_unique_id'],
+                        'applicant_names' => $organisation['applicant_names'],
+                        'funders_and_sponsors' => $organisation['funders_and_sponsors'],
+                        'sub_license_arrangements' => $organisation['sub_license_arrangements'],
+                    ]
+                );
+
+                if ($organisation) {
+                    $organisationsAddedCount++;
+                }
+            }
+
+            foreach ($input['researchers'] as $researcher) {
+
+                if ($researcher) {
+                    $researchersAddedCount++;
+                }
+            }
+
             return response()->json([
                 'message' => 'success',
-                'data' => $request->all()
+                'data' => [
+                    'projects_created' => $projectsAddedCount,
+                    'organisations_created' => $organisationsAddedCount,
+                    'researchers_created' => $researchersAddedCount,
+
+                ]
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());

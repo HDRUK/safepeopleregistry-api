@@ -8,6 +8,11 @@ use Tests\TestCase;
 
 use App\Models\Issuer;
 
+use Database\Seeders\UserSeeder;
+use Database\Seeders\IssuerSeeder;
+
+use Illuminate\Support\Str;
+
 use Illuminate\Testing\Fluent\AssertableJson;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -21,15 +26,24 @@ class IssuerTest extends TestCase
 
     private $headers = [];
 
+    private $projectUniqueId = '';
+    private $organisationUniqueId = '';
+
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed();
+        $this->seed([
+            UserSeeder::class,
+            IssuerSeeder::class,
+        ]);
 
         $this->headers = [
             'Accept' => 'application/json',
             'Authorization' => 'bearer ' . $this->getAuthToken(),
         ];
+
+        $this->projectUniqueId = Str::random(40);
+        $this->organisationUniqueId = Str::random(40);
     }
 
     public function test_the_application_can_list_issuers(): void
@@ -195,8 +209,38 @@ class IssuerTest extends TestCase
             self::TEST_URL . '/push',
             [
                 'researchers' => [],
-                'projects' => [],
-                'organisations' => [],
+                'projects' => [
+                    [
+                        'unique_id' => $this->projectUniqueId,
+                        'title' => 'This is a Test Project',
+                        'lay_summary' => 'Test Lay Summary',
+                        'public_benefit' => 'No one dies, ever.',
+                        'request_category_type' => 'category type',
+                        'technical_summary' => 'Technical Summary',
+                        'other_approval_committees' => 'Does anyone actually know what this means?',
+                        'start_date' => Carbon::now()->addMonths(6),
+                        'end_date' => Carbon::now()->addYears(2),
+                        'affiliate_id' => 1,
+                    ],
+                ],
+                'organisations' => [
+                    [
+                        'organisation_name' => 'TRE Approved Org',
+                        'address_1' => '123 Road',
+                        'address_2' => '',
+                        'town' => 'Town',
+                        'county' => 'County',
+                        'country' => 'Country',
+                        'postcode' => 'AB12 3CD',
+                        'lead_applicant_organisation_name' => fake()->name(),
+                        'organisation_unique_id' => $this->organisationUniqueId,
+                        'applicant_names' => 'Fred, Barney, Wilma and Betty',
+                        'funders_and_sponsors' => 'UKRI, MRC',
+                        'sub_license_arrangements' => fake()->sentence(5),
+                        'verified' => false,
+                        'dsptk_ods_code' => null,
+                    ],
+                ],
             ],
             [
                 'x-issuer-key' => $issuer->unique_identifier,
@@ -206,9 +250,9 @@ class IssuerTest extends TestCase
         $response->assertStatus(200);
         $content = $response->decodeResponseJson()['data'];
 
-        $this->assertEquals($content['researchers'], []);
-        $this->assertEquals($content['projects'], []);
-        $this->assertEquals($content['organisations'], []);
+        $this->assertEquals('0', $content['researchers_created']);
+        $this->assertEquals('1', $content['projects_created']);
+        $this->assertEquals('1', $content['organisations_created']);
     }
 
     public function test_the_application_can_refuse_pushes_with_missing_key(): void
@@ -236,8 +280,38 @@ class IssuerTest extends TestCase
             self::TEST_URL . '/push',
             [
                 'researchers' => [],
-                'projects' => [],
-                'organisations' => [],
+                'projects' => [
+                    [
+                        'unique_id' => $this->projectUniqueId,
+                        'title' => 'This is a Test Project',
+                        'lay_summary' => 'Test Lay Summary',
+                        'public_benefit' => 'No one dies, ever.',
+                        'request_category_type' => 'category type',
+                        'technical_summary' => 'Technical Summary',
+                        'other_approval_committees' => 'Does anyone actually know what this means?',
+                        'start_date' => Carbon::now()->addMonths(6),
+                        'end_date' => Carbon::now()->addYears(2),
+                        'affiliate_id' => 1,
+                    ],
+                ],
+                'organisations' => [
+                    [
+                        'organisation_name' => 'TRE Approved Org',
+                        'address_1' => '123 Road',
+                        'address_2' => '',
+                        'town' => 'Town',
+                        'county' => 'County',
+                        'country' => 'Country',
+                        'postcode' => 'AB12 3CD',
+                        'lead_applicant_organisation_name' => fake()->name(),
+                        'organisation_unique_id' => $this->organisationUniqueId,
+                        'applicant_names' => 'Fred, Barney, Wilma and Betty',
+                        'funders_and_sponsors' => 'UKRI, MRC',
+                        'sub_license_arrangements' => fake()->sentence(5),
+                        'verified' => false,
+                        'dsptk_ods_code' => null,
+                    ],
+                ],
             ],
             [
             ]
@@ -274,8 +348,38 @@ class IssuerTest extends TestCase
             self::TEST_URL . '/push',
             [
                 'researchers' => [],
-                'projects' => [],
-                'organisations' => [],
+                'projects' => [
+                    [
+                        'unique_id' => $this->projectUniqueId,
+                        'title' => 'This is a Test Project',
+                        'lay_summary' => 'Test Lay Summary',
+                        'public_benefit' => 'No one dies, ever.',
+                        'request_category_type' => 'category type',
+                        'technical_summary' => 'Technical Summary',
+                        'other_approval_committees' => 'Does anyone actually know what this means?',
+                        'start_date' => Carbon::now()->addMonths(6),
+                        'end_date' => Carbon::now()->addYears(2),
+                        'affiliate_id' => 1,
+                    ],
+                ],
+                'organisations' => [
+                    [
+                        'organisation_name' => 'TRE Approved Org',
+                        'address_1' => '123 Road',
+                        'address_2' => '',
+                        'town' => 'Town',
+                        'county' => 'County',
+                        'country' => 'Country',
+                        'postcode' => 'AB12 3CD',
+                        'lead_applicant_organisation_name' => fake()->name(),
+                        'organisation_unique_id' => $this->organisationUniqueId,
+                        'applicant_names' => 'Fred, Barney, Wilma and Betty',
+                        'funders_and_sponsors' => 'UKRI, MRC',
+                        'sub_license_arrangements' => fake()->sentence(5),
+                        'verified' => false,
+                        'dsptk_ods_code' => null,
+                    ],
+                ],
             ],
             [
                 'x-issuer-key' => $issuer->unique_identifier . 'broken_key',

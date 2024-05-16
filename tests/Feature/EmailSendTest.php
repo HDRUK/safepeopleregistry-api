@@ -5,6 +5,9 @@ namespace Tests\Feature;
 use App\Jobs\SendEmailJob;
 
 use Tests\TestCase;
+use Database\Seeders\UserSeeder;
+use Database\Seeders\IssuerSeeder;
+use Database\Seeders\EmailTemplatesSeeder;
 
 use Illuminate\Testing\Fluent\AssertableJson;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -24,7 +27,11 @@ class EmailSendTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed();
+        $this->seed([
+            UserSeeder::class,
+            IssuerSeeder::class,
+            EmailTemplatesSeeder::class,
+        ]);
 
         $this->headers = [
             'Accept' => 'application/json',

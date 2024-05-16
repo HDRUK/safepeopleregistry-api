@@ -8,6 +8,10 @@ use Tests\TestCase;
 
 use App\Models\Project;
 
+use Database\Seeders\UserSeeder;
+
+use Illuminate\Support\Str;
+
 use Illuminate\Testing\Fluent\AssertableJson;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -24,7 +28,9 @@ class ProjectTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed();
+        $this->seed([
+            UserSeeder::class,
+        ]);
 
         $this->headers = [
             'Accept' => 'application/json',
@@ -50,10 +56,15 @@ class ProjectTest extends TestCase
             'POST',
             self::TEST_URL,
             [
-                'registry_id' => 1,
-                'name' => 'This is a Project',
+                'unique_id' => Str::random(30),
+                'title' => 'This is a Project',
+                'lay_summary' => 'Sample lay summary',
                 'public_benefit' => 'This will benefit the public',
-                'runs_to' => Carbon::now()->addYears(2),
+                'request_category_type' => 'Category type',
+                'technical_summary' => 'Sample technical summary',
+                'other_approval_committees' => 'Bodies on a board panel',
+                'start_date' => Carbon::now(),
+                'end_date' => Carbon::now()->addYears(2),
                 'affiliate_id' => 1,
             ],
             $this->headers
@@ -80,10 +91,15 @@ class ProjectTest extends TestCase
             'POST',
             self::TEST_URL,
             [
-                'registry_id' => 1,
-                'name' => 'This is a Project',
+                'unique_id' => Str::random(30),
+                'title' => 'Test Project',
+                'lay_summary' => 'Sample lay summary',
                 'public_benefit' => 'This will benefit the public',
-                'runs_to' => Carbon::now()->addYears(2),
+                'request_category_type' => 'Category type',
+                'technical_summary' => 'Sample technical summary',
+                'other_approval_committees' => 'Bodies on a board panel',
+                'start_date' => Carbon::now(),
+                'end_date' => Carbon::now()->addYears(2),
                 'affiliate_id' => 1,
             ],
             $this->headers
@@ -99,10 +115,15 @@ class ProjectTest extends TestCase
             'POST',
             self::TEST_URL,
             [
-                'registry_id' => 1,
-                'name' => 'This is a New Project',
+                'unique_id' => Str::random(30),
+                'title' => 'Test Project',
+                'lay_summary' => 'Sample lay summary',
                 'public_benefit' => 'This will benefit the public',
-                'runs_to' => Carbon::now()->addYears(2),
+                'request_category_type' => 'Category type',
+                'technical_summary' => 'Sample technical summary',
+                'other_approval_committees' => 'Bodies on a board panel',
+                'start_date' => Carbon::now(),
+                'end_date' => Carbon::now()->addYears(2),
                 'affiliate_id' => 1,
             ],
             $this->headers
@@ -113,16 +134,21 @@ class ProjectTest extends TestCase
 
         $content = $response->decodeResponseJson()['data'];
 
-        $newDate = Carbon::now()->subYears(2);
+        $newDate = Carbon::now()->addYears(2);
 
         $response = $this->json(
             'PUT',
             self::TEST_URL . '/' . $content,
             [
-                'registry_id' => 1,
-                'name' => 'This is an Old Project',
+                'unique_id' => Str::random(30),
+                'title' => 'This is an Old Project',
+                'lay_summary' => 'Sample lay summary',
                 'public_benefit' => 'This will benefit the public',
-                'runs_to' => $newDate,
+                'request_category_type' => 'Category type',
+                'technical_summary' => 'Sample technical summary',
+                'other_approval_committees' => 'Bodies on a board panel',
+                'start_date' => Carbon::now(),
+                'end_date' => Carbon::now()->addYears(2),
                 'affiliate_id' => 1,
             ],
             $this->headers
@@ -133,8 +159,8 @@ class ProjectTest extends TestCase
 
         $content = $response->decodeResponseJson()['data'];
 
-        $this->assertEquals($content['name'], 'This is an Old Project');
-        $this->assertEquals(Carbon::parse($content['runs_to'])->toDateTimeString(), $newDate->toDateTimeString());
+        $this->assertEquals($content['title'], 'This is an Old Project');
+        $this->assertEquals(Carbon::parse($content['end_date'])->toDateTimeString(), $newDate->toDateTimeString());
     }
 
     public function test_the_application_can_delete_projects(): void
@@ -143,10 +169,15 @@ class ProjectTest extends TestCase
             'POST',
             self::TEST_URL,
             [
-                'registry_id' => 1,
-                'name' => 'This is a New Project',
+                'unique_id' => Str::random(30),
+                'title' => 'Test Project',
+                'lay_summary' => 'Sample lay summary',
                 'public_benefit' => 'This will benefit the public',
-                'runs_to' => Carbon::now()->addYears(2),
+                'request_category_type' => 'Category type',
+                'technical_summary' => 'Sample technical summary',
+                'other_approval_committees' => 'Bodies on a board panel',
+                'start_date' => Carbon::now(),
+                'end_date' => Carbon::now()->addYears(2),
                 'affiliate_id' => 1,
             ],
             $this->headers

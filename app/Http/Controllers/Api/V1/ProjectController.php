@@ -165,10 +165,15 @@ class ProjectController extends Controller
         try {
             $input = $request->all();
             $project = Project::create([
-                'registry_id' => $input['registry_id'],
-                'name' => $input['name'],
+                'unique_id' => $input['unique_id'],
+                'title' => $input['title'],
+                'lay_summary' => $input['lay_summary'],
                 'public_benefit' => $input['public_benefit'],
-                'runs_to' => $input['runs_to'],
+                'request_category_type' => $input['request_category_type'],
+                'technical_summary' => $input['technical_summary'],
+                'other_approval_committees' => $input['other_approval_committees'],
+                'start_date' => $input['start_date'],
+                'end_date' => $input['end_date'],
                 'affiliate_id' => $input['affiliate_id'],
             ]);
 
@@ -252,10 +257,15 @@ class ProjectController extends Controller
         try {
             $input = $request->all();
             $project = Project::where('id', $id)->update([
-                'registry_id' => $input['registry_id'],
-                'name' => $input['name'],
+                'unique_id' => $input['unique_id'],
+                'title' => $input['title'],
+                'lay_summary' => $input['lay_summary'],
                 'public_benefit' => $input['public_benefit'],
-                'runs_to' => $input['runs_to'],
+                'request_category_type' => $input['request_category_type'],
+                'technical_summary' => $input['technical_summary'],
+                'other_approval_committees' => $input['other_approval_committees'],
+                'start_date' => $input['start_date'],
+                'end_date' => $input['end_date'],
                 'affiliate_id' => $input['affiliate_id'],
             ]);
 
@@ -339,10 +349,15 @@ class ProjectController extends Controller
         try {
             $input = $request->all();
             $project = Project::where('id', $id)->update([
-                'registry_id' => $input['registry_id'],
-                'name' => $input['name'],
+                'unique_id' => $input['unique_id'],
+                'title' => $input['title'],
+                'lay_summary' => $input['lay_summary'],
                 'public_benefit' => $input['public_benefit'],
-                'runs_to' => $input['runs_to'],
+                'request_category_type' => $input['request_category_type'],
+                'technical_summary' => $input['technical_summary'],
+                'other_approval_committees' => $input['other_approval_committees'],
+                'start_date' => $input['start_date'],
+                'end_date' => $input['end_date'],
                 'affiliate_id' => $input['affiliate_id'],
             ]);
 

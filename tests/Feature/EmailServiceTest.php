@@ -7,6 +7,8 @@ use Hdruk\LaravelMjml\Email;
 use Hdruk\LaravelMjml\Models\EmailTemplate;
 use Tests\TestCase;
 
+use Database\Seeders\UserSeeder;
+
 use App\Jobs\SendEmailJob;
 use Illuminate\Support\Facades\Bus;
 
@@ -27,6 +29,7 @@ class EmailServiceTest extends TestCase
         parent::setUp();
 
         $this->seed([
+            UserSeeder::class,
             EmailTemplatesSeeder::class,
         ]);
 

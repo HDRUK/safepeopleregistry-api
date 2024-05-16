@@ -24,7 +24,9 @@ class AuthTest extends TestCase
     {
         parent::setUp();
 
-        $this->seed();
+        $this->seed([
+            UserSeeder::class,
+        ]);
     }
 
     public function test_the_application_returns_jwt_on_successful_login(): void
