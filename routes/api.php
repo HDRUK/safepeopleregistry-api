@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\QueryController;
 use App\Http\Controllers\Api\V1\TrainingController;
@@ -41,6 +42,13 @@ Route::middleware('api')->post('v1/login', [AuthController::class, 'login']);
 Route::middleware('api')->post('v1/logout', [AuthController::class, 'logout']);
 Route::middleware('api')->post('v1/refresh', [AuthController::class, 'refresh']);
 Route::middleware('api')->post('v1/me', [AuthController::class, 'me']);
+
+Route::middleware('api')->get('v1/users', [UserController::class, 'index']);
+Route::middleware('api')->get('v1/users/{id}', [UserController::class, 'show']);
+Route::middleware('api')->post('v1/users', [UserController::class, 'store']);
+Route::middleware('api')->put('v1/users/{id}', [UserController::class, 'update']);
+Route::middleware('api')->patch('v1/users/{id}', [UserController::class, 'edit']);
+Route::middleware('api')->delete('v1/users/{id}', [UserController::class, 'destroy']);
 
 Route::middleware('api')->get('v1/training', [TrainingController::class, 'index']);
 Route::middleware('api')->get('v1/training/{id}', [TrainingController::class, 'show']);
