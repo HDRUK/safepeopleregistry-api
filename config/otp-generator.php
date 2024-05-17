@@ -29,7 +29,7 @@ return [
     | This filed will be used when validating the generated OTP token.
     |
     */
-    'allowedAttempts' => env('OTP_ALLOWED_ATTEMPTS', 5),
+    'allowedAttempts' => env('OTP_ALLOWED_ATTEMPTS', 10),
 
 
     /*

@@ -57,16 +57,13 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        $token = 'blah, blah';
-
         $input = $request->all();
+        $credentials = [
+            'email' => $input['email'],
+            'password' => $input['password'],
+        ];
 
         if (isset($input['step']) && $input['step'] === 'login') {
-            $credentials = request([
-                'email',
-                'password',
-            ]);
-
             $user = User::where('email', $credentials['email'])->first();
             if ($user) {
                 $otp = Otp::setValidity(env('OTP_VALIDITY_MINUTES'))
@@ -95,21 +92,31 @@ class AuthController extends Controller
         }
 
         if (isset($input['step']) && $input['step'] === 'otp') {
-            $verify = Otp::validate($input['email'], $input['otp']);
-            if ($verify['status'] === true) {
+            $verify = Otp::validate($credentials['email'], $input['otp']);
+            if ($verify->status === true) {
+                $user = User::where('email', $credentials['email'])->first();
+
+                if (!$token = auth()->attempt($credentials)) {
+                    return response()->json([
+                        'message' => 'unauthorised',
+                        'data' => null,
+                    ], 401);
+                }
                 return $this->respondWithToken($token);
+            } else {
+                return response()->json([
+                    'message' => 'unauthorised',
+                    'data' => $verify,
+                ]);
             }
+
+            dd('am here now');
         }
 
-        // if (!$token = auth()->attempt($credentials)) {
-        //     return response()->json([
-        //         'error' => 'Unauthorised',
-        //     ], 401);
-        // }
-
-        // return $this->repondWithOTP($token);
-
-        // return $this->respondWithToken($token);
+        return response()->json([
+            'message' => 'unauthorised',
+            'data' => null,
+        ], 401);
     }
 
     /**
