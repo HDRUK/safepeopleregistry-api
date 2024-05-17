@@ -1,0 +1,101 @@
+# nameOverride: ''
+# fullnameOverride: ''
+
+brms:
+  licenseKey: '328431d3-bfea-48a9-a0df-a0e7667e9762'
+  appUrl: 'https://gorules.your-site.com'
+  # hashSecret: ''
+
+  session:
+    # Duration of session in minutes
+    duration: 1440
+  #    # Defaults to auto-generated
+  #    secret: ''
+
+  image:
+    repository: 'gorules/brms'
+    # Change this to appropriate value when hosting in your cluster
+    tag: 'latest'
+    pullPolicy: IfNotPresent
+
+  sso:
+    oauth2:
+      provider: ''
+      # clientId: ''
+      # clientSecret: ''
+      # scopes: 'openid email profile groups'
+      # authUrl: ''
+      # tokenUrl: ''
+      # groupsMapping: ''
+
+  smtp:
+    enabled: true
+  #    username: ''
+  #    password: ''
+  #    from: ''
+  #    host: ''
+  #    port: ''
+  #    secure: true
+  #    tlsRejectUnauthorized: false
+
+  postgres:
+    host: 'speedi-pgsql-postgresql'
+    username: 'speedi-as'
+    password: 'Flood15?Voice'
+    database: 'speedi-rules'
+    port: 5432
+    runMigrations: true
+    sslDisabled: true
+    rejectUnauthorized: false
+
+ingress:
+  enabled: true
+  className: ''
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+   - host: gorules.your-site.com
+     paths:
+       - path: /
+         pathType: ImplementationSpecific
+  tls: []
+
+service:
+  type: ClusterIP
+  port: 80
+
+#replicaCount: 2
+resources:
+  limits:
+    cpu: 2000m
+    memory: 1024Mi
+  requests:
+    cpu: 500m
+    memory: 256Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+podSecurityContext: {}
+# fsGroup: 2000
+
+securityContext:
+  {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+# runAsNonRoot: true
+# runAsUser: 1000
+
+podAnnotations: {}
+podLabels: {}
+tolerations: []
+nodeSelector: {}
+affinity: {}
+
