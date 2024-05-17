@@ -2,6 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Seshac\Otp\Otp;
+
+use App\Models\User;
+use App\Jobs\SendEmailJob;
+use Hdruk\LaravelMjml\Models\EmailTemplate;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -51,18 +57,59 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        $credentials = request([
-            'email',
-            'password'
-        ]);
+        $token = 'blah, blah';
 
-        if (!$token = auth()->attempt($credentials)) {
-            return response()->json([
-                'error' => 'Unauthorised',
-            ], 401);
+        $input = $request->all();
+
+        if (isset($input['step']) && $input['step'] === 'login') {
+            $credentials = request([
+                'email',
+                'password',
+            ]);
+
+            $user = User::where('email', $credentials['email'])->first();
+            if ($user) {
+                $otp = Otp::setValidity(env('OTP_VALIDITY_MINUTES'))
+                    ->setLength(env('OTP_LENGTH'))
+                    ->setOnlyDigits(env('OTP_ONLY_DIGITS'))
+                    ->generate($user->email);
+                if ($otp->status) {
+                    $user->otp = $otp->token;
+                }
+                if ($user->save()) {
+                    $to = [
+                        'id' => $user->id,
+                        'email' => $user->email,
+                        'name' => ucwords($user->name),
+                    ];
+
+                    $template = EmailTemplate::where('identifier', '=', 'user_otp')->first();
+                    SendEmailJob::dispatch($to, $template, []);
+
+                    return response()->json([
+                        'message' => 'otp_required',
+                        'data' => null,
+                    ], 200);
+                }
+            }
         }
 
-        return $this->respondWithToken($token);
+        if (isset($input['step']) && $input['step'] === 'otp') {
+            $verify = Otp::validate($input['email'], $input['otp']);
+            if ($verify['status'] === true) {
+                return $this->respondWithToken($token);
+            }
+        }
+
+        // if (!$token = auth()->attempt($credentials)) {
+        //     return response()->json([
+        //         'error' => 'Unauthorised',
+        //     ], 401);
+        // }
+
+        // return $this->repondWithOTP($token);
+
+        // return $this->respondWithToken($token);
     }
 
     /**
