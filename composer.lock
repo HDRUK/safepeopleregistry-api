@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "98d3e58ea617d3c96868c62a6d8ed215",
+    "content-hash": "c95bc6536ac47578cb4ee2b76004b7d7",
     "packages": [
         {
             "name": "brick/math",
@@ -3949,6 +3949,76 @@
                 }
             ],
             "time": "2023-11-08T05:53:05+00:00"
+        },
+        {
+            "name": "seshac/otp-generator",
+            "version": "0.0.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/seshac/otp-generator.git",
+                "reference": "a05861290dd6b905dbae06e6ea3f0242f3bf2537"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/seshac/otp-generator/zipball/a05861290dd6b905dbae06e6ea3f0242f3bf2537",
+                "reference": "a05861290dd6b905dbae06e6ea3f0242f3bf2537",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.3|7.4|^8.0|^8.1|^8.2"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^6.0",
+                "phpunit/phpunit": "^9.3",
+                "vimeo/psalm": "^3.11|^4.3"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Seshac\\Otp\\OtpServiceProvider"
+                    ],
+                    "aliases": {
+                        "Otp": "Seshac\\Otp\\OtpFacade"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Seshac\\Otp\\": "src",
+                    "Seshac\\Otp\\Database\\Factories\\": "database/factories"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "sesha",
+                    "email": "seshadriece008@gmail.com",
+                    "homepage": "https://sesha.in",
+                    "role": "Developer"
+                }
+            ],
+            "description": "OTP Generator and Validator for Laravel Applications",
+            "homepage": "https://github.com/seshac/otp-generator",
+            "keywords": [
+                "laravel",
+                "otp-generator",
+                "seshac"
+            ],
+            "support": {
+                "issues": "https://github.com/seshac/otp-generator/issues",
+                "source": "https://github.com/seshac/otp-generator/tree/0.0.8"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/seshac",
+                    "type": "github"
+                }
+            ],
+            "time": "2023-10-23T03:10:30+00:00"
         },
         {
             "name": "socialiteproviders/keycloak",

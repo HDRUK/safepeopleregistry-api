@@ -12,6 +12,7 @@
         "laravel/framework": "^10.10",
         "laravel/socialite": "^5.12",
         "laravel/tinker": "^2.8",
+        "seshac/otp-generator": "^0.0.8",
         "socialiteproviders/keycloak": "^5.3",
         "socialiteproviders/manager": "^4.5",
         "tymon/jwt-auth": "^2.1"

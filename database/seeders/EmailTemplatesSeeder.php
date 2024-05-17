@@ -144,5 +144,46 @@ class EmailTemplatesSeeder extends Seeder
           </mj-button></mj-column></mj-section></mj-wrapper></mj-body></mjml >',
           'buttons' => '',
         ]);
+
+        EmailTemplate::create([
+          'identifier' => 'user_otp',
+          'subject' => 'Confirm your Registry Email address',
+          'body' => '
+          <mjml>
+          <mj-head>
+              
+    <mj-html-attributes>
+      <mj-html-attribute class="easy-email" multiple-attributes="false" attribute-name="text-color" text-color="#000000"></mj-html-attribute>
+<mj-html-attribute class="easy-email" multiple-attributes="false" attribute-name="font-family" font-family="-apple-system, BlinkMacSystemFont, \'Segoe UI\', \'Roboto\', \'Oxygen\', \'Ubuntu\', \'Cantarell\', \'Fira Sans\', \'Droid Sans\',\'Helvetica Neue\', sans-serif"></mj-html-attribute>
+<mj-html-attribute class="easy-email" multiple-attributes="false" attribute-name="font-size" font-size="14px"></mj-html-attribute>
+<mj-html-attribute class="easy-email" multiple-attributes="false" attribute-name="line-height" line-height="1.7"></mj-html-attribute>
+<mj-html-attribute class="easy-email" multiple-attributes="false" attribute-name="font-weight" font-weight="400"></mj-html-attribute>
+<mj-html-attribute class="easy-email" multiple-attributes="false" attribute-name="responsive" responsive="true"></mj-html-attribute>
+
+    </mj-html-attributes>
+  
+              
+              
+              
+              <mj-breakpoint width="480px" />
+              
+              
+            <mj-attributes>
+              <mj-text font-size="14px" />
+<mj-text line-height="1.7" />
+<mj-text font-weight="400" />
+              <mj-all font-family="-apple-system, BlinkMacSystemFont, \'Segoe UI\', \'Roboto\', \'Oxygen\', \'Ubuntu\', \'Cantarell\', \'Fira Sans\', \'Droid Sans\',\'Helvetica Neue\', sans-serif" />
+              <mj-text font-size="14px" />
+              <mj-text color="#000000" />
+        <mj-text line-height="1.7" />
+        <mj-text font-weight="400" />
+              
+
+            </mj-attributes>
+          </mj-head>
+          <mj-body background-color="#efeeea" width="600px" ><mj-wrapper padding="20px 0px 20px 0px" border="none" direction="ltr" text-align="center" ><mj-section padding="0px" text-align="left" ><mj-column ><mj-image align="center" height="auto" padding="0px 0px 0px 0px" src="https://fakeimg.pl/800x200?text=SPEEDI-AS+Registry+OTP" ></mj-image></mj-column></mj-section></mj-wrapper><mj-section padding="0px" text-align="left" ><mj-column ><mj-spacer height="20px" padding="   " ></mj-spacer></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-text padding="10px 25px 10px 25px" align="left" font-size="16px" font-weight="bold" >Confirm your email address</mj-text></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-spacer height="20px" padding="   " ></mj-spacer></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-text padding="10px 25px 10px 25px" align="left" >To verify your email address, please enter the code below into your web browser.</mj-text></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-spacer height="20px" padding="   " ></mj-spacer></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-text padding="10px 25px 10px 25px" align="center" font-size="24px" font-style="normal" container-background-color="#000000" color="#FFFFFF" >[[users.otp]]</mj-text></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-text padding="10px 25px 10px 25px" align="left" >The above code is only valid for [[env(OTP_VALIDITY_MINUTES)]] minute(s). <br><br>If you didn\'t request this email, worry not, you can safely ignore it.</mj-text></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-spacer height="20px" padding="   " ></mj-spacer></mj-column></mj-section><mj-section padding="0px   " text-align="left" ><mj-column ><mj-text padding="10px 25px 10px 25px" align="left" >SPEEDI-AS Registry Support Team<div>[[env(SUPPORT_EMAIL)]]</div></mj-text></mj-column></mj-section></mj-body></mjml > 
+          ',
+          'buttons' => '',
+        ]);
     }
 }
