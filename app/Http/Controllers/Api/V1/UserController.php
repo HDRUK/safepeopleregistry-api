@@ -6,6 +6,8 @@ use Hash;
 use Exception;
 
 use App\Models\User;
+use App\Models\UserHasIssuerApproval;
+use App\Models\UserHasIssuerPermission;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -50,7 +52,9 @@ class UserController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $users = User::all();
+        $users = User::with([
+            'permissions'
+        ])->get();
 
         return response()->json([
             'message' => 'success',
@@ -104,7 +108,9 @@ class UserController extends Controller
     public function show(Request $request, int $id): JsonResponse
     {
         try {
-            $user = User::findOrFail($id);
+            $user = User::with([
+                'permissions'
+            ])->findOrFail($id);
             return response()->json([
                 'message' => 'success',
                 'data' => $user,
@@ -393,6 +399,8 @@ class UserController extends Controller
     {
         try {
             User::where('id', $id)->delete();
+            UserHasIssuerPermission::where('user_id', $id)->delete();
+            UserHasIssuerApproval::where('user_id', $id)->delete();
 
             return response()->json([
                 'message' => 'succes',

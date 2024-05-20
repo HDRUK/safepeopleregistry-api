@@ -16,6 +16,8 @@ class RegistrySeeder extends Seeder
      */
     public function run(): void
     {
+        Registry::truncate();
+        
         Registry::factory(1)->create();
 
         $affiliation = Affiliation::all();

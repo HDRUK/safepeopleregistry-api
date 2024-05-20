@@ -14,6 +14,8 @@ class ExperienceSeeder extends Seeder
      */
     public function run(): void
     {
+        Experience::truncate();
+        
         Experience::factory(1)->create();
     }
 }

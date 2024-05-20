@@ -15,6 +15,8 @@ class HistorySeeder extends Seeder
      */
     public function run(): void
     {
+        History::truncate();
+        
         History::factory(10)->create();
 
         $histories = History::all();
