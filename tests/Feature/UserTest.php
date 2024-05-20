@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Models\UserHasIssuerApproval;
+use App\Models\UserHasIssuerPermission;
 
 use Tests\TestCase;
 use Database\Seeders\UserSeeder;

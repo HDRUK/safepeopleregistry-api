@@ -14,6 +14,8 @@ class IdentitySeeder extends Seeder
      */
     public function run(): void
     {
+        Identity::truncate();
+        
         Identity::factory(1)->create();
     }
 }

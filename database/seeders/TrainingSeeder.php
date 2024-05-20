@@ -14,6 +14,8 @@ class TrainingSeeder extends Seeder
      */
     public function run(): void
     {
+        Training::truncate();
+        
         Training::factory(1)->create();
     }
 }

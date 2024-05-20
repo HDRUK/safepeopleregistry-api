@@ -14,6 +14,8 @@ class AffiliationSeeder extends Seeder
      */
     public function run(): void
     {
+        Affiliation::truncate();
+
         Affiliation::factory(1)->create();
     }
 }

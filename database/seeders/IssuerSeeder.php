@@ -14,7 +14,8 @@ class IssuerSeeder extends Seeder
      */
     public function run(): void
     {
-
+        Issuer::truncate();
+        
         foreach (config('speedi.issuers') as $issuer) {
             Issuer::factory()->create([
                 'name' => $issuer['name'],

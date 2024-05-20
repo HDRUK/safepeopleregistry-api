@@ -109,8 +109,18 @@ class AuthController extends Controller
                     'data' => $verify,
                 ]);
             }
+        }
 
-            dd('am here now');
+        if (!isset($input['step']) && !isset($input['otp'])) {
+            $user = User::where('email', $credentials['email'])->first();
+
+            if (!$token = auth()->attempt($credentials)) {
+                return response()->json([
+                    'message' => 'unauthorised',
+                    'data' => null,
+                ], 401);
+            }
+            return $this->respondWithToken($token);
         }
 
         return response()->json([
