@@ -89,9 +89,9 @@ class Registry extends Model
     //     return $this->hasMany(Project::class, 'registry_id');
     // }
 
-    public function affiliations(): BelongsToMany
+    public function organisations(): BelongsToMany
     {
-        return $this->belongsToMany(Affiliation::class, 'registry_has_affiliations');
+        return $this->belongsToMany(Organisation::class, 'registry_has_organisations');
     }
 
     public function history(): BelongsToMany

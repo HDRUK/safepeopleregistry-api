@@ -106,7 +106,7 @@ class QueryController extends Controller
      *                                  @OA\Property(property="affiliate_id", type="integer", example="124")
      *                              )
      *                          ),
-     *                          @OA\Property(property="affiliations", type="array",
+     *                          @OA\Property(property="organisations", type="array",
      *                              @OA\Items(
      *                                  @OA\Property(property="id", type="integer", example="1"),
      *                                  @OA\Property(property="created_at", type="string", example="2024-03-12T13:11:55.000000Z"),
@@ -130,7 +130,7 @@ class QueryController extends Controller
             'history',
             'training',
             // 'projects',
-            'affiliations'
+            'organisations'
         ])->where('digi_ident', $input['ident'])->first();
         if ($registry) {
             return response()->json([

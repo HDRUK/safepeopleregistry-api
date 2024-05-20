@@ -17,7 +17,7 @@ return new class extends Migration
             $table->bigInteger('project_id');
             $table->dateTime('from');
             $table->dateTime('to');
-            $table->bigInteger('affiliation_id');
+            $table->bigInteger('organisation_id');
 
             // Explicitly set character set and collation
             $table->charset = 'utf8mb4';

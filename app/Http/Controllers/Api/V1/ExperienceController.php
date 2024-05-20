@@ -34,7 +34,7 @@ class ExperienceController extends Controller
      *                  @OA\Property(property="project_id", type="integer", example="1"),
      *                  @OA\Property(property="from", type="string", example="2024-02-04 12:10:00"),
      *                  @OA\Property(property="to", type="string", example="2026-02-04 12:09:59"),
-     *                  @OA\Property(property="affiliation_id", type="integer", example="2")
+     *                  @OA\Property(property="organisation_id", type="integer", example="2")
      *              )
      *          ),
      *      ),
@@ -88,7 +88,7 @@ class ExperienceController extends Controller
      *                  @OA\Property(property="project_id", type="integer", example="1"),
      *                  @OA\Property(property="from", type="string", example="2024-02-04 12:10:00"),
      *                  @OA\Property(property="to", type="string", example="2026-02-04 12:09:59"),
-     *                  @OA\Property(property="affiliation_id", type="integer", example="2")
+     *                  @OA\Property(property="organisation_id", type="integer", example="2")
      *              )
      *          ),
      *      ),
@@ -132,7 +132,7 @@ class ExperienceController extends Controller
      *              @OA\Property(property="project_id", type="integer", example="1"),
      *              @OA\Property(property="from", type="string", example="2024-02-04 12:10:00"),
      *              @OA\Property(property="to", type="string", example="2026-02-04 12:09:59"),
-     *              @OA\Property(property="affiliation_id", type="integer", example="2")
+     *              @OA\Property(property="organisation_id", type="integer", example="2")
      *          ),
      *      ),
      *      @OA\Response(
@@ -169,7 +169,7 @@ class ExperienceController extends Controller
                 'project_id' => $input['project_id'],
                 'from' => $input['from'],
                 'to' => $input['to'],
-                'affiliation_id' => $input['affiliation_id'],
+                'organisation_id' => $input['organisation_id'],
             ]);
 
             return response()->json([
@@ -210,7 +210,7 @@ class ExperienceController extends Controller
      *              @OA\Property(property="project_id", type="integer", example="1"),
      *              @OA\Property(property="from", type="string", example="2024-02-04 12:10:00"),
      *              @OA\Property(property="to", type="string", example="2026-02-04 12:09:59"),
-     *              @OA\Property(property="affiliation_id", type="integer", example="2")
+     *              @OA\Property(property="organisation_id", type="integer", example="2")
      *          ),
      *      ),
      *      @OA\Response(
@@ -232,7 +232,7 @@ class ExperienceController extends Controller
      *                  @OA\Property(property="project_id", type="integer", example="1"),
      *                  @OA\Property(property="from", type="string", example="2024-02-04 12:10:00"),
      *                  @OA\Property(property="to", type="string", example="2026-02-04 12:09:59"),
-     *                  @OA\Property(property="affiliation_id", type="integer", example="2")
+     *                  @OA\Property(property="organisation_id", type="integer", example="2")
      *              )
      *          ),
      *      ),
@@ -254,7 +254,7 @@ class ExperienceController extends Controller
                 'project_id' => $input['project_id'],
                 'from' => $input['from'],
                 'to' => $input['to'],
-                'affiliation_id' => $input['affiliation_id'],
+                'organisation_id' => $input['organisation_id'],
             ]);
 
             return response()->json([
@@ -295,7 +295,7 @@ class ExperienceController extends Controller
      *              @OA\Property(property="project_id", type="integer", example="1"),
      *              @OA\Property(property="from", type="string", example="2024-02-04 12:10:00"),
      *              @OA\Property(property="to", type="string", example="2026-02-04 12:09:59"),
-     *              @OA\Property(property="affiliation_id", type="integer", example="2")
+     *              @OA\Property(property="organisation_id", type="integer", example="2")
      *          ),
      *      ),
      *      @OA\Response(
@@ -317,7 +317,7 @@ class ExperienceController extends Controller
      *                  @OA\Property(property="project_id", type="integer", example="1"),
      *                  @OA\Property(property="from", type="string", example="2024-02-04 12:10:00"),
      *                  @OA\Property(property="to", type="string", example="2026-02-04 12:09:59"),
-     *                  @OA\Property(property="affiliation_id", type="integer", example="2")
+     *                  @OA\Property(property="organisation_id", type="integer", example="2")
      *              )
      *          ),
      *      ),
@@ -339,7 +339,7 @@ class ExperienceController extends Controller
                 'project_id' => $input['project_id'],
                 'from' => $input['from'],
                 'to' => $input['to'],
-                'affiliation_id' => $input['affiliation_id'],
+                'organisation_id' => $input['organisation_id'],
             ]);
 
             return response()->json([

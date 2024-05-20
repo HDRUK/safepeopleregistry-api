@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Hash;
 use Exception;
 
-use App\Models\Affiliation;
+use App\Models\Organisation;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -12,15 +13,15 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Exception\NotFoundException;
 
-class AffiliationController extends Controller
+class OrganisationController extends Controller
 {
     /**
      * @OA\Get(
-     *      path="/api/v1/affiliations",
-     *      summary="Return a list of Affiliations",
-     *      description="Return a list of Affiliations",
-     *      tags={"Affiliation"},
-     *      summary="Affiliation@index",
+     *      path="/api/v1/organisations",
+     *      summary="Return a list of organisations",
+     *      description="Return a list of organisations",
+     *      tags={"organisation"},
+     *      summary="organisation@index",
      *      security={{"bearerAuth":{}}},
      *      @OA\Response(
      *          response=200,
@@ -31,7 +32,7 @@ class AffiliationController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="name", type="string", example="Affiliation Name"),
+     *                  @OA\Property(property="name", type="string", example="Organisations Name"),
      *                  @OA\Property(property="address_1", type="string", example="123 Road"),
      *                  @OA\Property(property="address_2", type="string", example="Address Two"),
      *                  @OA\Property(property="town", type="string", example="Town"),
@@ -54,31 +55,33 @@ class AffiliationController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $affiliations = Affiliation::all();
+        $organisations = Organisation::with([
+            'permissions',
+        ])->get();
         
         return response()->json([
             'message' => 'success',
-            'data' => $affiliations,
+            'data' => $organisations,
         ], 200);
     }
 
     /**
      * @OA\Get(
-     *      path="/api/v1/affiliations/{id}",
-     *      summary="Return an Affiliation entry by ID",
-     *      description="Return an Affiliation entry by ID",
-     *      tags={"Affiliation"},
-     *      summary="Affiliation@show",
+     *      path="/api/v1/organisations/{id}",
+     *      summary="Return an organisations entry by ID",
+     *      description="Return an organisations entry by ID",
+     *      tags={"organisations"},
+     *      summary="organisations@show",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="Affiliation entry ID",
+     *         description="organisations entry ID",
      *         required=true,
      *         example="1",
      *         @OA\Schema(
      *            type="integer",
-     *            description="Affiliation entry ID",
+     *            description="organisations entry ID",
      *         ),
      *      ),
      *      @OA\Response(
@@ -90,7 +93,7 @@ class AffiliationController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="name", type="string", example="Affiliation Name"),
+     *                  @OA\Property(property="name", type="string", example="Organisation Name"),
      *                  @OA\Property(property="address_1", type="string", example="123 Road"),
      *                  @OA\Property(property="address_2", type="string", example="Address Two"),
      *                  @OA\Property(property="town", type="string", example="Town"),
@@ -113,11 +116,13 @@ class AffiliationController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
-        $affiliation = Affiliation::findOrFail($id);
-        if ($affiliation) {
+        $organisation = Organisation::with([
+            'permissions',
+        ])->findOrFail($id);
+        if ($organisation) {
             return response()->json([
                 'message' => 'success',
-                'data' => $affiliation,
+                'data' => $organisation,
             ], 200);
         }
 
@@ -126,17 +131,17 @@ class AffiliationController extends Controller
 
     /**
      * @OA\Post(
-     *      path="/api/v1/affiliations",
-     *      summary="Create an Affiliation entry",
-     *      description="Create a Affiliation entry",
-     *      tags={"Affiliation"},
-     *      summary="Affiliation@store",
+     *      path="/api/v1/organisations",
+     *      summary="Create an organisations entry",
+     *      description="Create a organisations entry",
+     *      tags={"organisations"},
+     *      summary="organisations@store",
      *      security={{"bearerAuth":{}}},
      *      @OA\RequestBody(
      *          required=true,
-     *          description="Affiliation definition",
+     *          description="organisations definition",
      *          @OA\JsonContent(
-     *              @OA\Property(property="name", type="string", example="Affiliation Name"),
+     *              @OA\Property(property="name", type="string", example="organisations Name"),
      *              @OA\Property(property="address_1", type="string", example="123 Road"),
      *              @OA\Property(property="address_2", type="string", example="Address Two"),
      *              @OA\Property(property="town", type="string", example="Town"),
@@ -177,7 +182,7 @@ class AffiliationController extends Controller
     {
         try {
             $input = $request->all();
-            $affiliation = Affiliation::create([
+            $organisation = Organisation::create([
                 'organisation_name' => $input['organisation_name'],
                 'address_1' => $input['address_1'],
                 'address_2' => $input['address_2'],
@@ -186,6 +191,8 @@ class AffiliationController extends Controller
                 'country' => $input['country'],
                 'postcode' => $input['postcode'],
                 'lead_applicant_organisation_name' => $input['lead_applicant_organisation_name'],
+                'lead_applicant_email' => $input['lead_applicant_email'],
+                'password' => Hash::make($input['password']),
                 'organisation_unique_id' => $input['organisation_unique_id'],
                 'applicant_names' => $input['applicant_names'],
                 'funders_and_sponsors' => $input['funders_and_sponsors'],
@@ -195,7 +202,7 @@ class AffiliationController extends Controller
 
             return response()->json([
                 'message' => 'success',
-                'data' => $affiliation->id,
+                'data' => $organisation->id,
             ], 201);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -204,31 +211,31 @@ class AffiliationController extends Controller
 
     /**
      * @OA\Put(
-     *      path="/api/v1/affiliations/{id}",
-     *      summary="Update an Affiliation entry",
-     *      description="Update a Affiliation entry",
-     *      tags={"Affiliation"},
-     *      summary="Affiliation@update",
+     *      path="/api/v1/organisations/{id}",
+     *      summary="Update an organisations entry",
+     *      description="Update a organisations entry",
+     *      tags={"organisations"},
+     *      summary="organisations@update",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="Affiliation entry ID",
+     *         description="organisations entry ID",
      *         required=true,
      *         example="1",
      *         @OA\Schema(
      *            type="integer",
-     *            description="Affiliation entry ID",
+     *            description="organisations entry ID",
      *         ),
      *      ),
      *      @OA\RequestBody(
      *          required=true,
-     *          description="Affiliation definition",
+     *          description="organisations definition",
      *          @OA\JsonContent(
      *              @OA\Property(property="id", type="integer", example="123"),
      *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *              @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *              @OA\Property(property="name", type="string", example="Affiliation Name"),
+     *              @OA\Property(property="name", type="string", example="organisations Name"),
      *              @OA\Property(property="address_1", type="string", example="123 Road"),
      *              @OA\Property(property="address_2", type="string", example="Address Two"),
      *              @OA\Property(property="town", type="string", example="Town"),
@@ -255,7 +262,7 @@ class AffiliationController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="name", type="string", example="Affiliation Name"),
+     *                  @OA\Property(property="name", type="string", example="organisations Name"),
      *                  @OA\Property(property="address_1", type="string", example="123 Road"),
      *                  @OA\Property(property="address_2", type="string", example="Address Two"),
      *                  @OA\Property(property="town", type="string", example="Town"),
@@ -280,7 +287,7 @@ class AffiliationController extends Controller
     {
         try {
             $input = $request->all();
-            Affiliation::where('id', $id)->update([
+            Organisation::where('id', $id)->update([
                 'organisation_name' => $input['organisation_name'],
                 'address_1' => $input['address_1'],
                 'address_2' => $input['address_2'],
@@ -289,6 +296,7 @@ class AffiliationController extends Controller
                 'country' => $input['country'],
                 'postcode' => $input['postcode'],
                 'lead_applicant_organisation_name' => $input['lead_applicant_organisation_name'],
+                'lead_applicant_email' => $input['lead_applicant_email'],
                 'organisation_unique_id' => $input['organisation_unique_id'],
                 'applicant_names' => $input['applicant_names'],
                 'funders_and_sponsors' => $input['funders_and_sponsors'],
@@ -298,7 +306,7 @@ class AffiliationController extends Controller
 
             return response()->json([
                 'message' => 'success',
-                'data' => Affiliation::where('id', $id)->first(),
+                'data' => Organisation::where('id', $id)->first(),
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -307,31 +315,31 @@ class AffiliationController extends Controller
 
     /**
      * @OA\Patch(
-     *      path="/api/v1/affiliations/{id}",
-     *      summary="Edit an Affiliation entry",
-     *      description="Edit a Affiliation entry",
-     *      tags={"Affiliation"},
-     *      summary="Affiliation@edit",
+     *      path="/api/v1/organisations/{id}",
+     *      summary="Edit an organisations entry",
+     *      description="Edit a organisations entry",
+     *      tags={"organisations"},
+     *      summary="organisations@edit",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="Affiliation entry ID",
+     *         description="organisations entry ID",
      *         required=true,
      *         example="1",
      *         @OA\Schema(
      *            type="integer",
-     *            description="Affiliation entry ID",
+     *            description="organisations entry ID",
      *         ),
      *      ),
      *      @OA\RequestBody(
      *          required=true,
-     *          description="Affiliation definition",
+     *          description="organisations definition",
      *          @OA\JsonContent(
      *              @OA\Property(property="id", type="integer", example="123"),
      *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *              @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *              @OA\Property(property="name", type="string", example="Affiliation Name"),
+     *              @OA\Property(property="name", type="string", example="organisations Name"),
      *              @OA\Property(property="address_1", type="string", example="123 Road"),
      *              @OA\Property(property="address_2", type="string", example="Address Two"),
      *              @OA\Property(property="town", type="string", example="Town"),
@@ -358,7 +366,7 @@ class AffiliationController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="name", type="string", example="Affiliation Name"),
+     *                  @OA\Property(property="name", type="string", example="organisations Name"),
      *                  @OA\Property(property="address_1", type="string", example="123 Road"),
      *                  @OA\Property(property="address_2", type="string", example="Address Two"),
      *                  @OA\Property(property="town", type="string", example="Town"),
@@ -383,7 +391,7 @@ class AffiliationController extends Controller
     {
         try {
             $input = $request->all();
-            Affiliation::where('id', $id)->update([
+            Organisation::where('id', $id)->update([
                 'organisation_name' => $input['organisation_name'],
                 'address_1' => $input['address_1'],
                 'address_2' => $input['address_2'],
@@ -392,6 +400,7 @@ class AffiliationController extends Controller
                 'country' => $input['country'],
                 'postcode' => $input['postcode'],
                 'lead_applicant_organisation_name' => $input['lead_applicant_organisation_name'],
+                'lead_applicant_email' => $input['lead_applicant_email'],
                 'organisation_unique_id' => $input['organisation_unique_id'],
                 'applicant_names' => $input['applicant_names'],
                 'funders_and_sponsors' => $input['funders_and_sponsors'],
@@ -401,7 +410,7 @@ class AffiliationController extends Controller
 
             return response()->json([
                 'message' => 'success',
-                'data' => Affiliation::where('id', $id)->first(),
+                'data' => Organisation::where('id', $id)->first(),
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -410,21 +419,21 @@ class AffiliationController extends Controller
 
     /**
      * @OA\Delete(
-     *      path="/api/v1/affiliations/{id}",
-     *      summary="Delete an Affiliation entry from the system by ID",
-     *      description="Delete an Affiliation entry from the system",
-     *      tags={"Affiliation"},
-     *      summary="Affiliation@destroy",
+     *      path="/api/v1/organisations/{id}",
+     *      summary="Delete an organisations entry from the system by ID",
+     *      description="Delete an organisations entry from the system",
+     *      tags={"organisations"},
+     *      summary="organisations@destroy",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="Affiliation entry ID",
+     *         description="organisations entry ID",
      *         required=true,
      *         example="1",
      *         @OA\Schema(
      *            type="integer",
-     *            description="Affiliation entry ID",
+     *            description="organisations entry ID",
      *         ),
      *      ),
      *      @OA\Response(
@@ -453,7 +462,7 @@ class AffiliationController extends Controller
     public function destroy(Request $request, int $id): JsonResponse
     {
         try {
-            Affiliation::where('id', $id)->delete();
+            Organisation::where('id', $id)->delete();
 
             return response()->json([
                 'message' => 'success',

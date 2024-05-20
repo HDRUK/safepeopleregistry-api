@@ -7,7 +7,7 @@ use Exception;
 
 use App\Models\Issuer;
 use App\Models\Project;
-use App\Models\Affiliation;
+use App\Models\Organisation;
 
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -513,7 +513,7 @@ class IssuerController extends Controller
             }
 
             foreach ($input['organisations'] as $org) {
-                $organisation = Affiliation::firstOrCreate(
+                $organisation = Organisation::firstOrCreate(
                     [ 'organisation_unique_id' => $org['organisation_unique_id'] ],
                     [
                         'organisation_name' => $org['organisation_name'],

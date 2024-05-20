@@ -11,7 +11,9 @@ use Database\Seeders\RegistrySeeder;
 use Database\Seeders\IdentitySeeder;
 use Database\Seeders\HistorySeeder;
 use Database\Seeders\TrainingSeeder;
-use Database\Seeders\AffiliationSeeder;
+use Database\Seeders\IssuerSeeder;
+use Database\Seeders\PermissionSeeder;
+use Database\Seeders\OrganisationSeeder;
 
 use Illuminate\Testing\Fluent\AssertableJson;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -30,7 +32,9 @@ class QueryTest extends TestCase
     {
         parent::setUp();
         $this->seed([
-            AffiliationSeeder::class,
+            PermissionSeeder::class,
+            IssuerSeeder::class,
+            OrganisationSeeder::class,
             UserSeeder::class,
             RegistrySeeder::class,
             IdentitySeeder::class,
@@ -66,7 +70,7 @@ class QueryTest extends TestCase
                     'history',
                     'training',
                     // 'projects',
-                    'affiliations',
+                    'organisations',
                 ]
             ]);
     }

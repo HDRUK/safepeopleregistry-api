@@ -57,7 +57,7 @@ class ExperienceTest extends TestCase
                 'project_id' => 1,
                 'from' => Carbon::now(),
                 'to' => Carbon::now()->addYears(1),
-                'affiliation_id' => 1,
+                'organisation_id' => 1,
             ],
             $this->headers
         );
@@ -86,7 +86,7 @@ class ExperienceTest extends TestCase
                 'project_id' => 1,
                 'from' => Carbon::now(),
                 'to' => Carbon::now()->addYears(1),
-                'affiliation_id' => 1,
+                'organisation_id' => 1,
             ],
             $this->headers
         );
@@ -104,7 +104,7 @@ class ExperienceTest extends TestCase
                 'project_id' => 1,
                 'from' => Carbon::now(),
                 'to' => Carbon::now()->addYears(1),
-                'affiliation_id' => 1,
+                'organisation_id' => 1,
             ],
             $this->headers
         );
@@ -123,7 +123,7 @@ class ExperienceTest extends TestCase
                 'project_id' => 2,
                 'from' => Carbon::now(),
                 'to' => Carbon::now()->addYears(1),
-                'affiliation_id' => 1,
+                'organisation_id' => 1,
             ],
             $this->headers
         );
@@ -145,7 +145,7 @@ class ExperienceTest extends TestCase
                 'project_id' => 1,
                 'from' => Carbon::now(),
                 'to' => Carbon::now()->addYears(1),
-                'affiliation_id' => 1,
+                'organisation_id' => 1,
             ],
             $this->headers
         );

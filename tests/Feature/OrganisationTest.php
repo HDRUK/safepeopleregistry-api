@@ -6,7 +6,7 @@ use Carbon\Carbon;
 
 use Tests\TestCase;
 
-use App\Models\Affiliation;
+use App\Models\Organisation;
 
 use Database\Seeders\UserSeeder;
 
@@ -17,11 +17,11 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 use Tests\Traits\Authorisation;
 
-class AffiliationTest extends TestCase
+class OrganisationTest extends TestCase
 {
     use RefreshDatabase, Authorisation;
 
-    const TEST_URL = '/api/v1/affiliations';
+    const TEST_URL = '/api/v1/organisations';
 
     private $headers = [];
 
@@ -38,7 +38,7 @@ class AffiliationTest extends TestCase
         ];
     }
 
-    public function test_the_application_can_list_affiliations(): void
+    public function test_the_application_can_list_organisations(): void
     {
         $response = $this->json(
             'GET',
@@ -50,13 +50,13 @@ class AffiliationTest extends TestCase
         $this->assertArrayHaskey('data', $response);
     }
 
-    public function test_the_application_can_show_affiliations(): void
+    public function test_the_application_can_show_organisations(): void
     {
         $response = $this->json(
             'POST',
             self::TEST_URL,
             [
-                'organisation_name' => 'Test Affiliation',
+                'organisation_name' => 'Test Organisation',
                 'address_1' => '123 Blah blah',
                 'address_2' => '',
                 'town' => 'Town',
@@ -64,6 +64,8 @@ class AffiliationTest extends TestCase
                 'country' => 'Country',
                 'postcode' => 'BLA4 4HH',
                 'lead_applicant_organisation_name' => 'Some One',
+                'lead_applicant_email' => fake()->email(),
+                'password' => 'tempP4ssword',
                 'organisation_unique_id' => Str::random(40),
                 'applicant_names' => 'Some One, Some Two, Some Three',
                 'funders_and_sponsors' => 'UKRI, MRC',
@@ -88,13 +90,13 @@ class AffiliationTest extends TestCase
         $this->assertArrayHasKey('data', $response);
     }
 
-    public function test_the_application_can_create_affiliations(): void
+    public function test_the_application_can_create_organisations(): void
     {
         $response = $this->json(
             'POST',
             self::TEST_URL,
             [
-                'organisation_name' => 'Test Affiliation',
+                'organisation_name' => 'Test Organisation',
                 'address_1' => '123 Blah blah',
                 'address_2' => '',
                 'town' => 'Town',
@@ -102,6 +104,8 @@ class AffiliationTest extends TestCase
                 'country' => 'Country',
                 'postcode' => 'BLA4 4HH',
                 'lead_applicant_organisation_name' => 'Some One',
+                'lead_applicant_email' => fake()->email(),
+                'password' => 'tempP4ssword',
                 'organisation_unique_id' => Str::random(40),
                 'applicant_names' => 'Some One, Some Two, Some Three',
                 'funders_and_sponsors' => 'UKRI, MRC',
@@ -115,13 +119,13 @@ class AffiliationTest extends TestCase
         $this->assertArrayHasKey('data', $response);
     }
 
-    public function test_the_application_can_update_affiliations(): void
+    public function test_the_application_can_update_organisations(): void
     {
         $response = $this->json(
             'POST',
             self::TEST_URL,
             [
-                'organisation_name' => 'Test Affiliation',
+                'organisation_name' => 'Test Organisation',
                 'address_1' => '123 Blah blah',
                 'address_2' => '',
                 'town' => 'Town',
@@ -129,6 +133,8 @@ class AffiliationTest extends TestCase
                 'country' => 'Country',
                 'postcode' => 'BLA4 4HH',
                 'lead_applicant_organisation_name' => 'Some One',
+                'lead_applicant_email' => fake()->email(),
+                'password' => 'tempP4ssword',
                 'organisation_unique_id' => Str::random(40),
                 'applicant_names' => 'Some One, Some Two, Some Three',
                 'funders_and_sponsors' => 'UKRI, MRC',
@@ -149,7 +155,7 @@ class AffiliationTest extends TestCase
             'PUT',
             self::TEST_URL . '/' . $content,
             [
-                'organisation_name' => 'Test Affiliation',
+                'organisation_name' => 'Test Organisation',
                 'address_1' => '123 Blah blah',
                 'address_2' => '',
                 'town' => 'Town',
@@ -157,6 +163,8 @@ class AffiliationTest extends TestCase
                 'country' => 'Country',
                 'postcode' => 'BLA4 4HH',
                 'lead_applicant_organisation_name' => 'Some One',
+                'lead_applicant_email' => fake()->email(),
+                'password' => 'tempP4ssword',
                 'organisation_unique_id' => Str::random(40),
                 'applicant_names' => 'Some One, Some Two, Some Three',
                 'funders_and_sponsors' => 'UKRI, MRC',
@@ -171,18 +179,18 @@ class AffiliationTest extends TestCase
 
         $content = $response->decodeResponseJson()['data'];
 
-        $this->assertDatabaseHas('affiliations', [
+        $this->assertDatabaseHas('organisations', [
             'verified' => true,
         ]);
     }
 
-    public function test_the_application_can_delete_affiliations(): void
+    public function test_the_application_can_delete_organisations(): void
     {
         $response = $this->json(
             'POST',
             self::TEST_URL,
             [
-                'organisation_name' => 'Test Affiliation',
+                'organisation_name' => 'Test Organisation',
                 'address_1' => '123 Blah blah',
                 'address_2' => '',
                 'town' => 'Town',
@@ -190,6 +198,8 @@ class AffiliationTest extends TestCase
                 'country' => 'Country',
                 'postcode' => 'BLA4 4HH',
                 'lead_applicant_organisation_name' => 'Some One',
+                'lead_applicant_email' => fake()->email(),
+                'password' => 'tempP4ssword',
                 'organisation_unique_id' => Str::random(40),
                 'applicant_names' => 'Some One, Some Two, Some Three',
                 'funders_and_sponsors' => 'UKRI, MRC',

@@ -5,23 +5,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Experience extends Model
+class OrganisationHasIssuerPermission extends Model
 {
     use HasFactory;
 
     /**
-     * The table associated with this model
+     * The table associated with the model
      * 
      * @var string
      */
-    protected $table = 'experiences';
+    protected $table = 'organisation_has_issuer_permissions';
 
-    /**]
+    /**
      * Whether or not this model supports timestamps
      * 
      * @var bool
      */
-    public $timestamps = true;
+    public $timestamps = false;
 
     /**
      * What fields of this model are accepted as parameters
@@ -29,9 +29,8 @@ class Experience extends Model
      * @var array
      */
     protected $fillable = [
-        'project_id',
-        'from',
-        'to',
         'organisation_id',
+        'permission_id',
+        'issuer_id',
     ];
 }
