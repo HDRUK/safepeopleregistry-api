@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('registry_has_affiliations', function (Blueprint $table) {
+        Schema::create('registry_has_organisations', function (Blueprint $table) {
             $table->bigInteger('registry_id');
-            $table->bigInteger('affiliation_id');
+            $table->bigInteger('organisation_id');
         });
     }
 
@@ -22,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('registry_has_affiliations');
+        Schema::dropIfExists('registry_has_organisations');
     }
 };

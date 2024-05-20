@@ -7,9 +7,9 @@ use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Affiliation>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Organisation>
  */
-class AffiliationFactory extends Factory
+class OrganisationFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -27,6 +27,8 @@ class AffiliationFactory extends Factory
             'country' => 'Country',
             'postcode' => 'AB12 3CD',
             'lead_applicant_organisation_name' => fake()->name(),
+            'lead_applicant_email' => fake()->email(),
+            'password' => '$2y$12$pceM5s5kiqPGN.Xpbv/dtu2Mfs37JDjVOGyTpZAyux8brdH8XrAHa',
             'organisation_unique_id' => Str::random(40),
             'applicant_names' => fake()->name(),
             'funders_and_sponsors' => fake()->company(),

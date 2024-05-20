@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('affiliations', function (Blueprint $table) {
+        Schema::create('organisations', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
             $table->string('organisation_name', 255);
@@ -22,6 +22,8 @@ return new class extends Migration
             $table->string('country', 255);
             $table->string('postcode', 8);
             $table->string('lead_applicant_organisation_name', 255)->nullable();
+            $table->string('lead_applicant_email', 255)->nullable()->default(null);
+            $table->string('password')->nullable()->default(null);
             $table->string('organisation_unique_id', 255);
             $table->text('applicant_names');
             $table->text('funders_and_sponsors');
@@ -36,6 +38,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('affiliations');
+        Schema::dropIfExists('organisations');
     }
 };

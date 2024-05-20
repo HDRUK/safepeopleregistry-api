@@ -1,0 +1,35 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\Issuer;
+use App\Models\Permission;
+use App\Models\Organisation;
+use App\Models\OrganisationHasIssuerPermission;
+
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+
+class OrganisationSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+    {
+        Organisation::truncate();
+
+        Organisation::factory(1)->create();
+
+        $org = Organisation::all()[0];
+
+        $issuer = fake()->randomElement(Issuer::all()->select('id'));
+        $perms = Permission::where('name', 'GATEWAY_ACCESS')->first();
+
+        OrganisationHasIssuerPermission::create([
+            'organisation_id' => $org->id,
+            'permission_id' => $perms->id,
+            'issuer_id' => $issuer['id'],
+        ]);
+    }
+}

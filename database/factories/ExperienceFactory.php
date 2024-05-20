@@ -20,7 +20,7 @@ class ExperienceFactory extends Factory
             'project_id' => 1,
             'from' => fake()->dateTime(),
             'to' => fake()->dateTime(),
-            'affiliation_id' => 1,
+            'organisation_id' => 1,
         ];
     }
 }

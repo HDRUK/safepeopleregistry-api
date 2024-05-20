@@ -4,8 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Affiliation extends Model
+class Organisation extends Model
 {
     use HasFactory;
 
@@ -14,7 +15,7 @@ class Affiliation extends Model
      * 
      * @var string
      */
-    protected $table = 'affiliations';
+    protected $table = 'organisations';
 
     /**
      * Whether or not this model supports timestamps
@@ -37,6 +38,8 @@ class Affiliation extends Model
         'country',
         'postcode',
         'lead_applicant_organisation_name',
+        'lead_applicant_email',
+        'password',
         'organisation_unique_id',
         'applicant_names',
         'funders_and_sponsors',
@@ -60,5 +63,14 @@ class Affiliation extends Model
      * @var array
      */
     protected $hidden = [
+        'password',
     ];
+
+    public function permissions(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Permission::class,
+            'organisation_has_issuer_permissions',
+        );
+    }
 }

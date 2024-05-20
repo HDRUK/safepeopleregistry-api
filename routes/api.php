@@ -11,7 +11,7 @@ use App\Http\Controllers\Api\V1\RegistryController;
 use App\Http\Controllers\Api\V1\ExperienceController;
 use App\Http\Controllers\Api\V1\HistoryController;
 use App\Http\Controllers\Api\V1\IdentityController;
-use App\Http\Controllers\Api\V1\AffiliationController;
+use App\Http\Controllers\Api\V1\OrganisationController;
 use App\Http\Controllers\Api\V1\InfringementController;
 use App\Http\Controllers\Api\V1\TriggerEmailController;
 
@@ -98,12 +98,12 @@ Route::middleware('api')->put('v1/identities/{id}', [IdentityController::class, 
 Route::middleware('api')->patch('v1/identities/{id}', [IdentityController::class, 'edit']);
 Route::middleware('api')->delete('v1/identities/{id}', [IdentityController::class, 'destroy']);
 
-Route::middleware('api')->get('v1/affiliations', [AffiliationController::class, 'index']);
-Route::middleware('api')->get('v1/affiliations/{id}', [AffiliationController::class, 'show']);
-Route::middleware('api')->post('v1/affiliations', [AffiliationController::class, 'store']);
-Route::middleware('api')->put('v1/affiliations/{id}', [AffiliationController::class, 'update']);
-Route::middleware('api')->patch('v1/affiliations/{id}', [AffiliationController::class, 'edit']);
-Route::middleware('api')->delete('v1/affiliations/{id}', [AffiliationController::class, 'destroy']);
+Route::middleware('api')->get('v1/organisations', [OrganisationController::class, 'index']);
+Route::middleware('api')->get('v1/organisations/{id}', [OrganisationController::class, 'show']);
+Route::middleware('api')->post('v1/organisations', [OrganisationController::class, 'store']);
+Route::middleware('api')->put('v1/organisations/{id}', [OrganisationController::class, 'update']);
+Route::middleware('api')->patch('v1/organisations/{id}', [OrganisationController::class, 'edit']);
+Route::middleware('api')->delete('v1/organisations/{id}', [OrganisationController::class, 'destroy']);
 
 Route::middleware('api')->get('v1/histories', [HistoryController::class, 'index']);
 Route::middleware('api')->get('v1/histories/{id}', [HistoryController::class, 'show']);

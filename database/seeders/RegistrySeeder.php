@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Registry;
-use App\Models\Affiliation;
-use App\Models\RegistryHasAffiliation;
+use App\Models\Organisation;
+use App\Models\RegistryHasOrganisation;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -20,10 +20,10 @@ class RegistrySeeder extends Seeder
         
         Registry::factory(1)->create();
 
-        $affiliation = Affiliation::all();
-        RegistryHasAffiliation::create([
+        $organisation = Organisation::all();
+        RegistryHasOrganisation::create([
             'registry_id' => 1,
-            'affiliation_id' => $affiliation[0]->id,
+            'organisation_id' => $organisation[0]->id,
         ]);
     }
 }
