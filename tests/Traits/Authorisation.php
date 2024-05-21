@@ -9,28 +9,25 @@ use App\Models\User;
 
 use App\Http\Controller\AuthController;
 
+use Illuminate\Support\Facades\Http;
+
 trait Authorisation
 {
-    const USER_EMAIL = 'constants.test.user.email';
-    const USER_PASSWORD = 'constants.test.user.password';
-
-    const AUTH_URL = '/api/v1/login';
-
     public function getAuthToken(): mixed
     {
+        $authUrl = env('KEYCLOAK_BASE_URL') . '/realms/' . env('KEYCLOAK_REALM') . '/protocol/openid-connect/token';
+
         $credentials = [
-            'email' => Config::get(self::USER_EMAIL),
-            'password' => Config::get(self::USER_PASSWORD),
+            'username' => env('KEYCLOAK_TEST_USERNAME'),
+            'password' => env('KEYCLOAK_TEST_PASSWORD'),
+            'client_secret' => env('KEYCLOAK_CLIENT_SECRET'),
+            'client_id' => env('KEYCLOAK_CLIENT_ID'),
+            'grant_type' => 'password',
         ];
 
-        $response = $this->json(
-            'POST',
-            self::AUTH_URL,
-            $credentials,
-            [
-                'Accept' => 'application/json',
-            ]
-        );
-        return $response['access_token'];
+        $response = Http::asForm()->post($authUrl, $credentials);
+        $responseData = $response->json();
+
+        return $responseData['access_token'];
     }
 }

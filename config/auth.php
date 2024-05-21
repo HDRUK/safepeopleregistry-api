@@ -37,7 +37,7 @@ return [
 
     'guards' => [
         'api' => [
-            'driver' => 'jwt',
+            'driver' => 'keycloak',
             'provider' => 'users',
         ],
         'web' => [

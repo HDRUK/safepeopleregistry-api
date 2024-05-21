@@ -2,17 +2,14 @@
 
 namespace App\Models;
 
-use Tymon\JWTAuth\Contracts\JWTSubject;
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-// use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable implements JWTSubject
+class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory;
 
     /**
      * The attributes that are mass assignable.
@@ -22,9 +19,10 @@ class User extends Authenticatable implements JWTSubject
     protected $fillable = [
         'name',
         'email',
-        'password',
         'registry_id',
-        'otp',
+        'provider',
+        'provider_sub',
+        'email_verified',
     ];
 
     /**
@@ -33,9 +31,8 @@ class User extends Authenticatable implements JWTSubject
      * @var array<int, string>
      */
     protected $hidden = [
-        'password',
-        'remember_token',
-        'otp',
+        'provider',
+        'provider_sub',
     ];
 
     /**
@@ -44,8 +41,7 @@ class User extends Authenticatable implements JWTSubject
      * @var array<string, string>
      */
     protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed',
+        'email_verified' => 'boolean',
     ];
 
     public function permissions(): BelongsToMany
@@ -54,23 +50,5 @@ class User extends Authenticatable implements JWTSubject
             Permission::class,
             'user_has_issuer_permissions',
         );
-    }
-
-    /**
-     * Get the indentifier that will be stored in the subject claim of the JWT.
-     * 
-     * @return mixed
-     */
-    public function getJWTIdentifier()
-    {
-        return $this->getKey();
-    }
-
-    /**
-     * Return a key value array, containing any custom claims to be added to the JWT.
-     */
-    public function getJWTCustomClaims()
-    {
-        return [];
     }
 }

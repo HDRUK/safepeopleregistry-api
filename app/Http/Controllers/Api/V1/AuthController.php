@@ -44,10 +44,33 @@ class AuthController extends Controller
      * Governs callbacks from Keycloak once successful or failed auth
      * attempted.
      */
-    public function loginKeycloakCallback(Request $request)
+    public function loginKeycloakCallback(Request $request): JsonResponse
     {
-        $user = Socialite::driver('keycloak')->stateless()->user();
-        dd($user->token);
+        $socialUser = Socialite::driver('keycloak')->stateless()->user();
+        $user = User::where('email', $socialUser->user['email'])->first();
+        if (!$user) {
+            User::create([
+                'email' => $socialUser->user['email'],
+                'name' => $socialUser->user['name'],
+                'provider' => 'keycloak',
+                'provider_sub' => $socialUser->user['sub'],
+                'email_verified' => $socialUser->user['email_verified'],
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'success',
+            'data' => $socialUser->accessTokenResponseBody,
+        ], 200);
+    }
+
+    public function me(Request $request): JsonResponse
+    {
+        $socialUser = Socialite::driver('keycloak')->stateless()->user();
+        return response()->json([
+            'message' => 'success',
+            'data' => $socialUser,
+        ], 200);
     }
 
     /**
@@ -127,39 +150,6 @@ class AuthController extends Controller
             'message' => 'unauthorised',
             'data' => null,
         ], 401);
-    }
-
-    /**
-     * Get the authenticated User.
-     * 
-     * @return JsonResponse
-     */
-    public function me(Request $request)
-    {
-        return response()->json(auth()->user());
-    }
-
-    /**
-     * Log the user out (Invalidate the token).
-     * 
-     * @return JsonResponse
-     */
-    public function logout()
-    {
-        auth()->logout();
-        return response()->json([
-            'message' => 'success',
-        ], 200);
-    }
-
-    /**
-     * Refresh a token
-     * 
-     * @return JsonResponse
-     */
-    public function refresh()
-    {
-        return $this->respondWithToken(auth()->refresh());
     }
 
     /**
