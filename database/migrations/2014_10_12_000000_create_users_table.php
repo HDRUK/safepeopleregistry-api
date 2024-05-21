@@ -15,10 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('password')->nullable()->default(null);
             $table->bigInteger('registry_id')->nullable()->default(null);
-            $table->rememberToken();
+            $table->string('provider', 255)->nullable()->default('');
+            $table->string('provider_sub', 255);
+            $table->tinyInteger('email_verified')->default(0);
             $table->timestamps();
         });
     }

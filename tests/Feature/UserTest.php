@@ -72,7 +72,8 @@ class UserTest extends TestCase
             [
                 'name' => fake()->name(),
                 'email' => fake()->email(),
-                'password' => Str::random(10),
+                'provider' => fake()->word(),
+                'provider_sub' => Str::random(10),
             ],
             $this->headers
         );
@@ -89,7 +90,8 @@ class UserTest extends TestCase
             [
                 'name' => fake()->name(),
                 'email' => fake()->email(),
-                'password' => Str::random(10),
+                'provider' => fake()->word(),
+                'provider_sub' => Str::random(10),
             ],
             $this->headers
         );
@@ -124,7 +126,8 @@ class UserTest extends TestCase
             [
                 'name' => fake()->name(),
                 'email' => fake()->email(),
-                'password' => Str::random(10),
+                'provider' => fake()->word(),
+                'provider_sub' => Str::random(10),
             ],
             $this->headers
         );

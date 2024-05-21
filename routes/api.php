@@ -28,20 +28,13 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
-Route::get('keycloak', [AuthController::class, 'loginKeycloak']);
-Route::get('keycloak/callback', [AuthController::class, 'loginKeycloakCallback']);
+Route::get('auth/redirect', [AuthController::class, 'loginKeycloak']);
+Route::get('auth/callback', [AuthController::class, 'loginKeycloakCallback']);
+Route::get('auth/me', [AuthController::class, 'me']);
 
 Route::post('v1/query', [QueryController::class, 'query']);
 
-Route::middleware('api')->post('v1/login', [AuthController::class, 'login']);
-Route::middleware('api')->post('v1/logout', [AuthController::class, 'logout']);
-Route::middleware('api')->post('v1/refresh', [AuthController::class, 'refresh']);
-Route::middleware('api')->post('v1/me', [AuthController::class, 'me']);
+Route::middleware('auth:api')->get('/secure-test',  [UserController::class, 'index']);
 
 Route::middleware('api')->get('v1/users', [UserController::class, 'index']);
 Route::middleware('api')->get('v1/users/{id}', [UserController::class, 'show']);

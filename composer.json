@@ -10,12 +10,12 @@
         "guzzlehttp/guzzle": "^7.2",
         "hdruk/laravel-mjml": "*",
         "laravel/framework": "^10.10",
-        "laravel/socialite": "^5.12",
+        "laravel/socialite": "^5.14",
         "laravel/tinker": "^2.8",
+        "robsontenorio/laravel-keycloak-guard": "*",
         "seshac/otp-generator": "^0.0.8",
         "socialiteproviders/keycloak": "^5.3",
-        "socialiteproviders/manager": "^4.5",
-        "tymon/jwt-auth": "^2.1"
+        "socialiteproviders/manager": "^4.5"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
