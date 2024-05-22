@@ -171,6 +171,7 @@ return [
         Laravel\Socialite\SocialiteServiceProvider::class,
         \SocialiteProviders\Manager\ServiceProvider::class,
         Hdruk\LaravelMjml\Providers\LaravelMjmlServiceProvider::class,
+        App\Providers\KeycloakServiceProvider::class,
     ])->toArray(),
 
     /*
@@ -185,7 +186,7 @@ return [
     */
 
     'aliases' => Facade::defaultAliases()->merge([
-        // 'Example' => App\Facades\Example::class,
+        'Keycloak' => App\Keycloak\KeycloakFacade::class,
     ])->toArray(),
 
 ];

@@ -18,8 +18,7 @@ return new class extends Migration
             $table->string('password')->nullable()->default(null);
             $table->bigInteger('registry_id')->nullable()->default(null);
             $table->string('provider', 255)->nullable()->default('');
-            $table->string('provider_sub', 255);
-            $table->tinyInteger('email_verified')->default(0);
+            $table->string('keycloak_id', 255)->nullable()->default(null);
             $table->timestamps();
         });
     }

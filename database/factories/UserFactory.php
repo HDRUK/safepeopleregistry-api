@@ -26,9 +26,8 @@ class UserFactory extends Factory
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
-            'email_verified' => fake()->randomElement([0, 1]),
             'provider' => fake()->word(),
-            'provider_sub' => Str::random(40),
+            'keycloak_id' => Str::random(50),
         ];
     }
 }
