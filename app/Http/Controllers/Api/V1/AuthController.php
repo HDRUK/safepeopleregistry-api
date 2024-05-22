@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Seshac\Otp\Otp;
+use Keycloak;
 
 use App\Models\User;
 use App\Jobs\SendEmailJob;
@@ -32,138 +32,46 @@ class AuthController extends Controller
         // ]);
     }
 
-    /**
-     * Spawns OAuth2 authentication flow via Keycloak OIDC.
-     */
-    public function loginKeycloak(Request $request)
-    {
-        return Socialite::driver('keycloak')->scopes(['openid'])->redirect();
-    }
-
-    /**
-     * Governs callbacks from Keycloak once successful or failed auth
-     * attempted.
-     */
-    public function loginKeycloakCallback(Request $request): JsonResponse
-    {
-        $socialUser = Socialite::driver('keycloak')->stateless()->user();
-        $user = User::where('email', $socialUser->user['email'])->first();
-        if (!$user) {
-            User::create([
-                'email' => $socialUser->user['email'],
-                'name' => $socialUser->user['name'],
-                'provider' => 'keycloak',
-                'provider_sub' => $socialUser->user['sub'],
-                'email_verified' => $socialUser->user['email_verified'],
-            ]);
-        }
-
-        return response()->json([
-            'message' => 'success',
-            'data' => $socialUser->accessTokenResponseBody,
-        ], 200);
-    }
-
-    public function me(Request $request): JsonResponse
-    {
-        $socialUser = Socialite::driver('keycloak')->stateless()->user();
-        return response()->json([
-            'message' => 'success',
-            'data' => $socialUser,
-        ], 200);
-    }
-
-    /**
-     * Get a JWT via given credentials.
-     * 
-     * @return JsonResponse
-     */
-    public function login(Request $request)
+    public function register(Request $request): JsonResponse
     {
         $input = $request->all();
-        $credentials = [
+        if (Keycloak::createUser([
             'email' => $input['email'],
+            'first_name' => $input['first_name'],
+            'last_name' => $input['last_name'],
             'password' => $input['password'],
-        ];
-
-        if (isset($input['step']) && $input['step'] === 'login') {
-            $user = User::where('email', $credentials['email'])->first();
-            if ($user) {
-                $otp = Otp::setValidity(env('OTP_VALIDITY_MINUTES'))
-                    ->setLength(env('OTP_LENGTH'))
-                    ->setOnlyDigits(env('OTP_ONLY_DIGITS'))
-                    ->generate($user->email);
-                if ($otp->status) {
-                    $user->otp = $otp->token;
-                }
-                if ($user->save()) {
-                    $to = [
-                        'id' => $user->id,
-                        'email' => $user->email,
-                        'name' => ucwords($user->name),
-                    ];
-
-                    $template = EmailTemplate::where('identifier', '=', 'user_otp')->first();
-                    SendEmailJob::dispatch($to, $template, []);
-
-                    return response()->json([
-                        'message' => 'otp_required',
-                        'data' => null,
-                    ], 200);
-                }
-            }
-        }
-
-        if (isset($input['step']) && $input['step'] === 'otp') {
-            $verify = Otp::validate($credentials['email'], $input['otp']);
-            if ($verify->status === true) {
-                $user = User::where('email', $credentials['email'])->first();
-
-                if (!$token = auth()->attempt($credentials)) {
-                    return response()->json([
-                        'message' => 'unauthorised',
-                        'data' => null,
-                    ], 401);
-                }
-                return $this->respondWithToken($token);
-            } else {
-                return response()->json([
-                    'message' => 'unauthorised',
-                    'data' => $verify,
-                ]);
-            }
-        }
-
-        if (!isset($input['step']) && !isset($input['otp'])) {
-            $user = User::where('email', $credentials['email'])->first();
-
-            if (!$token = auth()->attempt($credentials)) {
-                return response()->json([
-                    'message' => 'unauthorised',
-                    'data' => null,
-                ], 401);
-            }
-            return $this->respondWithToken($token);
+        ])) {
+            $user = User::where('email', $input['email'])->first();
+            return response()->json([
+                'message' => 'success',
+                'data' => $user,
+            ], 200);
         }
 
         return response()->json([
-            'message' => 'unauthorised',
+            'message' => 'failed',
             'data' => null,
-        ], 401);
+        ]);
     }
 
-    /**
-     * Get the token array structure
-     * 
-     * @param string $token
-     * @return JsonResponse
-     */
-    protected function respondWithToken($token)
+    public function login(Request $request): JsonResponse
     {
+        $input = $request->all();
+
         return response()->json([
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60
+            'message' => 'success',
+            'data' => Keycloak::login($input['email'], $input['password']),
+        ], 200);
+    }
+
+    public function logout(Request $request): JsonResponse
+    {
+        $input = $request->headers->all();
+        $token = explode('Bearer ', $input['authorization'][0]);
+
+        return response()->json([
+            'message' => 'success',
+            'data' => Keycloak::logout($token[1]),
         ]);
     }
 }

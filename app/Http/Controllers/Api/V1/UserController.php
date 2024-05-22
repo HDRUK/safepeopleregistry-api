@@ -176,10 +176,9 @@ class UserController extends Controller
             $user = User::create([
                 'name' => $input['name'],
                 'email' => $input['email'],
-                'email_verified_at' => isset($input['email_verified_at']) ? $input['email_verified_at'] : null,
                 'provider' => isset($input['provider']) ? $input['provider'] : '',
-                'provider_sub' => isset($input['provider_sub']) ? $input['provider_sub'] : '',
                 'registry_id' => isset($input['registry_id']) ? $input['registry_id'] : null,
+                'keycloak_id' => null,
             ]);
 
             return response()->json([

@@ -21,8 +21,7 @@ class User extends Authenticatable
         'email',
         'registry_id',
         'provider',
-        'provider_sub',
-        'email_verified',
+        'keycloak_id',
     ];
 
     /**
@@ -32,7 +31,6 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'provider',
-        'provider_sub',
     ];
 
     /**
@@ -41,7 +39,6 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-        'email_verified' => 'boolean',
     ];
 
     public function permissions(): BelongsToMany
