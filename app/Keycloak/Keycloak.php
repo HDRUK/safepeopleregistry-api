@@ -93,7 +93,10 @@ class Keycloak {
             $response = Http::asForm()->post($authUrl, $credentials);
             $responseData = $response->json();
 
-            return $responseData;
+            return [
+                'response' => $responseData,
+                'status' => $response->status(),
+            ];
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
