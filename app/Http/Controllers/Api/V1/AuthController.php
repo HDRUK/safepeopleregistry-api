@@ -58,10 +58,18 @@ class AuthController extends Controller
     {
         $input = $request->all();
 
+        $return = Keycloak::login($input['email'], $input['password']);
+        if ($return['status'] === 200) {
+            return response()->json([
+                'message' => 'success',
+                'data' => $return['response'],
+            ], 200);
+        }
+
         return response()->json([
-            'message' => 'success',
-            'data' => Keycloak::login($input['email'], $input['password']),
-        ], 200);
+            'message' => 'failed',
+            'data' => $return['response'],
+        ], $return['status']);
     }
 
     public function logout(Request $request): JsonResponse
