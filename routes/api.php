@@ -3,10 +3,10 @@
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\QueryController;
-use App\Http\Controllers\Api\V1\TrainingController;
 use App\Http\Controllers\Api\V1\IssuerController;
-use App\Http\Controllers\Api\V1\EndorsementController;
 use App\Http\Controllers\Api\V1\ProjectController;
+use App\Http\Controllers\Api\V1\TrainingController;
+use App\Http\Controllers\Api\V1\EndorsementController;
 use App\Http\Controllers\Api\V1\RegistryController;
 use App\Http\Controllers\Api\V1\ExperienceController;
 use App\Http\Controllers\Api\V1\HistoryController;
@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\V1\IdentityController;
 use App\Http\Controllers\Api\V1\OrganisationController;
 use App\Http\Controllers\Api\V1\InfringementController;
 use App\Http\Controllers\Api\V1\TriggerEmailController;
+use App\Http\Controllers\Api\V1\SystemConfigController;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -109,6 +110,9 @@ Route::middleware('api')->get('v1/infringements/{id}', [InfringementController::
 Route::middleware('api')->post('v1/infringements', [InfringementController::class, 'store']);
 
 Route::middleware('api')->post('v1/trigger_email', [TriggerEmailController::class, 'spawnEmail']);
+
+Route::get('v1/system_config', [SystemConfigController::class, 'index']);
+Route::post('v1/system_config', [SystemConfigController::class, 'getByName']);
 
 // stop all all other routes
 Route::any('{path}', function() {
