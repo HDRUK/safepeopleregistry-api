@@ -14,7 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 use App\Http\Controllers\Controller;
-use App\Exception\NotFoundException;
+use App\Exceptions\NotFoundException;
 
 
 class IssuerController extends Controller
@@ -118,7 +118,10 @@ class IssuerController extends Controller
             ], 200);
         }
 
-        throw new NotFoundException();
+        return response()->json([
+            'message' => 'not found',
+            'data' => null,
+        ], 404);
     }
 
     /**
@@ -176,7 +179,10 @@ class IssuerController extends Controller
             ], 200);
         }
 
-        throw new NotFoundException();
+        return response()->json([
+            'message' => 'not found',
+            'data' => null,
+        ], 404);
     }
     
     /**
