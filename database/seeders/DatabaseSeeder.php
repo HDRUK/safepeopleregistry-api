@@ -12,7 +12,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-       $this->call([
+        $this->call([
+            SystemConfigSeeder::class,
             PermissionSeeder::class,
             IssuerSeeder::class,
             OrganisationSeeder::class,
@@ -25,6 +26,6 @@ class DatabaseSeeder extends Seeder
             ExperienceSeeder::class,
             EmailTemplatesSeeder::class,
             UserSeeder::class,
-       ]);
+        ]);
     }
 }
