@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use Hash;
 use Exception;
+use Keycloak;
 
 use App\Models\User;
 use App\Models\UserHasIssuerApproval;

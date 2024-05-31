@@ -180,17 +180,17 @@ class Keycloak {
         return env('KEYCLOAK_BASE_URL') . '/admin/realms/' . env('KEYCLOAK_REALM') . $path;
     }
 
-    private function determineUserGroup(array $input): string
+    public function determineUserGroup(array $input): string
     {
-        if ($input['is_researcher']) {
+        if (isset($input['is_researcher']) && $input['is_researcher']) {
             return 'RESEARCHERS';
         }
 
-        if ($input['is_issuer']) {
+        if (isset($input['is_issuer']) && $input['is_issuer']) {
             return 'ISSUERS';
         }
 
-        if ($input['is_organisation']) {
+        if (isset($input['is_organisation']) && $input['is_organisation']) {
             return 'ORGANISATIONS';
         }
 

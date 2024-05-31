@@ -28,6 +28,7 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'provider' => fake()->word(),
             'keycloak_id' => Str::random(50),
+            'user_group' => '',
         ];
     }
 }
