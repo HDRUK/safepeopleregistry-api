@@ -93,10 +93,22 @@ class Keycloak {
             $response = Http::asForm()->post($authUrl, $credentials);
             $responseData = $response->json();
 
-            return [
-                'response' => $responseData,
-                'status' => $response->status(),
-            ];
+            if ($response->status() === 200) {
+                $user = User::where('email', $username)->first();
+                if ($user) {
+                    return [
+                        'user' => $user,
+                        'response' => $responseData,
+                        'status' => $response->status(),
+                    ];
+                }
+            }
+
+            return response()->json([
+                'response' => 'unauthorised',
+                'status' => 401,
+            ], 401);
+
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
