@@ -179,6 +179,7 @@ class UserController extends Controller
                 'provider' => isset($input['provider']) ? $input['provider'] : '',
                 'registry_id' => isset($input['registry_id']) ? $input['registry_id'] : null,
                 'keycloak_id' => null,
+                'user_group' => Keycloak::determineUserGroup($input),
             ]);
 
             return response()->json([

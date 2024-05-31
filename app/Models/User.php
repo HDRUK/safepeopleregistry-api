@@ -22,6 +22,7 @@ class User extends Authenticatable
         'registry_id',
         'provider',
         'keycloak_id',
+        'user_group',
     ];
 
     /**

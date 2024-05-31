@@ -6,13 +6,14 @@ use Http;
 use Exception;
 
 use App\Models\User;
+use App\Models\Registry;
 
 use Illuminate\Http\JsonResponse;
 
 class Keycloak {
     const USERS_URL = '/users';
 
-    public function createUser(array $credentials): bool
+    public function create(array $credentials): bool
     {
         try {
             $payload = [
@@ -38,6 +39,7 @@ class Keycloak {
             isset($credentials['is_researcher']) ? $payload['groups'][] = '/Researchers' : null;
             isset($credentials['is_issuer']) ? $payload['groups'][] = '/Issuers' : null;
             isset($credentials['is_organisation']) ? $payload['groups'][] = '/Organisations' : null;
+            $userGroup = $this->determineUserGroup($credentials);
 
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . $this->getServiceToken(),
@@ -58,11 +60,12 @@ class Keycloak {
                     'provider' => 'keycloak',
                     'provider_sub' => '',
                     'keycloak_id' => $newUserId,
+                    'user_group' => $userGroup,
                 ]);
 
                 if (!$user)  return false; 
 
-                if (isset($credentials['is_researcher']) && $credentials['is_researcher'] === true) {
+                if ($userGroup === 'RESEARCHERS') {
                     $registry = Registry::create([
                         'user_id' => $user->id,
                     ]);
@@ -104,10 +107,11 @@ class Keycloak {
                 }
             }
 
-            return response()->json([
-                'response' => 'unauthorised',
+            return [
+                'user' => null,
+                'response' => null,
                 'status' => 401,
-            ], 401);
+            ];
 
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -171,9 +175,25 @@ class Keycloak {
         }
     }
 
-
     private function makeUrl(string $path): string
     {
         return env('KEYCLOAK_BASE_URL') . '/admin/realms/' . env('KEYCLOAK_REALM') . $path;
+    }
+
+    private function determineUserGroup(array $input): string
+    {
+        if ($input['is_researcher']) {
+            return 'RESEARCHERS';
+        }
+
+        if ($input['is_issuer']) {
+            return 'ISSUERS';
+        }
+
+        if ($input['is_organisation']) {
+            return 'ORGANISATIONS';
+        }
+
+        return '';
     }
 }

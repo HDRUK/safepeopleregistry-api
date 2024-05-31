@@ -29,6 +29,7 @@ class UserSeeder extends Seeder
             'email' => 'loki.sinclair@hdruk.ac.uk',
             'password' => '$2y$12$cRbUJeY9Yp2G6ghilpJZaeleUivMyqgV0piW2Ao6kEmoPzN9Lxpu.',
             'registry_id' => 1,
+            'user_group' => '',
         ]);
 
         $perms = Permission::all();
