@@ -32,14 +32,61 @@ class AuthController extends Controller
         // ]);
     }
 
-    public function register(Request $request): JsonResponse
+    public function registerUser(Request $request): JsonResponse
     {
         $input = $request->all();
-        if (Keycloak::createUser([
+        if (Keycloak::create([
             'email' => $input['email'],
             'first_name' => $input['first_name'],
             'last_name' => $input['last_name'],
             'password' => $input['password'],
+            'is_researcher' => true,
+        ])) {
+            $user = User::where('email', $input['email'])->first();
+            return response()->json([
+                'message' => 'success',
+                'data' => $user,
+            ], 200);
+        }
+
+        return response()->json([
+            'message' => 'failed',
+            'data' => null,
+        ]);
+    }
+
+    public function registerIssuer(Request $request): JsonResponse
+    {
+        $input = $request->all();
+        if (Keycloak::create([
+            'email' => $input['email'],
+            'first_name' => $input['first_name'],
+            'last_name' => $input['last_name'],
+            'password' => $input['password'],
+            'is_issuer' => true,
+        ])) {
+            $user = User::where('email', $input['email'])->first();
+            return response()->json([
+                'message' => 'success',
+                'data' => $user,
+            ], 200);
+        }
+
+        return response()->json([
+            'message' => 'failed',
+            'data' => null,
+        ]);
+    }
+
+    public function registerOrganisation(Request $request): JsonResponse
+    {
+        $input = $request->all();
+        if (Keycloak::create([
+            'email' => $input['email'],
+            'first_name' => $input['first_name'],
+            'last_name' => $input['last_name'],
+            'password' => $input['password'],
+            'is_organisation' => true,
         ])) {
             $user = User::where('email', $input['email'])->first();
             return response()->json([

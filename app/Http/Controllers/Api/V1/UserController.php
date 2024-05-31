@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use Hash;
 use Exception;
+use Keycloak;
 
 use App\Models\User;
 use App\Models\UserHasIssuerApproval;
@@ -179,6 +180,7 @@ class UserController extends Controller
                 'provider' => isset($input['provider']) ? $input['provider'] : '',
                 'registry_id' => isset($input['registry_id']) ? $input['registry_id'] : null,
                 'keycloak_id' => null,
+                'user_group' => Keycloak::determineUserGroup($input),
             ]);
 
             return response()->json([
