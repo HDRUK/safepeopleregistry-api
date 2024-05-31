@@ -60,6 +60,8 @@ class AuthController extends Controller
 
         $return = Keycloak::login($input['email'], $input['password']);
         if ($return['status'] === 200) {
+            $return['response']['user'] = $return['user'];
+
             return response()->json([
                 'message' => 'success',
                 'data' => $return['response'],
