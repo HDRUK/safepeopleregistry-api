@@ -19,17 +19,17 @@ class SendEmailJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $to = [];
-    public $by = [];
+    public $by = null;
     private $template = null;
     private $replacements = [];
 
     /**
      * Create a new job instance.
      */
-    public function __construct(array $to, EmailTemplate $template, array $replacements, array $by = [])
+    public function __construct(array $to, EmailTemplate $template, array $replacements, array $by = null)
     {
         $this->to = $to;
-        $this->by = $by;
+        $this->by = ($by !== null ? $by : null);
         $this->template = $template;
         $this->replacements = $replacements;
     }
@@ -39,7 +39,9 @@ class SendEmailJob implements ShouldQueue
      */
     public function handle(): void
     {
+        $by = !empty($this->by) ? $this->by['id'] : null;
+
         Mail::to($this->to['email'])
-            ->send(new Email($this->to['id'], $this->template, $this->replacements, $this->by['id']));
+            ->send(new Email($this->to['id'], $this->template, $this->replacements, $by));
     }
 }

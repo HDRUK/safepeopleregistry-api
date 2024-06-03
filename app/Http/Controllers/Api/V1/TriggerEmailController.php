@@ -27,7 +27,7 @@ class TriggerEmailController extends Controller
 
         $type = $input['type'];
         $to = $input['to'];
-        $by = $input['by'];
+        $by = isset($input['by']) ? $input['by'] : null;
         $identifier = $input['identifier'];
 
         switch (strtoupper($type)) {
@@ -58,6 +58,8 @@ class TriggerEmailController extends Controller
 
                     $issuer->invite_sent_at = Carbon::now();
                     $issuer->save();
+
+                    $ivitedBy = [];
                 } else {
                     throw new Exception('issuer ' . $issuer->id . ' already accepted invite at ' . $issuer->invite_accepted_at);
                 }
