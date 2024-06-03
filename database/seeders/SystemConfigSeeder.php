@@ -21,6 +21,14 @@ class SystemConfigSeeder extends Seeder
                 'name' => 'PER_PAGE',
                 'value' => 25,
             ],
+            [
+                'name' => 'MAX_FILESIZE',
+                'value' => '5M',
+            ],
+            [
+                'name' => 'SUPPORTED_FILETYPES',
+                'value' => '.pdf,.doc,.docx,.png,.jpeg,.csv',
+            ]
         ];
 
         foreach ($configs as $c) {
