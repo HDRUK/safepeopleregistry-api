@@ -54,7 +54,9 @@ class UserController extends Controller
     public function index(Request $request): JsonResponse
     {
         $users = User::with([
-            'permissions'
+            'permissions',
+            'registry',
+            'registry.organisations',
         ])->get();
 
         return response()->json([
@@ -110,7 +112,9 @@ class UserController extends Controller
     {
         try {
             $user = User::with([
-                'permissions'
+                'permissions',
+                'registry',
+                'registry.organisations',
             ])->findOrFail($id);
             return response()->json([
                 'message' => 'success',

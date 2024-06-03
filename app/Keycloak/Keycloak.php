@@ -7,6 +7,7 @@ use Exception;
 
 use App\Models\User;
 use App\Models\Registry;
+use App\Models\RegistryHasOrganisation;
 
 use Illuminate\Http\JsonResponse;
 
@@ -69,6 +70,13 @@ class Keycloak {
                     $registry = Registry::create([
                         'user_id' => $user->id,
                     ]);
+
+                    if ($credentials['organisation_id'] !== null) {
+                        RegistryHasOrganisation::create([
+                            'registry_id' => $registry->id,
+                            'organisation_id' => $credentials['organisation_id'],
+                        ]);
+                    }
                 }
 
                 return true;

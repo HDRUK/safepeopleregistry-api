@@ -185,5 +185,50 @@ class EmailTemplatesSeeder extends Seeder
           ',
           'buttons' => '',
         ]);
+
+      EmailTemplate::create([
+        'identifier' => 'researcher_invite',
+        'subject' => 'You\'ve been invited to join the Researcher Registry',
+        'body' => '
+        
+        <mjml>
+        <mj-head>
+            
+  <mj-html-attributes>
+    <mj-html-attribute class="easy-email" multiple-attributes="false" attribute-name="text-color" text-color="#000000"></mj-html-attribute>
+<mj-html-attribute class="easy-email" multiple-attributes="false" attribute-name="font-family" font-family="-apple-system, BlinkMacSystemFont, \'Segoe UI\', \'Roboto\', \'Oxygen\', \'Ubuntu\', \'Cantarell\', \'Fira Sans\', \'Droid Sans\',\'Helvetica Neue\', sans-serif"></mj-html-attribute>
+<mj-html-attribute class="easy-email" multiple-attributes="false" attribute-name="font-size" font-size="14px"></mj-html-attribute>
+<mj-html-attribute class="easy-email" multiple-attributes="false" attribute-name="line-height" line-height="1.7"></mj-html-attribute>
+<mj-html-attribute class="easy-email" multiple-attributes="false" attribute-name="font-weight" font-weight="400"></mj-html-attribute>
+<mj-html-attribute class="easy-email" multiple-attributes="false" attribute-name="responsive" responsive="true"></mj-html-attribute>
+
+  </mj-html-attributes>
+
+            
+            
+            
+            <mj-breakpoint width="480px" />
+            
+            
+          <mj-attributes>
+            <mj-text font-size="14px" />
+<mj-text line-height="1.7" />
+<mj-text font-weight="400" />
+            <mj-all font-family="-apple-system, BlinkMacSystemFont, \'Segoe UI\', \'Roboto\', \'Oxygen\', \'Ubuntu\', \'Cantarell\', \'Fira Sans\', \'Droid Sans\',\'Helvetica Neue\', sans-serif" />
+            <mj-text font-size="14px" />
+            <mj-text color="#000000" />
+      <mj-text line-height="1.7" />
+      <mj-text font-weight="400" />
+            
+
+          </mj-attributes>
+        </mj-head>
+        <mj-body background-color="#efeeea" width="600px" ><mj-wrapper padding="20px 0px 20px 0px" border="none" direction="ltr" text-align="center" ><mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" ><mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" ><mj-image align="center" height="120px" src="https://fakeimg.pl/800x120?text=Speedi-As-Registry" width="800px" padding="0px 0px 0px 0px" ></mj-image></mj-column></mj-section></mj-wrapper><mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" ><mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" ><mj-spacer height="20px" ></mj-spacer></mj-column></mj-section><mj-wrapper border="none" direction="ltr" text-align="center" padding="20px 0px 20px 0px" ><mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" ><mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" ><mj-text align="left" padding="10px 25px 10px 25px" >[[users.name]]<br><br>You\'ve been invited to sign-up as a Researcher within the Researcher Registry (SPEEDI-AS) system, by [[organisations.organisation_name]]. To begin your sign-up process, please 
+        click the button below.<div><br></div><div>Please note, that this invitation is only valid for [[env(INVITE_TIME_HOURS)]] hour(s), after which, the below 
+        link will no longer work. Why? This is to maintain the integrity of the system. If you don\'t happen to get to this email in time, worry not! You can request 
+        another invite by emailing [[env(SUPPORT_EMAIL)]], and we\'ll issue another.<br><br>Thanks!<br>SPEEDI-AS Team.<br><div><br></div><div><br></div></div></mj-text></mj-column></mj-section><mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" ><mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" ><mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="http://localhost:3000/researcher/invited/[[users.id]]/[[organisations.id]]" padding="10px 25px 10px 25px" >Sign me up!</mj-button></mj-column></mj-section></mj-wrapper></mj-body></mjml > 
+        ',
+        'buttons' => '',
+      ]);
     }
 }

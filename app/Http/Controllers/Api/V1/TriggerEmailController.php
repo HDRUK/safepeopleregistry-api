@@ -7,6 +7,7 @@ use Carbon\Carbon;
 
 use App\Models\User;
 use App\Models\Issuer;
+use App\Models\Organisation;
 use App\Jobs\SendEmailJob;
 use Hdruk\LaravelMjml\Models\EmailTemplate;
 
@@ -20,24 +21,30 @@ class TriggerEmailController extends Controller
     public function spawnEmail(Request $request): void
     {
         $newRecipients = [];
+        $invitedBy = [];
 
         $input = $request->all();
 
         $type = $input['type'];
         $to = $input['to'];
+        $by = isset($input['by']) ? $input['by'] : null;
         $identifier = $input['identifier'];
 
         switch (strtoupper($type)) {
             case 'USER':
-                $users = User::where('id', $to)->first();
+                $user = User::where('id', $to)->first();
+                $organisation = Organisation::where('id', $by)->first();
                 $template = EmailTemplate::where('identifier', $identifier)->first();
 
-                foreach ($users as $u) {
-                    $newRecipients = [
-                        'id' => $u->id,
-                        'email' => $u->email,
-                    ];
-                }
+                $newRecipients = [
+                    'id' => $user->id,
+                    'email' => $user->email,
+                ];
+
+                $invitedBy = [
+                    'id' => $organisation->id,
+                    'email' => $organisation->lead_applicant_email,
+                ];
                 break;
             case 'ISSUER':
                 $issuer = Issuer::where('id', $to)->first();
@@ -51,6 +58,8 @@ class TriggerEmailController extends Controller
 
                     $issuer->invite_sent_at = Carbon::now();
                     $issuer->save();
+
+                    $ivitedBy = [];
                 } else {
                     throw new Exception('issuer ' . $issuer->id . ' already accepted invite at ' . $issuer->invite_accepted_at);
                 }
@@ -61,6 +70,6 @@ class TriggerEmailController extends Controller
                 break;
         }
 
-        SendEmailJob::dispatch($newRecipients, $template, []);
+        SendEmailJob::dispatch($newRecipients, $template, [], $invitedBy);
     }
 }
