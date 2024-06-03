@@ -43,6 +43,7 @@ Route::middleware('auth:api')->get('/secure-test',  [UserController::class, 'ind
 
 Route::middleware('api')->get('v1/users', [UserController::class, 'index']);
 Route::middleware('api')->get('v1/users/{id}', [UserController::class, 'show']);
+Route::middleware('api')->get('v1/users/identifier/{id}', [UserController::class, 'showByUniqueIdentifier']);
 Route::middleware('api')->post('v1/users', [UserController::class, 'store']);
 Route::middleware('api')->put('v1/users/{id}', [UserController::class, 'update']);
 Route::middleware('api')->patch('v1/users/{id}', [UserController::class, 'edit']);

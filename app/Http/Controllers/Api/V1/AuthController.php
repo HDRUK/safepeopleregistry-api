@@ -41,6 +41,7 @@ class AuthController extends Controller
             'last_name' => $input['last_name'],
             'password' => $input['password'],
             'is_researcher' => true,
+            'organisation_id' => isset($input['organisation_id']) ? $input['organisation_id']: null,
         ])) {
             $user = User::where('email', $input['email'])->first();
             return response()->json([
