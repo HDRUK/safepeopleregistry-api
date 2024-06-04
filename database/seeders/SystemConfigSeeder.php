@@ -23,11 +23,11 @@ class SystemConfigSeeder extends Seeder
             ],
             [
                 'name' => 'MAX_FILESIZE',
-                'value' => '5M',
+                'value' => '5', // Mb
             ],
             [
                 'name' => 'SUPPORTED_FILETYPES',
-                'value' => '.pdf,.doc,.docx,.png,.jpeg,.csv',
+                'value' => 'pdf,doc,docx,png,jpeg,jpg,tsv,csv',
             ]
         ];
 

@@ -47,7 +47,11 @@ class RegistryController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $registries = Registry::all();
+        $registries = Registry::with(
+            [
+                'files'
+            ]
+        )->get();
 
         return response()->json([
             'message' => 'success',
@@ -99,7 +103,11 @@ class RegistryController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
-        $registries = Registry::findOrFail($id);
+        $registries = Registry::with(
+            [
+                'files',
+            ]
+        )->findOrFail($id);
         if ($registries) {
             return response()->json([
                 'message' => 'success',

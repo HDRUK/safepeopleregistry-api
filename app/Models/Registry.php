@@ -98,4 +98,9 @@ class Registry extends Model
     {
         return $this->belongsToMany(History::class, 'registry_has_histories');
     }
+
+    public function files(): BelongsToMany
+    {
+        return $this->belongsToMany(File::class, 'registry_has_files');
+    }
 }

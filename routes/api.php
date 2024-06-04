@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\V1\OrganisationController;
 use App\Http\Controllers\Api\V1\InfringementController;
 use App\Http\Controllers\Api\V1\TriggerEmailController;
 use App\Http\Controllers\Api\V1\SystemConfigController;
+use App\Http\Controllers\Api\V1\FileUploadController;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -113,6 +114,8 @@ Route::middleware('api')->get('v1/infringements/{id}', [InfringementController::
 Route::middleware('api')->post('v1/infringements', [InfringementController::class, 'store']);
 
 Route::middleware('api')->post('v1/trigger_email', [TriggerEmailController::class, 'spawnEmail']);
+
+Route::middleware('api')->post('v1/files', [FileUploadController::class, 'store']);
 
 Route::get('v1/system_config', [SystemConfigController::class, 'index']);
 Route::post('v1/system_config', [SystemConfigController::class, 'getByName']);
