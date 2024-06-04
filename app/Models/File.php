@@ -32,5 +32,6 @@ class File extends Model
         'name',
         'type',
         'path',
+        'status',
     ];
 }
