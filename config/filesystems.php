@@ -44,6 +44,23 @@ return [
             'throw' => false,
         ],
 
+        'local_scan' => [
+            'unscanned' => [
+                'driver' => 'local',
+                'root' => storage_path('app/public/unscanned'),
+                'url' => env('APP_URL').'/storage/unscanned',
+                'visibility' => 'public',
+                'throw' => false,
+            ],
+            'scanned' => [
+                'driver' => 'local',
+                'root' => storage_path('app/public/scanned'),
+                'url' => env('APP_URL').'/storage/scanned',
+                'visibility' => 'public',
+                'throw' => false,
+            ],
+        ],        
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),
