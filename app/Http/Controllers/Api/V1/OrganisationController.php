@@ -41,6 +41,10 @@ class OrganisationController extends Controller
      *                  @OA\Property(property="postcode", type="string", example="AB12 3CD"),
      *                  @OA\Property(property="delegate", type="string", example="Prof. First Last"),
      *                  @OA\Property(property="verified", type="boolean", example="true"),
+     *                  @OA\Property(property="dsptk_ods_code", type="string", example="UY67FO"),
+     *                  @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
+     *                  @OA\Property(property="ce_certified", type="boolean", example="false"),
+     *                  @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
      *              )
      *          ),
      *      ),
@@ -57,6 +61,7 @@ class OrganisationController extends Controller
     {
         $organisations = Organisation::with([
             'permissions',
+            'files',
         ])->get();
         
         return response()->json([
@@ -102,6 +107,10 @@ class OrganisationController extends Controller
      *                  @OA\Property(property="postcode", type="string", example="AB12 3CD"),
      *                  @OA\Property(property="delegate", type="string", example="Prof. First Last"),
      *                  @OA\Property(property="verified", type="boolean", example="true"),
+     *                  @OA\Property(property="dsptk_ods_code", type="string", example="UY67FO"),
+     *                  @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
+     *                  @OA\Property(property="ce_certified", type="boolean", example="false"),
+     *                  @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
      *              )
      *          ),
      *      ),
@@ -118,6 +127,7 @@ class OrganisationController extends Controller
     {
         $organisation = Organisation::with([
             'permissions',
+            'files',
         ])->findOrFail($id);
         if ($organisation) {
             return response()->json([
@@ -150,6 +160,10 @@ class OrganisationController extends Controller
      *              @OA\Property(property="postcode", type="string", example="AB12 3CD"),
      *              @OA\Property(property="delegate", type="string", example="Prof. First Last"),
      *              @OA\Property(property="verified", type="boolean", example="true"),
+     *              @OA\Property(property="dsptk_ods_code", type="string", example="UY67FO"),
+     *              @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
+     *              @OA\Property(property="ce_certified", type="boolean", example="false"),
+     *              @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
      *          ),
      *      ),
      *      @OA\Response(
@@ -244,6 +258,10 @@ class OrganisationController extends Controller
      *              @OA\Property(property="postcode", type="string", example="AB12 3CD"),
      *              @OA\Property(property="delegate", type="string", example="Prof. First Last"),
      *              @OA\Property(property="verified", type="boolean", example="true"),
+     *              @OA\Property(property="dsptk_ods_code", type="string", example="UY67FO"),
+     *              @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
+     *              @OA\Property(property="ce_certified", type="boolean", example="false"),
+     *              @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
      *          ),
      *      ),
      *      @OA\Response(
@@ -271,6 +289,10 @@ class OrganisationController extends Controller
      *                  @OA\Property(property="postcode", type="string", example="AB12 3CD"),
      *                  @OA\Property(property="delegate", type="string", example="Prof. First Last"),
      *                  @OA\Property(property="verified", type="boolean", example="true"),
+     *                  @OA\Property(property="dsptk_ods_code", type="string", example="UY67FO"),
+     *                  @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
+     *                  @OA\Property(property="ce_certified", type="boolean", example="false"),
+     *                  @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
      *              )
      *          ),
      *      ),
@@ -348,6 +370,10 @@ class OrganisationController extends Controller
      *              @OA\Property(property="postcode", type="string", example="AB12 3CD"),
      *              @OA\Property(property="delegate", type="string", example="Prof. First Last"),
      *              @OA\Property(property="verified", type="boolean", example="true"),
+     *              @OA\Property(property="dsptk_ods_code", type="string", example="UY67FO"),
+     *              @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
+     *              @OA\Property(property="ce_certified", type="boolean", example="false"),
+     *              @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
      *          ),
      *      ),
      *      @OA\Response(
@@ -375,6 +401,10 @@ class OrganisationController extends Controller
      *                  @OA\Property(property="postcode", type="string", example="AB12 3CD"),
      *                  @OA\Property(property="delegate", type="string", example="Prof. First Last"),
      *                  @OA\Property(property="verified", type="boolean", example="true"),
+     *                  @OA\Property(property="dsptk_ods_code", type="string", example="UY67FO"),
+     *                  @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
+     *                  @OA\Property(property="ce_certified", type="boolean", example="false"),
+     *                  @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
      *              )
      *          ),
      *      ),

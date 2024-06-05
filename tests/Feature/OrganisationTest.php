@@ -92,6 +92,9 @@ class OrganisationTest extends TestCase
 
     public function test_the_application_can_create_organisations(): void
     {
+        $isoCertified = fake()->randomElement([1, 0]);
+        $ceCertified = fake()->randomElement([1, 0]);
+
         $response = $this->json(
             'POST',
             self::TEST_URL,
@@ -111,6 +114,10 @@ class OrganisationTest extends TestCase
                 'funders_and_sponsors' => 'UKRI, MRC',
                 'sub_license_arrangements' => 'N/A',
                 'verified' => false,
+                'dsptk_ods_code' => 'UY65LO',
+                'iso_27001_certified' => $isoCertified,
+                'ce_certified' => $ceCertified,
+                'ce_certification_num' => ($ceCertified ? 'fghe-76fh-gh47-0000' : ''),
             ],
             $this->headers
         );
@@ -121,6 +128,9 @@ class OrganisationTest extends TestCase
 
     public function test_the_application_can_update_organisations(): void
     {
+        $isoCertified = fake()->randomElement([1, 0]);
+        $ceCertified = fake()->randomElement([1, 0]);
+
         $response = $this->json(
             'POST',
             self::TEST_URL,
@@ -140,6 +150,9 @@ class OrganisationTest extends TestCase
                 'funders_and_sponsors' => 'UKRI, MRC',
                 'sub_license_arrangements' => 'N/A',
                 'verified' => false,
+                'iso_27001_certified' => $isoCertified,
+                'ce_certified' => $ceCertified,
+                'ce_certification_num' => ($ceCertified ? 'fghe-76fh-gh47-0000' : ''),
             ],
             $this->headers
         );
@@ -186,6 +199,9 @@ class OrganisationTest extends TestCase
 
     public function test_the_application_can_delete_organisations(): void
     {
+        $isoCertified = fake()->randomElement([1, 0]);
+        $ceCertified = fake()->randomElement([1, 0]);
+        
         $response = $this->json(
             'POST',
             self::TEST_URL,
@@ -205,6 +221,9 @@ class OrganisationTest extends TestCase
                 'funders_and_sponsors' => 'UKRI, MRC',
                 'sub_license_arrangements' => 'N/A',
                 'verified' => false,
+                'iso_27001_certified' => $isoCertified,
+                'ce_certified' => $ceCertified,
+                'ce_certification_num' => ($ceCertified ? 'fghe-76fh-gh47-0000' : ''),
             ],
             $this->headers
         );
