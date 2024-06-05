@@ -70,7 +70,8 @@ class UserTest extends TestCase
             'POST',
             self::TEST_URL,
             [
-                'name' => fake()->name(),
+                'first_name' => fake()->firstname(),
+                'last_name' => fake()->lastname(),
                 'email' => fake()->email(),
                 'provider' => fake()->word(),
                 'provider_sub' => Str::random(10),
@@ -88,7 +89,8 @@ class UserTest extends TestCase
             'POST',
             self::TEST_URL,
             [
-                'name' => fake()->name(),
+                'first_name' => fake()->firstname(),
+                'last_name' => fake()->lastname(),
                 'email' => fake()->email(),
                 'provider' => fake()->word(),
                 'provider_sub' => Str::random(10),
@@ -106,7 +108,8 @@ class UserTest extends TestCase
             'PUT',
             self::TEST_URL . '/' . $content,
             [
-                'name' => 'Updated Name',
+                'first_name' => 'Updated',
+                'last_name' => 'Name',
                 'email' => fake()->email(),
             ],
             $this->headers
@@ -115,7 +118,8 @@ class UserTest extends TestCase
         $response->assertStatus(200);
         $content = $response->decodeResponseJson()['data'];
 
-        $this->assertEquals($content['name'], 'Updated Name');
+        $this->assertEquals($content['first_name'], 'Updated');
+        $this->assertEquals($content['last_name'], 'Name');
     }
 
     public function test_the_application_can_delete_users(): void
@@ -124,7 +128,8 @@ class UserTest extends TestCase
             'POST',
             self::TEST_URL,
             [
-                'name' => fake()->name(),
+                'first_name' => fake()->firstname(),
+                'last_name' => fake()->lastname(),
                 'email' => fake()->email(),
                 'provider' => fake()->word(),
                 'provider_sub' => Str::random(10),

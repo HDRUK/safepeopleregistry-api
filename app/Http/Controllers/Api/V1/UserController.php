@@ -36,7 +36,8 @@ class UserController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="name", type="string", example="An Issuer"),
+     *                  @OA\Property(property="first_name", type="string", example="A"),
+     *                  @OA\Property(property="last_name", type="string", example="Researcher"),
      *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
      *              )
@@ -93,7 +94,8 @@ class UserController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="name", type="string", example="An Issuer"),
+     *                  @OA\Property(property="first_name", type="string", example="A"),
+     *                  @OA\Property(property="last_name", type="string", example="Researcher"),
      *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
      *              )
@@ -137,7 +139,8 @@ class UserController extends Controller
      *          required=true,
      *          description="User definition",
      *          @OA\JsonContent(  
-     *                  @OA\Property(property="name", type="string", example="An Issuer"),
+     *                  @OA\Property(property="first_name", type="string", example="A"),
+     *                  @OA\Property(property="last_name", type="string", example="Researcher"),
      *                  @OA\Property(property="email", type="string", example="someone@somewhere.com"),
      *                  @OA\Property(property="password", type="string", example="str0ng12P4ssword?"),
      *          ),
@@ -158,7 +161,8 @@ class UserController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="name", type="string", example="An Issuer"),
+     *                  @OA\Property(property="first_name", type="string", example="A"),
+     *                  @OA\Property(property="last_name", type="string", example="Researcher"),
      *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
      *              )
@@ -179,7 +183,8 @@ class UserController extends Controller
             $input = $request->all();
 
             $user = User::create([
-                'name' => $input['name'],
+                'first_name' => $input['first_name'],
+                'last_name' => $input['last_name'],
                 'email' => $input['email'],
                 'provider' => isset($input['provider']) ? $input['provider'] : '',
                 'registry_id' => isset($input['registry_id']) ? $input['registry_id'] : null,
@@ -220,7 +225,8 @@ class UserController extends Controller
      *          required=true,
      *          description="User definition",
      *          @OA\JsonContent(
-     *              @OA\Property(property="name", type="string", example="An Issuer"),
+     *              @OA\Property(property="first_name", type="string", example="A"),
+     *              @OA\Property(property="last_name", type="string", example="Researcher"),
      *              @OA\Property(property="email", type="string", example="someone@somewhere.com"),
      *              @OA\Property(property="password", type="string", example="str0ng12P4ssword?"),
      *          ),
@@ -241,7 +247,8 @@ class UserController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="name", type="string", example="An Issuer"),
+     *                  @OA\Property(property="first_name", type="string", example="A"),
+     *                  @OA\Property(property="last_name", type="string", example="Researcher"),
      *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
      *              )
@@ -262,7 +269,8 @@ class UserController extends Controller
             $input = $request->all();
             
             $user = User::where('id', $id)->first();
-            $user->name = isset($input['name']) ? $input['name'] : $user->name;
+            $user->first_name = isset($input['first_name']) ? $input['first_name'] : $user->first_name;
+            $user->last_name = isset($input['last_name']) ? $input['last_name'] : $user->last_name;
             $user->email = isset($input['email']) ? $input['email'] : $user->email;
             $user->password = isset($input['password']) ? Hash::make($input['password']) : $user->password;
             $user->registry_id = isset($input['registry_id']) ? $input['registry_id'] : $user->registry_id;
@@ -301,7 +309,8 @@ class UserController extends Controller
      *          required=true,
      *          description="User definition",
      *          @OA\JsonContent(
-     *              @OA\Property(property="name", type="string", example="An Issuer"),
+     *              @OA\Property(property="first_name", type="string", example="A"),
+     *              @OA\Property(property="last_name", type="string", example="Researcher"),
      *              @OA\Property(property="email", type="string", example="someone@somewhere.com"),
      *              @OA\Property(property="password", type="string", example="str0ng12P4ssword?"),
      *          ),
@@ -322,7 +331,8 @@ class UserController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="name", type="string", example="An Issuer"),
+     *                  @OA\Property(property="first_name", type="string", example="A"),
+     *                  @OA\Property(property="last_name", type="string", example="Researcher"),
      *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
      *              )
@@ -343,7 +353,8 @@ class UserController extends Controller
             $input = $request->all();
             
             $user = User::where('id', $id)->first();
-            $user->name = isset($input['name']) ? $input['name'] : $user->name;
+            $user->first_name = isset($input['first_name']) ? $input['first_name'] : $user->first_name;
+            $user->last_name = isset($input['last_name']) ? $input['last_name'] : $user->last_name;
             $user->email = isset($input['email']) ? $input['email'] : $user->email;
             $user->password = isset($input['password']) ? Hash::make($input['password']) : $user->password;
             $user->registry_id = isset($input['registry_id']) ? $input['registry_id'] : $user->registry_id;
