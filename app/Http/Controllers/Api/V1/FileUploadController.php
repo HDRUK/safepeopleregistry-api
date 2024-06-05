@@ -9,7 +9,9 @@ use Exception;
 use App\Models\File;
 use App\Models\Registry;
 use App\Models\SystemConfig;
+use App\Models\Organisation;
 use App\Models\RegistryHasFile;
+use App\Models\OrganisationHasFile;
 
 use App\Jobs\ScanFileUpload;
 
@@ -22,6 +24,40 @@ use App\Http\Controllers\Controller;
 
 class FileUploadController extends Controller
 {
+   /**
+     * @OA\Post(
+     *      path="/api/v1/files",
+     *      summary="Upload a file to the registry",
+     *      description="Uploads a file to the registry",
+     *      tags={"Files"},
+     *      summary="Files@store",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="File definition",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="file", type="file", example=""),
+     *              @OA\Property(property="file_type", type="string", example="CV"),
+     *              @OA\Property(property="entity_type", type="string", example="researcher"),
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Bad request",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="file upload failed")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="integer", example="1"),
+     *          ),
+     *      )
+     * )
+     */    
     public function store(Request $request): JsonResponse
     {
         $input = $request->all();
@@ -59,12 +95,22 @@ class FileUploadController extends Controller
             'status' => 'PENDING',
         ]);
 
-        $registry = Registry::where('user_id', $request->user()->id)->first();
+        if (strtoupper($input['entity_type']) === 'RESEARCHER') {
 
-        RegistryHasFile::create([
-            'registry_id' => $registry->id,
-            'file_id' => $file->id,
-        ]);
+            $registry = Registry::where('user_id', $request->user()->id)->first();
+
+            RegistryHasFile::create([
+                'registry_id' => $registry->id,
+                'file_id' => $file->id,
+            ]);
+        } else {
+            $organisation = Organisation::where('id', $input['organisation_id'])->first();
+            // Organisation
+            OrganisationHasFile::create([
+                'organisation_id' => $organisation->id,
+                'file_id' => $file->id,
+            ]);
+        }
 
         ScanFileUpload::dispatch((int)$file->id, $fileSystem);
 

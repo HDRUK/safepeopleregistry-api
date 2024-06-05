@@ -57,6 +57,7 @@ class OrganisationController extends Controller
     {
         $organisations = Organisation::with([
             'permissions',
+            'files',
         ])->get();
         
         return response()->json([
@@ -118,6 +119,7 @@ class OrganisationController extends Controller
     {
         $organisation = Organisation::with([
             'permissions',
+            'files',
         ])->findOrFail($id);
         if ($organisation) {
             return response()->json([

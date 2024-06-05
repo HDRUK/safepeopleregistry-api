@@ -46,6 +46,9 @@ class Organisation extends Model
         'sub_license_arrangements',
         'verified',
         'dsptk_ods_code',
+        'iso_27001_certified',
+        'ce_certified',
+        'ce_certification_num',
     ];
 
     /**
@@ -55,6 +58,8 @@ class Organisation extends Model
      */
     protected $casts = [
         'verified' => 'boolean',
+        'iso_27001_certified' => 'boolean',
+        'ce_certified' => 'boolean',
     ];
 
     /**
@@ -71,6 +76,14 @@ class Organisation extends Model
         return $this->belongsToMany(
             Permission::class,
             'organisation_has_issuer_permissions',
+        );
+    }
+
+    public function files(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            File::class,
+            'organisation_has_files',
         );
     }
 }
