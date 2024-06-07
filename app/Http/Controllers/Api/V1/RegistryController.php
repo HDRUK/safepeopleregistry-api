@@ -87,7 +87,6 @@ class RegistryController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="user_id", type="integer", example="243"),
      *                  @OA\Property(property="verified", type="boolean", example=true),
      *              )
      *          ),
@@ -130,7 +129,6 @@ class RegistryController extends Controller
      *          required=true,
      *          description="Registry definition",
      *          @OA\JsonContent(
-     *              @OA\Property(property="user_id", type="integer", example="1"),
      *              @OA\Property(property="dl_ident", type="string", example="134157839"),
      *              @OA\Property(property="pp_ident", type="string", example="HSJFY785615630X99 123"),
      *              @OA\Property(property="verified", type="boolean", example="true")
@@ -152,7 +150,6 @@ class RegistryController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="user_id", type="integer", example="1"),
      *                  @OA\Property(property="dl_ident", type="string", example="134157839"),
      *                  @OA\Property(property="pp_ident", type="string", example="HSJFY785615630X99 123"),
      *                  @OA\Property(property="verified", type="boolean", example="true")
@@ -174,7 +171,6 @@ class RegistryController extends Controller
             $input = $request->all();
 
             $registry = Registry::create([
-                'user_id' => $input['user_id'],
                 'dl_ident' => $input['dl_ident'],
                 'pp_ident' => $input['pp_ident'],
                 'verified' => $input['verified'],
@@ -214,7 +210,6 @@ class RegistryController extends Controller
      *          @OA\JsonContent(
      *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *              @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *              @OA\Property(property="user_id", type="integer", example="1"),
      *              @OA\Property(property="dl_ident", type="string", example="134157839"),
      *              @OA\Property(property="pp_ident", type="string", example="HSJFY785615630X99 123"),
      *              @OA\Property(property="verified", type="boolean", example="true")
@@ -236,7 +231,6 @@ class RegistryController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="user_id", type="integer", example="1"),
      *                  @OA\Property(property="dl_ident", type="string", example="134157839"),
      *                  @OA\Property(property="pp_ident", type="string", example="HSJFY785615630X99 123"),
      *                  @OA\Property(property="verified", type="boolean", example="true")
@@ -258,7 +252,6 @@ class RegistryController extends Controller
             $input = $request->all();
 
             Registry::where('id', $id)->update([
-                'user_id' => $input['user_id'],
                 'dl_ident' => $input['dl_ident'],
                 'pp_ident' => $input['pp_ident'],
                 'verified' => $input['verified'],
@@ -298,7 +291,6 @@ class RegistryController extends Controller
      *          @OA\JsonContent(
      *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *              @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *              @OA\Property(property="user_id", type="integer", example="1"),
      *              @OA\Property(property="dl_ident", type="string", example="134157839"),
      *              @OA\Property(property="pp_ident", type="string", example="HSJFY785615630X99 123"),
      *              @OA\Property(property="verified", type="boolean", example="true")
@@ -320,7 +312,6 @@ class RegistryController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="user_id", type="integer", example="1"),
      *                  @OA\Property(property="dl_ident", type="string", example="134157839"),
      *                  @OA\Property(property="pp_ident", type="string", example="HSJFY785615630X99 123"),
      *                  @OA\Property(property="verified", type="boolean", example="true")
@@ -342,7 +333,6 @@ class RegistryController extends Controller
             $input = $request->all();
 
             Registry::where('id', $id)->update([
-                'user_id' => $input['user_id'],
                 'dl_ident' => $input['dl_ident'],
                 'pp_ident' => $input['pp_ident'],
                 'verified' => $input['verified'],

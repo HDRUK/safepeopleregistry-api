@@ -54,7 +54,6 @@ class RegistryTest extends TestCase
             'POST',
             self::TEST_URL,
             [
-                'user_id' => 1,
                 'dl_ident' => '23897592835298352',
                 'pp_ident' => 'PASSPORTIDENT 92387429874 A',
                 'verified' => false,
@@ -83,7 +82,6 @@ class RegistryTest extends TestCase
             'POST',
             self::TEST_URL,
             [
-                'user_id' => 1,
                 'dl_ident' => '23897592835298352',
                 'pp_ident' => 'PASSPORTIDENT 92387429874 A',
                 'verified' => false,
@@ -101,7 +99,6 @@ class RegistryTest extends TestCase
             'POST',
             self::TEST_URL,
             [
-                'user_id' => 1,
                 'dl_ident' => '23897592835298352',
                 'pp_ident' => 'PASSPORTIDENT 92387429874 A',
                 'verified' => false,
@@ -120,7 +117,6 @@ class RegistryTest extends TestCase
             'PUT',
             self::TEST_URL . '/' . $content,
             [
-                'user_id' => 1,
                 'dl_ident' => '23897592835298352',
                 'pp_ident' => 'PASSPORTIDENT 92387429874 A',
                 'verified' => true,

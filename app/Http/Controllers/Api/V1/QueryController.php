@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use DB;
 use Exception;
 
+use App\Models\User;
 use App\Models\Registry;
 use App\Exceptions\NotFoundException;
 
@@ -124,14 +126,23 @@ class QueryController extends Controller
     public function query(Request $request): JsonResponse
     {
         $input = $request->all();
-        $registry = Registry::with([
-            'user',
-            'identity',
-            'history',
-            'training',
-            // 'projects',
-            'organisations'
-        ])->where('digi_ident', $input['ident'])->first();
+
+        $registry = DB::table('users')
+            ->join('registries', 'users.registry_id', 'registries.id')
+            ->join('identities', 'identities.registry_id', 'registries.id')
+            // ->join('histories', 'histories.registry_id', 'registries.id')
+            ->join('trainings', 'trainings.registry_id', 'registries.id')
+            // ->join('organisations', 'organisations.registry_id', 'registries.id')
+            ->where('registries.digi_ident', $input['ident'])
+            ->get();
+
+        // $registry = User::with([
+        //     'registry',
+        //     'registry.identity',
+        //     'registry.history',
+        //     'registry.training',
+        //     'registry.organisations',
+        // ])->where('digi_ident', $input['ident'])->first();
         if ($registry) {
             return response()->json([
                 'message' => 'success',

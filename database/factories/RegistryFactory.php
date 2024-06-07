@@ -26,7 +26,6 @@ class RegistryFactory extends Factory
         );
 
         return [
-            'user_id' => 1,
             'dl_ident' => 'ABCDE123456A99AA 12',
             'pp_ident' => '123456789',
             'digi_ident' => $digiIdent,

@@ -17,7 +17,6 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
             IssuerSeeder::class,
             OrganisationSeeder::class,
-            RegistrySeeder::class,
             IdentitySeeder::class,
             ProjectSeeder::class,
             TrainingSeeder::class,
