@@ -6,12 +6,15 @@ use Hash;
 
 use App\Models\User;
 use App\Models\Issuer;
+use App\Models\Registry;
 use App\Models\Permission;
 use App\Models\UserHasIssuerApproval;
 use App\Models\UserHasIssuerPermission;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+
+use Illuminate\Support\Str;
 
 class UserSeeder extends Seeder
 {
@@ -24,12 +27,25 @@ class UserSeeder extends Seeder
         UserHasIssuerApproval::truncate();
         UserHasIssuerPermission::truncate();
 
+        $signature = Str::random(64);
+        $digiIdent = Hash::make($signature .
+            ':' . env('REGISTRY_SALT_1') . 
+            ':' . env('REGISTRY_SALT_2')
+        );
+
+        $registry = Registry::create([
+            'dl_ident' => Str::random(10),
+            'pp_ident' => Str::random(10),
+            'digi_ident' => $digiIdent,
+            'verified' => fake()->boolean(),
+        ]);
+
         $user = User::factory()->create([
             'first_name' => 'Loki',
             'last_name' => 'Sinclair',
             'email' => 'loki.sinclair@hdruk.ac.uk',
             'password' => '$2y$12$cRbUJeY9Yp2G6ghilpJZaeleUivMyqgV0piW2Ao6kEmoPzN9Lxpu.',
-            'registry_id' => 1,
+            'registry_id' => $registry->id,
             'user_group' => '',
         ]);
 
@@ -51,12 +67,25 @@ class UserSeeder extends Seeder
             ]);
         }
 
+        $signature = Str::random(64);
+        $digiIdent = Hash::make($signature .
+            ':' . env('REGISTRY_SALT_1') . 
+            ':' . env('REGISTRY_SALT_2')
+        );
+
+        $registry = Registry::create([
+            'dl_ident' => Str::random(10),
+            'pp_ident' => Str::random(10),
+            'digi_ident' => $digiIdent,
+            'verified' => fake()->boolean(),
+        ]);
+
         $user = User::factory()->create([
             'first_name' => 'Peter',
             'last_name' => 'Hammans',
             'email' => 'peter.hammans@hdruk.ac.uk',
             'password' => '$2y$12$02CkVZW3EfoOTvsCMR4b5uhYUH.gOeaBl59MUK90icj336YvuTjAW',
-            'registry_id' => 1,
+            'registry_id' => $registry->id,
             'user_group' => '',
         ]);
 

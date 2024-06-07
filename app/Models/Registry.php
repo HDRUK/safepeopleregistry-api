@@ -36,7 +36,6 @@ class Registry extends Model
      * @var array
      */
     protected $fillable = [
-        'user_id',
         'dl_ident',
         'pp_ident',
         'digi_ident',
