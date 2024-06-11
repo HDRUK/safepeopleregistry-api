@@ -57,6 +57,7 @@ class UserController extends Controller
         $users = User::with([
             'permissions',
             'registry',
+            'registry.files',
             'registry.organisations',
         ])->get();
 
@@ -116,6 +117,7 @@ class UserController extends Controller
             $user = User::with([
                 'permissions',
                 'registry',
+                'registry.files',
                 'registry.organisations',
             ])->findOrFail($id);
             return response()->json([
