@@ -5,9 +5,11 @@ namespace Database\Seeders;
 use Hash;
 
 use App\Models\User;
+use App\Models\File;
 use App\Models\Issuer;
 use App\Models\Registry;
 use App\Models\Permission;
+use App\Models\RegistryHasFile;
 use App\Models\UserHasIssuerApproval;
 use App\Models\UserHasIssuerPermission;
 
@@ -47,6 +49,18 @@ class UserSeeder extends Seeder
             'password' => '$2y$12$cRbUJeY9Yp2G6ghilpJZaeleUivMyqgV0piW2Ao6kEmoPzN9Lxpu.',
             'registry_id' => $registry->id,
             'user_group' => '',
+        ]);
+
+        $file = File::create([
+            'name' => 'doesntexist.doc',
+            'type' => 'document',
+            'path' => '1234_doesntexist.doc',
+            'status' => 'PROCESSED',
+        ]);
+
+        RegistryHasFile::create([
+            'registry_id' => $registry->id,
+            'file_id' => $file->id,
         ]);
 
         $perms = Permission::all();
