@@ -102,6 +102,8 @@ class UserController extends Controller
      *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
+     *                  @OA\Property(property="profile_steps_completed", type="string", example="{}"),
+     *                  @OA\Property(property="profile_completed_at", type="string", example="2024-02-04 12:00:00"),
      *              )
      *          ),
      *      ),
@@ -172,6 +174,8 @@ class UserController extends Controller
      *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="consent_scrape", type="boolean", example="true"), 
+     *                  @OA\Property(property="profile_steps_completed", type="string", example="{}"),
+     *                  @OA\Property(property="profile_completed_at", type="string", example="2024-02-04 12:00:00"),
      *              )
      *          ),
      *      ),
@@ -198,6 +202,8 @@ class UserController extends Controller
                 'keycloak_id' => null,
                 'user_group' => Keycloak::determineUserGroup($input),
                 'consent_scrape' => isset($input['consent_scrape']) ? $input['consent_scrape'] : 0,
+                'profile_steps_completed' => isset($input['profile_steps_completed']) ? $input['profile_steps_completed'] : null,
+                'profile_completed_at' => isset($input['profile_completed_at']) ? $input['profile_completed_at'] : null,
             ]);
 
             // TODO - Close Pending invite when we're sure how org id is handled
@@ -262,6 +268,8 @@ class UserController extends Controller
      *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
+     *                  @OA\Property(property="profile_steps_completed", type="string", example="{}"),
+     *                  @OA\Property(property="profile_completed_at", type="string", example="2024-02-04 12:00:00"),
      *              )
      *          ),
      *      ),
@@ -286,6 +294,8 @@ class UserController extends Controller
             $user->password = isset($input['password']) ? Hash::make($input['password']) : $user->password;
             $user->registry_id = isset($input['registry_id']) ? $input['registry_id'] : $user->registry_id;
             $user->consent_scrape = isset($input['consent_scrape']) ? $input['consent_scrape'] : $user->consent_scrape;
+            $user->profile_steps_completed = isset($input['profile_steps_completed']) ? $input['profile_steps_completed'] : $user->profile_steps_completed;
+            $user->profile_completed_at = isset($input['profile_completed_at']) ? $input['profile_completed_at'] : $user->profile_completed_at;
 
             if ($user->save()) {
                 return response()->json([
@@ -348,6 +358,8 @@ class UserController extends Controller
      *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
+     *                  @OA\Property(property="profile_steps_completed", type="string", example="{}"),
+     *                  @OA\Property(property="profile_completed_at", type="string", example="2024-02-04 12:00:00"),
      *              )
      *          ),
      *      ),
@@ -372,6 +384,8 @@ class UserController extends Controller
             $user->password = isset($input['password']) ? Hash::make($input['password']) : $user->password;
             $user->registry_id = isset($input['registry_id']) ? $input['registry_id'] : $user->registry_id;
             $user->consent_scrape = isset($input['consent_scrape']) ? $input['consent_scrape'] : $user->consent_scrape;
+            $user->profile_steps_completed = isset($input['profile_steps_completed']) ? $input['profile_steps_completed'] : $user->profile_steps_completed;
+            $user->profile_completed_at = isset($input['profile_completed_at']) ? $input['profile_completed_at'] : $user->profile_completed_at;    
 
             if ($user->save()) {
                 return response()->json([
