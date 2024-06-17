@@ -40,6 +40,7 @@ class UserController extends Controller
      *                  @OA\Property(property="last_name", type="string", example="Researcher"),
      *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
      *              )
      *          ),
      *      ),
@@ -99,6 +100,7 @@ class UserController extends Controller
      *                  @OA\Property(property="last_name", type="string", example="Researcher"),
      *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
      *              )
      *          ),
      *      ),
@@ -167,6 +169,7 @@ class UserController extends Controller
      *                  @OA\Property(property="last_name", type="string", example="Researcher"),
      *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="consent_scrape", type="boolean", example="true"), 
      *              )
      *          ),
      *      ),
@@ -192,6 +195,7 @@ class UserController extends Controller
                 'registry_id' => isset($input['registry_id']) ? $input['registry_id'] : null,
                 'keycloak_id' => null,
                 'user_group' => Keycloak::determineUserGroup($input),
+                'consent_scrape' => isset($input['consent_scrape']) ? $input['consent_scrape'] : 0,
             ]);
 
             return response()->json([
@@ -253,6 +257,7 @@ class UserController extends Controller
      *                  @OA\Property(property="last_name", type="string", example="Researcher"),
      *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
      *              )
      *          ),
      *      ),
@@ -276,6 +281,7 @@ class UserController extends Controller
             $user->email = isset($input['email']) ? $input['email'] : $user->email;
             $user->password = isset($input['password']) ? Hash::make($input['password']) : $user->password;
             $user->registry_id = isset($input['registry_id']) ? $input['registry_id'] : $user->registry_id;
+            $user->consent_scrape = isset($input['consent_scrape']) ? $input['consent_scrape'] : $user->consent_scrape;
 
             if ($user->save()) {
                 return response()->json([
@@ -337,6 +343,7 @@ class UserController extends Controller
      *                  @OA\Property(property="last_name", type="string", example="Researcher"),
      *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
      *              )
      *          ),
      *      ),
@@ -360,6 +367,7 @@ class UserController extends Controller
             $user->email = isset($input['email']) ? $input['email'] : $user->email;
             $user->password = isset($input['password']) ? Hash::make($input['password']) : $user->password;
             $user->registry_id = isset($input['registry_id']) ? $input['registry_id'] : $user->registry_id;
+            $user->consent_scrape = isset($input['consent_scrape']) ? $input['consent_scrape'] : $user->consent_scrape;
 
             if ($user->save()) {
                 return response()->json([

@@ -130,6 +130,8 @@ class OrganisationController extends Controller
         $organisation = Organisation::with([
             'permissions',
             'files',
+            'registries',
+            'registries.user',            
         ])->findOrFail($id);
         if ($organisation) {
             return response()->json([

@@ -97,6 +97,7 @@ class UserTest extends TestCase
                 'email' => fake()->email(),
                 'provider' => fake()->word(),
                 'provider_sub' => Str::random(10),
+                'consent_scrape' => true,
             ],
             $this->headers
         );
@@ -123,6 +124,7 @@ class UserTest extends TestCase
 
         $this->assertEquals($content['first_name'], 'Updated');
         $this->assertEquals($content['last_name'], 'Name');
+        $this->assertEquals($content['consent_scrape'], true);
     }
 
     public function test_the_application_can_delete_users(): void
