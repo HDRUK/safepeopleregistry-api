@@ -28,6 +28,8 @@ class User extends Authenticatable
         'keycloak_id',
         'user_group',
         'consent_scrape',
+        'profile_steps_completed',
+        'profile_completed_at',
     ];
 
     /**

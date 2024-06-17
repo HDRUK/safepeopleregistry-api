@@ -30,6 +30,8 @@ class UserFactory extends Factory
             'provider' => fake()->word(),
             'keycloak_id' => Str::random(50),
             'user_group' => '',
+            'profile_steps_completed' => null,
+            'profile_completed_at' => null,
         ];
     }
 }
