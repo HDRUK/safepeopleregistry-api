@@ -26,6 +26,7 @@ class User extends Authenticatable
         'provider',
         'keycloak_id',
         'user_group',
+        'consent_scrape',
     ];
 
     /**
@@ -46,6 +47,7 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
+        'consent_scrape' => 'boolean',
     ];
 
     public function permissions(): BelongsToMany
