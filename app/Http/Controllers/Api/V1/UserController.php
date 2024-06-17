@@ -196,6 +196,8 @@ class UserController extends Controller
                 'user_group' => Keycloak::determineUserGroup($input),
             ]);
 
+            // TODO - Close Pending invite when we're sure how org id is handled
+
             return response()->json([
                 'message' => 'success',
                 'data' => $user->id,
