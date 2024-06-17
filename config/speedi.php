@@ -15,4 +15,8 @@ return [
             'contact_email' => 'nhse@email.com',
         ],
     ],
+    'invite_status' => [
+        'PENDING' => 'PENDING',
+        'COMPLETE' => 'COMPLETE',
+    ],
 ];

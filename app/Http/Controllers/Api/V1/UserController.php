@@ -59,6 +59,7 @@ class UserController extends Controller
             'registry',
             'registry.files',
             'registry.organisations',
+            'pendingInvites',
         ])->get();
 
         return response()->json([
@@ -119,6 +120,7 @@ class UserController extends Controller
                 'registry',
                 'registry.files',
                 'registry.organisations',
+                'pendingInvites',
             ])->findOrFail($id);
             return response()->json([
                 'message' => 'success',

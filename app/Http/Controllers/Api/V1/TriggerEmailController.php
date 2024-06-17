@@ -8,8 +8,11 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Issuer;
 use App\Models\Organisation;
-use App\Jobs\SendEmailJob;
+use App\Models\PendingInvite;
+
 use Hdruk\LaravelMjml\Models\EmailTemplate;
+
+use App\Jobs\SendEmailJob;
 
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Model;
@@ -45,6 +48,12 @@ class TriggerEmailController extends Controller
                     'id' => $organisation->id,
                     'email' => $organisation->lead_applicant_email,
                 ];
+
+                PendingInvite::create([
+                    'user_id' => $user->id,
+                    'organisation_id' => $organisation->id,
+                    'status' => config('speedi.invite_status.PENDING'),
+                ]);
                 break;
             case 'ISSUER':
                 $issuer = Issuer::where('id', $to)->first();
