@@ -62,6 +62,8 @@ class OrganisationController extends Controller
         $organisations = Organisation::with([
             'permissions',
             'files',
+            'registries',
+            'registries.user',
         ])->get();
         
         return response()->json([
