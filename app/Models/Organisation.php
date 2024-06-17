@@ -86,4 +86,12 @@ class Organisation extends Model
             'organisation_has_files',
         );
     }
+
+    public function registries(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Registry::class,
+            'registry_has_organisations',
+        );
+    }
 }

@@ -35,6 +35,9 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'provider',
+        'password',
+        'keycloak_id',
+        'otp',
     ];
 
     /**
