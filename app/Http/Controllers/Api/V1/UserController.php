@@ -60,6 +60,7 @@ class UserController extends Controller
             'registry',
             'registry.files',
             'registry.organisations',
+            'pendingInvites',
         ])->get();
 
         return response()->json([
@@ -121,6 +122,7 @@ class UserController extends Controller
                 'registry',
                 'registry.files',
                 'registry.organisations',
+                'pendingInvites',
             ])->findOrFail($id);
             return response()->json([
                 'message' => 'success',
@@ -197,6 +199,8 @@ class UserController extends Controller
                 'user_group' => Keycloak::determineUserGroup($input),
                 'consent_scrape' => isset($input['consent_scrape']) ? $input['consent_scrape'] : 0,
             ]);
+
+            // TODO - Close Pending invite when we're sure how org id is handled
 
             return response()->json([
                 'message' => 'success',

@@ -12,6 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('pending_invites', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
             $table->bigInteger('user_id');
             $table->bigInteger('organisation_id');
             $table->string('status')->default('PENDING');

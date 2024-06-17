@@ -4,9 +4,13 @@ namespace Tests\Feature;
 
 use App\Jobs\SendEmailJob;
 
+use App\Models\PendingInvite;
+
 use Tests\TestCase;
 use Database\Seeders\UserSeeder;
 use Database\Seeders\IssuerSeeder;
+use Database\Seeders\PermissionSeeder;
+use Database\Seeders\OrganisationSeeder;
 use Database\Seeders\EmailTemplatesSeeder;
 
 use Illuminate\Testing\Fluent\AssertableJson;
@@ -28,8 +32,10 @@ class EmailSendTest extends TestCase
     {
         parent::setUp();
         $this->seed([
-            UserSeeder::class,
             IssuerSeeder::class,
+            UserSeeder::class,
+            PermissionSeeder::class,
+            OrganisationSeeder::class,
             EmailTemplatesSeeder::class,
         ]);
 
@@ -56,5 +62,32 @@ class EmailSendTest extends TestCase
         );
 
         Queue::assertPushed(SendEmailJob::class, 1);
+    }
+
+    public function test_the_application_adds_pending_invites(): void
+    {
+        Queue::fake();
+        Queue::assertNothingPushed();
+
+        $response = $this->json(
+            'POST',
+            self::TEST_URL,
+            [
+                'to' => 1,
+                'type' => 'user',
+                'by' => 1,
+                'identifier' => 'researcher_invite',
+            ],
+            $this->headers
+        );
+
+        $response->assertStatus(200);
+
+        Queue::assertPushed(SendEmailJob::class);
+
+        $invites = PendingInvite::all();
+        $this->assertTrue(count($invites) === 1);
+        $this->assertTrue($invites[0]->user_id === 1);
+        $this->assertTrue($invites[0]->organisation_id === 1);
     }
 }
