@@ -132,4 +132,11 @@ class AuthController extends Controller
             'data' => Keycloak::logout($token[1]),
         ]);
     }
+
+    public function authoriseOrcID(Request $request): JsonResponse
+    {
+        $input = $request->all();
+
+        return OrcID::getAuthoriseUrl();
+    }
 }
