@@ -81,44 +81,44 @@ class UserSeeder extends Seeder
             ]);
         }
 
-        $signature = Str::random(64);
-        $digiIdent = Hash::make($signature .
-            ':' . env('REGISTRY_SALT_1') . 
-            ':' . env('REGISTRY_SALT_2')
-        );
+        // $signature = Str::random(64);
+        // $digiIdent = Hash::make($signature .
+        //     ':' . env('REGISTRY_SALT_1') . 
+        //     ':' . env('REGISTRY_SALT_2')
+        // );
 
-        $registry = Registry::create([
-            'dl_ident' => Str::random(10),
-            'pp_ident' => Str::random(10),
-            'digi_ident' => $digiIdent,
-            'verified' => fake()->boolean(),
-        ]);
+        // $registry = Registry::create([
+        //     'dl_ident' => Str::random(10),
+        //     'pp_ident' => Str::random(10),
+        //     'digi_ident' => $digiIdent,
+        //     'verified' => fake()->boolean(),
+        // ]);
 
-        $user = User::factory()->create([
-            'first_name' => 'Peter',
-            'last_name' => 'Hammans',
-            'email' => 'peter.hammans@hdruk.ac.uk',
-            'password' => '$2y$12$02CkVZW3EfoOTvsCMR4b5uhYUH.gOeaBl59MUK90icj336YvuTjAW',
-            'registry_id' => $registry->id,
-            'user_group' => '',
-        ]);
+        // $user = User::factory()->create([
+        //     'first_name' => 'Peter',
+        //     'last_name' => 'Hammans',
+        //     'email' => 'peter.hammans@hdruk.ac.uk',
+        //     'password' => '$2y$12$02CkVZW3EfoOTvsCMR4b5uhYUH.gOeaBl59MUK90icj336YvuTjAW',
+        //     'registry_id' => $registry->id,
+        //     'user_group' => '',
+        // ]);
 
-        $perms = Permission::all();
-        $issuers = Issuer::all();
+        // $perms = Permission::all();
+        // $issuers = Issuer::all();
 
-        foreach ($issuers as $i) {
-            foreach ($perms as $p) {
-                UserHasIssuerPermission::create([
-                    'user_id' => $user->id,
-                    'issuer_id' => $i->id,
-                    'permission_id' => $p->id,
-                ]);
-            }
+        // foreach ($issuers as $i) {
+        //     foreach ($perms as $p) {
+        //         UserHasIssuerPermission::create([
+        //             'user_id' => $user->id,
+        //             'issuer_id' => $i->id,
+        //             'permission_id' => $p->id,
+        //         ]);
+        //     }
 
-            UserHasIssuerApproval::create([
-                'user_id' => $user->id,
-                'issuer_id' => $i->id,
-            ]);
-        }        
+        //     UserHasIssuerApproval::create([
+        //         'user_id' => $user->id,
+        //         'issuer_id' => $i->id,
+        //     ]);
+        // }        
     }
 }

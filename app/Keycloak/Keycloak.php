@@ -2,6 +2,7 @@
 
 namespace App\Keycloak;
 
+use Hash;
 use Http;
 use Exception;
 
@@ -9,6 +10,7 @@ use App\Models\User;
 use App\Models\Registry;
 use App\Models\RegistryHasOrganisation;
 
+use Illuminate\Support\Str;
 use Illuminate\Http\JsonResponse;
 
 class Keycloak {
@@ -68,8 +70,21 @@ class Keycloak {
                 if (!$user)  return false; 
 
                 if ($userGroup === 'RESEARCHERS') {
+                    $signature = Str::random(64);
+                    $digiIdent = Hash::make($signature .
+                        ':' . env('REGISTRY_SALT_1') . 
+                        ':' . env('REGISTRY_SALT_2')
+                    );
+
                     $registry = Registry::create([
-                        'user_id' => $user->id,
+                        'dl_ident' => '',
+                        'pp_ident' => '',
+                        'digi_ident' => $digiIdent,
+                        'verified' => 0,
+                    ]);
+
+                    $user->update([
+                        'registry_id' => $registry->id,
                     ]);
 
                     if ($credentials['organisation_id'] !== null) {
