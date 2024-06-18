@@ -56,7 +56,8 @@ class Keycloak {
                 $newUserId = $parts[$last];
 
                 $user = User::create([
-                    'name' => $credentials['first_name'] . ' ' . $credentials['last_name'],
+                    'first_name' => $credentials['first_name'],
+                    'last_name' => $credentials['last_name'],
                     'email' => $credentials['email'],
                     'provider' => 'keycloak',
                     'provider_sub' => '',
