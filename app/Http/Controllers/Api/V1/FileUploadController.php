@@ -105,7 +105,7 @@ class FileUploadController extends Controller
                 RegistryHasFile::create([
                     'registry_id' => $registry->id,
                     'file_id' => $file->id,
-                ]);
+                ]);                
             } else {
                 $organisation = Organisation::where('id', $input['organisation_id'])->first();
                 // Organisation
