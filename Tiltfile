@@ -7,7 +7,7 @@
 cfg = read_json('tiltconf.json')
 
 include(cfg.get('speediWebRoot') + '/Tiltfile')
-include(cfg.get('clamAVRoot') + '/Tiltfile')
+# include(cfg.get('clamAVRoot') + '/Tiltfile')
 
 docker_build(
     ref='hdruk/' + cfg.get('name'),
@@ -15,10 +15,10 @@ docker_build(
     build_args={},
     live_update=[
         sync('.', '/var/www'),
+        run('php artisan config:clear', trigger='./.env'),
         run('composer install', trigger='./composer.lock'),
         run('php artisan route:clear'),
         run('php artisan cache:clear'),
-        run('php artisan config:clear', trigger='./.env'),
         run('php artisan l5-swagger:generate'),
     ]
 )

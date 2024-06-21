@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use OrcID;
 use Keycloak;
 
 use App\Models\User;
-use App\Jobs\SendEmailJob;
+use App\Models\UserApiToken;
+
 use Hdruk\LaravelMjml\Models\EmailTemplate;
+
+use App\Jobs\SendEmailJob;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -25,11 +29,6 @@ class AuthController extends Controller
      */
     public function __construct()
     {
-        // $this->middleware('auth:api', [
-        //     'except' => [
-        //         'login'
-        //     ]
-        // ]);
     }
 
     public function registerUser(Request $request): JsonResponse

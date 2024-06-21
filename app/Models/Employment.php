@@ -28,10 +28,14 @@ class Employment extends Model
      * 
      * @var array
      */
-    protected $fillale = [
+    protected $fillable = [
         'employer_name',
         'from',
         'to',
         'is_current',
+        'department',
+        'role',
+        'employer_address',
+        'ror',
     ];
 }

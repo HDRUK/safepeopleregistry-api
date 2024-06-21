@@ -49,6 +49,7 @@ class UserSeeder extends Seeder
             'password' => '$2y$12$cRbUJeY9Yp2G6ghilpJZaeleUivMyqgV0piW2Ao6kEmoPzN9Lxpu.',
             'registry_id' => $registry->id,
             'user_group' => '',
+            'orc_id' => '0009-0004-1636-9627',
         ]);
 
         $file = File::create([
