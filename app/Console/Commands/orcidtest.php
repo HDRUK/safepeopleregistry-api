@@ -2,7 +2,9 @@
 
 namespace App\Console\Commands;
 
-use OrcID as OID;
+use App\Models\User;
+
+use App\Jobs\OrcIDScanner;
 
 use Illuminate\Console\Command;
 
@@ -27,6 +29,6 @@ class orcidtest extends Command
      */
     public function handle()
     {
-        OID::token();
+        OrcIDScanner::dispatch(User::where('id', 1)->first());
     }
 }

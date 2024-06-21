@@ -1,4 +1,9 @@
 #!/bin/bash
 
 php artisan serve --host=0.0.0.0 --port=8100 &
-php artisan queue:work
+
+# if [ "${APP_ENV}" = "dev" ]; then
+    php artisan queue:listen
+# else
+    # php artisan queue:work
+# fi
