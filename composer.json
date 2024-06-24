@@ -7,6 +7,7 @@
     "require": {
         "php": "^8.3",
         "darkaonline/l5-swagger": "^8.5",
+        "doctrine/dbal": "^3.8",
         "guzzlehttp/guzzle": "^7.2",
         "hdruk/laravel-mjml": "*",
         "laravel/framework": "^10.10",
