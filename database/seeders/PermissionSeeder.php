@@ -65,7 +65,7 @@ class PermissionSeeder extends Seeder
             ],
             [
                 // Detailed Access to Cohort Discovery and allows queries to be run - default on, when access is on
-                'name' => 'COHORT_QUERY',
+                'name' => 'COHORT_SDE_QUERY',
                 'enabled' => 1,
             ],
         ];
