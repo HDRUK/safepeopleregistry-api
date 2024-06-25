@@ -12,8 +12,12 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Exception\NotFoundException;
 
+use App\Traits\CommonFunctions;
+
 class ProjectController extends Controller
 {
+    use CommonFunctions;
+
    /**
      * @OA\Get(
      *      path="/api/v1/projects",
@@ -50,7 +54,7 @@ class ProjectController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $projects = Project::all();
+        $projects = Project::paginate($this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',

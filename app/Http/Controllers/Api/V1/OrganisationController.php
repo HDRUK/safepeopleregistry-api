@@ -13,8 +13,12 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Exception\NotFoundException;
 
+use App\Traits\CommonFunctions;
+
 class OrganisationController extends Controller
 {
+    use CommonFunctions;
+
     /**
      * @OA\Get(
      *      path="/api/v1/organisations",
@@ -64,7 +68,7 @@ class OrganisationController extends Controller
             'files',
             'registries',
             'registries.user',
-        ])->get();
+        ])->paginate($this->getSystemConfig('PER_PAGE'));
         
         return response()->json([
             'message' => 'success',

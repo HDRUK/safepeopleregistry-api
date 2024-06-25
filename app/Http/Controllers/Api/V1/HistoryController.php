@@ -14,6 +14,8 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Exception\NotFoundException;
 
+use App\Traits\CommonFunctions;
+
 /**
  * History is immutable (simulated) in the sense that it can never 
  * change. Therefore there are no update/edit or destroy methods
@@ -21,6 +23,8 @@ use App\Exception\NotFoundException;
  */
 class HistoryController extends Controller
 {
+    use CommonFunctions;
+    
     /**
      * @OA\Get(
      *      path="/api/v1/histories",
@@ -58,7 +62,7 @@ class HistoryController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $histories = History::all();
+        $histories = History::paginate($this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',

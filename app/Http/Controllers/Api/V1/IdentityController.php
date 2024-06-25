@@ -12,8 +12,12 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Exception\NotFoundException;
 
+use App\Traits\CommonFunctions;
+
 class IdentityController extends Controller
 {
+    use CommonFunctions;
+
     /**
      * @OA\Get(
      *      path="/api/v1/identities",
@@ -46,7 +50,7 @@ class IdentityController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $identities = Identity::all();
+        $identities = Identity::paginate($this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',

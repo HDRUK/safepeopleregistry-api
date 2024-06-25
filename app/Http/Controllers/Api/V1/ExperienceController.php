@@ -12,8 +12,12 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Exception\NotFoundException;
 
+use App\Traits\CommonFunctions;
+
 class ExperienceController extends Controller
 {
+    use CommonFunctions;
+
     /**
      * @OA\Get(
      *      path="/api/v1/experiences",
@@ -49,7 +53,7 @@ class ExperienceController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $experiences = Experience::all();
+        $experiences = Experience::paginate($this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',

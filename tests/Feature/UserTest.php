@@ -52,7 +52,7 @@ class UserTest extends TestCase
         $this->assertArrayHasKey('data', $response);
 
         $content = $response->decodeResponseJson();
-        $this->assertTrue($content['data'][0]['registry']['files'][0]['path'] === '1234_doesntexist.doc');
+        $this->assertTrue($content['data']['data'][0]['registry']['files'][0]['path'] === '1234_doesntexist.doc');
     }
 
     public function test_the_application_can_show_users(): void
