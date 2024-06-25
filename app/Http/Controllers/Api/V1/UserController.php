@@ -65,7 +65,7 @@ class UserController extends Controller
             'registry.files',
             'registry.organisations',
             'pendingInvites',
-        ])->get()->paginate($this->getSystemConfig('PER_PAGE'));
+        ])->paginate($this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',

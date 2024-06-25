@@ -68,7 +68,7 @@ class OrganisationController extends Controller
             'files',
             'registries',
             'registries.user',
-        ])->get()->paginate($this->getSystemConfig('PER_PAGE'));
+        ])->paginate($this->getSystemConfig('PER_PAGE'));
         
         return response()->json([
             'message' => 'success',
