@@ -24,7 +24,7 @@ class OrganisationSeeder extends Seeder
         $org = Organisation::all()[0];
 
         $issuer = fake()->randomElement(Issuer::all()->select('id'));
-        $perms = Permission::where('name', 'GATEWAY_ACCESS')->first();
+        $perms = Permission::where('name', 'ACCESS_GATEWAY')->first();
 
         OrganisationHasIssuerPermission::create([
             'organisation_id' => $org->id,

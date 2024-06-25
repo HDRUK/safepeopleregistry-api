@@ -21,6 +21,10 @@ class EmploymentFactory extends Factory
             'from' => fake()->date(),
             'to' => fake()->date(),
             'is_current' => fake()->randomElement([0, 1]),
+            'department' => fake()->sentence(2),
+            'role' => fake()->sentence(3),
+            'employer_address' => fake()->address(),
+            'ror' => fake()->url(),
         ];
     }
 }

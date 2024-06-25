@@ -4,13 +4,22 @@ namespace App\Http\Controllers\Api\V1;
 
 use Exception;
 
+use App\Models\User;
+use App\Models\Issuer;
 use App\Models\Permission;
+use App\Models\Organisation;
+
+use App\Models\UserHasIssuerPermission;
+use App\Models\OrganisationHasIssuerPermission;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 use App\Http\Controllers\Controller;
 use App\Exception\NotFoundException;
+
+use App\Http\Requests\AssignUserPermissionToFrom;
+use App\Http\Requests\AssignOrganisationPermissionToFrom;
 
 class PermissionController extends Controller
 {
@@ -362,6 +371,73 @@ class PermissionController extends Controller
             Permission::where('id', $id)->delete();
             return response()->json([
                 'message' => 'success',
+            ], 200);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    public function assignOrganisationPermissionsToFrom(AssignOrganisationPermissionToFrom $request): JsonResponse
+    {
+        try {
+            $input = $request->all();
+
+            $organisation = Organisation::where('id', $input['organisation_id'])->first();
+            $issuer = Issuer::where('id', $input['issuer_id'])->first();
+            $permissions = Permission::whereIn('id', $input['permissions'])->get();
+
+            if (!$organisation || !$issuer) {
+                return response()->json([
+                    'message' => 'missing organisation_id or issuer_id',
+                    'data' => null,
+                ], 400);
+            }
+
+            foreach ($permissions as $p) {
+                OrganisationHasIssuerPermission::create([
+                    'organisation_id' => $organisation->id,
+                    'issuer_id' => $issuer->id,
+                    'permission_id' => $p->id,
+                ]);
+            }
+
+            return response()->json([
+                'message' => 'success',
+                'data' => true,
+            ], 200);
+
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    public function assignUserPermissionsToFrom(AssignUserPermissionToFrom $request): JsonResponse
+    {
+        try {
+            $input = $request->all();
+
+            $user = User::where('id', $input['user_id'])->first();
+            $issuer = Issuer::where('id', $input['issuer_id'])->first();
+            $permissions = Permission::whereIn('id', $input['permissions'])->get();
+
+            if (!$user || !$issuer) {
+                return response()->json([
+                    'message' => 'missing user_id or issuer_id',
+                    'data' => null,
+                ], 400);
+            }
+
+            foreach ($permissions as $p) {
+                UserHasIssuerPermission::create([
+                    'user_id' => $user->id,
+                    'issuer_id' => $issuer->id,
+                    'permission_id' => $p->id,
+                ]);
+            }
+
+            return response()->json([
+                'message' => 'success',
+                'data' => true,
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('awarded_at', 7)->default(''); // in form of MM/YYYY
             $table->string('awarding_body_name', 255)->default('');
             $table->string('awarding_body_ror', 255)->nullable()->default(null);
-            $table->text('title')->default('');
+            $table->text('title');
             $table->string('expires_at', 7)->default(''); // in form of MM/YYYY
             $table->string('awarded_locale', 255)->default(''); // country
         });

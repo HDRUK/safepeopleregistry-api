@@ -16,6 +16,8 @@ use App\Http\Controllers\Api\V1\InfringementController;
 use App\Http\Controllers\Api\V1\TriggerEmailController;
 use App\Http\Controllers\Api\V1\SystemConfigController;
 use App\Http\Controllers\Api\V1\FileUploadController;
+use App\Http\Controllers\Api\V1\ApprovalController;
+use App\Http\Controllers\Api\V1\PermissionController;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -49,6 +51,7 @@ Route::middleware('api')->post('v1/users', [UserController::class, 'store']);
 Route::middleware('api')->put('v1/users/{id}', [UserController::class, 'update']);
 Route::middleware('api')->patch('v1/users/{id}', [UserController::class, 'edit']);
 Route::middleware('api')->delete('v1/users/{id}', [UserController::class, 'destroy']);
+Route::middleware('api')->post('v1/users/permissions', [PermissionController::class, 'assignUserPermissionsToFrom']);
 
 Route::middleware('api')->get('v1/training', [TrainingController::class, 'index']);
 Route::middleware('api')->get('v1/training/{id}', [TrainingController::class, 'show']);
@@ -104,6 +107,7 @@ Route::middleware('api')->post('v1/organisations', [OrganisationController::clas
 Route::middleware('api')->put('v1/organisations/{id}', [OrganisationController::class, 'update']);
 Route::middleware('api')->patch('v1/organisations/{id}', [OrganisationController::class, 'edit']);
 Route::middleware('api')->delete('v1/organisations/{id}', [OrganisationController::class, 'destroy']);
+Route::middleware('api')->post('v1/organisations/permissions', [PermissionController::class, 'assignOrganisationPermissionsToFrom']);
 
 Route::middleware('api')->get('v1/histories', [HistoryController::class, 'index']);
 Route::middleware('api')->get('v1/histories/{id}', [HistoryController::class, 'show']);
@@ -116,6 +120,8 @@ Route::middleware('api')->post('v1/infringements', [InfringementController::clas
 Route::middleware('api')->post('v1/trigger_email', [TriggerEmailController::class, 'spawnEmail']);
 
 Route::middleware('api')->post('v1/files', [FileUploadController::class, 'store']);
+
+Route::middleware('api')->post('v1/approvals/{entity_type}', [ApprovalController::class, 'store']);
 
 Route::get('v1/system_config', [SystemConfigController::class, 'index']);
 Route::post('v1/system_config', [SystemConfigController::class, 'getByName']);
