@@ -18,6 +18,9 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Exception\NotFoundException;
 
+use App\Http\Requests\AssignUserPermissionToFrom;
+use App\Http\Requests\AssignOrganisationPermissionToFrom;
+
 class PermissionController extends Controller
 {
     /**
@@ -374,7 +377,7 @@ class PermissionController extends Controller
         }
     }
 
-    public function assignOrganisationPermissionsToFrom(Request $request): JsonResponse
+    public function assignOrganisationPermissionsToFrom(AssignOrganisationPermissionToFrom $request): JsonResponse
     {
         try {
             $input = $request->all();
@@ -408,7 +411,7 @@ class PermissionController extends Controller
         }
     }
 
-    public function assignUserPermissionsToFrom(Request $request): JsonResponse
+    public function assignUserPermissionsToFrom(AssignUserPermissionToFrom $request): JsonResponse
     {
         try {
             $input = $request->all();

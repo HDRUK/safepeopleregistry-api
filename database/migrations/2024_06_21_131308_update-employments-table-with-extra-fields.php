@@ -17,7 +17,7 @@ return new class extends Migration
 
             $table->string('department', 255)->nullable()->default(null);
             $table->string('role', 255)->default('');
-            $table->mediumText('employer_address')->default('');
+            $table->mediumText('employer_address');
             $table->string('ror', 255)->nullable()->default(null);
         });
     }
