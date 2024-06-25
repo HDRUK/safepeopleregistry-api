@@ -12,8 +12,12 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Exception\NotFoundException;
 
+use App\Traits\CommonFunctions;
+
 class RegistryController extends Controller
 {
+    use CommonFunctions;
+
     /**
      * @OA\Get(
      *      path="/api/v1/registry",
@@ -51,7 +55,7 @@ class RegistryController extends Controller
             [
                 'files'
             ]
-        )->get();
+        )->get()->paginate($this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',

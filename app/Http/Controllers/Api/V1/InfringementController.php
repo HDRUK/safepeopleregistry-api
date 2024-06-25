@@ -12,8 +12,12 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Exception\NotFoundException;
 
+use App\Traits\CommonFunctions;
+
 class InfringementController extends Controller
 {
+    use CommonFunctions;
+
     /**
      * @OA\Get(
      *      path="/api/v1/infringements",
@@ -48,7 +52,7 @@ class InfringementController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $infringements = Infringement::all();
+        $infringements = Infringement::paginate($this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',

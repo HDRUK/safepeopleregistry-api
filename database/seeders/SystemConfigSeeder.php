@@ -23,7 +23,7 @@ class SystemConfigSeeder extends Seeder
             ],
             [
                 'name' => 'MAX_FILESIZE',
-                'value' => '5', // Mb
+                'value' => '10', // Mb
             ],
             [
                 'name' => 'SUPPORTED_FILETYPES',

@@ -12,8 +12,12 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Exception\NotFoundException;
 
+use App\Traits\CommonFunctions;
+
 class EndorsementController extends Controller
 {
+    use CommonFunctions;
+
     /**
      * @OA\Get(
      *      path="/api/v1/endorsements",
@@ -48,7 +52,7 @@ class EndorsementController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $endorsements = Endorsement::all();
+        $endorsements = Endorsement::paginate($this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',

@@ -16,9 +16,12 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Exceptions\NotFoundException;
 
+use App\Traits\CommonFunctions;
 
 class IssuerController extends Controller
 {
+    use CommonFunctions;
+
     /**
      * @OA\Get(
      *      path="/api/v1/issuers",
@@ -55,7 +58,7 @@ class IssuerController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $issuers = Issuer::all();
+        $issuers = Issuer::paginate($this->getSystemConfig('PER_PAGE'));
         
         return response()->json([
             'message' => 'success',

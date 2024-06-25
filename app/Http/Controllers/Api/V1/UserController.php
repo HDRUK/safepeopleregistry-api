@@ -17,8 +17,12 @@ use App\Http\Controllers\Controller;
 
 use App\Exceptions\NotFoundException;
 
+use App\Traits\CommonFunctions;
+
 class UserController extends Controller
 {
+    use CommonFunctions;
+
     /**
      * @OA\Get(
      *      path="/api/v1/users",
@@ -61,7 +65,7 @@ class UserController extends Controller
             'registry.files',
             'registry.organisations',
             'pendingInvites',
-        ])->get();
+        ])->get()->paginate($this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',

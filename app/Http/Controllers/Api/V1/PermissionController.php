@@ -21,8 +21,12 @@ use App\Exception\NotFoundException;
 use App\Http\Requests\AssignUserPermissionToFrom;
 use App\Http\Requests\AssignOrganisationPermissionToFrom;
 
+use App\Traits\CommonFunctions;
+
 class PermissionController extends Controller
 {
+    use CommonFunctions;
+
     /**
      * @OA\Get(
      *      path="/api/v1/permissions",
@@ -56,7 +60,7 @@ class PermissionController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $permissions = Permission::all();
+        $permissions = Permission::paginate($this->getSystemConfig('PER_PAGE'));
         return response()->json([
             'message' => 'success',
             'data' => $permissions,

@@ -12,8 +12,12 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Exception\NotFoundException;
 
+use App\Traits\CommonFunctions;
+
 class TrainingController extends Controller
 {
+    use CommonFunctions;
+
     /**
      * @OA\Get(
      *      path="/api/v1/training",
@@ -51,7 +55,7 @@ class TrainingController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $trainings = Training::all();
+        $trainings = Training::paginate($this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',
