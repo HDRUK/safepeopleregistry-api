@@ -30,6 +30,8 @@ class User extends Authenticatable
         'consent_scrape',
         'profile_steps_completed',
         'profile_completed_at',
+        'unclaimed',
+        'feed_source',
     ];
 
     /**

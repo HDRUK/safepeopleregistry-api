@@ -23,8 +23,12 @@ use Illuminate\Support\Facades\Facade;
 
 use App\Http\Controllers\Controller;
 
+use App\Traits\CommonFunctions;
+
 class FileUploadController extends Controller
 {
+    use CommonFunctions;
+
    /**
      * @OA\Post(
      *      path="/api/v1/files",
@@ -64,8 +68,8 @@ class FileUploadController extends Controller
         try {
             $input = $request->all();
 
-            $maxFilesize = SystemConfig::where('name', 'MAX_FILESIZE')->first()->value;
-            $supportedTypes = SystemConfig::where('name', 'SUPPORTED_FILETYPES')->first()->value;
+            $maxFilesize = $this->getSystemConfig('MAX_FILESIZE');
+            $supportedTypes = $this->getSystemConfig('SUPPORTED_FILETYPES');
             
             $request->validate([
                 'file' => [
@@ -90,8 +94,8 @@ class FileUploadController extends Controller
                 ], 400);
             }
 
-            $file = File::create([
-                'name' => $storedFilename,
+            $fileIn = File::create([
+                'name' => $file->getClientOriginalName(),
                 'type' => $input['file_type'],
                 'path' => $path,
                 'status' => 'PENDING',
@@ -104,22 +108,22 @@ class FileUploadController extends Controller
 
                 RegistryHasFile::create([
                     'registry_id' => $registry->id,
-                    'file_id' => $file->id,
+                    'file_id' => $fileIn->id,
                 ]);                
             } else {
                 $organisation = Organisation::where('id', $input['organisation_id'])->first();
                 // Organisation
                 OrganisationHasFile::create([
                     'organisation_id' => $organisation->id,
-                    'file_id' => $file->id,
+                    'file_id' => $fileIn->id,
                 ]);
             }
 
-            ScanFileUpload::dispatch((int)$file->id, $fileSystem);
+            ScanFileUpload::dispatch((int)$fileIn->id, $fileSystem);
 
             return response()->json([
                 'message' => 'success',
-                'data' => $file->id,
+                'data' => $fileIn->id,
             ], 200);
         } catch (Exception $e) {
             throw new Exception ($e->getMessage());

@@ -7,7 +7,7 @@
 cfg = read_json('tiltconf.json')
 
 include(cfg.get('speediWebRoot') + '/Tiltfile')
-# include(cfg.get('clamAVRoot') + '/Tiltfile')
+include(cfg.get('clamAVRoot') + '/Tiltfile')
 
 docker_build(
     ref='hdruk/' + cfg.get('name'),
