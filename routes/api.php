@@ -19,6 +19,8 @@ use App\Http\Controllers\Api\V1\FileUploadController;
 use App\Http\Controllers\Api\V1\ApprovalController;
 use App\Http\Controllers\Api\V1\PermissionController;
 
+use App\Http\Controllers\Api\V1\ONSSubmissionController;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -125,6 +127,9 @@ Route::middleware('api')->post('v1/approvals/{entity_type}', [ApprovalController
 
 Route::get('v1/system_config', [SystemConfigController::class, 'index']);
 Route::post('v1/system_config', [SystemConfigController::class, 'getByName']);
+
+// ONS CSV RESEARCHER FEED
+Route::post('v1/ons_researcher_feed', [ONSSubmissionController::class, 'receiveCSV']);
 
 // stop all all other routes
 Route::any('{path}', function() {

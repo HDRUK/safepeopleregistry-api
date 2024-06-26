@@ -15,20 +15,24 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
+use App\Traits\CommonFunctions;
+
 class ScanFileUpload implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, CommonFunctions;
     
     private int $fileId = 0;
     private string $fileSystem = '';
+    private string $modelType = 'File';
 
     /**
      * Create a new job instance.
      */
-    public function __construct(int $fileId, string $fileSystem)
+    public function __construct(int $fileId, string $fileSystem, string $modelType = 'File')
     {
         $this->fileId = $fileId;
         $this->fileSystem = $fileSystem;
+        $this->modelType = $modelType;
     }
 
     /**
@@ -38,7 +42,8 @@ class ScanFileUpload implements ShouldQueue
      */
     public function handle(): void
     {
-        $file = File::findOrFail($this->fileId);
+        $model = $this->mapModelFromString($this->modelType);
+        $file = $model::findOrFail($this->fileId);
         $filePath = $file->path;
 
         $body = [
