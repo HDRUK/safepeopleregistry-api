@@ -126,7 +126,8 @@ Route::middleware('api')->post('v1/files', [FileUploadController::class, 'store'
 Route::middleware('api')->post('v1/approvals/{entity_type}', [ApprovalController::class, 'store']);
 
 Route::get('v1/system_config', [SystemConfigController::class, 'index']);
-Route::post('v1/system_config', [SystemConfigController::class, 'getByName']);
+Route::post('v1/system_config', [SystemConfigController::class, 'store']);
+Route::get('v1/system_config/{name}', [SystemConfigController::class, 'getByName']);
 
 // ONS CSV RESEARCHER FEED
 Route::post('v1/ons_researcher_feed', [ONSSubmissionController::class, 'receiveCSV']);

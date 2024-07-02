@@ -40,4 +40,27 @@ class SystemConfigController extends Controller
             throw new Exception($e->getMessage());
         }
     }
+
+    public function store(Request $request): JsonResponse
+    {
+        $input = $request->all();
+
+        $exists = SystemConfig::where('name', $input['name'])->first();
+        if (!$exists) {
+            $systemConfig = SystemConfig::create([
+                'name' => $input['name'],
+                'value' => $input['value'],
+            ]);
+
+            return response()->json([
+                'message' => 'success',
+                'data' => $systemConfig->id,
+            ], 201);
+        }
+
+        return response()->json([
+            'message' => 'Configuration already exists',
+            'data' => null,
+        ], 400);
+    }
 }
