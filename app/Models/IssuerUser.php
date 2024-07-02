@@ -22,4 +22,9 @@ class IssuerUser extends Model
         'keycloak_id',
         'issuer_id',
     ];
+
+    protected $hidden = [
+        'password',
+        'keycloak_id',
+    ];
 }
