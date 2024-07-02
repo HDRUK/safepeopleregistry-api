@@ -68,6 +68,30 @@ class PermissionSeeder extends Seeder
                 'name' => 'COHORT_SDE_QUERY',
                 'enabled' => 1,
             ],
+            [
+                'name' => 'ISSUER_ADMIN',
+                'enabled' => 1,
+            ],
+            [
+                'name' => 'ISSUER_READ',
+                'enabled' => 1,
+            ],
+            [
+                'name' => 'ISSUER_UPDATE',
+                'enabled' => 1,
+            ],
+            [
+                'name' => 'ISSUER_CREATE',
+                'enabled' => 1,
+            ],
+            [
+                'name' => 'ISSUER_KEYCARD_CREATE',
+                'enabled' => 1,
+            ],
+            [
+                'name' => 'ISSUER_KEYCARD_REVOKE',
+                'enabled' => 1,
+            ],
         ];
 
         foreach ($defaultSystemPermissions as $perm) {
