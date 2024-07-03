@@ -28,7 +28,26 @@ class SystemConfigSeeder extends Seeder
             [
                 'name' => 'SUPPORTED_FILETYPES',
                 'value' => 'pdf,doc,docx,png,jpeg,jpg,tsv,csv',
-            ]
+            ],
+            [
+                'name' => 'VALIDATION_SCHEMA',
+                'value' => '
+                    {
+                        "validationSchema": {
+                            "password": {
+                                "type": "string",
+                                "minLength": 8,
+                                "maxLength": 32,
+                                "pattern": "^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,32}$"
+                            },
+                            "email": {
+                                "type": "string",
+                                "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$"
+                            }
+                        }
+                    }
+                ',
+            ],
         ];
 
         foreach ($configs as $c) {
