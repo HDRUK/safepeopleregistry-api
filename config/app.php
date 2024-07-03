@@ -173,6 +173,7 @@ return [
         Hdruk\LaravelMjml\Providers\LaravelMjmlServiceProvider::class,
         App\Providers\KeycloakServiceProvider::class,
         App\Providers\OrcIDServiceProvider::class,
+        SwooleTW\Http\LaravelServiceProvider::class,
     ])->toArray(),
 
     /*
