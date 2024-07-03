@@ -32,9 +32,9 @@ class EmailSendTest extends TestCase
     {
         parent::setUp();
         $this->seed([
+            PermissionSeeder::class,
             IssuerSeeder::class,
             UserSeeder::class,
-            PermissionSeeder::class,
             OrganisationSeeder::class,
             EmailTemplatesSeeder::class,
         ]);

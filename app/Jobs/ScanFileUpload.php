@@ -78,4 +78,14 @@ class ScanFileUpload implements ShouldQueue
         }
     }
 
+    public function failed()
+    {
+        $model = $this->mapModelFromString($this->modelType);
+        $file = $model::findOrFail($this->fileId);
+
+        $file->update([
+            'status' => 'FAILED',
+        ]);
+    }
+
 }

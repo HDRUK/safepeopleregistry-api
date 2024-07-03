@@ -10,6 +10,7 @@ use App\Models\Issuer;
 
 use Database\Seeders\UserSeeder;
 use Database\Seeders\IssuerSeeder;
+use Database\Seeders\PermissionSeeder;
 
 use Illuminate\Support\Str;
 
@@ -33,6 +34,7 @@ class IssuerTest extends TestCase
     {
         parent::setUp();
         $this->seed([
+            PermissionSeeder::class,
             UserSeeder::class,
             IssuerSeeder::class,
         ]);
