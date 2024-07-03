@@ -16,7 +16,8 @@
         "robsontenorio/laravel-keycloak-guard": "*",
         "seshac/otp-generator": "^0.0.8",
         "socialiteproviders/keycloak": "^5.3",
-        "socialiteproviders/manager": "^4.5"
+        "socialiteproviders/manager": "^4.5",
+        "swooletw/laravel-swoole": "^2.13"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
