@@ -127,6 +127,9 @@ Route::middleware('api')->get('v1/infringements', [InfringementController::class
 Route::middleware('api')->get('v1/infringements/{id}', [InfringementController::class, 'show']);
 Route::middleware('api')->post('v1/infringements', [InfringementController::class, 'store']);
 
+Route::middleware('api')->get('v1/permissions', [PermissionController::class, 'index']);
+
+
 Route::middleware('api')->post('v1/trigger_email', [TriggerEmailController::class, 'spawnEmail']);
 
 Route::middleware('api')->post('v1/files', [FileUploadController::class, 'store']);
