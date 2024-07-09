@@ -25,12 +25,10 @@ class SystemConfigController extends Controller
         ], 200);
     }
 
-    public function getByName(Request $request): JsonResponse
+    public function getByName(Request $request, string $name): JsonResponse
     {
         try {
-            $input = $request->all();
-
-            $systemConfig = SystemConfig::where('name', $input['name'])->first();
+            $systemConfig = SystemConfig::where('name', $name)->first();
 
             return response()->json([
                 'message' => 'success',

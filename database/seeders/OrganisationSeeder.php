@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Issuer;
 use App\Models\Permission;
 use App\Models\Organisation;
+use App\Models\OrganisationHasIssuerApproval;
 use App\Models\OrganisationHasIssuerPermission;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -29,6 +30,11 @@ class OrganisationSeeder extends Seeder
         OrganisationHasIssuerPermission::create([
             'organisation_id' => $org->id,
             'permission_id' => $perms->id,
+            'issuer_id' => $issuer['id'],
+        ]);
+
+        OrganisationHasIssuerApproval::create([
+            'organisation_id' => $org->id,
             'issuer_id' => $issuer['id'],
         ]);
     }

@@ -63,12 +63,20 @@ class OrganisationController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $organisations = Organisation::with([
-            'permissions',
-            'files',
-            'registries',
-            'registries.user',
-        ])->paginate($this->getSystemConfig('PER_PAGE'));
+        $organisations = [];
+
+        $issuerId = $request->get('issuer_id');
+        if (!$issuerId) {
+            $organisations = Organisation::with([
+                'approvals',
+                'permissions',
+                'files',
+                'registries',
+                'registries.user',
+                'registries.user.permissions',
+                'registries.user.approvals',
+            ])->paginate($this->getSystemConfig('PER_PAGE'));
+        }
         
         return response()->json([
             'message' => 'success',
@@ -133,9 +141,12 @@ class OrganisationController extends Controller
     {
         $organisation = Organisation::with([
             'permissions',
+            'approvals',
             'files',
             'registries',
-            'registries.user',            
+            'registries.user',
+            'registries.user.permissions',
+            'registries.user.approvals',       
         ])->findOrFail($id);
         if ($organisation) {
             return response()->json([
