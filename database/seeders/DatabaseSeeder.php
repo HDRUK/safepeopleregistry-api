@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             SystemConfigSeeder::class,
+            IDVTPluginSeeder::class,
             PermissionSeeder::class,
             IssuerSeeder::class,
             OrganisationSeeder::class,

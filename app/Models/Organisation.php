@@ -49,6 +49,10 @@ class Organisation extends Model
         'iso_27001_certified',
         'ce_certified',
         'ce_certification_num',
+        'idvt_result',
+        'idvt_result_perc',
+        'idvt_errors',
+        'idvt_comepleted_at',
     ];
 
     /**
@@ -60,6 +64,7 @@ class Organisation extends Model
         'verified' => 'boolean',
         'iso_27001_certified' => 'boolean',
         'ce_certified' => 'boolean',
+        'idvt_result' => 'boolean',
     ];
 
     /**
@@ -68,7 +73,6 @@ class Organisation extends Model
      * @var array
      */
     protected $hidden = [
-        'password',
     ];
 
     public function permissions(): BelongsToMany
