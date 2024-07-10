@@ -45,11 +45,8 @@ class SystemConfigTest extends TestCase
     public function test_the_application_can_get_config_by_name(): void
     {
         $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
-                'name' => 'PER_PAGE',
-            ],
+            'GET',
+            self::TEST_URL . '/PER_PAGE',
             []
         );
 

@@ -51,7 +51,33 @@ class UserTest extends TestCase
         );
 
         $response->assertStatus(200);
-        $this->assertArrayHasKey('data', $response);
+        $response->assertJsonStructure([
+            'message',
+            'data' => [
+                'current_page',
+                'data' => [
+                    0 => [
+                        'id',
+                        'created_at',
+                        'updated_at',
+                        'first_name',
+                        'last_name',
+                        'email',
+                        'registry_id',
+                        'user_group',
+                        'consent_scrape',
+                        'profile_steps_completed',
+                        'profile_completed_at',
+                        'orc_id',
+                        'unclaimed',
+                        'feed_source',
+                        'permissions',
+                        'registry',
+                        'pending_invites',
+                    ],
+                ],
+            ],
+        ]);
 
         $content = $response->decodeResponseJson();
         $this->assertTrue($content['data']['data'][0]['registry']['files'][0]['path'] === '1234_doesntexist.doc');

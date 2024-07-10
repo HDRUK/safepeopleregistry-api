@@ -9,6 +9,9 @@ use Tests\TestCase;
 use App\Models\Organisation;
 
 use Database\Seeders\UserSeeder;
+use Database\Seeders\IssuerSeeder;
+use Database\Seeders\PermissionSeeder;
+use Database\Seeders\OrganisationSeeder;
 
 use Illuminate\Support\Str;
 
@@ -30,6 +33,9 @@ class OrganisationTest extends TestCase
         parent::setUp();
         $this->seed([
             UserSeeder::class,
+            PermissionSeeder::class,
+            IssuerSeeder::class,
+            OrganisationSeeder::class,
         ]);
 
         $this->headers = [
@@ -47,7 +53,41 @@ class OrganisationTest extends TestCase
         );
 
         $response->assertStatus(200);
-        $this->assertArrayHaskey('data', $response);
+        $response->assertJsonStructure([
+            'message',
+            'data' => [
+                'current_page',
+                'data' => [
+                    0 => [
+                        'id',
+                        'created_at',
+                        'updated_at',
+                        'organisation_name',
+                        'address_1',
+                        'address_2',
+                        'town',
+                        'county',
+                        'country',
+                        'postcode',
+                        'lead_applicant_organisation_name',
+                        'lead_applicant_email',
+                        'organisation_unique_id',
+                        'applicant_names',
+                        'funders_and_sponsors',
+                        'sub_license_arrangements',
+                        'verified',
+                        'dsptk_ods_code',
+                        'iso_27001_certified',
+                        'ce_certified',
+                        'ce_certification_num',
+                        'approvals',
+                        'permissions',
+                        'files',
+                        'registries',
+                    ],
+                ],
+            ],
+        ]);
     }
 
     public function test_the_application_can_show_organisations(): void
@@ -87,7 +127,36 @@ class OrganisationTest extends TestCase
         );
 
         $response->assertStatus(200);
-        $this->assertArrayHasKey('data', $response);
+        $response->assertJsonStructure([
+            'message',
+            'data' => [
+                'id',
+                'created_at',
+                'updated_at',
+                'organisation_name',
+                'address_1',
+                'address_2',
+                'town',
+                'county',
+                'country',
+                'postcode',
+                'lead_applicant_organisation_name',
+                'lead_applicant_email',
+                'organisation_unique_id',
+                'applicant_names',
+                'funders_and_sponsors',
+                'sub_license_arrangements',
+                'verified',
+                'dsptk_ods_code',
+                'iso_27001_certified',
+                'ce_certified',
+                'ce_certification_num',
+                'approvals',
+                'permissions',
+                'files',
+                'registries',
+            ],
+        ]);
     }
 
     public function test_the_application_can_create_organisations(): void

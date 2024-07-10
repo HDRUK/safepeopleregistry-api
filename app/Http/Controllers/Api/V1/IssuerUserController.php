@@ -169,6 +169,10 @@ class IssuerUserController extends Controller
             ]);
 
             if (isset($input['permissions'])) {
+                IssuerUserHasPermission::where([
+                    'issuer_user_id' => $user->id,
+                ])->delete();
+                
                 $perms = Permission::whereIn('id', $input['permissions'])->get();
                 foreach ($perms as $perm) {
                     $p = IssuerUserHasPermission::create([
@@ -252,6 +256,20 @@ class IssuerUserController extends Controller
             $user->keycloak_id = isset($input['keycloak_id']) ? $input['keycloak_id'] : $user->keycloak_id;
             $user->issuer_id = isset($input['issuer_id']) ? $input['issuer_id'] : $user->issuer_id;
 
+            if (isset($input['permissions'])) {
+                IssuerUserHasPermission::where([
+                    'issuer_user_id' => $user->id,
+                ])->delete();
+                
+                $perms = Permission::whereIn('id', $input['permissions'])->get();
+                foreach ($perms as $perm) {
+                    $p = IssuerUserHasPermission::create([
+                        'issuer_user_id' => $user->id,
+                        'permission_id' => $perm->id,
+                    ]);
+                }
+            }
+
             if ($user->save()) {
                 return response()->json([
                     'message' => 'success',
@@ -327,6 +345,20 @@ class IssuerUserController extends Controller
             $user->keycloak_id = isset($input['keycloak_id']) ? $input['keycloak_id'] : $user->keycloak_id;
             $user->issuer_id = isset($input['issuer_id']) ? $input['issuer_id'] : $user->issuer_id;
 
+            if (isset($input['permissions'])) {
+                IssuerUserHasPermission::where([
+                    'issuer_user_id' => $user->id,
+                ])->delete();
+                
+                $perms = Permission::whereIn('id', $input['permissions'])->get();
+                foreach ($perms as $perm) {
+                    $p = IssuerUserHasPermission::create([
+                        'issuer_user_id' => $user->id,
+                        'permission_id' => $perm->id,
+                    ]);
+                }
+            }
+
             if ($user->save()) {
                 return response()->json([
                     'message' => 'success',
@@ -384,7 +416,7 @@ class IssuerUserController extends Controller
     {
         try {
             $user = IssuerUser::where('id', $id)->first();
-            $perms = IssuerUserHasPermission::where('issuer_user_id', $user->id)->delete();
+            IssuerUserHasPermission::where('issuer_user_id', $user->id)->delete();
 
             $user->delete();
 

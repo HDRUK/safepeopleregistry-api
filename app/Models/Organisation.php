@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Permission;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -76,6 +78,14 @@ class Organisation extends Model
         return $this->belongsToMany(
             Permission::class,
             'organisation_has_issuer_permissions',
+        );
+    }
+
+    public function approvals(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Issuer::class,
+            'organisation_has_issuer_approvals',
         );
     }
 

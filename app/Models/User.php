@@ -63,6 +63,14 @@ class User extends Authenticatable
         );
     }
 
+    public function approvals(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Issuer::class,
+            'user_has_issuer_approvals',
+        );
+    }
+
     public function registry(): BelongsTo
     {
         return $this->belongsTo(
