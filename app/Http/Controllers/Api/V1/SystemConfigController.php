@@ -48,6 +48,7 @@ class SystemConfigController extends Controller
             $systemConfig = SystemConfig::create([
                 'name' => $input['name'],
                 'value' => $input['value'],
+                'description' => $input['description'],
             ]);
 
             return response()->json([

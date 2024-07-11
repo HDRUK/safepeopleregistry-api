@@ -20,14 +20,17 @@ class SystemConfigSeeder extends Seeder
             [
                 'name' => 'PER_PAGE',
                 'value' => 25,
+                'description' => 'Default total items to display for pagination',
             ],
             [
                 'name' => 'MAX_FILESIZE',
                 'value' => '10', // Mb
+                'description' => 'Default maximum file size for uploads',
             ],
             [
                 'name' => 'SUPPORTED_FILETYPES',
                 'value' => 'pdf,doc,docx,png,jpeg,jpg,tsv,csv',
+                'description' => 'Pre-defined list of accepted file types accepted for uploads',
             ],
             [
                 'name' => 'VALIDATION_SCHEMA',
@@ -47,6 +50,17 @@ class SystemConfigSeeder extends Seeder
                         }
                     }
                 ',
+                'description' => 'Default validation for frontend form elements',
+            ],
+            [
+                'name' => 'IDVT_ORG_VERIFY_PERCENT',
+                'value' => 88,
+                'description' => 'Default percentage required for passing Organisation verification',
+            ],
+            [
+                'name' => 'IDVT_ORG_SIC_WEIGHT_DECREASE',
+                'value' => 0.05,
+                'description' => 'Default weighting decrement value for Organisations within undesirable SIC codes',
             ],
         ];
 
@@ -54,6 +68,7 @@ class SystemConfigSeeder extends Seeder
             SystemConfig::create([
                 'name' => $c['name'],
                 'value' => $c['value'],
+                'description' => $c['description'],
             ]);
         }
     }

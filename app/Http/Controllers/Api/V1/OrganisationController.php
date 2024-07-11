@@ -7,6 +7,8 @@ use Exception;
 
 use App\Models\Organisation;
 
+use App\Jobs\OrganisationIDVT;
+
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -49,6 +51,7 @@ class OrganisationController extends Controller
      *                  @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
      *                  @OA\Property(property="ce_certified", type="boolean", example="false"),
      *                  @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
+     *                  @OA\Property(property="companies_house_no", type="string", example="12345678")
      *              )
      *          ),
      *      ),
@@ -125,6 +128,7 @@ class OrganisationController extends Controller
      *                  @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
      *                  @OA\Property(property="ce_certified", type="boolean", example="false"),
      *                  @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
+     *                  @OA\Property(property="companies_house_no", type="string", example="12345678")
      *              )
      *          ),
      *      ),
@@ -183,6 +187,7 @@ class OrganisationController extends Controller
      *              @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
      *              @OA\Property(property="ce_certified", type="boolean", example="false"),
      *              @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
+     *              @OA\Property(property="companies_house_no", type="string", example="12345678")
      *          ),
      *      ),
      *      @OA\Response(
@@ -231,7 +236,11 @@ class OrganisationController extends Controller
                 'funders_and_sponsors' => $input['funders_and_sponsors'],
                 'sub_license_arrangements' => $input['sub_license_arrangements'],
                 'verified' => $input['verified'],
+                'companies_house_no' => $input['companies_house_no'],
             ]);
+
+            // Run automated IDVT
+            OrganisationIDVT::dispatch($organisation);
 
             return response()->json([
                 'message' => 'success',
@@ -281,6 +290,7 @@ class OrganisationController extends Controller
      *              @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
      *              @OA\Property(property="ce_certified", type="boolean", example="false"),
      *              @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
+     *              @OA\Property(property="companies_house_no", type="string", example="12345678")
      *          ),
      *      ),
      *      @OA\Response(
@@ -312,6 +322,7 @@ class OrganisationController extends Controller
      *                  @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
      *                  @OA\Property(property="ce_certified", type="boolean", example="false"),
      *                  @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
+     *                  @OA\Property(property="companies_house_no", type="string", example="12345678")
      *              )
      *          ),
      *      ),
@@ -342,7 +353,8 @@ class OrganisationController extends Controller
                 'applicant_names' => $input['applicant_names'],
                 'funders_and_sponsors' => $input['funders_and_sponsors'],
                 'sub_license_arrangements' => $input['sub_license_arrangements'],
-                'verified' => $input['verified'],            
+                'verified' => $input['verified'],       
+                'companies_house_no' => $input['companies_house_no'],     
             ]);
 
             return response()->json([
@@ -393,6 +405,7 @@ class OrganisationController extends Controller
      *              @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
      *              @OA\Property(property="ce_certified", type="boolean", example="false"),
      *              @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
+     *              @OA\Property(property="companies_house_no", type="string", example="12345678")
      *          ),
      *      ),
      *      @OA\Response(
@@ -424,6 +437,7 @@ class OrganisationController extends Controller
      *                  @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
      *                  @OA\Property(property="ce_certified", type="boolean", example="false"),
      *                  @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
+     *                  @OA\Property(property="companies_house_no", type="string", example="12345678")
      *              )
      *          ),
      *      ),
@@ -454,7 +468,8 @@ class OrganisationController extends Controller
                 'applicant_names' => $input['applicant_names'],
                 'funders_and_sponsors' => $input['funders_and_sponsors'],
                 'sub_license_arrangements' => $input['sub_license_arrangements'],
-                'verified' => $input['verified'],              
+                'verified' => $input['verified'],
+                'companies_house_no' => $input['companies_house_no'],          
             ]);
 
             return response()->json([

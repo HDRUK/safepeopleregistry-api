@@ -35,6 +35,7 @@ class OrganisationFactory extends Factory
             'sub_license_arrangements' => fake()->sentence(5),
             'verified' => true,
             'dsptk_ods_code' => Str::random(fake()->randomElement([3, 4, 5])),
+            'companies_house_no' => Str::random(8),
         ];
     }
 }

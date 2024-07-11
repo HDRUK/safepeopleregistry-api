@@ -31,5 +31,6 @@ class SystemConfig extends Model
     protected $fillable = [
         'name',
         'value',
+        'description',
     ];
 }

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-php artisan serve --host=0.0.0.0 --port=8100 &
+php artisan swoole:http start &
 
 # if [ "${APP_ENV}" = "dev" ]; then
     php artisan queue:listen
