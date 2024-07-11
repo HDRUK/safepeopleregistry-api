@@ -170,5 +170,34 @@ class IDVTPluginSeeder extends Seeder
             ",
             'enabled' => 1,
         ]);
+
+        IDVTPlugin::create([
+            'function' => 'personWithSignificantControl',
+            'args' => 'company',
+            'config' => "
+                function personWithSignificantControl(stdClass \$company) {
+                    \$result = false;
+                    \$errors = [];
+
+                    if (\$company->personWithSignificantControl !== '' &&
+                        \$company->personWithSignificantControlActive === 'Active') {
+                        \$result = true;
+                    } else {
+                        \$errors = [
+                            'field' => 'personWithSignificantControl',
+                            'match_value' => \$company->personWithSignificantControl . ' ' . 
+                                \$company->personWithSignificantControlActive,
+                            'error' => 'gov record doesn not contain record of significant control',
+                        ];
+                    }
+
+                    return [
+                        'result' => \$result,
+                        'errors' => \$errors,
+                    ];
+                }
+            ",
+            'enabled' => 1,
+        ]);
     }
 }

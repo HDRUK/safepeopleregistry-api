@@ -67,6 +67,29 @@ class OrganisationIDVTScanner extends Command
         ]
     ];
 
+    private const PEOPLE_INFO = [
+        'PEOPLE_OFFICERS' => [
+            'var' => 'personWithSignificantControl',
+            'string' => 'current officers',
+            'inc' => 2,
+        ],
+        'PEOPLE_OFFICERS_ACTIVE' => [
+            'var' => 'personWithSignificantControlActive',
+            'string' => 'current officers',
+            'inc' => 6,
+        ],
+        'PEOPLE_OFFICERS_ROLE' => [
+            'var' => 'personWithSignificantControleRole',
+            'string' => 'correspondence address',
+            'inc' => 4,
+        ],
+        'PEOPLE_OFFICERS_APPOINTED' => [
+            'var' => 'personWithSignificantControlAppointedOn',
+            'string' => 'current officers',
+            'inc' => 11,
+        ],
+    ];
+
     public stdClass $company;
 
     private string $nameToCheck = 'Woolworths';
@@ -74,12 +97,19 @@ class OrganisationIDVTScanner extends Command
     private string $addressToCheck = 'First Floor Skyways House Speke Road';
     private string $postcodeToCheck = 'L70 1AB';
 
-    private array $criteria = [
+    private array $criteriaCompany = [
         'companyName',
         'companyNumber',
         'companyAddress',
         'companyPostcode',
         'natureOfBusiness',
+    ];
+
+    private array $criteriaPeople = [
+        'personWithSignificantControl',
+        'personWithSignificantControlActive',
+        'personWithSignificantControlRole',
+        'personWithSignificantControlAppointedOn',
     ];
 
     private array $sicExclusions = [
@@ -109,23 +139,39 @@ class OrganisationIDVTScanner extends Command
         $this->company = new stdClass();
         $this->company->numPositive = 0;
 
-        $response = Http::post(
+        $responseCompany = Http::post(
             env('IDVT_ORG_SCANNER'),
             [
                 'url' => env('IDVT_COMPANIES_HOUSE_URL') . $this->numberToCheck,
             ],
         );
 
-        if ($response->status() !== 200) {
+        $responsePeople = Http::post(
+            env('IDVT_ORG_SCANNER'),
+            [
+                'url' => env('IDVT_COMPANIES_HOUSE_URL') . $this->numberToCheck . '/officers',
+            ],
+        );
+
+        if ($responseCompany->status() !== 200) {
             return; // Should log this
         }
 
-        $govResponseArray = $response->json()['data'];
+        $govCompanyResponseArray = $responseCompany->json()['data'];
+        $govPeopleResponseArray = $responsePeople->json()['data'];
 
         foreach (self::COMPANY_INFO as $metric) {
-            foreach ($govResponseArray as $key => $value) {
+            foreach ($govCompanyResponseArray as $key => $value) {
                 if ($metric['string'] === strtolower($value)) {
-                    $this->company->{$metric['var']} = trim(htmlspecialchars($govResponseArray[$key + $metric['inc']]));
+                    $this->company->{$metric['var']} = trim(htmlspecialchars($govCompanyResponseArray[$key + $metric['inc']]));
+                }
+            }
+        }
+
+        foreach (self::PEOPLE_INFO as $metric) {
+            foreach ($govPeopleResponseArray as $key => $value) {
+                if ($metric['string'] === strtolower($value)) {
+                    $this->company->{$metric['var']} = trim(htmlspecialchars($govPeopleResponseArray[$key + $metric['inc']]));
                 }
             }
         }

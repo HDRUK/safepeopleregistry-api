@@ -52,7 +52,7 @@ class Organisation extends Model
         'idvt_result',
         'idvt_result_perc',
         'idvt_errors',
-        'idvt_comepleted_at',
+        'idvt_completed_at',
     ];
 
     /**

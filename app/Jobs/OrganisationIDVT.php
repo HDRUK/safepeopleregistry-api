@@ -78,6 +78,29 @@ class OrganisationIDVT implements ShouldQueue
         ]
     ];
 
+    private const PEOPLE_INFO = [
+        'PEOPLE_OFFICERS' => [
+            'var' => 'personWithSignificantControl',
+            'string' => 'current officers',
+            'inc' => 2,
+        ],
+        'PEOPLE_OFFICERS_ACTIVE' => [
+            'var' => 'personWithSignificantControlActive',
+            'string' => 'current officers',
+            'inc' => 6,
+        ],
+        'PEOPLE_OFFICERS_ROLE' => [
+            'var' => 'personWithSignificantControleRole',
+            'string' => 'correspondence address',
+            'inc' => 4,
+        ],
+        'PEOPLE_OFFICERS_APPOINTED' => [
+            'var' => 'personWithSignificantControlAppointedOn',
+            'string' => 'current officers',
+            'inc' => 11,
+        ],
+    ];
+
     private ?Organisation $organisation;
     private string $nameToCheck = '';
     private string $numberToCheck = '';
@@ -102,15 +125,17 @@ class OrganisationIDVT implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(Organisation $org, string $nameToCheck, string $numberToCheck, string $addressToCheck, string $postcodeToCheck)
+    public function __construct(Organisation $org)
     {
         $this->company = new stdClass();
         $this->company->numPositive = 0;
 
-        $this->nameToCheck = $nameToCheck;
-        $this->numberToCheck = $numberToCheck;
-        $this->addressToCheck = $addressToCheck;
-        $this->postcodeToCheck = $postcodeToCheck;
+        $this->organisation = $org;
+
+        $this->nameToCheck = $org->organisation_name;
+        $this->numberToCheck = $org->companies_house_no;
+        $this->addressToCheck = $org->address_1;
+        $this->postcodeToCheck = $org->postcode;
     }
 
     /**
@@ -118,14 +143,21 @@ class OrganisationIDVT implements ShouldQueue
      */
     public function handle(): void
     {
-        $response = Http::post(
+        $responseCompany = Http::post(
             env('IDVT_ORG_SCANNER'),
             [
                 'url' => env('IDVT_COMPANIES_HOUSE_URL') . $this->numberToCheck,
             ],
         );
 
-        if ($response->status() !== 200) {
+        $responsePeople = Http::post(
+            env('IDVT_ORG_SCANNER'),
+            [
+                'url' => env('IDVT_COMPANIES_HOUSE_URL') . $this->numberToCheck . '/officers',
+            ],
+        );
+
+        if ($responseCompany->status() !== 200) {
             // Company doesn't exist, therefore we abort and mark as unverified
             $this->organisation->update([
                 'idvt_result' => 0,
@@ -137,19 +169,33 @@ class OrganisationIDVT implements ShouldQueue
             return;
         }
 
-        $this->loadCriteria($response->json()['data']);
+        $this->loadCriteria(
+            $responseCompany->json()['data'],
+            $responsePeople->json()['data']
+        );
         $this->renderVerdict();
     }
 
-    private function loadCriteria(array $govResponseArray): void
+    private function loadCriteria(
+        array $govCompanyResponseArray,
+        array $govPeopleResponseArray
+    ): void
     {
         foreach (self::COMPANY_INFO as $metric) {
-            foreach ($govResponseArray as $key => $value) {
+            foreach ($govCompanyResponseArray as $key => $value) {
                 if ($metric['string'] === strtolower($value)) {
-                    $this->company->{$metric['var']} = trim(htmlspecialchars($govResponseArray[$key + $metric['inc']]));
+                    $this->company->{$metric['var']} = trim(htmlspecialchars($govCompanyResponseArray[$key + $metric['inc']]));
                 }
             }
-        }        
+        }
+
+        foreach (self::PEOPLE_INFO as $metric) {
+            foreach ($govPeopleResponseArray as $key => $value) {
+                if ($metric['string'] === strtolower($value)) {
+                    $this->company->{$metric['var']} = trim(htmlspecialchars($govPeopleResponseArray[$key + $metric['inc']]));
+                }
+            }
+        }
     }
 
     private function renderVerdict(): void
@@ -157,14 +203,14 @@ class OrganisationIDVT implements ShouldQueue
         $plugins = IDVTPlugin::all();
         foreach ($plugins as $p) {
             $args = [];
-
             foreach (explode(', ', $p->args) as $a) {
                 $args[] = $this->{$a};
             }
 
             // I know...! But explicit safe-guarding and discussions
             // have happened to ensure safe usage. Basically, we're
-            // in control of everything being eval'd.
+            // in control of everything being eval'd, therefore no
+            // outside influence can abuse it's use here.
             eval($p->config);
 
             if (function_exists($p->function)) {
@@ -186,7 +232,7 @@ class OrganisationIDVT implements ShouldQueue
             'idvt_result' => $verdict,
             'idvt_result_perc' => $perc,
             'idvt_errors' => isset($this->company->errors) ? json_encode($this->company->errors) : null,
-            'idvt_completed_at' => Carbon::now(),
+            'idvt_completed_at' => Carbon::now()->toDateTimeString(),
             'verified' => $verdict,
         ]);
     }
