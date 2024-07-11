@@ -91,10 +91,6 @@ class IDVTPluginSeeder extends Seeder
                     \$parts = explode(',', \$company->companyAddress);
                     \$postcode = trim(\$parts[count(\$parts)-1]);
 
-                    var_dump(\$postcode);
-                    var_dump(\$postcodeToCheck);
-                    var_dump(\$postcode == \$postcodeToCheck);
-
                     if (\$postcode == \$postcodeToCheck) {
                         \$result = true;
                     } else {

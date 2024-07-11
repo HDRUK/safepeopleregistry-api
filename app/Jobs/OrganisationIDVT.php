@@ -90,7 +90,7 @@ class OrganisationIDVT implements ShouldQueue
             'inc' => 6,
         ],
         'PEOPLE_OFFICERS_ROLE' => [
-            'var' => 'personWithSignificantControleRole',
+            'var' => 'personWithSignificantControlRole',
             'string' => 'correspondence address',
             'inc' => 4,
         ],
@@ -119,8 +119,6 @@ class OrganisationIDVT implements ShouldQueue
         '74990', // Non-trading
         '99999', // Dormant
     ];
-
-    private float $numPositive = 0;
 
     /**
      * Create a new job instance.
@@ -163,7 +161,7 @@ class OrganisationIDVT implements ShouldQueue
                 'idvt_result' => 0,
                 'idvt_result_perc' => 0,
                 'idvt_errors' => 'company does not exist in gov record',
-                'idvt_completed_at' => Carbon::now(),
+                'idvt_completed_at' => Carbon::now()->toDateTimeString(),
                 'verified' => false,
             ]);
             return;
