@@ -55,6 +55,7 @@ class Organisation extends Model
         'idvt_result_perc',
         'idvt_errors',
         'idvt_completed_at',
+        'companies_house_no',
     ];
 
     /**

@@ -65,4 +65,55 @@ class ApprovalController extends Controller
             throw new Exception($e->getMessage());
         }
     }
+
+    public function delete(Request $request, string $entityType) {
+        try {
+            $input = $request->all();
+            
+            switch (strtoupper($entityType)) {
+                case 'ORGANISATION':
+                    $organisation = Organisation::where('id', $input['organisation_id'])->first();
+                    $issuer = Issuer::where('id', $input['issuer_id'])->first();
+
+                    OrganisationHasIssuerApproval::where([
+                        'organisation_id' => $organisation->id,
+                        'issuer_id' => $issuer->id,
+                    ])->delete();
+
+                    return response()->json([
+                        'message' => 'success',
+                        'data' => null,
+                    ]);
+                    break;
+                case 'RESEARCHER':
+                    $user = User::where('id', $input['user_id'])->first();
+                    $issuer = Issuer::where('id', $input['issuer_id'])->first();
+
+                    UserHasIssuerApproval::where([
+                        'user_id' => $user->id,
+                        'issuer_id' => $issuer->id,
+                    ])->delete();
+
+                    return response()->json([
+                        'message' => 'success',
+                        'data' => null,
+                    ]);
+                    break;
+                default:
+                    return response()->json([
+                        'message' => 'unknown operation',
+                        'data' => null,
+                    ]);
+                    break;
+            }
+
+            return response()->json([
+                'message' => 'unknown request',
+                'data' => null,
+            ], 400);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+
+    }
 }

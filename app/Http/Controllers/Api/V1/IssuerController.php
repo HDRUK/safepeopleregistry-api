@@ -537,6 +537,7 @@ class IssuerController extends Controller
                         'applicant_names' => $org['applicant_names'],
                         'funders_and_sponsors' => $org['funders_and_sponsors'],
                         'sub_license_arrangements' => $org['sub_license_arrangements'],
+                        'companies_house_no' => $org['companies_house_no'],
                     ]
                 );
 

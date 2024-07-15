@@ -135,6 +135,7 @@ Route::middleware('api')->post('v1/trigger_email', [TriggerEmailController::clas
 Route::middleware('api')->post('v1/files', [FileUploadController::class, 'store']);
 
 Route::middleware('api')->post('v1/approvals/{entity_type}', [ApprovalController::class, 'store']);
+Route::middleware('api')->delete('v1/approvals/{entity_type}', [ApprovalController::class, 'delete']);
 
 Route::get('v1/system_config', [SystemConfigController::class, 'index']);
 Route::post('v1/system_config', [SystemConfigController::class, 'store']);
