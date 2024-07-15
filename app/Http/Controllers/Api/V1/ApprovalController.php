@@ -35,7 +35,7 @@ class ApprovalController extends Controller
                         'data' => $ohia !== null,
                     ], 200);
                     break;
-                case 'USER':
+                case 'RESEARCHER':
                     $user = User::where('id', $input['user_id'])->first();
                     $issuer = Issuer::where('id', $input['issuer_id'])->first();
 
