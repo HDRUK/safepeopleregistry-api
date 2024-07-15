@@ -34,7 +34,7 @@ class TriggerEmailController extends Controller
         $identifier = $input['identifier'];
 
         switch (strtoupper($type)) {
-            case 'USER':
+            case 'RESEARCHER':
                 $user = User::where('id', $to)->first();
                 $organisation = Organisation::where('id', $by)->first();
                 $template = EmailTemplate::where('identifier', $identifier)->first();
