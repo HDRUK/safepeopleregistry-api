@@ -51,7 +51,7 @@ class ApprovalTest extends TestCase
 
         $response = $this->json(
             'POST',
-            self::TEST_URL . '/user',
+            self::TEST_URL . '/researcher',
             [
                 'user_id' => $user->id,
                 'issuer_id' => $issuer->id,
@@ -94,5 +94,65 @@ class ApprovalTest extends TestCase
         ])->first();
 
         $this->assertTrue($test !== null);
+    }
+
+    public function test_the_application_can_delete_organisation_approvals(): void
+    {
+        $organisation = Organisation::where('id', 1)->first();
+        $issuer = Issuer::where('id', 1)->first();
+
+        $response = $this->json(
+            'POST',
+            self::TEST_URL . '/organisation',
+            [
+                'organisation_id' => $organisation->id,
+                'issuer_id' => $issuer->id,
+            ],
+            $this->headers
+        );
+
+        $response->assertStatus(200);
+
+        $response = $this->json(
+            'DELETE',
+            self::TEST_URL . '/organisation',
+            [
+                'organisation_id' => $organisation->id,
+                'issuer_id' => $issuer->id,
+            ],
+            $this->headers
+        );
+
+        $response->assertStatus(200);
+    }
+
+    public function test_the_application_can_delete_user_approvals(): void
+    {
+        $user = User::where('id', 1)->first();
+        $issuer = Issuer::where('id', 1)->first();
+
+        $response = $this->json(
+            'POST',
+            self::TEST_URL . '/researcher',
+            [
+                'user_id' => $user->id,
+                'issuer_id' => $issuer->id,
+            ],
+            $this->headers
+        );
+
+        $response->assertStatus(200);
+
+        $response = $this->json(
+            'DELETE',
+            self::TEST_URL . '/researcher',
+            [
+                'user_id' => $user->id,
+                'issuer_id' => $issuer->id,
+            ],
+            $this->headers
+        );
+
+        $response->assertStatus(200);
     }
 }

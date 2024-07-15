@@ -111,6 +111,7 @@ class OrganisationTest extends TestCase
                 'funders_and_sponsors' => 'UKRI, MRC',
                 'sub_license_arrangements' => 'N/A',
                 'verified' => false,
+                'companies_house_no' => '0667465',
             ],
             $this->headers
         );
@@ -187,6 +188,7 @@ class OrganisationTest extends TestCase
                 'iso_27001_certified' => $isoCertified,
                 'ce_certified' => $ceCertified,
                 'ce_certification_num' => ($ceCertified ? 'fghe-76fh-gh47-0000' : ''),
+                'companies_house_no' => '0667465',
             ],
             $this->headers
         );
@@ -222,6 +224,7 @@ class OrganisationTest extends TestCase
                 'iso_27001_certified' => $isoCertified,
                 'ce_certified' => $ceCertified,
                 'ce_certification_num' => ($ceCertified ? 'fghe-76fh-gh47-0000' : ''),
+                'companies_house_no' => '0667465',
             ],
             $this->headers
         );
@@ -252,6 +255,7 @@ class OrganisationTest extends TestCase
                 'funders_and_sponsors' => 'UKRI, MRC',
                 'sub_license_arrangements' => 'N/A',
                 'verified' => true,
+                'companies_house_no' => '2985729',
             ],
             $this->headers
         );
@@ -293,6 +297,7 @@ class OrganisationTest extends TestCase
                 'iso_27001_certified' => $isoCertified,
                 'ce_certified' => $ceCertified,
                 'ce_certification_num' => ($ceCertified ? 'fghe-76fh-gh47-0000' : ''),
+                'companies_house_no' => '0667465',
             ],
             $this->headers
         );
