@@ -1,0 +1,105 @@
+<?php
+
+namespace App\TriggerEmail;
+
+use Exception;
+use Carbon\Carbon;
+
+use App\Models\User;
+use App\Models\Issuer;
+use App\Models\Organisation;
+use App\Models\PendingInvite;
+use App\Models\OrganisationDelegate;
+
+use Hdruk\LaravelMjml\Models\EmailTemplate;
+
+use App\Jobs\SendEmailJob;
+
+class TriggerEmail {
+    public function spawnEmail(array $input): void
+    {
+        $replacements = [];
+        $newRecipients = [];
+        $invitedBy = [];
+        $template = null;
+
+        $type = $input['type'];
+        $to = $input['to'];
+        $by = isset($input['by']) ? $input['by'] : null;
+        $identifier = $input['identifier'];
+
+        switch (strtoupper($type)) {
+            case 'USER':
+                $user = User::where('id', $to)->first();
+                $organisation = Organisation::where('id', $by)->first();
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $delegate = OrganisationDelegate::where([
+                    'organisation_id' => $by,
+                    'priority_order' => 0,
+                ])->first();
+
+                if ($identifier === 'delegate_sponsor') {
+                    $newRecipients = [
+                        'id' => $delegate->id,
+                        'email' => $delegate->email,
+                    ];
+                } else {
+                    $newRecipients = [
+                        'id' => $user->id,
+                        'email' => $user->email,
+                    ];
+                }
+
+                $invitedBy = [
+                    'id' => $organisation->id,
+                    'email' => $organisation->lead_applicant_email,
+                ];
+
+                $replacements = [
+                    '[[organisation_delegates.first_name]]' => $delegate->first_name,
+                    '[[organisation_delegates.last_name]]' => $delegate->last_name,
+                    '[[organisations.organisation_name]]' => $organisation->organisation_name,
+                    '[[organisations.lead_application_organisation_name]]' => $organisation->lead_applicant_organisation_name,
+                    '[[users.first_name]]' => $user->first_name,
+                    '[[users.last_name]]' => $user->last_name,
+                    '[[users.created_at]]' => $user->created_at,
+                    '[[env(INVITE_TIME_HOURS)]]' => env('INVITE_TIME_HOURS'),
+                    '[[env(SUPPORT_EMAIL)]]' => env('SUPPORT_EMAIL'),
+                    '[[users.id]]' => $user->id,
+                    '[[organisations.id]]' => $organisation->id,
+                    '[[organisation_delegates.id]]' => $delegate->id,
+                ];
+
+                PendingInvite::create([
+                    'user_id' => $user->id,
+                    'organisation_id' => $organisation->id,
+                    'status' => config('speedi.invite_status.PENDING'),
+                ]);
+                break;
+            case 'ISSUER':
+                $issuer = Issuer::where('id', $to)->first();
+                if ($issuer->invite_accepted_at === null) {
+                    $template = EmailTemplate::where('identifier', $identifier)->first();
+
+                    $newRecipients = [
+                        'id' => $issuer->id,
+                        'email' => $issuer->contact_email,
+                    ];
+
+                    $issuer->invite_sent_at = Carbon::now();
+                    $issuer->save();
+
+                    $ivitedBy = [];
+                } else {
+                    throw new Exception('issuer ' . $issuer->id . ' already accepted invite at ' . $issuer->invite_accepted_at);
+                }
+                break;
+            case 'ORGANISATION':
+                break;
+            default: // Unknown type.
+                break;
+        }
+
+        SendEmailJob::dispatch($newRecipients, $template, $replacements, $invitedBy);
+    }
+}

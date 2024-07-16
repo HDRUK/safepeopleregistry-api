@@ -51,17 +51,16 @@ COPY . /var/www
 
 # Composer & laravel
 RUN composer install \
-    && chmod -R 777 storage bootstrap/cache \
+    && php artisan storage:link \
     && php artisan optimize:clear \
     && php artisan optimize \
     && php artisan config:clear \
+    && chmod -R 777 storage bootstrap/cache \
+    && chown -R www-data:www-data storage \
     && composer dumpautoload
 
 # Generate Swagger - Removed for now as we don't have
 RUN php artisan l5-swagger:generate
-
-# Add symbolic link for public file storage
-RUN php artisan storage:link
 
 # Starts both, laravel server and job queue
 CMD ["/var/www/docker/start.sh"]

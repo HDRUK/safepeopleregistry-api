@@ -174,6 +174,7 @@ return [
         App\Providers\KeycloakServiceProvider::class,
         App\Providers\OrcIDServiceProvider::class,
         SwooleTW\Http\LaravelServiceProvider::class,
+        App\Providers\TriggerEmailServiceProvider::class,
     ])->toArray(),
 
     /*
@@ -190,6 +191,7 @@ return [
     'aliases' => Facade::defaultAliases()->merge([
         'Keycloak' => App\Keycloak\KeycloakFacade::class,
         'OrcID' => App\OrcID\OrcIDFacade::class,
+        'TriggerEmail' => App\TriggerEmail\TriggerEmailFacade::class,
     ])->toArray(),
 
 ];
