@@ -74,7 +74,7 @@ class EmailSendTest extends TestCase
             self::TEST_URL,
             [
                 'to' => 1,
-                'type' => 'user',
+                'type' => 'researcher',
                 'by' => 1,
                 'identifier' => 'researcher_invite',
             ],
