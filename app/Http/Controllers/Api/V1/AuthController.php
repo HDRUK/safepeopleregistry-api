@@ -8,6 +8,7 @@ use Keycloak;
 use App\Models\User;
 use App\Models\Organisation;
 use App\Models\UserApiToken;
+use App\Models\OrganisationDelegate;
 
 use Hdruk\LaravelMjml\Models\EmailTemplate;
 
@@ -16,6 +17,8 @@ use App\Jobs\SendEmailJob;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Str;
+
 
 use Laravel\Socialite\Facades\Socialite;
 
@@ -106,6 +109,8 @@ class AuthController extends Controller
                 'county' => $input['county'],
                 'country' => $input['country'],
                 'postcode' => $input['postcode'],
+                'organisation_unique_id' => Str::random(40),
+                'applicant_names' => '',
             ]);
 
             if (isset($input['dpo_name']) && isset($input['dpo_email'])) {
