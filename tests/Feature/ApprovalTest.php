@@ -115,11 +115,7 @@ class ApprovalTest extends TestCase
 
         $response = $this->json(
             'DELETE',
-            self::TEST_URL . '/organisation',
-            [
-                'organisation_id' => $organisation->id,
-                'issuer_id' => $issuer->id,
-            ],
+            self::TEST_URL . '/organisation/1/issuer/1',
             $this->headers
         );
 
@@ -145,11 +141,7 @@ class ApprovalTest extends TestCase
 
         $response = $this->json(
             'DELETE',
-            self::TEST_URL . '/researcher',
-            [
-                'user_id' => $user->id,
-                'issuer_id' => $issuer->id,
-            ],
+            self::TEST_URL . '/researcher/1/issuer/1',
             $this->headers
         );
 
