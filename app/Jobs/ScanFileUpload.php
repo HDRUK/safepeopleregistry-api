@@ -56,10 +56,10 @@ class ScanFileUpload implements ShouldQueue
             $url,
             ['file' => $filePath, 'storage' => $this->fileSystem]
         );
-        $isInfected = $response['isInfected'];
+        $isInfected = $response['isInfected'] ?? null;
 
         // Check if the file is infected
-        if ($isInfected) {
+        if ($isInfected || $isInfected === null) {
             $file->update([
                 'status' => 'FAILED',
             ]);

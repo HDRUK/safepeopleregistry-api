@@ -6,6 +6,7 @@ use OrcID;
 use Keycloak;
 
 use App\Models\User;
+use App\Models\Organisation;
 use App\Models\UserApiToken;
 
 use Hdruk\LaravelMjml\Models\EmailTemplate;
@@ -90,6 +91,49 @@ class AuthController extends Controller
             'is_organisation' => true,
         ])) {
             $user = User::where('email', $input['email'])->first();
+            $organisation = Organisation::create([
+                'organisation_name' => $input['organisation_name'],
+                'lead_applicant_organisation_email' => $input['lead_applicant_organisation_email'],
+                'lead_applicant_organisation_name' => $input['lead_applicant_organisation_name'],
+                'companies_house_no' => $input['companies_house_no'],
+                'ce_certified' => $input['ce_certified'],
+                'ce_certification_num' => $input['ce_certification_num'],
+                'iso_27001_certified' => $input['iso_27001_certified'],
+                'dsptk_ods_code' => $input['dsptk_ods_code'],
+                'address_1' => $input['address_1'],
+                'address_2' => $input['address_2'],
+                'town' => $input['town'],
+                'county' => $input['county'],
+                'country' => $input['country'],
+                'postcode' => $input['postcode'],
+            ]);
+
+            if (isset($input['dpo_name']) && isset($input['dpo_email'])) {
+                $parts = explode(' ', $input['dpo_name']);
+                OrganisationDelegate::create([
+                    'first_name' => $parts[0],
+                    'last_name' => $parts[1],
+                    'email' => $input['dpo_email'],
+                    'is_dpo' => 1,
+                    'is_hr' => 0,
+                    'priority_order' => 0,
+                    'organisation_id' => $organisation->id,
+                ]);
+            }
+
+            if (isset($input['hr_name']) && isset($input['hr_name'])) {
+                $parts = explode(' ', $input['hr_name']);
+                OrganisationDelegate::create([
+                    'first_name' => $parts[0],
+                    'last_name' => $parts[1],
+                    'email' => $input['hr_email'],
+                    'is_dpo' => 0,
+                    'is_hr' => 1,
+                    'priority_order' => 0,
+                    'organisation_id' => $organisation->id,
+                ]);
+            }
+
             return response()->json([
                 'message' => 'success',
                 'data' => $user,
