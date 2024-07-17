@@ -68,6 +68,7 @@ class ScanFileUpload implements ShouldQueue
         } else {
             $loc = $file->path;
             $content = Storage::disk($this->fileSystem . '.unscanned')->get($loc);
+
             Storage::disk($this->fileSystem . '.scanned')->put($loc, $content);
             Storage::disk($this->fileSystem . '.unscanned')->delete($loc);
 
