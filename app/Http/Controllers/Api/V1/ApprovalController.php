@@ -72,8 +72,8 @@ class ApprovalController extends Controller
             
             switch (strtoupper($entityType)) {
                 case 'ORGANISATION':
-                    $organisation = Organisation::where('id', $issuerId)->first();
-                    $issuer = Issuer::where('id', $id)->first();
+                    $organisation = Organisation::where('id', $id)->first();
+                    $issuer = Issuer::where('id', $issuerId)->first();
 
                     OrganisationHasIssuerApproval::where([
                         'organisation_id' => $organisation->id,

@@ -61,7 +61,6 @@ class Keycloak {
                     'first_name' => $credentials['first_name'],
                     'last_name' => $credentials['last_name'],
                     'email' => $credentials['email'],
-                    'consent_scrape' =>  isset($credentials['consent_scrape']) ? $credentials['consent_scrape'] : 0,
                     'provider' => 'keycloak',
                     'provider_sub' => '',
                     'keycloak_id' => $newUserId,
