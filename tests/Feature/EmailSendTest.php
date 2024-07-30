@@ -12,6 +12,7 @@ use Database\Seeders\IssuerSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\OrganisationSeeder;
 use Database\Seeders\EmailTemplatesSeeder;
+use Database\Seeders\OrganisationDelegateSeeder;
 
 use Illuminate\Testing\Fluent\AssertableJson;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -36,6 +37,7 @@ class EmailSendTest extends TestCase
             IssuerSeeder::class,
             UserSeeder::class,
             OrganisationSeeder::class,
+            OrganisationDelegateSeeder::class,
             EmailTemplatesSeeder::class,
         ]);
 

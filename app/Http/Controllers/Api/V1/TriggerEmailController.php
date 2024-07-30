@@ -26,6 +26,8 @@ class TriggerEmailController extends Controller
 {
     public function spawnEmail(Request $request): JsonResponse
     {
+        $input = $request->all();
+        
         TriggerEmail::spawnEmail($input);
         return response()->json([
             'message' => 'success',

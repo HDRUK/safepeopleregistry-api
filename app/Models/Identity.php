@@ -41,6 +41,10 @@ class Identity extends Model
         'country',
         'postcode',
         'dob',
+        'idvt_result',
+        'idvt_result_perc',
+        'idvt_errors',
+        'idvt_completed_at',
     ];
 
     /**
