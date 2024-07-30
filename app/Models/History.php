@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
-
+use App\Models\Endorsement;
+use App\Models\Infringement;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class History extends Model
 {
@@ -39,4 +42,20 @@ class History extends Model
         'issuer_identifier',
         'ledger_hash',
     ];
+
+    public function endorsements(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Endorsement::class,
+            'history_has_endorsements',
+        );
+    }
+
+    public function infringements(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Infringement::class,
+            'history_has_infringements',
+        );
+    }
 }

@@ -127,14 +127,24 @@ class QueryController extends Controller
     {
         $input = $request->all();
 
-        $registry = DB::table('users')
-            ->join('registries', 'users.registry_id', 'registries.id')
-            ->join('identities', 'identities.registry_id', 'registries.id')
-            // ->join('histories', 'histories.registry_id', 'registries.id')
-            ->join('trainings', 'trainings.registry_id', 'registries.id')
-            // ->join('organisations', 'organisations.registry_id', 'registries.id')
-            ->where('registries.digi_ident', $input['ident'])
-            ->get();
+        $registry = User::with([
+            'registry',
+            'registry.identity',
+            'registry.history',
+            'registry.training',
+            'registry.organisations',
+            'history.endorsements',
+            'history.infringements',
+        ])->where('digi_ident', $input['ident'])->first();
+
+        // $registry = DB::table('users')
+        //     ->join('registries', 'users.registry_id', 'registries.id')
+        //     ->join('identities', 'identities.registry_id', 'registries.id')
+        //     ->join('histories', 'registry_id', 'registries.id')
+        //     ->join('trainings', 'trainings.registry_id', 'registries.id')
+        //     ->join('organisations', 'organisations.registry_id', 'registries.id')
+        //     ->where('registries.digi_ident', $input['ident'])
+        //     ->get();
 
         // $registry = User::with([
         //     'registry',
