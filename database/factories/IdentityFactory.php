@@ -28,6 +28,10 @@ class IdentityFactory extends Factory
             'country' => 'United Kingdom',
             'postcode' => 'AB12 3CD',
             'dob' => '1977-07-25',
+            'idvt_result' => null,
+            'idvt_result_perc' => null,
+            'idvt_errors' => null,
+            'idvt_completed_at' => null,
         ];
     }
 }

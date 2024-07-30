@@ -179,6 +179,10 @@ class IdentityController extends Controller
                 'country' => $input['country'],
                 'postcode' => $input['postcode'],
                 'dob' => $input['dob'],
+                'idvt_result' => $input['idvt_result'],
+                'idvt_result_perc' => $input['idvt_result_perc'],
+                'idvt_errors' => $input['idvt_errors'],
+                'idvt_completed_at' => $input['idvt_completed_at'],
             ]);
 
             return response()->json([
@@ -259,6 +263,10 @@ class IdentityController extends Controller
                 'country' => $input['country'],
                 'postcode' => $input['postcode'],
                 'dob' => $input['dob'],
+                'idvt_result' => $input['idvt_result'],
+                'idvt_result_perc' => $input['idvt_result_perc'],
+                'idvt_errors' => $input['idvt_errors'],
+                'idvt_completed_at' => $input['idvt_completed_at'],
             ]);
 
             return response()->json([
@@ -339,6 +347,10 @@ class IdentityController extends Controller
                 'country' => $input['country'],
                 'postcode' => $input['postcode'],
                 'dob' => $input['dob'],
+                'idvt_result' => $input['idvt_result'],
+                'idvt_result_perc' => $input['idvt_result_perc'],
+                'idvt_errors' => $input['idvt_errors'],
+                'idvt_completed_at' => $input['idvt_completed_at'],
             ]);
 
             return response()->json([

@@ -50,6 +50,11 @@ class IdentityTest extends TestCase
 
     public function test_the_application_can_show_identities(): void
     {
+        $passed = fake()->randomElement([0, 1]);
+
+        $passRate = fake()->numberBetween(80, 100);
+        $failRate = fake()->numberBetween(0, 50);
+        
         $response = $this->json(
             'POST',
             self::TEST_URL,
@@ -65,6 +70,10 @@ class IdentityTest extends TestCase
                 'country' => 'Country',
                 'postcode' => 'BLA4 4HH',
                 'dob' => '1988-01-01',
+                'idvt_result' => $passed,
+                'idvt_result_perc' => ($passed ? $passRate : $failRate),
+                'idvt_errors' => null,
+                'idvt_completed_at' => Carbon::now(),
             ],
             $this->headers
         );
@@ -86,6 +95,11 @@ class IdentityTest extends TestCase
 
     public function test_the_application_can_create_identities(): void
     {
+        $passed = fake()->randomElement([0, 1]);
+
+        $passRate = fake()->numberBetween(80, 100);
+        $failRate = fake()->numberBetween(0, 50);
+
         $response = $this->json(
             'POST',
             self::TEST_URL,
@@ -101,6 +115,10 @@ class IdentityTest extends TestCase
                 'country' => 'Country',
                 'postcode' => 'BLA4 4HH',
                 'dob' => '1988-01-01',
+                'idvt_result' => $passed,
+                'idvt_result_perc' => ($passed ? $passRate : $failRate),
+                'idvt_errors' => null,
+                'idvt_completed_at' => Carbon::now(),
             ],
             $this->headers
         );
@@ -111,6 +129,11 @@ class IdentityTest extends TestCase
 
     public function test_the_application_can_update_identities(): void
     {
+        $passed = fake()->randomElement([0, 1]);
+
+        $passRate = fake()->numberBetween(80, 100);
+        $failRate = fake()->numberBetween(0, 50);
+
         $response = $this->json(
             'POST',
             self::TEST_URL,
@@ -126,6 +149,10 @@ class IdentityTest extends TestCase
                 'country' => 'Country',
                 'postcode' => 'BLA4 4HH',
                 'dob' => '1988-01-01',
+                'idvt_result' => $passed,
+                'idvt_result_perc' => ($passed ? $passRate : $failRate),
+                'idvt_errors' => null,
+                'idvt_completed_at' => Carbon::now(),
             ],
             $this->headers
         );
@@ -152,6 +179,10 @@ class IdentityTest extends TestCase
                 'country' => 'Country',
                 'postcode' => 'BLA4 4HH',
                 'dob' => '1978-01-01',
+                'idvt_result' => $passed,
+                'idvt_result_perc' => ($passed ? $passRate : $failRate),
+                'idvt_errors' => null,
+                'idvt_completed_at' => Carbon::now(),
             ],
             $this->headers
         );
@@ -170,6 +201,11 @@ class IdentityTest extends TestCase
 
     public function test_the_application_can_delete_identities(): void
     {
+        $passed = fake()->randomElement([0, 1]);
+
+        $passRate = fake()->numberBetween(80, 100);
+        $failRate = fake()->numberBetween(0, 50);
+
         $response = $this->json(
             'POST',
             self::TEST_URL,
@@ -185,6 +221,10 @@ class IdentityTest extends TestCase
                 'country' => 'Country',
                 'postcode' => 'BLA4 4HH',
                 'dob' => '1988-01-01',
+                'idvt_result' => $passed,
+                'idvt_result_perc' => ($passed ? $passRate : $failRate),
+                'idvt_errors' => null,
+                'idvt_completed_at' => Carbon::now(),
             ],
             $this->headers
         );
