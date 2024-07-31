@@ -6,7 +6,15 @@ use DB;
 use Exception;
 
 use App\Models\User;
+use App\Models\History;
 use App\Models\Registry;
+use App\Models\Training;
+use App\Models\Identity;
+use App\Models\Project;
+use App\Models\Experience;
+use App\Models\Employment;
+use App\Models\Endorsement;
+use App\Models\Infringement;
 use App\Exceptions\NotFoundException;
 
 use App\Http\Controllers\Controller;
@@ -127,26 +135,54 @@ class QueryController extends Controller
     {
         $input = $request->all();
 
-        $registry = DB::table('users')
-            ->join('registries', 'users.registry_id', 'registries.id')
-            ->join('identities', 'identities.registry_id', 'registries.id')
-            // ->join('histories', 'histories.registry_id', 'registries.id')
-            ->join('trainings', 'trainings.registry_id', 'registries.id')
-            // ->join('organisations', 'organisations.registry_id', 'registries.id')
-            ->where('registries.digi_ident', $input['ident'])
-            ->get();
+        // We could do the following with eloquent, but as it's quite a large hit, 
+        // it's far more performant to just pull the records manually and form
+        // the resulting payload, to avoid Laravel bloat.
+        $payload = [
+            'user' => [
+                'identity' => [],
+            ],
+            'registry' => [
+                'training' => [],
+                'history' => [],
+            ],
+        ];
 
-        // $registry = User::with([
-        //     'registry',
-        //     'registry.identity',
-        //     'registry.history',
-        //     'registry.training',
-        //     'registry.organisations',
-        // ])->where('digi_ident', $input['ident'])->first();
+        $registry = Registry::where('digi_ident', $input['ident'])->first();
+        $payload['registry'] = $registry;
+
+        $user = User::where('registry_id', $registry->id)->first();
+        $payload['user'] = $user;
+
+        $training = Training::where('registry_id', $registry->id)->first();
+        $payload['registry']['training'] = $training;
+
+        $identity = Identity::where('registry_id', $registry->id)->first();
+        $payload['user']['identity'] = $identity;
+
+        $rhh = DB::table('registry_has_histories')->where('registry_id', '=', $registry->id)->get();
+        foreach ($rhh as $item) {
+            $history = History::where('id', $item->history_id)->first();
+
+            $employment = Employment::where('id', $history->employment_id)->first();
+            $history->employment = $employment;
+
+            $endorsement = Endorsement::where('id', $history->endorsement_id)->first();
+            $history->endorsement = $endorsement;
+
+            $infringement = Infringement::where('id', $history->infringement_id)->first();
+            $history->infringement = $infringement;
+
+            $project = Project::where('id', $history->project_id)->first();
+            $history->project = $project;
+
+            $payload['registry']['history'][] = $history;
+        }
+
         if ($registry) {
             return response()->json([
                 'message' => 'success',
-                'data' => $registry,
+                'data' => $payload,
             ], 200);
         }
 

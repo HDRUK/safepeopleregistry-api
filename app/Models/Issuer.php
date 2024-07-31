@@ -36,6 +36,7 @@ class Issuer extends Model
         'enabled',
         'invite_accepted_at',
         'invite_sent_at',
+        'idvt_required',
     ];
 
     /**
@@ -45,6 +46,7 @@ class Issuer extends Model
      */
     protected $casts = [
         'enabled' => 'boolean',
+        'idvt_required' => 'boolean',
     ];
 
         /**

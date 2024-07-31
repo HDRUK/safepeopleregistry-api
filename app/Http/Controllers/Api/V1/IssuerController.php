@@ -44,6 +44,7 @@ class IssuerController extends Controller
      *                  @OA\Property(property="enabled", type="boolean", example="true"),
      *                  @OA\Property(property="invite_accepted_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="invite_sent_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="idvt_required", type="boolean", example="true")
      *              )
      *          ),
      *      ),
@@ -99,6 +100,7 @@ class IssuerController extends Controller
      *                  @OA\Property(property="enabled", type="boolean", example="true"),
      *                  @OA\Property(property="invite_accepted_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="invite_sent_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="idvt_required", type="boolean", example="true")
      *              )
      *          ),
      *      ),
@@ -160,6 +162,7 @@ class IssuerController extends Controller
      *                  @OA\Property(property="enabled", type="boolean", example="true"),
      *                  @OA\Property(property="invite_accepted_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="invite_sent_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="idvt_required", type="boolean", example="true")
      *              )
      *          ),
      *      ),
@@ -225,6 +228,7 @@ class IssuerController extends Controller
      *                  @OA\Property(property="enabled", type="boolean", example="true"),
      *                  @OA\Property(property="invite_accepted_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="invite_sent_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="idvt_required", type="boolean", example="true")
      *              )
      *          ),
      *      ),
@@ -254,6 +258,7 @@ class IssuerController extends Controller
                 'calculated_hash' => $calculatedHash,
                 'contact_email' => $input['contact_email'],
                 'enabled' => $input['enabled'],
+                'idvt_required' => (isset($input['idvt_required']) ? $input['idvt_required'] : false),
             ]);
 
             return response()->json([
@@ -334,6 +339,8 @@ class IssuerController extends Controller
             $issuer->name = $input['name'];
             $issuer->contact_email = isset($input['contact_email']) ? $input['contact_email'] : $issuer->contact_email;
             $issuer->enabled = $input['enabled'];
+            $issuer->idvt_required = isset($input['idvt_required']) ? $input['idvt_required'] : false;
+
             if ($issuer->save()) {
                 return response()->json([
                     'message' => 'success',
@@ -414,6 +421,8 @@ class IssuerController extends Controller
             $issuer->name = $input['name'];
             $issuer->contact_email = isset($input['contact_email']) ? $input['contact_email'] : $issuer->contact_email;
             $isser->enabled = $input['enabled'];
+            $issuer->idvt_required = isset($input['idvt_required']) ? $input['idvt_required'] : $issuer->idvt_required;
+
             if ($issuer->save()) {
                 return response()->json([
                     'message' => 'success',

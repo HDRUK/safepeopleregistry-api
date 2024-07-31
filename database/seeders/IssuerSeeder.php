@@ -27,6 +27,7 @@ class IssuerSeeder extends Seeder
                 'name' => $issuer['name'],
                 'contact_email' => $issuer['contact_email'],
                 'enabled' => 1,
+                'idvt_required' => fake()->randomElement([0, 1]),
             ]);
 
             for ($x = 0; $x < fake()->randomElement([1, 3]); $x++) {
