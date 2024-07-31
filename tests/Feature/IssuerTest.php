@@ -81,6 +81,7 @@ class IssuerTest extends TestCase
                 'name' => 'Test Issuer',
                 'contact_email' => 'test@test.com',
                 'enabled' => true,
+                'idvt_required' => false,
             ],
             $this->headers
         );
@@ -98,6 +99,7 @@ class IssuerTest extends TestCase
                 'name' => 'Test Issuer',
                 'contact_email' => 'test@test.com',
                 'enabled' => true,
+                'idvt_required' => false,
             ],
             $this->headers
         );
@@ -114,6 +116,7 @@ class IssuerTest extends TestCase
             [
                 'name' => 'Updated Issuer',
                 'enabled' => false,
+                'idvt_required' => true,
             ],
             $this->headers
         );
@@ -123,6 +126,7 @@ class IssuerTest extends TestCase
 
         $this->assertEquals($content['name'], 'Updated Issuer');
         $this->assertEquals($content['enabled'], false);
+        $this->assertEquals($content['idvt_required'], true);
     }
 
     public function test_the_application_can_delete_issuers(): void

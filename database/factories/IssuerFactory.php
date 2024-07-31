@@ -30,6 +30,7 @@ class IssuerFactory extends Factory
             'unique_identifier' => $signature,
             'calculated_hash' => $calculatedHash,
             'enabled' => fake()->randomElement([0, 1]),
+            'idvt_required' => fake()->randomElement([0, 1]),
         ];
     }
 }
