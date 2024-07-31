@@ -7,6 +7,8 @@ WORKDIR /var/www
 COPY composer.* /var/www/
 
 RUN apt-get update && apt-get install -y \
+    nodejs \
+    npm \
     libfreetype6-dev \
     libjpeg62-turbo-dev \
     libmcrypt-dev \
@@ -22,14 +24,9 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure pdo_mysql --with-pdo-mysql=mysqlnd \
     && docker-php-ext-install sockets \
     && docker-php-ext-install exif \
+    && docker-php-ext-configure pcntl --enable-pcntl \
+    && docker-php-ext-install pcntl \
     && pecl install swoole
-
-# Install Redis
-# RUN wget -O redis-5.3.7.tgz 'http://pecl.php.net/get/redis-5.3.7.tgz' \
-#     && pecl install redis-5.3.7.tgz \
-#     &&  rm -rf redis-5.3.7.tgz \
-#     &&  rm -rf /tmp/pear \
-#     &&  docker-php-ext-enable redis
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- \
@@ -57,6 +54,7 @@ RUN composer install \
     && php artisan config:clear \
     && chmod -R 777 storage bootstrap/cache \
     && chown -R www-data:www-data storage \
+    && php artisan octane:install --server=swoole \
     && composer dumpautoload
 
 # Generate Swagger - Removed for now as we don't have

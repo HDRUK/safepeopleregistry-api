@@ -96,13 +96,13 @@ class OrganisationTest extends TestCase
             'POST',
             self::TEST_URL,
             [
-                'organisation_name' => 'Test Organisation',
-                'address_1' => '123 Blah blah',
+                'organisation_name' => 'HEALTH DATA RESEARCH UK',
+                'address_1' => '215 Euston Road',
                 'address_2' => '',
-                'town' => 'Town',
-                'county' => 'County',
-                'country' => 'Country',
-                'postcode' => 'BLA4 4HH',
+                'town' => '',
+                'county' => 'London',
+                'country' => 'United Kingdom',
+                'postcode' => 'NW1 2BE',
                 'lead_applicant_organisation_name' => 'Some One',
                 'lead_applicant_email' => fake()->email(),
                 'password' => 'tempP4ssword',
@@ -111,7 +111,7 @@ class OrganisationTest extends TestCase
                 'funders_and_sponsors' => 'UKRI, MRC',
                 'sub_license_arrangements' => 'N/A',
                 'verified' => false,
-                'companies_house_no' => '0667465',
+                'companies_house_no' => '10887014',
             ],
             $this->headers
         );
@@ -188,7 +188,7 @@ class OrganisationTest extends TestCase
                 'iso_27001_certified' => $isoCertified,
                 'ce_certified' => $ceCertified,
                 'ce_certification_num' => ($ceCertified ? 'fghe-76fh-gh47-0000' : ''),
-                'companies_house_no' => '0667465',
+                'companies_house_no' => '10887014',
             ],
             $this->headers
         );
@@ -224,7 +224,7 @@ class OrganisationTest extends TestCase
                 'iso_27001_certified' => $isoCertified,
                 'ce_certified' => $ceCertified,
                 'ce_certification_num' => ($ceCertified ? 'fghe-76fh-gh47-0000' : ''),
-                'companies_house_no' => '0667465',
+                'companies_house_no' => '10887014',
             ],
             $this->headers
         );
@@ -255,7 +255,7 @@ class OrganisationTest extends TestCase
                 'funders_and_sponsors' => 'UKRI, MRC',
                 'sub_license_arrangements' => 'N/A',
                 'verified' => true,
-                'companies_house_no' => '2985729',
+                'companies_house_no' => '10887014',
             ],
             $this->headers
         );
@@ -297,7 +297,7 @@ class OrganisationTest extends TestCase
                 'iso_27001_certified' => $isoCertified,
                 'ce_certified' => $ceCertified,
                 'ce_certification_num' => ($ceCertified ? 'fghe-76fh-gh47-0000' : ''),
-                'companies_house_no' => '0667465',
+                'companies_house_no' => '10887014',
             ],
             $this->headers
         );
