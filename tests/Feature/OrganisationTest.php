@@ -3,30 +3,24 @@
 namespace Tests\Feature;
 
 use Carbon\Carbon;
-
-use Tests\TestCase;
-
-use App\Models\Organisation;
-
-use Database\Seeders\UserSeeder;
 use Database\Seeders\IssuerSeeder;
-use Database\Seeders\PermissionSeeder;
 use Database\Seeders\OrganisationSeeder;
-
-use Illuminate\Support\Str;
-
-use Illuminate\Testing\Fluent\AssertableJson;
+use Database\Seeders\PermissionSeeder;
+use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-
+use Illuminate\Support\Str;
+use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class OrganisationTest extends TestCase
 {
-    use RefreshDatabase, Authorisation;
+    use Authorisation;
+    use RefreshDatabase;
 
-    const TEST_URL = '/api/v1/organisations';
+    public const TEST_URL = '/api/v1/organisations';
 
     private $headers = [];
+    private $testOrg = [];
 
     public function setUp(): void
     {
@@ -40,7 +34,26 @@ class OrganisationTest extends TestCase
 
         $this->headers = [
             'Accept' => 'application/json',
-            'Authorization' => 'bearer ' . $this->getAuthToken(),
+            'Authorization' => 'bearer '.$this->getAuthToken(),
+        ];
+
+        $this->testOrg = [
+            'organisation_name' => 'HEALTH DATA RESEARCH UK',
+            'address_1' => '215 Euston Road',
+            'address_2' => '',
+            'town' => 'Blah',
+            'county' => 'London',
+            'country' => 'United Kingdom',
+            'postcode' => 'NW1 2BE',
+            'lead_applicant_organisation_name' => 'Some One',
+            'lead_applicant_email' => fake()->email(),
+            'password' => 'tempP4ssword',
+            'organisation_unique_id' => Str::random(40),
+            'applicant_names' => 'Some One, Some Two, Some Three',
+            'funders_and_sponsors' => 'UKRI, MRC',
+            'sub_license_arrangements' => 'N/A',
+            'verified' => false,
+            'companies_house_no' => '10887014',
         ];
     }
 
@@ -95,24 +108,7 @@ class OrganisationTest extends TestCase
         $response = $this->json(
             'POST',
             self::TEST_URL,
-            [
-                'organisation_name' => 'HEALTH DATA RESEARCH UK',
-                'address_1' => '215 Euston Road',
-                'address_2' => '',
-                'town' => '',
-                'county' => 'London',
-                'country' => 'United Kingdom',
-                'postcode' => 'NW1 2BE',
-                'lead_applicant_organisation_name' => 'Some One',
-                'lead_applicant_email' => fake()->email(),
-                'password' => 'tempP4ssword',
-                'organisation_unique_id' => Str::random(40),
-                'applicant_names' => 'Some One, Some Two, Some Three',
-                'funders_and_sponsors' => 'UKRI, MRC',
-                'sub_license_arrangements' => 'N/A',
-                'verified' => false,
-                'companies_house_no' => '10887014',
-            ],
+            $this->testOrg,
             $this->headers
         );
 
@@ -123,7 +119,7 @@ class OrganisationTest extends TestCase
 
         $response = $this->json(
             'GET',
-            self::TEST_URL . '/' . $content,
+            self::TEST_URL.'/'.$content,
             $this->headers
         );
 
@@ -168,28 +164,7 @@ class OrganisationTest extends TestCase
         $response = $this->json(
             'POST',
             self::TEST_URL,
-            [
-                'organisation_name' => 'Test Organisation',
-                'address_1' => '123 Blah blah',
-                'address_2' => '',
-                'town' => 'Town',
-                'county' => 'County',
-                'country' => 'Country',
-                'postcode' => 'BLA4 4HH',
-                'lead_applicant_organisation_name' => 'Some One',
-                'lead_applicant_email' => fake()->email(),
-                'password' => 'tempP4ssword',
-                'organisation_unique_id' => Str::random(40),
-                'applicant_names' => 'Some One, Some Two, Some Three',
-                'funders_and_sponsors' => 'UKRI, MRC',
-                'sub_license_arrangements' => 'N/A',
-                'verified' => false,
-                'dsptk_ods_code' => 'UY65LO',
-                'iso_27001_certified' => $isoCertified,
-                'ce_certified' => $ceCertified,
-                'ce_certification_num' => ($ceCertified ? 'fghe-76fh-gh47-0000' : ''),
-                'companies_house_no' => '10887014',
-            ],
+            $this->testOrg,
             $this->headers
         );
 
@@ -205,27 +180,7 @@ class OrganisationTest extends TestCase
         $response = $this->json(
             'POST',
             self::TEST_URL,
-            [
-                'organisation_name' => 'Test Organisation',
-                'address_1' => '123 Blah blah',
-                'address_2' => '',
-                'town' => 'Town',
-                'county' => 'County',
-                'country' => 'Country',
-                'postcode' => 'BLA4 4HH',
-                'lead_applicant_organisation_name' => 'Some One',
-                'lead_applicant_email' => fake()->email(),
-                'password' => 'tempP4ssword',
-                'organisation_unique_id' => Str::random(40),
-                'applicant_names' => 'Some One, Some Two, Some Three',
-                'funders_and_sponsors' => 'UKRI, MRC',
-                'sub_license_arrangements' => 'N/A',
-                'verified' => false,
-                'iso_27001_certified' => $isoCertified,
-                'ce_certified' => $ceCertified,
-                'ce_certification_num' => ($ceCertified ? 'fghe-76fh-gh47-0000' : ''),
-                'companies_house_no' => '10887014',
-            ],
+            $this->testOrg,
             $this->headers
         );
 
@@ -238,7 +193,7 @@ class OrganisationTest extends TestCase
 
         $response = $this->json(
             'PUT',
-            self::TEST_URL . '/' . $content,
+            self::TEST_URL.'/'.$content,
             [
                 'organisation_name' => 'Test Organisation',
                 'address_1' => '123 Blah blah',
@@ -274,31 +229,11 @@ class OrganisationTest extends TestCase
     {
         $isoCertified = fake()->randomElement([1, 0]);
         $ceCertified = fake()->randomElement([1, 0]);
-        
+
         $response = $this->json(
             'POST',
             self::TEST_URL,
-            [
-                'organisation_name' => 'Test Organisation',
-                'address_1' => '123 Blah blah',
-                'address_2' => '',
-                'town' => 'Town',
-                'county' => 'County',
-                'country' => 'Country',
-                'postcode' => 'BLA4 4HH',
-                'lead_applicant_organisation_name' => 'Some One',
-                'lead_applicant_email' => fake()->email(),
-                'password' => 'tempP4ssword',
-                'organisation_unique_id' => Str::random(40),
-                'applicant_names' => 'Some One, Some Two, Some Three',
-                'funders_and_sponsors' => 'UKRI, MRC',
-                'sub_license_arrangements' => 'N/A',
-                'verified' => false,
-                'iso_27001_certified' => $isoCertified,
-                'ce_certified' => $ceCertified,
-                'ce_certification_num' => ($ceCertified ? 'fghe-76fh-gh47-0000' : ''),
-                'companies_house_no' => '10887014',
-            ],
+            $this->testOrg,
             $this->headers
         );
 
@@ -309,7 +244,7 @@ class OrganisationTest extends TestCase
 
         $response = $this->json(
             'DELETE',
-            self::TEST_URL . '/' . $content,
+            self::TEST_URL.'/'.$content,
             $this->headers
         );
 

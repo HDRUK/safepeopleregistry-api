@@ -3,8 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\IDVTPlugin;
-
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class IDVTPluginSeeder extends Seeder

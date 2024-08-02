@@ -2,32 +2,27 @@
 
 namespace Tests\Feature;
 
-use Carbon\Carbon;
-
-use Tests\TestCase;
-
 use App\Models\Issuer;
-
-use Database\Seeders\UserSeeder;
+use Carbon\Carbon;
 use Database\Seeders\IssuerSeeder;
 use Database\Seeders\PermissionSeeder;
-
-use Illuminate\Support\Str;
-
-use Illuminate\Testing\Fluent\AssertableJson;
+use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-
+use Illuminate\Support\Str;
+use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class IssuerTest extends TestCase
 {
-    use RefreshDatabase, Authorisation;
+    use Authorisation;
+    use RefreshDatabase;
 
-    const TEST_URL = '/api/v1/issuers';
+    public const TEST_URL = '/api/v1/issuers';
 
     private $headers = [];
 
     private $projectUniqueId = '';
+
     private $organisationUniqueId = '';
 
     public function setUp(): void
@@ -41,7 +36,7 @@ class IssuerTest extends TestCase
 
         $this->headers = [
             'Accept' => 'application/json',
-            'Authorization' => 'bearer ' . $this->getAuthToken(),
+            'Authorization' => 'bearer '.$this->getAuthToken(),
         ];
 
         $this->projectUniqueId = Str::random(40);
@@ -64,7 +59,7 @@ class IssuerTest extends TestCase
     {
         $response = $this->json(
             'GET',
-            self::TEST_URL . '/1',
+            self::TEST_URL.'/1',
             $this->headers
         );
 
@@ -112,7 +107,7 @@ class IssuerTest extends TestCase
 
         $response = $this->json(
             'PUT',
-            self::TEST_URL . '/' . $content,
+            self::TEST_URL.'/'.$content,
             [
                 'name' => 'Updated Issuer',
                 'enabled' => false,
@@ -149,7 +144,7 @@ class IssuerTest extends TestCase
 
         $response = $this->json(
             'DELETE',
-            self::TEST_URL . '/' . $content,
+            self::TEST_URL.'/'.$content,
             $this->headers
         );
 
@@ -175,10 +170,10 @@ class IssuerTest extends TestCase
         $content = $response->decodeResponseJson()['data'];
 
         $issuerCreated = Issuer::where('id', $content)->first();
-        
+
         $response = $this->json(
             'GET',
-            self::TEST_URL . '/identifier/' . $issuerCreated->unique_identifier,
+            self::TEST_URL.'/identifier/'.$issuerCreated->unique_identifier,
             $this->headers
         );
 
@@ -212,7 +207,7 @@ class IssuerTest extends TestCase
 
         $response = $this->json(
             'POST',
-            self::TEST_URL . '/push',
+            self::TEST_URL.'/push',
             [
                 'researchers' => [],
                 'projects' => [
@@ -284,7 +279,7 @@ class IssuerTest extends TestCase
 
         $response = $this->json(
             'POST',
-            self::TEST_URL . '/push',
+            self::TEST_URL.'/push',
             [
                 'researchers' => [],
                 'projects' => [
@@ -353,7 +348,7 @@ class IssuerTest extends TestCase
 
         $response = $this->json(
             'POST',
-            self::TEST_URL . '/push',
+            self::TEST_URL.'/push',
             [
                 'researchers' => [],
                 'projects' => [
@@ -391,7 +386,7 @@ class IssuerTest extends TestCase
                 ],
             ],
             [
-                'x-issuer-key' => $issuer->unique_identifier . 'broken_key',
+                'x-issuer-key' => $issuer->unique_identifier.'broken_key',
             ]
         );
 

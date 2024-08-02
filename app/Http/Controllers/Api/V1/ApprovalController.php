@@ -2,16 +2,14 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Models\User;
+use App\Http\Controllers\Controller;
 use App\Models\Issuer;
 use App\Models\Organisation;
-use App\Models\UserHasIssuerApproval;
 use App\Models\OrganisationHasIssuerApproval;
-
-use Illuminate\Http\Request;
+use App\Models\User;
+use App\Models\UserHasIssuerApproval;
 use Illuminate\Http\JsonResponse;
-
-use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 
 class ApprovalController extends Controller
 {
@@ -66,10 +64,11 @@ class ApprovalController extends Controller
         }
     }
 
-    public function delete(Request $request, string $entityType, string $id, string $issuerId) {
+    public function delete(Request $request, string $entityType, string $id, string $issuerId)
+    {
         try {
             $input = $request->all();
-            
+
             switch (strtoupper($entityType)) {
                 case 'ORGANISATION':
                     $organisation = Organisation::where('id', $issuerId)->first();

@@ -2,16 +2,11 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Exception;
-
-use App\Models\SystemConfig;
-
-use Illuminate\Http\Request;
-
 use App\Http\Controllers\Controller;
+use App\Models\SystemConfig;
+use Exception;
 use Illuminate\Http\JsonResponse;
-
-use App\Exception\NotFoundException;
+use Illuminate\Http\Request;
 
 class SystemConfigController extends Controller
 {
@@ -44,7 +39,7 @@ class SystemConfigController extends Controller
         $input = $request->all();
 
         $exists = SystemConfig::where('name', $input['name'])->first();
-        if (!$exists) {
+        if (! $exists) {
             $systemConfig = SystemConfig::create([
                 'name' => $input['name'],
                 'value' => $input['value'],

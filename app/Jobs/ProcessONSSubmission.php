@@ -2,25 +2,25 @@
 
 namespace App\Jobs;
 
-use Carbon\Carbon;
-
-use App\Models\User;
 use App\Models\ONSFile;
-use App\Models\Training;
 use App\Models\Registry;
-use App\Models\RegistryHasTraining;
-
+use App\Models\Training;
+use App\Models\User;
+use App\Traits\CommonFunctions;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-use App\Traits\CommonFunctions;
-
 class ProcessONSSubmission implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, CommonFunctions;
+    use CommonFunctions;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     private ?ONSFile $file = null;
 
@@ -37,7 +37,7 @@ class ProcessONSSubmission implements ShouldQueue
      */
     public function handle(): void
     {
-        $path = storage_path() . '/app/public/scanned/' . $this->file->path;
+        $path = storage_path().'/app/public/scanned/'.$this->file->path;
         $file = fopen($path, 'r');
         $allData = $this->csvToArray($path);
 
@@ -48,7 +48,7 @@ class ProcessONSSubmission implements ShouldQueue
                 'email' => $row['email'],
             ])->first();
 
-            if (!$user) {
+            if (! $user) {
                 $registry = Registry::create([
                     'dl_ident' => null,
                     'pp_ident' => null,

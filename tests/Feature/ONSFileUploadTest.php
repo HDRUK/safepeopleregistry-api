@@ -2,26 +2,20 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-
-use App\Models\User;
-use App\Models\Registry;
-use App\Models\Training;
-
 use Database\Seeders\IssuerSeeder;
-use Database\Seeders\PermissionSeeder;
 use Database\Seeders\OrganisationSeeder;
-
-use Illuminate\Http\UploadedFile;
+use Database\Seeders\PermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-
+use Illuminate\Http\UploadedFile;
+use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class ONSFileUploadTest extends TestCase
 {
-    use RefreshDatabase, Authorisation;
+    use Authorisation;
+    use RefreshDatabase;
 
-    const TEST_URL = '/api/v1/ons_researcher_feed';
+    public const TEST_URL = '/api/v1/ons_researcher_feed';
 
     private $headers = [];
 
@@ -36,7 +30,7 @@ class ONSFileUploadTest extends TestCase
 
         $this->headers = [
             'Accept' => 'application/json',
-            'Authorization' => 'bearer ' . $this->getAuthToken(),
+            'Authorization' => 'bearer '.$this->getAuthToken(),
         ];
     }
 

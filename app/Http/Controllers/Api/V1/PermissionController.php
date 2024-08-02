@@ -2,26 +2,20 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Exception;
-
-use App\Models\User;
-use App\Models\Issuer;
-use App\Models\Permission;
-use App\Models\Organisation;
-
-use App\Models\UserHasIssuerPermission;
-use App\Models\OrganisationHasIssuerPermission;
-
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-
-use App\Http\Controllers\Controller;
 use App\Exception\NotFoundException;
-
-use App\Http\Requests\AssignUserPermissionToFrom;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\AssignOrganisationPermissionToFrom;
-
+use App\Http\Requests\AssignUserPermissionToFrom;
+use App\Models\Issuer;
+use App\Models\Organisation;
+use App\Models\OrganisationHasIssuerPermission;
+use App\Models\Permission;
+use App\Models\User;
+use App\Models\UserHasIssuerPermission;
 use App\Traits\CommonFunctions;
+use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class PermissionController extends Controller
 {
@@ -35,10 +29,13 @@ class PermissionController extends Controller
      *      tags={"Permission"},
      *      summary="Permission@index",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -49,10 +46,13 @@ class PermissionController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -61,6 +61,7 @@ class PermissionController extends Controller
     public function index(Request $request): JsonResponse
     {
         $permissions = Permission::paginate($this->getSystemConfig('PER_PAGE'));
+
         return response()->json([
             'message' => 'success',
             'data' => $permissions,
@@ -75,21 +76,26 @@ class PermissionController extends Controller
      *      tags={"Permission"},
      *      summary="Permission@show",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Permission entry ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Permission entry ID",
      *         ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -100,10 +106,13 @@ class PermissionController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -130,25 +139,34 @@ class PermissionController extends Controller
      *      tags={"Permission"},
      *      summary="Permission@store",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Permission definition",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="name", type="string", example="READ_SOMETHING"),
      *              @OA\Property(property="enabled", type="boolean", example="true")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *                  @OA\Property(property="message", type="string", example="success"),
      *                  @OA\Property(property="data", type="integer", example="1")
      *              )
@@ -183,36 +201,47 @@ class PermissionController extends Controller
      *      tags={"Permission"},
      *      summary="Permission@update",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Permission entry ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Permission entry ID",
      *         ),
      *      ),
+     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Permission definition",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="name", type="string", example="READ_SOMETHING"),
      *              @OA\Property(property="enabled", type="boolean", example="true")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *                  @OA\Property(property="message", type="string", example="success"),
      *                  @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -223,10 +252,13 @@ class PermissionController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -244,7 +276,7 @@ class PermissionController extends Controller
 
             return response()->json([
                 'message' => 'success',
-                'data' => Permission::where('id', $id)->first()
+                'data' => Permission::where('id', $id)->first(),
             ]);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -259,36 +291,47 @@ class PermissionController extends Controller
      *      tags={"Permission"},
      *      summary="Permission@edit",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Permission entry ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Permission entry ID",
      *         ),
      *      ),
+     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Permission definition",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="name", type="string", example="READ_SOMETHING"),
      *              @OA\Property(property="enabled", type="boolean", example="true")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *                  @OA\Property(property="message", type="string", example="success"),
      *                  @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -299,10 +342,13 @@ class PermissionController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -320,7 +366,7 @@ class PermissionController extends Controller
 
             return response()->json([
                 'message' => 'success',
-                'data' => Permission::where('id', $id)->first()
+                'data' => Permission::where('id', $id)->first(),
             ]);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -335,35 +381,46 @@ class PermissionController extends Controller
      *      tags={"Permission"},
      *      summary="Permission@destroy",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Permission entry ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Permission entry ID",
      *         ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *           ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -373,6 +430,7 @@ class PermissionController extends Controller
     {
         try {
             Permission::where('id', $id)->delete();
+
             return response()->json([
                 'message' => 'success',
             ], 200);
@@ -390,7 +448,7 @@ class PermissionController extends Controller
             $issuer = Issuer::where('id', $input['issuer_id'])->first();
             $permissions = Permission::whereIn('id', $input['permissions'])->get();
 
-            if (!$organisation || !$issuer) {
+            if (! $organisation || ! $issuer) {
                 return response()->json([
                     'message' => 'missing organisation_id or issuer_id',
                     'data' => null,
@@ -424,7 +482,7 @@ class PermissionController extends Controller
             $issuer = Issuer::where('id', $input['issuer_id'])->first();
             $permissions = Permission::whereIn('id', $input['permissions'])->get();
 
-            if (!$user || !$issuer) {
+            if (! $user || ! $issuer) {
                 return response()->json([
                     'message' => 'missing user_id or issuer_id',
                     'data' => null,

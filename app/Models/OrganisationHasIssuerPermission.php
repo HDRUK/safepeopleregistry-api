@@ -11,21 +11,21 @@ class OrganisationHasIssuerPermission extends Model
 
     /**
      * The table associated with the model
-     * 
+     *
      * @var string
      */
     protected $table = 'organisation_has_issuer_permissions';
 
     /**
      * Whether or not this model supports timestamps
-     * 
+     *
      * @var bool
      */
     public $timestamps = false;
 
     /**
      * What fields of this model are accepted as parameters
-     * 
+     *
      * @var array
      */
     protected $fillable = [

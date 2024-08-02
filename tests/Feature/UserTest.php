@@ -2,27 +2,21 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
-use App\Models\UserHasIssuerApproval;
-use App\Models\UserHasIssuerPermission;
-
-use Tests\TestCase;
-use Database\Seeders\UserSeeder;
+use Database\Seeders\EmailTemplatesSeeder;
 use Database\Seeders\IssuerSeeder;
 use Database\Seeders\PermissionSeeder;
-use Database\Seeders\EmailTemplatesSeeder;
-
-use Illuminate\Support\Str;
-use Illuminate\Testing\Fluent\AssertableJson;
+use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-
+use Illuminate\Support\Str;
+use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class UserTest extends TestCase
 {
-    use RefreshDatabase, Authorisation;
+    use Authorisation;
+    use RefreshDatabase;
 
-    const TEST_URL = '/api/v1/users';
+    public const TEST_URL = '/api/v1/users';
 
     private $headers = [];
 
@@ -38,7 +32,7 @@ class UserTest extends TestCase
 
         $this->headers = [
             'Accept' => 'application/json',
-            'Authorization' => 'bearer ' . $this->getAuthToken(),
+            'Authorization' => 'bearer '.$this->getAuthToken(),
         ];
     }
 
@@ -87,7 +81,7 @@ class UserTest extends TestCase
     {
         $response = $this->json(
             'GET',
-            self::TEST_URL . '/1',
+            self::TEST_URL.'/1',
             $this->headers
         );
 
@@ -106,6 +100,8 @@ class UserTest extends TestCase
                 'email' => fake()->email(),
                 'provider' => fake()->word(),
                 'provider_sub' => Str::random(10),
+                'public_opt_in' => fake()->randomElement([0, 1]),
+                'declaration_signed' => fake()->randomElement([0, 1]),
             ],
             $this->headers
         );
@@ -126,6 +122,8 @@ class UserTest extends TestCase
                 'provider' => fake()->word(),
                 'provider_sub' => Str::random(10),
                 'consent_scrape' => true,
+                'public_opt_in' => false,
+                'declaration_signed' => false,
             ],
             $this->headers
         );
@@ -138,11 +136,12 @@ class UserTest extends TestCase
 
         $response = $this->json(
             'PUT',
-            self::TEST_URL . '/' . $content,
+            self::TEST_URL.'/'.$content,
             [
                 'first_name' => 'Updated',
                 'last_name' => 'Name',
                 'email' => fake()->email(),
+                'declaration_signed' => true,
             ],
             $this->headers
         );
@@ -153,6 +152,7 @@ class UserTest extends TestCase
         $this->assertEquals($content['first_name'], 'Updated');
         $this->assertEquals($content['last_name'], 'Name');
         $this->assertEquals($content['consent_scrape'], true);
+        $this->assertEquals($content['declaration_signed'], true);
     }
 
     public function test_the_application_can_delete_users(): void
@@ -166,6 +166,8 @@ class UserTest extends TestCase
                 'email' => fake()->email(),
                 'provider' => fake()->word(),
                 'provider_sub' => Str::random(10),
+                'public_opt_in' => fake()->randomElement([0, 1]),
+                'declaration_signed' => fake()->randomElement([0, 1]),
             ],
             $this->headers
         );
@@ -178,7 +180,7 @@ class UserTest extends TestCase
 
         $response = $this->json(
             'DELETE',
-            self::TEST_URL . '/' . $content,
+            self::TEST_URL.'/'.$content,
             $this->headers
         );
 

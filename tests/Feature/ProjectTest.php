@@ -3,25 +3,18 @@
 namespace Tests\Feature;
 
 use Carbon\Carbon;
-
-use Tests\TestCase;
-
-use App\Models\Project;
-
 use Database\Seeders\UserSeeder;
-
-use Illuminate\Support\Str;
-
-use Illuminate\Testing\Fluent\AssertableJson;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-
+use Illuminate\Support\Str;
+use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class ProjectTest extends TestCase
 {
-    use RefreshDatabase, Authorisation;
+    use Authorisation;
+    use RefreshDatabase;
 
-    const TEST_URL = '/api/v1/projects';
+    public const TEST_URL = '/api/v1/projects';
 
     private $headers = [];
 
@@ -34,7 +27,7 @@ class ProjectTest extends TestCase
 
         $this->headers = [
             'Accept' => 'application/json',
-            'Authorization' => 'bearer ' . $this->getAuthToken(),
+            'Authorization' => 'bearer '.$this->getAuthToken(),
         ];
     }
 
@@ -77,7 +70,7 @@ class ProjectTest extends TestCase
 
         $response = $this->json(
             'GET',
-            self::TEST_URL . '/' . $content,
+            self::TEST_URL.'/'.$content,
             $this->headers
         );
 
@@ -138,7 +131,7 @@ class ProjectTest extends TestCase
 
         $response = $this->json(
             'PUT',
-            self::TEST_URL . '/' . $content,
+            self::TEST_URL.'/'.$content,
             [
                 'unique_id' => Str::random(30),
                 'title' => 'This is an Old Project',
@@ -190,7 +183,7 @@ class ProjectTest extends TestCase
 
         $response = $this->json(
             'DELETE',
-            self::TEST_URL . '/' . $content,
+            self::TEST_URL.'/'.$content,
             $this->headers
         );
 

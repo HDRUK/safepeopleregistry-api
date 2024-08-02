@@ -2,9 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Keycloak;
-
 use Illuminate\Console\Command;
+use Keycloak;
 
 class keycloaktest extends Command
 {

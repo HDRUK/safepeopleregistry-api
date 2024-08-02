@@ -2,27 +2,28 @@
 
 namespace App\Jobs;
 
-use Exception;
-
 use App\Models\File;
-
+use App\Traits\CommonFunctions;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
-use App\Traits\CommonFunctions;
-
 class ScanFileUpload implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, CommonFunctions;
-    
+    use CommonFunctions;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+
     private int $fileId = 0;
+
     private string $fileSystem = '';
+
     private string $modelType = 'File';
 
     /**
@@ -37,8 +38,6 @@ class ScanFileUpload implements ShouldQueue
 
     /**
      * Execute the job.
-     * 
-     * @return void
      */
     public function handle(): void
     {
@@ -47,11 +46,11 @@ class ScanFileUpload implements ShouldQueue
         $filePath = $file->path;
 
         $body = [
-            'file' => (string) $filePath, 
-            'storage' => (string) $this->fileSystem
+            'file' => (string) $filePath,
+            'storage' => (string) $this->fileSystem,
         ];
-        $url = env('CLAMAV_API_URL', 'http://clamav:3001') . '/scan_file';
-        
+        $url = env('CLAMAV_API_URL', 'http://clamav:3001').'/scan_file';
+
         $response = Http::post(
             $url,
             ['file' => $filePath, 'storage' => $this->fileSystem]
@@ -63,18 +62,18 @@ class ScanFileUpload implements ShouldQueue
             $file->update([
                 'status' => 'FAILED',
             ]);
-            Storage::disk($this->fileSystem . '.unscanned')
+            Storage::disk($this->fileSystem.'.unscanned')
                 ->delete($file->path);
         } else {
             $loc = $file->path;
-            $content = Storage::disk($this->fileSystem . '.unscanned')->get($loc);
+            $content = Storage::disk($this->fileSystem.'.unscanned')->get($loc);
 
-            Storage::disk($this->fileSystem . '.scanned')->put($loc, $content);
-            Storage::disk($this->fileSystem . '.unscanned')->delete($loc);
+            Storage::disk($this->fileSystem.'.scanned')->put($loc, $content);
+            Storage::disk($this->fileSystem.'.unscanned')->delete($loc);
 
             $file->update([
                 'status' => 'PROCESSED',
-                'path' => $loc
+                'path' => $loc,
             ]);
         }
     }
@@ -88,5 +87,4 @@ class ScanFileUpload implements ShouldQueue
             'status' => 'FAILED',
         ]);
     }
-
 }

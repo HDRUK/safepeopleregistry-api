@@ -2,22 +2,17 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Hash;
-use Exception;
-use Keycloak;
-
+use App\Exceptions\NotFoundException;
+use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\UserHasIssuerApproval;
 use App\Models\UserHasIssuerPermission;
-
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-
-use App\Http\Controllers\Controller;
-
-use App\Exceptions\NotFoundException;
-
 use App\Traits\CommonFunctions;
+use Exception;
+use Hash;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Keycloak;
 
 class UserController extends Controller
 {
@@ -31,10 +26,13 @@ class UserController extends Controller
      *      tags={"User"},
      *      summary="User@index",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -45,13 +43,18 @@ class UserController extends Controller
      *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
+     *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
+     *                  @OA\Property(property="declaration_signed", type="boolean", example="true")
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -81,21 +84,26 @@ class UserController extends Controller
      *      tags={"User"},
      *      summary="User@show",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="User ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="User ID",
      *         ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -108,13 +116,18 @@ class UserController extends Controller
      *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
      *                  @OA\Property(property="profile_steps_completed", type="string", example="{}"),
      *                  @OA\Property(property="profile_completed_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
+     *                  @OA\Property(property="declaration_signed", type="boolean", example="true")
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -130,6 +143,7 @@ class UserController extends Controller
                 'registry.organisations',
                 'pendingInvites',
             ])->findOrFail($id);
+
             return response()->json([
                 'message' => 'success',
                 'data' => $user,
@@ -147,27 +161,36 @@ class UserController extends Controller
      *      tags={"Users"},
      *      summary="Users@store",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="User definition",
-     *          @OA\JsonContent(  
+     *
+     *          @OA\JsonContent(
+     *
      *                  @OA\Property(property="first_name", type="string", example="A"),
      *                  @OA\Property(property="last_name", type="string", example="Researcher"),
      *                  @OA\Property(property="email", type="string", example="someone@somewhere.com"),
      *                  @OA\Property(property="password", type="string", example="str0ng12P4ssword?"),
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=201,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -177,16 +200,21 @@ class UserController extends Controller
      *                  @OA\Property(property="last_name", type="string", example="Researcher"),
      *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="consent_scrape", type="boolean", example="true"), 
+     *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
      *                  @OA\Property(property="profile_steps_completed", type="string", example="{}"),
      *                  @OA\Property(property="profile_completed_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
+     *                  @OA\Property(property="declaration_signed", type="boolean", example="true")
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -208,6 +236,8 @@ class UserController extends Controller
                 'consent_scrape' => isset($input['consent_scrape']) ? $input['consent_scrape'] : 0,
                 'profile_steps_completed' => isset($input['profile_steps_completed']) ? $input['profile_steps_completed'] : null,
                 'profile_completed_at' => isset($input['profile_completed_at']) ? $input['profile_completed_at'] : null,
+                'public_opt_in' => isset($input['public_opt_in']) ? $input['public_opt_in'] : false,
+                'declaration_signed' => isset($input['declaration_signed']) ? $input['declaration_signed'] : false,
             ]);
 
             // TODO - Close Pending invite when we're sure how org id is handled
@@ -230,38 +260,49 @@ class UserController extends Controller
      *      tags={"User"},
      *      summary="User@update",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="User ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="User ID",
      *         ),
      *      ),
+     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="User definition",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="first_name", type="string", example="A"),
      *              @OA\Property(property="last_name", type="string", example="Researcher"),
      *              @OA\Property(property="email", type="string", example="someone@somewhere.com"),
      *              @OA\Property(property="password", type="string", example="str0ng12P4ssword?"),
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -274,13 +315,18 @@ class UserController extends Controller
      *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
      *                  @OA\Property(property="profile_steps_completed", type="string", example="{}"),
      *                  @OA\Property(property="profile_completed_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
+     *                  @OA\Property(property="declaration_signed", type="boolean", example="true")
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -290,7 +336,7 @@ class UserController extends Controller
     {
         try {
             $input = $request->all();
-            
+
             $user = User::where('id', $id)->first();
             $user->first_name = isset($input['first_name']) ? $input['first_name'] : $user->first_name;
             $user->last_name = isset($input['last_name']) ? $input['last_name'] : $user->last_name;
@@ -300,6 +346,8 @@ class UserController extends Controller
             $user->consent_scrape = isset($input['consent_scrape']) ? $input['consent_scrape'] : $user->consent_scrape;
             $user->profile_steps_completed = isset($input['profile_steps_completed']) ? $input['profile_steps_completed'] : $user->profile_steps_completed;
             $user->profile_completed_at = isset($input['profile_completed_at']) ? $input['profile_completed_at'] : $user->profile_completed_at;
+            $user->public_opt_in = isset($input['public_opt_in']) ? $input['public_opt_in'] : $user->public_opt_in;
+            $user->declaration_signed = isset($input['declaration_signed']) ? $input['declaration_signed'] : $user->declaration_signed;
 
             if ($user->save()) {
                 return response()->json([
@@ -320,38 +368,49 @@ class UserController extends Controller
      *      tags={"User"},
      *      summary="User@edit",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="User ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="User ID",
      *         ),
      *      ),
+     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="User definition",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="first_name", type="string", example="A"),
      *              @OA\Property(property="last_name", type="string", example="Researcher"),
      *              @OA\Property(property="email", type="string", example="someone@somewhere.com"),
      *              @OA\Property(property="password", type="string", example="str0ng12P4ssword?"),
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -364,13 +423,18 @@ class UserController extends Controller
      *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
      *                  @OA\Property(property="profile_steps_completed", type="string", example="{}"),
      *                  @OA\Property(property="profile_completed_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
+     *                  @OA\Property(property="declaration_signed", type="boolean", example="true")
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -380,7 +444,7 @@ class UserController extends Controller
     {
         try {
             $input = $request->all();
-            
+
             $user = User::where('id', $id)->first();
             $user->first_name = isset($input['first_name']) ? $input['first_name'] : $user->first_name;
             $user->last_name = isset($input['last_name']) ? $input['last_name'] : $user->last_name;
@@ -389,7 +453,9 @@ class UserController extends Controller
             $user->registry_id = isset($input['registry_id']) ? $input['registry_id'] : $user->registry_id;
             $user->consent_scrape = isset($input['consent_scrape']) ? $input['consent_scrape'] : $user->consent_scrape;
             $user->profile_steps_completed = isset($input['profile_steps_completed']) ? $input['profile_steps_completed'] : $user->profile_steps_completed;
-            $user->profile_completed_at = isset($input['profile_completed_at']) ? $input['profile_completed_at'] : $user->profile_completed_at;    
+            $user->profile_completed_at = isset($input['profile_completed_at']) ? $input['profile_completed_at'] : $user->profile_completed_at;
+            $user->public_opt_in = isset($input['public_opt_in']) ? $input['public_opt_in'] : $user->public_opt_in;
+            $user->declaration_signed = isset($input['declaration_signed']) ? $input['declaration_signed'] : $user->declaration_signed;
 
             if ($user->save()) {
                 return response()->json([
@@ -410,35 +476,46 @@ class UserController extends Controller
      *      tags={"User"},
      *      summary="User@destroy",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="User entry ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="User entry ID",
      *         ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *           ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )

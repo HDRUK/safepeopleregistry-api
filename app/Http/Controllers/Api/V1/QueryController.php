@@ -2,24 +2,20 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use DB;
-use Exception;
-
-use App\Models\User;
-use App\Models\History;
-use App\Models\Registry;
-use App\Models\Training;
-use App\Models\Identity;
-use App\Models\Project;
-use App\Models\Experience;
+use App\Exceptions\NotFoundException;
+use App\Http\Controllers\Controller;
 use App\Models\Employment;
 use App\Models\Endorsement;
+use App\Models\History;
+use App\Models\Identity;
 use App\Models\Infringement;
-use App\Exceptions\NotFoundException;
-
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\Project;
+use App\Models\Registry;
+use App\Models\Training;
+use App\Models\User;
+use DB;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class QueryController extends Controller
 {
@@ -31,34 +27,47 @@ class QueryController extends Controller
      *      tags={"Query"},
      *      summary="Query@query",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Query definition",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="ident", type="string", example="$2y$12$V6SSFQLyQDQRZxvz.Tswa.HA.ixJIXofs7.omitted")
      *          )
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          )
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *                  @OA\Property(property="message", type="string", example="success"),
      *                  @OA\Property(property="data", type="array",
+     *
      *                      @OA\Items(
+     *
      *                          @OA\Property(property="id", type="integer", example="1"),
      *                          @OA\Property(property="created_at", type="string", example="2024-03-12T13:11:55.000000Z"),
      *                          @OA\Property(property="updated_at", type="string", example="2024-03-12T13:11:55.000000Z"),
      *                          @OA\Property(property="deleted_at", type="string", example="2024-03-12T13:11:55.000000Z"),
      *                          @OA\Property(property="verified", type="boolean", example="true"),
      *                          @OA\Property(property="user", type="array",
+     *
      *                              @OA\Items(
+     *
      *                                  @OA\Property(property="user_id", type="integer", example="1"),
      *                                  @OA\Property(property="name", type="string", example="Some One"),
      *                                  @OA\Property(property="email", type="string", example="someone@somewhere.com"),
@@ -68,8 +77,10 @@ class QueryController extends Controller
      *                                  @OA\Property(property="updated_at", type="string", example="2024-03-12T13:11:55.000000Z")
      *                              )
      *                          ),
-     *                          @OA\Property(property="identity", type="array", 
+     *                          @OA\Property(property="identity", type="array",
+     *
      *                              @OA\Items(
+     *
      *                                  @OA\Property(property="id", type="integer", example="1"),
      *                                  @OA\Property(property="created_at", type="string", example="2024-03-12T13:11:55.000000Z"),
      *                                  @OA\Property(property="updated_at", type="string", example="2024-03-12T13:11:55.000000Z"),
@@ -78,7 +89,9 @@ class QueryController extends Controller
      *                              )
      *                          ),
      *                          @OA\Property(property="history", type="array",
+     *
      *                              @OA\Items(
+     *
      *                                  @OA\Property(property="id", type="integer", example="1"),
      *                                  @OA\Property(property="created_at", type="string", example="2024-03-12T13:11:55.000000Z"),
      *                                  @OA\Property(property="updated_at", type="string", example="2024-03-12T13:11:55.000000Z"),
@@ -91,7 +104,9 @@ class QueryController extends Controller
      *                              )
      *                          ),
      *                          @OA\Property(property="training", type="array",
+     *
      *                              @OA\Items(
+     *
      *                                  @OA\Property(property="id", type="integer", example="1"),
      *                                  @OA\Property(property="created_at", type="string", example="2024-03-12T13:11:55.000000Z"),
      *                                  @OA\Property(property="updated_at", type="string", example="2024-03-12T13:11:55.000000Z"),
@@ -104,7 +119,9 @@ class QueryController extends Controller
      *                              )
      *                          ),
      *                          @OA\Property(property="projects", type="array",
+     *
      *                              @OA\Items(
+     *
      *                                  @OA\Property(property="id", type="integer", example="1"),
      *                                  @OA\Property(property="created_at", type="string", example="2024-03-12T13:11:55.000000Z"),
      *                                  @OA\Property(property="updated_at", type="string", example="2024-03-12T13:11:55.000000Z"),
@@ -117,7 +134,9 @@ class QueryController extends Controller
      *                              )
      *                          ),
      *                          @OA\Property(property="organisations", type="array",
+     *
      *                              @OA\Items(
+     *
      *                                  @OA\Property(property="id", type="integer", example="1"),
      *                                  @OA\Property(property="created_at", type="string", example="2024-03-12T13:11:55.000000Z"),
      *                                  @OA\Property(property="updated_at", type="string", example="2024-03-12T13:11:55.000000Z"),
@@ -135,7 +154,7 @@ class QueryController extends Controller
     {
         $input = $request->all();
 
-        // We could do the following with eloquent, but as it's quite a large hit, 
+        // We could do the following with eloquent, but as it's quite a large hit,
         // it's far more performant to just pull the records manually and form
         // the resulting payload, to avoid Laravel bloat.
         $payload = [

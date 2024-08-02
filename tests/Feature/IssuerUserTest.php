@@ -2,24 +2,20 @@
 
 namespace Tests\Feature;
 
-use App\Models\IssuerUser;
 use App\Models\IssuerUserHasPermission;
-
-use Tests\TestCase;
 use Database\Seeders\IssuerSeeder;
 use Database\Seeders\PermissionSeeder;
-
-use Illuminate\Support\Str;
-use Illuminate\Testing\Fluent\AssertableJson;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-
+use Illuminate\Support\Str;
+use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class IssuerUserTest extends TestCase
 {
-    use RefreshDatabase, Authorisation;
+    use Authorisation;
+    use RefreshDatabase;
 
-    const TEST_URL = '/api/v1/issuer_users';
+    public const TEST_URL = '/api/v1/issuer_users';
 
     private $headers = [];
 
@@ -33,7 +29,7 @@ class IssuerUserTest extends TestCase
 
         $this->headers = [
             'Accept' => 'application/json',
-            'Authorization' => 'bearer ' . $this->getAuthToken(),
+            'Authorization' => 'bearer '.$this->getAuthToken(),
         ];
     }
 
@@ -53,7 +49,7 @@ class IssuerUserTest extends TestCase
     {
         $response = $this->json(
             'GET',
-            self::TEST_URL . '/1',
+            self::TEST_URL.'/1',
             $this->headers
         );
 
@@ -73,7 +69,7 @@ class IssuerUserTest extends TestCase
                 'password' => Str::random(12),
                 'provider' => fake()->word(),
                 'keycloak_id' => '',
-                'issuer_id' => 1, 
+                'issuer_id' => 1,
             ],
             $this->headers
         );
@@ -107,7 +103,7 @@ class IssuerUserTest extends TestCase
 
         $response = $this->json(
             'PUT',
-            self::TEST_URL . '/' . $content,
+            self::TEST_URL.'/'.$content,
             [
                 'first_name' => 'Updated',
                 'last_name' => 'Name',
@@ -148,7 +144,7 @@ class IssuerUserTest extends TestCase
 
         $response = $this->json(
             'DELETE',
-            self::TEST_URL . '/' . $content,
+            self::TEST_URL.'/'.$content,
             $this->headers
         );
 

@@ -2,24 +2,17 @@
 
 namespace Tests\Feature;
 
-use Carbon\Carbon;
-
-use Tests\TestCase;
-
-use App\Models\History;
-
 use Database\Seeders\UserSeeder;
-
-use Illuminate\Testing\Fluent\AssertableJson;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-
+use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class HistoryTest extends TestCase
 {
-    use RefreshDatabase, Authorisation;
+    use Authorisation;
+    use RefreshDatabase;
 
-    const TEST_URL = '/api/v1/histories';
+    public const TEST_URL = '/api/v1/histories';
 
     private $headers = [];
 
@@ -32,7 +25,7 @@ class HistoryTest extends TestCase
 
         $this->headers = [
             'Accept' => 'application/json',
-            'Authorization' => 'bearer ' . $this->getAuthToken(),
+            'Authorization' => 'bearer '.$this->getAuthToken(),
         ];
     }
 
@@ -54,7 +47,7 @@ class HistoryTest extends TestCase
             'POST',
             self::TEST_URL,
             [
-                'employment_id' => 1, 
+                'employment_id' => 1,
                 'endorsement_id' => 1,
                 'infringement_id' => 1,
                 'project_id' => 1,
@@ -71,7 +64,7 @@ class HistoryTest extends TestCase
 
         $response = $this->json(
             'GET',
-            self::TEST_URL . '/' . $content,
+            self::TEST_URL.'/'.$content,
             $this->headers
         );
 
@@ -85,7 +78,7 @@ class HistoryTest extends TestCase
             'POST',
             self::TEST_URL,
             [
-                'employment_id' => 1, 
+                'employment_id' => 1,
                 'endorsement_id' => 1,
                 'infringement_id' => 1,
                 'project_id' => 1,

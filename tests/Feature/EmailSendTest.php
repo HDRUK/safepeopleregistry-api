@@ -3,29 +3,24 @@
 namespace Tests\Feature;
 
 use App\Jobs\SendEmailJob;
-
 use App\Models\PendingInvite;
-
-use Tests\TestCase;
-use Database\Seeders\UserSeeder;
-use Database\Seeders\IssuerSeeder;
-use Database\Seeders\PermissionSeeder;
-use Database\Seeders\OrganisationSeeder;
 use Database\Seeders\EmailTemplatesSeeder;
+use Database\Seeders\IssuerSeeder;
 use Database\Seeders\OrganisationDelegateSeeder;
-
-use Illuminate\Testing\Fluent\AssertableJson;
+use Database\Seeders\OrganisationSeeder;
+use Database\Seeders\PermissionSeeder;
+use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
-
-
+use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class EmailSendTest extends TestCase
 {
-    use RefreshDatabase, Authorisation;
+    use Authorisation;
+    use RefreshDatabase;
 
-    const TEST_URL = '/api/v1/trigger_email';
+    public const TEST_URL = '/api/v1/trigger_email';
 
     private $headers = [];
 
@@ -43,7 +38,7 @@ class EmailSendTest extends TestCase
 
         $this->headers = [
             'Accept' => 'application/json',
-            'Authorization' => 'bearer ' . $this->getAuthToken(),
+            'Authorization' => 'bearer '.$this->getAuthToken(),
         ];
     }
 

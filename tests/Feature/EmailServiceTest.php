@@ -2,27 +2,21 @@
 
 namespace Tests\Feature;
 
-use Carbon\Carbon;
-use Hdruk\LaravelMjml\Email;
-use Hdruk\LaravelMjml\Models\EmailTemplate;
-use Tests\TestCase;
-
-use Database\Seeders\UserSeeder;
-
 use App\Jobs\SendEmailJob;
+use Database\Seeders\EmailTemplatesSeeder;
+use Database\Seeders\UserSeeder;
+use Hdruk\LaravelMjml\Models\EmailTemplate;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Bus;
-
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
-use App\Exceptions\EmailTemplateException;
-use Database\Seeders\EmailTemplatesSeeder;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class EmailServiceTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    use RefreshDatabase;
+    use WithFaker;
 
     public function setUp(): void
     {
@@ -47,10 +41,10 @@ class EmailServiceTest extends TestCase
 
         Http::fake([
             config('mjml.default.access.mjmlRenderUrl') => Http::response(
-                ["html"=>"<html>content</html>"], 
+                ['html' => '<html>content</html>'],
                 201,
                 ['application/json']
-            )
+            ),
         ]);
 
         $to = [
@@ -74,5 +68,4 @@ class EmailServiceTest extends TestCase
 
         Bus::assertDispatched(SendEmailJob::class);
     }
-
 }

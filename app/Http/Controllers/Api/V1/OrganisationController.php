@@ -2,20 +2,15 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Hash;
-use Exception;
-
-use App\Models\Organisation;
-
-use App\Jobs\OrganisationIDVT;
-
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-
-use App\Http\Controllers\Controller;
 use App\Exception\NotFoundException;
-
+use App\Http\Controllers\Controller;
+use App\Jobs\OrganisationIDVT;
+use App\Models\Organisation;
 use App\Traits\CommonFunctions;
+use Exception;
+use Hash;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class OrganisationController extends Controller
 {
@@ -29,10 +24,13 @@ class OrganisationController extends Controller
      *      tags={"organisation"},
      *      summary="organisation@index",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -55,10 +53,13 @@ class OrganisationController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -69,7 +70,7 @@ class OrganisationController extends Controller
         $organisations = [];
 
         $issuerId = $request->get('issuer_id');
-        if (!$issuerId) {
+        if (! $issuerId) {
             $organisations = Organisation::with([
                 'approvals',
                 'permissions',
@@ -80,7 +81,7 @@ class OrganisationController extends Controller
                 'registries.user.approvals',
             ])->paginate($this->getSystemConfig('PER_PAGE'));
         }
-        
+
         return response()->json([
             'message' => 'success',
             'data' => $organisations,
@@ -95,21 +96,26 @@ class OrganisationController extends Controller
      *      tags={"organisations"},
      *      summary="organisations@show",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="organisations entry ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="organisations entry ID",
      *         ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -132,10 +138,13 @@ class OrganisationController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -150,7 +159,7 @@ class OrganisationController extends Controller
             'registries',
             'registries.user',
             'registries.user.permissions',
-            'registries.user.approvals',       
+            'registries.user.approvals',
         ])->findOrFail($id);
         if ($organisation) {
             return response()->json([
@@ -170,10 +179,13 @@ class OrganisationController extends Controller
      *      tags={"organisations"},
      *      summary="organisations@store",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="organisations definition",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="name", type="string", example="organisations Name"),
      *              @OA\Property(property="address_1", type="string", example="123 Road"),
      *              @OA\Property(property="address_2", type="string", example="Address Two"),
@@ -190,27 +202,36 @@ class OrganisationController extends Controller
      *              @OA\Property(property="companies_house_no", type="string", example="12345678")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=201,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -259,21 +280,26 @@ class OrganisationController extends Controller
      *      tags={"organisations"},
      *      summary="organisations@update",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="organisations entry ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="organisations entry ID",
      *         ),
      *      ),
+     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="organisations definition",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="id", type="integer", example="123"),
      *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *              @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
@@ -293,17 +319,23 @@ class OrganisationController extends Controller
      *              @OA\Property(property="companies_house_no", type="string", example="12345678")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -326,10 +358,13 @@ class OrganisationController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -353,8 +388,8 @@ class OrganisationController extends Controller
                 'applicant_names' => $input['applicant_names'],
                 'funders_and_sponsors' => $input['funders_and_sponsors'],
                 'sub_license_arrangements' => $input['sub_license_arrangements'],
-                'verified' => $input['verified'],       
-                'companies_house_no' => $input['companies_house_no'],     
+                'verified' => $input['verified'],
+                'companies_house_no' => $input['companies_house_no'],
             ]);
 
             return response()->json([
@@ -374,21 +409,26 @@ class OrganisationController extends Controller
      *      tags={"organisations"},
      *      summary="organisations@edit",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="organisations entry ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="organisations entry ID",
      *         ),
      *      ),
+     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="organisations definition",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="id", type="integer", example="123"),
      *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *              @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
@@ -408,17 +448,23 @@ class OrganisationController extends Controller
      *              @OA\Property(property="companies_house_no", type="string", example="12345678")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -441,10 +487,13 @@ class OrganisationController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -469,7 +518,7 @@ class OrganisationController extends Controller
                 'funders_and_sponsors' => $input['funders_and_sponsors'],
                 'sub_license_arrangements' => $input['sub_license_arrangements'],
                 'verified' => $input['verified'],
-                'companies_house_no' => $input['companies_house_no'],          
+                'companies_house_no' => $input['companies_house_no'],
             ]);
 
             return response()->json([
@@ -489,35 +538,46 @@ class OrganisationController extends Controller
      *      tags={"organisations"},
      *      summary="organisations@destroy",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="organisations entry ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="organisations entry ID",
      *         ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *           ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )

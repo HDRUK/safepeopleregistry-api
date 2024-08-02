@@ -2,29 +2,25 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-
-use App\Models\User;
 use App\Models\Issuer;
 use App\Models\Organisation;
-use App\Models\UserHasIssuerApproval;
 use App\Models\OrganisationHasIssuerApproval;
-
-use Database\Seeders\UserSeeder;
+use App\Models\User;
+use App\Models\UserHasIssuerApproval;
 use Database\Seeders\IssuerSeeder;
-use Database\Seeders\PermissionSeeder;
 use Database\Seeders\OrganisationSeeder;
-
-use Illuminate\Testing\Fluent\AssertableJson;
+use Database\Seeders\PermissionSeeder;
+use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-
+use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class ApprovalTest extends TestCase
 {
-    use RefreshDatabase, Authorisation;
+    use Authorisation;
+    use RefreshDatabase;
 
-    const TEST_URL = '/api/v1/approvals';
+    public const TEST_URL = '/api/v1/approvals';
 
     private $headers = [];
 
@@ -40,7 +36,7 @@ class ApprovalTest extends TestCase
 
         $this->headers = [
             'Accept' => 'application/json',
-            'Authorization' => 'bearer ' . $this->getAuthToken(),
+            'Authorization' => 'bearer '.$this->getAuthToken(),
         ];
     }
 
@@ -51,7 +47,7 @@ class ApprovalTest extends TestCase
 
         $response = $this->json(
             'POST',
-            self::TEST_URL . '/researcher',
+            self::TEST_URL.'/researcher',
             [
                 'user_id' => $user->id,
                 'issuer_id' => $issuer->id,
@@ -77,7 +73,7 @@ class ApprovalTest extends TestCase
 
         $response = $this->json(
             'POST',
-            self::TEST_URL . '/organisation',
+            self::TEST_URL.'/organisation',
             [
                 'organisation_id' => $organisation->id,
                 'issuer_id' => $issuer->id,
@@ -103,7 +99,7 @@ class ApprovalTest extends TestCase
 
         $response = $this->json(
             'POST',
-            self::TEST_URL . '/organisation',
+            self::TEST_URL.'/organisation',
             [
                 'organisation_id' => $organisation->id,
                 'issuer_id' => $issuer->id,
@@ -115,7 +111,7 @@ class ApprovalTest extends TestCase
 
         $response = $this->json(
             'DELETE',
-            self::TEST_URL . '/organisation/1/issuer/1',
+            self::TEST_URL.'/organisation/1/issuer/1',
             $this->headers
         );
 
@@ -129,7 +125,7 @@ class ApprovalTest extends TestCase
 
         $response = $this->json(
             'POST',
-            self::TEST_URL . '/researcher',
+            self::TEST_URL.'/researcher',
             [
                 'user_id' => $user->id,
                 'issuer_id' => $issuer->id,
@@ -141,7 +137,7 @@ class ApprovalTest extends TestCase
 
         $response = $this->json(
             'DELETE',
-            self::TEST_URL . '/researcher/1/issuer/1',
+            self::TEST_URL.'/researcher/1/issuer/1',
             $this->headers
         );
 

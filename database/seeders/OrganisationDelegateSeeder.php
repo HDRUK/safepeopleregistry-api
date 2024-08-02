@@ -4,8 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Organisation;
 use App\Models\OrganisationDelegate;
-
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class OrganisationDelegateSeeder extends Seeder
@@ -18,7 +16,7 @@ class OrganisationDelegateSeeder extends Seeder
         OrganisationDelegate::truncate();
 
         $orgs = Organisation::all();
-        $numToCreate = fake()->numberBetween(1,5);
+        $numToCreate = fake()->numberBetween(1, 5);
 
         foreach ($orgs as $o) {
             for ($i = 0; $i < $numToCreate; $i++) {

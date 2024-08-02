@@ -2,16 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Models\ONSFile;
-
-use App\Jobs\ScanFileUpload;
-
-use Illuminate\Http\Request;
-Use Illuminate\Http\JsonResponse;
-
 use App\Http\Controllers\Controller;
-
+use App\Jobs\ScanFileUpload;
+use App\Models\ONSFile;
 use App\Traits\CommonFunctions;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class ONSSubmissionController extends Controller
 {
@@ -28,19 +24,21 @@ class ONSSubmissionController extends Controller
             'file' => [
                 'required',
                 'file',
-                'mimes:' . $supportedTypes,
-                'max:' . (int)$maxFilesize * 1000,
+                'mimes:'.$supportedTypes,
+                'max:'.(int) $maxFilesize * 1000,
             ],
         ]);
 
         $file = $request->file('file');
         $fileSystem = env('SCANNING_FILESYSTEM_DISK', 'local_scan');
-        $storedFilename = time() . '_' . $file->getClientOriginalName();
+        $storedFilename = time().'_'.$file->getClientOriginalName();
         $path = $file->storeAs(
-            '', $storedFilename, $fileSystem . '.unscanned'
+            '',
+            $storedFilename,
+            $fileSystem.'.unscanned'
         );
 
-        if (!$path) {
+        if (! $path) {
             return response()->json([
                 'message' => 'failed',
                 'data' => 'file upload failed - please contact support',

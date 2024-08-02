@@ -2,19 +2,17 @@
 
 namespace App\Keycloak;
 
-use Hash;
-use Http;
-use Exception;
-
-use App\Models\User;
 use App\Models\Registry;
 use App\Models\RegistryHasOrganisation;
-
+use App\Models\User;
+use Exception;
+use Hash;
+use Http;
 use Illuminate\Support\Str;
-use Illuminate\Http\JsonResponse;
 
-class Keycloak {
-    const USERS_URL = '/users';
+class Keycloak
+{
+    public const USERS_URL = '/users';
 
     public function create(array $credentials): bool
     {
@@ -45,7 +43,7 @@ class Keycloak {
             $userGroup = $this->determineUserGroup($credentials);
 
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->getServiceToken(),
+                'Authorization' => 'Bearer '.$this->getServiceToken(),
             ])->post(
                 $this->makeUrl(self::USERS_URL),
                 $payload
@@ -54,27 +52,30 @@ class Keycloak {
             if ($response->status() === 201) {
                 $headers = $response->headers();
                 $parts = explode('/', $headers['Location'][0]);
-                $last = count($parts) -1;
+                $last = count($parts) - 1;
                 $newUserId = $parts[$last];
 
                 $user = User::create([
                     'first_name' => $credentials['first_name'],
                     'last_name' => $credentials['last_name'],
                     'email' => $credentials['email'],
-                    'consent_scrape' =>  isset($credentials['consent_scrape']) ? $credentials['consent_scrape'] : 0,
+                    'consent_scrape' => isset($credentials['consent_scrape']) ? $credentials['consent_scrape'] : 0,
                     'provider' => 'keycloak',
                     'provider_sub' => '',
                     'keycloak_id' => $newUserId,
                     'user_group' => $userGroup,
                 ]);
 
-                if (!$user)  return false; 
+                if (! $user) {
+                    return false;
+                }
 
                 if ($userGroup === 'RESEARCHERS') {
                     $signature = Str::random(64);
-                    $digiIdent = Hash::make($signature .
-                        ':' . env('REGISTRY_SALT_1') . 
-                        ':' . env('REGISTRY_SALT_2')
+                    $digiIdent = Hash::make(
+                        $signature.
+                        ':'.env('REGISTRY_SALT_1').
+                        ':'.env('REGISTRY_SALT_2')
                     );
 
                     $registry = Registry::create([
@@ -108,7 +109,7 @@ class Keycloak {
     public function login(string $username, string $password): array
     {
         try {
-            $authUrl = env('KEYCLOAK_BASE_URL') . '/realms/' . env('KEYCLOAK_REALM') . '/protocol/openid-connect/token';
+            $authUrl = env('KEYCLOAK_BASE_URL').'/realms/'.env('KEYCLOAK_REALM').'/protocol/openid-connect/token';
 
             $credentials = [
                 'username' => $username,
@@ -146,10 +147,10 @@ class Keycloak {
     public function logout(string $token): bool
     {
         try {
-            $authUrl = env('KEYCLOAK_BASE_URL') . '/realms/' . env('KEYCLOAK_REALM') . '/protocol/openid-connect/logout';
+            $authUrl = env('KEYCLOAK_BASE_URL').'/realms/'.env('KEYCLOAK_REALM').'/protocol/openid-connect/logout';
 
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $token,
+                'Authorization' => 'Bearer '.$token,
             ])->post($authUrl);
 
             if ($response->status() === 200) {
@@ -165,10 +166,10 @@ class Keycloak {
     public function me(string $token, string $id): mixed
     {
         try {
-            $authUrl = env('KEYCLOAK_BASE_URL') . '/realms/' . env('KEYCLOAK_REALM') . '/users/' . $id;
+            $authUrl = env('KEYCLOAK_BASE_URL').'/realms/'.env('KEYCLOAK_REALM').'/users/'.$id;
 
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $token,
+                'Authorization' => 'Bearer '.$token,
             ])->post($authUrl);
 
             $responseData = $response->json();
@@ -182,7 +183,7 @@ class Keycloak {
     private function getServiceToken(): string
     {
         try {
-            $authUrl = env('KEYCLOAK_BASE_URL') . '/realms/' . env('KEYCLOAK_REALM') . '/protocol/openid-connect/token';
+            $authUrl = env('KEYCLOAK_BASE_URL').'/realms/'.env('KEYCLOAK_REALM').'/protocol/openid-connect/token';
 
             $credentials = [
                 'client_secret' => env('KEYCLOAK_CLIENT_SECRET'),
@@ -202,7 +203,7 @@ class Keycloak {
 
     private function makeUrl(string $path): string
     {
-        return env('KEYCLOAK_BASE_URL') . '/admin/realms/' . env('KEYCLOAK_REALM') . $path;
+        return env('KEYCLOAK_BASE_URL').'/admin/realms/'.env('KEYCLOAK_REALM').$path;
     }
 
     public function determineUserGroup(array $input): string

@@ -3,8 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Identity;
-
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class IdentitySeeder extends Seeder
@@ -15,7 +13,7 @@ class IdentitySeeder extends Seeder
     public function run(): void
     {
         Identity::truncate();
-        
+
         Identity::factory(1)->create();
     }
 }
