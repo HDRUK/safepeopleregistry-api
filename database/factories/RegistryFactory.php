@@ -3,9 +3,8 @@
 namespace Database\Factories;
 
 use Hash;
-
-use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Registry>
@@ -20,9 +19,10 @@ class RegistryFactory extends Factory
     public function definition(): array
     {
         $signature = Str::random(64);
-        $digiIdent = Hash::make($signature .
-            ':' . env('REGISTRY_SALT_1') . 
-            ':' . env('REGISTRY_SALT_2')
+        $digiIdent = Hash::make(
+            $signature.
+            ':'.env('REGISTRY_SALT_1').
+            ':'.env('REGISTRY_SALT_2')
         );
 
         return [

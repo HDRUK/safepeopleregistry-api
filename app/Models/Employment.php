@@ -11,21 +11,21 @@ class Employment extends Model
 
     /**
      * The table associated with the model
-     * 
+     *
      * @var string
      */
     protected $table = 'employments';
 
     /**
      * Whether or not this model supports timestamps
-     * 
+     *
      * @var bool
      */
     public $timestamps = true;
 
     /**
      * What fields of this model are accepted as parameters
-     * 
+     *
      * @var array
      */
     protected $fillable = [

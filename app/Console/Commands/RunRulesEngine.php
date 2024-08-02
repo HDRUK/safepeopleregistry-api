@@ -3,10 +3,7 @@
 namespace App\Console\Commands;
 
 use Http;
-
 use Illuminate\Console\Command;
-
-use Illuminate\Http\JsonResponse;
 
 class RunRulesEngine extends Command
 {
@@ -45,7 +42,7 @@ class RunRulesEngine extends Command
         ];
 
         $response = Http::withHeaders($headers)->post(
-            env('RULES_ENGINE_SERVICE') . env('RULES_ENGINE_PROJECT_ID') . '/evaluate/' . env('RULES_ENGINE_DOCUMENT_ID'),
+            env('RULES_ENGINE_SERVICE').env('RULES_ENGINE_PROJECT_ID').'/evaluate/'.env('RULES_ENGINE_DOCUMENT_ID'),
             json_encode($body)
         );
 

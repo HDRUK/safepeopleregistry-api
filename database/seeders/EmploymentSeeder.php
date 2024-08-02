@@ -3,8 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Employment;
-
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class EmploymentSeeder extends Seeder
@@ -15,7 +13,7 @@ class EmploymentSeeder extends Seeder
     public function run(): void
     {
         Employment::truncate();
-        
+
         Employment::factory(1)->create();
     }
 }

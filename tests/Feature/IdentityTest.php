@@ -3,23 +3,17 @@
 namespace Tests\Feature;
 
 use Carbon\Carbon;
-
-use Tests\TestCase;
-
-use App\Models\Identity;
-
 use Database\Seeders\UserSeeder;
-
-use Illuminate\Testing\Fluent\AssertableJson;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-
+use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class IdentityTest extends TestCase
 {
-    use RefreshDatabase, Authorisation;
+    use Authorisation;
+    use RefreshDatabase;
 
-    const TEST_URL = '/api/v1/identities';
+    public const TEST_URL = '/api/v1/identities';
 
     private $headers = [];
 
@@ -32,7 +26,7 @@ class IdentityTest extends TestCase
 
         $this->headers = [
             'Accept' => 'application/json',
-            'Authorization' => 'bearer ' . $this->getAuthToken(),
+            'Authorization' => 'bearer '.$this->getAuthToken(),
         ];
     }
 
@@ -54,7 +48,7 @@ class IdentityTest extends TestCase
 
         $passRate = fake()->numberBetween(80, 100);
         $failRate = fake()->numberBetween(0, 50);
-        
+
         $response = $this->json(
             'POST',
             self::TEST_URL,
@@ -85,7 +79,7 @@ class IdentityTest extends TestCase
 
         $response = $this->json(
             'GET',
-            self::TEST_URL . '/' . $content,
+            self::TEST_URL.'/'.$content,
             $this->headers
         );
 
@@ -166,7 +160,7 @@ class IdentityTest extends TestCase
 
         $response = $this->json(
             'PUT',
-            self::TEST_URL . '/' . $content,
+            self::TEST_URL.'/'.$content,
             [
                 'registry_id' => 1,
                 'selfie_path' => 'path/to/selfie1.jpeg',
@@ -236,7 +230,7 @@ class IdentityTest extends TestCase
 
         $response = $this->json(
             'DELETE',
-            self::TEST_URL . '/' . $content,
+            self::TEST_URL.'/'.$content,
             $this->headers
         );
 

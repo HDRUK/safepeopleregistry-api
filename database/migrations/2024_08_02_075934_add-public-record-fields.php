@@ -10,9 +10,9 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        Schema::create('organisation_has_files', function (Blueprint $table) {
-            $table->bigInteger('organisation_id');
-            $table->bigInteger('file_id');
+        Schema::table('users', function (Blueprint $table) {
+            $table->tinyInteger('public_opt_in')->default(0);
+            $table->tinyInteger('declaration_signed')->default(0);
         });
     }
 
@@ -21,6 +21,9 @@ return new class () extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('organisation_has_files');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('public_opt_in');
+            $table->dropColumn('declaration_signed');
+        });
     }
 };

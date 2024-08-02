@@ -2,14 +2,11 @@
 
 namespace Database\Seeders;
 
-use Hash;
-
 use App\Models\Issuer;
 use App\Models\IssuerUser;
-use App\Models\Permission;
 use App\Models\IssuerUserHasPermission;
-
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Permission;
+use Hash;
 use Illuminate\Database\Seeder;
 
 class IssuerSeeder extends Seeder
@@ -21,7 +18,7 @@ class IssuerSeeder extends Seeder
     {
         Issuer::truncate();
         IssuerUser::truncate();
-        
+
         foreach (config('speedi.issuers') as $issuer) {
             $i = Issuer::factory()->create([
                 'name' => $issuer['name'],

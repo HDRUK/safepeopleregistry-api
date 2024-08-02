@@ -3,23 +3,17 @@
 namespace Tests\Feature;
 
 use Carbon\Carbon;
-
-use Tests\TestCase;
-
-use App\Models\Registry;
-
 use Database\Seeders\UserSeeder;
-
-use Illuminate\Testing\Fluent\AssertableJson;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-
+use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class RegistryTest extends TestCase
 {
-    use RefreshDatabase, Authorisation;
+    use Authorisation;
+    use RefreshDatabase;
 
-    const TEST_URL = '/api/v1/registries';
+    public const TEST_URL = '/api/v1/registries';
 
     private $headers = [];
 
@@ -32,7 +26,7 @@ class RegistryTest extends TestCase
 
         $this->headers = [
             'Accept' => 'application/json',
-            'Authorization' => 'bearer ' . $this->getAuthToken(),
+            'Authorization' => 'bearer '.$this->getAuthToken(),
         ];
     }
 
@@ -68,7 +62,7 @@ class RegistryTest extends TestCase
 
         $response = $this->json(
             'GET',
-            self::TEST_URL . '/' . $content,
+            self::TEST_URL.'/'.$content,
             $this->headers
         );
 
@@ -115,7 +109,7 @@ class RegistryTest extends TestCase
 
         $response = $this->json(
             'PUT',
-            self::TEST_URL . '/' . $content,
+            self::TEST_URL.'/'.$content,
             [
                 'dl_ident' => '23897592835298352',
                 'pp_ident' => 'PASSPORTIDENT 92387429874 A',
@@ -153,7 +147,7 @@ class RegistryTest extends TestCase
 
         $response = $this->json(
             'DELETE',
-            self::TEST_URL . '/' . $content,
+            self::TEST_URL.'/'.$content,
             $this->headers
         );
 

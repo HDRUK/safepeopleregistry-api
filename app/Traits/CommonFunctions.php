@@ -2,10 +2,9 @@
 
 namespace App\Traits;
 
-use Str;
-use Hash;
-
 use App\Models\SystemConfig;
+use Hash;
+use Str;
 
 trait CommonFunctions
 {
@@ -21,16 +20,18 @@ trait CommonFunctions
 
     public function mapModelFromString(string $model): string
     {
-        $modelName = '\\App\\Models\\' . Str::studly(Str::singular($model));
+        $modelName = '\\App\\Models\\'.Str::studly(Str::singular($model));
+
         return $modelName;
     }
 
     public function generateDigitalIdentifierForRegistry(): string
     {
         $signature = Str::random(64);
-        $digiIdent = Hash::make($signature . 
-            ':' . env('REGISTRY_SALT_1') .
-            ':' . env('REGISTRY_SALT_2')
+        $digiIdent = Hash::make(
+            $signature.
+            ':'.env('REGISTRY_SALT_1').
+            ':'.env('REGISTRY_SALT_2')
         );
 
         return $digiIdent;
@@ -38,16 +39,16 @@ trait CommonFunctions
 
     public function csvToArray(string $filename, $delimiter = ','): array
     {
-        if (!file_exists($filename) || !is_readable($filename)) {
+        if (! file_exists($filename) || ! is_readable($filename)) {
             return [];
         }
 
         $header = null;
         $data = [];
 
-        if (($handle = fopen($filename, 'r')) !== FALSE) {
-            while (($row = fgetcsv($handle, 1000, $delimiter)) !== FALSE) {
-                if (!$header) { 
+        if (($handle = fopen($filename, 'r')) !== false) {
+            while (($row = fgetcsv($handle, 1000, $delimiter)) !== false) {
+                if (! $header) {
                     $header = $row;
                 } else {
                     $data[] = array_combine($header, $row);

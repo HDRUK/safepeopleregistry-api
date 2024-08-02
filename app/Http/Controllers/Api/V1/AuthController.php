@@ -2,33 +2,20 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use OrcID;
-use Keycloak;
-
-use App\Models\User;
-use App\Models\Organisation;
-use App\Models\UserApiToken;
-use App\Models\OrganisationDelegate;
-
-use Hdruk\LaravelMjml\Models\EmailTemplate;
-
-use App\Jobs\SendEmailJob;
-
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Str;
-
-
-use Laravel\Socialite\Facades\Socialite;
-
 use App\Http\Controllers\Controller;
+use App\Models\Organisation;
+use App\Models\OrganisationDelegate;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Keycloak;
 
 class AuthController extends Controller
 {
     /**
      * Create a new AuthController instance.
-     * 
+     *
      * @return void
      */
     public function __construct()
@@ -44,10 +31,11 @@ class AuthController extends Controller
             'last_name' => $input['last_name'],
             'password' => $input['password'],
             'is_researcher' => true,
-            'organisation_id' => isset($input['organisation_id']) ? $input['organisation_id']: null,
+            'organisation_id' => isset($input['organisation_id']) ? $input['organisation_id'] : null,
             'consent_scrape' => $input['consent_scrape'],
         ])) {
             $user = User::where('email', $input['email'])->first();
+
             return response()->json([
                 'message' => 'success',
                 'data' => $user,
@@ -71,6 +59,7 @@ class AuthController extends Controller
             'is_issuer' => true,
         ])) {
             $user = User::where('email', $input['email'])->first();
+
             return response()->json([
                 'message' => 'success',
                 'data' => $user,

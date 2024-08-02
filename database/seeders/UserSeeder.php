@@ -2,20 +2,16 @@
 
 namespace Database\Seeders;
 
-use Hash;
-
-use App\Models\User;
 use App\Models\File;
 use App\Models\Issuer;
-use App\Models\Registry;
 use App\Models\Permission;
+use App\Models\Registry;
 use App\Models\RegistryHasFile;
+use App\Models\User;
 use App\Models\UserHasIssuerApproval;
 use App\Models\UserHasIssuerPermission;
-
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Hash;
 use Illuminate\Database\Seeder;
-
 use Illuminate\Support\Str;
 
 class UserSeeder extends Seeder
@@ -30,9 +26,10 @@ class UserSeeder extends Seeder
         UserHasIssuerPermission::truncate();
 
         $signature = Str::random(64);
-        $digiIdent = Hash::make($signature .
-            ':' . env('REGISTRY_SALT_1') . 
-            ':' . env('REGISTRY_SALT_2')
+        $digiIdent = Hash::make(
+            $signature.
+            ':'.env('REGISTRY_SALT_1').
+            ':'.env('REGISTRY_SALT_2')
         );
 
         $registry = Registry::create([
@@ -84,7 +81,7 @@ class UserSeeder extends Seeder
 
         // $signature = Str::random(64);
         // $digiIdent = Hash::make($signature .
-        //     ':' . env('REGISTRY_SALT_1') . 
+        //     ':' . env('REGISTRY_SALT_1') .
         //     ':' . env('REGISTRY_SALT_2')
         // );
 
@@ -120,6 +117,6 @@ class UserSeeder extends Seeder
         //         'user_id' => $user->id,
         //         'issuer_id' => $i->id,
         //     ]);
-        // }        
+        // }
     }
 }

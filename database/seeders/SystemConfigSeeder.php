@@ -3,8 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\SystemConfig;
-
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class SystemConfigSeeder extends Seeder

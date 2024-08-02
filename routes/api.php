@@ -1,28 +1,25 @@
 <?php
 
-use App\Http\Controllers\Api\V1\UserController;
+use App\Http\Controllers\Api\V1\ApprovalController;
 use App\Http\Controllers\Api\V1\AuthController;
-use App\Http\Controllers\Api\V1\QueryController;
-use App\Http\Controllers\Api\V1\IssuerController;
-use App\Http\Controllers\Api\V1\ProjectController;
-use App\Http\Controllers\Api\V1\TrainingController;
 use App\Http\Controllers\Api\V1\EndorsementController;
-use App\Http\Controllers\Api\V1\RegistryController;
 use App\Http\Controllers\Api\V1\ExperienceController;
+use App\Http\Controllers\Api\V1\FileUploadController;
 use App\Http\Controllers\Api\V1\HistoryController;
 use App\Http\Controllers\Api\V1\IdentityController;
-use App\Http\Controllers\Api\V1\OrganisationController;
 use App\Http\Controllers\Api\V1\InfringementController;
-use App\Http\Controllers\Api\V1\TriggerEmailController;
-use App\Http\Controllers\Api\V1\SystemConfigController;
-use App\Http\Controllers\Api\V1\FileUploadController;
-use App\Http\Controllers\Api\V1\ApprovalController;
-use App\Http\Controllers\Api\V1\PermissionController;
+use App\Http\Controllers\Api\V1\IssuerController;
 use App\Http\Controllers\Api\V1\IssuerUserController;
-
 use App\Http\Controllers\Api\V1\ONSSubmissionController;
-
-use Illuminate\Http\Request;
+use App\Http\Controllers\Api\V1\OrganisationController;
+use App\Http\Controllers\Api\V1\PermissionController;
+use App\Http\Controllers\Api\V1\ProjectController;
+use App\Http\Controllers\Api\V1\QueryController;
+use App\Http\Controllers\Api\V1\RegistryController;
+use App\Http\Controllers\Api\V1\SystemConfigController;
+use App\Http\Controllers\Api\V1\TrainingController;
+use App\Http\Controllers\Api\V1\TriggerEmailController;
+use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -45,7 +42,7 @@ Route::get('auth/me', [AuthController::class, 'me']);
 
 Route::post('v1/query', [QueryController::class, 'query']);
 
-Route::middleware('auth:api')->get('/secure-test',  [UserController::class, 'index']);
+Route::middleware('auth:api')->get('/secure-test', [UserController::class, 'index']);
 
 Route::middleware('api')->get('v1/users', [UserController::class, 'index']);
 Route::middleware('api')->get('v1/users/{id}', [UserController::class, 'show']);
@@ -129,7 +126,6 @@ Route::middleware('api')->post('v1/infringements', [InfringementController::clas
 
 Route::middleware('api')->get('v1/permissions', [PermissionController::class, 'index']);
 
-
 Route::middleware('api')->post('v1/trigger_email', [TriggerEmailController::class, 'spawnEmail']);
 
 Route::middleware('api')->post('v1/files', [FileUploadController::class, 'store']);
@@ -145,7 +141,7 @@ Route::get('v1/system_config/{name}', [SystemConfigController::class, 'getByName
 Route::post('v1/ons_researcher_feed', [ONSSubmissionController::class, 'receiveCSV']);
 
 // stop all all other routes
-Route::any('{path}', function() {
+Route::any('{path}', function () {
     $response = [
         'message' => 'Resource not found',
     ];

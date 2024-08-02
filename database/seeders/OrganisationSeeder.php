@@ -3,12 +3,10 @@
 namespace Database\Seeders;
 
 use App\Models\Issuer;
-use App\Models\Permission;
 use App\Models\Organisation;
 use App\Models\OrganisationHasIssuerApproval;
 use App\Models\OrganisationHasIssuerPermission;
-
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Permission;
 use Illuminate\Database\Seeder;
 
 class OrganisationSeeder extends Seeder

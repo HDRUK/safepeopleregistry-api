@@ -2,26 +2,25 @@
 
 namespace App\Jobs;
 
-use \stdClass;
-
-use Carbon\Carbon;
 use App\Models\IDVTPlugin;
 use App\Models\Organisation;
-
 use App\Traits\CommonFunctions;
-
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Facade;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Http;
+use stdClass;
 
 class OrganisationIDVT implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     use CommonFunctions;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     private stdClass $company;
 
@@ -75,7 +74,7 @@ class OrganisationIDVT implements ShouldQueue
             'var' => 'previousCompanyPeriodTo',
             'string' => 'previous company names',
             'inc' => 5,
-        ]
+        ],
     ];
 
     private const PEOPLE_INFO = [
@@ -102,9 +101,13 @@ class OrganisationIDVT implements ShouldQueue
     ];
 
     private ?Organisation $organisation;
+
     private string $nameToCheck = '';
+
     private string $numberToCheck = '';
+
     private string $addressToCheck = '';
+
     private string $postcodeToCheck = '';
 
     private array $criteria = [
@@ -144,14 +147,14 @@ class OrganisationIDVT implements ShouldQueue
         $responseCompany = Http::post(
             env('IDVT_ORG_SCANNER'),
             [
-                'url' => env('IDVT_COMPANIES_HOUSE_URL') . $this->numberToCheck,
+                'url' => env('IDVT_COMPANIES_HOUSE_URL').$this->numberToCheck,
             ],
         );
 
         $responsePeople = Http::post(
             env('IDVT_ORG_SCANNER'),
             [
-                'url' => env('IDVT_COMPANIES_HOUSE_URL') . $this->numberToCheck . '/officers',
+                'url' => env('IDVT_COMPANIES_HOUSE_URL').$this->numberToCheck.'/officers',
             ],
         );
 
@@ -164,6 +167,7 @@ class OrganisationIDVT implements ShouldQueue
                 'idvt_completed_at' => Carbon::now()->toDateTimeString(),
                 'verified' => false,
             ]);
+
             return;
         }
 
@@ -177,8 +181,7 @@ class OrganisationIDVT implements ShouldQueue
     private function loadCriteria(
         array $govCompanyResponseArray,
         array $govPeopleResponseArray
-    ): void
-    {
+    ): void {
         foreach (self::COMPANY_INFO as $metric) {
             foreach ($govCompanyResponseArray as $key => $value) {
                 if ($metric['string'] === strtolower($value)) {
@@ -198,6 +201,9 @@ class OrganisationIDVT implements ShouldQueue
 
     private function renderVerdict(): void
     {
+        $percentageSuccess = 0;
+        $verdict = false;
+
         $plugins = IDVTPlugin::all();
         foreach ($plugins as $p) {
             $args = [];
@@ -222,13 +228,26 @@ class OrganisationIDVT implements ShouldQueue
             }
         }
 
-        $perc = ($this->company->numPositive / count($plugins) * 100);
-        $verdict = (($this->company->numPositive / count($plugins) * 100) >= 
-            (float)$this->getSystemConfig('IDVT_ORG_VERIFY_PERCENT'));
-        
+        if ($this->company->numPositive === 0) {
+            $percentageSuccess = 0;
+            $verdict = false;
+
+            $this->finaliseIDVTRecord($percentageSuccess, $verdict);
+            return;
+        }
+
+        $percentageSuccess = ($this->company->numPositive / count($plugins) * 100);
+        $verdict = (($this->company->numPositive / count($plugins) * 100) >=
+            (float) $this->getSystemConfig('IDVT_ORG_VERIFY_PERCENT'));
+
+        $this->finaliseIDVTRecord($percentageSuccess, $verdict);
+    }
+
+    private function finaliseIDVTRecord(float $percentage, bool $verdict)
+    {
         $this->organisation->update([
             'idvt_result' => $verdict,
-            'idvt_result_perc' => $perc,
+            'idvt_result_perc' => $percentage,
             'idvt_errors' => isset($this->company->errors) ? json_encode($this->company->errors) : null,
             'idvt_completed_at' => Carbon::now()->toDateTimeString(),
             'verified' => $verdict,

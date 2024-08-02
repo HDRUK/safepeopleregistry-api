@@ -2,24 +2,18 @@
 
 namespace App\OrcID;
 
-use Http;
-use Exception;
-
-use App\Models\User;
-use App\Models\Registry;
-use App\Models\UserApiToken;
-use App\Models\RegistryHasOrganisation;
-
 use App\Jobs\OrcIDScanner;
+use App\Models\User;
+use App\Models\UserApiToken;
+use Http;
 
-use Illuminate\Http\JsonResponse;
-
-class OrcID {
+class OrcID
+{
     public function getAuthoriseUrl(): string
     {
-        $url = env('ORCID_URL') . 'oauth/authorize?client_id=' .
-            env('ORCID_APP_ID') . '&response_type=token&' .
-            'scope=openid&redirect_uri=' . env('ORCID_REDIRECT_URL');
+        $url = env('ORCID_URL').'oauth/authorize?client_id='.
+            env('ORCID_APP_ID').'&response_type=token&'.
+            'scope=openid&redirect_uri='.env('ORCID_REDIRECT_URL');
 
         return $url;
     }
@@ -27,20 +21,22 @@ class OrcID {
     public function getPublicToken(User $user): string
     {
         // This uses old school curl usage due to newer HTTP
-        // fetches not working well with ORCiD API, which 
+        // fetches not working well with ORCiD API, which
         // returns unauthorised states owing to lacking
         // security context policies. Yet, under curl, it
         // works. Needs further investigation as to the
         // differences.
         $ch = curl_init();
 
-        curl_setopt($ch, CURLOPT_URL, env('ORCID_AUTH_URL') . 'oauth/token');
+        curl_setopt($ch, CURLOPT_URL, env('ORCID_AUTH_URL').'oauth/token');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, 
-            'client_id=' . env('ORCID_APP_ID') . '&' .
-            'client_secret=' . env('ORCID_CLIENT_SECRET') . '&' .
-            'scope=/read-public&' .
+        curl_setopt(
+            $ch,
+            CURLOPT_POSTFIELDS,
+            'client_id='.env('ORCID_APP_ID').'&'.
+            'client_secret='.env('ORCID_CLIENT_SECRET').'&'.
+            'scope=/read-public&'.
             'grant_type=client_credentials'
         );
 
@@ -69,7 +65,7 @@ class OrcID {
             'user_id' => $user->id,
         ])->first();
 
-        if (!$token) {
+        if (! $token) {
             $token = UserApiToken::create([
                 'user_id' => $user->id,
                 'api_name' => 'orcid',
@@ -87,6 +83,7 @@ class OrcID {
 
         if ($token->update(['api_details' => json_decode($input['payload'])])) {
             OrcIDScanner::dispatch($user);
+
             return true;
         }
 
@@ -95,9 +92,9 @@ class OrcID {
 
     public function getOrcIDRecord(string $token, string $orcid, string $record): array
     {
-        $url = env('ORCID_URL') . 'v3.0/' . $orcid . '/' . $record;
+        $url = env('ORCID_URL').'v3.0/'.$orcid.'/'.$record;
         $headers = [
-            'Authorization' => 'Bearer ' . $token,
+            'Authorization' => 'Bearer '.$token,
             'Accept' => 'application/orcid+json',
         ];
 
@@ -105,7 +102,7 @@ class OrcID {
         if ($response->status() === 200) {
             return json_decode($response->body(), true);
         }
-        
+
         return [];
     }
 }

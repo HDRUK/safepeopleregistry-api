@@ -2,24 +2,17 @@
 
 namespace Tests\Feature;
 
-use Carbon\Carbon;
-
-use Tests\TestCase;
-
-use App\Models\Endorsement;
-
 use Database\Seeders\UserSeeder;
-
-use Illuminate\Testing\Fluent\AssertableJson;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-
+use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class EndorsementTest extends TestCase
 {
-    use RefreshDatabase, Authorisation;
+    use Authorisation;
+    use RefreshDatabase;
 
-    const TEST_URL = '/api/v1/endorsements';
+    public const TEST_URL = '/api/v1/endorsements';
 
     private $headers = [];
 
@@ -32,7 +25,7 @@ class EndorsementTest extends TestCase
 
         $this->headers = [
             'Accept' => 'application/json',
-            'Authorization' => 'bearer ' . $this->getAuthToken(),
+            'Authorization' => 'bearer '.$this->getAuthToken(),
         ];
     }
 
@@ -68,7 +61,7 @@ class EndorsementTest extends TestCase
 
         $response = $this->json(
             'GET',
-            self::TEST_URL . '/' . $content,
+            self::TEST_URL.'/'.$content,
             $this->headers
         );
 

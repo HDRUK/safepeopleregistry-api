@@ -2,20 +2,13 @@
 
 namespace Tests\Traits;
 
-use Hash;
-use Config;
-
-use App\Models\User;
-
-use App\Http\Controller\AuthController;
-
 use Illuminate\Support\Facades\Http;
 
 trait Authorisation
 {
     public function getAuthToken(): mixed
     {
-        $authUrl = env('KEYCLOAK_BASE_URL') . '/realms/' . env('KEYCLOAK_REALM') . '/protocol/openid-connect/token';
+        $authUrl = env('KEYCLOAK_BASE_URL').'/realms/'.env('KEYCLOAK_REALM').'/protocol/openid-connect/token';
 
         $credentials = [
             'username' => env('KEYCLOAK_TEST_USERNAME'),

@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
@@ -32,6 +31,8 @@ class UserFactory extends Factory
             'user_group' => '',
             'profile_steps_completed' => null,
             'profile_completed_at' => null,
+            'public_opt_in' => fake()->randomElement([0, 1]),
+            'declaration_signed' => fake()->randomElement([0, 1]),
         ];
     }
 }

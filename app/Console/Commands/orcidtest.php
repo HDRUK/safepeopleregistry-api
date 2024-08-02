@@ -2,10 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Models\User;
-
 use App\Jobs\OrcIDScanner;
-
+use App\Models\User;
 use Illuminate\Console\Command;
 
 class orcidtest extends Command

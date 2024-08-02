@@ -2,20 +2,18 @@
 
 namespace App\TriggerEmail;
 
-use Exception;
-use Carbon\Carbon;
-
-use App\Models\User;
+use App\Jobs\SendEmailJob;
 use App\Models\Issuer;
 use App\Models\Organisation;
-use App\Models\PendingInvite;
 use App\Models\OrganisationDelegate;
-
+use App\Models\PendingInvite;
+use App\Models\User;
+use Carbon\Carbon;
+use Exception;
 use Hdruk\LaravelMjml\Models\EmailTemplate;
 
-use App\Jobs\SendEmailJob;
-
-class TriggerEmail {
+class TriggerEmail
+{
     public function spawnEmail(array $input): void
     {
         $replacements = [];
@@ -91,7 +89,7 @@ class TriggerEmail {
 
                     $ivitedBy = [];
                 } else {
-                    throw new Exception('issuer ' . $issuer->id . ' already accepted invite at ' . $issuer->invite_accepted_at);
+                    throw new Exception('issuer '.$issuer->id.' already accepted invite at '.$issuer->invite_accepted_at);
                 }
                 break;
             case 'ORGANISATION':

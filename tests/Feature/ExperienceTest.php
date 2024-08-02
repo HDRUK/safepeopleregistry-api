@@ -3,23 +3,17 @@
 namespace Tests\Feature;
 
 use Carbon\Carbon;
-
-use Tests\TestCase;
-
-use App\Models\Experience;
-
 use Database\Seeders\UserSeeder;
-
-use Illuminate\Testing\Fluent\AssertableJson;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-
+use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class ExperienceTest extends TestCase
 {
-    use RefreshDatabase, Authorisation;
+    use Authorisation;
+    use RefreshDatabase;
 
-    const TEST_URL = '/api/v1/experiences';
+    public const TEST_URL = '/api/v1/experiences';
 
     private $headers = [];
 
@@ -32,7 +26,7 @@ class ExperienceTest extends TestCase
 
         $this->headers = [
             'Accept' => 'application/json',
-            'Authorization' => 'bearer ' . $this->getAuthToken(),
+            'Authorization' => 'bearer '.$this->getAuthToken(),
         ];
     }
 
@@ -69,7 +63,7 @@ class ExperienceTest extends TestCase
 
         $response = $this->json(
             'GET',
-            self::TEST_URL . '/' . $content,
+            self::TEST_URL.'/'.$content,
             $this->headers
         );
 
@@ -118,7 +112,7 @@ class ExperienceTest extends TestCase
 
         $response = $this->json(
             'PUT',
-            self::TEST_URL . '/' . $content,
+            self::TEST_URL.'/'.$content,
             [
                 'project_id' => 2,
                 'from' => Carbon::now(),
@@ -157,7 +151,7 @@ class ExperienceTest extends TestCase
 
         $response = $this->json(
             'DELETE',
-            self::TEST_URL . '/' . $content,
+            self::TEST_URL.'/'.$content,
             $this->headers
         );
 

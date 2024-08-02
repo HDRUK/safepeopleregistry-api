@@ -2,29 +2,25 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Hash;
-use Exception;
-use Carbon\Carbon;
-
-use App\Models\History;
-
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-
-use App\Http\Controllers\Controller;
 use App\Exception\NotFoundException;
-
+use App\Http\Controllers\Controller;
+use App\Models\History;
 use App\Traits\CommonFunctions;
+use Carbon\Carbon;
+use Exception;
+use Hash;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 /**
- * History is immutable (simulated) in the sense that it can never 
+ * History is immutable (simulated) in the sense that it can never
  * change. Therefore there are no update/edit or destroy methods
  * available wihin this controlelr.
  */
 class HistoryController extends Controller
 {
     use CommonFunctions;
-    
+
     /**
      * @OA\Get(
      *      path="/api/v1/histories",
@@ -33,10 +29,13 @@ class HistoryController extends Controller
      *      tags={"History"},
      *      summary="History@index",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -51,10 +50,13 @@ class HistoryController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -78,21 +80,26 @@ class HistoryController extends Controller
      *      tags={"History"},
      *      summary="History@show",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="History entry ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="History entry ID",
      *         ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -107,10 +114,13 @@ class HistoryController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -137,10 +147,13 @@ class HistoryController extends Controller
      *      tags={"History"},
      *      summary="History@store",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="History definition",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="employment_id", type="integer", example="1"),
      *              @OA\Property(property="endorsement_id", type="integer", example="213"),
      *              @OA\Property(property="infringement_id", type="integer", example="12"),
@@ -149,17 +162,23 @@ class HistoryController extends Controller
      *              @OA\Property(property="issuer_identifier", type="string", example="ABCD1234FGHI56789")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=201,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -174,10 +193,13 @@ class HistoryController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -201,7 +223,7 @@ class HistoryController extends Controller
             $ledgerHash = Hash::make(json_encode($ledger));
 
             $history = History::create([
-                'employment_id' => $input['employment_id'], 
+                'employment_id' => $input['employment_id'],
                 'endorsement_id' => $input['endorsement_id'],
                 'infringement_id' => $input['infringement_id'],
                 'project_id' => $input['project_id'],

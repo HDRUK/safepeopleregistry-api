@@ -60,6 +60,9 @@
         ],
         "pest": [
             "vendor/bin/pest"
+        ],
+        "lint": [
+            "vendor/bin/pint --preset psr12"
         ]
     },
     "extra": {

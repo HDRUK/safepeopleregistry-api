@@ -11,21 +11,21 @@ class Issuer extends Model
 
     /**
      * The table associated with the model
-     * 
+     *
      * @var string
      */
     protected $table = 'issuers';
 
     /**
      * Whether or not this model supports timestamps
-     * 
+     *
      * @var bool
      */
     public $timestamps = true;
 
     /**
      * What fields of this model are accepted as parameters
-     * 
+     *
      * @var array
      */
     protected $fillable = [
@@ -41,7 +41,7 @@ class Issuer extends Model
 
     /**
      * Whether or not we have to ask Laravel to cast fields
-     * 
+     *
      * @var array
      */
     protected $casts = [
@@ -49,9 +49,9 @@ class Issuer extends Model
         'idvt_required' => 'boolean',
     ];
 
-        /**
+    /**
      * Whether or not we want certain fields hidden from the payload
-     * 
+     *
      * @var array
      */
     protected $hidden = [

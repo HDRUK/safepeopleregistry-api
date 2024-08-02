@@ -4,9 +4,8 @@ namespace App\Providers;
 
 use App\Models\File;
 use App\Models\ONSFile;
-use App\Observers\ONSFileObserver;
 use App\Observers\FileObserver;
-
+use App\Observers\ONSFileObserver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider

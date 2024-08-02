@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\Permission;
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -14,21 +12,21 @@ class Organisation extends Model
 
     /**
      * The table associated with the model
-     * 
+     *
      * @var string
      */
     protected $table = 'organisations';
 
     /**
      * Whether or not this model supports timestamps
-     * 
+     *
      * @var bool
      */
     public $timestamps = true;
 
     /**
      * What fields of this model are accepted as parameters
-     * 
+     *
      * @var array
      */
     protected $fillable = [
@@ -60,7 +58,7 @@ class Organisation extends Model
 
     /**
      * Whether or not we have to ask Laravel to cast fields
-     * 
+     *
      * @var array
      */
     protected $casts = [
@@ -72,7 +70,7 @@ class Organisation extends Model
 
     /**
      * Whether or not we want certain fields hidden from the payload
-     * 
+     *
      * @var array
      */
     protected $hidden = [

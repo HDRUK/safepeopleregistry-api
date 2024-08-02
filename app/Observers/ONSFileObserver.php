@@ -2,9 +2,8 @@
 
 namespace App\Observers;
 
-use App\Models\ONSFile;
-
 use App\Jobs\ProcessONSSubmission;
+use App\Models\ONSFile;
 
 class ONSFileObserver
 {

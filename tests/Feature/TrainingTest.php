@@ -3,24 +3,18 @@
 namespace Tests\Feature;
 
 use Carbon\Carbon;
-
-use Tests\TestCase;
-
-use App\Models\Training;
-
-use Database\Seeders\UserSeeder;
 use Database\Seeders\TrainingSeeder;
-
-use Illuminate\Testing\Fluent\AssertableJson;
+use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-
+use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class TrainingTest extends TestCase
 {
-    use RefreshDatabase, Authorisation;
+    use Authorisation;
+    use RefreshDatabase;
 
-    const TEST_URL = '/api/v1/training';
+    public const TEST_URL = '/api/v1/training';
 
     private $headers = [];
 
@@ -34,7 +28,7 @@ class TrainingTest extends TestCase
 
         $this->headers = [
             'Accept' => 'application/json',
-            'Authorization' => 'bearer ' . $this->getAuthToken(),
+            'Authorization' => 'bearer '.$this->getAuthToken(),
         ];
     }
 
@@ -54,7 +48,7 @@ class TrainingTest extends TestCase
     {
         $response = $this->json(
             'GET',
-            self::TEST_URL . '/1',
+            self::TEST_URL.'/1',
             $this->headers
         );
 
@@ -78,7 +72,7 @@ class TrainingTest extends TestCase
             $this->headers
         );
 
-        $response ->assertStatus(201);
+        $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
         $this->assertGreaterThan(0, $response->decodeResponseJson()['data']);
     }
@@ -99,7 +93,7 @@ class TrainingTest extends TestCase
             $this->headers
         );
 
-        $response ->assertStatus(201);
+        $response->assertStatus(201);
         $content = $response->decodeResponseJson()['data'];
 
         $this->assertArrayHasKey('data', $response);
@@ -107,7 +101,7 @@ class TrainingTest extends TestCase
 
         $response = $this->json(
             'PATCH',
-            self::TEST_URL . '/' . $content,
+            self::TEST_URL.'/'.$content,
             [
                 'registry_id' => 1,
                 'provider' => 'Fake Training Provider 2',
@@ -119,9 +113,9 @@ class TrainingTest extends TestCase
             $this->headers
         );
 
-        $response ->assertStatus(200);
+        $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
-        
+
         $content = $response->decodeResponseJson()['data'];
 
         $this->assertEquals($content['provider'], 'Fake Training Provider 2');
@@ -145,7 +139,7 @@ class TrainingTest extends TestCase
             $this->headers
         );
 
-        $response ->assertStatus(201);
+        $response->assertStatus(201);
         $content = $response->decodeResponseJson()['data'];
 
         $this->assertArrayHasKey('data', $response);
@@ -153,7 +147,7 @@ class TrainingTest extends TestCase
 
         $response = $this->json(
             'DELETE',
-            self::TEST_URL . '/' . $content,
+            self::TEST_URL.'/'.$content,
             $this->headers
         );
 

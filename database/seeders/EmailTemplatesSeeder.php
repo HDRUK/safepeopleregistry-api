@@ -3,8 +3,6 @@
 namespace Database\Seeders;
 
 use Hdruk\LaravelMjml\Models\EmailTemplate;
-
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class EmailTemplatesSeeder extends Seeder
@@ -70,7 +68,7 @@ class EmailTemplatesSeeder extends Seeder
               </mj-section>
             </mj-body>
           </mjml>',
-          'buttons' => '
+            'buttons' => '
           {
             "replacements": [
                     {
@@ -87,9 +85,9 @@ class EmailTemplatesSeeder extends Seeder
         ]);
 
         EmailTemplate::create([
-          'identifier' => 'issuer_invite',
-          'subject' => 'You\'ve been selected as a trusted Issuer!',
-          'body' => '
+            'identifier' => 'issuer_invite',
+            'subject' => 'You\'ve been selected as a trusted Issuer!',
+            'body' => '
           <mjml>
           <mj-head>
               
@@ -142,13 +140,13 @@ class EmailTemplatesSeeder extends Seeder
           <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="http://localhost:3000/issuer/invited/[[issuers.unique_identifier]]" padding="10px 25px 10px 25px" >
           Sign me up!
           </mj-button></mj-column></mj-section></mj-wrapper></mj-body></mjml >',
-          'buttons' => '',
+            'buttons' => '',
         ]);
 
         EmailTemplate::create([
-          'identifier' => 'user_otp',
-          'subject' => 'Confirm your Registry Email address',
-          'body' => '
+            'identifier' => 'user_otp',
+            'subject' => 'Confirm your Registry Email address',
+            'body' => '
           <mjml>
           <mj-head>
               
@@ -183,13 +181,13 @@ class EmailTemplatesSeeder extends Seeder
           </mj-head>
           <mj-body background-color="#efeeea" width="600px" ><mj-wrapper padding="20px 0px 20px 0px" border="none" direction="ltr" text-align="center" ><mj-section padding="0px" text-align="left" ><mj-column ><mj-image align="center" height="auto" padding="0px 0px 0px 0px" src="https://fakeimg.pl/800x200?text=SPEEDI-AS+Registry+OTP" ></mj-image></mj-column></mj-section></mj-wrapper><mj-section padding="0px" text-align="left" ><mj-column ><mj-spacer height="20px" padding="   " ></mj-spacer></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-text padding="10px 25px 10px 25px" align="left" font-size="16px" font-weight="bold" >Confirm your email address</mj-text></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-spacer height="20px" padding="   " ></mj-spacer></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-text padding="10px 25px 10px 25px" align="left" >To verify your email address, please enter the code below into your web browser.</mj-text></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-spacer height="20px" padding="   " ></mj-spacer></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-text padding="10px 25px 10px 25px" align="center" font-size="24px" font-style="normal" container-background-color="#000000" color="#FFFFFF" >[[users.otp]]</mj-text></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-text padding="10px 25px 10px 25px" align="left" >The above code is only valid for [[env(OTP_VALIDITY_MINUTES)]] minute(s). <br><br>If you didn\'t request this email, worry not, you can safely ignore it.</mj-text></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-spacer height="20px" padding="   " ></mj-spacer></mj-column></mj-section><mj-section padding="0px   " text-align="left" ><mj-column ><mj-text padding="10px 25px 10px 25px" align="left" >SPEEDI-AS Registry Support Team<div>[[env(SUPPORT_EMAIL)]]</div></mj-text></mj-column></mj-section></mj-body></mjml > 
           ',
-          'buttons' => '',
+            'buttons' => '',
         ]);
 
-      EmailTemplate::create([
-        'identifier' => 'researcher_invite',
-        'subject' => 'You\'ve been invited to join the Researcher Registry',
-        'body' => '
+        EmailTemplate::create([
+            'identifier' => 'researcher_invite',
+            'subject' => 'You\'ve been invited to join the Researcher Registry',
+            'body' => '
         
         <mjml>
         <mj-head>
@@ -228,13 +226,13 @@ class EmailTemplatesSeeder extends Seeder
         link will no longer work. Why? This is to maintain the integrity of the system. If you don\'t happen to get to this email in time, worry not! You can request 
         another invite by emailing [[env(SUPPORT_EMAIL)]], and we\'ll issue another.<br><br>Thanks!<br>SPEEDI-AS Team.<br><div><br></div><div><br></div></div></mj-text></mj-column></mj-section><mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" ><mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" ><mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="http://localhost:3000/researcher/invited/[[users.id]]/[[organisations.id]]" padding="10px 25px 10px 25px" >Sign me up!</mj-button></mj-column></mj-section></mj-wrapper></mj-body></mjml > 
         ',
-        'buttons' => '',
-      ]);
+            'buttons' => '',
+        ]);
 
-      EmailTemplate::create([
-        'identifier' => 'delegate_sponsor',
-        'subject' => 'You\'re asked to verify a researcher you employ!',
-        'body' => '
+        EmailTemplate::create([
+            'identifier' => 'delegate_sponsor',
+            'subject' => 'You\'re asked to verify a researcher you employ!',
+            'body' => '
           <mjml>
             <mj-head>
 
@@ -307,7 +305,7 @@ class EmailTemplatesSeeder extends Seeder
             </mj-body>
           </mjml>
         ',
-        'buttons' => '',
-      ]);
+            'buttons' => '',
+        ]);
     }
 }

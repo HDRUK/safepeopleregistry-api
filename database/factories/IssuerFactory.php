@@ -3,9 +3,8 @@
 namespace Database\Factories;
 
 use Hash;
-
-use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Issuer>
@@ -20,9 +19,10 @@ class IssuerFactory extends Factory
     public function definition(): array
     {
         $signature = Str::random(40);
-        $calculatedHash = Hash::make($signature . 
-            ':' . env('ISSUER_SALT_1') .
-            ':' . env('ISSUER_SALT_2')
+        $calculatedHash = Hash::make(
+            $signature.
+            ':'.env('ISSUER_SALT_1').
+            ':'.env('ISSUER_SALT_2')
         );
 
         return [

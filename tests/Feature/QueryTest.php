@@ -2,29 +2,24 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-
 use App\Models\Registry;
-
-use Database\Seeders\UserSeeder;
-use Database\Seeders\RegistrySeeder;
-use Database\Seeders\IdentitySeeder;
 use Database\Seeders\HistorySeeder;
-use Database\Seeders\TrainingSeeder;
+use Database\Seeders\IdentitySeeder;
 use Database\Seeders\IssuerSeeder;
-use Database\Seeders\PermissionSeeder;
 use Database\Seeders\OrganisationSeeder;
-
-use Illuminate\Testing\Fluent\AssertableJson;
+use Database\Seeders\PermissionSeeder;
+use Database\Seeders\TrainingSeeder;
+use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-
+use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class QueryTest extends TestCase
 {
-    use RefreshDatabase, Authorisation;
+    use Authorisation;
+    use RefreshDatabase;
 
-    const TEST_URL = '/api/v1/query';
+    public const TEST_URL = '/api/v1/query';
 
     private $headers = [];
 
@@ -39,12 +34,12 @@ class QueryTest extends TestCase
             IdentitySeeder::class,
             HistorySeeder::class,
             TrainingSeeder::class,
-            
+
         ]);
 
         $this->headers = [
             'Accept' => 'application/json',
-            'Authorization' => 'bearer ' . $this->getAuthToken(),
+            'Authorization' => 'bearer '.$this->getAuthToken(),
         ];
     }
 
@@ -62,15 +57,15 @@ class QueryTest extends TestCase
         );
 
         $response->assertStatus(200);
-            // ->assertJsonStructure([
-            //     'data' => [
-            //         'user',
-            //         'identity',
-            //         'history',
-            //         'training',
-            //         // 'projects',
-            //         'organisations',
-            //     ]
-            // ]);
+        // ->assertJsonStructure([
+        //     'data' => [
+        //         'user',
+        //         'identity',
+        //         'history',
+        //         'training',
+        //         // 'projects',
+        //         'organisations',
+        //     ]
+        // ]);
     }
 }
