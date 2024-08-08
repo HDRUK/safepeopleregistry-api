@@ -16,3 +16,4 @@ parameters:
 #        - ./*/*/FileToBeExcluded.php
 #
 #    checkMissingIterableValueType: false
+    treatPhpDocTypesAsCertain: false

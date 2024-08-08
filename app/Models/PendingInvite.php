@@ -4,30 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class PendingInvite extends Model
 {
     use HasFactory;
 
-    /**
-     * The table associated with the model
-     *
-     * @var string
-     */
     protected $table = 'pending_invites';
 
-    /**
-     * Whether or not this model supports timestamps
-     *
-     * @var bool
-     */
     public $timestamps = true;
 
-    /**
-     * What fields of this model are accepted as parameters
-     *
-     * @var array
-     */
     protected $fillable = [
         'user_id',
         'organisation_id',

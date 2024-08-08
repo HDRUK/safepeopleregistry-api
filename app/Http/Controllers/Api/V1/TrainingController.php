@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Exception\NotFoundException;
+use Exception;
+
+use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Training;
 use App\Traits\CommonFunctions;
-use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -57,7 +58,7 @@ class TrainingController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $trainings = Training::paginate($this->getSystemConfig('PER_PAGE'));
+        $trainings = Training::paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',

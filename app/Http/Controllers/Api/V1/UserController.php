@@ -68,7 +68,7 @@ class UserController extends Controller
             'registry.files',
             'registry.organisations',
             'pendingInvites',
-        ])->paginate($this->getSystemConfig('PER_PAGE'));
+        ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',
@@ -355,6 +355,12 @@ class UserController extends Controller
                     'data' => $user,
                 ], 200);
             }
+
+            return response()->json([
+                'message' => 'failed',
+                'data' => null,
+                'error' => 'unable to save user',
+            ], 409);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -463,6 +469,12 @@ class UserController extends Controller
                     'data' => $user,
                 ], 200);
             }
+
+            return response()->json([
+                'message' => 'failed',
+                'data' => null,
+                'error' => 'unable to save user',
+            ], 400);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }

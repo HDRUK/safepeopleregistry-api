@@ -65,7 +65,7 @@ class OrcID
             'user_id' => $user->id,
         ])->first();
 
-        if (! $token) {
+        if (!$token) {
             $token = UserApiToken::create([
                 'user_id' => $user->id,
                 'api_name' => 'orcid',
@@ -74,7 +74,6 @@ class OrcID
 
             if ($token) {
                 OrcIDScanner::dispatch($user);
-
                 return true;
             }
 

@@ -57,15 +57,16 @@ class QueryTest extends TestCase
         );
 
         $response->assertStatus(200);
-        // ->assertJsonStructure([
-        //     'data' => [
-        //         'user',
-        //         'identity',
-        //         'history',
-        //         'training',
-        //         // 'projects',
-        //         'organisations',
-        //     ]
-        // ]);
+        $content = $response->decodeResponseJson()['data'];
+
+        $this->assertNotNull($content['user']);
+        $this->assertNotNull($content['user']['identity']);
+        $this->assertEquals(
+            $content['user']['identity']['registry_id'],
+            $content['user']['registry_id']
+        );
+        $this->assertNotNull($content['registry']);
+        $this->assertNotNull($content['registry']['training']);
+        $this->assertNotNull($content['registry']['history']);
     }
 }

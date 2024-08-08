@@ -43,7 +43,7 @@ class RunRulesEngine extends Command
 
         $response = Http::withHeaders($headers)->post(
             env('RULES_ENGINE_SERVICE').env('RULES_ENGINE_PROJECT_ID').'/evaluate/'.env('RULES_ENGINE_DOCUMENT_ID'),
-            json_encode($body)
+            $body
         );
 
         // Debug line for the time being, to prove concept.

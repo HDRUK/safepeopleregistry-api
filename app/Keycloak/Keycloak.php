@@ -14,7 +14,7 @@ class Keycloak
 {
     public const USERS_URL = '/users';
 
-    public function create(array $credentials): bool
+    public function create(array $credentials): array
     {
         try {
             $payload = [
@@ -49,6 +49,8 @@ class Keycloak
                 $payload
             );
 
+            $content = json_decode($response->body(), true);
+
             if ($response->status() === 201) {
                 $headers = $response->headers();
                 $parts = explode('/', $headers['Location'][0]);
@@ -66,8 +68,11 @@ class Keycloak
                     'user_group' => $userGroup,
                 ]);
 
-                if (! $user) {
-                    return false;
+                if (!$user) {
+                    return [
+                        'success' => false,
+                        'error' => 'unable to create user',
+                    ];
                 }
 
                 if ($userGroup === 'RESEARCHERS') {
@@ -97,10 +102,23 @@ class Keycloak
                     }
                 }
 
-                return true;
+                return [
+                    'success' => true,
+                    'error' => null,
+                ];
             }
 
-            return false;
+            if (isset($content['errorMessage'])) {
+                return [
+                    'success' => false,
+                    'error' => $content['errorMessage'],
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'error' => 'unknown error',
+                ];
+            }
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }

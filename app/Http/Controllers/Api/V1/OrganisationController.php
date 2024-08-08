@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Exception\NotFoundException;
+use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use App\Jobs\OrganisationIDVT;
 use App\Models\Organisation;
@@ -79,7 +79,7 @@ class OrganisationController extends Controller
                 'registries.user',
                 'registries.user.permissions',
                 'registries.user.approvals',
-            ])->paginate($this->getSystemConfig('PER_PAGE'));
+            ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
         }
 
         return response()->json([

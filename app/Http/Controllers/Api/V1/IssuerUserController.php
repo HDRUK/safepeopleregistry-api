@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Hash;
+use Exception;
+
 use App\Http\Controllers\Controller;
 use App\Models\IssuerUser;
 use App\Models\IssuerUserHasPermission;
 use App\Models\Permission;
-use Hash;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -313,6 +315,12 @@ class IssuerUserController extends Controller
                     'data' => $user,
                 ], 200);
             }
+
+            return response()->json([
+                'message' => 'failed',
+                'data' => null,
+                'error' => 'unable to save issuer user',
+            ], 400);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -414,6 +422,12 @@ class IssuerUserController extends Controller
                     'data' => $user,
                 ], 200);
             }
+
+            return response()->json([
+                'message' => 'failed',
+                'data' => null,
+                'error' => 'unable to save issuer user',
+            ], 400);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Exception;
+
 use App\Http\Controllers\Controller;
 use App\Models\Issuer;
 use App\Models\Organisation;
@@ -32,7 +34,7 @@ class ApprovalController extends Controller
                         'message' => 'success',
                         'data' => $ohia !== null,
                     ], 200);
-                    break;
+
                 case 'RESEARCHER':
                     $user = User::where('id', $input['user_id'])->first();
                     $issuer = Issuer::where('id', $input['issuer_id'])->first();
@@ -46,19 +48,14 @@ class ApprovalController extends Controller
                         'message' => 'success',
                         'data' => $uhia !== null,
                     ], 200);
-                    break;
+
                 default:
                     return response()->json([
                         'message' => 'unknown operation',
                         'data' => null,
                     ], 400);
-                    break;
-            }
 
-            return response()->json([
-                'message' => 'unknown request',
-                'data' => null,
-            ], 400);
+            }
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -83,7 +80,6 @@ class ApprovalController extends Controller
                         'message' => 'success',
                         'data' => null,
                     ]);
-                    break;
                 case 'RESEARCHER':
                     $user = User::where('id', $id)->first();
                     $issuer = Issuer::where('id', $issuerId)->first();
@@ -97,19 +93,12 @@ class ApprovalController extends Controller
                         'message' => 'success',
                         'data' => null,
                     ]);
-                    break;
                 default:
                     return response()->json([
                         'message' => 'unknown operation',
                         'data' => null,
                     ]);
-                    break;
             }
-
-            return response()->json([
-                'message' => 'unknown request',
-                'data' => null,
-            ], 400);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }

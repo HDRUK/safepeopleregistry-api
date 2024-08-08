@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Exception\NotFoundException;
+use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Identity;
 use App\Traits\CommonFunctions;
@@ -52,7 +52,7 @@ class IdentityController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $identities = Identity::paginate($this->getSystemConfig('PER_PAGE'));
+        $identities = Identity::paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',
