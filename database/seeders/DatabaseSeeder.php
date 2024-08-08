@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             EmploymentSeeder::class,
             ExperienceSeeder::class,
             EmailTemplatesSeeder::class,
+            AccreditationSeeder::class,
             UserSeeder::class,
         ]);
     }

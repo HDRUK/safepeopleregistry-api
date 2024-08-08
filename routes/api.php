@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AccreditationController;
 use App\Http\Controllers\Api\V1\ApprovalController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\EndorsementController;
@@ -20,6 +21,7 @@ use App\Http\Controllers\Api\V1\SystemConfigController;
 use App\Http\Controllers\Api\V1\TrainingController;
 use App\Http\Controllers\Api\V1\TriggerEmailController;
 use App\Http\Controllers\Api\V1\UserController;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -115,6 +117,12 @@ Route::middleware('api')->put('v1/organisations/{id}', [OrganisationController::
 Route::middleware('api')->patch('v1/organisations/{id}', [OrganisationController::class, 'edit']);
 Route::middleware('api')->delete('v1/organisations/{id}', [OrganisationController::class, 'destroy']);
 Route::middleware('api')->post('v1/organisations/permissions', [PermissionController::class, 'assignOrganisationPermissionsToFrom']);
+
+Route::middleware('api')->get('v1/accreditations/{id}', [AccreditationController::class, 'indexByRegistryId']);
+Route::middleware('api')->post('v1/accreditations/{registryId}', [AccreditationController::class, 'storeByRegistryId']);
+Route::middleware('api')->put('v1/accreditations/{id}/{registryId}', [AccreditationController::class, 'updateByRegistryId']);
+Route::middleware('api')->patch('v1/accreditations/{id}/{registryId}', [AccreditationController::class, 'editByRegistryId']);
+Route::middleware('api')->delete('v1/accreditations/{id}/{registryId}', [AccreditationController::class, 'deleteByRegistryId']);
 
 Route::middleware('api')->get('v1/histories', [HistoryController::class, 'index']);
 Route::middleware('api')->get('v1/histories/{id}', [HistoryController::class, 'show']);
