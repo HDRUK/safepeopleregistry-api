@@ -10,25 +10,10 @@ class Organisation extends Model
 {
     use HasFactory;
 
-    /**
-     * The table associated with the model
-     *
-     * @var string
-     */
     protected $table = 'organisations';
 
-    /**
-     * Whether or not this model supports timestamps
-     *
-     * @var bool
-     */
     public $timestamps = true;
 
-    /**
-     * What fields of this model are accepted as parameters
-     *
-     * @var array
-     */
     protected $fillable = [
         'organisation_name',
         'address_1',
@@ -56,11 +41,6 @@ class Organisation extends Model
         'companies_house_no',
     ];
 
-    /**
-     * Whether or not we have to ask Laravel to cast fields
-     *
-     * @var array
-     */
     protected $casts = [
         'verified' => 'boolean',
         'iso_27001_certified' => 'boolean',
@@ -68,11 +48,6 @@ class Organisation extends Model
         'idvt_result' => 'boolean',
     ];
 
-    /**
-     * Whether or not we want certain fields hidden from the payload
-     *
-     * @var array
-     */
     protected $hidden = [
     ];
 

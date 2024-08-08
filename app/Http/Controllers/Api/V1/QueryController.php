@@ -181,19 +181,19 @@ class QueryController extends Controller
 
         $rhh = DB::table('registry_has_histories')->where('registry_id', '=', $registry->id)->get();
         foreach ($rhh as $item) {
-            $history = History::where('id', $item->history_id)->first();
+            $history = History::where('id', $item->history_id)->first()->toArray();
 
-            $employment = Employment::where('id', $history->employment_id)->first();
-            $history->employment = $employment;
+            $employment = Employment::where('id', $history['employment_id'])->first();
+            $history['employment'] = $employment;
 
-            $endorsement = Endorsement::where('id', $history->endorsement_id)->first();
-            $history->endorsement = $endorsement;
+            $endorsement = Endorsement::where('id', $history['endorsement_id'])->first();
+            $history['endorsement'] = $endorsement;
 
-            $infringement = Infringement::where('id', $history->infringement_id)->first();
-            $history->infringement = $infringement;
+            $infringement = Infringement::where('id', $history['infringement_id'])->first();
+            $history['infringement'] = $infringement;
 
-            $project = Project::where('id', $history->project_id)->first();
-            $history->project = $project;
+            $project = Project::where('id', $history['project_id'])->first();
+            $history['project'] = $project;
 
             $payload['registry']['history'][] = $history;
         }

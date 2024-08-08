@@ -11,25 +11,10 @@ class Identity extends Model
     use HasFactory;
     use SoftDeletes;
 
-    /**
-     * The table associated with the model
-     *
-     * @var string
-     */
     protected $table = 'identities';
 
-    /**
-     * Whether or not this model supports timestamps
-     *
-     * @var bool
-     */
     public $timestamps = true;
 
-    /**
-     * What fields of this model are accepted as parameters
-     *
-     * @var array
-     */
     protected $fillable = [
         'registry_id',
         'selfie_path',
@@ -48,11 +33,6 @@ class Identity extends Model
         'idvt_completed_at',
     ];
 
-    /**
-     * Whether or not we want certain fields hidden from the payload
-     *
-     * @var array
-     */
     protected $hidden = [
         'selfie_path',
         'passport_path',

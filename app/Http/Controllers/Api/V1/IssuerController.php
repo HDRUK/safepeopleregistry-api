@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Exception;
+use Hash;
+
 use App\Http\Controllers\Controller;
 use App\Models\Issuer;
 use App\Models\Organisation;
 use App\Models\Project;
 use App\Traits\CommonFunctions;
-use Exception;
-use Hash;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -60,7 +61,7 @@ class IssuerController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $issuers = Issuer::paginate($this->getSystemConfig('PER_PAGE'));
+        $issuers = Issuer::paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',
@@ -391,6 +392,12 @@ class IssuerController extends Controller
                     'data' => $issuer,
                 ], 200);
             }
+
+            return response()->json([
+                'message' => 'failed',
+                'data' => null,
+                'error' => 'unable to save issuer',
+            ], 400);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -478,7 +485,7 @@ class IssuerController extends Controller
             $issuer = Issuer::where('id', $id)->first();
             $issuer->name = $input['name'];
             $issuer->contact_email = isset($input['contact_email']) ? $input['contact_email'] : $issuer->contact_email;
-            $isser->enabled = $input['enabled'];
+            $issuer->enabled = $input['enabled'];
             $issuer->idvt_required = isset($input['idvt_required']) ? $input['idvt_required'] : $issuer->idvt_required;
 
             if ($issuer->save()) {
@@ -487,6 +494,12 @@ class IssuerController extends Controller
                     'data' => $issuer,
                 ], 200);
             }
+
+            return response()->json([
+                'message' => 'failed',
+                'data' => null,
+                'error' => 'unable to save issuer',
+            ], 400);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -575,7 +588,7 @@ class IssuerController extends Controller
             if (! $issuerId) {
                 return response()->json([
                     'message' => 'you must be a trusted issuer and provide your issuer-key within the request headers',
-                ], Response::HTTP_UNAUTHORIZED);
+                ], 401);
             }
 
             foreach ($input['projects'] as $p) {

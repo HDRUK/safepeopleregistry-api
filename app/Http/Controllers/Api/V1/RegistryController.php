@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Exception\NotFoundException;
+use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Registry;
 use App\Traits\CommonFunctions;
@@ -57,7 +57,7 @@ class RegistryController extends Controller
             [
                 'files',
             ]
-        )->paginate($this->getSystemConfig('PER_PAGE'));
+        )->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',

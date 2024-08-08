@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Exception\NotFoundException;
+use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Endorsement;
 use App\Traits\CommonFunctions;
@@ -54,7 +54,7 @@ class EndorsementController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $endorsements = Endorsement::paginate($this->getSystemConfig('PER_PAGE'));
+        $endorsements = Endorsement::paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',

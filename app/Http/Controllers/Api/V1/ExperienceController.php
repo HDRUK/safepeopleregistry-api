@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Exception\NotFoundException;
+use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Experience;
 use App\Traits\CommonFunctions;
@@ -55,7 +55,7 @@ class ExperienceController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $experiences = Experience::paginate($this->getSystemConfig('PER_PAGE'));
+        $experiences = Experience::paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',
