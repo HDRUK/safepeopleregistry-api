@@ -5,23 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Employment extends Model
+class Resolution extends Model
 {
     use HasFactory;
 
-    protected $table = 'employments';
+    public $table = 'resolutions';
 
     public $timestamps = true;
 
     protected $fillable = [
-        'employer_name',
-        'from',
-        'to',
-        'is_current',
-        'department',
-        'role',
-        'employer_address',
-        'ror',
+        'comment',
+        'issuer_by',
         'registry_id',
+        'resolved',
+    ];
+
+    protected $casts = [
+        'resolved' => 'boolean',
     ];
 }

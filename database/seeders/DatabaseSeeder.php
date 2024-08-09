@@ -28,6 +28,8 @@ class DatabaseSeeder extends Seeder
             EmailTemplatesSeeder::class,
             AccreditationSeeder::class,
             UserSeeder::class,
+            InfringementSeeder::class,
+            ResolutionSeeder::class,
         ]);
     }
 }

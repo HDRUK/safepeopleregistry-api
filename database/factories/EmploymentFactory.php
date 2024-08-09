@@ -17,7 +17,7 @@ class EmploymentFactory extends Factory
     public function definition(): array
     {
         return [
-            'employer_name' => fake()->name(),
+            'employer_name' => 'Demo Employer Name',
             'from' => fake()->date(),
             'to' => fake()->date(),
             'is_current' => fake()->randomElement([0, 1]),
@@ -25,6 +25,7 @@ class EmploymentFactory extends Factory
             'role' => fake()->sentence(3),
             'employer_address' => fake()->address(),
             'ror' => fake()->url(),
+            'registry_id' => 1,
         ];
     }
 }

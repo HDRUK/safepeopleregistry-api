@@ -7,7 +7,6 @@ use App\Models\Education;
 use App\Models\Employment;
 use App\Models\RegistryHasAccreditation;
 use App\Models\RegistryHasEducation;
-use App\Models\RegistryHasEmployment;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -140,11 +139,7 @@ class OrcIDScanner implements ShouldQueue
                     'role' => $organisation['role-title'],
                     'employer_address' => json_encode($organisation['organization']['address']),
                     'ror' => $organisation['organization']['disambiguated-organization']['disambiguated-organization-identifier'],
-                ]);
-
-                RegistryHasEmployment::create([
                     'registry_id' => $this->user->registry_id,
-                    'employment_id' => $employment->id,
                 ]);
             }
         }

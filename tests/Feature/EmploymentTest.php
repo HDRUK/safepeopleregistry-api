@@ -2,12 +2,11 @@
 
 namespace Tests\Feature;
 
-use Carbon\Carbon;
-
 use App\Models\User;
 use App\Models\Registry;
 
 use Database\Seeders\UserSeeder;
+use Database\Seeders\EmploymentSeeder;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -15,12 +14,12 @@ use Tests\TestCase;
 
 use Tests\Traits\Authorisation;
 
-class AccreditationTest extends TestCase
+class EmploymentTest extends TestCase
 {
     use Authorisation;
     use RefreshDatabase;
 
-    public const TEST_URL = '/api/v1/accreditations';
+    public const TEST_URL = '/api/v1/employments';
 
     private $user = null;
     private $registry = null;
@@ -31,6 +30,7 @@ class AccreditationTest extends TestCase
         parent::setUp();
         $this->seed([
             UserSeeder::class,
+            EmploymentSeeder::class,
         ]);
 
         $this->headers = [
@@ -43,7 +43,7 @@ class AccreditationTest extends TestCase
 
     }
 
-    public function test_the_application_can_list_accreditations_by_registry_id(): void
+    public function test_the_application_can_list_employments_by_registry_id(): void
     {
         $response = $this->json(
             'GET',
@@ -55,29 +55,30 @@ class AccreditationTest extends TestCase
         $content = $response->decodeResponseJson()['data'];
 
         $this->assertArrayHaskey('data', $response);
-        $this->assertTrue(count($content['data']) === 1);
-        $this->assertEquals($content['data'][0]['title'], 'Safe Researcher Training');
     }
 
-    public function test_the_application_can_create_accreditations_by_registry_id(): void
+    public function test_the_application_can_create_employments_by_registry_id(): void
     {
         $response = $this->json(
             'POST',
             self::TEST_URL . '/' . $this->registry->id,
-            $this->prepareAccreditationPayload(),
+            $this->prepareEmploymentPayload(),
             $this->headers
         );
 
         $response->assertStatus(201);
-        $this->assertEquals($response->decodeResponseJson()['message'], 'success');
+        $content = $response->decodeResponseJson();
+
+        $this->assertEquals($content['message'], 'success');
+        $this->assertNotNull($content['data']);
     }
 
-    public function test_the_application_can_edit_accreditations_by_registry_id(): void
+    public function test_the_application_can_edit_employments_by_registry_id(): void
     {
         $response = $this->json(
             'POST',
             self::TEST_URL . '/' . $this->registry->id,
-            $this->prepareAccreditationPayload(),
+            $this->prepareEmploymentPayload(),
             $this->headers
         );
 
@@ -89,7 +90,7 @@ class AccreditationTest extends TestCase
         $response = $this->json(
             'PATCH',
             self::TEST_URL . '/' . $content['data'] . '/' . $this->registry->id,
-            $this->prepareEditedAccreditationPayload(),
+            $this->prepareEditedEmploymentPayload(),
             $this->headers
         );
 
@@ -97,16 +98,18 @@ class AccreditationTest extends TestCase
 
         $response->assertStatus(200);
 
-        $this->assertEquals($content['data']['title'], 'Safe Researcher Training - The Sequel!');
-        $this->assertEquals($content['data']['awarded_locale'], 'GB');
+        $this->assertEquals(
+            $content['data']['employer_address'],
+            '123 Madeup Street, Someplace, Somewhere, T35T 1NG'
+        );
     }
 
-    public function test_the_application_can_update_accreditations_by_registry_id(): void
+    public function test_the_application_can_update_employments_by_registry_id(): void
     {
         $response = $this->json(
             'POST',
             self::TEST_URL . '/' . $this->registry->id,
-            $this->prepareAccreditationPayload(),
+            $this->prepareEmploymentPayload(),
             $this->headers
         );
 
@@ -118,7 +121,7 @@ class AccreditationTest extends TestCase
         $response = $this->json(
             'PUT',
             self::TEST_URL . '/' . $content['data'] . '/' . $this->registry->id,
-            $this->prepareUpdatedAccreditationPayload(),
+            $this->prepareUpdatedEmploymentPayload(),
             $this->headers
         );
 
@@ -126,16 +129,15 @@ class AccreditationTest extends TestCase
 
         $response->assertStatus(200);
 
-        $this->assertEquals($content['data']['title'], 'Safe Researcher Training. The Sequel!!');
-        $this->assertEquals($content['data']['awarded_locale'], 'UK');
+        $this->assertEquals($content['data']['employer_name'], 'Demo Employer Name 2');
     }
 
-    public function test_the_application_can_delete_accreditations_by_registry_id(): void
+    public function test_the_application_can_delete_employments_by_registry_id(): void
     {
         $response = $this->json(
             'POST',
             self::TEST_URL . '/' . $this->registry->id,
-            $this->prepareAccreditationPayload(),
+            $this->prepareEmploymentPayload(),
             $this->headers
         );
 
@@ -155,38 +157,40 @@ class AccreditationTest extends TestCase
         $this->assertEquals($content['message'], 'success');
     }
 
-    private function prepareAccreditationPayload(): array
+    private function prepareEmploymentPayload(): array
     {
-        $awardedDate = Carbon::parse(fake()->date());
-
         return [
-            'awarded_at' => $awardedDate->toDateString(),
-            'awarding_body_name' => fake()->company(),
-            'awarding_body_ror' => fake()->url(),
-            'title' => 'Safe Researcher Training',
-            'expires_at' => $awardedDate->addYear(2)->toDateString(),
-            'awarded_locale' => 'GB',
+            'employer_name' => 'Demo Employer Name',
+            'from' => fake()->date(),
+            'to' => fake()->date(),
+            'is_current' => fake()->randomElement([0, 1]),
+            'department' => fake()->sentence(2),
+            'role' => fake()->sentence(3),
+            'employer_address' => fake()->address(),
+            'ror' => fake()->url(),
+            'registry_id' => 1,
         ];
     }
 
-    private function prepareUpdatedAccreditationPayload(): array
+    private function prepareUpdatedEmploymentPayload(): array
     {
-        $awardedDate = Carbon::parse(fake()->date());
-
         return [
-            'awarded_at' => $awardedDate->toDateString(),
-            'awarding_body_name' => fake()->company(),
-            'awarding_body_ror' => fake()->url(),
-            'title' => 'Safe Researcher Training. The Sequel!!',
-            'expires_at' => $awardedDate->addYear(4)->toDateString(),
-            'awarded_locale' => 'UK',
+            'employer_name' => 'Demo Employer Name 2',
+            'from' => fake()->date(),
+            'to' => fake()->date(),
+            'is_current' => fake()->randomElement([0, 1]),
+            'department' => fake()->sentence(2),
+            'role' => fake()->sentence(3),
+            'employer_address' => fake()->address(),
+            'ror' => fake()->url(),
+            'registry_id' => 1,
         ];
     }
 
-    private function prepareEditedAccreditationPayload(): array
+    private function prepareEditedEmploymentPayload(): array
     {
         return [
-            'title' => 'Safe Researcher Training - The Sequel!',
+            'employer_address' => '123 Madeup Street, Someplace, Somewhere, T35T 1NG',
         ];
     }
 }

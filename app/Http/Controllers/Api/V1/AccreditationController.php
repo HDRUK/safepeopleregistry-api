@@ -71,7 +71,7 @@ class AccreditationController extends Controller
             $accreditation->awarding_body_name = $input['awarding_body_name'];
             $accreditation->awarding_body_ror = $input['awarding_body_ror'];
             $accreditation->title = $input['title'];
-            $accreditation->expires_at = Carbon::parse($inpu['expires_at'])->toDateString();
+            $accreditation->expires_at = Carbon::parse($input['expires_at'])->toDateString();
             $accreditation->awarded_locale = $input['awarded_locale'];
 
             $accreditation->save();
@@ -97,11 +97,11 @@ class AccreditationController extends Controller
             $accreditation->awarding_body_name = isset($input['awarding_body_name']) ?
                 $input['awarding_body_name'] : $accreditation->awarding_body_name;
             $accreditation->awarding_body_ror = isset($input['awarding_body_ror']) ?
-                $input['awarding_body_ror'] : $input['awarding_body_ror'];
+                $input['awarding_body_ror'] : $accreditation->awarding_body_ror;
             $accreditation->title = isset($input['title']) ?
                 $input['title'] : $accreditation->title;
             $accreditation->expires_at = isset($input['expires_at']) ?
-                Carbon::parse($inpu['expires_at'])->toDateString() : $accreditation->expires_at;
+                Carbon::parse($input['expires_at'])->toDateString() : $accreditation->expires_at;
             $accreditation->awarded_locale = isset($input['awarded_locale']) ?
                 $input['awarded_locale'] : $accreditation->awarded_locale;
 
@@ -116,7 +116,7 @@ class AccreditationController extends Controller
         }
     }
 
-    public function deleteByRegistryId(Request $request, int $id, int $registryId): JsonResponse
+    public function destroyByRegistryId(Request $request, int $id, int $registryId): JsonResponse
     {
         try {
             Accreditation::where('id', $id)->first()->delete();
