@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Exception;
 use Carbon\Carbon;
 
 use App\Models\Accreditation;
@@ -22,7 +23,7 @@ class AccreditationController extends Controller
     {
         $rha = RegistryHasAccreditation::where('registry_id', $registryId)
             ->get()
-            ->pluck('accreditation_id');
+            ->select('accreditation_id');
 
         $accreditations = Accreditation::whereIn('id', $rha)
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
@@ -41,7 +42,8 @@ class AccreditationController extends Controller
             $accreditation = Accreditation::create([
                 'awarded_at' => Carbon::parse($input['awarded_at'])->toDateString(),
                 'awarding_body_name' => $input['awarding_body_name'],
-                'awarding_body_ror' => isset($input['awarding_body_ror']) ?? '',
+                'awarding_body_ror' => isset($input['awarding_body_ror']) ?
+                    $input['awarding_body_ror'] : '',
                 'title' => $input['title'],
                 'expires_at' => Carbon::parse($input['expires_at'])->toDateString(),
                 'awarded_locale' => $input['awarded_locale'],

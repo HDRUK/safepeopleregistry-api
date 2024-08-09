@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Exception;
+
 use App\Models\Resolution;
 use App\Models\Infringement;
 use App\Models\InfringementHasResolution;

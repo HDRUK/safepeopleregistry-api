@@ -95,12 +95,18 @@ class EmploymentController extends Controller
             $employment->employer_address = $input['employer_address'];
             $employment->ror = $input['ror'];
 
-            if ($employment->save()) {
+            if (!$employment->save()) {
                 return response()->json([
-                    'message' => 'success',
-                    'data' => $employment,
-                ], 200);
+                    'message' => 'failed',
+                    'data' => null,
+                    'error' => 'unable to save employment'
+                ], 400);
             }
+
+            return response()->json([
+                'message' => 'success',
+                'data' => $employment,
+            ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -133,12 +139,18 @@ class EmploymentController extends Controller
             $employment->ror = isset($input['ror']) ?
                 $input['ror'] : $employment->ror;
 
-            if ($employment->save()) {
+            if (!$employment->save()) {
                 return response()->json([
-                    'message' => 'success',
-                    'data' => $employment,
-                ], 200);
+                    'message' => 'failed',
+                    'data' => null,
+                    'error' => 'unable to save employment'
+                ], 400);
             }
+
+            return response()->json([
+                'message' => 'success',
+                'data' => $employment,
+            ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
