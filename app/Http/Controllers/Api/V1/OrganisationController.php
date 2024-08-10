@@ -198,6 +198,7 @@ class OrganisationController extends Controller
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="idvt_result", type="boolean", example="true"),
+     *                  @OA\Property(property="idvt_result_perc", type="number", example="80"),
      *                  @OA\Property(property="idvt_errors", type="object", example="{}"),
      *                  @OA\Property(property="idvt_completed_at", type="string", example="2024-02-04 12:01:00")
      *              )
