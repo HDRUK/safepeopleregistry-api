@@ -250,4 +250,29 @@ class OrganisationTest extends TestCase
 
         $response->assertStatus(200);
     }
+
+    public function test_the_application_can_show_idvt(): void
+    {
+        $response = $this->json(
+            'GET',
+            self::TEST_URL . '/1/idvt',
+            $this->headers
+        );
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'message',
+            'data' => [
+                'current_page',
+                'data' => [
+                    'id',
+                    'idvt_result',
+                    'idvt_result_perc',
+                    'idvt_completed_at',
+                    'idvt_errors',
+                ],
+
+            ],
+        ]);
+    }
 }
