@@ -150,7 +150,7 @@ class OrganisationController extends Controller
      *      )
      * )
      */
-    public function detailedShow(Request $request, int $id): JsonResponse
+    public function show(Request $request, int $id): JsonResponse
     {
         $organisation = Organisation::with([
             'permissions',
