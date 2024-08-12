@@ -6,6 +6,7 @@ use Database\Seeders\EmailTemplatesSeeder;
 use Database\Seeders\IssuerSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\UserSeeder;
+use Database\Seeders\OrganisationSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -27,6 +28,7 @@ class UserTest extends TestCase
             PermissionSeeder::class,
             UserSeeder::class,
             IssuerSeeder::class,
+            OrganisationSeeder::class,
             EmailTemplatesSeeder::class,
         ]);
 
@@ -68,6 +70,7 @@ class UserTest extends TestCase
                         'permissions',
                         'registry',
                         'pending_invites',
+                        'organisation_id',
                     ],
                 ],
             ],
@@ -124,6 +127,7 @@ class UserTest extends TestCase
                 'consent_scrape' => true,
                 'public_opt_in' => false,
                 'declaration_signed' => false,
+                'organisation_id' => 1,
             ],
             $this->headers
         );
@@ -142,6 +146,7 @@ class UserTest extends TestCase
                 'last_name' => 'Name',
                 'email' => fake()->email(),
                 'declaration_signed' => true,
+                'organisation_id' => 2,
             ],
             $this->headers
         );
@@ -153,6 +158,7 @@ class UserTest extends TestCase
         $this->assertEquals($content['last_name'], 'Name');
         $this->assertEquals($content['consent_scrape'], true);
         $this->assertEquals($content['declaration_signed'], true);
+        $this->assertEquals($content['organisation_id'], 2);
     }
 
     public function test_the_application_can_delete_users(): void
