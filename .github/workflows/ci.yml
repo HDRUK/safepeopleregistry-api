@@ -9,7 +9,7 @@ on:
     branches:
       - main
       - dev
-      - release
+      # - release
 jobs:
   test:
     timeout-minutes: 20
