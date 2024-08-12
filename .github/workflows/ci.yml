@@ -2,8 +2,9 @@ name: Run quality checks
 run-name: ${{ github.actor }} triggered quality check pipeline
 on:
   push:
-    - dev
-    - main
+    branches:
+      - dev
+      - main
   pull_request:
     branches:
       - main
@@ -22,7 +23,7 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: '8.3'
-      
+
     - name: Composer install
       run: "composer install"
 
@@ -31,6 +32,6 @@ jobs:
 
     - name: Run static analysis
       run: "composer run phpstan"
-
+  
     - name: Run unit tests
-      run: "composer run pest"
+      run: "php artisan test"
