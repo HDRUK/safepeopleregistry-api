@@ -109,6 +109,9 @@ class AuthController extends Controller
                 'applicant_names' => '',
             ]);
 
+            $user->organisation_id = $organisation->id;
+            $user->save();
+
             if (isset($input['dpo_name']) && isset($input['dpo_email'])) {
                 $parts = explode(' ', $input['dpo_name']);
                 OrganisationDelegate::create([
