@@ -265,15 +265,11 @@ class OrganisationTest extends TestCase
         $response->assertJsonStructure([
             'message',
             'data' => [
-                'current_page',
-                'data' => [
-                    'id',
-                    'idvt_result',
-                    'idvt_result_perc',
-                    'idvt_completed_at',
-                    'idvt_errors',
-                ],
-
+                'id',
+                'idvt_result',
+                'idvt_result_perc',
+                'idvt_completed_at',
+                'idvt_errors',
             ],
         ]);
     }

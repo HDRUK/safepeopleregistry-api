@@ -133,8 +133,7 @@ class UserTest extends TestCase
                 'public_opt_in' => false,
                 'declaration_signed' => false,
                 'organisation_id' => 1,
-            ],
-                $this->headers
+            ]
             );
 
         $response->assertStatus(201);
@@ -153,8 +152,7 @@ class UserTest extends TestCase
                 'email' => fake()->email(),
                 'declaration_signed' => true,
                 'organisation_id' => 2,
-            ],
-                $this->headers
+            ]
             );
 
         $response->assertStatus(200);

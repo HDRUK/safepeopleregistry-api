@@ -49,6 +49,10 @@ class AccreditationTest extends TestCase
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json('GET', self::TEST_URL . '/' . $this->registry->id);
 
+        var_dump($response->decodeResponseJson());
+
+        var_dump($this->getMockedKeycloakPayload());
+
         $response->assertStatus(200);
         $content = $response->decodeResponseJson()['data'];
 
