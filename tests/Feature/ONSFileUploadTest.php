@@ -2,11 +2,18 @@
 
 namespace Tests\Feature;
 
+use KeycloakGuard\ActingAsKeycloakUser;
+
+use App\Models\User;
+
+use Database\Seeders\UserSeeder;
 use Database\Seeders\IssuerSeeder;
 use Database\Seeders\OrganisationSeeder;
 use Database\Seeders\PermissionSeeder;
+
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
@@ -14,24 +21,23 @@ class ONSFileUploadTest extends TestCase
 {
     use Authorisation;
     use RefreshDatabase;
+    use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/ons_researcher_feed';
 
-    private $headers = [];
+    private $user = null;
 
     public function setUp(): void
     {
         parent::setUp();
         $this->seed([
+            UserSeeder::class,
             PermissionSeeder::class,
             IssuerSeeder::class,
             OrganisationSeeder::class,
         ]);
 
-        $this->headers = [
-            'Accept' => 'application/json',
-            'Authorization' => 'bearer '.$this->getAuthToken(),
-        ];
+        $this->user = User::where('id', 1)->first();
     }
 
     public function test_the_application_can_receive_ons_feed(): void
@@ -42,14 +48,14 @@ class ONSFileUploadTest extends TestCase
             'Content-Type' => 'multipart/form-data',
         ];
 
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
                 'file' => $file,
-            ],
-            $this->headers
-        );
+            ]
+            );
 
         $response->assertStatus(200);
 

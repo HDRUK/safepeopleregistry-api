@@ -2,11 +2,17 @@
 
 namespace Tests\Feature;
 
+use KeycloakGuard\ActingAsKeycloakUser;
+
+use App\Models\User;
 use App\Models\IssuerUserHasPermission;
+
 use Database\Seeders\IssuerSeeder;
 use Database\Seeders\PermissionSeeder;
+
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
+
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
@@ -14,10 +20,11 @@ class IssuerUserTest extends TestCase
 {
     use Authorisation;
     use RefreshDatabase;
+    use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/issuer_users';
 
-    private $headers = [];
+    private $user = null;
 
     public function setUp(): void
     {
@@ -27,19 +34,16 @@ class IssuerUserTest extends TestCase
             IssuerSeeder::class,
         ]);
 
-        $this->headers = [
-            'Accept' => 'application/json',
-            'Authorization' => 'bearer '.$this->getAuthToken(),
-        ];
+        $this->user = User::where('id', 1)->first();
     }
 
     public function test_the_application_can_list_issuer_users(): void
     {
-        $response = $this->json(
-            'GET',
-            self::TEST_URL,
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL
+            );
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
@@ -47,11 +51,11 @@ class IssuerUserTest extends TestCase
 
     public function test_the_application_can_show_issuer_users(): void
     {
-        $response = $this->json(
-            'GET',
-            self::TEST_URL.'/1',
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/1'
+            );
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
@@ -59,10 +63,11 @@ class IssuerUserTest extends TestCase
 
     public function test_the_application_can_create_issuer_users(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
                 'first_name' => fake()->firstname(),
                 'last_name' => fake()->lastname(),
                 'email' => fake()->email(),
@@ -70,9 +75,8 @@ class IssuerUserTest extends TestCase
                 'provider' => fake()->word(),
                 'keycloak_id' => '',
                 'issuer_id' => 1,
-            ],
-            $this->headers
-        );
+            ]
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
@@ -80,10 +84,11 @@ class IssuerUserTest extends TestCase
 
     public function test_the_application_can_update_issuer_users(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
                 'first_name' => fake()->firstname(),
                 'last_name' => fake()->lastname(),
                 'email' => fake()->email(),
@@ -91,26 +96,25 @@ class IssuerUserTest extends TestCase
                 'provider' => fake()->word(),
                 'keycloak_id' => '',
                 'issuer_id' => 1,
-            ],
-            $this->headers
-        );
+            ]
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
 
-        $content = $response->decodeResponseJson()['data'];
-        $this->assertGreaterThan(0, $content);
+        $content = $response->decodeResponseJson();
+        $this->assertGreaterThan(0, $content['data']);
 
-        $response = $this->json(
-            'PUT',
-            self::TEST_URL.'/'.$content,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . '/' . $content['data'],
+                [
                 'first_name' => 'Updated',
                 'last_name' => 'Name',
                 'email' => fake()->email(),
-            ],
-            $this->headers
-        );
+            ]
+            );
 
         $response->assertStatus(200);
         $content = $response->decodeResponseJson()['data'];
@@ -121,10 +125,11 @@ class IssuerUserTest extends TestCase
 
     public function test_the_application_can_delete_issuer_users(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
                 'first_name' => fake()->firstname(),
                 'last_name' => fake()->lastname(),
                 'email' => fake()->email(),
@@ -132,9 +137,8 @@ class IssuerUserTest extends TestCase
                 'provider' => fake()->word(),
                 'keycloak_id' => '',
                 'issuer_id' => 1,
-            ],
-            $this->headers
-        );
+            ]
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
@@ -142,21 +146,22 @@ class IssuerUserTest extends TestCase
         $content = $response->decodeResponseJson()['data'];
         $this->assertGreaterThan(0, $content);
 
-        $response = $this->json(
-            'DELETE',
-            self::TEST_URL.'/'.$content,
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'DELETE',
+                self::TEST_URL . '/' . $content
+            );
 
         $response->assertStatus(200);
     }
 
     public function test_the_application_can_assign_permissions_to_issuer_users(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
                 'first_name' => fake()->firstname(),
                 'last_name' => fake()->lastname(),
                 'email' => fake()->email(),
@@ -167,9 +172,8 @@ class IssuerUserTest extends TestCase
                 'permissions' => [
                     1, 3, 5,
                 ],
-            ],
-            $this->headers
-        );
+            ]
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);

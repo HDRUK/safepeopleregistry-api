@@ -2,12 +2,18 @@
 
 namespace Tests\Feature;
 
+use KeycloakGuard\ActingAsKeycloakUser;
+
+use App\Models\User;
+
 use Database\Seeders\EmailTemplatesSeeder;
 use Database\Seeders\IssuerSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\UserSeeder;
+
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
+
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
@@ -15,10 +21,11 @@ class UserTest extends TestCase
 {
     use Authorisation;
     use RefreshDatabase;
+    use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/users';
 
-    private $headers = [];
+    private $user = null;
 
     public function setUp(): void
     {
@@ -30,18 +37,15 @@ class UserTest extends TestCase
             EmailTemplatesSeeder::class,
         ]);
 
-        $this->headers = [
-            'Accept' => 'application/json',
-            'Authorization' => 'bearer '.$this->getAuthToken(),
-        ];
+        $this->user = User::where('id', 1)->first();
     }
 
     public function test_the_application_can_list_users(): void
     {
-        $response = $this->json(
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
             'GET',
-            self::TEST_URL,
-            $this->headers
+            self::TEST_URL
         );
 
         $response->assertStatus(200);
@@ -79,10 +83,10 @@ class UserTest extends TestCase
 
     public function test_the_application_can_show_users(): void
     {
-        $response = $this->json(
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
             'GET',
-            self::TEST_URL.'/1',
-            $this->headers
+            self::TEST_URL . '/1'
         );
 
         $response->assertStatus(200);
@@ -91,10 +95,11 @@ class UserTest extends TestCase
 
     public function test_the_application_can_create_users(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
                 'first_name' => fake()->firstname(),
                 'last_name' => fake()->lastname(),
                 'email' => fake()->email(),
@@ -102,9 +107,8 @@ class UserTest extends TestCase
                 'provider_sub' => Str::random(10),
                 'public_opt_in' => fake()->randomElement([0, 1]),
                 'declaration_signed' => fake()->randomElement([0, 1]),
-            ],
-            $this->headers
-        );
+            ]
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
@@ -112,10 +116,11 @@ class UserTest extends TestCase
 
     public function test_the_application_can_update_users(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
                 'first_name' => fake()->firstname(),
                 'last_name' => fake()->lastname(),
                 'email' => fake()->email(),
@@ -124,9 +129,8 @@ class UserTest extends TestCase
                 'consent_scrape' => true,
                 'public_opt_in' => false,
                 'declaration_signed' => false,
-            ],
-            $this->headers
-        );
+            ]
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
@@ -134,17 +138,17 @@ class UserTest extends TestCase
         $content = $response->decodeResponseJson()['data'];
         $this->assertGreaterThan(0, $content);
 
-        $response = $this->json(
-            'PUT',
-            self::TEST_URL.'/'.$content,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . '/' . $content,
+                [
                 'first_name' => 'Updated',
                 'last_name' => 'Name',
                 'email' => fake()->email(),
                 'declaration_signed' => true,
-            ],
-            $this->headers
-        );
+            ]
+            );
 
         $response->assertStatus(200);
         $content = $response->decodeResponseJson()['data'];
@@ -157,10 +161,11 @@ class UserTest extends TestCase
 
     public function test_the_application_can_delete_users(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
                 'first_name' => fake()->firstname(),
                 'last_name' => fake()->lastname(),
                 'email' => fake()->email(),
@@ -168,9 +173,8 @@ class UserTest extends TestCase
                 'provider_sub' => Str::random(10),
                 'public_opt_in' => fake()->randomElement([0, 1]),
                 'declaration_signed' => fake()->randomElement([0, 1]),
-            ],
-            $this->headers
-        );
+            ]
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
@@ -178,11 +182,11 @@ class UserTest extends TestCase
         $content = $response->decodeResponseJson()['data'];
         $this->assertGreaterThan(0, $content);
 
-        $response = $this->json(
-            'DELETE',
-            self::TEST_URL.'/'.$content,
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'DELETE',
+                self::TEST_URL . '/' . $content
+            );
 
         $response->assertStatus(200);
     }
