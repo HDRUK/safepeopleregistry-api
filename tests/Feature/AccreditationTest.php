@@ -37,8 +37,6 @@ class AccreditationTest extends TestCase
 
         $this->user = User::where('id', 1)->first();
 
-        dd($this->user);
-
         $this->registry = Registry::where('id', $this->user->registry_id)->first();
     }
 
