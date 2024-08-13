@@ -255,11 +255,11 @@ class OrganisationTest extends TestCase
 
     public function test_the_application_can_show_idvt(): void
     {
-        $response = $this->json(
-            'GET',
-            self::TEST_URL . '/1/idvt',
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/idvt'
+            );
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
