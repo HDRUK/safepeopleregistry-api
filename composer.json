@@ -62,6 +62,9 @@
         "pest": [
             "vendor/bin/pest"
         ],
+        "test": [
+            "php artisan test"
+        ],
         "lint": [
             "vendor/bin/pint --preset psr12"
         ],
