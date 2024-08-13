@@ -16,7 +16,7 @@ trait Authorisation
         $tokenPayload = [
             'aud' => 'account',
             'exp' => $now->toArray()['timestamp'],
-            'iss' => env('KEYCLOAK_BASE_URL') . ':8443/realms/SPeeDI-Registry',
+            'iss' => env('KEYCLOAK_BASE_URL', 'https://keycloak.dev.hdruk.cloud') . ':8443/realms/SPeeDI-Registry',
         ];
 
         return $tokenPayload;
