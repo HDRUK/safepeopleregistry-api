@@ -60,10 +60,7 @@
             "@php artisan key:generate --ansi"
         ],
         "pest": [
-            "vendor/bin/pest"
-        ],
-        "test": [
-            "php artisan test"
+            "vendor/bin/pest --bail"
         ],
         "lint": [
             "vendor/bin/pint --preset psr12"
