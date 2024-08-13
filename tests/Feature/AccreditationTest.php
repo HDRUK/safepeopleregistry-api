@@ -37,6 +37,10 @@ class AccreditationTest extends TestCase
 
         $this->user = User::where('id', 1)->first();
 
+        var_dump('------------ DEBUG --------------');
+        var_dump($this->user);
+        var_dump('----------- END OF --------------');
+
         $this->registry = Registry::where('id', $this->user->registry_id)->first();
     }
 
@@ -45,7 +49,7 @@ class AccreditationTest extends TestCase
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json('GET', self::TEST_URL . '/' . $this->registry->id);
 
-        $response->assertOk();
+        $response->assertStatus(200);
         $content = $response->decodeResponseJson()['data'];
 
         $this->assertArrayHaskey('data', $response);
