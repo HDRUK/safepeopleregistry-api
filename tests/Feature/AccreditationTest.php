@@ -57,8 +57,6 @@ class AccreditationTest extends TestCase
         var_dump($response->decodeResponseJson());
         var_dump('----------- END OF --------------');
 
-        dd('here');
-
         $response->assertStatus(200);
         $content = $response->decodeResponseJson()['data'];
 
