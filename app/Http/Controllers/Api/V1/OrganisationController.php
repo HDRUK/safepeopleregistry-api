@@ -171,7 +171,7 @@ class OrganisationController extends Controller
         throw new NotFoundException();
     }
 
-        /**
+    /**
      * @OA\Get(
      *      path="/api/v1/organisations/{id}/idvt",
      *      summary="Return an organisations idvt details by ID",

@@ -134,8 +134,8 @@ class UserTest extends TestCase
                 'declaration_signed' => false,
                 'organisation_id' => 1,
             ],
-            $this->headers
-        );
+                $this->headers
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
@@ -154,8 +154,8 @@ class UserTest extends TestCase
                 'declaration_signed' => true,
                 'organisation_id' => 2,
             ],
-            $this->headers
-        );
+                $this->headers
+            );
 
         $response->assertStatus(200);
         $content = $response->decodeResponseJson()['data'];
