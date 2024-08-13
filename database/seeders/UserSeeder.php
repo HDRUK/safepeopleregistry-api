@@ -51,6 +51,7 @@ class UserSeeder extends Seeder
             'registry_id' => $registry->id,
             'user_group' => '',
             'orc_id' => '0009-0004-1636-9627',
+            'organisation_id' => 1,
         ]);
 
         $file = File::create([

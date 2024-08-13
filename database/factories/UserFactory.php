@@ -33,6 +33,7 @@ class UserFactory extends Factory
             'profile_completed_at' => null,
             'public_opt_in' => fake()->randomElement([0, 1]),
             'declaration_signed' => fake()->randomElement([0, 1]),
+            'organisation_id' => null,
         ];
     }
 }
