@@ -171,6 +171,68 @@ class OrganisationController extends Controller
         throw new NotFoundException();
     }
 
+        /**
+     * @OA\Get(
+     *      path="/api/v1/organisations/{id}/idvt",
+     *      summary="Return an organisations idvt details by ID",
+     *      description="Return an organisations idvt details by ID",
+     *      tags={"organisations"},
+     *      summary="organisations@idvt",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="organisations entry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="organisations entry ID",
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string"),
+     *              @OA\Property(property="data", type="object",
+     *                  @OA\Property(property="id", type="integer", example="123"),
+     *                  @OA\Property(property="idvt_result", type="boolean", example="true"),
+     *                  @OA\Property(property="idvt_result_perc", type="number", example="80"),
+     *                  @OA\Property(property="idvt_errors", type="object", example="{}"),
+     *                  @OA\Property(property="idvt_completed_at", type="string", example="2024-02-04 12:01:00")
+     *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found"),
+     *          )
+     *      )
+     * )
+     */
+    public function idvt(Request $request, int $id): JsonResponse
+    {
+        $organisation = Organisation::findOrFail($id);
+
+        if ($organisation) {
+            return response()->json([
+                'message' => 'success',
+                'data' => [
+                    'id' => $organisation->id,
+                    'idvt_result' => $organisation->idvt_result,
+                    'idvt_errors' => $organisation->idvt_errors,
+                    'idvt_completed_at' => $organisation->idvt_completed_at,
+                    'idvt_result_perc' => $organisation->idvt_result_perc
+                ],
+            ], 200);
+        }
+
+        throw new NotFoundException();
+    }
+
     /**
      * @OA\Post(
      *      path="/api/v1/organisations",
