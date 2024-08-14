@@ -117,8 +117,6 @@ class OrganisationTest extends TestCase
                 $this->testOrg
             );
 
-        dd($response->decodeResponseJson());
-
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
 
