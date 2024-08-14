@@ -51,7 +51,7 @@ class ONSSubmissionController extends Controller
             'status' => 'PENDING',
         ]);
 
-        ScanFileUpload::dispatch($file->id, $fileSystem, 'ONSFile');
+        ScanFileUpload::dispatchSync($file->id, $fileSystem, 'ONSFile');
 
         return response()->json([
             'message' => 'success',

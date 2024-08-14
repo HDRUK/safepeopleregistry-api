@@ -36,11 +36,6 @@ class AccreditationTest extends TestCase
         ]);
 
         $this->user = User::where('id', 1)->first();
-
-        var_dump('------------ DEBUG --------------');
-        var_dump(env('KEYCLOAK_LOAD_USER_FROM_DATABASE'));
-        var_dump('----------- END OF --------------');
-
         $this->registry = Registry::where('id', $this->user->registry_id)->first();
     }
 
