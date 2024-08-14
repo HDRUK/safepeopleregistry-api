@@ -34,4 +34,16 @@ jobs:
       run: "composer run phpstan"
   
     - name: Run unit tests
+      env:
+        KEYCLOAK_ALLOWED_RESOURCES: ${{ secrets.KEYCLOAK_ALLOWED_RESOURCES }}
+        KEYCLOAK_BASE_URL: ${{ secrets.KEYCLOAK_BASE_URL }}
+        KEYCLOAK_CLIENT_ID: ${{ secrets.KEYCLOAK_CLIENT_ID }}
+        KEYCLOAK_CLIENT_SECRET: ${{ secrets.KEYCLOAK_CLIENT_SECRET }}
+        KEYCLOAK_LOAD_USERS_FROM_DATABASE: ${{ secrets.KEYCLOAK_LOAD_USERS_FROM_DATABASE }}
+        KEYCLOAK_REALM: ${{ secrets.KEYCLOAK_REALM }}
+        KEYCLOAK_REALM_PUBLIC_KEY: ${{ secrets.KEYCLOAK_REALM_PUBLIC_KEY }}
+        KEYCLOAK_SERVICE_PASSWORD: ${{ secrets.KEYCLOAK_SERVICE_PASSWORD }}
+        KEYCLOAK_SERVICE_USERNAME: ${{ secrets.KEYCLOAK_SERVICE_USERNAME }}
+        KEYCLOAK_TEST_PASSWORD: ${{ secrets.KEYCLOAK_TEST_PASSWORD }}
+        KEYCLOAK_TEST_USERNAME: ${{ secrets.KEYCLOAK_TEST_USERNAME }}
       run: "composer run pest"
