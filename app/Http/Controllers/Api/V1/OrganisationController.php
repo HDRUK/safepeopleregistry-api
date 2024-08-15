@@ -323,7 +323,9 @@ class OrganisationController extends Controller
             ]);
 
             // Run automated IDVT
-            OrganisationIDVT::dispatch($organisation);
+            if (env('APP_ENV') !== 'testing') {
+                OrganisationIDVT::dispatchSync($organisation);
+            }
 
             return response()->json([
                 'message' => 'success',
