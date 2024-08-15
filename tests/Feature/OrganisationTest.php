@@ -2,13 +2,20 @@
 
 namespace Tests\Feature;
 
+use KeycloakGuard\ActingAsKeycloakUser;
+
 use Carbon\Carbon;
+
+use App\Models\User;
+
 use Database\Seeders\IssuerSeeder;
 use Database\Seeders\OrganisationSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\UserSeeder;
+
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
+
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
@@ -16,10 +23,11 @@ class OrganisationTest extends TestCase
 {
     use Authorisation;
     use RefreshDatabase;
+    use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/organisations';
 
-    private $headers = [];
+    private $user = null;
     private $testOrg = [];
 
     public function setUp(): void
@@ -32,10 +40,7 @@ class OrganisationTest extends TestCase
             OrganisationSeeder::class,
         ]);
 
-        $this->headers = [
-            'Accept' => 'application/json',
-            'Authorization' => 'bearer '.$this->getAuthToken(),
-        ];
+        $this->user = User::where('id', 1)->first();
 
         $this->testOrg = [
             'organisation_name' => 'HEALTH DATA RESEARCH UK',
@@ -59,11 +64,11 @@ class OrganisationTest extends TestCase
 
     public function test_the_application_can_list_organisations(): void
     {
-        $response = $this->json(
-            'GET',
-            self::TEST_URL,
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL
+            );
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
@@ -105,23 +110,23 @@ class OrganisationTest extends TestCase
 
     public function test_the_application_can_show_organisations(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            $this->testOrg,
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                $this->testOrg
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
 
-        $content = $response->decodeResponseJson()['data'];
+        $content = $response->decodeResponseJson();
 
-        $response = $this->json(
-            'GET',
-            self::TEST_URL.'/'.$content,
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $content['data']
+            );
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
@@ -161,12 +166,12 @@ class OrganisationTest extends TestCase
         $isoCertified = fake()->randomElement([1, 0]);
         $ceCertified = fake()->randomElement([1, 0]);
 
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            $this->testOrg,
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                $this->testOrg
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
@@ -177,24 +182,25 @@ class OrganisationTest extends TestCase
         $isoCertified = fake()->randomElement([1, 0]);
         $ceCertified = fake()->randomElement([1, 0]);
 
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            $this->testOrg,
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                $this->testOrg
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
 
-        $content = $response->decodeResponseJson()['data'];
+        $content = $response->decodeResponseJson();
 
         $newDate = Carbon::now()->subYears(2);
 
-        $response = $this->json(
-            'PUT',
-            self::TEST_URL.'/'.$content,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . '/' . $content['data'],
+                [
                 'organisation_name' => 'Test Organisation',
                 'address_1' => '123 Blah blah',
                 'address_2' => '',
@@ -211,14 +217,11 @@ class OrganisationTest extends TestCase
                 'sub_license_arrangements' => 'N/A',
                 'verified' => true,
                 'companies_house_no' => '10887014',
-            ],
-            $this->headers
-        );
+            ]
+            );
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
-
-        $content = $response->decodeResponseJson()['data'];
 
         $this->assertDatabaseHas('organisations', [
             'verified' => true,
@@ -227,25 +230,21 @@ class OrganisationTest extends TestCase
 
     public function test_the_application_can_delete_organisations(): void
     {
-        $isoCertified = fake()->randomElement([1, 0]);
-        $ceCertified = fake()->randomElement([1, 0]);
-
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            $this->testOrg,
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                $this->testOrg
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
 
-        $content = $response->decodeResponseJson()['data'];
+        $content = $response->decodeResponseJson();
 
         $response = $this->json(
             'DELETE',
-            self::TEST_URL.'/'.$content,
-            $this->headers
+            self::TEST_URL . '/' . $content['data']
         );
 
         $response->assertStatus(200);
@@ -253,25 +252,21 @@ class OrganisationTest extends TestCase
 
     public function test_the_application_can_show_idvt(): void
     {
-        $response = $this->json(
-            'GET',
-            self::TEST_URL . '/1/idvt',
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/idvt'
+            );
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'message',
             'data' => [
-                'current_page',
-                'data' => [
-                    'id',
-                    'idvt_result',
-                    'idvt_result_perc',
-                    'idvt_completed_at',
-                    'idvt_errors',
-                ],
-
+                'id',
+                'idvt_result',
+                'idvt_result_perc',
+                'idvt_completed_at',
+                'idvt_errors',
             ],
         ]);
     }

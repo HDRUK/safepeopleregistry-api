@@ -2,10 +2,17 @@
 
 namespace Tests\Feature;
 
+use KeycloakGuard\ActingAsKeycloakUser;
+
 use Carbon\Carbon;
+
+use App\Models\User;
+
 use Database\Seeders\UserSeeder;
+
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
+
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
@@ -13,10 +20,11 @@ class ProjectTest extends TestCase
 {
     use Authorisation;
     use RefreshDatabase;
+    use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/projects';
 
-    private $headers = [];
+    private $user = null;
 
     public function setUp(): void
     {
@@ -25,19 +33,16 @@ class ProjectTest extends TestCase
             UserSeeder::class,
         ]);
 
-        $this->headers = [
-            'Accept' => 'application/json',
-            'Authorization' => 'bearer '.$this->getAuthToken(),
-        ];
+        $this->user = User::where('id', 1)->first();
     }
 
     public function test_the_application_can_list_projects(): void
     {
-        $response = $this->json(
-            'GET',
-            self::TEST_URL,
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL
+            );
 
         $response->assertStatus(200);
         $this->assertArrayHaskey('data', $response);
@@ -45,10 +50,11 @@ class ProjectTest extends TestCase
 
     public function test_the_application_can_show_projects(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
                 'unique_id' => Str::random(30),
                 'title' => 'This is a Project',
                 'lay_summary' => 'Sample lay summary',
@@ -59,20 +65,19 @@ class ProjectTest extends TestCase
                 'start_date' => Carbon::now(),
                 'end_date' => Carbon::now()->addYears(2),
                 'affiliate_id' => 1,
-            ],
-            $this->headers
-        );
+            ]
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
 
-        $content = $response->decodeResponseJson()['data'];
+        $content = $response->decodeResponseJson();
 
-        $response = $this->json(
-            'GET',
-            self::TEST_URL.'/'.$content,
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $content['data']
+            );
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
@@ -80,10 +85,11 @@ class ProjectTest extends TestCase
 
     public function test_the_application_can_create_projects(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
                 'unique_id' => Str::random(30),
                 'title' => 'Test Project',
                 'lay_summary' => 'Sample lay summary',
@@ -94,9 +100,8 @@ class ProjectTest extends TestCase
                 'start_date' => Carbon::now(),
                 'end_date' => Carbon::now()->addYears(2),
                 'affiliate_id' => 1,
-            ],
-            $this->headers
-        );
+            ]
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
@@ -104,10 +109,11 @@ class ProjectTest extends TestCase
 
     public function test_the_application_can_update_projects(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
                 'unique_id' => Str::random(30),
                 'title' => 'Test Project',
                 'lay_summary' => 'Sample lay summary',
@@ -118,21 +124,21 @@ class ProjectTest extends TestCase
                 'start_date' => Carbon::now(),
                 'end_date' => Carbon::now()->addYears(2),
                 'affiliate_id' => 1,
-            ],
-            $this->headers
-        );
+            ]
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
 
-        $content = $response->decodeResponseJson()['data'];
+        $content = $response->decodeResponseJson();
 
         $newDate = Carbon::now()->addYears(2);
 
-        $response = $this->json(
-            'PUT',
-            self::TEST_URL.'/'.$content,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . '/' . $content['data'],
+                [
                 'unique_id' => Str::random(30),
                 'title' => 'This is an Old Project',
                 'lay_summary' => 'Sample lay summary',
@@ -143,9 +149,8 @@ class ProjectTest extends TestCase
                 'start_date' => Carbon::now(),
                 'end_date' => Carbon::now()->addYears(2),
                 'affiliate_id' => 1,
-            ],
-            $this->headers
-        );
+            ]
+            );
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
@@ -158,10 +163,11 @@ class ProjectTest extends TestCase
 
     public function test_the_application_can_delete_projects(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
                 'unique_id' => Str::random(30),
                 'title' => 'Test Project',
                 'lay_summary' => 'Sample lay summary',
@@ -172,20 +178,19 @@ class ProjectTest extends TestCase
                 'start_date' => Carbon::now(),
                 'end_date' => Carbon::now()->addYears(2),
                 'affiliate_id' => 1,
-            ],
-            $this->headers
-        );
+            ]
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
 
-        $content = $response->decodeResponseJson()['data'];
+        $content = $response->decodeResponseJson();
 
-        $response = $this->json(
-            'DELETE',
-            self::TEST_URL.'/'.$content,
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'DELETE',
+                self::TEST_URL . '/' . $content['data']
+            );
 
         $response->assertStatus(200);
     }

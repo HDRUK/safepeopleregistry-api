@@ -2,7 +2,11 @@
 
 namespace Tests\Feature;
 
+use KeycloakGuard\ActingAsKeycloakUser;
+
+use App\Models\User;
 use App\Models\Registry;
+
 use Database\Seeders\HistorySeeder;
 use Database\Seeders\IdentitySeeder;
 use Database\Seeders\IssuerSeeder;
@@ -10,7 +14,9 @@ use Database\Seeders\OrganisationSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\TrainingSeeder;
 use Database\Seeders\UserSeeder;
+
 use Illuminate\Foundation\Testing\RefreshDatabase;
+
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
@@ -18,10 +24,11 @@ class QueryTest extends TestCase
 {
     use Authorisation;
     use RefreshDatabase;
+    use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/query';
 
-    private $headers = [];
+    private $user = null;
 
     public function setUp(): void
     {
@@ -37,24 +44,21 @@ class QueryTest extends TestCase
 
         ]);
 
-        $this->headers = [
-            'Accept' => 'application/json',
-            'Authorization' => 'bearer '.$this->getAuthToken(),
-        ];
+        $this->user = User::where('id', 1)->first();
     }
 
     public function test_the_application_can_query_the_system(): void
     {
         $registry = Registry::where('id', 1)->first();
 
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
                 'ident' => $registry->digi_ident,
-            ],
-            $this->headers
-        );
+            ]
+            );
 
         $response->assertStatus(200);
         $content = $response->decodeResponseJson()['data'];

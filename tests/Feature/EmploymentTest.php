@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use KeycloakGuard\ActingAsKeycloakUser;
+
 use App\Models\User;
 use App\Models\Registry;
 
@@ -18,12 +20,12 @@ class EmploymentTest extends TestCase
 {
     use Authorisation;
     use RefreshDatabase;
+    use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/employments';
 
     private $user = null;
     private $registry = null;
-    private $headers = [];
 
     public function setUp(): void
     {
@@ -33,11 +35,6 @@ class EmploymentTest extends TestCase
             EmploymentSeeder::class,
         ]);
 
-        $this->headers = [
-            'Accept' => 'application/json',
-            'Authorization' => 'bearer '.$this->getAuthToken(),
-        ];
-
         $this->user = User::where('id', 1)->first();
         $this->registry = Registry::where('id', $this->user->registry_id)->first();
 
@@ -45,11 +42,8 @@ class EmploymentTest extends TestCase
 
     public function test_the_application_can_list_employments_by_registry_id(): void
     {
-        $response = $this->json(
-            'GET',
-            self::TEST_URL . '/' . $this->registry->id,
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json('GET', self::TEST_URL . '/' . $this->registry->id);
 
         $response->assertStatus(200);
         $content = $response->decodeResponseJson()['data'];
@@ -59,12 +53,12 @@ class EmploymentTest extends TestCase
 
     public function test_the_application_can_create_employments_by_registry_id(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL . '/' . $this->registry->id,
-            $this->prepareEmploymentPayload(),
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL . '/' . $this->registry->id,
+                $this->prepareEmploymentPayload()
+            );
 
         $response->assertStatus(201);
         $content = $response->decodeResponseJson();
@@ -75,24 +69,24 @@ class EmploymentTest extends TestCase
 
     public function test_the_application_can_edit_employments_by_registry_id(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL . '/' . $this->registry->id,
-            $this->prepareEmploymentPayload(),
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL . '/' . $this->registry->id,
+                $this->prepareEmploymentPayload()
+            );
 
         $content = $response->decodeResponseJson();
 
         $response->assertStatus(201);
         $this->assertEquals($content['message'], 'success');
 
-        $response = $this->json(
-            'PATCH',
-            self::TEST_URL . '/' . $content['data'] . '/' . $this->registry->id,
-            $this->prepareEditedEmploymentPayload(),
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PATCH',
+                self::TEST_URL . '/' . $content['data'] . '/' . $this->registry->id,
+                $this->prepareEditedEmploymentPayload()
+            );
 
         $content = $response->decodeResponseJson();
 
@@ -106,27 +100,26 @@ class EmploymentTest extends TestCase
 
     public function test_the_application_can_update_employments_by_registry_id(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL . '/' . $this->registry->id,
-            $this->prepareEmploymentPayload(),
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL . '/' . $this->registry->id,
+                $this->prepareEmploymentPayload()
+            );
 
         $content = $response->decodeResponseJson();
 
         $response->assertStatus(201);
         $this->assertEquals($content['message'], 'success');
 
-        $response = $this->json(
-            'PUT',
-            self::TEST_URL . '/' . $content['data'] . '/' . $this->registry->id,
-            $this->prepareUpdatedEmploymentPayload(),
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . '/' . $content['data'] . '/' . $this->registry->id,
+                $this->prepareUpdatedEmploymentPayload()
+            );
 
         $content = $response->decodeResponseJson();
-
         $response->assertStatus(200);
 
         $this->assertEquals($content['data']['employer_name'], 'Demo Employer Name 2');
@@ -134,23 +127,24 @@ class EmploymentTest extends TestCase
 
     public function test_the_application_can_delete_employments_by_registry_id(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL . '/' . $this->registry->id,
-            $this->prepareEmploymentPayload(),
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL . '/' . $this->registry->id,
+                $this->prepareEmploymentPayload()
+            );
 
         $content = $response->decodeResponseJson();
 
         $response->assertStatus(201);
         $this->assertEquals($content['message'], 'success');
 
-        $response = $this->json(
-            'DELETE',
-            self::TEST_URL . '/' . $content['data'] . '/' . $this->registry->id,
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'DELETE',
+                self::TEST_URL . '/' . $content['data'] . '/' . $this->registry->id,
+                $this->prepareEmploymentPayload()
+            );
 
         $response->assertStatus(200);
         $content = $response->decodeResponseJson();

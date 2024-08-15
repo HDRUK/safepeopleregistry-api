@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use KeycloakGuard\ActingAsKeycloakUser;
+
 use App\Models\User;
 use App\Models\Registry;
 use App\Models\InfringementHasResolution;
@@ -20,12 +22,12 @@ class ResolutionTest extends TestCase
 {
     use Authorisation;
     use RefreshDatabase;
+    use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/resolutions';
 
     private $user = null;
     private $registry = null;
-    private $headers = [];
 
     public function setUp(): void
     {
@@ -36,11 +38,6 @@ class ResolutionTest extends TestCase
             ResolutionSeeder::class,
         ]);
 
-        $this->headers = [
-            'Accept' => 'application/json',
-            'Authorization' => 'bearer '.$this->getAuthToken(),
-        ];
-
         $this->user = User::where('id', 1)->first();
         $this->registry = Registry::where('id', $this->user->registry_id)->first();
 
@@ -48,11 +45,11 @@ class ResolutionTest extends TestCase
 
     public function test_the_application_can_list_resolutions_by_registry_id(): void
     {
-        $response = $this->json(
-            'GET',
-            self::TEST_URL . '/' . $this->registry->id,
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $this->registry->id
+            );
 
         $response->assertStatus(200);
         $content = $response->decodeResponseJson()['data'];
@@ -66,11 +63,11 @@ class ResolutionTest extends TestCase
 
     public function test_the_application_can_create_resolutions_by_registry_id(): void
     {
-        $response = $this->json(
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
             'POST',
             self::TEST_URL . '/' . $this->registry->id,
-            $this->prepareResolutionPayload(),
-            $this->headers
+            $this->prepareResolutionPayload()
         );
 
         $response->assertStatus(201);
@@ -79,11 +76,11 @@ class ResolutionTest extends TestCase
 
     public function test_the_application_can_create_resolutions_with_infringement_id_by_registry_id(): void
     {
-        $response = $this->json(
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
             'POST',
             self::TEST_URL . '/' . $this->registry->id,
-            $this->prepareResolutionPayloadWithInfringementId(),
-            $this->headers
+            $this->prepareResolutionPayloadWithInfringementId()
         );
 
         $response->assertStatus(201);

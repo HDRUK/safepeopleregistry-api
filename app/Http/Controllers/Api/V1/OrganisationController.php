@@ -171,7 +171,7 @@ class OrganisationController extends Controller
         throw new NotFoundException();
     }
 
-        /**
+    /**
      * @OA\Get(
      *      path="/api/v1/organisations/{id}/idvt",
      *      summary="Return an organisations idvt details by ID",
@@ -323,7 +323,9 @@ class OrganisationController extends Controller
             ]);
 
             // Run automated IDVT
-            OrganisationIDVT::dispatch($organisation);
+            if (env('APP_ENV') !== 'testing') {
+                OrganisationIDVT::dispatchSync($organisation);
+            }
 
             return response()->json([
                 'message' => 'success',

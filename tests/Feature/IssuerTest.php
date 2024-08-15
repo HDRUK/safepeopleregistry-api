@@ -2,13 +2,20 @@
 
 namespace Tests\Feature;
 
+use KeycloakGuard\ActingAsKeycloakUser;
+
+use App\Models\User;
 use App\Models\Issuer;
+
 use Carbon\Carbon;
+
 use Database\Seeders\IssuerSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\UserSeeder;
+
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
+
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
@@ -16,13 +23,12 @@ class IssuerTest extends TestCase
 {
     use Authorisation;
     use RefreshDatabase;
+    use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/issuers';
 
-    private $headers = [];
-
+    private $user = null;
     private $projectUniqueId = '';
-
     private $organisationUniqueId = '';
 
     public function setUp(): void
@@ -34,10 +40,7 @@ class IssuerTest extends TestCase
             IssuerSeeder::class,
         ]);
 
-        $this->headers = [
-            'Accept' => 'application/json',
-            'Authorization' => 'bearer '.$this->getAuthToken(),
-        ];
+        $this->user = User::where('id', 1)->first();
 
         $this->projectUniqueId = Str::random(40);
         $this->organisationUniqueId = Str::random(40);
@@ -45,11 +48,11 @@ class IssuerTest extends TestCase
 
     public function test_the_application_can_list_issuers(): void
     {
-        $response = $this->json(
-            'GET',
-            self::TEST_URL,
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL
+            );
 
         $response->assertStatus(200);
         $this->assertArrayHaskey('data', $response);
@@ -57,11 +60,11 @@ class IssuerTest extends TestCase
 
     public function test_the_application_can_show_issuers(): void
     {
-        $response = $this->json(
-            'GET',
-            self::TEST_URL.'/1',
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/1'
+            );
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
@@ -69,17 +72,17 @@ class IssuerTest extends TestCase
 
     public function test_the_application_can_create_issuers(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
                 'name' => 'Test Issuer',
                 'contact_email' => 'test@test.com',
                 'enabled' => true,
                 'idvt_required' => false,
-            ],
-            $this->headers
-        );
+            ]
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
@@ -87,34 +90,34 @@ class IssuerTest extends TestCase
 
     public function test_the_application_can_update_issuers(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
                 'name' => 'Test Issuer',
                 'contact_email' => 'test@test.com',
                 'enabled' => true,
                 'idvt_required' => false,
-            ],
-            $this->headers
-        );
+            ]
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
 
-        $content = $response->decodeResponseJson()['data'];
-        $this->assertGreaterThan(0, $content);
+        $content = $response->decodeResponseJson();
+        $this->assertGreaterThan(0, $content['data']);
 
-        $response = $this->json(
-            'PUT',
-            self::TEST_URL.'/'.$content,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . '/' . $content['data'],
+                [
                 'name' => 'Updated Issuer',
                 'enabled' => false,
                 'idvt_required' => true,
-            ],
-            $this->headers
-        );
+            ]
+            );
 
         $response->assertStatus(200);
         $content = $response->decodeResponseJson()['data'];
@@ -126,56 +129,56 @@ class IssuerTest extends TestCase
 
     public function test_the_application_can_delete_issuers(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
                 'name' => 'Test Issuer',
                 'contact_email' => 'test@test.com',
                 'enabled' => true,
-            ],
-            $this->headers
-        );
+            ]
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
 
-        $content = $response->decodeResponseJson()['data'];
+        $content = $response->decodeResponseJson();
 
-        $response = $this->json(
-            'DELETE',
-            self::TEST_URL.'/'.$content,
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'DELETE',
+                self::TEST_URL . '/' . $content['data']
+            );
 
         $response->assertStatus(200);
     }
 
     public function test_the_application_can_get_issuers_by_unique_identifier(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
                 'name' => 'Test Issuer ABC123',
                 'contact_email' => 'test@test.com',
                 'enabled' => true,
-            ],
-            $this->headers
-        );
+            ]
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
 
-        $content = $response->decodeResponseJson()['data'];
+        $content = $response->decodeResponseJson();
 
-        $issuerCreated = Issuer::where('id', $content)->first();
+        $issuerCreated = Issuer::where('id', $content['data'])->first();
 
-        $response = $this->json(
-            'GET',
-            self::TEST_URL.'/identifier/'.$issuerCreated->unique_identifier,
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/identifier/' . $issuerCreated->unique_identifier
+            );
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
@@ -187,28 +190,29 @@ class IssuerTest extends TestCase
 
     public function test_the_application_can_receive_issuer_pushes_with_valid_key(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
                 'name' => 'Test Issuer ABCDEF',
                 'contact_email' => 'test@test.com',
                 'enabled' => true,
-            ],
-            $this->headers
-        );
+            ]
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
 
-        $content = $response->decodeResponseJson()['data'];
+        $content = $response->decodeResponseJson();
 
-        $issuer = Issuer::where('id', $content)->first();
+        $issuer = Issuer::where('id', $content['data'])->first();
 
-        $response = $this->json(
-            'POST',
-            self::TEST_URL.'/push',
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL . '/push',
+                [
                 'researchers' => [],
                 'projects' => [
                     [
@@ -244,10 +248,10 @@ class IssuerTest extends TestCase
                     ],
                 ],
             ],
-            [
+                [
                 'x-issuer-key' => $issuer->unique_identifier,
             ]
-        );
+            );
 
         $response->assertStatus(200);
         $content = $response->decodeResponseJson()['data'];
@@ -259,28 +263,29 @@ class IssuerTest extends TestCase
 
     public function test_the_application_can_refuse_pushes_with_missing_key(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
                 'name' => 'Test Issuer ABCDEF',
                 'contact_email' => 'test@test.com',
                 'enabled' => true,
-            ],
-            $this->headers
-        );
+            ]
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
 
-        $content = $response->decodeResponseJson()['data'];
+        $content = $response->decodeResponseJson();
 
-        $issuer = Issuer::where('id', $content)->first();
+        $issuer = Issuer::where('id', $content['data'])->first();
 
-        $response = $this->json(
-            'POST',
-            self::TEST_URL.'/push',
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL.'/push',
+                [
                 'researchers' => [],
                 'projects' => [
                     [
@@ -315,10 +320,8 @@ class IssuerTest extends TestCase
                         'companies_house_no' => '287652',
                     ],
                 ],
-            ],
-            [
             ]
-        );
+            );
 
         $response->assertStatus(401);
         $content = $response->decodeResponseJson();
@@ -328,28 +331,29 @@ class IssuerTest extends TestCase
 
     public function test_the_application_can_refuse_pushes_when_key_is_invalid(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
                 'name' => 'Test Issuer ABCDEF',
                 'contact_email' => 'test@test.com',
                 'enabled' => true,
-            ],
-            $this->headers
-        );
+            ]
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
 
-        $content = $response->decodeResponseJson()['data'];
+        $content = $response->decodeResponseJson();
 
-        $issuer = Issuer::where('id', $content)->first();
+        $issuer = Issuer::where('id', $content['data'])->first();
 
-        $response = $this->json(
-            'POST',
-            self::TEST_URL.'/push',
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL.'/push',
+                [
                 'researchers' => [],
                 'projects' => [
                     [
@@ -385,10 +389,10 @@ class IssuerTest extends TestCase
                     ],
                 ],
             ],
-            [
+                [
                 'x-issuer-key' => $issuer->unique_identifier.'broken_key',
             ]
-        );
+            );
 
         $response->assertStatus(401);
         $content = $response->decodeResponseJson();
