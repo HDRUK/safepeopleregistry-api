@@ -51,7 +51,9 @@ class ONSSubmissionController extends Controller
             'status' => 'PENDING',
         ]);
 
-        ScanFileUpload::dispatchSync($file->id, $fileSystem, 'ONSFile');
+        if (env('APP_ENV') !== 'testing') {
+            ScanFileUpload::dispatchSync($file->id, $fileSystem, 'ONSFile');
+        }
 
         return response()->json([
             'message' => 'success',

@@ -42,26 +42,24 @@ class ONSFileUploadTest extends TestCase
 
     public function test_the_application_can_receive_ons_feed(): void
     {
-        // LS - Removed due to needing to be mocked fully as failing to resolve
-        // CLAMAV route.
-        // $file = UploadedFile::fake()->create('../test_files/ons_test_26062024.csv');
+        $file = UploadedFile::fake()->create('../test_files/ons_test_26062024.csv');
 
-        // $this->headers[] = [
-        //     'Content-Type' => 'multipart/form-data',
-        // ];
+        $this->headers[] = [
+            'Content-Type' => 'multipart/form-data',
+        ];
 
-        // $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        //     ->json(
-        //         'POST',
-        //         self::TEST_URL,
-        //         [
-        //         'file' => $file,
-        //     ]
-        //     );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
+                'file' => $file,
+            ]
+            );
 
-        // $response->assertStatus(200);
+        $response->assertStatus(200);
 
-        // $content = $response->decodeResponseJson()['data'];
-        // $this->assertTrue($content);
+        $content = $response->decodeResponseJson()['data'];
+        $this->assertTrue($content);
     }
 }
