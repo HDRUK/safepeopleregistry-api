@@ -230,9 +230,6 @@ class OrganisationTest extends TestCase
 
     public function test_the_application_can_delete_organisations(): void
     {
-        $isoCertified = fake()->randomElement([1, 0]);
-        $ceCertified = fake()->randomElement([1, 0]);
-
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'POST',
