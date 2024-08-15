@@ -21,5 +21,6 @@ class Education extends Model
         'institute_address',
         'institute_identifier',
         'source',
+        'registry_id',
     ];
 }
