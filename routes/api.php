@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\V1\TriggerEmailController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\ResolutionController;
 use App\Http\Controllers\Api\V1\EmploymentController;
+use App\Http\Controllers\Api\V1\EducationController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -126,6 +127,13 @@ Route::middleware('api')->post('v1/accreditations/{registryId}', [AccreditationC
 Route::middleware('api')->put('v1/accreditations/{id}/{registryId}', [AccreditationController::class, 'updateByRegistryId']);
 Route::middleware('api')->patch('v1/accreditations/{id}/{registryId}', [AccreditationController::class, 'editByRegistryId']);
 Route::middleware('api')->delete('v1/accreditations/{id}/{registryId}', [AccreditationController::class, 'destroyByRegistryId']);
+
+Route::middleware('api')->get('v1/educations/{registryId}', [EducationController::class, 'indexByRegistryId']);
+Route::middleware('api')->get('v1/educations/{id}/{registryId}', [EducationController::class, 'showByRegistryId']);
+Route::middleware('api')->post('v1/educations/{registryId}', [EducationController::class, 'storeByRegistryId']);
+Route::middleware('api')->put('v1/educations/{id}/{registryId}', [EducationController::class, 'updateByRegistryId']);
+Route::middleware('api')->patch('v1/educations/{id}/{registryId}', [EducationController::class, 'editByRegistryId']);
+Route::middleware('api')->delete('v1/educations/{id}/{registryId}', [EducationController::class, 'destroyByRegistryId']);
 
 Route::middleware('api')->get('v1/employments/{registryId}', [EmploymentController::class, 'indexByRegistryId']);
 Route::middleware('api')->get('v1/employments/{id}/{registryId}', [EmploymentController::class, 'showByRegistryId']);

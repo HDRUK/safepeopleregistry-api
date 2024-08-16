@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
 use Exception;
 use Carbon\Carbon;
@@ -122,13 +122,13 @@ class EducationController extends Controller
                 'registry_id' => $registryId,
             ])->first();
 
-            $education->title = isset($input['title']) ? 
+            $education->title = isset($input['title']) ?
                 $input['title'] : $education->title;
-            $education->from = isset($input['from']) ? 
+            $education->from = isset($input['from']) ?
                 Carbon::parse($input['from'])->toDateString() : $education->from;
             $education->to = isset($input['to']) ?
                 Carbon::parse($input['to'])->toDateString() : $education->to;
-            $education->institute_name = isset($input['institute_name']) ? 
+            $education->institute_name = isset($input['institute_name']) ?
                 $input['institute_name'] : $education->institute_name;
             $education->institute_address = isset($input['institute_address']) ?
                 $input['institute_address'] : $education->institute_address;
