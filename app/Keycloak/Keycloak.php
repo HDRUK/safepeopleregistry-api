@@ -2,12 +2,15 @@
 
 namespace App\Keycloak;
 
-use App\Models\Registry;
-use App\Models\RegistryHasOrganisation;
-use App\Models\User;
-use Exception;
-use Hash;
 use Http;
+use Hash;
+use Exception;
+
+use App\Models\User;
+use App\Models\Registry;
+use App\Models\IssuerUser;
+use App\Models\RegistryHasOrganisation;
+
 use Illuminate\Support\Str;
 
 class Keycloak
@@ -17,6 +20,10 @@ class Keycloak
     public function create(array $credentials): array
     {
         try {
+            $isResearcher = isset($credentials['is_researcher']) ? true : false;
+            $isIssuer = isset($credentials['is_issuer']) ? true : false;
+            $isOrganisation = isset($credentials['is_organisation']) ? true : false;
+
             $payload = [
                 'username' => $credentials['email'],
                 'email' => $credentials['email'],
@@ -37,9 +44,9 @@ class Keycloak
                 ],
             ];
 
-            isset($credentials['is_researcher']) ? $payload['groups'][] = '/Researchers' : null;
-            isset($credentials['is_issuer']) ? $payload['groups'][] = '/Issuers' : null;
-            isset($credentials['is_organisation']) ? $payload['groups'][] = '/Organisations' : null;
+            ($isResearcher) ? $payload['groups'][] = '/Researchers' : null;
+            ($isIssuer) ? $payload['groups'][] = '/Issuers' : null;
+            ($isOrganisation) ? $payload['groups'][] = '/Organisations' : null;
             $userGroup = $this->determineUserGroup($credentials);
 
             $response = Http::withHeaders([
@@ -57,16 +64,30 @@ class Keycloak
                 $last = count($parts) - 1;
                 $newUserId = $parts[$last];
 
-                $user = User::create([
-                    'first_name' => $credentials['first_name'],
-                    'last_name' => $credentials['last_name'],
-                    'email' => $credentials['email'],
-                    'consent_scrape' => isset($credentials['consent_scrape']) ? $credentials['consent_scrape'] : 0,
-                    'provider' => 'keycloak',
-                    'provider_sub' => '',
-                    'keycloak_id' => $newUserId,
-                    'user_group' => $userGroup,
-                ]);
+                $user = null;
+
+                if ($isResearcher || $isOrganisation) {
+                    $user = User::create([
+                        'first_name' => $credentials['first_name'],
+                        'last_name' => $credentials['last_name'],
+                        'email' => $credentials['email'],
+                        'consent_scrape' => isset($credentials['consent_scrape']) ? $credentials['consent_scrape'] : 0,
+                        'provider' => 'keycloak',
+                        'provider_sub' => '',
+                        'keycloak_id' => $newUserId,
+                        'user_group' => $userGroup,
+                    ]);
+                } elseif ($isIssuer) {
+                    $user = IssuerUser::create([
+                        'first_name' => $credentials['first_name'],
+                        'last_name' => $credentials['last_name'],
+                        'email' => $credentials['email'],
+                        'provider' => 'keycloak',
+                        'provider_sub' => '',
+                        'keycloak_id' => $newUserId,
+                        'issuer_id' => $credentials['issuer_id'],
+                    ]);
+                }
 
                 if (!$user) {
                     return [
@@ -157,6 +178,27 @@ class Keycloak
                 'status' => 401,
             ];
 
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    public function changePassword(string $keycloakUserId, string $password): mixed
+    {
+        try {
+            $authUrl = env('KEYCLOAK_BASE_URL') . '/admin/realms/' . env('KEYCLOAK_REALM') . '/users/' . $keycloakUserId . '/reset-password';
+
+            $payload = [
+                'type' => 'password',
+                'temporary' => 'false',
+                'value' => $password,
+            ];
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->getServiceToken(),
+            ])->put($authUrl, $payload);
+
+            return $response;
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
