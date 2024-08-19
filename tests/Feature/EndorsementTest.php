@@ -42,7 +42,7 @@ class EndorsementTest extends TestCase
         );
 
         $response->assertStatus(200);
-        $this->assertArrayHaskey('data', $response);
+        $this->assertArrayHasKey('data', $response);
     }
 
     public function test_the_application_can_show_endorsements(): void

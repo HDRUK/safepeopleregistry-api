@@ -549,7 +549,7 @@ class UserController extends Controller
             UserHasIssuerApproval::where('user_id', $id)->delete();
 
             return response()->json([
-                'message' => 'succes',
+                'message' => 'success',
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());

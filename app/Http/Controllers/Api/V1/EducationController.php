@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Exception;
+use Carbon\Carbon;
 
-use App\Models\Employment;
+use App\Models\Education;
 use App\Models\Registry;
 
 use Illuminate\Http\JsonResponse;
@@ -12,29 +13,29 @@ use Illuminate\Http\Request;
 
 use App\Http\Controllers\Controller;
 
-class EmploymentController extends Controller
+class EducationController extends Controller
 {
     public function indexByRegistryId(Request $request, int $registryId): JsonResponse
     {
-        $employments = Employment::where('registry_id', $registryId)->get();
+        $educations = Education::where('registry_id', $registryId)->get();
 
         return response()->json([
             'message' => 'success',
-            'data' => $employments,
+            'data' => $educations,
         ], 200);
     }
 
     public function showByRegistryId(Request $request, int $id, int $registryId): JsonResponse
     {
         try {
-            $employment = Employment::where([
+            $education = Education::where([
                 'id' => $id,
                 'registry_id' => $registryId,
             ])->first();
 
             return response()->json([
                 'message' => 'success',
-                'data' => $employment,
+                'data' => $education,
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -55,21 +56,20 @@ class EmploymentController extends Controller
                 ], 400);
             }
 
-            $employment = Employment::create([
-                'employer_name' => $input['employer_name'],
-                'from' => $input['from'],
-                'to' => $input['to'],
-                'is_current' => $input['is_current'],
-                'department' => $input['department'],
-                'role' => $input['role'],
-                'employer_address' => $input['employer_address'],
-                'ror' => $input['ror'],
+            $education = Education::create([
+                'title' => $input['title'],
+                'from' => Carbon::parse($input['from'])->toDateString(),
+                'to' => Carbon::parse($input['to'])->toDateString(),
+                'institute_name' => $input['institute_name'],
+                'institute_address' => $input['institute_address'],
+                'institute_identifier' => $input['institute_identifier'],
+                'source' => $input['source'],
                 'registry_id' => $registry->id,
             ]);
 
             return response()->json([
                 'message' => 'success',
-                'data' => $employment->id,
+                'data' => $education->id,
             ], 201);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -81,31 +81,31 @@ class EmploymentController extends Controller
         try {
             $input = $request->all();
 
-            $employment = Employment::where([
+            $education = Education::where([
                 'id' => $id,
                 'registry_id' => $registryId,
             ])->first();
 
-            $employment->employer_name = $input['employer_name'];
-            $employment->from = $input['from'];
-            $employment->to = $input['to'];
-            $employment->is_current = $input['is_current'];
-            $employment->department = $input['department'];
-            $employment->role = $input['role'];
-            $employment->employer_address = $input['employer_address'];
-            $employment->ror = $input['ror'];
+            $education->title = $input['title'];
+            $education->from = Carbon::parse($input['from'])->toDateString();
+            $education->to = Carbon::parse($input['to'])->toDateString();
+            $education->institute_name = $input['institute_name'];
+            $education->institute_address = $input['institute_address'];
+            $education->institute_identifier = $input['institute_identifier'];
+            $education->source = $input['source'];
+            $education->registry_id = $input['registry_id'];
 
-            if (!$employment->save()) {
+            if (!$education->save()) {
                 return response()->json([
                     'message' => 'failed',
                     'data' => null,
-                    'error' => 'unable to save employment'
+                    'error' => 'unable to save education',
                 ], 400);
             }
 
             return response()->json([
                 'message' => 'success',
-                'data' => $employment,
+                'data' => $education,
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -117,39 +117,39 @@ class EmploymentController extends Controller
         try {
             $input = $request->all();
 
-            $employment = Employment::where([
+            $education = Education::where([
                 'id' => $id,
                 'registry_id' => $registryId,
             ])->first();
 
-            $employment->employer_name = isset($input['employer_name']) ?
-                $input['employer_name'] : $employment->employer_name;
-            $employment->from = isset($input['from']) ?
-                $input['from'] : $employment->from;
-            $employment->to = isset($input['to']) ?
-                $input['to'] : $employment->to;
-            $employment->is_current = isset($input['is_current']) ?
-                $input['is_current'] : $employment->is_current;
-            $employment->department = isset($input['department']) ?
-                $input['department'] : $employment->department;
-            $employment->role = isset($input['role']) ?
-                $input['role'] : $employment->role;
-            $employment->employer_address = isset($input['employer_address']) ?
-                $input['employer_address'] : $employment->employer_address;
-            $employment->ror = isset($input['ror']) ?
-                $input['ror'] : $employment->ror;
+            $education->title = isset($input['title']) ?
+                $input['title'] : $education->title;
+            $education->from = isset($input['from']) ?
+                Carbon::parse($input['from'])->toDateString() : $education->from;
+            $education->to = isset($input['to']) ?
+                Carbon::parse($input['to'])->toDateString() : $education->to;
+            $education->institute_name = isset($input['institute_name']) ?
+                $input['institute_name'] : $education->institute_name;
+            $education->institute_address = isset($input['institute_address']) ?
+                $input['institute_address'] : $education->institute_address;
+            $education->institute_identifier = isset($input['institute_identifier']) ?
+                $input['institute_identifier'] : $education->institute_identifier;
+            $education->source = isset($input['source']) ?
+                $input['source'] : $education->source;
+            $education->registry_id = isset($input['registry_id']) ?
+                $input['registry_id'] : $education->registry_id;
 
-            if (!$employment->save()) {
+            if (!$education->save()) {
                 return response()->json([
                     'message' => 'failed',
                     'data' => null,
-                    'error' => 'unable to save employment'
+                    'error' => 'unable to save employment',
                 ], 400);
             }
 
             return response()->json([
                 'message' => 'success',
-                'data' => $employment,
+                'data' => $education,
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -159,7 +159,7 @@ class EmploymentController extends Controller
     public function destroyByRegistryId(Request $request, int $id, int $registryId): JsonResponse
     {
         try {
-            Employment::where([
+            Education::where([
                 'id' => $id,
                 'registry_id' => $registryId,
             ])->delete();
