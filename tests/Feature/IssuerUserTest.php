@@ -68,14 +68,14 @@ class IssuerUserTest extends TestCase
                 'POST',
                 self::TEST_URL,
                 [
-                'first_name' => fake()->firstname(),
-                'last_name' => fake()->lastname(),
-                'email' => fake()->email(),
-                'password' => Str::random(12),
-                'provider' => fake()->word(),
-                'keycloak_id' => '',
-                'issuer_id' => 1,
-            ]
+                    'first_name' => fake()->firstname(),
+                    'last_name' => fake()->lastname(),
+                    'email' => fake()->email(),
+                    'password' => Str::random(12),
+                    'provider' => fake()->word(),
+                    'keycloak_id' => '',
+                    'issuer_id' => 1,
+                ]
             );
 
         $response->assertStatus(201);

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Exception;
+
 use App\Http\Controllers\Controller;
 use App\Models\Organisation;
 use App\Models\OrganisationDelegate;
@@ -179,5 +181,36 @@ class AuthController extends Controller
             'message' => 'success',
             'data' => Keycloak::logout($token[1]),
         ]);
+    }
+
+    public function changePassword(Request $request, int $userId): JsonResponse
+    {
+        try {
+            $input = $request->all();
+
+            $user = User::where('id', $userId)->first();
+            if (!$user) {
+                return response()->json([
+                    'message' => 'failed',
+                    'data' => null,
+                    'error' => 'user not found',
+                ], 404);
+            }
+
+            $response = Keycloak::changePassword($user->keycloak_id, $input['password']);
+            if ($response->status() === 204) {
+                return response()->json([
+                    'message' => 'success',
+                    'data' => null,
+                ], 200);
+            }
+
+            return response()->json([
+                'message' => 'failed',
+                'data' => $response->body(),
+            ], 400);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
     }
 }
