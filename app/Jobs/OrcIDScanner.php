@@ -2,29 +2,28 @@
 
 namespace App\Jobs;
 
-use OrcID;
-
-use App\Models\User;
+use App\Models\Accreditation;
 use App\Models\Education;
 use App\Models\Employment;
-use App\Models\UserApiToken;
-
-use App\Models\Accreditation;
-use App\Models\RegistryHasEducation;
-use App\Models\RegistryHasEmployment;
 use App\Models\RegistryHasAccreditation;
-
+use App\Models\RegistryHasEducation;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use OrcID;
 
 class OrcIDScanner implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     private $user = null;
+
     private $accessToken = null;
 
     /**
@@ -52,14 +51,14 @@ class OrcIDScanner implements ShouldQueue
 
         // Nothing to do - either no consent to scrape data, or
         // OrcID hasn't been set. Either way, fail silently.
-        return;
+
     }
 
     private function getEducations(): void
     {
         $record = OrcID::getOrcIDRecord($this->accessToken, $this->user->orc_id, 'educations');
         foreach ($record['affiliation-group'] as $affiliations) {
-            foreach($affiliations['summaries'] as $summary) {
+            foreach ($affiliations['summaries'] as $summary) {
                 $education = $summary['education-summary'];
                 $title = $education['role-title'];
                 $organisation = $education['organization'];
@@ -114,7 +113,7 @@ class OrcIDScanner implements ShouldQueue
                 RegistryHasAccreditation::create([
                     'registry_id' => $this->user->registry_id,
                     'accreditation_id' => $accreditation->id,
-                ]);             
+                ]);
             }
         }
     }
@@ -125,7 +124,7 @@ class OrcIDScanner implements ShouldQueue
         foreach ($record['affiliation-group'] as $affiliations) {
             foreach ($affiliations['summaries'] as $summary) {
                 $organisation = $summary['employment-summary'];
-                
+
                 $dates = [
                     'startDate' => $this->normaliseDate($organisation['start-date']),
                     'endDate' => $this->normaliseDate($organisation['end-date']),
@@ -140,11 +139,7 @@ class OrcIDScanner implements ShouldQueue
                     'role' => $organisation['role-title'],
                     'employer_address' => json_encode($organisation['organization']['address']),
                     'ror' => $organisation['organization']['disambiguated-organization']['disambiguated-organization-identifier'],
-                ]);
-
-                RegistryHasEmployment::create([
                     'registry_id' => $this->user->registry_id,
-                    'employment_id' => $employment->id,
                 ]);
             }
         }
@@ -156,7 +151,7 @@ class OrcIDScanner implements ShouldQueue
 
         if (is_array($date)) {
             if (isset($date['month']) && $date['month'] !== null) {
-                $formedDateString .= $date['month']['value'] . '/';
+                $formedDateString .= $date['month']['value'].'/';
             }
 
             if (isset($date['year']) && $date['year'] !== null) {
@@ -164,7 +159,7 @@ class OrcIDScanner implements ShouldQueue
             }
 
             return $formedDateString;
-        } 
+        }
 
         return $formedDateString;
     }

@@ -4,8 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\History;
 use App\Models\RegistryHasHistory;
-
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class HistorySeeder extends Seeder
@@ -16,7 +14,7 @@ class HistorySeeder extends Seeder
     public function run(): void
     {
         History::truncate();
-        
+
         History::factory(10)->create();
 
         $histories = History::all();

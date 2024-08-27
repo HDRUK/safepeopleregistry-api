@@ -3,15 +3,14 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Hash;
-
-use App\Models\Permission;
-use App\Models\IssuerUser;
-use App\Models\IssuerUserHasPermission;
-
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
+use Exception;
 
 use App\Http\Controllers\Controller;
+use App\Models\IssuerUser;
+use App\Models\IssuerUserHasPermission;
+use App\Models\Permission;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class IssuerUserController extends Controller
 {
@@ -23,10 +22,13 @@ class IssuerUserController extends Controller
      *      tags={"IssuerUsers"},
      *      summary="IssuerUsers@index",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -39,10 +41,13 @@ class IssuerUserController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -51,6 +56,7 @@ class IssuerUserController extends Controller
     public function index(Request $request): JsonResponse
     {
         $users = IssuerUser::all();
+
         return response()->json([
             'message' => 'success',
             'data' => $users,
@@ -65,21 +71,26 @@ class IssuerUserController extends Controller
      *      tags={"IssuerUser"},
      *      summary="IssuerUser@show",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="IssuerUser entry ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="IssuerUser entry ID",
      *         ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -92,10 +103,13 @@ class IssuerUserController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -104,13 +118,14 @@ class IssuerUserController extends Controller
     public function show(Request $request, int $id): JsonResponse
     {
         $user = IssuerUser::where('id', $id)->first();
+
         return response()->json([
             'message' => 'success',
             'data' => $user,
         ], 200);
     }
 
-   /**
+    /**
      * @OA\Post(
      *      path="/api/v1/issuers_users",
      *      summary="Create an IssuerUser entry",
@@ -118,10 +133,13 @@ class IssuerUserController extends Controller
      *      tags={"IssuerUser"},
      *      summary="IssuerUser@store",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="IssuerUser definition",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="issuer_id", type="integer", example="1"),
      *              @OA\Property(property="first_name", type="string", example="First"),
      *              @OA\Property(property="last_name", type="string", example="Last"),
@@ -129,25 +147,34 @@ class IssuerUserController extends Controller
      *              @OA\Property(property="password", type="string", example="SomeP4ssw0rd!")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=201,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="integer", example="1")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -172,7 +199,7 @@ class IssuerUserController extends Controller
                 IssuerUserHasPermission::where([
                     'issuer_user_id' => $user->id,
                 ])->delete();
-                
+
                 $perms = Permission::whereIn('id', $input['permissions'])->get();
                 foreach ($perms as $perm) {
                     $p = IssuerUserHasPermission::create([
@@ -191,7 +218,7 @@ class IssuerUserController extends Controller
         }
     }
 
-   /**
+    /**
      * @OA\Put(
      *      path="/api/v1/issuers_users",
      *      summary="Update an IssuerUser entry",
@@ -199,10 +226,13 @@ class IssuerUserController extends Controller
      *      tags={"IssuerUser"},
      *      summary="IssuerUser@update",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="IssuerUser definition",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="issuer_id", type="integer", example="1"),
      *              @OA\Property(property="first_name", type="string", example="First"),
      *              @OA\Property(property="last_name", type="string", example="Last"),
@@ -210,17 +240,23 @@ class IssuerUserController extends Controller
      *              @OA\Property(property="password", type="string", example="SomeP4ssw0rd!")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=201,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -233,10 +269,13 @@ class IssuerUserController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -260,7 +299,7 @@ class IssuerUserController extends Controller
                 IssuerUserHasPermission::where([
                     'issuer_user_id' => $user->id,
                 ])->delete();
-                
+
                 $perms = Permission::whereIn('id', $input['permissions'])->get();
                 foreach ($perms as $perm) {
                     $p = IssuerUserHasPermission::create([
@@ -276,12 +315,18 @@ class IssuerUserController extends Controller
                     'data' => $user,
                 ], 200);
             }
+
+            return response()->json([
+                'message' => 'failed',
+                'data' => null,
+                'error' => 'unable to save issuer user',
+            ], 400);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
     }
 
-   /**
+    /**
      * @OA\Patch(
      *      path="/api/v1/issuers_users",
      *      summary="Edit an IssuerUser entry",
@@ -289,9 +334,12 @@ class IssuerUserController extends Controller
      *      tags={"IssuerUser"},
      *      summary="IssuerUser@edit",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\RequestBody(
      *          description="IssuerUser definition",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="issuer_id", type="integer", example="1"),
      *              @OA\Property(property="first_name", type="string", example="First"),
      *              @OA\Property(property="last_name", type="string", example="Last"),
@@ -299,17 +347,23 @@ class IssuerUserController extends Controller
      *              @OA\Property(property="password", type="string", example="SomeP4ssw0rd!")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=201,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -322,10 +376,13 @@ class IssuerUserController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -349,7 +406,7 @@ class IssuerUserController extends Controller
                 IssuerUserHasPermission::where([
                     'issuer_user_id' => $user->id,
                 ])->delete();
-                
+
                 $perms = Permission::whereIn('id', $input['permissions'])->get();
                 foreach ($perms as $perm) {
                     $p = IssuerUserHasPermission::create([
@@ -365,6 +422,12 @@ class IssuerUserController extends Controller
                     'data' => $user,
                 ], 200);
             }
+
+            return response()->json([
+                'message' => 'failed',
+                'data' => null,
+                'error' => 'unable to save issuer user',
+            ], 400);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -378,35 +441,46 @@ class IssuerUserController extends Controller
      *      tags={"IssuerUser"},
      *      summary="IssuerUser@destroy",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="IssuerUser entry ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="IssuerUser entry ID",
      *         ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *           ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -429,4 +503,3 @@ class IssuerUserController extends Controller
         }
     }
 }
-

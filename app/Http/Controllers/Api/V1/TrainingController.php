@@ -4,15 +4,12 @@ namespace App\Http\Controllers\Api\V1;
 
 use Exception;
 
-use App\Models\Training;
-
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-
+use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
-use App\Exception\NotFoundException;
-
+use App\Models\Training;
 use App\Traits\CommonFunctions;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class TrainingController extends Controller
 {
@@ -26,10 +23,13 @@ class TrainingController extends Controller
      *      tags={"Training"},
      *      summary="Training@index",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -44,10 +44,13 @@ class TrainingController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -55,7 +58,7 @@ class TrainingController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $trainings = Training::paginate($this->getSystemConfig('PER_PAGE'));
+        $trainings = Training::paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',
@@ -71,21 +74,26 @@ class TrainingController extends Controller
      *      tags={"Training"},
      *      summary="Training@show",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Training entry ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Training entry ID",
      *         ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -100,10 +108,13 @@ class TrainingController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -130,10 +141,13 @@ class TrainingController extends Controller
      *      tags={"Training"},
      *      summary="Training@store",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Training definition",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="registry_id", type="integer", example="1"),
      *              @OA\Property(property="provider", type="string", example="ONS"),
      *              @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
@@ -142,17 +156,23 @@ class TrainingController extends Controller
      *              @OA\Property(property="training_name", type="string", example="Safe Researcher Training")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=201,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -167,10 +187,13 @@ class TrainingController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -206,21 +229,26 @@ class TrainingController extends Controller
      *      tags={"Training"},
      *      summary="Training@update",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Training entry ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Training entry ID",
      *         ),
      *      ),
+     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Training definition",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="id", type="integer", example="123"),
      *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *              @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
@@ -232,17 +260,23 @@ class TrainingController extends Controller
      *              @OA\Property(property="training_name", type="string", example="Safe Researcher Training")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -257,10 +291,13 @@ class TrainingController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -297,21 +334,26 @@ class TrainingController extends Controller
      *      tags={"Training"},
      *      summary="Training@edit",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Training entry ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Training entry ID",
      *         ),
      *      ),
+     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Training definition",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="id", type="integer", example="123"),
      *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *              @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
@@ -323,17 +365,23 @@ class TrainingController extends Controller
      *              @OA\Property(property="training_name", type="string", example="Safe Researcher Training")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -348,10 +396,13 @@ class TrainingController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -388,35 +439,46 @@ class TrainingController extends Controller
      *      tags={"Training"},
      *      summary="Training@destroy",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Training entry ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Training entry ID",
      *         ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *           ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )

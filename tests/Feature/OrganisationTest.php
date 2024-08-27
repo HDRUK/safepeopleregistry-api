@@ -2,31 +2,33 @@
 
 namespace Tests\Feature;
 
+use KeycloakGuard\ActingAsKeycloakUser;
+
 use Carbon\Carbon;
 
-use Tests\TestCase;
+use App\Models\User;
 
-use App\Models\Organisation;
-
-use Database\Seeders\UserSeeder;
 use Database\Seeders\IssuerSeeder;
-use Database\Seeders\PermissionSeeder;
 use Database\Seeders\OrganisationSeeder;
+use Database\Seeders\PermissionSeeder;
+use Database\Seeders\UserSeeder;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 
-use Illuminate\Testing\Fluent\AssertableJson;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-
+use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class OrganisationTest extends TestCase
 {
-    use RefreshDatabase, Authorisation;
+    use Authorisation;
+    use RefreshDatabase;
+    use ActingAsKeycloakUser;
 
-    const TEST_URL = '/api/v1/organisations';
+    public const TEST_URL = '/api/v1/organisations';
 
-    private $headers = [];
+    private $user = null;
+    private $testOrg = [];
 
     public function setUp(): void
     {
@@ -38,19 +40,35 @@ class OrganisationTest extends TestCase
             OrganisationSeeder::class,
         ]);
 
-        $this->headers = [
-            'Accept' => 'application/json',
-            'Authorization' => 'bearer ' . $this->getAuthToken(),
+        $this->user = User::where('id', 1)->first();
+
+        $this->testOrg = [
+            'organisation_name' => 'HEALTH DATA RESEARCH UK',
+            'address_1' => '215 Euston Road',
+            'address_2' => '',
+            'town' => 'Blah',
+            'county' => 'London',
+            'country' => 'United Kingdom',
+            'postcode' => 'NW1 2BE',
+            'lead_applicant_organisation_name' => 'Some One',
+            'lead_applicant_email' => fake()->email(),
+            'password' => 'tempP4ssword',
+            'organisation_unique_id' => Str::random(40),
+            'applicant_names' => 'Some One, Some Two, Some Three',
+            'funders_and_sponsors' => 'UKRI, MRC',
+            'sub_license_arrangements' => 'N/A',
+            'verified' => false,
+            'companies_house_no' => '10887014',
         ];
     }
 
     public function test_the_application_can_list_organisations(): void
     {
-        $response = $this->json(
-            'GET',
-            self::TEST_URL,
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL
+            );
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
@@ -92,40 +110,23 @@ class OrganisationTest extends TestCase
 
     public function test_the_application_can_show_organisations(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
-                'organisation_name' => 'Test Organisation',
-                'address_1' => '123 Blah blah',
-                'address_2' => '',
-                'town' => 'Town',
-                'county' => 'County',
-                'country' => 'Country',
-                'postcode' => 'BLA4 4HH',
-                'lead_applicant_organisation_name' => 'Some One',
-                'lead_applicant_email' => fake()->email(),
-                'password' => 'tempP4ssword',
-                'organisation_unique_id' => Str::random(40),
-                'applicant_names' => 'Some One, Some Two, Some Three',
-                'funders_and_sponsors' => 'UKRI, MRC',
-                'sub_license_arrangements' => 'N/A',
-                'verified' => false,
-                'companies_house_no' => '0667465',
-            ],
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                $this->testOrg
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
 
-        $content = $response->decodeResponseJson()['data'];
+        $content = $response->decodeResponseJson();
 
-        $response = $this->json(
-            'GET',
-            self::TEST_URL . '/' . $content,
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $content['data']
+            );
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
@@ -165,33 +166,12 @@ class OrganisationTest extends TestCase
         $isoCertified = fake()->randomElement([1, 0]);
         $ceCertified = fake()->randomElement([1, 0]);
 
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
-                'organisation_name' => 'Test Organisation',
-                'address_1' => '123 Blah blah',
-                'address_2' => '',
-                'town' => 'Town',
-                'county' => 'County',
-                'country' => 'Country',
-                'postcode' => 'BLA4 4HH',
-                'lead_applicant_organisation_name' => 'Some One',
-                'lead_applicant_email' => fake()->email(),
-                'password' => 'tempP4ssword',
-                'organisation_unique_id' => Str::random(40),
-                'applicant_names' => 'Some One, Some Two, Some Three',
-                'funders_and_sponsors' => 'UKRI, MRC',
-                'sub_license_arrangements' => 'N/A',
-                'verified' => false,
-                'dsptk_ods_code' => 'UY65LO',
-                'iso_27001_certified' => $isoCertified,
-                'ce_certified' => $ceCertified,
-                'ce_certification_num' => ($ceCertified ? 'fghe-76fh-gh47-0000' : ''),
-                'companies_house_no' => '0667465',
-            ],
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                $this->testOrg
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
@@ -202,44 +182,25 @@ class OrganisationTest extends TestCase
         $isoCertified = fake()->randomElement([1, 0]);
         $ceCertified = fake()->randomElement([1, 0]);
 
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
-                'organisation_name' => 'Test Organisation',
-                'address_1' => '123 Blah blah',
-                'address_2' => '',
-                'town' => 'Town',
-                'county' => 'County',
-                'country' => 'Country',
-                'postcode' => 'BLA4 4HH',
-                'lead_applicant_organisation_name' => 'Some One',
-                'lead_applicant_email' => fake()->email(),
-                'password' => 'tempP4ssword',
-                'organisation_unique_id' => Str::random(40),
-                'applicant_names' => 'Some One, Some Two, Some Three',
-                'funders_and_sponsors' => 'UKRI, MRC',
-                'sub_license_arrangements' => 'N/A',
-                'verified' => false,
-                'iso_27001_certified' => $isoCertified,
-                'ce_certified' => $ceCertified,
-                'ce_certification_num' => ($ceCertified ? 'fghe-76fh-gh47-0000' : ''),
-                'companies_house_no' => '0667465',
-            ],
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                $this->testOrg
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
 
-        $content = $response->decodeResponseJson()['data'];
+        $content = $response->decodeResponseJson();
 
         $newDate = Carbon::now()->subYears(2);
 
-        $response = $this->json(
-            'PUT',
-            self::TEST_URL . '/' . $content,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . '/' . $content['data'],
+                [
                 'organisation_name' => 'Test Organisation',
                 'address_1' => '123 Blah blah',
                 'address_2' => '',
@@ -255,15 +216,12 @@ class OrganisationTest extends TestCase
                 'funders_and_sponsors' => 'UKRI, MRC',
                 'sub_license_arrangements' => 'N/A',
                 'verified' => true,
-                'companies_house_no' => '2985729',
-            ],
-            $this->headers
-        );
+                'companies_house_no' => '10887014',
+            ]
+            );
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
-
-        $content = $response->decodeResponseJson()['data'];
 
         $this->assertDatabaseHas('organisations', [
             'verified' => true,
@@ -272,47 +230,44 @@ class OrganisationTest extends TestCase
 
     public function test_the_application_can_delete_organisations(): void
     {
-        $isoCertified = fake()->randomElement([1, 0]);
-        $ceCertified = fake()->randomElement([1, 0]);
-        
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
-                'organisation_name' => 'Test Organisation',
-                'address_1' => '123 Blah blah',
-                'address_2' => '',
-                'town' => 'Town',
-                'county' => 'County',
-                'country' => 'Country',
-                'postcode' => 'BLA4 4HH',
-                'lead_applicant_organisation_name' => 'Some One',
-                'lead_applicant_email' => fake()->email(),
-                'password' => 'tempP4ssword',
-                'organisation_unique_id' => Str::random(40),
-                'applicant_names' => 'Some One, Some Two, Some Three',
-                'funders_and_sponsors' => 'UKRI, MRC',
-                'sub_license_arrangements' => 'N/A',
-                'verified' => false,
-                'iso_27001_certified' => $isoCertified,
-                'ce_certified' => $ceCertified,
-                'ce_certification_num' => ($ceCertified ? 'fghe-76fh-gh47-0000' : ''),
-                'companies_house_no' => '0667465',
-            ],
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                $this->testOrg
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
 
-        $content = $response->decodeResponseJson()['data'];
+        $content = $response->decodeResponseJson();
 
         $response = $this->json(
             'DELETE',
-            self::TEST_URL . '/' . $content,
-            $this->headers
+            self::TEST_URL . '/' . $content['data']
         );
 
         $response->assertStatus(200);
+    }
+
+    public function test_the_application_can_show_idvt(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/idvt'
+            );
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'message',
+            'data' => [
+                'id',
+                'idvt_result',
+                'idvt_result_perc',
+                'idvt_completed_at',
+                'idvt_errors',
+            ],
+        ]);
     }
 }

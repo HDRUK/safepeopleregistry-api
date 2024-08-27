@@ -2,30 +2,28 @@
 
 namespace App\Jobs;
 
-use TriggerEmail;
-
-use Carbon\Carbon;
-
-use App\Models\User;
 use App\Models\File;
-use App\Models\Training;
-use App\Models\Registry;
 use App\Models\OrganisationHasFile;
-use App\Models\RegistryHasTraining;
-
+use App\Models\Registry;
+use App\Models\User;
+use App\Traits\CommonFunctions;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-
-use App\Traits\CommonFunctions;
+use TriggerEmail;
 
 class ProcessCSVSubmission implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, CommonFunctions;
+    use CommonFunctions;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     private ?File $file = null;
+
     private int $organisationID = 0;
 
     /**
@@ -42,7 +40,7 @@ class ProcessCSVSubmission implements ShouldQueue
      */
     public function handle(): void
     {
-        $path = storage_path() . '/app/public/scanned/' . $this->file->path;
+        $path = storage_path().'/app/public/scanned/'.$this->file->path;
         $file = fopen($path, 'r');
         $allData = $this->csvToArray($path);
         fclose($file);
@@ -54,7 +52,7 @@ class ProcessCSVSubmission implements ShouldQueue
                 'email' => $row['email'],
             ])->first();
 
-            if (!$user) {
+            if (! $user) {
                 $registry = Registry::create([
                     'dl_ident' => null,
                     'pp_ident' => null,
@@ -82,13 +80,13 @@ class ProcessCSVSubmission implements ShouldQueue
                 ];
 
                 TriggerEmail::spawnEmail($input);
-            
+
                 if (is_file($path) && @unlink($path)) {
                     OrganisationHasFile::where([
                         'file_id' => $this->file->id,
                         'organisation_id' => $this->organisationID,
                     ])->delete();
-                    
+
                     $this->file->delete();
                 }
             }

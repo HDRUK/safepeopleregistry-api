@@ -2,26 +2,26 @@
 
 namespace Tests\Feature;
 
-use Carbon\Carbon;
+use KeycloakGuard\ActingAsKeycloakUser;
 
-use Tests\TestCase;
-
-use App\Models\Endorsement;
+use App\Models\User;
 
 use Database\Seeders\UserSeeder;
 
-use Illuminate\Testing\Fluent\AssertableJson;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
+use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class EndorsementTest extends TestCase
 {
-    use RefreshDatabase, Authorisation;
+    use Authorisation;
+    use RefreshDatabase;
+    use ActingAsKeycloakUser;
 
-    const TEST_URL = '/api/v1/endorsements';
+    public const TEST_URL = '/api/v1/endorsements';
 
-    private $headers = [];
+    private $user = null;
 
     public function setUp(): void
     {
@@ -30,47 +30,37 @@ class EndorsementTest extends TestCase
             UserSeeder::class,
         ]);
 
-        $this->headers = [
-            'Accept' => 'application/json',
-            'Authorization' => 'bearer ' . $this->getAuthToken(),
-        ];
+        $this->user = User::where('id', 1)->first();
     }
 
     public function test_the_application_can_list_endorsements(): void
     {
-        $response = $this->json(
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
             'GET',
-            self::TEST_URL,
-            $this->headers
+            self::TEST_URL
         );
 
         $response->assertStatus(200);
-        $this->assertArrayHaskey('data', $response);
+        $this->assertArrayHasKey('data', $response);
     }
 
     public function test_the_application_can_show_endorsements(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json('POST', self::TEST_URL, [
                 'reported_by' => 1,
                 'comment' => 'This is an endorsement',
                 'raised_against' => 1,
-            ],
-            $this->headers
-        );
+            ]);
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
 
-        $content = $response->decodeResponseJson()['data'];
+        $content = $response->decodeResponseJson();
 
-        $response = $this->json(
-            'GET',
-            self::TEST_URL . '/' . $content,
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json('GET', self::TEST_URL . '/' . $content['data']);
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
@@ -78,16 +68,12 @@ class EndorsementTest extends TestCase
 
     public function test_the_application_can_create_endorsements(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json('POST', self::TEST_URL, [
                 'reported_by' => 1,
                 'comment' => 'This is an endorsement',
                 'raised_against' => 1,
-            ],
-            $this->headers
-        );
+            ]);
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);

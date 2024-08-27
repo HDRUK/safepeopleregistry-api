@@ -10,6 +10,8 @@ include(cfg.get('speediWebRoot') + '/Tiltfile')
 include(cfg.get('clamAVRoot') + '/Tiltfile')
 include(cfg.get('speediAsOcrRoot') + '/Tiltfile')
 
+local_resource('linting', cmd='composer run lint', deps=['./'])
+
 docker_build(
     ref='hdruk/' + cfg.get('name'),
     context='.',

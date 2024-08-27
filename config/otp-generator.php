@@ -31,7 +31,6 @@ return [
     */
     'allowedAttempts' => env('OTP_ALLOWED_ATTEMPTS', 10),
 
-
     /*
     |--------------------------------------------------------------------------
     | Generated OPT Type

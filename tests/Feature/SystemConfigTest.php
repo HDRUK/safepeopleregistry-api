@@ -2,21 +2,19 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
 use Database\Seeders\SystemConfigSeeder;
 
-use Illuminate\Testing\Fluent\AssertableJson;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Queue;
 
-
+use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class SystemConfigTest extends TestCase
 {
-    use RefreshDatabase, Authorisation;
+    use Authorisation;
+    use RefreshDatabase;
 
-    const TEST_URL = '/api/v1/system_config';
+    public const TEST_URL = '/api/v1/system_config';
 
     public function setUp(): void
     {
@@ -46,7 +44,7 @@ class SystemConfigTest extends TestCase
     {
         $response = $this->json(
             'GET',
-            self::TEST_URL . '/PER_PAGE',
+            self::TEST_URL.'/PER_PAGE',
             []
         );
 

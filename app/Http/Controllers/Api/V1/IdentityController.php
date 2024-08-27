@@ -2,17 +2,13 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Exception;
-
-use App\Models\Identity;
-
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-
+use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
-use App\Exception\NotFoundException;
-
+use App\Models\Identity;
 use App\Traits\CommonFunctions;
+use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class IdentityController extends Controller
 {
@@ -26,10 +22,13 @@ class IdentityController extends Controller
      *      tags={"Identity"},
      *      summary="Identity@index",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -39,10 +38,13 @@ class IdentityController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -50,7 +52,7 @@ class IdentityController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $identities = Identity::paginate($this->getSystemConfig('PER_PAGE'));
+        $identities = Identity::paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',
@@ -58,7 +60,7 @@ class IdentityController extends Controller
         ], 200);
     }
 
-   /**
+    /**
      * @OA\Get(
      *      path="/api/v1/identities/{id}",
      *      summary="Return an Identity entry by ID",
@@ -66,21 +68,26 @@ class IdentityController extends Controller
      *      tags={"Identity"},
      *      summary="Identity@show",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Identity ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Identity ID",
      *         ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -90,10 +97,13 @@ class IdentityController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -120,10 +130,13 @@ class IdentityController extends Controller
      *      tags={"Identity"},
      *      summary="Identity@store",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Identity definition",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="registry_id", type="integer", example="1"),
      *              @OA\Property(property="selfie_path", type="string", example="storage/path/to/selfie.jpeg"),
      *              @OA\Property(property="passport_path", type="string", example="storage/path/to/passport.jpeg"),
@@ -137,27 +150,36 @@ class IdentityController extends Controller
      *              @OA\Property(property="dob", type="string", example="1977-07-25")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=201,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -179,6 +201,10 @@ class IdentityController extends Controller
                 'country' => $input['country'],
                 'postcode' => $input['postcode'],
                 'dob' => $input['dob'],
+                'idvt_result' => $input['idvt_result'],
+                'idvt_result_perc' => $input['idvt_result_perc'],
+                'idvt_errors' => $input['idvt_errors'],
+                'idvt_completed_at' => $input['idvt_completed_at'],
             ]);
 
             return response()->json([
@@ -198,10 +224,13 @@ class IdentityController extends Controller
      *      tags={"Identity"},
      *      summary="Identity@update",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Identity definition",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="registry_id", type="integer", example="1"),
      *              @OA\Property(property="selfie_path", type="string", example="storage/path/to/selfie.jpeg"),
      *              @OA\Property(property="passport_path", type="string", example="storage/path/to/passport.jpeg"),
@@ -215,17 +244,23 @@ class IdentityController extends Controller
      *              @OA\Property(property="dob", type="string", example="1977-07-25")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -233,10 +268,13 @@ class IdentityController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -259,6 +297,10 @@ class IdentityController extends Controller
                 'country' => $input['country'],
                 'postcode' => $input['postcode'],
                 'dob' => $input['dob'],
+                'idvt_result' => $input['idvt_result'],
+                'idvt_result_perc' => $input['idvt_result_perc'],
+                'idvt_errors' => $input['idvt_errors'],
+                'idvt_completed_at' => $input['idvt_completed_at'],
             ]);
 
             return response()->json([
@@ -278,10 +320,13 @@ class IdentityController extends Controller
      *      tags={"Identity"},
      *      summary="Identity@edit",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Identity definition",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="registry_id", type="integer", example="1"),
      *              @OA\Property(property="selfie_path", type="string", example="storage/path/to/selfie.jpeg"),
      *              @OA\Property(property="passport_path", type="string", example="storage/path/to/passport.jpeg"),
@@ -295,17 +340,23 @@ class IdentityController extends Controller
      *              @OA\Property(property="dob", type="string", example="1977-07-25")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -313,10 +364,13 @@ class IdentityController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -339,6 +393,10 @@ class IdentityController extends Controller
                 'country' => $input['country'],
                 'postcode' => $input['postcode'],
                 'dob' => $input['dob'],
+                'idvt_result' => $input['idvt_result'],
+                'idvt_result_perc' => $input['idvt_result_perc'],
+                'idvt_errors' => $input['idvt_errors'],
+                'idvt_completed_at' => $input['idvt_completed_at'],
             ]);
 
             return response()->json([
@@ -358,35 +416,46 @@ class IdentityController extends Controller
      *      tags={"Identity"},
      *      summary="Identity@destroy",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Identity entry ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Identity entry ID",
      *         ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *           ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )

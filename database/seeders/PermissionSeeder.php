@@ -3,8 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Permission;
-
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class PermissionSeeder extends Seeder
@@ -35,7 +33,7 @@ class PermissionSeeder extends Seeder
                 'enabled' => 1,
             ],
             [
-                // Combined with SDE Network High and Detailed feasibility - default to 
+                // Combined with SDE Network High and Detailed feasibility - default to
                 // always on
                 'name' => 'GATEWAY_SDE_METADATA_HIGH',
                 'enabled' => 1,
@@ -47,7 +45,7 @@ class PermissionSeeder extends Seeder
                 'enabled' => 1,
             ],
             [
-                // SDE Network Central Concierge Service - detailed feasibility - default to 
+                // SDE Network Central Concierge Service - detailed feasibility - default to
                 // always off unless set
                 'name' => 'GATEWAY_SDE_NETWORK_CCS',
                 'enabled' => 1,

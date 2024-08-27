@@ -2,26 +2,28 @@
 
 namespace Tests\Feature;
 
+use KeycloakGuard\ActingAsKeycloakUser;
+
 use Carbon\Carbon;
 
-use Tests\TestCase;
-
-use App\Models\Registry;
+use App\Models\User;
 
 use Database\Seeders\UserSeeder;
 
-use Illuminate\Testing\Fluent\AssertableJson;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
+use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class RegistryTest extends TestCase
 {
-    use RefreshDatabase, Authorisation;
+    use Authorisation;
+    use RefreshDatabase;
+    use ActingAsKeycloakUser;
 
-    const TEST_URL = '/api/v1/registries';
+    public const TEST_URL = '/api/v1/registries';
 
-    private $headers = [];
+    private $user = null;
 
     public function setUp(): void
     {
@@ -30,19 +32,16 @@ class RegistryTest extends TestCase
             UserSeeder::class,
         ]);
 
-        $this->headers = [
-            'Accept' => 'application/json',
-            'Authorization' => 'bearer ' . $this->getAuthToken(),
-        ];
+        $this->user = User::where('id', 1)->first();
     }
 
     public function test_the_application_can_list_registries(): void
     {
-        $response = $this->json(
-            'GET',
-            self::TEST_URL,
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL
+            );
 
         $response->assertStatus(200);
         $this->assertArrayHaskey('data', $response);
@@ -50,27 +49,27 @@ class RegistryTest extends TestCase
 
     public function test_the_application_can_show_registries(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
                 'dl_ident' => '23897592835298352',
                 'pp_ident' => 'PASSPORTIDENT 92387429874 A',
                 'verified' => false,
-            ],
-            $this->headers
-        );
+            ]
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
 
-        $content = $response->decodeResponseJson()['data'];
+        $content = $response->decodeResponseJson();
 
-        $response = $this->json(
-            'GET',
-            self::TEST_URL . '/' . $content,
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $content['data']
+            );
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
@@ -78,16 +77,16 @@ class RegistryTest extends TestCase
 
     public function test_the_application_can_create_registries(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
                 'dl_ident' => '23897592835298352',
                 'pp_ident' => 'PASSPORTIDENT 92387429874 A',
                 'verified' => false,
-            ],
-            $this->headers
-        );
+            ]
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
@@ -95,66 +94,65 @@ class RegistryTest extends TestCase
 
     public function test_the_application_can_update_registries(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
                 'dl_ident' => '23897592835298352',
                 'pp_ident' => 'PASSPORTIDENT 92387429874 A',
                 'verified' => false,
-            ],
-            $this->headers
-        );
+            ]
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
 
-        $content = $response->decodeResponseJson()['data'];
+        $content = $response->decodeResponseJson();
 
         $newDate = Carbon::now()->subYears(2);
 
-        $response = $this->json(
-            'PUT',
-            self::TEST_URL . '/' . $content,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . '/' . $content['data'],
+                [
                 'dl_ident' => '23897592835298352',
                 'pp_ident' => 'PASSPORTIDENT 92387429874 A',
                 'verified' => true,
-            ],
-            $this->headers
-        );
+            ]
+            );
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
 
-        $content = $response->decodeResponseJson()['data'];
+        $content = $response->decodeResponseJson();
 
-        $this->assertEquals($content['verified'], true);
+        $this->assertEquals($content['data']['verified'], true);
     }
 
     public function test_the_application_can_delete_registries(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
                 'user_id' => 1,
                 'dl_ident' => '23897592835298352',
                 'pp_ident' => 'PASSPORTIDENT 92387429874 A',
                 'verified' => false,
-            ],
-            $this->headers
-        );
+            ]
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
 
-        $content = $response->decodeResponseJson()['data'];
+        $content = $response->decodeResponseJson();
 
         $response = $this->json(
             'DELETE',
-            self::TEST_URL . '/' . $content,
-            $this->headers
+            self::TEST_URL . '/' . $content['data']
         );
 
         $response->assertStatus(200);

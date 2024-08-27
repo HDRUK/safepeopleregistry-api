@@ -2,33 +2,22 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use OrcID;
-use Keycloak;
-
-use App\Models\User;
-use App\Models\Organisation;
-use App\Models\UserApiToken;
-use App\Models\OrganisationDelegate;
-
-use Hdruk\LaravelMjml\Models\EmailTemplate;
-
-use App\Jobs\SendEmailJob;
-
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Str;
-
-
-use Laravel\Socialite\Facades\Socialite;
+use Exception;
 
 use App\Http\Controllers\Controller;
+use App\Models\Organisation;
+use App\Models\OrganisationDelegate;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Keycloak;
 
 class AuthController extends Controller
 {
     /**
      * Create a new AuthController instance.
-     * 
+     *
      * @return void
      */
     public function __construct()
@@ -38,61 +27,70 @@ class AuthController extends Controller
     public function registerUser(Request $request): JsonResponse
     {
         $input = $request->all();
-        if (Keycloak::create([
+        $retVal = Keycloak::create([
             'email' => $input['email'],
             'first_name' => $input['first_name'],
             'last_name' => $input['last_name'],
             'password' => $input['password'],
             'is_researcher' => true,
-            'organisation_id' => isset($input['organisation_id']) ? $input['organisation_id']: null,
+            'organisation_id' => isset($input['organisation_id']) ? $input['organisation_id'] : null,
             'consent_scrape' => $input['consent_scrape'],
-        ])) {
+        ]);
+
+        if ($retVal['success']) {
             $user = User::where('email', $input['email'])->first();
+
             return response()->json([
                 'message' => 'success',
                 'data' => $user,
-            ], 200);
+            ], 201);
         }
 
         return response()->json([
             'message' => 'failed',
-            'data' => null,
-        ]);
+            'data' => $retVal['error'],
+        ], 409); // Send a "CONFLICT" as record likely exists.);
     }
 
     public function registerIssuer(Request $request): JsonResponse
     {
         $input = $request->all();
-        if (Keycloak::create([
+
+        $retVal = Keycloak::create([
             'email' => $input['email'],
             'first_name' => $input['first_name'],
             'last_name' => $input['last_name'],
             'password' => $input['password'],
             'is_issuer' => true,
-        ])) {
+        ]);
+        if ($retVal['success']) {
             $user = User::where('email', $input['email'])->first();
+
             return response()->json([
                 'message' => 'success',
                 'data' => $user,
-            ], 200);
+            ], 201);
         }
 
         return response()->json([
             'message' => 'failed',
-            'data' => null,
-        ]);
+            'data' => $retVal['error'],
+        ], 409); // Send a "CONFLICT" as record likely exists.
     }
 
     public function registerOrganisation(Request $request): JsonResponse
     {
         $input = $request->all();
-        if (Keycloak::create([
+
+        $retVal = Keycloak::create([
             'email' => $input['email'],
             'first_name' => $input['first_name'],
             'last_name' => $input['last_name'],
             'password' => $input['password'],
             'is_organisation' => true,
-        ])) {
+        ]);
+
+        if ($retVal['success']) {
             $user = User::where('email', $input['email'])->first();
             $organisation = Organisation::create([
                 'organisation_name' => $input['organisation_name'],
@@ -113,6 +111,9 @@ class AuthController extends Controller
                 'applicant_names' => '',
             ]);
 
+            $user->organisation_id = $organisation->id;
+            $user->save();
+
             if (isset($input['dpo_name']) && isset($input['dpo_email'])) {
                 $parts = explode(' ', $input['dpo_name']);
                 OrganisationDelegate::create([
@@ -126,7 +127,7 @@ class AuthController extends Controller
                 ]);
             }
 
-            if (isset($input['hr_name']) && isset($input['hr_name'])) {
+            if (isset($input['hr_name'])) {
                 $parts = explode(' ', $input['hr_name']);
                 OrganisationDelegate::create([
                     'first_name' => $parts[0],
@@ -142,13 +143,13 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'success',
                 'data' => $user,
-            ], 200);
+            ], 201);
         }
 
         return response()->json([
             'message' => 'failed',
-            'data' => null,
-        ]);
+            'data' => $retVal['error'],
+        ], 409); // Send a "CONFLICT" status, as a record likely exists
     }
 
     public function login(Request $request): JsonResponse
@@ -162,7 +163,7 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'success',
                 'data' => $return['response'],
-            ], 200);
+            ], 201);
         }
 
         return response()->json([
@@ -180,5 +181,36 @@ class AuthController extends Controller
             'message' => 'success',
             'data' => Keycloak::logout($token[1]),
         ]);
+    }
+
+    public function changePassword(Request $request, int $userId): JsonResponse
+    {
+        try {
+            $input = $request->all();
+
+            $user = User::where('id', $userId)->first();
+            if (!$user) {
+                return response()->json([
+                    'message' => 'failed',
+                    'data' => null,
+                    'error' => 'user not found',
+                ], 404);
+            }
+
+            $response = Keycloak::changePassword($user->keycloak_id, $input['password']);
+            if ($response->status() === 204) {
+                return response()->json([
+                    'message' => 'success',
+                    'data' => null,
+                ], 200);
+            }
+
+            return response()->json([
+                'message' => 'failed',
+                'data' => $response->body(),
+            ], 400);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
     }
 }

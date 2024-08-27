@@ -2,9 +2,8 @@
 
 namespace Database\Factories;
 
-use Hash;
 use Carbon\Carbon;
-
+use Hash;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

@@ -2,17 +2,13 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Exception;
-
-use App\Models\Experience;
-
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-
+use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
-use App\Exception\NotFoundException;
-
+use App\Models\Experience;
 use App\Traits\CommonFunctions;
+use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class ExperienceController extends Controller
 {
@@ -26,10 +22,13 @@ class ExperienceController extends Controller
      *      tags={"Experience"},
      *      summary="Experience@index",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -42,10 +41,13 @@ class ExperienceController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -53,7 +55,7 @@ class ExperienceController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $experiences = Experience::paginate($this->getSystemConfig('PER_PAGE'));
+        $experiences = Experience::paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',
@@ -69,21 +71,26 @@ class ExperienceController extends Controller
      *      tags={"Experience"},
      *      summary="Experience@show",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Experience entry ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Experience entry ID",
      *         ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -96,10 +103,13 @@ class ExperienceController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -126,10 +136,13 @@ class ExperienceController extends Controller
      *      tags={"Experience"},
      *      summary="Experience@store",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Experience definition",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="id", type="integer", example="123"),
      *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *              @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
@@ -139,27 +152,36 @@ class ExperienceController extends Controller
      *              @OA\Property(property="organisation_id", type="integer", example="2")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=201,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -193,21 +215,26 @@ class ExperienceController extends Controller
      *      tags={"Experience"},
      *      summary="Experience@update",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Experience entry ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Experience entry ID",
      *         ),
      *      ),
+     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Experience definition",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="id", type="integer", example="123"),
      *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *              @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
@@ -217,17 +244,23 @@ class ExperienceController extends Controller
      *              @OA\Property(property="organisation_id", type="integer", example="2")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -240,10 +273,13 @@ class ExperienceController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -278,21 +314,26 @@ class ExperienceController extends Controller
      *      tags={"Experience"},
      *      summary="Experience@edit",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Experience entry ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Experience entry ID",
      *         ),
      *      ),
+     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Experience definition",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="id", type="integer", example="123"),
      *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *              @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
@@ -302,17 +343,23 @@ class ExperienceController extends Controller
      *              @OA\Property(property="organisation_id", type="integer", example="2")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -325,10 +372,13 @@ class ExperienceController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -363,35 +413,46 @@ class ExperienceController extends Controller
      *      tags={"Experience"},
      *      summary="Experience@destroy",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Experience entry ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Experience entry ID",
      *         ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *           ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )

@@ -2,15 +2,12 @@
 
 namespace App\Http\Middleware;
 
-use Hash;
+use App\Models\Issuer;
 use Closure;
 use Exception;
-
-use App\Models\Issuer;
-use App\Exceptions\UnauthorizedException;
-
-use Illuminate\Http\Request;
+use Hash;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class IssuerAuthenticationMiddleware
@@ -23,7 +20,7 @@ class IssuerAuthenticationMiddleware
     public function handle(Request $request, Closure $next): JsonResponse
     {
         try {
-            if (!$request->header('x-issuer-key')) {
+            if (! $request->header('x-issuer-key')) {
                 return response()->json([
                     'message' => 'you must provide your Issuer key',
                 ], Response::HTTP_UNAUTHORIZED);
@@ -31,14 +28,14 @@ class IssuerAuthenticationMiddleware
 
             $issuerKey = $request->header('x-issuer-key');
             $issuer = Issuer::where('unique_identifier', $issuerKey)->first();
-            if (!$issuer) {
+            if (! $issuer) {
                 return response()->json([
                     'message' => 'no known issuer matches the credentials provided',
                 ], Response::HTTP_UNAUTHORIZED);
             }
 
-            if (!(Hash::check(
-                $issuerKey . ':' . env('ISSUER_SALT_1') . ':' . env('ISSUER_SALT_2'),
+            if (! (Hash::check(
+                $issuerKey.':'.env('ISSUER_SALT_1').':'.env('ISSUER_SALT_2'),
                 $issuer->calculated_hash
             ))) {
                 return response()->json([

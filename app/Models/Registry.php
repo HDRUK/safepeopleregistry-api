@@ -2,39 +2,22 @@
 
 namespace App\Models;
 
-use App\Models\History;
-use App\Models\Training;
-
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Model;
 
 class Registry extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
 
-    /**
-     * The table associated with the model.
-     * 
-     * @var string
-     */
     protected $table = 'registries';
 
-    /**
-     * Whether or not this model supports timestamps
-     * 
-     * @var bool
-     */
     public $timestamps = true;
 
-    /**
-     * What fields of this model are accepted as parameters
-     * 
-     * @var array
-     */
     protected $fillable = [
         'dl_ident',
         'pp_ident',
@@ -42,21 +25,10 @@ class Registry extends Model
         'verified',
     ];
 
-    /**
-     * Whether or not we have to ask Laravel to cast fields
-     * 
-     * @var array
-     */
     protected $casts = [
         'verified' => 'boolean',
     ];
 
-    /**
-     * Whether or not we want certain fields hidden from the
-     * payload
-     * 
-     * @var array
-     */
     protected $hidden = [
         'user_id',
         'dl_ident',
@@ -73,7 +45,7 @@ class Registry extends Model
     {
         return $this->hasOne(Identity::class, 'registry_id');
     }
-  
+
     public function training(): HasMany
     {
         return $this->hasMany(Training::class, 'registry_id');

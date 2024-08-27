@@ -2,21 +2,17 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Hash;
 use Exception;
-
-use App\Models\Issuer;
-use App\Models\Project;
-use App\Models\Organisation;
-
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
+use Hash;
 
 use App\Http\Controllers\Controller;
-use App\Exceptions\NotFoundException;
-
+use App\Models\Issuer;
+use App\Models\Organisation;
+use App\Models\Project;
 use App\Traits\CommonFunctions;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class IssuerController extends Controller
 {
@@ -30,10 +26,13 @@ class IssuerController extends Controller
      *      tags={"Issuer"},
      *      summary="Issuer@index",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -44,13 +43,17 @@ class IssuerController extends Controller
      *                  @OA\Property(property="enabled", type="boolean", example="true"),
      *                  @OA\Property(property="invite_accepted_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="invite_sent_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="idvt_required", type="boolean", example="true")
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -58,8 +61,8 @@ class IssuerController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $issuers = Issuer::paginate($this->getSystemConfig('PER_PAGE'));
-        
+        $issuers = Issuer::paginate((int)$this->getSystemConfig('PER_PAGE'));
+
         return response()->json([
             'message' => 'success',
             'data' => $issuers,
@@ -74,21 +77,26 @@ class IssuerController extends Controller
      *      tags={"Issuer"},
      *      summary="Issuer@show",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Issuer ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Issuer ID",
      *         ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -99,13 +107,17 @@ class IssuerController extends Controller
      *                  @OA\Property(property="enabled", type="boolean", example="true"),
      *                  @OA\Property(property="invite_accepted_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="invite_sent_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="idvt_required", type="boolean", example="true")
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -135,21 +147,26 @@ class IssuerController extends Controller
      *      tags={"Issuer"},
      *      summary="Issuer@showByUniqueIdentifier",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Issuer Unique Identifier",
      *         required=true,
      *         example="c3eddb33-db74-4ea7-961a-778740f17e25",
+     *
      *         @OA\Schema(
      *            type="string",
      *            description="Issuer Unique Identifier",
      *         ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -160,13 +177,17 @@ class IssuerController extends Controller
      *                  @OA\Property(property="enabled", type="boolean", example="true"),
      *                  @OA\Property(property="invite_accepted_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="invite_sent_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="idvt_required", type="boolean", example="true")
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -187,7 +208,7 @@ class IssuerController extends Controller
             'data' => null,
         ], 404);
     }
-    
+
     /**
      * @OA\Post(
      *      path="/api/v1/issuers",
@@ -196,25 +217,34 @@ class IssuerController extends Controller
      *      tags={"Issuer"},
      *      summary="Issuer@store",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Issuer definition",
-     *          @OA\JsonContent(  
+     *
+     *          @OA\JsonContent(
+     *
      *                  @OA\Property(property="name", type="string", example="An Issuer"),
      *                  @OA\Property(property="enabled", type="boolean", example="true")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=201,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -225,13 +255,17 @@ class IssuerController extends Controller
      *                  @OA\Property(property="enabled", type="boolean", example="true"),
      *                  @OA\Property(property="invite_accepted_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="invite_sent_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="idvt_required", type="boolean", example="true")
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -243,9 +277,10 @@ class IssuerController extends Controller
             $input = $request->all();
 
             $signature = Str::random(40);
-            $calculatedHash = Hash::make($signature . 
-                 ':' . env('ISSUER_SALT_1') .
-                 ':' . env('ISSUER_SALT_2')
+            $calculatedHash = Hash::make(
+                $signature.
+                 ':'.env('ISSUER_SALT_1').
+                 ':'.env('ISSUER_SALT_2')
             );
 
             $issuer = Issuer::create([
@@ -254,6 +289,7 @@ class IssuerController extends Controller
                 'calculated_hash' => $calculatedHash,
                 'contact_email' => $input['contact_email'],
                 'enabled' => $input['enabled'],
+                'idvt_required' => (isset($input['idvt_required']) ? $input['idvt_required'] : false),
             ]);
 
             return response()->json([
@@ -273,36 +309,47 @@ class IssuerController extends Controller
      *      tags={"Issuer"},
      *      summary="Issuer@update",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Issuer ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Issuer ID",
      *         ),
      *      ),
+     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Issuer definition",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="name", type="string", example="An Issuer"),
      *              @OA\Property(property="enabled", type="boolean", example="true")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -316,10 +363,13 @@ class IssuerController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -334,12 +384,20 @@ class IssuerController extends Controller
             $issuer->name = $input['name'];
             $issuer->contact_email = isset($input['contact_email']) ? $input['contact_email'] : $issuer->contact_email;
             $issuer->enabled = $input['enabled'];
+            $issuer->idvt_required = isset($input['idvt_required']) ? $input['idvt_required'] : false;
+
             if ($issuer->save()) {
                 return response()->json([
                     'message' => 'success',
                     'data' => $issuer,
                 ], 200);
             }
+
+            return response()->json([
+                'message' => 'failed',
+                'data' => null,
+                'error' => 'unable to save issuer',
+            ], 400);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -353,36 +411,47 @@ class IssuerController extends Controller
      *      tags={"Issuer"},
      *      summary="Issuer@edit",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Issuer ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Issuer ID",
      *         ),
      *      ),
+     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Issuer definition",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="name", type="string", example="An Issuer"),
      *              @OA\Property(property="enabled", type="boolean", example="true")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -396,10 +465,13 @@ class IssuerController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -413,13 +485,21 @@ class IssuerController extends Controller
             $issuer = Issuer::where('id', $id)->first();
             $issuer->name = $input['name'];
             $issuer->contact_email = isset($input['contact_email']) ? $input['contact_email'] : $issuer->contact_email;
-            $isser->enabled = $input['enabled'];
+            $issuer->enabled = $input['enabled'];
+            $issuer->idvt_required = isset($input['idvt_required']) ? $input['idvt_required'] : $issuer->idvt_required;
+
             if ($issuer->save()) {
                 return response()->json([
                     'message' => 'success',
                     'data' => $issuer,
                 ], 200);
-            } 
+            }
+
+            return response()->json([
+                'message' => 'failed',
+                'data' => null,
+                'error' => 'unable to save issuer',
+            ], 400);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -433,35 +513,46 @@ class IssuerController extends Controller
      *      tags={"Issuer"},
      *      summary="Issuer@destroy",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Issuer entry ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Issuer entry ID",
      *         ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *           ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -494,15 +585,15 @@ class IssuerController extends Controller
             $issuerId = $request->header('x-issuer-key');
             $input = $request->all();
 
-            if (!$issuerId) {
+            if (! $issuerId) {
                 return response()->json([
                     'message' => 'you must be a trusted issuer and provide your issuer-key within the request headers',
-                ], Response::HTTP_UNAUTHORIZED);
+                ], 401);
             }
 
             foreach ($input['projects'] as $p) {
                 $project = Project::firstOrCreate(
-                    [ 'unique_id' => $p['unique_id'] ],
+                    ['unique_id' => $p['unique_id']],
                     [
                         'title' => $p['title'],
                         'lay_summary' => $p['lay_summary'],
@@ -523,7 +614,7 @@ class IssuerController extends Controller
 
             foreach ($input['organisations'] as $org) {
                 $organisation = Organisation::firstOrCreate(
-                    [ 'organisation_unique_id' => $org['organisation_unique_id'] ],
+                    ['organisation_unique_id' => $org['organisation_unique_id']],
                     [
                         'organisation_name' => $org['organisation_name'],
                         'address_1' => $org['address_1'],
@@ -560,7 +651,7 @@ class IssuerController extends Controller
                     'organisations_created' => $organisationsAddedCount,
                     'researchers_created' => $researchersAddedCount,
 
-                ]
+                ],
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());

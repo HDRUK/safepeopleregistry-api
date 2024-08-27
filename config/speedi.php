@@ -1,7 +1,7 @@
 <?php
 
 return [
-    
+
     /*
         Default configuration for SPEEDI-AS API Deployment
     */

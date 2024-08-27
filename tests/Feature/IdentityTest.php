@@ -2,26 +2,28 @@
 
 namespace Tests\Feature;
 
+use KeycloakGuard\ActingAsKeycloakUser;
+
 use Carbon\Carbon;
 
-use Tests\TestCase;
-
-use App\Models\Identity;
+use App\Models\User;
 
 use Database\Seeders\UserSeeder;
 
-use Illuminate\Testing\Fluent\AssertableJson;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
+use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class IdentityTest extends TestCase
 {
-    use RefreshDatabase, Authorisation;
+    use Authorisation;
+    use RefreshDatabase;
+    use ActingAsKeycloakUser;
 
-    const TEST_URL = '/api/v1/identities';
+    public const TEST_URL = '/api/v1/identities';
 
-    private $headers = [];
+    private $user = null;
 
     public function setUp(): void
     {
@@ -30,19 +32,13 @@ class IdentityTest extends TestCase
             UserSeeder::class,
         ]);
 
-        $this->headers = [
-            'Accept' => 'application/json',
-            'Authorization' => 'bearer ' . $this->getAuthToken(),
-        ];
+        $this->user = User::where('id', 1)->first();
     }
 
     public function test_the_application_can_list_identities(): void
     {
-        $response = $this->json(
-            'GET',
-            self::TEST_URL,
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json('GET', self::TEST_URL);
 
         $response->assertStatus(200);
         $this->assertArrayHaskey('data', $response);
@@ -50,10 +46,16 @@ class IdentityTest extends TestCase
 
     public function test_the_application_can_show_identities(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
+        $passed = fake()->randomElement([0, 1]);
+
+        $passRate = fake()->numberBetween(80, 100);
+        $failRate = fake()->numberBetween(0, 50);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
                 'registry_id' => 1,
                 'selfie_path' => 'path/to/selfie.jpeg',
                 'passport_path' => 'path/to/passport.jpeg',
@@ -65,20 +67,20 @@ class IdentityTest extends TestCase
                 'country' => 'Country',
                 'postcode' => 'BLA4 4HH',
                 'dob' => '1988-01-01',
-            ],
-            $this->headers
-        );
+                'idvt_result' => $passed,
+                'idvt_result_perc' => ($passed ? $passRate : $failRate),
+                'idvt_errors' => null,
+                'idvt_completed_at' => Carbon::now(),
+            ]
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
 
-        $content = $response->decodeResponseJson()['data'];
+        $content = $response->decodeResponseJson();
 
-        $response = $this->json(
-            'GET',
-            self::TEST_URL . '/' . $content,
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json('GET', self::TEST_URL . '/' . $content['data']);
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
@@ -86,10 +88,16 @@ class IdentityTest extends TestCase
 
     public function test_the_application_can_create_identities(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
+        $passed = fake()->randomElement([0, 1]);
+
+        $passRate = fake()->numberBetween(80, 100);
+        $failRate = fake()->numberBetween(0, 50);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
                 'registry_id' => 1,
                 'selfie_path' => 'path/to/selfie.jpeg',
                 'passport_path' => 'path/to/passport.jpeg',
@@ -101,9 +109,12 @@ class IdentityTest extends TestCase
                 'country' => 'Country',
                 'postcode' => 'BLA4 4HH',
                 'dob' => '1988-01-01',
-            ],
-            $this->headers
-        );
+                'idvt_result' => $passed,
+                'idvt_result_perc' => ($passed ? $passRate : $failRate),
+                'idvt_errors' => null,
+                'idvt_completed_at' => Carbon::now(),
+            ]
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
@@ -111,10 +122,16 @@ class IdentityTest extends TestCase
 
     public function test_the_application_can_update_identities(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
+        $passed = fake()->randomElement([0, 1]);
+
+        $passRate = fake()->numberBetween(80, 100);
+        $failRate = fake()->numberBetween(0, 50);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
                 'registry_id' => 1,
                 'selfie_path' => 'path/to/selfie.jpeg',
                 'passport_path' => 'path/to/passport.jpeg',
@@ -126,21 +143,25 @@ class IdentityTest extends TestCase
                 'country' => 'Country',
                 'postcode' => 'BLA4 4HH',
                 'dob' => '1988-01-01',
-            ],
-            $this->headers
-        );
+                'idvt_result' => $passed,
+                'idvt_result_perc' => ($passed ? $passRate : $failRate),
+                'idvt_errors' => null,
+                'idvt_completed_at' => Carbon::now(),
+            ]
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
 
-        $content = $response->decodeResponseJson()['data'];
+        $content = $response->decodeResponseJson();
 
         $newDate = Carbon::now()->subYears(2);
 
-        $response = $this->json(
-            'PUT',
-            self::TEST_URL . '/' . $content,
-            [
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . '/' . $content['data'],
+                [
                 'registry_id' => 1,
                 'selfie_path' => 'path/to/selfie1.jpeg',
                 'passport_path' => 'path/to/passport.jpeg',
@@ -152,17 +173,20 @@ class IdentityTest extends TestCase
                 'country' => 'Country',
                 'postcode' => 'BLA4 4HH',
                 'dob' => '1978-01-01',
-            ],
-            $this->headers
-        );
+                'idvt_result' => $passed,
+                'idvt_result_perc' => ($passed ? $passRate : $failRate),
+                'idvt_errors' => null,
+                'idvt_completed_at' => Carbon::now(),
+            ]
+            );
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
 
-        $content = $response->decodeResponseJson()['data'];
+        $content = $response->decodeResponseJson();
 
         $this->assertDatabaseHas('identities', [
-            'id' => $content['id'],
+            'id' => $content['data']['id'],
             'dob' => '1978-01-01',
             'selfie_path' => 'path/to/selfie1.jpeg',
         ]);
@@ -170,10 +194,16 @@ class IdentityTest extends TestCase
 
     public function test_the_application_can_delete_identities(): void
     {
-        $response = $this->json(
-            'POST',
-            self::TEST_URL,
-            [
+        $passed = fake()->randomElement([0, 1]);
+
+        $passRate = fake()->numberBetween(80, 100);
+        $failRate = fake()->numberBetween(0, 50);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
                 'registry_id' => 1,
                 'selfie_path' => 'path/to/selfie.jpeg',
                 'passport_path' => 'path/to/passport.jpeg',
@@ -185,20 +215,20 @@ class IdentityTest extends TestCase
                 'country' => 'Country',
                 'postcode' => 'BLA4 4HH',
                 'dob' => '1988-01-01',
-            ],
-            $this->headers
-        );
+                'idvt_result' => $passed,
+                'idvt_result_perc' => ($passed ? $passRate : $failRate),
+                'idvt_errors' => null,
+                'idvt_completed_at' => Carbon::now(),
+            ]
+            );
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
 
-        $content = $response->decodeResponseJson()['data'];
+        $content = $response->decodeResponseJson();
 
-        $response = $this->json(
-            'DELETE',
-            self::TEST_URL . '/' . $content,
-            $this->headers
-        );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json('DELETE', self::TEST_URL . '/' . $content['data']);
 
         $response->assertStatus(200);
     }

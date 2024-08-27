@@ -1,28 +1,30 @@
 <?php
 
-use App\Http\Controllers\Api\V1\UserController;
+use App\Http\Controllers\Api\V1\AccreditationController;
+use App\Http\Controllers\Api\V1\ApprovalController;
 use App\Http\Controllers\Api\V1\AuthController;
-use App\Http\Controllers\Api\V1\QueryController;
-use App\Http\Controllers\Api\V1\IssuerController;
-use App\Http\Controllers\Api\V1\ProjectController;
-use App\Http\Controllers\Api\V1\TrainingController;
 use App\Http\Controllers\Api\V1\EndorsementController;
-use App\Http\Controllers\Api\V1\RegistryController;
 use App\Http\Controllers\Api\V1\ExperienceController;
+use App\Http\Controllers\Api\V1\FileUploadController;
 use App\Http\Controllers\Api\V1\HistoryController;
 use App\Http\Controllers\Api\V1\IdentityController;
-use App\Http\Controllers\Api\V1\OrganisationController;
 use App\Http\Controllers\Api\V1\InfringementController;
-use App\Http\Controllers\Api\V1\TriggerEmailController;
-use App\Http\Controllers\Api\V1\SystemConfigController;
-use App\Http\Controllers\Api\V1\FileUploadController;
-use App\Http\Controllers\Api\V1\ApprovalController;
-use App\Http\Controllers\Api\V1\PermissionController;
+use App\Http\Controllers\Api\V1\IssuerController;
 use App\Http\Controllers\Api\V1\IssuerUserController;
-
 use App\Http\Controllers\Api\V1\ONSSubmissionController;
+use App\Http\Controllers\Api\V1\OrganisationController;
+use App\Http\Controllers\Api\V1\PermissionController;
+use App\Http\Controllers\Api\V1\ProjectController;
+use App\Http\Controllers\Api\V1\QueryController;
+use App\Http\Controllers\Api\V1\RegistryController;
+use App\Http\Controllers\Api\V1\SystemConfigController;
+use App\Http\Controllers\Api\V1\TrainingController;
+use App\Http\Controllers\Api\V1\TriggerEmailController;
+use App\Http\Controllers\Api\V1\UserController;
+use App\Http\Controllers\Api\V1\ResolutionController;
+use App\Http\Controllers\Api\V1\EmploymentController;
+use App\Http\Controllers\Api\V1\EducationController;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -45,7 +47,7 @@ Route::get('auth/me', [AuthController::class, 'me']);
 
 Route::post('v1/query', [QueryController::class, 'query']);
 
-Route::middleware('auth:api')->get('/secure-test',  [UserController::class, 'index']);
+Route::middleware('auth:api')->get('/secure-test', [UserController::class, 'index']);
 
 Route::middleware('api')->get('v1/users', [UserController::class, 'index']);
 Route::middleware('api')->get('v1/users/{id}', [UserController::class, 'show']);
@@ -55,6 +57,7 @@ Route::middleware('api')->put('v1/users/{id}', [UserController::class, 'update']
 Route::middleware('api')->patch('v1/users/{id}', [UserController::class, 'edit']);
 Route::middleware('api')->delete('v1/users/{id}', [UserController::class, 'destroy']);
 Route::middleware('api')->post('v1/users/permissions', [PermissionController::class, 'assignUserPermissionsToFrom']);
+Route::middleware('api')->post('v1/users/change-password/{userId}', [AuthController::class, 'changePassword']);
 
 Route::middleware('api')->get('v1/training', [TrainingController::class, 'index']);
 Route::middleware('api')->get('v1/training/{id}', [TrainingController::class, 'show']);
@@ -113,11 +116,35 @@ Route::middleware('api')->delete('v1/identities/{id}', [IdentityController::clas
 
 Route::middleware('api')->get('v1/organisations', [OrganisationController::class, 'index']);
 Route::middleware('api')->get('v1/organisations/{id}', [OrganisationController::class, 'show']);
+Route::middleware('api')->get('v1/organisations/{id}/idvt', [OrganisationController::class, 'idvt']);
 Route::middleware('api')->post('v1/organisations', [OrganisationController::class, 'store']);
 Route::middleware('api')->put('v1/organisations/{id}', [OrganisationController::class, 'update']);
 Route::middleware('api')->patch('v1/organisations/{id}', [OrganisationController::class, 'edit']);
 Route::middleware('api')->delete('v1/organisations/{id}', [OrganisationController::class, 'destroy']);
 Route::middleware('api')->post('v1/organisations/permissions', [PermissionController::class, 'assignOrganisationPermissionsToFrom']);
+
+Route::middleware('api')->get('v1/accreditations/{registryId}', [AccreditationController::class, 'indexByRegistryId']);
+Route::middleware('api')->post('v1/accreditations/{registryId}', [AccreditationController::class, 'storeByRegistryId']);
+Route::middleware('api')->put('v1/accreditations/{id}/{registryId}', [AccreditationController::class, 'updateByRegistryId']);
+Route::middleware('api')->patch('v1/accreditations/{id}/{registryId}', [AccreditationController::class, 'editByRegistryId']);
+Route::middleware('api')->delete('v1/accreditations/{id}/{registryId}', [AccreditationController::class, 'destroyByRegistryId']);
+
+Route::middleware('api')->get('v1/educations/{registryId}', [EducationController::class, 'indexByRegistryId']);
+Route::middleware('api')->get('v1/educations/{id}/{registryId}', [EducationController::class, 'showByRegistryId']);
+Route::middleware('api')->post('v1/educations/{registryId}', [EducationController::class, 'storeByRegistryId']);
+Route::middleware('api')->put('v1/educations/{id}/{registryId}', [EducationController::class, 'updateByRegistryId']);
+Route::middleware('api')->patch('v1/educations/{id}/{registryId}', [EducationController::class, 'editByRegistryId']);
+Route::middleware('api')->delete('v1/educations/{id}/{registryId}', [EducationController::class, 'destroyByRegistryId']);
+
+Route::middleware('api')->get('v1/employments/{registryId}', [EmploymentController::class, 'indexByRegistryId']);
+Route::middleware('api')->get('v1/employments/{id}/{registryId}', [EmploymentController::class, 'showByRegistryId']);
+Route::middleware('api')->post('v1/employments/{registryId}', [EmploymentController::class, 'storeByRegistryId']);
+Route::middleware('api')->put('v1/employments/{id}/{registryId}', [EmploymentController::class, 'updateByRegistryId']);
+Route::middleware('api')->patch('v1/employments/{id}/{registryId}', [EmploymentController::class, 'editByRegistryId']);
+Route::middleware('api')->delete('v1/employments/{id}/{registryId}', [EmploymentController::class, 'destroyByRegistryId']);
+
+Route::middleware('api')->get('v1/resolutions/{registryId}', [ResolutionController::class, 'indexByRegistryId']);
+Route::middleware('api')->post('v1/resolutions/{registryId}', [ResolutionController::class, 'storeByRegistryId']);
 
 Route::middleware('api')->get('v1/histories', [HistoryController::class, 'index']);
 Route::middleware('api')->get('v1/histories/{id}', [HistoryController::class, 'show']);
@@ -128,7 +155,6 @@ Route::middleware('api')->get('v1/infringements/{id}', [InfringementController::
 Route::middleware('api')->post('v1/infringements', [InfringementController::class, 'store']);
 
 Route::middleware('api')->get('v1/permissions', [PermissionController::class, 'index']);
-
 
 Route::middleware('api')->post('v1/trigger_email', [TriggerEmailController::class, 'spawnEmail']);
 
@@ -145,7 +171,7 @@ Route::get('v1/system_config/{name}', [SystemConfigController::class, 'getByName
 Route::post('v1/ons_researcher_feed', [ONSSubmissionController::class, 'receiveCSV']);
 
 // stop all all other routes
-Route::any('{path}', function() {
+Route::any('{path}', function () {
     $response = [
         'message' => 'Resource not found',
     ];
