@@ -322,6 +322,7 @@ class UserController extends Controller
      *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
      *                  @OA\Property(property="declaration_signed", type="boolean", example="true"),
      *                  @OA\Property(property="organisation_id", type="integer", example="123")
+     *                  @OA\Property(property="orc_id", type="integer", example="0000-0000-0000-0000")
      *              )
      *          ),
      *      ),
@@ -354,6 +355,7 @@ class UserController extends Controller
             $user->public_opt_in = isset($input['public_opt_in']) ? $input['public_opt_in'] : $user->public_opt_in;
             $user->declaration_signed = isset($input['declaration_signed']) ? $input['declaration_signed'] : $user->declaration_signed;
             $user->organisation_id = isset($input['organisation_id']) ? $input['organisation_id'] : $user->organisation_id;
+            $user->orc_id = isset($input['orc_id']) ? $input['orc_id'] : $user->orc_id;
 
             if ($user->save()) {
                 return response()->json([
@@ -438,6 +440,7 @@ class UserController extends Controller
      *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
      *                  @OA\Property(property="declaration_signed", type="boolean", example="true"),
      *                  @OA\Property(property="organisation_id", type="integer", example="123")
+     *                  @OA\Property(property="orc_id", type="string", example="0000-0000-0000-0000")
      *              )
      *          ),
      *      ),
@@ -470,6 +473,7 @@ class UserController extends Controller
             $user->public_opt_in = isset($input['public_opt_in']) ? $input['public_opt_in'] : $user->public_opt_in;
             $user->declaration_signed = isset($input['declaration_signed']) ? $input['declaration_signed'] : $user->declaration_signed;
             $user->organisation_id = isset($input['organisation_id']) ? $input['organisation_id'] : $user->organisation_id;
+            $user->orc_id = isset($input['orc_id']) ? $input['orc_id'] : $user->orc_id;
 
             if ($user->save()) {
                 return response()->json([
