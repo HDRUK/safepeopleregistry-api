@@ -32,10 +32,6 @@ class AuthController extends Controller
             'first_name' => $input['first_name'],
             'last_name' => $input['last_name'],
             'password' => $input['password'],
-            'is_researcher' => true,
-            'organisation_id' => isset($input['organisation_id']) ? $input['organisation_id'] : null,
-            'consent_scrape' => $input['consent_scrape'],
-            'orc_id' => $input['orc_id']
         ]);
 
         if ($retVal['success']) {

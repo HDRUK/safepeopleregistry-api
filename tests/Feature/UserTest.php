@@ -110,9 +110,6 @@ class UserTest extends TestCase
                 'provider_sub' => Str::random(10),
                 'public_opt_in' => fake()->randomElement([0, 1]),
                 'declaration_signed' => fake()->randomElement([0, 1]),
-                'consent_scrape' => fake()->randomElement([0, 1]),
-                'organisation_id' => fake()->randomDigit(),
-                'orc_id' => fake()->numerify('####-####-####-####'),
             ]
             );
 
