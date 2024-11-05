@@ -4,13 +4,10 @@ namespace App\Http\Controllers\Api\V1;
 
 use Exception;
 use Carbon\Carbon;
-
 use App\Models\Education;
 use App\Models\Registry;
-
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-
 use App\Http\Controllers\Controller;
 
 class EducationController extends Controller

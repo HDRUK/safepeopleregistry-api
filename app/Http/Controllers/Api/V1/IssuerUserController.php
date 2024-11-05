@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\V1;
 
 use Hash;
 use Exception;
-
 use App\Http\Controllers\Controller;
 use App\Models\IssuerUser;
 use App\Models\IssuerUserHasPermission;

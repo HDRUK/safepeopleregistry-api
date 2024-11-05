@@ -24,7 +24,6 @@ use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\ResolutionController;
 use App\Http\Controllers\Api\V1\EmploymentController;
 use App\Http\Controllers\Api\V1\EducationController;
-
 use Illuminate\Support\Facades\Route;
 
 /*

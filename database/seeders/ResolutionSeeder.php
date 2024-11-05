@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Resolution;
-
 use Illuminate\Database\Seeder;
 
 class ResolutionSeeder extends Seeder

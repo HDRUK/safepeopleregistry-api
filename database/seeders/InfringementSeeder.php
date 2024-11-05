@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Infringement;
-
 use Illuminate\Database\Seeder;
 
 class InfringementSeeder extends Seeder

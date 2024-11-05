@@ -3,17 +3,13 @@
 namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
-
 use App\Models\User;
-
 use Database\Seeders\UserSeeder;
 use Database\Seeders\IssuerSeeder;
 use Database\Seeders\OrganisationSeeder;
 use Database\Seeders\PermissionSeeder;
-
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
-
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 

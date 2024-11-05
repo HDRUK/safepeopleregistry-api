@@ -2,6 +2,8 @@
 
 namespace App\Jobs;
 
+use OrcID;
+use Carbon\Carbon;
 use App\Models\Accreditation;
 use App\Models\Education;
 use App\Models\Employment;
@@ -13,7 +15,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use OrcID;
 
 class OrcIDScanner implements ShouldQueue
 {
@@ -40,6 +41,9 @@ class OrcIDScanner implements ShouldQueue
     public function handle(): void
     {
         if ($this->user->consent_scrape && $this->user->orc_id !== null) {
+            $this->user->orcid_scanning = 1;
+            $this->user->save();
+
             $token = json_decode(OrcID::getPublicToken($this->user), true);
 
             $this->accessToken = $token['access_token'];
@@ -47,11 +51,14 @@ class OrcIDScanner implements ShouldQueue
             $this->getEducations();
             $this->getQualifications();
             $this->getEmployers();
+
+            $this->user->orcid_scanning = 0;
+            $this->user->orcid_scanning_completed_at = Carbon::now();
+            $this->user->save();
         }
 
         // Nothing to do - either no consent to scrape data, or
         // OrcID hasn't been set. Either way, fail silently.
-
     }
 
     private function getEducations(): void

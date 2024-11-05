@@ -1,4 +1,4 @@
-FROM php:8.3-fpm
+FROM php:8.3.3-fpm
 
 ENV COMPOSER_PROCESS_TIMEOUT=600
 
@@ -25,8 +25,10 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install sockets \
     && docker-php-ext-install exif \
     && docker-php-ext-configure pcntl --enable-pcntl \
-    && docker-php-ext-install pcntl \
-    && pecl install swoole
+    && docker-php-ext-install pcntl
+
+RUN pecl install swoole \
+    && docker-php-ext-enable swoole
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- \
@@ -52,6 +54,7 @@ RUN composer install \
     && php artisan optimize:clear \
     && php artisan optimize \
     && php artisan config:clear \
+    && php artisan octane:install --server=swoole \
     && chmod -R 777 storage bootstrap/cache \
     && chown -R www-data:www-data storage \
     && php artisan octane:install --server=swoole \

@@ -3,10 +3,8 @@
 namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
-
 use App\Models\User;
 use App\Models\Registry;
-
 use Database\Seeders\HistorySeeder;
 use Database\Seeders\IdentitySeeder;
 use Database\Seeders\IssuerSeeder;
@@ -14,9 +12,7 @@ use Database\Seeders\OrganisationSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\TrainingSeeder;
 use Database\Seeders\UserSeeder;
-
 use Illuminate\Foundation\Testing\RefreshDatabase;
-
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Exception;
-
 use App\Http\Controllers\Controller;
 use App\Models\Organisation;
 use App\Models\OrganisationDelegate;

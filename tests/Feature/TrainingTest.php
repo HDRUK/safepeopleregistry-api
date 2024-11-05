@@ -3,16 +3,11 @@
 namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
-
 use Carbon\Carbon;
-
 use App\Models\User;
-
 use Database\Seeders\TrainingSeeder;
 use Database\Seeders\UserSeeder;
-
 use Illuminate\Foundation\Testing\RefreshDatabase;
-
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 

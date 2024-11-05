@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Accreditation;
-
 use Illuminate\Database\Seeder;
 
 class AccreditationSeeder extends Seeder

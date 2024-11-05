@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
@@ -34,6 +33,8 @@ class User extends Authenticatable
         'public_opt_in',
         'declaration_signed',
         'organisation_id',
+        'orcid_scanning',
+        'orcid_scanning_completed_at',
     ];
 
     /**
@@ -55,6 +56,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'consent_scrape' => 'boolean',
+        'orcid_scanning' => 'boolean',
     ];
 
     public function permissions(): BelongsToMany
