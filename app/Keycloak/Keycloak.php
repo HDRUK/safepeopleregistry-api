@@ -66,7 +66,20 @@ class Keycloak
 
                 $user = null;
 
-                if ($isResearcher || $isOrganisation) {
+                if($isResearcher) {
+                    $user = User::create([
+                        'first_name' => $credentials['first_name'],
+                        'last_name' => $credentials['last_name'],
+                        'email' => $credentials['email'],
+                        'consent_scrape' => isset($credentials['consent_scrape']) ? $credentials['consent_scrape'] : 0,
+                        'orc_id' => $credentials['orc_id'],
+                        'organisation_id' => $credentials['organisation_id'],
+                        'provider' => 'keycloak',
+                        'provider_sub' => '',
+                        'keycloak_id' => $newUserId,
+                        'user_group' => $userGroup,
+                    ]);
+                } elseif ($isOrganisation) {
                     $user = User::create([
                         'first_name' => $credentials['first_name'],
                         'last_name' => $credentials['last_name'],
