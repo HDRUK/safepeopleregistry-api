@@ -288,6 +288,7 @@ class UserController extends Controller
      *              @OA\Property(property="last_name", type="string", example="Researcher"),
      *              @OA\Property(property="email", type="string", example="someone@somewhere.com"),
      *              @OA\Property(property="password", type="string", example="str0ng12P4ssword?"),
+     *              @OA\Property(property="orc_id", type="string", example="0000-0000-0000-0000"),
      *          ),
      *      ),
      *
@@ -322,7 +323,7 @@ class UserController extends Controller
      *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
      *                  @OA\Property(property="declaration_signed", type="boolean", example="true"),
      *                  @OA\Property(property="organisation_id", type="integer", example="123")
-     *                  @OA\Property(property="orc_id", type="integer", example="0000-0000-0000-0000")
+     *                  @OA\Property(property="orc_id", type="string", example="0000-0000-0000-0000")
      *              )
      *          ),
      *      ),
