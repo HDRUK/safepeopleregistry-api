@@ -32,6 +32,7 @@ class AuthController extends Controller
             'first_name' => $input['first_name'],
             'last_name' => $input['last_name'],
             'password' => $input['password'],
+            'is_researcher' => true,
         ]);
 
         if ($retVal['success']) {

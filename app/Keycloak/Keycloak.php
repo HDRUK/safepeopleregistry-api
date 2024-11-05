@@ -65,22 +65,28 @@ class Keycloak
                 $newUserId = $parts[$last];
 
                 $user = null;
-                $user_details = [
-                    'first_name' => $credentials['first_name'],
-                    'last_name' => $credentials['last_name'],
-                    'email' => $credentials['email'],
-                    'provider' => 'keycloak',
-                    'provider_sub' => '',
-                    'keycloak_id' => $newUserId,
-                    'issuer_id' => $credentials['issuer_id']
-                ];
 
-                if($isResearcher) {
-                    $user = User::create($user_details);
-                } elseif ($isOrganisation) {
-                    $user = User::create($user_details);
+                if ($isResearcher || $isOrganisation) {
+                    $user = User::create([
+                        'first_name' => $credentials['first_name'],
+                        'last_name' => $credentials['last_name'],
+                        'email' => $credentials['email'],
+                        'consent_scrape' => isset($credentials['consent_scrape']) ? $credentials['consent_scrape'] : 0,
+                        'provider' => 'keycloak',
+                        'provider_sub' => '',
+                        'keycloak_id' => $newUserId,
+                        'user_group' => $userGroup,
+                    ]);
                 } elseif ($isIssuer) {
-                    $user = IssuerUser::create($user_details);
+                    $user = IssuerUser::create([
+                        'first_name' => $credentials['first_name'],
+                        'last_name' => $credentials['last_name'],
+                        'email' => $credentials['email'],
+                        'provider' => 'keycloak',
+                        'provider_sub' => '',
+                        'keycloak_id' => $newUserId,
+                        'issuer_id' => $credentials['issuer_id'],
+                    ]);
                 }
 
                 if (!$user) {
