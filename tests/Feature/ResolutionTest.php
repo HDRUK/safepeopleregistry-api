@@ -3,19 +3,14 @@
 namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
-
 use App\Models\User;
 use App\Models\Registry;
 use App\Models\InfringementHasResolution;
-
 use Database\Seeders\UserSeeder;
 use Database\Seeders\InfringementSeeder;
 use Database\Seeders\ResolutionSeeder;
-
 use Illuminate\Foundation\Testing\RefreshDatabase;
-
 use Tests\TestCase;
-
 use Tests\Traits\Authorisation;
 
 class ResolutionTest extends TestCase

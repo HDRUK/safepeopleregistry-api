@@ -3,8 +3,6 @@
 namespace Tests\Traits;
 
 use Carbon\Carbon;
-
-
 use Illuminate\Support\Facades\Http;
 
 trait Authorisation

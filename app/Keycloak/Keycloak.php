@@ -5,12 +5,10 @@ namespace App\Keycloak;
 use Http;
 use Hash;
 use Exception;
-
 use App\Models\User;
 use App\Models\Registry;
 use App\Models\IssuerUser;
 use App\Models\RegistryHasOrganisation;
-
 use Illuminate\Support\Str;
 
 class Keycloak

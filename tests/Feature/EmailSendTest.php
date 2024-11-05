@@ -3,22 +3,17 @@
 namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
-
 use App\Jobs\SendEmailJob;
-
 use App\Models\User;
 use App\Models\PendingInvite;
-
 use Database\Seeders\EmailTemplatesSeeder;
 use Database\Seeders\IssuerSeeder;
 use Database\Seeders\OrganisationDelegateSeeder;
 use Database\Seeders\OrganisationSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\UserSeeder;
-
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
-
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 

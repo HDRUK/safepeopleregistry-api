@@ -3,10 +3,8 @@
 namespace App\Models;
 
 use App\Observers\FileObserver;
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
 #[ObservedBy([FileObserver::class])]

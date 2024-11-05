@@ -25,7 +25,6 @@ use App\Http\Controllers\Api\V1\ResolutionController;
 use App\Http\Controllers\Api\V1\EmploymentController;
 use App\Http\Controllers\Api\V1\EducationController;
 use App\Http\Controllers\Api\V1\EmailTemplateController;
-
 use Illuminate\Support\Facades\Route;
 
 /*

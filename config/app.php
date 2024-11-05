@@ -157,6 +157,11 @@ return [
 
     'providers' => ServiceProvider::defaultProviders()->merge([
         /*
+         * Laravel Framework Service Providers...
+         */
+        Illuminate\Redis\RedisServiceProvider::class,
+
+        /*
          * Package Service Providers...
          */
 
@@ -167,6 +172,7 @@ return [
         App\Providers\AuthServiceProvider::class,
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
+        App\Providers\HorizonServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         Laravel\Socialite\SocialiteServiceProvider::class,
         \SocialiteProviders\Manager\ServiceProvider::class,

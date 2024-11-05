@@ -3,16 +3,12 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Exception;
-
 use App\Models\Resolution;
 use App\Models\Infringement;
 use App\Models\InfringementHasResolution;
-
 use App\Http\Controllers\Controller;
-
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-
 use App\Traits\CommonFunctions;
 
 class ResolutionController extends Controller
