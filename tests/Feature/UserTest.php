@@ -168,6 +168,7 @@ class UserTest extends TestCase
                 'public_opt_in' => false,
                 'declaration_signed' => false,
                 'organisation_id' => 1,
+                'orc_id' => fake()->numerify('####-####-####-####'),
             ]
             );
 

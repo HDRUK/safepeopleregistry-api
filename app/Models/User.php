@@ -33,6 +33,7 @@ class User extends Authenticatable
         'public_opt_in',
         'declaration_signed',
         'organisation_id',
+        'orc_id',
         'orcid_scanning',
         'orcid_scanning_completed_at',
     ];

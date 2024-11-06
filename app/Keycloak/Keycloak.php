@@ -113,7 +113,7 @@ class Keycloak
                         'registry_id' => $registry->id,
                     ]);
 
-                    if ($credentials['organisation_id'] !== null) {
+                    if (isset($credentials['organisation_id'])) {
                         RegistryHasOrganisation::create([
                             'registry_id' => $registry->id,
                             'organisation_id' => $credentials['organisation_id'],
