@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\V1;
 
 use Exception;
 use Hash;
-
 use App\Http\Controllers\Controller;
 use App\Models\Issuer;
 use App\Models\Organisation;

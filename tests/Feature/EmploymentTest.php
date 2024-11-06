@@ -3,17 +3,12 @@
 namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
-
 use App\Models\User;
 use App\Models\Registry;
-
 use Database\Seeders\UserSeeder;
 use Database\Seeders\EmploymentSeeder;
-
 use Illuminate\Foundation\Testing\RefreshDatabase;
-
 use Tests\TestCase;
-
 use Tests\Traits\Authorisation;
 
 class EmploymentTest extends TestCase

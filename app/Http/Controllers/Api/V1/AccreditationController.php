@@ -4,15 +4,11 @@ namespace App\Http\Controllers\Api\V1;
 
 use Exception;
 use Carbon\Carbon;
-
 use App\Models\Accreditation;
 use App\Models\RegistryHasAccreditation;
-
 use App\Http\Controllers\Controller;
-
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-
 use App\Traits\CommonFunctions;
 
 class AccreditationController extends Controller

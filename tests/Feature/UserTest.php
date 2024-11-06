@@ -3,18 +3,14 @@
 namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
-
 use App\Models\User;
-
 use Database\Seeders\EmailTemplatesSeeder;
 use Database\Seeders\IssuerSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\UserSeeder;
 use Database\Seeders\OrganisationSeeder;
-
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
-
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
@@ -115,6 +111,45 @@ class UserTest extends TestCase
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
+    }
+
+    public function test_the_application_fails_when_unable_to_create_users(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
+                    'first_name' => fake()->firstname(),
+                    'last_name' => fake()->lastname(),
+                    'email' => '',
+                    'provider' => fake()->word(),
+                    'provider_sub' => Str::random(10),
+                    'public_opt_in' => fake()->randomElement([0, 1]),
+                    'declaration_signed' => fake()->randomElement([0, 1]),
+                ]
+            );
+
+        // Assert bad request, knowing that we've not sent an email address
+        $response->assertStatus(400);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'POST',
+            self::TEST_URL,
+            [
+                'first_name' => fake()->firstname(),
+                'last_name' => fake()->lastname(),
+                'email' => 'myemail.com',
+                'provider' => fake()->word(),
+                'provider_sub' => Str::random(10),
+                'public_opt_in' => fake()->randomElement([0, 1]),
+                'declaration_signed' => fake()->randomElement([0, 1]),
+            ]
+        );
+
+        // Assert bad request, knowing that we've not sent an invalid email address
+        $response->assertStatus(400);
     }
 
     public function test_the_application_can_update_users(): void

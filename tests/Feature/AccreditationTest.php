@@ -3,18 +3,12 @@
 namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
-
 use Carbon\Carbon;
-
 use App\Models\User;
 use App\Models\Registry;
-
 use Database\Seeders\UserSeeder;
-
 use Illuminate\Foundation\Testing\RefreshDatabase;
-
 use Tests\TestCase;
-
 use Tests\Traits\Authorisation;
 
 class AccreditationTest extends TestCase

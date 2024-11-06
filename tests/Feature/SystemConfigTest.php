@@ -3,9 +3,7 @@
 namespace Tests\Feature;
 
 use Database\Seeders\SystemConfigSeeder;
-
 use Illuminate\Foundation\Testing\RefreshDatabase;
-
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 

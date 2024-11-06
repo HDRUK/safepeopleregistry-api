@@ -3,13 +3,10 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Exception;
-
 use App\Models\Employment;
 use App\Models\Registry;
-
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-
 use App\Http\Controllers\Controller;
 
 class EmploymentController extends Controller

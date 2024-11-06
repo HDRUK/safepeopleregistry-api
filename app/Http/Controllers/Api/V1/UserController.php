@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Exceptions\NotFoundException;
-use App\Http\Controllers\Controller;
+use Hash;
+use Keycloak;
+use Exception;
 use App\Models\User;
 use App\Models\UserHasIssuerApproval;
 use App\Models\UserHasIssuerPermission;
-use App\Traits\CommonFunctions;
-use Exception;
-use Hash;
+use App\Http\Requests\Users\CreateUser;
+use App\Exceptions\NotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Keycloak;
+use App\Http\Controllers\Controller;
+use App\Traits\CommonFunctions;
 
 class UserController extends Controller
 {
@@ -45,7 +46,9 @@ class UserController extends Controller
      *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
      *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
      *                  @OA\Property(property="declaration_signed", type="boolean", example="true"),
-     *                  @OA\Property(property="organisation_id", type="integer", example="123")
+     *                  @OA\Property(property="organisation_id", type="integer", example="123"),
+     *                  @OA\Property(property="orcid_scanning", type="integer", example="1"),
+     *                  @OA\Property(property="orcid_scanning_completed_at", type="string", example="2024-02-04 12:01:00")
      *              )
      *          ),
      *      ),
@@ -119,7 +122,9 @@ class UserController extends Controller
      *                  @OA\Property(property="profile_completed_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
      *                  @OA\Property(property="declaration_signed", type="boolean", example="true"),
-     *                  @OA\Property(property="organisation_id", type="integer", example="123")
+     *                  @OA\Property(property="organisation_id", type="integer", example="123"),
+     *                  @OA\Property(property="orcid_scanning", type="integer", example="1"),
+     *                  @OA\Property(property="orcid_scanning_completed_at", type="string", example="2024-02-04 12:01:00")
      *              )
      *          ),
      *      ),
@@ -207,7 +212,9 @@ class UserController extends Controller
      *                  @OA\Property(property="profile_completed_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
      *                  @OA\Property(property="declaration_signed", type="boolean", example="true"),
-     *                  @OA\Property(property="organisation_id", type="integer", example="123")
+     *                  @OA\Property(property="organisation_id", type="integer", example="123"),
+     *                  @OA\Property(property="orcid_scanning", type="integer", example="1"),
+     *                  @OA\Property(property="orcid_scanning_completed_at", type="string", example="2024-02-04 12:01:00")
      *              )
      *          ),
      *      ),
@@ -223,7 +230,7 @@ class UserController extends Controller
      *      )
      * )
      */
-    public function store(Request $request): JsonResponse
+    public function store(CreateUser $request): JsonResponse
     {
         try {
             $input = $request->all();
@@ -324,6 +331,8 @@ class UserController extends Controller
      *                  @OA\Property(property="declaration_signed", type="boolean", example="true"),
      *                  @OA\Property(property="organisation_id", type="integer", example="123")
      *                  @OA\Property(property="orc_id", type="string", example="0000-0000-0000-0000")
+     *                  @OA\Property(property="orcid_scanning", type="integer", example="1"),
+     *                  @OA\Property(property="orcid_scanning_completed_at", type="string", example="2024-02-04 12:01:00")
      *              )
      *          ),
      *      ),
@@ -443,6 +452,8 @@ class UserController extends Controller
      *                  @OA\Property(property="declaration_signed", type="boolean", example="true"),
      *                  @OA\Property(property="organisation_id", type="integer", example="123")
      *                  @OA\Property(property="orc_id", type="integer", example="0000-0000-0000-0000")
+     *                  @OA\Property(property="orcid_scanning", type="integer", example="1"),
+     *                  @OA\Property(property="orcid_scanning_completed_at", type="string", example="2024-02-04 12:01:00")
      *              )
      *          ),
      *      ),
@@ -521,7 +532,6 @@ class UserController extends Controller
      *          description="Not found response",
      *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found")
      *           ),
      *      ),
@@ -531,7 +541,6 @@ class UserController extends Controller
      *          description="Success",
      *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="success")
      *          ),
      *      ),
@@ -541,7 +550,6 @@ class UserController extends Controller
      *          description="Error",
      *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )

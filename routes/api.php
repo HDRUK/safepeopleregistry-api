@@ -24,7 +24,7 @@ use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\ResolutionController;
 use App\Http\Controllers\Api\V1\EmploymentController;
 use App\Http\Controllers\Api\V1\EducationController;
-
+use App\Http\Controllers\Api\V1\EmailTemplateController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -155,6 +155,8 @@ Route::middleware('api')->get('v1/infringements/{id}', [InfringementController::
 Route::middleware('api')->post('v1/infringements', [InfringementController::class, 'store']);
 
 Route::middleware('api')->get('v1/permissions', [PermissionController::class, 'index']);
+
+Route::middleware('api')->get('v1/email_templates', [EmailTemplateController::class, 'index']);
 
 Route::middleware('api')->post('v1/trigger_email', [TriggerEmailController::class, 'spawnEmail']);
 
