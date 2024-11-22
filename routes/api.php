@@ -25,6 +25,7 @@ use App\Http\Controllers\Api\V1\ResolutionController;
 use App\Http\Controllers\Api\V1\EmploymentController;
 use App\Http\Controllers\Api\V1\EducationController;
 use App\Http\Controllers\Api\V1\EmailTemplateController;
+use App\Http\Controllers\Api\V1\SectorController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -142,6 +143,13 @@ Route::middleware('api')->post('v1/employments/{registryId}', [EmploymentControl
 Route::middleware('api')->put('v1/employments/{id}/{registryId}', [EmploymentController::class, 'updateByRegistryId']);
 Route::middleware('api')->patch('v1/employments/{id}/{registryId}', [EmploymentController::class, 'editByRegistryId']);
 Route::middleware('api')->delete('v1/employments/{id}/{registryId}', [EmploymentController::class, 'destroyByRegistryId']);
+
+Route::middleware('api')->get('v1/sectors', [SectorController::class, 'index']);
+Route::middleware('api')->get('v1/sectors/{id}', [SectorController::class, 'show']);
+Route::middleware('api')->post('v1/sectors', [SectorController::class, 'store']);
+Route::middleware('api')->put('v1/sectors/{id}', [SectorController::class, 'update']);
+Route::middleware('api')->patch('v1/sectors/{id}', [SectorController::class, 'edit']);
+Route::middleware('api')->delete('v1/sectors/{id}', [SectorController::class, 'destroy']);
 
 Route::middleware('api')->get('v1/resolutions/{registryId}', [ResolutionController::class, 'indexByRegistryId']);
 Route::middleware('api')->post('v1/resolutions/{registryId}', [ResolutionController::class, 'storeByRegistryId']);

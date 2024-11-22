@@ -31,7 +31,9 @@ class Organisation extends Model
         'sub_license_arrangements',
         'verified',
         'dsptk_ods_code',
+        'dsptk_certified',
         'iso_27001_certified',
+        'iso_27001_certification_num',
         'ce_certified',
         'ce_certification_num',
         'idvt_result',
@@ -39,6 +41,7 @@ class Organisation extends Model
         'idvt_errors',
         'idvt_completed_at',
         'companies_house_no',
+        'sector_id',
     ];
 
     protected $casts = [

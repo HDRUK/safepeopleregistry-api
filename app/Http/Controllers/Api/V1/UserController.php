@@ -451,7 +451,7 @@ class UserController extends Controller
      *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
      *                  @OA\Property(property="declaration_signed", type="boolean", example="true"),
      *                  @OA\Property(property="organisation_id", type="integer", example="123"),
-     *                  @OA\Property(property="orc_id", type="integer", example="0000-0000-0000-0000"),
+     *                  @OA\Property(property="orc_id", type="string", example="0000-0000-0000-0000"),
      *                  @OA\Property(property="orcid_scanning", type="integer", example="1"),
      *                  @OA\Property(property="orcid_scanning_completed_at", type="string", example="2024-02-04 12:01:00")
      *              )

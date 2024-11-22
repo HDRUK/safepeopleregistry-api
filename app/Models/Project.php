@@ -22,7 +22,7 @@ class Project extends Model
         'public_benefit',
         'request_category_type',
         'technical_summary',
-        'other_approval_committes',
+        'other_approval_committees',
         'start_date',
         'end_date',
         'affiliate_id',
