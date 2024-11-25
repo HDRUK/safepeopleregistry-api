@@ -15,6 +15,14 @@ class Keycloak
 {
     public const USERS_URL = '/users';
 
+    public function getUserInfo(string $token)
+    {
+        $userInfoUrl = env('KEYCLOAK_BASE_URL').'/realms/'.env('KEYCLOAK_REALM').'/protocol/openid-connect/userinfo';
+        return Http::withHeaders([
+            'Authorization' => $token,
+        ])->get($userInfoUrl);
+    }
+
     public function create(array $credentials): array
     {
         try {

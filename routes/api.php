@@ -39,16 +39,18 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('auth/login', [AuthController::class, 'login']);
-Route::post('auth/register/researcher', [AuthController::class, 'registerUser']);
-Route::post('auth/register/issuer', [AuthController::class, 'registerIssuer']);
-Route::post('auth/register/organisation', [AuthController::class, 'registerOrganisation']);
-Route::post('auth/logout', [AuthController::class, 'logout']);
-Route::get('auth/me', [AuthController::class, 'me']);
+// Route::post('auth/login', [AuthController::class, 'login']);
+// Route::post('auth/register/researcher', [AuthController::class, 'registerUser']);
+// Route::post('auth/register/issuer', [AuthController::class, 'registerIssuer']);
+// Route::post('auth/register/organisation', [AuthController::class, 'registerOrganisation']);
+// Route::post('auth/logout', [AuthController::class, 'logout']);
+// Route::get('auth/me', [AuthController::class, 'me']);
 
 Route::post('v1/query', [QueryController::class, 'query']);
 
 Route::middleware('auth:api')->get('/secure-test', [UserController::class, 'index']);
+
+Route::middleware('auth:api')->post('auth/register', [AuthController::class, 'registerKeycloakUser']);
 
 Route::middleware('api')->get('v1/users', [UserController::class, 'index']);
 Route::middleware('api')->get('v1/users/{id}', [UserController::class, 'show']);

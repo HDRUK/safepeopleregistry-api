@@ -3,7 +3,6 @@
 namespace App\Traits;
 
 use App\Models\SystemConfig;
-use Hash;
 use Str;
 
 trait CommonFunctions
@@ -23,18 +22,6 @@ trait CommonFunctions
         $modelName = '\\App\\Models\\'.Str::studly(Str::singular($model));
 
         return $modelName;
-    }
-
-    public function generateDigitalIdentifierForRegistry(): string
-    {
-        $signature = Str::random(64);
-        $digiIdent = Hash::make(
-            $signature.
-            ':'.env('REGISTRY_SALT_1').
-            ':'.env('REGISTRY_SALT_2')
-        );
-
-        return $digiIdent;
     }
 
     public function csvToArray(string $filename, $delimiter = ','): array
