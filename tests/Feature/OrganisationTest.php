@@ -5,10 +5,12 @@ namespace Tests\Feature;
 use KeycloakGuard\ActingAsKeycloakUser;
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Sector;
 use Database\Seeders\IssuerSeeder;
 use Database\Seeders\OrganisationSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\UserSeeder;
+use Database\Seeders\SectorSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -29,6 +31,7 @@ class OrganisationTest extends TestCase
     {
         parent::setUp();
         $this->seed([
+            SectorSeeder::class,
             UserSeeder::class,
             PermissionSeeder::class,
             IssuerSeeder::class,
@@ -54,6 +57,13 @@ class OrganisationTest extends TestCase
             'sub_license_arrangements' => 'N/A',
             'verified' => false,
             'companies_house_no' => '10887014',
+            'dsptk_certified' => 1,
+            'dsptk_certification_num' => '12345Z',
+            'iso_27001_certified' => 0,
+            'iso_27001_certification_num' => '',
+            'ce_certified' => 1,
+            'ce_certification_num' => 'A1234',
+            'sector_id' => fake()->randomElement([0, count(Sector::SECTORS)]),
         ];
     }
 

@@ -320,6 +320,13 @@ class OrganisationController extends Controller
                 'sub_license_arrangements' => $input['sub_license_arrangements'],
                 'verified' => $input['verified'],
                 'companies_house_no' => $input['companies_house_no'],
+                'sector_id' => $input['sector_id'],
+                'dsptk_certified' => $input['dsptk_certified'],
+                'dsptk_certification_num' => $input['dsptk_certification_num'],
+                'iso_27001_certified' => $input['iso_27001_certified'],
+                'iso_27001_certification_num' => $input['iso_27001_certification_num'],
+                'ce_certified' => $input['ce_certified'],
+                'ce_certification_num' => $input['ce_certification_num'],
             ]);
 
             // Run automated IDVT

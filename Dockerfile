@@ -57,7 +57,6 @@ RUN composer install \
     && php artisan octane:install --server=swoole \
     && chmod -R 777 storage bootstrap/cache \
     && chown -R www-data:www-data storage \
-    && php artisan octane:install --server=swoole \
     && composer dumpautoload
 
 # Generate Swagger - Removed for now as we don't have

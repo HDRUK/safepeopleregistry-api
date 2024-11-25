@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Sector;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -34,7 +35,10 @@ class OrganisationFactory extends Factory
             'sub_license_arrangements' => fake()->sentence(5),
             'verified' => true,
             'dsptk_ods_code' => Str::random(fake()->randomElement([3, 4, 5])),
+            'dsptk_certified' => fake()->randomElement([0, 1]),
             'companies_house_no' => '10887014',
+            'iso_27001_certification_num' => Str::random(12),
+            'sector_id' => fake()->randomElement([0, count(Sector::SECTORS)]),
         ];
     }
 }
