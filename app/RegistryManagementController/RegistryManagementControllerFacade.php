@@ -8,6 +8,6 @@ class RegistryManagementControllerFacade extends Facade
 {
     protected static function getFacadeAccessor(): string
     {
-        return 'registrymannagementcontroller';
+        return 'registrymanagementcontroller';
     }
 }
