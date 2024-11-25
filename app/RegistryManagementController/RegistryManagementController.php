@@ -11,25 +11,23 @@ use App\Models\Registry;
 class RegistryManagementController
 {
     public const KC_GROUP_USERS = 'USERS';
-    public const KC_GROUP_CUSTODIANS = 'CUSTODIANS';
+    public const KC_GROUP_ISSUERS = 'ISSUERS';
     public const KC_GROUP_ORGANISATIONS = 'ORGANISATIONS';
     public const KC_GROUP_ADMINS = 'ADMINS';
 
     /**
      * Creates a Registry ledger within the system
      *
-     * @return App\Model\Registry The registry object created
+     * @return mixed The registry object created, or FALSE
      */
-    public static function createRegistryLedger(): Registry
+    public static function createRegistryLedger(): mixed
     {
-        $registry = Registry::create([
+        return Registry::create([
             'dl_ident' => null,
             'pp_ident' => null,
             'digi_ident' => RegistryManagementController::generateDigitalIdentifierForRegistry(),
             'verified' => 0,
         ]);
-
-        return $registry;
     }
 
     /**
@@ -93,6 +91,8 @@ class RegistryManagementController
 
                 return false;
         }
+
+        return false;
     }
 
     /**
