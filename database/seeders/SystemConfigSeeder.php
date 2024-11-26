@@ -39,11 +39,11 @@ class SystemConfigSeeder extends Seeder
                                 "type": "string",
                                 "minLength": 8,
                                 "maxLength": 32,
-                                "pattern": "^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,32}$"
+                                "pattern": "^(?=.*\\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,32}$"
                             },
                             "email": {
                                 "type": "string",
-                                "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$"
+                                "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\.[a-zA-Z]{2,6}$"
                             }
                         }
                     }

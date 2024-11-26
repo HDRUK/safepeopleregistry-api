@@ -13,6 +13,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use TriggerEmail;
+use RegistryManagementController as RMC;
 
 class ProcessCSVSubmission implements ShouldQueue
 {
@@ -56,7 +57,7 @@ class ProcessCSVSubmission implements ShouldQueue
                 $registry = Registry::create([
                     'dl_ident' => null,
                     'pp_ident' => null,
-                    'digi_ident' => $this->generateDigitalIdentifierForRegistry(),
+                    'digi_ident' => RMC::generateDigitalIdentifierForRegistry(),
                     'verified' => 0,
                 ]);
 

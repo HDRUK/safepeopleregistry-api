@@ -181,6 +181,7 @@ return [
         App\Providers\OrcIDServiceProvider::class,
         SwooleTW\Http\LaravelServiceProvider::class,
         App\Providers\TriggerEmailServiceProvider::class,
+        App\Providers\RegistryManagementControllerServiceProvider::class,
     ])->toArray(),
 
     /*
@@ -198,6 +199,7 @@ return [
         'Keycloak' => App\Keycloak\KeycloakFacade::class,
         'OrcID' => App\OrcID\OrcIDFacade::class,
         'TriggerEmail' => App\TriggerEmail\TriggerEmailFacade::class,
+        'RegistryManagementController' => App\RegistryManagementController\RegistryManagementController::class,
     ])->toArray(),
 
 ];

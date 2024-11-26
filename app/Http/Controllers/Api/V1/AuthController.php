@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Keycloak;
+use RegistryManagementController as RMC;
 
 class AuthController extends Controller
 {
@@ -21,6 +22,27 @@ class AuthController extends Controller
      */
     public function __construct()
     {
+    }
+
+    public function registerKeycloakUser(Request $request): JsonResponse
+    {
+        $token = explode('Bearer ', $request->headers->get('Authorization'));
+        $accountType = $request->get('account_type');
+
+        $response = Keycloak::getUserInfo($request->headers->get('Authorization'));
+        $payload = $response->json();
+
+        if (RMC::createNewUser($payload, $accountType)) {
+            return response()->json([
+                'message' => 'success',
+                'data' => null,
+            ], 201);
+        }
+
+        return response()->json([
+            'message' => 'failed',
+            'data' => 'user already exists',
+        ], 400);
     }
 
     public function registerUser(Request $request): JsonResponse

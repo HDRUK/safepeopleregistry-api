@@ -13,6 +13,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use RegistryManagementController as RMC;
 
 class ProcessONSSubmission implements ShouldQueue
 {
@@ -52,7 +53,7 @@ class ProcessONSSubmission implements ShouldQueue
                 $registry = Registry::create([
                     'dl_ident' => null,
                     'pp_ident' => null,
-                    'digi_ident' => $this->generateDigitalIdentifierForRegistry(),
+                    'digi_ident' => RMC::generateDigitalIdentifierForRegistry(),
                     'verified' => 0,
                 ]);
 
