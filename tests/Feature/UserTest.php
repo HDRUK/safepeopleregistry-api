@@ -38,6 +38,42 @@ class UserTest extends TestCase
         $this->user = User::where('id', 1)->first();
     }
 
+    public function test_the_application_responds_correctly_to_allowed_permissions(): void
+    {
+        $payload = $this->getMockedKeycloakPayload();
+        $payload['realm_access'] = [
+            'roles' => [
+                'admin',
+            ],
+        ];
+
+        $response = $this->actingAsKeycloakUser($this->user, $payload)
+            ->json(
+                'GET',
+                self::TEST_URL . '/test'
+            );
+
+        $response->assertStatus(200);
+    }
+
+    public function test_the_application_responds_correctly_to_not_allowed_permissions(): void
+    {
+        $payload = $this->getMockedKeycloakPayload();
+        $payload['realm_access'] = [
+            'roles' => [
+                'users',
+            ],
+        ];
+
+        $response = $this->actingAsKeycloakUser($this->user, $payload)
+            ->json(
+                'GET',
+                self::TEST_URL . '/test'
+            );
+
+        $response->assertStatus(401);
+    }
+
     public function test_the_application_can_list_users(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
