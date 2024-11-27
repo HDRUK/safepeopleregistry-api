@@ -20,8 +20,6 @@ trait CheckPermissions
         $token = Auth::token();
         $arr = json_decode($token, true);
 
-        // dd($arr);
-
         foreach ($arr['realm_access']['roles'] as $value) {
             if (in_array($value, $permissionsRequired)) {
                 $hasAccess = true;
