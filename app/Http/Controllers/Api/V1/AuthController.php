@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Auth;
 use Exception;
 use App\Http\Controllers\Controller;
 use App\Models\Organisation;
@@ -9,6 +10,7 @@ use App\Models\OrganisationDelegate;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Str;
 use Keycloak;
 use RegistryManagementController as RMC;
@@ -43,6 +45,33 @@ class AuthController extends Controller
             'message' => 'failed',
             'data' => 'user already exists',
         ], 400);
+    }
+
+    public function me(Request $request): JsonResponse
+    {
+        $token = Auth::token();
+
+        if (!$token) {
+            return response()->json([
+                'message' => 'unauthorised',
+                'data' => null,
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $arr = json_decode($token, true);
+
+        $user = User::where('keycloak_id', $arr['sub'])->first();
+        if (!$user) {
+            return response()->json([
+                'message' => 'not found',
+                'data' => null,
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        return response()->json([
+            'message' => 'success',
+            'data' => $user,
+        ], Response::HTTP_OK);
     }
 
     public function registerUser(Request $request): JsonResponse

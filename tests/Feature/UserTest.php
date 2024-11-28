@@ -38,6 +38,63 @@ class UserTest extends TestCase
         $this->user = User::where('id', 1)->first();
     }
 
+    public function test_the_application_can_call_me_with_valid_token(): void
+    {
+        $user = User::where('id', 1)->first();
+
+        $payload = $this->getMockedKeycloakPayload();
+        $payload['sub'] = $this->user->keycloak_id;
+
+        $response = $this->actingAsKeycloakUser($this->user, $payload)
+            ->json(
+                'GET',
+                '/api/auth/me'
+            );
+
+        $response->assertStatus(200);
+
+        $content = $response->decodeResponseJson();
+        $this->assertEquals($content['data']['email'], 'loki.sinclair@hdruk.ac.uk');
+    }
+
+    public function test_the_application_returns_404_when_call_to_me_with_non_existent_user(): void
+    {
+        putenv('KEYCLOAK_LOAD_USER_FROM_DATABASE=false');
+
+        $payload = $this->getMockedKeycloakPayload();
+        $payload['sub'] = $this->user->keycloak_id;
+
+        $this->user->delete();
+
+        $response = $this->actingAsKeycloakUser($this->user, $payload)
+            ->json(
+                'GET',
+                '/api/auth/me'
+            );
+
+        $response->assertStatus(404);
+
+        putenv('KEYCLOAK_LOAD_USER_FROM_DATABASE=true');
+    }
+
+    public function test_the_application_returns_error_when_call_to_me_with_invalid_token(): void
+    {
+        putenv('KEYCLOAK_LOAD_USER_FROM_DATABASE=false');
+
+        $payload = $this->getMockedKeycloakPayload();
+        $payload['exp'] = 1632805681; // 3 years ago (currently..!)
+
+        $response = $this->actingAsKeycloakUser($this->user, $payload)
+            ->json(
+                'GET',
+                '/api/auth/me'
+            );
+
+        $response->assertStatus(500);
+
+        putenv('KEYCLOAK_LOAD_USER_FROM_DATABASE=true');
+    }
+
     public function test_the_application_responds_correctly_to_allowed_permissions(): void
     {
         $payload = $this->getMockedKeycloakPayload();
