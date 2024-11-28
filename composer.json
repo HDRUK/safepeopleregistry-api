@@ -39,7 +39,8 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/",
-            "Hdruk\\LaravelMjml\\": "hdruk/laravel-mjml/src/"
+            "Hdruk\\LaravelMjml\\": "hdruk/laravel-mjml/src/",
+            "App\\PHPStan\\": "phpstan/Extensions/"
         }
     },
     "autoload-dev": {

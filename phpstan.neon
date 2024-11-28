@@ -2,7 +2,6 @@ includes:
     - ./vendor/larastan/larastan/extension.neon
 
 parameters:
-
     paths:
         - app/
 
@@ -17,3 +16,9 @@ parameters:
 #
 #    checkMissingIterableValueType: false
     treatPhpDocTypesAsCertain: false
+
+services:
+    -
+        class: App\PHPStan\AuthExtension
+        tags: 
+            - phpstan.broker.methodsClassReflectionExtension
