@@ -60,6 +60,13 @@ class AuthController extends Controller
 
         $arr = json_decode($token, true);
 
+        if (!isset($arr['sub'])) {
+            return response()->json([
+                'message' => 'not found',
+                'data' => null,
+            ], Response::HTTP_NOT_FOUND);
+        }
+
         $user = User::where('keycloak_id', $arr['sub'])->first();
         if (!$user) {
             return response()->json([
