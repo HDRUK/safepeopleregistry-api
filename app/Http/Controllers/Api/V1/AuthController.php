@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Auth;
+use Keycloak;
 use Exception;
-use App\Http\Controllers\Controller;
+use RegistryManagementController as RMC;
 use App\Models\Organisation;
 use App\Models\OrganisationDelegate;
 use App\Models\User;
@@ -12,8 +12,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Str;
-use Keycloak;
-use RegistryManagementController as RMC;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Controller;
 
 class AuthController extends Controller
 {
