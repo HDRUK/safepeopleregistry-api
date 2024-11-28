@@ -49,6 +49,7 @@ class AuthController extends Controller
 
     public function me(Request $request): JsonResponse
     {
+        // @phpstan-ignore-next-line
         $token = Auth::token();
 
         if (!$token) {
