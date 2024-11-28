@@ -51,6 +51,7 @@ class UserSeeder extends Seeder
             'user_group' => '',
             'orc_id' => '0009-0004-1636-9627',
             'organisation_id' => 1,
+            'keycloak_id' => 'd9bd1c86-6640-42e1-bc75-a9b3b4ac1a4d',
         ]);
 
         $file = File::create([
