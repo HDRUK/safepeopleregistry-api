@@ -17,6 +17,7 @@ trait CheckPermissions
             return false;
         }
 
+        // @phpstan-ignore-next-line
         $token = Auth::token();
         $arr = json_decode($token, true);
 
