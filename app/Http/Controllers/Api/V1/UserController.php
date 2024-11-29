@@ -12,12 +12,15 @@ use App\Http\Requests\Users\CreateUser;
 use App\Exceptions\NotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use App\Traits\CommonFunctions;
+use App\Traits\CheckPermissions;
 
 class UserController extends Controller
 {
     use CommonFunctions;
+    use CheckPermissions;
 
     /**
      * @OA\Get(
@@ -568,5 +571,22 @@ class UserController extends Controller
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
+    }
+
+    public function fakeEndpointForTesting(Request $request): JsonResponse
+    {
+        $checkGroups = $this->hasGroups($request, ['admin']);
+        if (!$checkGroups) {
+            return response()->json([
+                'message' => 'you do not have the required permissions to view this data',
+                'data' => null,
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $users = User::all();
+        return response()->json([
+            'message' => 'success',
+            'data' => $users,
+        ], Response::HTTP_OK);
     }
 }

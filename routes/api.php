@@ -50,11 +50,13 @@ Route::post('v1/query', [QueryController::class, 'query']);
 
 Route::middleware('auth:api')->get('/secure-test', [UserController::class, 'index']);
 
+Route::middleware('auth:api')->get('auth/me', [AuthController::class, 'me']);
 Route::middleware('auth:api')->post('auth/register', [AuthController::class, 'registerKeycloakUser']);
 Route::post('auth/test', [AuthController::class, 'registerKeycloakUser']);
 
 
 Route::middleware('api')->get('v1/users', [UserController::class, 'index']);
+Route::middleware('api')->get('v1/users/test', [UserController::class, 'fakeEndpointForTesting']);
 Route::middleware('api')->get('v1/users/{id}', [UserController::class, 'show']);
 Route::middleware('api')->get('v1/users/identifier/{id}', [UserController::class, 'showByUniqueIdentifier']);
 Route::middleware('api')->post('v1/users', [UserController::class, 'store']);
