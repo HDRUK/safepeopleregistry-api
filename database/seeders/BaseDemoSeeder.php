@@ -3,8 +3,12 @@
 namespace Database\Seeders;
 
 use Str;
+use RegistryManagementController as RMC;
+use App\Models\User;
 use App\Models\Project;
+use App\Models\Registry;
 use App\Models\Organisation;
+use App\Models\RegistryHasOrganisation;
 use Illuminate\Database\Seeder;
 
 class BaseDemoSeeder extends Seeder
@@ -18,6 +22,7 @@ class BaseDemoSeeder extends Seeder
         // the database before hand.
 
         $this->call([
+            SectorSeeder::class,
             SystemConfigSeeder::class,
             ProjectRoleSeeder::class,
         ]);
@@ -45,6 +50,7 @@ class BaseDemoSeeder extends Seeder
             'iso_27001_certified' => true,
             'ce_certified' => true,
             'companies_house_no' => '09349495',
+            'sector_id' => 5, // Charity/Non-profit
         ]);
 
         Project::create([
@@ -108,6 +114,7 @@ National Public Health Ethics Committee for authorization to analyze population 
             'iso_27001_certified' => true,
             'ce_certified' => false,
             'companies_house_no' => '15765271',
+            'sector_id' => 4, // Public
         ]);
 
         Project::create([
@@ -153,6 +160,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'iso_27001_certified' => true,
             'ce_certified' => true,
             'companies_house_no' => '07563555',
+            'sector_id' => 6, // Private/Industry
         ]);
 
         Project::create([
@@ -175,26 +183,256 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         // --------------------------------------------------------------------------------
         // Org level admin users
         // --------------------------------------------------------------------------------
+        $org1Users = [
+            [
+                'first_name' => 'Organisation',
+                'last_name' => 'Owner',
+                'email' => 'organisation.owner@healthdataorganisation.com',
+                'is_org_admin' => 1,
+                'user_group' => RMC::KC_GROUP_ORGANISATIONS,
+                'organisation_id' => $org1->id,
+            ],
+            [
+                'first_name' => 'Admin',
+                'last_name' => 'User',
+                'email' => 'admin.user@healthdataorganisation.com',
+                'is_org_admin' => 1,
+                'user_group' => RMC::KC_GROUP_ORGANISATIONS,
+                'organisation_id' => $org1->id,
+            ],
+            [
+                'first_name' => 'Delegate',
+                'last_name' => 'Sponsor',
+                'email' => 'delegate.sponsor@healthdataorganisation.com',
+                'is_delegate' => 1,
+                'user_group' => RMC::KC_GROUP_ORGANISATIONS,
+                'organisation_id' => $org1->id,
+            ],
+        ];
+
+        $org2Users = [
+            [
+                'first_name' => 'Organisation',
+                'last_name' => 'Owner',
+                'email' => 'organisation.owner@tandyenergyltd.com',
+                'is_org_admin' => 1,
+                'user_group' => RMC::KC_GROUP_ORGANISATIONS,
+                'organisation_id' => $org2->id,
+            ],
+            [
+                'first_name' => 'Admin',
+                'last_name' => 'User',
+                'email' => 'admin.user@tandyenergyltd.com',
+                'is_org_admin' => 1,
+                'user_group' => RMC::KC_GROUP_ORGANISATIONS,
+                'organisation_id' => $org2->id,
+            ],
+            [
+                'first_name' => 'Delegate',
+                'last_name' => 'Sponsor',
+                'email' => 'delegate.sponsor@tandyenergyltd.com',
+                'is_delegate' => 1,
+                'user_group' => RMC::KC_GROUP_ORGANISATIONS,
+                'organisation_id' => $org1->id,
+            ],
+        ];
+
+        $org3Users = [
+            [
+                'first_name' => 'Tabacco',
+                'last_name' => 'Frank',
+                'email' => 'tobacco.frank@tobaccoeultd.com',
+                'is_org_admin' => 1,
+                'user_group' => RMC::KC_GROUP_ORGANISATIONS,
+                'organisation_id' => $org3->id,
+            ],
+            [
+                'first_name' => 'Admin',
+                'last_name' => 'User',
+                'email' => 'admin.user@tobaccoeultd.com',
+                'is_org_admin' => 1,
+                'user_group' => RMC::KC_GROUP_ORGANISATIONS,
+                'organisation_id' => $org3->id,
+            ],
+            [
+                'first_name' => 'Delegate',
+                'last_name' => 'Sponsor',
+                'email' => 'delegate.sponsor@tobaccoeultd.com',
+                'is_delegate' => 1,
+                'user_group' => RMC::KC_GROUP_ORGANISATIONS,
+                'organisation_id' => $org3->id,
+            ],
+        ];
+
+        $this->createUsers($org1Users);
+        $this->createUsers($org2Users);
+        $this->createUsers($org3Users);
+
+        // Here, need to add these to Keycloak - somehow...
 
         // --------------------------------------------------------------------------------
         // End
         // --------------------------------------------------------------------------------
-
-        // --------------------------------------------------------------------------------
-        // Org level delegates
-        // --------------------------------------------------------------------------------
-
-        // --------------------------------------------------------------------------------
-        // End
-        // --------------------------------------------------------------------------------
-
 
         // --------------------------------------------------------------------------------
         // Org level research users
         // --------------------------------------------------------------------------------
 
+        $org1Researchers = [
+            [
+                'first_name' => 'Dan',
+                'last_name' => 'Ackroyd',
+                'email' => 'dan.ackroyd@ghostbusters.com',
+                'user_group' => RMC::KC_GROUP_USERS,
+                'organisation_id' => $org1->id,
+                'affiliations' => [
+                    1, 2,
+                ],
+            ],
+            [
+                'first_name' => 'Sigourney',
+                'last_name' => 'Weaver',
+                'email' => 'sigourney.weaver@ghostbusters.com',
+                'user_group' => RMC::KC_GROUP_USERS,
+                'organisation_id' => $org1->id,
+                'affiliations' => [
+                    1,
+                ],
+            ],
+            [
+                'first_name' => 'Bill',
+                'last_name' => 'Murray',
+                'email' => 'bill.murray@ghostbusters.com',
+                'user_group' => RMC::KC_GROUP_USERS,
+                'organisation_id' => $org1->id,
+                'affiliations' => [
+                    1,
+                ],
+            ],
+            [
+                'first_name' => 'Annie',
+                'last_name' => 'Potts',
+                'email' => 'annie.potts@ghostbusters.com',
+                'user_group' => RMC::KC_GROUP_USERS,
+                'organisation_id' => $org1->id,
+                'affiliations' => [
+                    1,
+                ],
+            ],
+        ];
+
+        $org2Researchers = [
+            [
+                'first_name' => 'Harold',
+                'last_name' => 'Ramis',
+                'email' => 'harold.ramis@ghostbusters.com',
+                'user_group' => RMC::KC_GROUP_USERS,
+                'organisation_id' => $org2->id,
+                'affiliations' => [
+                    2, 1,
+                ],
+            ],
+            [
+                'first_name' => 'Jennifer',
+                'last_name' => 'Runyon',
+                'email' => 'jennifer.runyon@ghostbusters.com',
+                'user_group' => RMC::KC_GROUP_USERS,
+                'organisation_id' => $org2->id,
+                'affiliations' => [
+                    2,
+                ],
+            ],
+        ];
+
+        $org3Researchers = [
+            [
+                'first_name' => 'Tobacco',
+                'last_name' => 'John',
+                'email' => 'tobacco.john@dodgydomain.com',
+                'user_group' => RMC::KC_GROUP_USERS,
+                'organisation_id' => $org3->id,
+                'affiliations' => [
+                    3,
+                ],
+            ],
+            [
+                'first_name' => 'Tobacco',
+                'last_name' => 'Dave',
+                'email' => 'tobacco.dave@dodgydomain.com',
+                'user_group' => RMC::KC_GROUP_USERS,
+                'organisation_id' => $org3->id,
+                'affiliations' => [
+                    3, 1,
+                ],
+            ],
+        ];
+
+        $this->createUsers($org1Researchers);
+        $this->createUsers($org2Researchers);
+        $this->createUsers($org3Researchers);
+
+        // --------------------------------------------------------------------------------
+        // Create Registry ledger for above users
+        // --------------------------------------------------------------------------------
+        $this->createUserRegistry($org1Researchers);
+        $this->createUserRegistry($org2Researchers);
+        $this->createUserRegistry($org3Researchers);
+
+
+        // --------------------------------------------------------------------------------
+        // Above users having affiliations between orgs
+        // --------------------------------------------------------------------------------
+        $this->createRegistryAffiliations($org1Researchers);
+        $this->createRegistryAffiliations($org2Researchers);
+        $this->createRegistryAffiliations($org3Researchers);
+
         // --------------------------------------------------------------------------------
         // End
         // --------------------------------------------------------------------------------
+    }
+
+    private function createRegistryAffiliations(array $input): void
+    {
+        foreach ($input as $u) {
+            $user = User::where('email', $u['email'])->first();
+
+            foreach ($u['affiliations'] as $aff) {
+                RegistryHasOrganisation::create([
+                    'registry_id' => $user->registry_id,
+                    'organisation_id' => $aff,
+                ]);
+            }
+        }
+    }
+
+    private function createUsers(array $input): void
+    {
+        foreach ($input as $u) {
+            $user = User::create([
+                'first_name' => $u['first_name'],
+                'last_name' => $u['last_name'],
+                'email' => $u['email'],
+                'is_org_admin' => isset($u['is_org_admin']) ? $u['is_org_admin'] : 0,
+                'is_delegate' => isset($u['is_delegate']) ? $u['is_delegate'] : 0,
+                'user_group' => $u['user_group'],
+                'organisation_id' => $u['organisation_id'],
+            ]);
+        }
+    }
+
+    private function createUserRegistry(array $input): void
+    {
+        foreach ($input as $u) {
+            $reg = Registry::create([
+                'dl_ident' => '',
+                'pp_ident' => '',
+                'digi_ident' => RMC::generateDigitalIdentifierForRegistry(),
+                'verified' => 0,
+            ]);
+
+            $user = User::where('email', $u['email'])->update([
+                'registry_id' => $reg->id,
+            ]);
+        }
     }
 }

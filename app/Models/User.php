@@ -36,6 +36,8 @@ class User extends Authenticatable
         'orc_id',
         'orcid_scanning',
         'orcid_scanning_completed_at',
+        'is_delegate',
+        'is_org_admin',
     ];
 
     /**
