@@ -4,7 +4,9 @@ namespace Database\Seeders;
 
 use Str;
 use RegistryManagementController as RMC;
+use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Identity;
 use App\Models\Project;
 use App\Models\Registry;
 use App\Models\Organisation;
@@ -190,7 +192,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'email' => 'organisation.owner@healthdataorganisation.com',
                 'is_org_admin' => 1,
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
-                'organisation_id' => $org1->id,
+                'organisation_id' => $org1->id, // Needed because this is an org admin
             ],
             [
                 'first_name' => 'Admin',
@@ -198,7 +200,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'email' => 'admin.user@healthdataorganisation.com',
                 'is_org_admin' => 1,
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
-                'organisation_id' => $org1->id,
+                'organisation_id' => $org1->id, // Needed because this is an org admin
             ],
             [
                 'first_name' => 'Delegate',
@@ -206,7 +208,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'email' => 'delegate.sponsor@healthdataorganisation.com',
                 'is_delegate' => 1,
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
-                'organisation_id' => $org1->id,
+                'organisation_id' => $org1->id, // Needed because this is an org admin
             ],
         ];
 
@@ -217,7 +219,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'email' => 'organisation.owner@tandyenergyltd.com',
                 'is_org_admin' => 1,
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
-                'organisation_id' => $org2->id,
+                'organisation_id' => $org2->id, // Needed because this is an org admin
             ],
             [
                 'first_name' => 'Admin',
@@ -225,7 +227,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'email' => 'admin.user@tandyenergyltd.com',
                 'is_org_admin' => 1,
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
-                'organisation_id' => $org2->id,
+                'organisation_id' => $org2->id, // Needed because this is an org admin
             ],
             [
                 'first_name' => 'Delegate',
@@ -233,7 +235,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'email' => 'delegate.sponsor@tandyenergyltd.com',
                 'is_delegate' => 1,
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
-                'organisation_id' => $org1->id,
+                'organisation_id' => $org1->id, // Needed because this is an org admin
             ],
         ];
 
@@ -244,7 +246,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'email' => 'tobacco.frank@tobaccoeultd.com',
                 'is_org_admin' => 1,
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
-                'organisation_id' => $org3->id,
+                'organisation_id' => $org3->id, // Needed because this is an org admin
             ],
             [
                 'first_name' => 'Admin',
@@ -252,7 +254,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'email' => 'admin.user@tobaccoeultd.com',
                 'is_org_admin' => 1,
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
-                'organisation_id' => $org3->id,
+                'organisation_id' => $org3->id, // Needed because this is an org admin
             ],
             [
                 'first_name' => 'Delegate',
@@ -260,7 +262,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'email' => 'delegate.sponsor@tobaccoeultd.com',
                 'is_delegate' => 1,
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
-                'organisation_id' => $org3->id,
+                'organisation_id' => $org3->id, // Needed because this is an org admin
             ],
         ];
 
@@ -284,9 +286,24 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'last_name' => 'Ackroyd',
                 'email' => 'dan.ackroyd@ghostbusters.com',
                 'user_group' => RMC::KC_GROUP_USERS,
-                'organisation_id' => $org1->id,
                 'affiliations' => [
                     1, 2,
+                ],
+                'identity' => [
+                    'selfie_path' => '/path/to/non/existent/selfie/',
+                    'passport_path' => '/path/to/non/existent/passport/',
+                    'drivers_license_path' => '/path/to/non/existent/license/',
+                    'address_1' => '123 Road name',
+                    'address_2' => '',
+                    'town' => 'Springfield',
+                    'county' => 'Illinois',
+                    'country' => 'USA',
+                    'postcode' => '62629',
+                    'dob' => '1962-01-01',
+                    'idvt_result' => 1,
+                    'idvt_result_perc' => 100.0,
+                    'idvt_errors' => null,
+                    'idvt_completed_at' => Carbon::now(),
                 ],
             ],
             [
@@ -294,9 +311,24 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'last_name' => 'Weaver',
                 'email' => 'sigourney.weaver@ghostbusters.com',
                 'user_group' => RMC::KC_GROUP_USERS,
-                'organisation_id' => $org1->id,
                 'affiliations' => [
                     1,
+                ],
+                'identity' => [
+                    'selfie_path' => '/path/to/non/existent/selfie/',
+                    'passport_path' => '/path/to/non/existent/passport/',
+                    'drivers_license_path' => '/path/to/non/existent/license/',
+                    'address_1' => '123 Road name',
+                    'address_2' => '',
+                    'town' => 'Birmingham',
+                    'county' => 'West Midlands',
+                    'country' => 'UK',
+                    'postcode' => 'B1 8TY',
+                    'dob' => '1971-10-01',
+                    'idvt_result' => 0,
+                    'idvt_result_perc' => 0.0,
+                    'idvt_errors' => null,
+                    'idvt_completed_at' => null,
                 ],
             ],
             [
@@ -304,9 +336,24 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'last_name' => 'Murray',
                 'email' => 'bill.murray@ghostbusters.com',
                 'user_group' => RMC::KC_GROUP_USERS,
-                'organisation_id' => $org1->id,
                 'affiliations' => [
                     1,
+                ],
+                'identity' => [
+                    'selfie_path' => '/path/to/non/existent/selfie/',
+                    'passport_path' => '/path/to/non/existent/passport/',
+                    'drivers_license_path' => '/path/to/non/existent/license/',
+                    'address_1' => '123 Road name',
+                    'address_2' => '',
+                    'town' => 'Glastonbury',
+                    'county' => 'Somerset',
+                    'country' => 'UK',
+                    'postcode' => 'BA6 9IT',
+                    'dob' => '1943-08-12',
+                    'idvt_result' => 1,
+                    'idvt_result_perc' => 78.0,
+                    'idvt_errors' => null,
+                    'idvt_completed_at' => Carbon::now(),
                 ],
             ],
             [
@@ -314,9 +361,24 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'last_name' => 'Potts',
                 'email' => 'annie.potts@ghostbusters.com',
                 'user_group' => RMC::KC_GROUP_USERS,
-                'organisation_id' => $org1->id,
                 'affiliations' => [
                     1,
+                ],
+                'identity' => [
+                    'selfie_path' => '/path/to/non/existent/selfie/',
+                    'passport_path' => '/path/to/non/existent/passport/',
+                    'drivers_license_path' => '/path/to/non/existent/license/',
+                    'address_1' => '5 North',
+                    'address_2' => 'Xuanxidajie',
+                    'town' => 'Xichengqu Beijing',
+                    'county' => 'Somerset',
+                    'country' => 'CHN',
+                    'postcode' => '100053',
+                    'dob' => '1964-12-12',
+                    'idvt_result' => 1,
+                    'idvt_result_perc' => 78.0,
+                    'idvt_errors' => null,
+                    'idvt_completed_at' => Carbon::now(),
                 ],
             ],
         ];
@@ -327,9 +389,36 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'last_name' => 'Ramis',
                 'email' => 'harold.ramis@ghostbusters.com',
                 'user_group' => RMC::KC_GROUP_USERS,
-                'organisation_id' => $org2->id,
                 'affiliations' => [
                     2, 1,
+                ],
+                'identity' => [
+                    'selfie_path' => '/path/to/non/existent/selfie/',
+                    'passport_path' => '/path/to/non/existent/passport/',
+                    'drivers_license_path' => '/path/to/non/existent/license/',
+                    'address_1' => '49 Featherstone Street',
+                    'address_2' => '',
+                    'town' => 'LONDON',
+                    'county' => '',
+                    'country' => 'UK',
+                    'postcode' => 'EC1Y 8SY',
+                    'dob' => '1982-06-20',
+                    'idvt_result' => 1,
+                    'idvt_result_perc' => 94.0,
+                    'idvt_errors' => null,
+                    'idvt_completed_at' => Carbon::now(),
+                ],
+                'employments' => [
+                    [
+                        'employer_name' => 'TANDY ENERGY LIMITED',
+                        'from' => '1998-02-13',
+                        'to' => '',
+                        'is_current' => 1,
+                        'department' => 'Research',
+                        'role' => '',
+                        'employer_address' => '235 Fake Road, Fake Town, Fake County, USA, 87659',
+                        'ror' => '1234567',
+                    ],
                 ],
             ],
             [
@@ -337,9 +426,36 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'last_name' => 'Runyon',
                 'email' => 'jennifer.runyon@ghostbusters.com',
                 'user_group' => RMC::KC_GROUP_USERS,
-                'organisation_id' => $org2->id,
                 'affiliations' => [
                     2,
+                ],
+                'identity' => [
+                    'selfie_path' => '/path/to/non/existent/selfie/',
+                    'passport_path' => '/path/to/non/existent/passport/',
+                    'drivers_license_path' => '/path/to/non/existent/license/',
+                    'address_1' => '122 Some Street',
+                    'address_2' => '',
+                    'town' => 'LONDON',
+                    'county' => '',
+                    'country' => 'UK',
+                    'postcode' => 'NW1 2AY',
+                    'dob' => '1984-02-25',
+                    'idvt_result' => 1,
+                    'idvt_result_perc' => 87.0,
+                    'idvt_errors' => null,
+                    'idvt_completed_at' => Carbon::now(),
+                ],
+                'employments' => [
+                    [
+                        'employer_name' => 'TANDY ENERGY LIMITED',
+                        'from' => '1998-02-13',
+                        'to' => '',
+                        'is_current' => 1,
+                        'department' => 'Research',
+                        'role' => 'Research Assistant',
+                        'employer_address' => '235 Fake Road, Fake Town, Fake County, USA, 87659',
+                        'ror' => '1234567',
+                    ],
                 ],
             ],
         ];
@@ -350,9 +466,36 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'last_name' => 'John',
                 'email' => 'tobacco.john@dodgydomain.com',
                 'user_group' => RMC::KC_GROUP_USERS,
-                'organisation_id' => $org3->id,
                 'affiliations' => [
                     3,
+                ],
+                'identity' => [
+                    'selfie_path' => '/path/to/non/existent/selfie/',
+                    'passport_path' => '/path/to/non/existent/passport/',
+                    'drivers_license_path' => '/path/to/non/existent/license/',
+                    'address_1' => '12 Fake Street',
+                    'address_2' => '',
+                    'town' => 'LONDON',
+                    'county' => '',
+                    'country' => 'UK',
+                    'postcode' => 'SW3 6JT',
+                    'dob' => '1989-02-05',
+                    'idvt_result' => 1,
+                    'idvt_result_perc' => 87.0,
+                    'idvt_errors' => null,
+                    'idvt_completed_at' => Carbon::now(),
+                ],
+                'employments' => [
+                    [
+                        'employer_name' => 'Big Tabacco Ltd',
+                        'from' => '2001-02-13',
+                        'to' => '',
+                        'is_current' => 1,
+                        'department' => 'Lobbying',
+                        'role' => 'Lobbyist',
+                        'employer_address' => '235 Fake Road, Fake Town, Fake County, USA, 87659',
+                        'ror' => '1234567',
+                    ],
                 ],
             ],
             [
@@ -360,9 +503,46 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'last_name' => 'Dave',
                 'email' => 'tobacco.dave@dodgydomain.com',
                 'user_group' => RMC::KC_GROUP_USERS,
-                'organisation_id' => $org3->id,
                 'affiliations' => [
                     3, 1,
+                ],
+                'identity' => [
+                    'selfie_path' => '/path/to/non/existent/selfie/',
+                    'passport_path' => '/path/to/non/existent/passport/',
+                    'drivers_license_path' => '/path/to/non/existent/license/',
+                    'address_1' => '13 Fake Street',
+                    'address_2' => '',
+                    'town' => 'LONDON',
+                    'county' => '',
+                    'country' => 'UK',
+                    'postcode' => 'SW3 6JT',
+                    'dob' => '1981-04-05',
+                    'idvt_result' => 0,
+                    'idvt_result_perc' => 0.0,
+                    'idvt_errors' => null,
+                    'idvt_completed_at' => null,
+                ],
+                'employments' => [
+                    [
+                        'employer_name' => 'Big Tabacco Ltd',
+                        'from' => '1998-02-13',
+                        'to' => '2004-08-20',
+                        'is_current' => 0,
+                        'department' => 'Lobbying',
+                        'role' => 'Lobbyist',
+                        'employer_address' => '235 Fake Road, Fake Town, Fake County, USA, 87659',
+                        'ror' => '1234567',
+                    ],
+                    [
+                        'employer_name' => 'TOBACCO EUROPE, LTD',
+                        'from' => '2004-12-01',
+                        'to' => '',
+                        'is_current' => 1,
+                        'department' => 'Research & Development',
+                        'role' => 'Research Scientist',
+                        'employer_address' => 'Enterprise House, 2 Pass Street, Oldham, Manchester, United Kingdom, OL9 6HZ',
+                        'ror' => '030d08e08',
+                    ],
                 ],
             ],
         ];
@@ -378,6 +558,12 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         $this->createUserRegistry($org2Researchers);
         $this->createUserRegistry($org3Researchers);
 
+        // --------------------------------------------------------------------------------
+        // Create Identities for the above users
+        // --------------------------------------------------------------------------------
+        $this->createIdentities($org1Researchers);
+        $this->createIdentities($org2Researchers);
+        $this->createIdentities($org3Researchers);
 
         // --------------------------------------------------------------------------------
         // Above users having affiliations between orgs
@@ -391,6 +577,31 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         // --------------------------------------------------------------------------------
     }
 
+    private function createIdentities(array $input): void
+    {
+        foreach ($input as $u) {
+            $user = User::where('email', $u['email'])->first();
+
+            Identity::create([
+                'registry_id' =>            $user->registry_id,
+                'selfie_path' =>            $u['identity']['selfie_path'],
+                'passport_path' =>          $u['identity']['passport_path'],
+                'drivers_license_path' =>   $u['identity']['drivers_license_path'],
+                'address_1' =>              $u['identity']['address_1'],
+                'address_2' =>              $u['identity']['address_2'],
+                'town' =>                   $u['identity']['town'],
+                'county' =>                 $u['identity']['county'],
+                'country' =>                $u['identity']['country'],
+                'postcode' =>               $u['identity']['postcode'],
+                'dob' =>                    $u['identity']['dob'],
+                'idvt_result' =>            $u['identity']['idvt_result'],
+                'idvt_result_perc' =>       $u['identity']['idvt_result_perc'],
+                'idvt_errors' =>            $u['identity']['idvt_errors'],
+                'idvt_completed_at' =>      $u['identity']['idvt_completed_at'],
+            ]);
+        }
+    }
+
     private function createRegistryAffiliations(array $input): void
     {
         foreach ($input as $u) {
@@ -398,8 +609,8 @@ Social Media Platform’s Data Access Committee to allow access to platform data
 
             foreach ($u['affiliations'] as $aff) {
                 RegistryHasOrganisation::create([
-                    'registry_id' => $user->registry_id,
-                    'organisation_id' => $aff,
+                    'registry_id' =>        $user->registry_id,
+                    'organisation_id' =>    $aff,
                 ]);
             }
         }
@@ -409,13 +620,13 @@ Social Media Platform’s Data Access Committee to allow access to platform data
     {
         foreach ($input as $u) {
             $user = User::create([
-                'first_name' => $u['first_name'],
-                'last_name' => $u['last_name'],
-                'email' => $u['email'],
-                'is_org_admin' => isset($u['is_org_admin']) ? $u['is_org_admin'] : 0,
-                'is_delegate' => isset($u['is_delegate']) ? $u['is_delegate'] : 0,
-                'user_group' => $u['user_group'],
-                'organisation_id' => $u['organisation_id'],
+                'first_name' =>         $u['first_name'],
+                'last_name' =>          $u['last_name'],
+                'email' =>              $u['email'],
+                'is_org_admin' =>       isset($u['is_org_admin']) ? $u['is_org_admin'] : 0,
+                'is_delegate' =>        isset($u['is_delegate']) ? $u['is_delegate'] : 0,
+                'user_group' =>         $u['user_group'],
+                'organisation_id' =>    isset($u['organisation_id']) ? $u['organisation_id'] : 0,
             ]);
         }
     }
@@ -424,10 +635,10 @@ Social Media Platform’s Data Access Committee to allow access to platform data
     {
         foreach ($input as $u) {
             $reg = Registry::create([
-                'dl_ident' => '',
-                'pp_ident' => '',
-                'digi_ident' => RMC::generateDigitalIdentifierForRegistry(),
-                'verified' => 0,
+                'dl_ident' =>       '',
+                'pp_ident' =>       '',
+                'digi_ident' =>     RMC::generateDigitalIdentifierForRegistry(),
+                'verified' =>       0,
             ]);
 
             $user = User::where('email', $u['email'])->update([
