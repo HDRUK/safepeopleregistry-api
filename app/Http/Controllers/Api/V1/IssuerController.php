@@ -657,4 +657,77 @@ class IssuerController extends Controller
             throw new Exception($e->getMessage());
         }
     }
+
+
+    /**
+        * @OA\Get(
+        *      path="/api/v1/issuers/{id}/projects",
+        *      summary="Return an all projects associated with an issuer",
+        *      description="Return an all projects associated with an issuer (i.e. data-custodian)",
+        *      tags={"Issuer"},
+        *      summary="Issuer@getPorjects",
+        *      security={{"bearerAuth":{}}},
+        *
+        *      @OA\Parameter(
+        *         name="id",
+        *         in="path",
+        *         description="Issuer ID",
+        *         required=true,
+        *         example="1",
+        *
+        *         @OA\Schema(
+        *            type="integer",
+        *            description="Issuer ID",
+        *         ),
+        *      ),
+        *
+        *      @OA\Response(
+        *          response=200,
+        *          description="Success",
+        *
+        *          @OA\JsonContent(
+        *
+        *              @OA\Property(property="message", type="string"),
+        *              @OA\Property(property="data", type="object",
+        *                  @OA\Property(property="id", type="integer", example="123"),
+        *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
+        *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
+        *                  @OA\Property(property="name", type="string", example="An Issuer"),
+        *                  @OA\Property(property="contact_email", type="string", example="person@somewhere.com"),
+        *                  @OA\Property(property="enabled", type="boolean", example="true"),
+        *                  @OA\Property(property="invite_accepted_at", type="string", example="2024-02-04 12:00:00"),
+        *                  @OA\Property(property="invite_sent_at", type="string", example="2024-02-04 12:00:00"),
+        *                  @OA\Property(property="idvt_required", type="boolean", example="true")
+        *              )
+        *          ),
+        *      ),
+        *
+        *      @OA\Response(
+        *          response=404,
+        *          description="Not found response",
+        *
+        *          @OA\JsonContent(
+        *
+        *              @OA\Property(property="message", type="string", example="not found"),
+        *          )
+        *      )
+        * )
+        */
+    public function getProjects(Request $request, int $issuerId): JsonResponse
+    {
+        $projects = Project::where("affiliate_id", $issuerId)->get();
+        if ($projects) {
+            return response()->json([
+                'message' => 'success',
+                'data' => $projects,
+            ], 200);
+        }
+
+        return response()->json([
+            'message' => 'not found',
+            'data' => null,
+        ], 404);
+    }
+
+
 }
