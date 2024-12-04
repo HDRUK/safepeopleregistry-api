@@ -10,6 +10,7 @@ use App\Models\Identity;
 use App\Models\Project;
 use App\Models\Registry;
 use App\Models\Organisation;
+use App\Models\ProjectHasOrganisation;
 use App\Models\RegistryHasOrganisation;
 use Illuminate\Database\Seeder;
 
@@ -55,7 +56,7 @@ class BaseDemoSeeder extends Seeder
             'sector_id' => 5, // Charity/Non-profit
         ]);
 
-        Project::create([
+        $proj = Project::create([
             'unique_id' => Str::random(20),
             'title' => 'Exploring the Impact of Digital Health Interventions on Mental Health Outcomes in Young Adults',
             'lay_summary' => 'This study aims to evaluate how digital mental health interventions (such as mobile apps for meditation, cognitive behavioral therapy, and mental health tracking) affect the mental health and well-being of young adults aged 18-30. By analyzing data from a large sample of users who have consented to share their anonymized usage information and mental health outcomes, we hope to understand which types of interventions are most effective and identify patterns in user engagement. This information will be essential for designing better digital health tools that support young adult mental health.',
@@ -69,10 +70,14 @@ Data Access Committee (DAC) from the app providers to secure permissions for usi
 Health Research Authority (HRA) Approval as it involves health-related research on human subjects.',
             'start_date' => '2025-01-12',
             'end_date' => '2026-01-12',
-            'affiliate_id' => $org1->id,
         ]);
 
-        Project::create([
+        ProjectHasOrganisation::create([
+            'project_id' => $proj->id,
+            'organisation_id' => $org1->id,
+        ]);
+
+        $proj = Project::create([
             'unique_id' => Str::random(20),
             'title' => 'Assessing Air Quality Impact on Respiratory Health in Urban Populations',
             'lay_summary' => 'This research seeks to understand how air quality in densely populated urban areas affects respiratory health, particularly focusing on conditions like asthma and chronic obstructive pulmonary disease (COPD). By analyzing anonymized health data and environmental sensor data, we aim to identify correlations between air pollution levels and the prevalence of respiratory issues. This insight could help guide policies on urban planning and pollution reduction to improve public health outcomes in cities.',
@@ -86,7 +91,11 @@ Environmental Data Ethics Committee (if available within the environmental data 
 National Public Health Ethics Committee for authorization to analyze population health data on respiratory conditions.',
             'start_date' => '2025-03-01',
             'end_date' => '2025-09-01',
-            'affiliate_id' => $org1->id,
+        ]);
+
+        ProjectHasOrganisation::create([
+            'project_id' => $proj->id,
+            'organisation_id' => $org1->id,
         ]);
 
         // --------------------------------------------------------------------------------
@@ -119,7 +128,7 @@ National Public Health Ethics Committee for authorization to analyze population 
             'sector_id' => 4, // Public
         ]);
 
-        Project::create([
+        $proj = Project::create([
             'unique_id' => Str::random(20),
             'title' => 'Social Media Influence on Mental Health Trends Among Teenagers',
             'lay_summary' => 'This study aims to understand the influence of social media usage patterns on the mental health of teenagers. We will gather and analyze data directly from various social media platforms, alongside survey responses from teenagers, to identify correlations between time spent online and mental health indicators like stress, anxiety, and depression.',
@@ -132,7 +141,17 @@ University Institutional Review Board (IRB) for ethical review.
 Social Media Platform’s Data Access Committee to allow access to platform data.',
             'start_date' => '2025-01-01',
             'end_date' => '2026-01-01',
-            'affiliate_id' => $org2->id,
+        ]);
+
+        ProjectHasOrganisation::create([
+            'project_id' => $proj->id,
+            'organisation_id' => $org2->id,
+        ]);
+
+        // Add parallel collaborator of org1 to org2's project
+        ProjectHasOrganisation::create([
+            'project_id' => $proj->id,
+            'organisation_id' => $org1->id,
         ]);
 
         // --------------------------------------------------------------------------------
@@ -165,7 +184,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'sector_id' => 6, // Private/Industry
         ]);
 
-        Project::create([
+        $proj = Project::create([
             'unique_id' => Str::random(20),
             'title' => 'Analyzing Health Data to Identify Resilient Smokers: A Study on Tolerance to Tobacco Use',
             'lay_summary' => 'This study aims to explore patterns in health data to identify factors that may indicate resilience to smoking-related illnesses, focusing on smokers who exhibit fewer negative health outcomes. By collecting and analyzing detailed health records, we aim to create profiles of individuals who can tolerate smoking with minimal health consequences, potentially informing tailored marketing strategies for tobacco products.',
@@ -173,9 +192,13 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'request_category_type' => 'Commercial Health Data Analysis for Marketing Purposes',
             'technical_summary' => 'This study will collect detailed health records, including diagnoses, prescription histories, demographic information, and genetic data, from a large sample of current and former smokers. Personal identifiers will be retained to allow for in-depth profiling and follow-up with individuals who meet the criteria for “smoking resilience.” By using advanced data mining and machine learning, the analysis will identify correlations between health markers, genetics, and reduced susceptibility to smoking-related illnesses. Findings will support targeted marketing campaigns for tobacco products and help to refine tobacco advertising strategies based on user profiles.',
             'other_approval_committees' => 'N/A',
-            'start_date' => '2025-06-01',
+            'start_date' => '2024-06-01',
             'end_date' => '2025-12-31',
-            'affiliate_id' => $org3->id,
+        ]);
+
+        ProjectHasOrganisation::create([
+            'project_id' => $proj->id,
+            'organisation_id' => $org3->id,
         ]);
 
         // --------------------------------------------------------------------------------

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Traits\SearchManager;
 
 class Project extends Model
@@ -29,7 +29,6 @@ class Project extends Model
         'other_approval_committees',
         'start_date',
         'end_date',
-        'affiliate_id',
     ];
 
     /**
@@ -47,15 +46,17 @@ class Project extends Model
         return $this->hasMany(ProjectHasUser::class);
     }
 
-    public function organisation(): HasOne
-    {
-        return $this->hasOne(Organisation::class, 'id', 'affiliate_id');
-    }
-
     public function approvals(): HasMany
     {
         return $this->hasMany(ProjectHasCustodianApproval::class);
     }
 
 
+    public function organisations(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Organisation::class,
+            'project_has_organisations'
+        );
+    }
 }

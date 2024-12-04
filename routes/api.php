@@ -131,6 +131,11 @@ Route::middleware('api')->patch('v1/organisations/{id}', [OrganisationController
 Route::middleware('api')->delete('v1/organisations/{id}', [OrganisationController::class, 'destroy']);
 Route::middleware('api')->post('v1/organisations/permissions', [PermissionController::class, 'assignOrganisationPermissionsToFrom']);
 
+
+Route::middleware('api')->get('v1/organisations/{id}/projects/present', [OrganisationController::class, 'presentProjects']);
+Route::middleware('api')->get('v1/organisations/{id}/projects/past', [OrganisationController::class, 'pastProjects']);
+Route::middleware('api')->get('v1/organisations/{id}/projects/future', [OrganisationController::class, 'futureProjects']);
+
 Route::middleware('api')->get('v1/accreditations/{registryId}', [AccreditationController::class, 'indexByRegistryId']);
 Route::middleware('api')->post('v1/accreditations/{registryId}', [AccreditationController::class, 'storeByRegistryId']);
 Route::middleware('api')->put('v1/accreditations/{id}/{registryId}', [AccreditationController::class, 'updateByRegistryId']);

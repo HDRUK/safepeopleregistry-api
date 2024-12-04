@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Hash;
+use Exception;
+use Carbon\Carbon;
 use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use App\Jobs\OrganisationIDVT;
+use App\Models\Project;
 use App\Models\Organisation;
 use App\Traits\CommonFunctions;
-use Exception;
-use Hash;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -170,6 +172,48 @@ class OrganisationController extends Controller
         }
 
         throw new NotFoundException();
+    }
+
+    // No swagger, internal call
+    public function pastProjects(Request $request, int $id): JsonResponse
+    {
+        $projects = Project::with('organisations')
+            ->where('start_date', '<', Carbon::now())
+            ->where('end_date', '<', Carbon::now())
+            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+
+        return response()->json(
+            $projects,
+            200
+        );
+    }
+
+    // No swagger, internal call
+    public function presentProjects(Request $request, int $id): JsonResponse
+    {
+        $projects = Project::with('organisations')
+            ->where('start_date', '<=', Carbon::now())
+            ->where('end_date', '>=', Carbon::now())
+            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+
+        return response()->json(
+            $projects,
+            200
+        );
+    }
+
+    // No swagger, internal call
+    public function futureProjects(Request $request, int $id): JsonResponse
+    {
+        $projects = Project::with('organisations')
+            ->where('start_date', '>', Carbon::now())
+            ->where('end_date', '>', Carbon::now())
+            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+
+        return response()->json(
+            $projects,
+            200
+        );
     }
 
     /**
