@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -31,17 +30,6 @@ class Project extends Model
         'affiliate_id',
     ];
 
-    /*public function roles(): HasManyThrough
-    {
-        return $this->hasManyThrough(
-            ProjectRole::class, // Final model
-            ProjectHasRole::class, // Intermediate model
-            'project_id', // Foreign key on ProjectHasRole
-            'id', // Foreign key on ProjectRole
-            'id', // Local key on Project
-            'project_role_id' // Local key on ProjectHasRole
-        );
-    }*/
     public function projectUsers(): HasMany
     {
         return $this->hasMany(ProjectHasUser::class);
@@ -50,6 +38,11 @@ class Project extends Model
     public function organisation(): HasOne
     {
         return $this->hasOne(Organisation::class, 'id', 'affiliate_id');
+    }
+
+    public function approvals(): HasMany
+    {
+        return $this->hasMany(ProjectHasCustodianApproval::class);
     }
 
 

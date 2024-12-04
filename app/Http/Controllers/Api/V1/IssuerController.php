@@ -715,7 +715,8 @@ class IssuerController extends Controller
         */
     public function getProjects(Request $request, int $issuerId): JsonResponse
     {
-        $projects = Project::where("affiliate_id", $issuerId)
+        $projects = Project::with("approvals")
+                    ->where("affiliate_id", $issuerId)
                     ->paginate((int)$this->getSystemConfig('PER_PAGE'));
         if ($projects) {
             return response()->json([
