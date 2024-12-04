@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use Hash;
 use Keycloak;
 use Exception;
+use App\Models\ProjectHasUser;
 use App\Models\User;
 use App\Models\UserHasIssuerApproval;
 use App\Models\UserHasIssuerPermission;
@@ -162,6 +163,87 @@ class UserController extends Controller
             throw new NotFoundException();
         }
     }
+
+    /**
+    * @OA\Get(
+    *      path="/api/v1/users/{id}/approved_projects",
+    *      summary="Return a User entry by ID",
+    *      description="Return a User entry by ID",
+    *      tags={"User"},
+    *      summary="User@getApprovedProjects",
+    *      security={{"bearerAuth":{}}},
+    *
+    *      @OA\Parameter(
+    *         name="id",
+    *         in="path",
+    *         description="User ID",
+    *         required=true,
+    *         example="1",
+    *
+    *         @OA\Schema(
+    *            type="integer",
+    *            description="User ID",
+    *         ),
+    *      ),
+    *
+    *      @OA\Response(
+    *          response=200,
+    *          description="Success",
+    *
+    *          @OA\JsonContent(
+    *
+    *              @OA\Property(property="message", type="string"),
+    *              @OA\Property(property="data", type="object",
+    *                  @OA\Property(property="id", type="integer", example="123"),
+    *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
+    *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
+    *                  @OA\Property(property="first_name", type="string", example="A"),
+    *                  @OA\Property(property="last_name", type="string", example="Researcher"),
+    *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
+    *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
+    *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
+    *                  @OA\Property(property="profile_steps_completed", type="string", example="{}"),
+    *                  @OA\Property(property="profile_completed_at", type="string", example="2024-02-04 12:00:00"),
+    *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
+    *                  @OA\Property(property="declaration_signed", type="boolean", example="true"),
+    *                  @OA\Property(property="organisation_id", type="integer", example="123"),
+    *                  @OA\Property(property="orcid_scanning", type="integer", example="1"),
+    *                  @OA\Property(property="orcid_scanning_completed_at", type="string", example="2024-02-04 12:01:00")
+    *              )
+    *          ),
+    *      ),
+    *
+    *      @OA\Response(
+    *          response=404,
+    *          description="Not found response",
+    *
+    *          @OA\JsonContent(
+    *
+    *              @OA\Property(property="message", type="string", example="not found"),
+    *          )
+    *      )
+    * )
+    */
+    public function getApprovedProjects(Request $request, int $id): JsonResponse
+    {
+        $digi_ident = User::with('registry')
+            ->where('id', $id)
+            ->first()
+            ->registry
+            ->digi_ident;
+
+        $projects = ProjectHasUser::where('user_digital_ident', $digi_ident)
+            ->with('project')
+            ->get()
+            ->pluck('project');
+
+        return response()->json([
+            'message' => 'success',
+            'data' => $projects,
+        ], 200);
+
+    }
+
 
     /**
      * @OA\Post(

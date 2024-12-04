@@ -29,4 +29,9 @@ class ProjectHasUser extends Model
     {
         return $this->belongsTo(Registry::class, 'user_digital_ident', 'digi_ident');
     }
+
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class, 'project_id', 'id');
+    }
 }
