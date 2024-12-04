@@ -7,10 +7,9 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Sector;
 use Database\Seeders\IssuerSeeder;
-use Database\Seeders\OrganisationSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\UserSeeder;
-use Database\Seeders\SectorSeeder;
+use Database\Seeders\BaseDemoSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -31,11 +30,10 @@ class OrganisationTest extends TestCase
     {
         parent::setUp();
         $this->seed([
-            SectorSeeder::class,
             UserSeeder::class,
             PermissionSeeder::class,
             IssuerSeeder::class,
-            OrganisationSeeder::class,
+            BaseDemoSeeder::class,
         ]);
 
         $this->user = User::where('id', 1)->first();
@@ -67,6 +65,21 @@ class OrganisationTest extends TestCase
         ];
     }
 
+    public function test_the_application_can_search_on_org_name(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '?organisation_name[]=health'
+            );
+
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson();
+
+        $this->assertTrue(count($content['data']) === 1);
+        $this->assertTrue($content['data'][0]['organisation_name'] === 'HEALTH DATA RESEARCH UK');
+    }
+
     public function test_the_application_can_list_organisations(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
@@ -77,37 +90,34 @@ class OrganisationTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'message',
+            'current_page',
             'data' => [
-                'current_page',
-                'data' => [
-                    0 => [
-                        'id',
-                        'created_at',
-                        'updated_at',
-                        'organisation_name',
-                        'address_1',
-                        'address_2',
-                        'town',
-                        'county',
-                        'country',
-                        'postcode',
-                        'lead_applicant_organisation_name',
-                        'lead_applicant_email',
-                        'organisation_unique_id',
-                        'applicant_names',
-                        'funders_and_sponsors',
-                        'sub_license_arrangements',
-                        'verified',
-                        'dsptk_ods_code',
-                        'iso_27001_certified',
-                        'ce_certified',
-                        'ce_certification_num',
-                        'approvals',
-                        'permissions',
-                        'files',
-                        'registries',
-                    ],
+                0 => [
+                    'id',
+                    'created_at',
+                    'updated_at',
+                    'organisation_name',
+                    'address_1',
+                    'address_2',
+                    'town',
+                    'county',
+                    'country',
+                    'postcode',
+                    'lead_applicant_organisation_name',
+                    'lead_applicant_email',
+                    'organisation_unique_id',
+                    'applicant_names',
+                    'funders_and_sponsors',
+                    'sub_license_arrangements',
+                    'verified',
+                    'dsptk_ods_code',
+                    'iso_27001_certified',
+                    'ce_certified',
+                    'ce_certification_num',
+                    'approvals',
+                    'permissions',
+                    'files',
+                    'registries',
                 ],
             ],
         ]);

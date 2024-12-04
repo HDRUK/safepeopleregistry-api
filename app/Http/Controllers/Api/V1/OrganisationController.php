@@ -71,7 +71,8 @@ class OrganisationController extends Controller
 
         $issuerId = $request->get('issuer_id');
         if (! $issuerId) {
-            $organisations = Organisation::with([
+            $organisations = Organisation::searchViaRequest()
+            ->with([
                 'approvals',
                 'permissions',
                 'files',
@@ -82,10 +83,10 @@ class OrganisationController extends Controller
             ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
         }
 
-        return response()->json([
-            'message' => 'success',
-            'data' => $organisations,
-        ], 200);
+        return response()->json(
+            $organisations,
+            200
+        );
     }
 
     /**

@@ -56,12 +56,13 @@ class ProjectController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $projects = Project::paginate((int)$this->getSystemConfig('PER_PAGE'));
+        $projects = Project::searchViaRequest()
+            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
-        return response()->json([
-            'message' => 'success',
-            'data' => $projects,
-        ], 200);
+        return response()->json(
+            $projects,
+            200
+        );
     }
 
     /**

@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use App\Traits\SearchManager;
 
 class Organisation extends Model
 {
     use HasFactory;
+    use SearchManager;
 
     protected $table = 'organisations';
 
@@ -49,6 +51,10 @@ class Organisation extends Model
         'iso_27001_certified' => 'boolean',
         'ce_certified' => 'boolean',
         'idvt_result' => 'boolean',
+    ];
+
+    protected static array $searchableColumns = [
+        'organisation_name',
     ];
 
     protected $hidden = [
