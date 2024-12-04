@@ -56,19 +56,7 @@ class ProjectController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $projects = Project::with(
-            [
-                "organisation",
-                "projectRoles",
-                "projectRoles.role"
-            ]
-        )->paginate((int)$this->getSystemConfig('PER_PAGE'));
-
-        $projects->getCollection()->each(function ($project) {
-            $project->projectRoles->each(function ($pr) {
-                $pr->user = $pr->randomUser();
-            });
-        });
+        $projects = Project::paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',
