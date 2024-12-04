@@ -4,12 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ProjectHasRole extends Model
 {
     use HasFactory;
 
-    protected $table = 'project_has_roles';
+    protected $table = 'project_has_project_roles';
 
     public $timestamps = false;
 
@@ -17,4 +18,13 @@ class ProjectHasRole extends Model
         'project_id',
         'project_role_id',
     ];
+    public function randomUser()
+    {
+        return User::inRandomOrder()->first();
+    }
+
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(ProjectRole::class, 'project_role_id', 'id');
+    }
 }
