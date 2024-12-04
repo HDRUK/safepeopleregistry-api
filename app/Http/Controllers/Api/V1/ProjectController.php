@@ -185,7 +185,13 @@ class ProjectController extends Controller
     */
     public function getProjectUsers(Request $request, int $id): JsonResponse
     {
-        $project = Project::with(["projectUsers.registry.user","projectUsers.role"])->findOrFail($id);
+        $project = Project::with([
+            "projectUsers.registry.user",
+            "projectUsers.registry.organisations" => function ($query) {return $query->select(["id","organisation_name"]);},
+            "projectUsers.registry.employment",
+            "projectUsers.role"
+            ])->select(['id'])->findOrFail($id);
+
         if ($project) {
             return response()->json([
                 'message' => 'success',
