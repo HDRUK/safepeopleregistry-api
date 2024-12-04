@@ -131,6 +131,72 @@ class ProjectController extends Controller
     }
 
     /**
+    * @OA\Get(
+    *      path="/api/v1/projects/{id/users",
+    *      summary="Return project users by project ID",
+    *      description="Return project users by project ID",
+    *      tags={"Project"},
+    *      summary="Project@getProjectUsers",
+    *      security={{"bearerAuth":{}}},
+    *
+    *      @OA\Parameter(
+    *         name="id",
+    *         in="path",
+    *         description="Project entry ID",
+    *         required=true,
+    *         example="1",
+    *
+    *         @OA\Schema(
+    *            type="integer",
+    *            description="Project entry ID",
+    *         ),
+    *      ),
+    *
+    *      @OA\Response(
+    *          response=200,
+    *          description="Success",
+    *
+    *          @OA\JsonContent(
+    *
+    *              @OA\Property(property="message", type="string"),
+    *              @OA\Property(property="data", type="object",
+    *                  @OA\Property(property="id", type="integer", example="123"),
+    *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
+    *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
+    *                  @OA\Property(property="registry_id", type="integer", example="1"),
+    *                  @OA\Property(property="name", type="string", example="My First Research Project"),
+    *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
+    *                  @OA\Property(property="runs_to", type="string", example="2026-02-04"),
+    *                  @OA\Property(property="affiliate_id", type="integer", example="2")
+    *              )
+    *          ),
+    *      ),
+    *
+    *      @OA\Response(
+    *          response=404,
+    *          description="Not found response",
+    *
+    *          @OA\JsonContent(
+    *
+    *              @OA\Property(property="message", type="string", example="not found"),
+    *          )
+    *      )
+    * )
+    */
+    public function getProjectUsers(Request $request, int $id): JsonResponse
+    {
+        $project = Project::with(["projectUsers.registry.user","projectUsers.role"])->findOrFail($id);
+        if ($project) {
+            return response()->json([
+                'message' => 'success',
+                'data' => $project,
+            ], 200);
+        }
+
+        throw new NotFoundException();
+    }
+
+    /**
      * @OA\Post(
      *      path="/api/v1/projects",
      *      summary="Create a Project entry",

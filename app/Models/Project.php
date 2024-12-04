@@ -31,7 +31,7 @@ class Project extends Model
         'affiliate_id',
     ];
 
-    public function roles(): HasManyThrough
+    /*public function roles(): HasManyThrough
     {
         return $this->hasManyThrough(
             ProjectRole::class, // Final model
@@ -41,10 +41,10 @@ class Project extends Model
             'id', // Local key on Project
             'project_role_id' // Local key on ProjectHasRole
         );
-    }
-    public function projectRoles(): HasMany
+    }*/
+    public function projectUsers(): HasMany
     {
-        return $this->hasMany(ProjectHasRole::class);
+        return $this->hasMany(ProjectHasUser::class);
     }
 
     public function organisation(): HasOne
