@@ -4,9 +4,15 @@ namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\User;
+use App\Models\Registry;
+use App\Models\Issuer;
+use App\Models\Project;
+use App\Models\ProjectHasCustodianApproval;
+use App\Models\ProjectHasUser;
 use Database\Seeders\EmailTemplatesSeeder;
 use Database\Seeders\IssuerSeeder;
 use Database\Seeders\PermissionSeeder;
+use Database\Seeders\ProjectSeeder;
 use Database\Seeders\UserSeeder;
 use Database\Seeders\OrganisationSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -33,6 +39,7 @@ class UserTest extends TestCase
             IssuerSeeder::class,
             OrganisationSeeder::class,
             EmailTemplatesSeeder::class,
+            ProjectSeeder::class,
         ]);
 
         $this->user = User::where('id', 1)->first();
@@ -324,5 +331,43 @@ class UserTest extends TestCase
             );
 
         $response->assertStatus(200);
+    }
+
+    public function test_the_application_can_show_user_approved_projects(): void
+    {
+
+        $registry = Registry::first();
+        $userId = User::where("registry_id", $registry->id)->first()->id;
+
+        $digi_ident = $registry->digi_ident;
+
+        $project = Project::first();
+        $projectId = $project->id;
+        $orgId = Issuer::first()->id;
+
+        ProjectHasUser::create(['project_id' => $projectId, 'user_digital_ident' => $digi_ident, 'project_role_id' => 1]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . '/' . $userId . '/projects/approved'
+        );
+
+        $response->assertStatus(200);
+        $this->assertArrayHasKey('data', $response);
+        $this->assertEmpty($response['data']);
+
+        ProjectHasCustodianApproval::create(['project_id' => $projectId,'issuer_id' => $orgId]);
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . '/' . $userId . '/projects/approved'
+        );
+
+        $response->assertStatus(200);
+        $this->assertArrayHasKey('data', $response);
+        $this->assertCount(1, $response['data']);
+        $this->assertArrayHasKey('title', $response['data'][0]);
+        $this->assertEquals($project->title, $response['data'][0]['title']);
     }
 }
