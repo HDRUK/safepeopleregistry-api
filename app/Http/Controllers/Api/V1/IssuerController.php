@@ -692,13 +692,12 @@ class IssuerController extends Controller
         *                  @OA\Property(property="id", type="integer", example="123"),
         *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
         *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-        *                  @OA\Property(property="name", type="string", example="An Issuer"),
-        *                  @OA\Property(property="contact_email", type="string", example="person@somewhere.com"),
-        *                  @OA\Property(property="enabled", type="boolean", example="true"),
-        *                  @OA\Property(property="invite_accepted_at", type="string", example="2024-02-04 12:00:00"),
-        *                  @OA\Property(property="invite_sent_at", type="string", example="2024-02-04 12:00:00"),
-        *                  @OA\Property(property="idvt_required", type="boolean", example="true")
-        *              )
+        *                  @OA\Property(property="registry_id", type="integer", example="1"),
+        *                  @OA\Property(property="name", type="string", example="My First Research Project"),
+        *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
+        *                  @OA\Property(property="runs_to", type="string", example="2026-02-04"),
+        *                  @OA\Property(property="affiliate_id", type="integer", example="2"),
+        *              ),
         *          ),
         *      ),
         *

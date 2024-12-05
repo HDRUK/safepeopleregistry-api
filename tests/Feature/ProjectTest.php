@@ -6,6 +6,7 @@ use KeycloakGuard\ActingAsKeycloakUser;
 use Carbon\Carbon;
 use App\Models\User;
 use Database\Seeders\UserSeeder;
+use Database\Seeders\ProjectSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -188,5 +189,22 @@ class ProjectTest extends TestCase
             );
 
         $response->assertStatus(200);
+    }
+
+    public function test_the_application_can_show_users_in_project(): void
+    {
+        $this->seed([
+            ProjectSeeder::class,
+        ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/users',
+            );
+
+        $response->assertStatus(200);
+        $this->assertArrayHasKey('data', $response);
+
     }
 }
