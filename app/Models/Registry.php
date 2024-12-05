@@ -46,6 +46,11 @@ class Registry extends Model
         return $this->hasOne(Identity::class, 'registry_id');
     }
 
+    public function employment(): HasOne
+    {
+        return $this->hasOne(Employment::class, 'registry_id');
+    }
+
     public function training(): HasMany
     {
         return $this->hasMany(Training::class, 'registry_id');

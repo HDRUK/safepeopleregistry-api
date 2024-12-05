@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Project extends Model
 {
@@ -27,4 +29,21 @@ class Project extends Model
         'end_date',
         'affiliate_id',
     ];
+
+    public function projectUsers(): HasMany
+    {
+        return $this->hasMany(ProjectHasUser::class);
+    }
+
+    public function organisation(): HasOne
+    {
+        return $this->hasOne(Organisation::class, 'id', 'affiliate_id');
+    }
+
+    public function approvals(): HasMany
+    {
+        return $this->hasMany(ProjectHasCustodianApproval::class);
+    }
+
+
 }

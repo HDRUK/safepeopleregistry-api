@@ -5,7 +5,11 @@ namespace Tests\Feature;
 use KeycloakGuard\ActingAsKeycloakUser;
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Registry;
+use App\Models\Project;
+use App\Models\ProjectHasUser;
 use Database\Seeders\UserSeeder;
+use Database\Seeders\ProjectSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -188,5 +192,33 @@ class ProjectTest extends TestCase
             );
 
         $response->assertStatus(200);
+    }
+
+    public function test_the_application_can_show_users_in_project(): void
+    {
+        $this->seed([
+            ProjectSeeder::class,
+        ]);
+
+        $registry = Registry::first();
+        $digi_ident = $registry->digi_ident;
+
+        $project = Project::first();
+        $projectId = $project->id;
+
+        ProjectHasUser::create(['project_id' => $projectId, 'user_digital_ident' => $digi_ident, 'project_role_id' => 1]);
+
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/users',
+            );
+
+        $response->assertStatus(200);
+        $this->assertArrayHasKey('data', $response);
+        $this->assertCount(1, $response['data']);
+        $this->assertArrayHasKey('registry', $response['data'][0]);
+
     }
 }
