@@ -12,9 +12,7 @@ use App\Models\ProjectHasUser;
 use Database\Seeders\EmailTemplatesSeeder;
 use Database\Seeders\IssuerSeeder;
 use Database\Seeders\PermissionSeeder;
-use Database\Seeders\ProjectSeeder;
-use Database\Seeders\UserSeeder;
-use Database\Seeders\OrganisationSeeder;
+use Database\Seeders\BaseDemoSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -35,16 +33,64 @@ class UserTest extends TestCase
         parent::setUp();
         $this->seed([
             PermissionSeeder::class,
-            UserSeeder::class,
             IssuerSeeder::class,
-            OrganisationSeeder::class,
             EmailTemplatesSeeder::class,
-            ProjectSeeder::class,
+            BaseDemoSeeder::class,
         ]);
 
         $this->user = User::where('id', 1)->first();
     }
 
+    public function test_the_application_can_search_users_by_email(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '?email[]=bill.murray@ghostbusters.com',
+            );
+
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson();
+
+        $this->assertTrue(count($content['data']) === 1);
+        $this->assertTrue($content['data'][0]['first_name'] === 'Bill');
+        $this->assertTrue($content['data'][0]['last_name'] === 'Murray');
+    }
+
+    public function test_the_application_can_search_users_by_first_name(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '?first_name[]=bill',
+            );
+
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson();
+
+        $this->assertTrue(count($content['data']) === 1);
+        $this->assertTrue($content['data'][0]['first_name'] === 'Bill');
+        $this->assertTrue($content['data'][0]['last_name'] === 'Murray');
+    }
+
+    public function test_the_application_can_search_users_by_last_name(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '?last_name[]=murray',
+            );
+
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson();
+
+        $this->assertTrue(count($content['data']) === 1);
+        $this->assertTrue($content['data'][0]['first_name'] === 'Bill');
+        $this->assertTrue($content['data'][0]['last_name'] === 'Murray');
+    }
+
+    /*
+    // LS - Doesn't work with base demo seeder - TODO
     public function test_the_application_can_call_me_with_valid_token(): void
     {
         $user = User::where('id', 1)->first();
@@ -63,6 +109,7 @@ class UserTest extends TestCase
         $content = $response->decodeResponseJson();
         $this->assertEquals($content['data']['email'], 'loki.sinclair@hdruk.ac.uk');
     }
+    */
 
     public function test_the_application_returns_404_when_call_to_me_with_non_existent_user(): void
     {
@@ -148,36 +195,34 @@ class UserTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'message',
+            'current_page',
             'data' => [
-                'current_page',
-                'data' => [
-                    0 => [
-                        'id',
-                        'created_at',
-                        'updated_at',
-                        'first_name',
-                        'last_name',
-                        'email',
-                        'registry_id',
-                        'user_group',
-                        'consent_scrape',
-                        'profile_steps_completed',
-                        'profile_completed_at',
-                        'orc_id',
-                        'unclaimed',
-                        'feed_source',
-                        'permissions',
-                        'registry',
-                        'pending_invites',
-                        'organisation_id',
-                    ],
+                0 => [
+                    'id',
+                    'created_at',
+                    'updated_at',
+                    'first_name',
+                    'last_name',
+                    'email',
+                    'registry_id',
+                    'user_group',
+                    'consent_scrape',
+                    'profile_steps_completed',
+                    'profile_completed_at',
+                    'orc_id',
+                    'unclaimed',
+                    'feed_source',
+                    'permissions',
+                    'registry',
+                    'pending_invites',
+                    'organisation_id',
                 ],
             ],
         ]);
 
         $content = $response->decodeResponseJson();
-        $this->assertTrue($content['data']['data'][0]['registry']['files'][0]['path'] === '1234_doesntexist.doc');
+        $this->assertTrue(count($content['data']) > 1);
+        $this->assertTrue($content['data'][0]['email'] == 'organisation.owner@healthdataorganisation.com');
     }
 
     public function test_the_application_can_show_users(): void

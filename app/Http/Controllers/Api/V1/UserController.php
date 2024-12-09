@@ -70,7 +70,8 @@ class UserController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $users = User::with([
+        $users = User::searchViaRequest()
+            ->with([
             'permissions',
             'registry',
             'registry.files',
@@ -78,10 +79,10 @@ class UserController extends Controller
             'organisation',
         ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
-        return response()->json([
-            'message' => 'success',
-            'data' => $users,
-        ], 200);
+        return response()->json(
+            $users,
+            200
+        );
     }
 
     /**

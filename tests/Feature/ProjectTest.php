@@ -9,7 +9,7 @@ use App\Models\Registry;
 use App\Models\Project;
 use App\Models\ProjectHasUser;
 use Database\Seeders\UserSeeder;
-use Database\Seeders\ProjectSeeder;
+use Database\Seeders\BaseDemoSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -30,9 +30,26 @@ class ProjectTest extends TestCase
         parent::setUp();
         $this->seed([
             UserSeeder::class,
+            BaseDemoSeeder::class,
         ]);
 
         $this->user = User::where('id', 1)->first();
+    }
+
+    public function test_the_application_can_search_on_project_name(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '?title[]=social',
+            );
+
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson();
+
+        $this->assertTrue(count($content['data']) === 1);
+        $this->assertTrue($content['data'][0]['title'] === 'Social Media Influence on Mental Health Trends Among Teenagers');
+
     }
 
     public function test_the_application_can_list_projects(): void
@@ -196,10 +213,6 @@ class ProjectTest extends TestCase
 
     public function test_the_application_can_show_users_in_project(): void
     {
-        $this->seed([
-            ProjectSeeder::class,
-        ]);
-
         $registry = Registry::first();
         $digi_ident = $registry->digi_ident;
 

@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use App\Traits\SearchManager;
 
 class Project extends Model
 {
     use HasFactory;
     use SoftDeletes;
+    use SearchManager;
 
     protected $table = 'projects';
 
@@ -28,6 +30,16 @@ class Project extends Model
         'start_date',
         'end_date',
         'affiliate_id',
+    ];
+
+    /**
+     * Compiles a list of exposed searchable fields
+     */
+    protected static array $searchableColumns = [
+        'title',
+        'start_date',
+        'end_date',
+        'unique_id',
     ];
 
     public function projectUsers(): HasMany

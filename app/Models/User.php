@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Traits\SearchManager;
 
 class User extends Authenticatable
 {
     use HasFactory;
+    use SearchManager;
 
     /**
      * The attributes that are mass assignable.
@@ -38,6 +40,12 @@ class User extends Authenticatable
         'orcid_scanning_completed_at',
         'is_delegate',
         'is_org_admin',
+    ];
+
+    protected static array $searchableColumns = [
+        'first_name',
+        'last_name',
+        'email',
     ];
 
     /**
