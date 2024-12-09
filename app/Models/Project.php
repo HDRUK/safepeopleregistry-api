@@ -38,7 +38,7 @@ class Project extends Model
     protected static array $searchableColumns = [
         'title',
         'start_date',
-        'end_data',
+        'end_date',
         'unique_id',
     ];
 
