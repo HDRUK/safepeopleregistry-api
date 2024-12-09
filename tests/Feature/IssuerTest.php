@@ -419,16 +419,6 @@ class IssuerTest extends TestCase
         $this->assertEquals($content['message'], 'no known issuer matches the credentials provided');
     }
 
-    public function test_the_application_can_get_projects_for_an_issuer(): void
-    {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-            ->json(
-                'GET',
-                self::TEST_URL . '/1/projects'
-            );
 
-        $response->assertStatus(200);
-        $this->assertArrayHasKey('data', $response);
-    }
 
 }

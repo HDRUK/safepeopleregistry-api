@@ -2,6 +2,8 @@
 
 namespace App\Traits;
 
+use Illuminate\Validation\ValidationException;
+
 /**
  * SearchManager
  *
@@ -27,6 +29,7 @@ trait SearchManager
                 }
             }
         });
+
     }
 
     public function scopeSortViaRequest($query): mixed
@@ -34,12 +37,20 @@ trait SearchManager
         if ($sort = \request()->get('sort')) {
             [$field, $direction] = explode(':', $sort) + [null, 'asc'];
 
-            if (
-                in_array(strtolower($field), static::$searchableColumns) &&
-                in_array(strtolower($direction), ['asc', 'desc'])
-            ) {
-                $query->orderBy(strtolower($field), strtolower($direction));
+            if (!in_array(strtolower($field), static::$sortableColumns, true)) {
+                throw ValidationException::withMessages([
+                    'sort' => "Invalid sort field: $field."
+                ]);
             }
+
+            if (!in_array(strtolower($direction), ['asc', 'desc'], true)) {
+                throw ValidationException::withMessages([
+                    'sort' => "Invalid sort direction: $direction. Must be 'asc' or 'desc'."
+                ]);
+            }
+
+            $query->orderBy(strtolower($field), strtolower($direction));
+
         }
 
         return $query;
