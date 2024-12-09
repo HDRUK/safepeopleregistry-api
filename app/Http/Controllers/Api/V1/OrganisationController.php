@@ -798,6 +798,7 @@ class OrganisationController extends Controller
     public function getProjects(Request $request, int $organisationId): JsonResponse
     {
         $projects = Project::searchViaRequest()
+          ->sortViaRequest()
           ->with('approvals')
           ->whereHas('organisations', function ($query) use ($organisationId) {
               $query->where('organisations.id', $organisationId);

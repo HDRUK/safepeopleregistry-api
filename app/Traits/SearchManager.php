@@ -28,4 +28,20 @@ trait SearchManager
             }
         });
     }
+
+    public function scopeSortViaRequest($query): mixed
+    {
+        if ($sort = \request()->get('sort')) {
+            [$field, $direction] = explode(':', $sort) + [null, 'asc'];
+
+            if (
+                in_array(strtolower($field), static::$searchableColumns) &&
+                in_array(strtolower($direction), ['asc', 'desc'])
+            ) {
+                $query->orderBy(strtolower($field), strtolower($direction));
+            }
+        }
+
+        return $query;
+    }
 }
