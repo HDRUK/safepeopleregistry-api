@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use DB;
 use Hash;
 use Exception;
 use Carbon\Carbon;
@@ -706,6 +707,35 @@ class OrganisationController extends Controller
 
             return response()->json([
                 'message' => 'success',
+            ], 200);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    /**
+     * No swagger, internal call
+     */
+    public function certifications(Request $request, int $id): JsonResponse
+    {
+        try {
+            $counts = DB::table('organisations')
+                ->select(DB::raw(
+                    'dsptk_certified + ce_certified + iso_27001_certified as `count`'
+                ))
+                ->where('id', $id)
+                ->get();
+
+            if ($counts && count($counts) > 0) {
+                return response()->json([
+                    'message' => 'success',
+                    'data' => $counts[0]->count,
+                ], 200);
+            }
+
+            return response()->json([
+                'message' => 'success',
+                'data' => 0,
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
