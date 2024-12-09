@@ -18,12 +18,12 @@ trait SearchManager
 
         return $query->where(function ($query) use ($input) {
             foreach ($input as $field => $searchValue) {
-                if (!in_array($field, static::$searchableColumns)) {
+                if (!in_array(strtolower($field), static::$searchableColumns)) {
                     continue;
                 }
 
                 foreach ($searchValue as $term) {
-                    $query->orWhere($field, 'like', '%' . $term . '%');
+                    $query->orWhere(strtolower($field), 'LIKE', '%' . $term . '%');
                 }
             }
         });

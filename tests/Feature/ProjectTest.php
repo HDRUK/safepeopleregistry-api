@@ -213,10 +213,6 @@ class ProjectTest extends TestCase
 
     public function test_the_application_can_show_users_in_project(): void
     {
-        $this->seed([
-            ProjectSeeder::class,
-        ]);
-
         $registry = Registry::first();
         $digi_ident = $registry->digi_ident;
 

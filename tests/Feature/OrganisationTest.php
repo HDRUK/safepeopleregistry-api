@@ -77,7 +77,7 @@ class OrganisationTest extends TestCase
         $content = $response->decodeResponseJson();
 
         $this->assertTrue(count($content['data']) === 1);
-        $this->assertTrue($content['data'][0]['organisation_name'] === 'HEALTH DATA RESEARCH UK');
+        $this->assertTrue($content['data'][0]['organisation_name'] === 'Health Pathways (UK) Limited');
     }
 
     public function test_the_application_can_list_organisations(): void
