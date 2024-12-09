@@ -125,6 +125,7 @@ Route::middleware('api')->delete('v1/identities/{id}', [IdentityController::clas
 Route::middleware('api')->get('v1/organisations', [OrganisationController::class, 'index']);
 Route::middleware('api')->get('v1/organisations/{id}', [OrganisationController::class, 'show']);
 Route::middleware('api')->get('v1/organisations/{id}/idvt', [OrganisationController::class, 'idvt']);
+Route::middleware('api')->get('v1/organisations/{id}/certifications', [OrganisationController::class, 'certifications']);
 Route::middleware('api')->post('v1/organisations', [OrganisationController::class, 'store']);
 Route::middleware('api')->put('v1/organisations/{id}', [OrganisationController::class, 'update']);
 Route::middleware('api')->patch('v1/organisations/{id}', [OrganisationController::class, 'edit']);
