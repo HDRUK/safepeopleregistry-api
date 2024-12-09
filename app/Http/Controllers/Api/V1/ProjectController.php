@@ -37,8 +37,7 @@ class ProjectController extends Controller
      *                  @OA\Property(property="registry_id", type="integer", example="1"),
      *                  @OA\Property(property="name", type="string", example="My First Research Project"),
      *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
-     *                  @OA\Property(property="runs_to", type="string", example="2026-02-04"),
-     *                  @OA\Property(property="affiliate_id", type="integer", example="2")
+     *                  @OA\Property(property="runs_to", type="string", example="2026-02-04")
      *              )
      *          ),
      *      ),
@@ -102,7 +101,6 @@ class ProjectController extends Controller
      *                  @OA\Property(property="name", type="string", example="My First Research Project"),
      *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
      *                  @OA\Property(property="runs_to", type="string", example="2026-02-04"),
-     *                  @OA\Property(property="affiliate_id", type="integer", example="2")
      *              )
      *          ),
      *      ),
@@ -266,8 +264,7 @@ class ProjectController extends Controller
      *              @OA\Property(property="registry_id", type="integer", example="1"),
      *              @OA\Property(property="name", type="string", example="My First Research Project"),
      *              @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
-     *              @OA\Property(property="runs_to", type="string", example="2026-02-04"),
-     *              @OA\Property(property="affiliate_id", type="integer", example="2")
+     *              @OA\Property(property="runs_to", type="string", example="2026-02-04")
      *          ),
      *      ),
      *
@@ -318,7 +315,6 @@ class ProjectController extends Controller
                 'other_approval_committees' => $input['other_approval_committees'],
                 'start_date' => $input['start_date'],
                 'end_date' => $input['end_date'],
-                'affiliate_id' => $input['affiliate_id'],
             ]);
 
             return response()->json([
@@ -364,8 +360,7 @@ class ProjectController extends Controller
      *              @OA\Property(property="registry_id", type="integer", example="1"),
      *              @OA\Property(property="name", type="string", example="My First Research Project"),
      *              @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
-     *              @OA\Property(property="runs_to", type="string", example="2026-02-04"),
-     *              @OA\Property(property="affiliate_id", type="integer", example="2")
+     *              @OA\Property(property="runs_to", type="string", example="2026-02-04")
      *          ),
      *      ),
      *
@@ -393,8 +388,7 @@ class ProjectController extends Controller
      *                  @OA\Property(property="registry_id", type="integer", example="1"),
      *                  @OA\Property(property="name", type="string", example="My First Research Project"),
      *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
-     *                  @OA\Property(property="runs_to", type="string", example="2026-02-04"),
-     *                  @OA\Property(property="affiliate_id", type="integer", example="2")
+     *                  @OA\Property(property="runs_to", type="string", example="2026-02-04")
      *              )
      *          ),
      *      ),
@@ -424,7 +418,6 @@ class ProjectController extends Controller
                 'other_approval_committees' => $input['other_approval_committees'],
                 'start_date' => $input['start_date'],
                 'end_date' => $input['end_date'],
-                'affiliate_id' => $input['affiliate_id'],
             ]);
 
             return response()->json([
@@ -470,8 +463,7 @@ class ProjectController extends Controller
      *              @OA\Property(property="registry_id", type="integer", example="1"),
      *              @OA\Property(property="name", type="string", example="My First Research Project"),
      *              @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
-     *              @OA\Property(property="runs_to", type="string", example="2026-02-04"),
-     *              @OA\Property(property="affiliate_id", type="integer", example="2")
+     *              @OA\Property(property="runs_to", type="string", example="2026-02-04")
      *          ),
      *      ),
      *
@@ -499,8 +491,7 @@ class ProjectController extends Controller
      *                  @OA\Property(property="registry_id", type="integer", example="1"),
      *                  @OA\Property(property="name", type="string", example="My First Research Project"),
      *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
-     *                  @OA\Property(property="runs_to", type="string", example="2026-02-04"),
-     *                  @OA\Property(property="affiliate_id", type="integer", example="2")
+     *                  @OA\Property(property="runs_to", type="string", example="2026-02-04")
      *              )
      *          ),
      *      ),
@@ -530,7 +521,6 @@ class ProjectController extends Controller
                 'other_approval_committees' => $input['other_approval_committees'],
                 'start_date' => $input['start_date'],
                 'end_date' => $input['end_date'],
-                'affiliate_id' => $input['affiliate_id'],
             ]);
 
             return response()->json([

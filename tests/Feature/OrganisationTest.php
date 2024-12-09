@@ -6,6 +6,8 @@ use KeycloakGuard\ActingAsKeycloakUser;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Sector;
+use App\Models\Project;
+use App\Models\ProjectHasOrganisation;
 use Database\Seeders\IssuerSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\UserSeeder;
@@ -78,6 +80,71 @@ class OrganisationTest extends TestCase
 
         $this->assertTrue(count($content['data']) === 1);
         $this->assertTrue($content['data'][0]['organisation_name'] === 'Health Pathways (UK) Limited');
+    }
+
+    public function test_the_application_can_list_an_organisations_past_present_and_future_projects(): void
+    {
+        // Grab all projects and manually set dates to fit our need,
+        // otherwise these tests would effectively timeout eventually.
+        $orgProjects = ProjectHasOrganisation::where('organisation_id', '1')->get();
+        for ($i = 0; $i < 1; $i++) {
+            $project = Project::where('id', $orgProjects[$i]->project_id)->first();
+            $project->start_date = Carbon::now();
+            $project->end_date = Carbon::now()->addYears(1);
+            $project->save();
+        }
+
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/projects/present',
+            );
+
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson();
+
+        $this->assertTrue($content['data'][0]['start_date'] <= Carbon::now());
+        $this->assertTrue($content['data'][0]['end_date'] >= Carbon::now());
+
+        for ($i = 0; $i < 1; $i++) {
+            $project = Project::where('id', $orgProjects[$i]->project_id)->first();
+            $project->start_date = Carbon::now()->subYears(2);
+            $project->end_date = Carbon::now()->subYears(1);
+            $project->save();
+        }
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/projects/past',
+            );
+
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson();
+
+        $this->assertTrue($content['data'][0]['start_date'] < Carbon::now());
+        $this->assertTrue($content['data'][0]['end_date'] < Carbon::now());
+
+
+        for ($i = 0; $i < 1; $i++) {
+            $project = Project::where('id', $orgProjects[$i]->project_id)->first();
+            $project->start_date = Carbon::now()->addYears(2);
+            $project->end_date = Carbon::now()->addYears(3);
+            $project->save();
+        }
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/projects/future',
+            );
+
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson();
+
+        $this->assertTrue($content['data'][0]['start_date'] > Carbon::now());
+        $this->assertTrue($content['data'][0]['end_date'] > Carbon::now());
     }
 
     public function test_the_application_can_list_organisations(): void
@@ -216,23 +283,23 @@ class OrganisationTest extends TestCase
                 'PUT',
                 self::TEST_URL . '/' . $content['data'],
                 [
-                'organisation_name' => 'Test Organisation',
-                'address_1' => '123 Blah blah',
-                'address_2' => '',
-                'town' => 'Town',
-                'county' => 'County',
-                'country' => 'Country',
-                'postcode' => 'BLA4 4HH',
-                'lead_applicant_organisation_name' => 'Some One',
-                'lead_applicant_email' => fake()->email(),
-                'password' => 'tempP4ssword',
-                'organisation_unique_id' => Str::random(40),
-                'applicant_names' => 'Some One, Some Two, Some Three',
-                'funders_and_sponsors' => 'UKRI, MRC',
-                'sub_license_arrangements' => 'N/A',
-                'verified' => true,
-                'companies_house_no' => '10887014',
-            ]
+                    'organisation_name' => 'Test Organisation',
+                    'address_1' => '123 Blah blah',
+                    'address_2' => '',
+                    'town' => 'Town',
+                    'county' => 'County',
+                    'country' => 'Country',
+                    'postcode' => 'BLA4 4HH',
+                    'lead_applicant_organisation_name' => 'Some One',
+                    'lead_applicant_email' => fake()->email(),
+                    'password' => 'tempP4ssword',
+                    'organisation_unique_id' => Str::random(40),
+                    'applicant_names' => 'Some One, Some Two, Some Three',
+                    'funders_and_sponsors' => 'UKRI, MRC',
+                    'sub_license_arrangements' => 'N/A',
+                    'verified' => true,
+                    'companies_house_no' => '10887014',
+                ]
             );
 
         $response->assertStatus(200);
