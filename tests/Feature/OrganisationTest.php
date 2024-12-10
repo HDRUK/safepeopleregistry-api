@@ -353,6 +353,57 @@ class OrganisationTest extends TestCase
         ]);
     }
 
+    public function test_the_application_can_sort_returned_data(): void
+    {
+        $this->testOrg['organisation_name'] = 'ZYX Org';
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                $this->testOrg
+            );
+
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
+
+        $this->testOrg['organisation_name'] = 'ABC Org';
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                $this->testOrg
+            );
+
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '?sort=organisation_name:desc'
+            );
+
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson();
+
+        $this->assertTrue(count($content['data']) > 0);
+        $this->assertTrue($content['data'][0]['organisation_name'] === 'ZYX Org');
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '?sort=organisation_name:asc'
+            );
+
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson();
+
+        $this->assertTrue(count($content['data']) > 0);
+        $this->assertTrue($content['data'][0]['organisation_name'] === 'ABC Org');
+    }
+  
     public function test_the_application_can_return_certification_counts_for_organisations(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())

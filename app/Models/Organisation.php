@@ -57,6 +57,10 @@ class Organisation extends Model
         'organisation_name',
     ];
 
+    protected static array $sortableColumns = [
+        'organisation_name',
+    ];
+
     protected $hidden = [
     ];
 

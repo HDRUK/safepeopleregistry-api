@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\SearchManager;
 
 class Issuer extends Model
 {
     use HasFactory;
+    use SearchManager;
 
     protected $table = 'issuers';
 
@@ -32,5 +34,15 @@ class Issuer extends Model
     protected $hidden = [
         'unique_identifier',
         'calculated_hash',
+    ];
+
+    protected static array $searchableColumns = [
+        'name',
+        'contact_email',
+    ];
+
+    protected static array $sortableColumns = [
+        'name',
+        'contact_email',
     ];
 }

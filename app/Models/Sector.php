@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\SearchManager;
 
 class Sector extends Model
 {
     use SoftDeletes;
+    use SearchManager;
 
     protected $table = 'sectors';
 
@@ -24,5 +26,13 @@ class Sector extends Model
         'Public',
         'Charity/Non-profit',
         'Private/Industry',
+    ];
+
+    protected static array $searchableColumns = [
+        'name',
+    ];
+
+    protected static array $sortableColumns = [
+        'name',
     ];
 }

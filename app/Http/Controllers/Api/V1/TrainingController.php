@@ -57,7 +57,9 @@ class TrainingController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $trainings = Training::paginate((int)$this->getSystemConfig('PER_PAGE'));
+        $trainings = Training::searchViaRequest()
+            ->applySorting()
+            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',
