@@ -61,7 +61,6 @@ class Organisation extends Model
         'organisation_name',
     ];
 
-
     protected $hidden = [
     ];
 

@@ -60,7 +60,9 @@ class IssuerController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $issuers = Issuer::paginate((int)$this->getSystemConfig('PER_PAGE'));
+        $issuers = Issuer::searchViaRequest()
+            ->applySorting()
+            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',

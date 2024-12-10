@@ -73,11 +73,11 @@ class IssuerTest extends TestCase
                 'POST',
                 self::TEST_URL,
                 [
-                'name' => 'Test Issuer',
-                'contact_email' => 'test@test.com',
-                'enabled' => true,
-                'idvt_required' => false,
-            ]
+                    'name' => 'Test Issuer',
+                    'contact_email' => 'test@test.com',
+                    'enabled' => true,
+                    'idvt_required' => false,
+                ]
             );
 
         $response->assertStatus(201);
@@ -421,4 +421,60 @@ class IssuerTest extends TestCase
 
 
 
+    public function test_the_application_can_sort_returned_data(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
+                    'name' => 'ZYX Issuer',
+                    'contact_email' => 'test@test.com',
+                    'enabled' => true,
+                    'idvt_required' => false,
+                ]
+            );
+
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
+                    'name' => 'ABC Issuer',
+                    'contact_email' => 'test@test.com',
+                    'enabled' => true,
+                    'idvt_required' => false,
+                ]
+            );
+
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '?sort=name:desc'
+            );
+
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson();
+
+        $this->assertTrue(count($content['data']) > 0);
+        $this->assertTrue($content['data']['data'][0]['name'] === 'ZYX Issuer');
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '?sort=name:asc'
+            );
+
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson();
+
+        $this->assertTrue(count($content['data']) > 0);
+        $this->assertTrue($content['data']['data'][0]['name'] === 'ABC Issuer');
+    }
 }

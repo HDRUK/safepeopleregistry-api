@@ -43,11 +43,7 @@ class Project extends Model
 
     protected static array $sortableColumns = [
         'title',
-        'start_date',
-        'end_date',
-        'unique_id',
     ];
-
 
     public function projectUsers(): HasMany
     {

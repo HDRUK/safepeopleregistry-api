@@ -453,7 +453,7 @@ class OrganisationTest extends TestCase
         $responseSortedByTitle = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
             'GET',
-            self::TEST_URL . '/1/projects?sort=titledas:abc'
+            self::TEST_URL . '/1/projects?sort=abc:xyz'
         );
         $responseSortedByTitle->assertStatus(422);
 

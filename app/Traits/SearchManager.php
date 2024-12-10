@@ -2,8 +2,6 @@
 
 namespace App\Traits;
 
-use Illuminate\Validation\ValidationException;
-
 /**
  * SearchManager
  *
@@ -32,27 +30,25 @@ trait SearchManager
 
     }
 
-    public function scopeSortViaRequest($query): mixed
+    public function scopeApplySorting($query): mixed
     {
-        if ($sort = \request()->get('sort')) {
-            [$field, $direction] = explode(':', $sort) + [null, 'asc'];
+        $input = \request()->all();
+        // If no sort option passed, then always default to the first element
+        // of our sortableColumns array on the model
+        $sort = isset($input['sort']) ? $input['sort'] : static::$sortableColumns[0] . ':asc';
 
-            if (!in_array(strtolower($field), static::$sortableColumns, true)) {
-                throw ValidationException::withMessages([
-                    'sort' => "Invalid sort field: $field."
-                ]);
-            }
+        $tmp = explode(':', $sort);
+        $field = strtolower($tmp[0]);
 
-            if (!in_array(strtolower($direction), ['asc', 'desc'], true)) {
-                throw ValidationException::withMessages([
-                    'sort' => "Invalid sort direction: $direction. Must be 'asc' or 'desc'."
-                ]);
-            }
-
-            $query->orderBy(strtolower($field), strtolower($direction));
-
+        if (isset(static::$sortableColumns) && !in_array(strtolower($field), static::$sortableColumns)) {
+            throw new \InvalidArgumentException('field ' . $field . ' is not sortable.');
         }
 
-        return $query;
+        $direction = strtolower($tmp[1]);
+        if (!in_array($direction, ['asc', 'desc'])) {
+            throw new \InvalidArgumentException('invalid sort direction ' . $direction);
+        }
+
+        return $query->orderBy($field, $direction);
     }
 }

@@ -75,15 +75,16 @@ class OrganisationController extends Controller
         $issuerId = $request->get('issuer_id');
         if (! $issuerId) {
             $organisations = Organisation::searchViaRequest()
-            ->with([
-                'approvals',
-                'permissions',
-                'files',
-                'registries',
-                'registries.user',
-                'registries.user.permissions',
-                'registries.user.approvals',
-            ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
+                ->applySorting()
+                ->with([
+                    'approvals',
+                    'permissions',
+                    'files',
+                    'registries',
+                    'registries.user',
+                    'registries.user.permissions',
+                    'registries.user.approvals',
+                ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
         }
 
         return response()->json(
@@ -801,7 +802,7 @@ class OrganisationController extends Controller
         $approved = is_null($approved) ? null : filter_var($approved, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
 
         $projects = Project::searchViaRequest()
-          ->sortViaRequest()
+          ->applySorting()
           ->with('approvals')
           ->when(!is_null($approved), function ($query) use ($organisationId, $approved) {
               if ($approved) {
