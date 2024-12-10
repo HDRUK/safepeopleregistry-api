@@ -234,6 +234,9 @@ class ProjectController extends Controller
                 return $query->select(['id','organisation_name']);
             },
             'projectUsers.registry.employment',
+            'projectUsers.registry.education',
+            'projectUsers.registry.training',
+            'projectUsers.registry.accreditations',
             'projectUsers.role'
             ])->select(['id'])->findOrFail($id);
 
