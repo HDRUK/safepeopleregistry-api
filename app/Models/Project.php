@@ -41,6 +41,10 @@ class Project extends Model
         'unique_id',
     ];
 
+    protected static array $sortableColumns = [
+        'title',
+    ];
+
     public function projectUsers(): HasMany
     {
         return $this->hasMany(ProjectHasUser::class);
