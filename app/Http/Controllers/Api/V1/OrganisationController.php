@@ -797,9 +797,23 @@ class OrganisationController extends Controller
             */
     public function getProjects(Request $request, int $organisationId): JsonResponse
     {
+        $approved = $request->query('approved', null);
+        $approved = is_null($approved) ? null : filter_var($approved, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+
         $projects = Project::searchViaRequest()
           ->sortViaRequest()
           ->with('approvals')
+          ->when(!is_null($approved), function ($query) use ($organisationId, $approved) {
+              if ($approved) {
+                  $query->whereHas('approvals', function ($subQuery) use ($organisationId) {
+                      $subQuery->where('issuer_id', $organisationId);
+                  });
+              } else {
+                  $query->whereDoesntHave('approvals', function ($subQuery) use ($organisationId) {
+                      $subQuery->where('issuer_id', $organisationId);
+                  });
+              }
+          })
           ->whereHas('organisations', function ($query) use ($organisationId) {
               $query->where('organisations.id', $organisationId);
           })
