@@ -403,4 +403,22 @@ class OrganisationTest extends TestCase
         $this->assertTrue(count($content['data']) > 0);
         $this->assertTrue($content['data'][0]['organisation_name'] === 'ABC Org');
     }
+  
+    public function test_the_application_can_return_certification_counts_for_organisations(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/certifications'
+            );
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'message',
+            'data',
+        ]);
+
+        $content = $response->decodeResponseJson();
+        $this->assertTrue($content['data'] > 0);
+    }
 }
