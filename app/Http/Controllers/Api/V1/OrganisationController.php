@@ -86,10 +86,10 @@ class OrganisationController extends Controller
             ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
         }
 
-        return response()->json(
-            $organisations,
-            200
-        );
+        return response()->json([
+            'message' => 'success',
+            'data' => $organisations,
+        ], 200);
     }
 
     /**
