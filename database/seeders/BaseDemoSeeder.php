@@ -10,6 +10,7 @@ use App\Models\Identity;
 use App\Models\Project;
 use App\Models\Registry;
 use App\Models\Organisation;
+use App\Models\Department;
 use App\Models\ProjectHasOrganisation;
 use App\Models\RegistryHasOrganisation;
 use Illuminate\Database\Seeder;
@@ -29,6 +30,21 @@ class BaseDemoSeeder extends Seeder
             SystemConfigSeeder::class,
             ProjectRoleSeeder::class,
         ]);
+
+        $departments = [
+            [
+                'name' => 'Data Science',
+            ],
+            [
+                'name' => 'Research & Development',
+            ],
+            [
+                'name' => 'Personnel',
+            ],
+            [
+                'name' => 'Investigations',
+            ],
+        ];
 
         // --------------------------------------------------------------------------------
         // A demo Organisation which demonstrates safety at every step
@@ -55,6 +71,13 @@ class BaseDemoSeeder extends Seeder
             'companies_house_no' => '09349495',
             'sector_id' => 5, // Charity/Non-profit
         ]);
+
+        foreach ($departments as $d) {
+            Department::create([
+                'name' => $d['name'],
+                'organisation_id' => $org1->id,
+            ]);
+        }
 
         $proj = Project::create([
             'unique_id' => Str::random(20),
@@ -128,6 +151,13 @@ National Public Health Ethics Committee for authorization to analyze population 
             'sector_id' => 4, // Public
         ]);
 
+        foreach ($departments as $d) {
+            Department::create([
+                'name' => $d['name'],
+                'organisation_id' => $org2->id,
+            ]);
+        }
+
         $proj = Project::create([
             'unique_id' => Str::random(20),
             'title' => 'Social Media Influence on Mental Health Trends Among Teenagers',
@@ -182,6 +212,11 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'ce_certified' => true,
             'companies_house_no' => '07563555',
             'sector_id' => 6, // Private/Industry
+        ]);
+
+        Department::create([
+            'name' => 'Research & Development',
+            'organisation_id' => $org3->id,
         ]);
 
         $proj = Project::create([

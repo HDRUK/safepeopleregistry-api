@@ -77,6 +77,7 @@ class OrganisationController extends Controller
             $organisations = Organisation::searchViaRequest()
                 ->applySorting()
                 ->with([
+                    'departments',
                     'approvals',
                     'permissions',
                     'files',
@@ -158,6 +159,7 @@ class OrganisationController extends Controller
     public function show(Request $request, int $id): JsonResponse
     {
         $organisation = Organisation::with([
+            'departments',
             'permissions',
             'approvals',
             'files',

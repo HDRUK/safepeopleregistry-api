@@ -216,6 +216,7 @@ class UserTest extends TestCase
                     'registry',
                     'pending_invites',
                     'organisation_id',
+                    'departments',
                 ],
             ],
         ]);

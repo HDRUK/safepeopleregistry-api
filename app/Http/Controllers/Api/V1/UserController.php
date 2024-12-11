@@ -77,6 +77,7 @@ class UserController extends Controller
             'registry.files',
             'pendingInvites',
             'organisation',
+            'departments',
         ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return response()->json(
@@ -154,6 +155,7 @@ class UserController extends Controller
                 'registry.files',
                 'pendingInvites',
                 'organisation',
+                'departments',
             ])->findOrFail($id);
 
             return response()->json([

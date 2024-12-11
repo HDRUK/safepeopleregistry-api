@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Traits\SearchManager;
 
 class Organisation extends Model
@@ -94,5 +95,10 @@ class Organisation extends Model
             Registry::class,
             'registry_has_organisations',
         );
+    }
+
+    public function departments(): HasMany
+    {
+        return $this->hasMany(Department::class);
     }
 }

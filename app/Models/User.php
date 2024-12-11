@@ -110,4 +110,12 @@ class User extends Authenticatable
             Organisation::class
         );
     }
+
+    public function departments(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Department::class,
+            'user_has_departments'
+        );
+    }
 }
