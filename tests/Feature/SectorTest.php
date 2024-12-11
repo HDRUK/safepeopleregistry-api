@@ -8,7 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
-class SextorTest extends TestCase
+class SectorTest extends TestCase
 {
     use Authorisation;
     use RefreshDatabase;
