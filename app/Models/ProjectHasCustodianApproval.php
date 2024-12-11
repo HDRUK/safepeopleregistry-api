@@ -19,7 +19,7 @@ class ProjectHasCustodianApproval extends Model
     // Specify the fillable attributes
     protected $fillable = [
         'project_id',
-        'issuer_id',
+        'custodian_id',
     ];
 
     /**
@@ -33,12 +33,12 @@ class ProjectHasCustodianApproval extends Model
     }
 
     /**
-     * Define the relationship with the Issuer (or custodian) model
+     * Define the relationship with the Custodian (or custodian) model
      *
      * @return BelongsTo
      */
-    public function issuer(): BelongsTo
+    public function custodian(): BelongsTo
     {
-        return $this->belongsTo(Issuer::class, 'issuer_id', 'id');
+        return $this->belongsTo(Custodian::class, 'custodian_id', 'id');
     }
 }

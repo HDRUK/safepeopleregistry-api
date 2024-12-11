@@ -11,7 +11,7 @@ use App\Models\Registry;
 class RegistryManagementController
 {
     public const KC_GROUP_USERS = 'USERS';
-    public const KC_GROUP_ISSUERS = 'ISSUERS';
+    public const KC_GROUP_CUSTODIANS = 'CUSTODIANS';
     public const KC_GROUP_ORGANISATIONS = 'ORGANISATIONS';
     public const KC_GROUP_ADMINS = 'ADMINS';
 
@@ -83,7 +83,7 @@ class RegistryManagementController
                         'email' => $input['email'],
                         'keycloak_id' => $input['sub'],
                         'registry_id' => null,
-                        'user_group' => RegistryManagementController::KC_GROUP_ISSUERS,
+                        'user_group' => RegistryManagementController::KC_GROUP_CUSTODIANS,
                     ]);
 
                     return true;

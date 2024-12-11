@@ -8,7 +8,7 @@ use App\Models\User;
 use App\Models\Sector;
 use App\Models\Project;
 use App\Models\ProjectHasOrganisation;
-use Database\Seeders\IssuerSeeder;
+use Database\Seeders\CustodianSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\UserSeeder;
 use Database\Seeders\BaseDemoSeeder;
@@ -34,7 +34,7 @@ class OrganisationTest extends TestCase
         $this->seed([
             UserSeeder::class,
             PermissionSeeder::class,
-            IssuerSeeder::class,
+            CustodianSeeder::class,
             BaseDemoSeeder::class,
         ]);
 

@@ -27,10 +27,10 @@ class AssignUserPermissionToFrom extends FormRequest
                 'int',
                 'exists:users,id',
             ],
-            'issuer_id' => [
+            'custodian_id' => [
                 'required',
                 'int',
-                'exists:issuers,id',
+                'exists:custodians,id',
             ],
             'permissions.*' => [
                 'required',

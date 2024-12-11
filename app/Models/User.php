@@ -80,15 +80,15 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(
             Permission::class,
-            'user_has_issuer_permissions',
+            'user_has_custodian_permissions',
         );
     }
 
     public function approvals(): BelongsToMany
     {
         return $this->belongsToMany(
-            Issuer::class,
-            'user_has_issuer_approvals',
+            Custodian::class,
+            'user_has_custodian_approvals',
         );
     }
 

@@ -7,7 +7,7 @@ use App\Models\User;
 use App\Models\Registry;
 use Database\Seeders\HistorySeeder;
 use Database\Seeders\IdentitySeeder;
-use Database\Seeders\IssuerSeeder;
+use Database\Seeders\CustodianSeeder;
 use Database\Seeders\OrganisationSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\TrainingSeeder;
@@ -31,7 +31,7 @@ class QueryTest extends TestCase
         parent::setUp();
         $this->seed([
             PermissionSeeder::class,
-            IssuerSeeder::class,
+            CustodianSeeder::class,
             OrganisationSeeder::class,
             UserSeeder::class,
             IdentitySeeder::class,

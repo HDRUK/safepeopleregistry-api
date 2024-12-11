@@ -72,8 +72,8 @@ class OrganisationController extends Controller
     {
         $organisations = [];
 
-        $issuerId = $request->get('issuer_id');
-        if (! $issuerId) {
+        $custodianId = $request->get('custodian_id');
+        if (! $custodianId) {
             $organisations = Organisation::searchViaRequest()
                 ->applySorting()
                 ->with([

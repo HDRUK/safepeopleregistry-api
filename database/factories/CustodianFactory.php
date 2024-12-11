@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Issuer>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Custodian>
  */
-class IssuerFactory extends Factory
+class CustodianFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -21,8 +21,8 @@ class IssuerFactory extends Factory
         $signature = Str::random(40);
         $calculatedHash = Hash::make(
             $signature.
-            ':'.env('ISSUER_SALT_1').
-            ':'.env('ISSUER_SALT_2')
+            ':'.env('CUSTODIAN_SALT_1').
+            ':'.env('CUSTODIAN_SALT_2')
         );
 
         return [

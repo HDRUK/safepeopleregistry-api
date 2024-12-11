@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Api\V1;
 
 use Exception;
 use App\Http\Controllers\Controller;
-use App\Models\Issuer;
+use App\Models\Custodian;
 use App\Models\Organisation;
-use App\Models\OrganisationHasIssuerApproval;
+use App\Models\OrganisationHasCustodianApproval;
 use App\Models\User;
-use App\Models\UserHasIssuerApproval;
+use App\Models\UserHasCustodianApproval;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -22,11 +22,11 @@ class ApprovalController extends Controller
             switch (strtoupper($entityType)) {
                 case 'ORGANISATION':
                     $organisation = Organisation::where('id', $input['organisation_id'])->first();
-                    $issuer = Issuer::where('id', $input['issuer_id'])->first();
+                    $custodian = Custodian::where('id', $input['custodian_id'])->first();
 
-                    $ohia = OrganisationHasIssuerApproval::create([
+                    $ohia = OrganisationHasCustodianApproval::create([
                         'organisation_id' => $organisation->id,
-                        'issuer_id' => $issuer->id,
+                        'custodian_id' => $custodian->id,
                     ]);
 
                     return response()->json([
@@ -36,11 +36,11 @@ class ApprovalController extends Controller
 
                 case 'RESEARCHER':
                     $user = User::where('id', $input['user_id'])->first();
-                    $issuer = Issuer::where('id', $input['issuer_id'])->first();
+                    $custodian = Custodian::where('id', $input['custodian_id'])->first();
 
-                    $uhia = UserHasIssuerApproval::create([
+                    $uhia = UserHasCustodianApproval::create([
                         'user_id' => $user->id,
-                        'issuer_id' => $issuer->id,
+                        'custodian_id' => $custodian->id,
                     ]);
 
                     return response()->json([
@@ -60,7 +60,7 @@ class ApprovalController extends Controller
         }
     }
 
-    public function delete(Request $request, string $entityType, string $id, string $issuerId)
+    public function delete(Request $request, string $entityType, string $id, string $custodianId)
     {
         try {
             $input = $request->all();
@@ -68,11 +68,11 @@ class ApprovalController extends Controller
             switch (strtoupper($entityType)) {
                 case 'ORGANISATION':
                     $organisation = Organisation::where('id', $id)->first();
-                    $issuer = Issuer::where('id', $issuerId)->first();
+                    $custodian = Custodian::where('id', $custodianId)->first();
 
-                    OrganisationHasIssuerApproval::where([
+                    OrganisationHasCustodianApproval::where([
                         'organisation_id' => $organisation->id,
-                        'issuer_id' => $issuer->id,
+                        'custodian_id' => $custodian->id,
                     ])->delete();
 
                     return response()->json([
@@ -81,11 +81,11 @@ class ApprovalController extends Controller
                     ]);
                 case 'RESEARCHER':
                     $user = User::where('id', $id)->first();
-                    $issuer = Issuer::where('id', $issuerId)->first();
+                    $custodian = Custodian::where('id', $custodianId)->first();
 
-                    UserHasIssuerApproval::where([
+                    UserHasCustodianApproval::where([
                         'user_id' => $user->id,
-                        'issuer_id' => $issuer->id,
+                        'custodian_id' => $custodian->id,
                     ])->delete();
 
                     return response()->json([

@@ -7,7 +7,7 @@ use App\Jobs\SendEmailJob;
 use App\Models\User;
 use App\Models\PendingInvite;
 use Database\Seeders\EmailTemplatesSeeder;
-use Database\Seeders\IssuerSeeder;
+use Database\Seeders\CustodianSeeder;
 use Database\Seeders\OrganisationDelegateSeeder;
 use Database\Seeders\OrganisationSeeder;
 use Database\Seeders\PermissionSeeder;
@@ -32,7 +32,7 @@ class EmailSendTest extends TestCase
         parent::setUp();
         $this->seed([
             PermissionSeeder::class,
-            IssuerSeeder::class,
+            CustodianSeeder::class,
             UserSeeder::class,
             OrganisationSeeder::class,
             OrganisationDelegateSeeder::class,
@@ -52,9 +52,9 @@ class EmailSendTest extends TestCase
                 'POST',
                 self::TEST_URL,
                 [
-                    'to' => 1, // Primary key - in this instance, it relates to pre-seeded Issuer record
-                    'type' => 'issuer', // Type of model relating to email
-                    'identifier' => 'issuer_invite', // Email Template
+                    'to' => 1, // Primary key - in this instance, it relates to pre-seeded Custodian record
+                    'type' => 'custodian', // Type of model relating to email
+                    'identifier' => 'custodian_invite', // Email Template
                 ]
             );
 

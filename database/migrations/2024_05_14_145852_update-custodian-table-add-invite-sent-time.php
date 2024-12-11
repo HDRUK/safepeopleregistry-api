@@ -10,9 +10,8 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        Schema::create('organisation_has_issuer_approvals', function (Blueprint $table) {
-            $table->integer('organisation_id');
-            $table->integer('issuer_id');
+        Schema::table('custodians', function (Blueprint $table) {
+            $table->dateTime('invite_sent_at')->nullable()->default(null);
         });
     }
 
@@ -21,6 +20,8 @@ return new class () extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('organisation_has_issuer_approvals');
+        Schema::table('custodians', function (Blueprint $table) {
+            $table->dropIfExists('invite_sent_at');
+        });
     }
 };
