@@ -95,7 +95,7 @@ class ResolutionTest extends TestCase
     {
         return [
             'comment' => fake()->sentence(5),
-            'issuer_by' => 1,
+            'custodian_by' => 1,
             'resolved' => fake()->randomElement([0, 1]),
         ];
     }

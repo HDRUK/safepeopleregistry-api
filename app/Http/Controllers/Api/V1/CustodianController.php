@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use Exception;
 use Hash;
 use App\Http\Controllers\Controller;
-use App\Models\Issuer;
+use App\Models\Custodian;
 use App\Models\Organisation;
 use App\Models\Project;
 use App\Traits\CommonFunctions;
@@ -13,17 +13,17 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
-class IssuerController extends Controller
+class CustodianController extends Controller
 {
     use CommonFunctions;
 
     /**
      * @OA\Get(
-     *      path="/api/v1/issuers",
-     *      summary="Return a list of Issuers",
-     *      description="Return a list of Issuers",
-     *      tags={"Issuer"},
-     *      summary="Issuer@index",
+     *      path="/api/v1/custodians",
+     *      summary="Return a list of Custodians",
+     *      description="Return a list of Custodians",
+     *      tags={"Custodian"},
+     *      summary="Custodian@index",
      *      security={{"bearerAuth":{}}},
      *
      *      @OA\Response(
@@ -37,7 +37,7 @@ class IssuerController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="name", type="string", example="An Issuer"),
+     *                  @OA\Property(property="name", type="string", example="A Custodian"),
      *                  @OA\Property(property="contact_email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="enabled", type="boolean", example="true"),
      *                  @OA\Property(property="invite_accepted_at", type="string", example="2024-02-04 12:00:00"),
@@ -60,35 +60,35 @@ class IssuerController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $issuers = Issuer::searchViaRequest()
+        $custodians = Custodian::searchViaRequest()
             ->applySorting()
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',
-            'data' => $issuers,
+            'data' => $custodians,
         ], 200);
     }
 
     /**
      * @OA\Get(
-     *      path="/api/v1/issuers/{id}",
-     *      summary="Return an Issuer entry by ID",
-     *      description="Return an Issuer entry by ID",
-     *      tags={"Issuer"},
-     *      summary="Issuer@show",
+     *      path="/api/v1/custodians/{id}",
+     *      summary="Return an Custodian entry by ID",
+     *      description="Return an Custodian entry by ID",
+     *      tags={"Custodian"},
+     *      summary="Custodian@show",
      *      security={{"bearerAuth":{}}},
      *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="Issuer ID",
+     *         description="Custodian ID",
      *         required=true,
      *         example="1",
      *
      *         @OA\Schema(
      *            type="integer",
-     *            description="Issuer ID",
+     *            description="Custodian ID",
      *         ),
      *      ),
      *
@@ -103,7 +103,7 @@ class IssuerController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="name", type="string", example="An Issuer"),
+     *                  @OA\Property(property="name", type="string", example="A Custodian"),
      *                  @OA\Property(property="contact_email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="enabled", type="boolean", example="true"),
      *                  @OA\Property(property="invite_accepted_at", type="string", example="2024-02-04 12:00:00"),
@@ -126,11 +126,11 @@ class IssuerController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
-        $issuer = Issuer::findOrFail($id);
-        if ($issuer) {
+        $custodian = Custodian::findOrFail($id);
+        if ($custodian) {
             return response()->json([
                 'message' => 'success',
-                'data' => $issuer,
+                'data' => $custodian,
             ], 200);
         }
 
@@ -142,23 +142,23 @@ class IssuerController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/api/v1/issuers/identifier/{id}",
-     *      summary="Return an Issuer entry by Unique Identifier",
-     *      description="Return an Issuer entry by Unique Identifier",
-     *      tags={"Issuer"},
-     *      summary="Issuer@showByUniqueIdentifier",
+     *      path="/api/v1/custodians/identifier/{id}",
+     *      summary="Return a Custodian entry by Unique Identifier",
+     *      description="Return an Custodian entry by Unique Identifier",
+     *      tags={"Custodian"},
+     *      summary="Custodian@showByUniqueIdentifier",
      *      security={{"bearerAuth":{}}},
      *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="Issuer Unique Identifier",
+     *         description="Custodian Unique Identifier",
      *         required=true,
      *         example="c3eddb33-db74-4ea7-961a-778740f17e25",
      *
      *         @OA\Schema(
      *            type="string",
-     *            description="Issuer Unique Identifier",
+     *            description="Custodian Unique Identifier",
      *         ),
      *      ),
      *
@@ -173,7 +173,7 @@ class IssuerController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="name", type="string", example="An Issuer"),
+     *                  @OA\Property(property="name", type="string", example="A Custodian"),
      *                  @OA\Property(property="contact_email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="enabled", type="boolean", example="true"),
      *                  @OA\Property(property="invite_accepted_at", type="string", example="2024-02-04 12:00:00"),
@@ -196,11 +196,11 @@ class IssuerController extends Controller
      */
     public function showByUniqueIdentifier(Request $request, string $id): JsonResponse
     {
-        $issuer = Issuer::where('unique_identifier', $id)->first();
-        if ($issuer) {
+        $custodian = Custodian::where('unique_identifier', $id)->first();
+        if ($custodian) {
             return response()->json([
                 'message' => 'success',
-                'data' => $issuer,
+                'data' => $custodian,
             ], 200);
         }
 
@@ -212,20 +212,20 @@ class IssuerController extends Controller
 
     /**
      * @OA\Post(
-     *      path="/api/v1/issuers",
-     *      summary="Create an Issuer entry",
-     *      description="Create a Issuer entry",
-     *      tags={"Issuer"},
-     *      summary="Issuer@store",
+     *      path="/api/v1/custodians",
+     *      summary="Create a Custodian entry",
+     *      description="Create a Custodian entry",
+     *      tags={"Custodian"},
+     *      summary="Custodian@store",
      *      security={{"bearerAuth":{}}},
      *
      *      @OA\RequestBody(
      *          required=true,
-     *          description="Issuer definition",
+     *          description="Custodian definition",
      *
      *          @OA\JsonContent(
      *
-     *                  @OA\Property(property="name", type="string", example="An Issuer"),
+     *                  @OA\Property(property="name", type="string", example="A Custodian"),
      *                  @OA\Property(property="enabled", type="boolean", example="true")
      *          ),
      *      ),
@@ -251,7 +251,7 @@ class IssuerController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="name", type="string", example="An Issuer"),
+     *                  @OA\Property(property="name", type="string", example="A Custodian"),
      *                  @OA\Property(property="contact_email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="enabled", type="boolean", example="true"),
      *                  @OA\Property(property="invite_accepted_at", type="string", example="2024-02-04 12:00:00"),
@@ -280,11 +280,11 @@ class IssuerController extends Controller
             $signature = Str::random(40);
             $calculatedHash = Hash::make(
                 $signature.
-                 ':'.env('ISSUER_SALT_1').
-                 ':'.env('ISSUER_SALT_2')
+                 ':'.env('CUSTODIAN_SALT_1').
+                 ':'.env('CUSTODIAN_SALT_2')
             );
 
-            $issuer = Issuer::create([
+            $custodian = Custodian::create([
                 'name' => $input['name'],
                 'unique_identifier' => $signature,
                 'calculated_hash' => $calculatedHash,
@@ -295,7 +295,7 @@ class IssuerController extends Controller
 
             return response()->json([
                 'message' => 'success',
-                'data' => $issuer->id,
+                'data' => $custodian->id,
             ], 201);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -304,33 +304,33 @@ class IssuerController extends Controller
 
     /**
      * @OA\Put(
-     *      path="/api/v1/issuers/{id}",
-     *      summary="Edit an Issuer entry",
-     *      description="Edit a Issuer entry",
-     *      tags={"Issuer"},
-     *      summary="Issuer@update",
+     *      path="/api/v1/custodians/{id}",
+     *      summary="Edit a Custodian entry",
+     *      description="Edit a Custodian entry",
+     *      tags={"Custodian"},
+     *      summary="Custodian@update",
      *      security={{"bearerAuth":{}}},
      *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="Issuer ID",
+     *         description="Custodian ID",
      *         required=true,
      *         example="1",
      *
      *         @OA\Schema(
      *            type="integer",
-     *            description="Issuer ID",
+     *            description="Custodian ID",
      *         ),
      *      ),
      *
      *      @OA\RequestBody(
      *          required=true,
-     *          description="Issuer definition",
+     *          description="Custodian definition",
      *
      *          @OA\JsonContent(
      *
-     *              @OA\Property(property="name", type="string", example="An Issuer"),
+     *              @OA\Property(property="name", type="string", example="A Custodian"),
      *              @OA\Property(property="enabled", type="boolean", example="true")
      *          ),
      *      ),
@@ -356,7 +356,7 @@ class IssuerController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="name", type="string", example="An Issuer"),
+     *                  @OA\Property(property="name", type="string", example="A Custodian"),
      *                  @OA\Property(property="contact_email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="enabled", type="boolean", example="true"),
      *                  @OA\Property(property="invite_accepted_at", type="string", example="2024-02-04 12:00:00"),
@@ -381,23 +381,23 @@ class IssuerController extends Controller
         try {
             $input = $request->all();
 
-            $issuer = Issuer::where('id', $id)->first();
-            $issuer->name = $input['name'];
-            $issuer->contact_email = isset($input['contact_email']) ? $input['contact_email'] : $issuer->contact_email;
-            $issuer->enabled = $input['enabled'];
-            $issuer->idvt_required = isset($input['idvt_required']) ? $input['idvt_required'] : false;
+            $custodian = Custodian::where('id', $id)->first();
+            $custodian->name = $input['name'];
+            $custodian->contact_email = isset($input['contact_email']) ? $input['contact_email'] : $custodian->contact_email;
+            $custodian->enabled = $input['enabled'];
+            $custodian->idvt_required = isset($input['idvt_required']) ? $input['idvt_required'] : false;
 
-            if ($issuer->save()) {
+            if ($custodian->save()) {
                 return response()->json([
                     'message' => 'success',
-                    'data' => $issuer,
+                    'data' => $custodian,
                 ], 200);
             }
 
             return response()->json([
                 'message' => 'failed',
                 'data' => null,
-                'error' => 'unable to save issuer',
+                'error' => 'unable to save custodian',
             ], 400);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -406,33 +406,33 @@ class IssuerController extends Controller
 
     /**
      * @OA\Patch(
-     *      path="/api/v1/issuers/{id}",
-     *      summary="Edit an Issuer entry",
-     *      description="Edit a Issuer entry",
-     *      tags={"Issuer"},
-     *      summary="Issuer@edit",
+     *      path="/api/v1/custodians/{id}",
+     *      summary="Edit a Custodian entry",
+     *      description="Edit a Custodian entry",
+     *      tags={"Custodian"},
+     *      summary="Custodian@edit",
      *      security={{"bearerAuth":{}}},
      *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="Issuer ID",
+     *         description="Custodian ID",
      *         required=true,
      *         example="1",
      *
      *         @OA\Schema(
      *            type="integer",
-     *            description="Issuer ID",
+     *            description="Custodian ID",
      *         ),
      *      ),
      *
      *      @OA\RequestBody(
      *          required=true,
-     *          description="Issuer definition",
+     *          description="Custodian definition",
      *
      *          @OA\JsonContent(
      *
-     *              @OA\Property(property="name", type="string", example="An Issuer"),
+     *              @OA\Property(property="name", type="string", example="A Custodian"),
      *              @OA\Property(property="enabled", type="boolean", example="true")
      *          ),
      *      ),
@@ -458,7 +458,7 @@ class IssuerController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="name", type="string", example="An Issuer"),
+     *                  @OA\Property(property="name", type="string", example="A Custodian"),
      *                  @OA\Property(property="contact_email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="enabled", type="boolean", example="true"),
      *                  @OA\Property(property="invite_accepted_at", type="string", example="2024-02-04 12:00:00"),
@@ -483,23 +483,23 @@ class IssuerController extends Controller
         try {
             $input = $request->all();
 
-            $issuer = Issuer::where('id', $id)->first();
-            $issuer->name = $input['name'];
-            $issuer->contact_email = isset($input['contact_email']) ? $input['contact_email'] : $issuer->contact_email;
-            $issuer->enabled = $input['enabled'];
-            $issuer->idvt_required = isset($input['idvt_required']) ? $input['idvt_required'] : $issuer->idvt_required;
+            $custodian = Custodian::where('id', $id)->first();
+            $custodian->name = $input['name'];
+            $custodian->contact_email = isset($input['contact_email']) ? $input['contact_email'] : $custodian->contact_email;
+            $custodian->enabled = $input['enabled'];
+            $custodian->idvt_required = isset($input['idvt_required']) ? $input['idvt_required'] : $custodian->idvt_required;
 
-            if ($issuer->save()) {
+            if ($custodian->save()) {
                 return response()->json([
                     'message' => 'success',
-                    'data' => $issuer,
+                    'data' => $custodian,
                 ], 200);
             }
 
             return response()->json([
                 'message' => 'failed',
                 'data' => null,
-                'error' => 'unable to save issuer',
+                'error' => 'unable to save custodian',
             ], 400);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -508,23 +508,23 @@ class IssuerController extends Controller
 
     /**
      * @OA\Delete(
-     *      path="/api/v1/issuers/{id}",
-     *      summary="Delete an Issuer entry from the system by ID",
-     *      description="Delete an Issuer entry from the system",
-     *      tags={"Issuer"},
-     *      summary="Issuer@destroy",
+     *      path="/api/v1/custodians/{id}",
+     *      summary="Delete a Custodian entry from the system by ID",
+     *      description="Delete a Custodian entry from the system",
+     *      tags={"Custodian"},
+     *      summary="Custodian@destroy",
      *      security={{"bearerAuth":{}}},
      *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="Issuer entry ID",
+     *         description="Custodian entry ID",
      *         required=true,
      *         example="1",
      *
      *         @OA\Schema(
      *            type="integer",
-     *            description="Issuer entry ID",
+     *            description="Custodian entry ID",
      *         ),
      *      ),
      *
@@ -562,7 +562,7 @@ class IssuerController extends Controller
     public function destroy(Request $request, int $id): JsonResponse
     {
         try {
-            Issuer::where('id', $id)->delete();
+            Custodian::where('id', $id)->delete();
 
             return response()->json([
                 'message' => 'success',
@@ -583,12 +583,12 @@ class IssuerController extends Controller
             $researchersAddedCount = 0;
 
             // Traverse incoming payload and create entities pushed to us
-            $issuerId = $request->header('x-issuer-key');
+            $custodianId = $request->header('x-custodian-key');
             $input = $request->all();
 
-            if (! $issuerId) {
+            if (! $custodianId) {
                 return response()->json([
-                    'message' => 'you must be a trusted issuer and provide your issuer-key within the request headers',
+                    'message' => 'you must be a trusted custodian and provide your custodian-key within the request headers',
                 ], 401);
             }
 
@@ -663,23 +663,23 @@ class IssuerController extends Controller
 
     /**
         * @OA\Get(
-        *      path="/api/v1/issuers/{id}/projects",
-        *      summary="Return an all projects associated with an issuer",
-        *      description="Return an all projects associated with an issuer (i.e. data-custodian)",
-        *      tags={"Issuer"},
-        *      summary="Issuer@getPorjects",
+        *      path="/api/v1/custodian/{id}/projects",
+        *      summary="Return an all projects associated with a Custodian",
+        *      description="Return an all projects associated with a Custodian (i.e. data-custodian)",
+        *      tags={"Custodian"},
+        *      summary="Custodian@getPorjects",
         *      security={{"bearerAuth":{}}},
         *
         *      @OA\Parameter(
         *         name="id",
         *         in="path",
-        *         description="Issuer ID",
+        *         description="Custodian ID",
         *         required=true,
         *         example="1",
         *
         *         @OA\Schema(
         *            type="integer",
-        *            description="Issuer ID",
+        *            description="Custodian ID",
         *         ),
         *      ),
         *
@@ -714,10 +714,10 @@ class IssuerController extends Controller
         *      )
         * )
         */
-    public function getProjects(Request $request, int $issuerId): JsonResponse
+    public function getProjects(Request $request, int $custodianId): JsonResponse
     {
         $projects = Project::with('approvals')
-                    ->where('affiliate_id', $issuerId)
+                    ->where('affiliate_id', $custodianId)
                     ->paginate((int)$this->getSystemConfig('PER_PAGE'));
         if ($projects) {
             return response()->json([

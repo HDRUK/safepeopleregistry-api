@@ -27,10 +27,10 @@ class AssignOrganisationPermissionToFrom extends FormRequest
                 'int',
                 'exists:organisations,id',
             ],
-            'issuer_id' => [
+            'custodian_id' => [
                 'required',
                 'int',
-                'exists:issuers,id',
+                'exists:custodians,id',
             ],
             'permissions.*' => [
                 'required',

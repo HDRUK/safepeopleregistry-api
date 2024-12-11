@@ -45,7 +45,7 @@ class HistoryTest extends TestCase
                 'infringement_id' => 1,
                 'project_id' => 1,
                 'access_key_id' => 1,
-                'issuer_identifier' => '20895720385sodhfsjkdhfksjfh20935209538',
+                'custodian_identifier' => '20895720385sodhfsjkdhfksjfh20935209538',
             ]);
 
         $response->assertStatus(201);
@@ -72,7 +72,7 @@ class HistoryTest extends TestCase
                 'infringement_id' => 1,
                 'project_id' => 1,
                 'access_key_id' => 1,
-                'issuer_identifier' => '20895720385sodhfsjkdhfksjfh20935209538',
+                'custodian_identifier' => '20895720385sodhfsjkdhfksjfh20935209538',
             ]
             );
 

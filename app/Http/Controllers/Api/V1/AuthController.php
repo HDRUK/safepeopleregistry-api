@@ -108,7 +108,7 @@ class AuthController extends Controller
         ], 409); // Send a "CONFLICT" as record likely exists.);
     }
 
-    public function registerIssuer(Request $request): JsonResponse
+    public function registerCustodian(Request $request): JsonResponse
     {
         $input = $request->all();
 
@@ -117,7 +117,7 @@ class AuthController extends Controller
             'first_name' => $input['first_name'],
             'last_name' => $input['last_name'],
             'password' => $input['password'],
-            'is_issuer' => true,
+            'is_custodian' => true,
         ]);
         if ($retVal['success']) {
             $user = User::where('email', $input['email'])->first();

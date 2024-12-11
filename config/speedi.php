@@ -5,7 +5,7 @@ return [
     /*
         Default configuration for SPEEDI-AS API Deployment
     */
-    'issuers' => [
+    'custodians' => [
         [
             'name' => 'SAIL Databank',
             'contact_email' => 'sail@email.com',

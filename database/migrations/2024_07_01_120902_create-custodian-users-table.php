@@ -10,7 +10,7 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        Schema::create('issuer_users', function (Blueprint $table) {
+        Schema::create('custodian_users', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
             $table->string('first_name');
@@ -19,7 +19,7 @@ return new class () extends Migration {
             $table->string('password')->nullable()->default(null);
             $table->string('provider', 255)->nullable()->default('');
             $table->string('keycloak_id', 255)->nullable()->default(null);
-            $table->bigInteger('issuer_id');
+            $table->bigInteger('custodian_id');
         });
     }
 
@@ -28,6 +28,6 @@ return new class () extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('issuer_users');
+        Schema::dropIfExists('custodian_users');
     }
 };

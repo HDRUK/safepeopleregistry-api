@@ -6,12 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\SearchManager;
 
-class Issuer extends Model
+class Custodian extends Model
 {
     use HasFactory;
     use SearchManager;
 
-    protected $table = 'issuers';
+    protected $table = 'custodians';
 
     public $timestamps = true;
 

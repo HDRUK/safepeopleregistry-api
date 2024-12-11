@@ -7,8 +7,8 @@ use Keycloak;
 use Exception;
 use App\Models\ProjectHasUser;
 use App\Models\User;
-use App\Models\UserHasIssuerApproval;
-use App\Models\UserHasIssuerPermission;
+use App\Models\UserHasCustodianApproval;
+use App\Models\UserHasCustodianPermission;
 use App\Http\Requests\Users\CreateUser;
 use App\Exceptions\NotFoundException;
 use Illuminate\Http\JsonResponse;
@@ -646,8 +646,8 @@ class UserController extends Controller
     {
         try {
             User::where('id', $id)->delete();
-            UserHasIssuerPermission::where('user_id', $id)->delete();
-            UserHasIssuerApproval::where('user_id', $id)->delete();
+            UserHasCustodianPermission::where('user_id', $id)->delete();
+            UserHasCustodianApproval::where('user_id', $id)->delete();
 
             return response()->json([
                 'message' => 'success',

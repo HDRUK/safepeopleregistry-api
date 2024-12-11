@@ -10,8 +10,9 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        Schema::table('issuers', function (Blueprint $table) {
-            $table->dateTime('invite_accepted_at')->nullable()->default(null);
+        Schema::create('organisation_has_custodian_approvals', function (Blueprint $table) {
+            $table->integer('organisation_id');
+            $table->integer('custodian_id');
         });
     }
 
@@ -20,8 +21,6 @@ return new class () extends Migration {
      */
     public function down(): void
     {
-        Schema::table('issuers', function (Blueprint $table) {
-            $table->dropIfExists('invite_accepted_at');
-        });
+        Schema::dropIfExists('organisation_has_custodian_approvals');
     }
 };

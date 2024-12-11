@@ -6,9 +6,9 @@ use Hash;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\IssuerUser>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\CustodianUser>
  */
-class IssuerUserFactory extends Factory
+class CustodianUserFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -24,7 +24,7 @@ class IssuerUserFactory extends Factory
             'password' => Hash::make('t3mpP4ssword!'),
             'provider' => '',
             'keycloak_id' => '',
-            'issuer_id' => 1,
+            'custodian_id' => 1,
         ];
     }
 }

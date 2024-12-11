@@ -21,7 +21,7 @@ return new class () extends Migration {
             $table->bigInteger('infringement_id')->nullable();
             $table->bigInteger('project_id')->nullable();
             $table->bigInteger('access_key_id')->nullable();
-            $table->string('issuer_identifier', 255)->nullable();
+            $table->string('custodian_identifier', 255)->nullable();
             $table->text('ledger_hash'); // Not nullable to remain computable
         });
     }

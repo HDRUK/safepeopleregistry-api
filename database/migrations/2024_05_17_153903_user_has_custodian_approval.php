@@ -10,9 +10,9 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        Schema::create('issuer_user_has_permissions', function (Blueprint $table) {
-            $table->bigInteger('issuer_user_id');
-            $table->bigInteger('permission_id');
+        Schema::create('user_has_custodian_approvals', function (Blueprint $table) {
+            $table->integer('user_id');
+            $table->integer('custodian_id');
         });
     }
 
@@ -21,6 +21,6 @@ return new class () extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('issuer_user_has_permissions');
+        Schema::dropIfExists('user_has_custodian_approvals');
     }
 };

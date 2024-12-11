@@ -14,7 +14,7 @@ return new class () extends Migration {
             $table->id();
             $table->timestamps();
             $table->text('comment');
-            $table->bigInteger('issuer_by');
+            $table->bigInteger('custodian_by');
             $table->bigInteger('registry_id'); // user id mapping
             $table->tinyInteger('resolved')->default(0);
         });

@@ -10,10 +10,10 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        Schema::create('organisation_has_issuer_permissions', function (Blueprint $table) {
+        Schema::create('organisation_has_custodian_permissions', function (Blueprint $table) {
             $table->integer('organisation_id');
             $table->integer('permission_id');
-            $table->integer('issuer_id');
+            $table->integer('custodian_id');
         });
     }
 
@@ -22,6 +22,6 @@ return new class () extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('organisation_has_issuer_permissions');
+        Schema::dropIfExists('organisation_has_custodian_permissions');
     }
 };

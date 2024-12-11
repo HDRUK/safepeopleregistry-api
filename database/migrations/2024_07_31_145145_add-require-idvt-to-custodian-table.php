@@ -10,8 +10,8 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        Schema::table('issuers', function (Blueprint $table) {
-            $table->dateTime('invite_sent_at')->nullable()->default(null);
+        Schema::table('custodians', function (Blueprint $table) {
+            $table->tinyInteger('idvt_required')->default(0);
         });
     }
 
@@ -20,8 +20,8 @@ return new class () extends Migration {
      */
     public function down(): void
     {
-        Schema::table('issuers', function (Blueprint $table) {
-            $table->dropIfExists('invite_sent_at');
+        Schema::table('custodians', function (Blueprint $table) {
+            $table->dropColumn('idvt_required');
         });
     }
 };

@@ -67,27 +67,27 @@ class PermissionSeeder extends Seeder
                 'enabled' => 1,
             ],
             [
-                'name' => 'ISSUER_ADMIN',
+                'name' => 'CUSTODIAN_ADMIN',
                 'enabled' => 1,
             ],
             [
-                'name' => 'ISSUER_READ',
+                'name' => 'CUSTODIAN_READ',
                 'enabled' => 1,
             ],
             [
-                'name' => 'ISSUER_UPDATE',
+                'name' => 'CUSTODIAN_UPDATE',
                 'enabled' => 1,
             ],
             [
-                'name' => 'ISSUER_CREATE',
+                'name' => 'CUSTODIAN_CREATE',
                 'enabled' => 1,
             ],
             [
-                'name' => 'ISSUER_KEYCARD_CREATE',
+                'name' => 'CUSTODIAN_KEYCARD_CREATE',
                 'enabled' => 1,
             ],
             [
-                'name' => 'ISSUER_KEYCARD_REVOKE',
+                'name' => 'CUSTODIAN_KEYCARD_REVOKE',
                 'enabled' => 1,
             ],
         ];

@@ -69,15 +69,15 @@ class Organisation extends Model
     {
         return $this->belongsToMany(
             Permission::class,
-            'organisation_has_issuer_permissions',
+            'organisation_has_custodian_permissions',
         );
     }
 
     public function approvals(): BelongsToMany
     {
         return $this->belongsToMany(
-            Issuer::class,
-            'organisation_has_issuer_approvals',
+            Custodian::class,
+            'organisation_has_custodian_approvals',
         );
     }
 

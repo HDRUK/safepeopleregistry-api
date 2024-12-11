@@ -5,17 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class OrganisationHasIssuerPermission extends Model
+class UserHasCustodianPermission extends Model
 {
     use HasFactory;
 
-    protected $table = 'organisation_has_issuer_permissions';
+    protected $table = 'user_has_custodian_permissions';
 
     public $timestamps = false;
 
     protected $fillable = [
-        'organisation_id',
+        'user_id',
         'permission_id',
-        'issuer_id',
+        'custodian_id',
     ];
 }

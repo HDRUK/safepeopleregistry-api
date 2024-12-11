@@ -24,7 +24,7 @@ class HistoryFactory extends Factory
             'infringement_id' => 1,
             'project_id' => 1,
             'access_key_id' => 1,
-            'issuer_identifier' => 'ABC1234DEF-56789-0',
+            'custodian_identifier' => 'ABC1234DEF-56789-0',
             'history_entry_ts' => Carbon::now()->toDateTimeString(),
         ];
 
@@ -36,7 +36,7 @@ class HistoryFactory extends Factory
             'infringement_id' => 1,
             'project_id' => 1,
             'access_key_id' => 1,
-            'issuer_identifier' => 'ABC1234DEF-56789-0',
+            'custodian_identifier' => 'ABC1234DEF-56789-0',
             'ledger_hash' => $ledgerHash,
         ];
     }

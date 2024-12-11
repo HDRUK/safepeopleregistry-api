@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
             SystemConfigSeeder::class,
             IDVTPluginSeeder::class,
             PermissionSeeder::class,
-            IssuerSeeder::class,
+            CustodianSeeder::class,
             OrganisationSeeder::class,
             OrganisationDelegateSeeder::class,
             IdentitySeeder::class,
