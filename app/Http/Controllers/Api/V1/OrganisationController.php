@@ -48,11 +48,16 @@ class OrganisationController extends Controller
      *                  @OA\Property(property="postcode", type="string", example="AB12 3CD"),
      *                  @OA\Property(property="delegate", type="string", example="Prof. First Last"),
      *                  @OA\Property(property="verified", type="boolean", example="true"),
+     *                  @OA\Property(property="sector_id", type="number", example="1"),
      *                  @OA\Property(property="dsptk_ods_code", type="string", example="UY67FO"),
      *                  @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
      *                  @OA\Property(property="ce_certified", type="boolean", example="false"),
      *                  @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
      *                  @OA\Property(property="companies_house_no", type="string", example="12345678")
+     *                  @OA\Property(property="charity_registration_id", type="string", example="12345678"),
+     *                  @OA\Property(property="ror_id", type="string", example="05xs36f43"),
+     *                  @OA\Property(property="website", type="string", example="http://www.hdruk.ac.uk"),
+     *                  @OA\Property(property="smb_status", type="string", example="true"),
      *              )
      *          ),
      *      ),
@@ -135,10 +140,15 @@ class OrganisationController extends Controller
      *                  @OA\Property(property="delegate", type="string", example="Prof. First Last"),
      *                  @OA\Property(property="verified", type="boolean", example="true"),
      *                  @OA\Property(property="dsptk_ods_code", type="string", example="UY67FO"),
+     *                  @OA\Property(property="sector_id", type="number", example="1"),
      *                  @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
      *                  @OA\Property(property="ce_certified", type="boolean", example="false"),
      *                  @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
      *                  @OA\Property(property="companies_house_no", type="string", example="12345678")
+     *                  @OA\Property(property="charity_registration_id", type="string", example="12345678"),
+     *                  @OA\Property(property="ror_id", type="string", example="05xs36f43"),
+     *                  @OA\Property(property="website", type="string", example="http://www.hdruk.ac.uk"),
+     *                  @OA\Property(property="smb_status", type="string", example="true"),
      *              )
      *          ),
      *      ),
@@ -308,6 +318,10 @@ class OrganisationController extends Controller
      *              @OA\Property(property="ce_certified", type="boolean", example="false"),
      *              @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
      *              @OA\Property(property="companies_house_no", type="string", example="12345678")
+     *              @OA\Property(property="charity_registration_id", type="string", example="12345678"),
+     *              @OA\Property(property="ror_id", type="string", example="05xs36f43"),
+     *              @OA\Property(property="website", type="string", example="http://www.hdruk.ac.uk"),
+     *              @OA\Property(property="size", type="string", example="10 to 49"),
      *          ),
      *      ),
      *
@@ -373,6 +387,10 @@ class OrganisationController extends Controller
                 'iso_27001_certification_num' => $input['iso_27001_certification_num'],
                 'ce_certified' => $input['ce_certified'],
                 'ce_certification_num' => $input['ce_certification_num'],
+                'charity_registration_id' => $input['charity_registration_id'],
+                'ror_id' => $input['ror_id'],
+                'website' => $input['website'],
+                'smb_status' => $input['smb_status'],
             ]);
 
             // Run automated IDVT
@@ -430,10 +448,16 @@ class OrganisationController extends Controller
      *              @OA\Property(property="delegate", type="string", example="Prof. First Last"),
      *              @OA\Property(property="verified", type="boolean", example="true"),
      *              @OA\Property(property="dsptk_ods_code", type="string", example="UY67FO"),
+     *              @OA\Property(property="sector_id", type="number", example="1"),
      *              @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
      *              @OA\Property(property="ce_certified", type="boolean", example="false"),
      *              @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
      *              @OA\Property(property="companies_house_no", type="string", example="12345678")
+     *              @OA\Property(property="charity_registration_id", type="string", example="12345678"),
+     *              @OA\Property(property="ror_id", type="string", example="05xs36f43"),
+     *              @OA\Property(property="website", type="string", example="http://www.hdruk.ac.uk"),
+     *              @OA\Property(property="smb_status", type="string", example="true"),
+     * 
      *          ),
      *      ),
      *
@@ -468,10 +492,15 @@ class OrganisationController extends Controller
      *                  @OA\Property(property="delegate", type="string", example="Prof. First Last"),
      *                  @OA\Property(property="verified", type="boolean", example="true"),
      *                  @OA\Property(property="dsptk_ods_code", type="string", example="UY67FO"),
+     *                  @OA\Property(property="sector_id", type="number", example="1"),
      *                  @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
      *                  @OA\Property(property="ce_certified", type="boolean", example="false"),
      *                  @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
      *                  @OA\Property(property="companies_house_no", type="string", example="12345678")
+     *                  @OA\Property(property="charity_registration_id", type="string", example="12345678"),
+     *                  @OA\Property(property="ror_id", type="string", example="05xs36f43"),
+     *                  @OA\Property(property="website", type="string", example="http://www.hdruk.ac.uk"),
+     *                  @OA\Property(property="smb_status", type="string", example="true"),
      *              )
      *          ),
      *      ),
@@ -507,6 +536,11 @@ class OrganisationController extends Controller
                 'sub_license_arrangements' => $input['sub_license_arrangements'],
                 'verified' => $input['verified'],
                 'companies_house_no' => $input['companies_house_no'],
+                'sector_id' => $input['sector_id'],
+                'charity_registration_id' => $input['charity_registration_id'],
+                'ror_id' => $input['ror_id'],
+                'website' => $input['website'],
+                'smb_status' => $input['smb_status'],
             ]);
 
             return response()->json([
@@ -557,12 +591,17 @@ class OrganisationController extends Controller
      *              @OA\Property(property="country", type="string", example="Country"),
      *              @OA\Property(property="postcode", type="string", example="AB12 3CD"),
      *              @OA\Property(property="delegate", type="string", example="Prof. First Last"),
+     *              @OA\Property(property="sector_id", type="number", example="1"),
      *              @OA\Property(property="verified", type="boolean", example="true"),
      *              @OA\Property(property="dsptk_ods_code", type="string", example="UY67FO"),
      *              @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
      *              @OA\Property(property="ce_certified", type="boolean", example="false"),
      *              @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
      *              @OA\Property(property="companies_house_no", type="string", example="12345678")
+     *              @OA\Property(property="charity_registration_id", type="string", example="12345678"),
+     *              @OA\Property(property="ror_id", type="string", example="05xs36f43"),
+     *              @OA\Property(property="website", type="string", example="http://www.hdruk.ac.uk"),
+     *              @OA\Property(property="smb_status", type="string", example="true"),
      *          ),
      *      ),
      *
@@ -596,11 +635,16 @@ class OrganisationController extends Controller
      *                  @OA\Property(property="postcode", type="string", example="AB12 3CD"),
      *                  @OA\Property(property="delegate", type="string", example="Prof. First Last"),
      *                  @OA\Property(property="verified", type="boolean", example="true"),
+     *                  @OA\Property(property="sector_id", type="number", example="1"),
      *                  @OA\Property(property="dsptk_ods_code", type="string", example="UY67FO"),
      *                  @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
      *                  @OA\Property(property="ce_certified", type="boolean", example="false"),
      *                  @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
      *                  @OA\Property(property="companies_house_no", type="string", example="12345678")
+     *                  @OA\Property(property="charity_registration_id", type="string", example="12345678"),
+     *                  @OA\Property(property="ror_id", type="string", example="05xs36f43"),
+     *                  @OA\Property(property="website", type="string", example="http://www.hdruk.ac.uk"),
+     *                  @OA\Property(property="smb_status", type="string", example="true"),
      *              )
      *          ),
      *      ),
@@ -636,6 +680,11 @@ class OrganisationController extends Controller
                 'sub_license_arrangements' => $input['sub_license_arrangements'],
                 'verified' => $input['verified'],
                 'companies_house_no' => $input['companies_house_no'],
+                'sector_id' => $input['sector_id'],
+                'charity_registration_id' => $input['charity_registration_id'],
+                'ror_id' => $input['ror_id'],
+                'website' => $input['website'],
+                'smb_status' => $input['smb_status'],
             ]);
 
             return response()->json([

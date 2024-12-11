@@ -44,6 +44,15 @@ class Organisation extends Model
         'idvt_completed_at',
         'companies_house_no',
         'sector_id',
+        'idvt_result_perc',
+        'idvt_errors',
+        'idvt_completed_at',
+        'companies_house_no',
+        'sector_id',
+        'charity_registration_id',
+        'ror_id',
+        'website',
+        'smb_status',
     ];
 
     protected $casts = [
