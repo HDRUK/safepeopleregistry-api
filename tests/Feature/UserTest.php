@@ -5,12 +5,12 @@ namespace Tests\Feature;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\User;
 use App\Models\Registry;
-use App\Models\Issuer;
+use App\Models\Custodian;
 use App\Models\Project;
 use App\Models\ProjectHasCustodianApproval;
 use App\Models\ProjectHasUser;
 use Database\Seeders\EmailTemplatesSeeder;
-use Database\Seeders\IssuerSeeder;
+use Database\Seeders\CustodianSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\BaseDemoSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -33,7 +33,7 @@ class UserTest extends TestCase
         parent::setUp();
         $this->seed([
             PermissionSeeder::class,
-            IssuerSeeder::class,
+            CustodianSeeder::class,
             EmailTemplatesSeeder::class,
             BaseDemoSeeder::class,
         ]);
@@ -216,6 +216,7 @@ class UserTest extends TestCase
                     'registry',
                     'pending_invites',
                     'organisation_id',
+                    'departments',
                 ],
             ],
         ]);
@@ -388,7 +389,7 @@ class UserTest extends TestCase
 
         $project = Project::first();
         $projectId = $project->id;
-        $orgId = Issuer::first()->id;
+        $orgId = Custodian::first()->id;
 
         ProjectHasUser::create(['project_id' => $projectId, 'user_digital_ident' => $digi_ident, 'project_role_id' => 1]);
 
@@ -402,7 +403,7 @@ class UserTest extends TestCase
         $this->assertArrayHasKey('data', $response);
         $this->assertEmpty($response['data']);
 
-        ProjectHasCustodianApproval::create(['project_id' => $projectId,'issuer_id' => $orgId]);
+        ProjectHasCustodianApproval::create(['project_id' => $projectId,'custodian_id' => $orgId]);
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
             'GET',

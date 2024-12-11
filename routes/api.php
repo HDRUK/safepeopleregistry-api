@@ -9,8 +9,8 @@ use App\Http\Controllers\Api\V1\FileUploadController;
 use App\Http\Controllers\Api\V1\HistoryController;
 use App\Http\Controllers\Api\V1\IdentityController;
 use App\Http\Controllers\Api\V1\InfringementController;
-use App\Http\Controllers\Api\V1\IssuerController;
-use App\Http\Controllers\Api\V1\IssuerUserController;
+use App\Http\Controllers\Api\V1\CustodianController;
+use App\Http\Controllers\Api\V1\CustodianUserController;
 use App\Http\Controllers\Api\V1\ONSSubmissionController;
 use App\Http\Controllers\Api\V1\OrganisationController;
 use App\Http\Controllers\Api\V1\PermissionController;
@@ -39,13 +39,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Route::post('auth/login', [AuthController::class, 'login']);
-// Route::post('auth/register/researcher', [AuthController::class, 'registerUser']);
-// Route::post('auth/register/issuer', [AuthController::class, 'registerIssuer']);
-// Route::post('auth/register/organisation', [AuthController::class, 'registerOrganisation']);
-// Route::post('auth/logout', [AuthController::class, 'logout']);
-// Route::get('auth/me', [AuthController::class, 'me']);
-
 Route::post('v1/query', [QueryController::class, 'query']);
 
 Route::middleware('auth:api')->get('/secure-test', [UserController::class, 'index']);
@@ -72,22 +65,22 @@ Route::middleware('api')->put('v1/training/{id}', [TrainingController::class, 'u
 Route::middleware('api')->patch('v1/training/{id}', [TrainingController::class, 'edit']);
 Route::middleware('api')->delete('v1/training/{id}', [TrainingController::class, 'destroy']);
 
-Route::middleware('api')->get('v1/issuers', [IssuerController::class, 'index']);
-Route::middleware('api')->get('v1/issuers/{id}', [IssuerController::class, 'show']);
-Route::middleware('api')->get('v1/issuers/identifier/{id}', [IssuerController::class, 'showByUniqueIdentifier']);
-Route::middleware('api')->post('v1/issuers', [IssuerController::class, 'store']);
-Route::middleware('api')->put('v1/issuers/{id}', [IssuerController::class, 'update']);
-Route::middleware('api')->patch('v1/issuers/{id}', [IssuerController::class, 'edit']);
-Route::middleware('api')->delete('v1/issuers/{id}', [IssuerController::class, 'destroy']);
-Route::middleware('api')->get('v1/issuers/{id}/projects', [IssuerController::class, 'getProjects']);
-Route::middleware(['api', 'check.issuer.access'])->post('v1/issuers/push', [IssuerController::class, 'push']);
+Route::middleware('api')->get('v1/custodians', [CustodianController::class, 'index']);
+Route::middleware('api')->get('v1/custodians/{id}', [CustodianController::class, 'show']);
+Route::middleware('api')->get('v1/custodians/identifier/{id}', [CustodianController::class, 'showByUniqueIdentifier']);
+Route::middleware('api')->post('v1/custodians', [CustodianController::class, 'store']);
+Route::middleware('api')->put('v1/custodians/{id}', [CustodianController::class, 'update']);
+Route::middleware('api')->patch('v1/custodians/{id}', [CustodianController::class, 'edit']);
+Route::middleware('api')->delete('v1/custodians/{id}', [CustodianController::class, 'destroy']);
+Route::middleware('api')->get('v1/custodians/{id}/projects', [CustodianController::class, 'getProjects']);
+Route::middleware(['api', 'check.custodian.access'])->post('v1/custodians/push', [CustodianController::class, 'push']);
 
-Route::middleware('api')->get('v1/issuer_users', [IssuerUserController::class, 'index']);
-Route::middleware('api')->get('v1/issuer_users/{id}', [IssuerUserController::class, 'show']);
-Route::middleware('api')->post('v1/issuer_users', [IssuerUserController::class, 'store']);
-Route::middleware('api')->put('v1/issuer_users/{id}', [IssuerUserController::class, 'update']);
-Route::middleware('api')->patch('v1/issuer_users/{id}', [IssuerUserController::class, 'edit']);
-Route::middleware('api')->delete('v1/issuer_users/{id}', [IssuerUserController::class, 'destroy']);
+Route::middleware('api')->get('v1/custodian_users', [CustodianUserController::class, 'index']);
+Route::middleware('api')->get('v1/custodian_users/{id}', [CustodianUserController::class, 'show']);
+Route::middleware('api')->post('v1/custodian_users', [CustodianUserController::class, 'store']);
+Route::middleware('api')->put('v1/custodian_users/{id}', [CustodianUserController::class, 'update']);
+Route::middleware('api')->patch('v1/custodian_users/{id}', [CustodianUserController::class, 'edit']);
+Route::middleware('api')->delete('v1/custodian_users/{id}', [CustodianUserController::class, 'destroy']);
 
 Route::middleware('api')->get('v1/endorsements', [EndorsementController::class, 'index']);
 Route::middleware('api')->get('v1/endorsements/{id}', [EndorsementController::class, 'show']);
@@ -125,7 +118,8 @@ Route::middleware('api')->delete('v1/identities/{id}', [IdentityController::clas
 Route::middleware('api')->get('v1/organisations', [OrganisationController::class, 'index']);
 Route::middleware('api')->get('v1/organisations/{id}', [OrganisationController::class, 'show']);
 Route::middleware('api')->get('v1/organisations/{id}/idvt', [OrganisationController::class, 'idvt']);
-Route::middleware('api')->get('v1/organisations/{id}/certifications', [OrganisationController::class, 'certifications']);
+Route::middleware('api')->get('v1/organisations/{id}/counts/certifications', [OrganisationController::class, 'countCertifications']);
+Route::middleware('api')->get('v1/organisations/{id}/counts/users', [OrganisationController::class, 'countUsers']);
 Route::middleware('api')->post('v1/organisations', [OrganisationController::class, 'store']);
 Route::middleware('api')->put('v1/organisations/{id}', [OrganisationController::class, 'update']);
 Route::middleware('api')->patch('v1/organisations/{id}', [OrganisationController::class, 'edit']);
@@ -184,7 +178,7 @@ Route::middleware('api')->post('v1/trigger_email', [TriggerEmailController::clas
 Route::middleware('api')->post('v1/files', [FileUploadController::class, 'store']);
 
 Route::middleware('api')->post('v1/approvals/{entity_type}', [ApprovalController::class, 'store']);
-Route::middleware('api')->delete('v1/approvals/{entity_type}/{id}/issuer/{issuer_id}', [ApprovalController::class, 'delete']);
+Route::middleware('api')->delete('v1/approvals/{entity_type}/{id}/custodian/{custodian_id}', [ApprovalController::class, 'delete']);
 
 Route::get('v1/system_config', [SystemConfigController::class, 'index']);
 Route::post('v1/system_config', [SystemConfigController::class, 'store']);

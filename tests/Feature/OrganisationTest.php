@@ -8,7 +8,7 @@ use App\Models\User;
 use App\Models\Sector;
 use App\Models\Project;
 use App\Models\ProjectHasOrganisation;
-use Database\Seeders\IssuerSeeder;
+use Database\Seeders\CustodianSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\UserSeeder;
 use Database\Seeders\BaseDemoSeeder;
@@ -34,7 +34,7 @@ class OrganisationTest extends TestCase
         $this->seed([
             UserSeeder::class,
             PermissionSeeder::class,
-            IssuerSeeder::class,
+            CustodianSeeder::class,
             BaseDemoSeeder::class,
         ]);
 
@@ -64,6 +64,10 @@ class OrganisationTest extends TestCase
             'ce_certified' => 1,
             'ce_certification_num' => 'A1234',
             'sector_id' => fake()->randomElement([0, count(Sector::SECTORS)]),
+            'charity_registration_id' => '1186569',
+            'ror_id' => '02wnqcb97',
+            'smb_status' => false,
+            'website' => 'https://www.nhs.uk/',
         ];
     }
 
@@ -185,6 +189,11 @@ class OrganisationTest extends TestCase
                     'permissions',
                     'files',
                     'registries',
+                    'departments',
+                    'charity_registration_id',
+                    'ror_id',
+                    'smb_status',
+                    'website',
                 ],
             ],
         ]);
@@ -239,6 +248,11 @@ class OrganisationTest extends TestCase
                 'permissions',
                 'files',
                 'registries',
+                'departments',
+                'charity_registration_id',
+                'ror_id',
+                'smb_status',
+                'website',
             ],
         ]);
     }
@@ -299,6 +313,10 @@ class OrganisationTest extends TestCase
                     'sub_license_arrangements' => 'N/A',
                     'verified' => true,
                     'companies_house_no' => '10887014',
+                    'charity_registration_id' => '1186569',
+                    'ror_id' => '02wnqcb97',
+                    'smb_status' => false,
+                    'website' => 'https://www.nhs.uk/',
                 ]
             );
 
@@ -353,12 +371,81 @@ class OrganisationTest extends TestCase
         ]);
     }
 
+    public function test_the_application_can_sort_returned_data(): void
+    {
+        $this->testOrg['organisation_name'] = 'ZYX Org';
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                $this->testOrg
+            );
+
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
+
+        $this->testOrg['organisation_name'] = 'ABC Org';
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                $this->testOrg
+            );
+
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '?sort=organisation_name:desc'
+            );
+
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson();
+
+        $this->assertTrue(count($content['data']) > 0);
+        $this->assertTrue($content['data'][0]['organisation_name'] === 'ZYX Org');
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '?sort=organisation_name:asc'
+            );
+
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson();
+
+        $this->assertTrue(count($content['data']) > 0);
+        $this->assertTrue($content['data'][0]['organisation_name'] === 'ABC Org');
+    }
+
     public function test_the_application_can_return_certification_counts_for_organisations(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'GET',
-                self::TEST_URL . '/1/certifications'
+                self::TEST_URL . '/1/counts/certifications'
+            );
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'message',
+            'data',
+        ]);
+
+        $content = $response->decodeResponseJson();
+        $this->assertTrue($content['data'] > 0);
+    }
+
+    public function test_the_application_can_return_affiliated_user_counts_for_organisations(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/counts/users'
             );
 
         $response->assertStatus(200);

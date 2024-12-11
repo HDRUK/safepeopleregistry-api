@@ -3,13 +3,13 @@
 namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
-use App\Models\Issuer;
+use App\Models\Custodian;
 use App\Models\Organisation;
-use App\Models\OrganisationHasIssuerPermission;
+use App\Models\OrganisationHasCustodianPermission;
 use App\Models\Permission;
 use App\Models\User;
-use App\Models\UserHasIssuerPermission;
-use Database\Seeders\IssuerSeeder;
+use App\Models\UserHasCustodianPermission;
+use Database\Seeders\CustodianSeeder;
 use Database\Seeders\OrganisationSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\UserSeeder;
@@ -32,7 +32,7 @@ class PermissionTest extends TestCase
         parent::setUp();
         $this->seed([
             PermissionSeeder::class,
-            IssuerSeeder::class,
+            CustodianSeeder::class,
             OrganisationSeeder::class,
             UserSeeder::class,
         ]);
@@ -44,7 +44,7 @@ class PermissionTest extends TestCase
     {
         $url = str_replace('[[PLACEHOLDER]]', 'users', self::TEST_URL);
 
-        $issuer = Issuer::where('id', 1)->first();
+        $custodian = Custodian::where('id', 1)->first();
 
         $permissions = Permission::all();
         $permToAdd = fake()->randomElement($permissions);
@@ -55,7 +55,7 @@ class PermissionTest extends TestCase
                 $url,
                 [
                 'user_id' => $this->user->id,
-                'issuer_id' => $issuer->id,
+                'custodian_id' => $custodian->id,
                 'permissions' => [
                     $permToAdd->id,
                 ],
@@ -65,9 +65,9 @@ class PermissionTest extends TestCase
         $response->assertStatus(200);
         $this->assertTrue($response->decodeResponseJson()['data']);
 
-        $test = UserHasIssuerPermission::where([
+        $test = UserHasCustodianPermission::where([
             'user_id' => $this->user->id,
-            'issuer_id' => $issuer->id,
+            'custodian_id' => $custodian->id,
             'permission_id' => $permToAdd->id,
         ])->first();
 
@@ -79,7 +79,7 @@ class PermissionTest extends TestCase
         $url = str_replace('[[PLACEHOLDER]]', 'organisations', self::TEST_URL);
 
         $organisation = Organisation::where('id', 1)->first();
-        $issuer = Issuer::where('id', 1)->first();
+        $custodian = Custodian::where('id', 1)->first();
 
         $permissions = Permission::all();
         $permToAdd = fake()->randomElement($permissions);
@@ -90,7 +90,7 @@ class PermissionTest extends TestCase
                 $url,
                 [
                 'organisation_id' => $organisation->id,
-                'issuer_id' => $issuer->id,
+                'custodian_id' => $custodian->id,
                 'permissions' => [
                     $permToAdd->id,
                 ],
@@ -100,9 +100,9 @@ class PermissionTest extends TestCase
         $response->assertStatus(200);
         $this->assertTrue($response->decodeResponseJson()['data']);
 
-        $test = OrganisationHasIssuerPermission::where([
+        $test = OrganisationHasCustodianPermission::where([
             'organisation_id' => $organisation->id,
-            'issuer_id' => $issuer->id,
+            'custodian_id' => $custodian->id,
             'permission_id' => $permToAdd->id,
         ])->first();
 

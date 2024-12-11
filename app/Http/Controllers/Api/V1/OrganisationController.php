@@ -77,18 +77,20 @@ class OrganisationController extends Controller
     {
         $organisations = [];
 
-        $issuerId = $request->get('issuer_id');
-        if (! $issuerId) {
+        $custodianId = $request->get('custodian_id');
+        if (! $custodianId) {
             $organisations = Organisation::searchViaRequest()
-            ->with([
-                'approvals',
-                'permissions',
-                'files',
-                'registries',
-                'registries.user',
-                'registries.user.permissions',
-                'registries.user.approvals',
-            ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
+                ->applySorting()
+                ->with([
+                    'departments',
+                    'approvals',
+                    'permissions',
+                    'files',
+                    'registries',
+                    'registries.user',
+                    'registries.user.permissions',
+                    'registries.user.approvals',
+                ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
         }
 
         return response()->json([
@@ -167,6 +169,7 @@ class OrganisationController extends Controller
     public function show(Request $request, int $id): JsonResponse
     {
         $organisation = Organisation::with([
+            'departments',
             'permissions',
             'approvals',
             'files',
@@ -765,7 +768,7 @@ class OrganisationController extends Controller
     /**
      * No swagger, internal call
      */
-    public function certifications(Request $request, int $id): JsonResponse
+    public function countCertifications(Request $request, int $id): JsonResponse
     {
         try {
             $counts = DB::table('organisations')
@@ -779,6 +782,35 @@ class OrganisationController extends Controller
                 return response()->json([
                     'message' => 'success',
                     'data' => $counts[0]->count,
+                ], 200);
+            }
+
+            return response()->json([
+                'message' => 'success',
+                'data' => 0,
+            ], 200);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    /**
+     * No swagger, internal call
+     */
+    public function countUsers(Request $request, int $id): JsonResponse
+    {
+        try {
+            $count = DB::table('registry_has_organisations')
+                ->select(DB::raw(
+                    'COUNT(registry_id) as `count`'
+                ))
+                ->where('organisation_id', $id)
+                ->get();
+
+            if ($count && count($count) > 0) {
+                return response()->json([
+                    'message' => 'success',
+                    'data' => $count[0]->count,
                 ], 200);
             }
 

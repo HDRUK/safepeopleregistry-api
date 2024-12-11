@@ -6,31 +6,25 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\SearchManager;
 
-class Training extends Model
+class Department extends Model
 {
     use HasFactory;
     use SearchManager;
 
+    public $table = 'departments';
+
     public $timestamps = true;
 
-    protected $table = 'trainings';
-
     protected $fillable = [
-        'registry_id',
-        'provider',
-        'awarded_at',
-        'expires_at',
-        'expires_in_years',
-        'training_name',
+        'name',
+        'organisation_id',
     ];
 
     protected static array $searchableColumns = [
-        'provider',
-        'training_name',
+        'name',
     ];
 
     protected static array $sortableColumns = [
-        'provider',
-        'training_name',
+        'name',
     ];
 }

@@ -46,7 +46,7 @@ class HistoryController extends Controller
      *                  @OA\Property(property="infringement_id", type="integer", example="12"),
      *                  @OA\Property(property="project_id", type="integer", example="2"),
      *                  @OA\Property(property="access_key_id", type="integer", example="2"),
-     *                  @OA\Property(property="issuer_identifier", type="string", example="ABCD1234FGHI56789")
+     *                  @OA\Property(property="custodian_identifier", type="string", example="ABCD1234FGHI56789")
      *              )
      *          ),
      *      ),
@@ -110,7 +110,7 @@ class HistoryController extends Controller
      *                  @OA\Property(property="infringement_id", type="integer", example="12"),
      *                  @OA\Property(property="project_id", type="integer", example="2"),
      *                  @OA\Property(property="access_key_id", type="integer", example="2"),
-     *                  @OA\Property(property="issuer_identifier", type="string", example="ABCD1234FGHI56789")
+     *                  @OA\Property(property="custodian_identifier", type="string", example="ABCD1234FGHI56789")
      *              )
      *          ),
      *      ),
@@ -159,7 +159,7 @@ class HistoryController extends Controller
      *              @OA\Property(property="infringement_id", type="integer", example="12"),
      *              @OA\Property(property="project_id", type="integer", example="2"),
      *              @OA\Property(property="access_key_id", type="integer", example="2"),
-     *              @OA\Property(property="issuer_identifier", type="string", example="ABCD1234FGHI56789")
+     *              @OA\Property(property="custodian_identifier", type="string", example="ABCD1234FGHI56789")
      *          ),
      *      ),
      *
@@ -189,7 +189,7 @@ class HistoryController extends Controller
      *                  @OA\Property(property="infringement_id", type="integer", example="12"),
      *                  @OA\Property(property="project_id", type="integer", example="2"),
      *                  @OA\Property(property="access_key_id", type="integer", example="2"),
-     *                  @OA\Property(property="issuer_identifier", type="string", example="ABCD1234FGHI56789")
+     *                  @OA\Property(property="custodian_identifier", type="string", example="ABCD1234FGHI56789")
      *              )
      *          ),
      *      ),
@@ -216,7 +216,7 @@ class HistoryController extends Controller
                 'infringement_id' => $input['infringement_id'],
                 'project_id' => $input['project_id'],
                 'access_key_id' => $input['access_key_id'],
-                'issuer_identifier' => $input['issuer_identifier'],
+                'custodian_identifier' => $input['custodian_identifier'],
                 'history_entry_ts' => Carbon::now()->toDateTimeString(),
             ];
 
@@ -228,7 +228,7 @@ class HistoryController extends Controller
                 'infringement_id' => $input['infringement_id'],
                 'project_id' => $input['project_id'],
                 'access_key_id' => $input['access_key_id'],
-                'issuer_identifier' => $input['issuer_identifier'],
+                'custodian_identifier' => $input['custodian_identifier'],
                 'ledger_hash' => $ledgerHash,
             ]);
 

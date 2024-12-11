@@ -13,9 +13,7 @@ class ProjectSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         Project::truncate();
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         Project::factory(5)->create();
     }

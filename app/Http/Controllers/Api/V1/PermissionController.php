@@ -6,12 +6,12 @@ use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AssignOrganisationPermissionToFrom;
 use App\Http\Requests\AssignUserPermissionToFrom;
-use App\Models\Issuer;
+use App\Models\Custodian;
 use App\Models\Organisation;
-use App\Models\OrganisationHasIssuerPermission;
+use App\Models\OrganisationHasCustodianPermission;
 use App\Models\Permission;
 use App\Models\User;
-use App\Models\UserHasIssuerPermission;
+use App\Models\UserHasCustodianPermission;
 use App\Traits\CommonFunctions;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -445,20 +445,20 @@ class PermissionController extends Controller
             $input = $request->all();
 
             $organisation = Organisation::where('id', $input['organisation_id'])->first();
-            $issuer = Issuer::where('id', $input['issuer_id'])->first();
+            $custodian = Custodian::where('id', $input['custodian_id'])->first();
             $permissions = Permission::whereIn('id', $input['permissions'])->get();
 
-            if (! $organisation || ! $issuer) {
+            if (! $organisation || ! $custodian) {
                 return response()->json([
-                    'message' => 'missing organisation_id or issuer_id',
+                    'message' => 'missing organisation_id or custodian_id',
                     'data' => null,
                 ], 400);
             }
 
             foreach ($permissions as $p) {
-                OrganisationHasIssuerPermission::create([
+                OrganisationHasCustodianPermission::create([
                     'organisation_id' => $organisation->id,
-                    'issuer_id' => $issuer->id,
+                    'custodian_id' => $custodian->id,
                     'permission_id' => $p->id,
                 ]);
             }
@@ -479,20 +479,20 @@ class PermissionController extends Controller
             $input = $request->all();
 
             $user = User::where('id', $input['user_id'])->first();
-            $issuer = Issuer::where('id', $input['issuer_id'])->first();
+            $custodian = Custodian::where('id', $input['custodian_id'])->first();
             $permissions = Permission::whereIn('id', $input['permissions'])->get();
 
-            if (! $user || ! $issuer) {
+            if (! $user || ! $custodian) {
                 return response()->json([
-                    'message' => 'missing user_id or issuer_id',
+                    'message' => 'missing user_id or custodian_id',
                     'data' => null,
                 ], 400);
             }
 
             foreach ($permissions as $p) {
-                UserHasIssuerPermission::create([
+                UserHasCustodianPermission::create([
                     'user_id' => $user->id,
-                    'issuer_id' => $issuer->id,
+                    'custodian_id' => $custodian->id,
                     'permission_id' => $p->id,
                 ]);
             }

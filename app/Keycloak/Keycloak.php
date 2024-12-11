@@ -7,7 +7,7 @@ use Hash;
 use Exception;
 use App\Models\User;
 use App\Models\Registry;
-use App\Models\IssuerUser;
+use App\Models\CustodianUser;
 use App\Models\RegistryHasOrganisation;
 use Illuminate\Support\Str;
 
@@ -27,7 +27,7 @@ class Keycloak
     {
         try {
             $isResearcher = isset($credentials['is_researcher']) ? true : false;
-            $isIssuer = isset($credentials['is_issuer']) ? true : false;
+            $isCustodian = isset($credentials['is_custodian']) ? true : false;
             $isOrganisation = isset($credentials['is_organisation']) ? true : false;
 
             $payload = [
@@ -51,7 +51,7 @@ class Keycloak
             ];
 
             ($isResearcher) ? $payload['groups'][] = '/Researchers' : null;
-            ($isIssuer) ? $payload['groups'][] = '/Issuers' : null;
+            ($isCustodian) ? $payload['groups'][] = '/Custodians' : null;
             ($isOrganisation) ? $payload['groups'][] = '/Organisations' : null;
             $userGroup = $this->determineUserGroup($credentials);
 
@@ -83,15 +83,15 @@ class Keycloak
                         'keycloak_id' => $newUserId,
                         'user_group' => $userGroup,
                     ]);
-                } elseif ($isIssuer) {
-                    $user = IssuerUser::create([
+                } elseif ($isCustodian) {
+                    $user = CustodianUser::create([
                         'first_name' => $credentials['first_name'],
                         'last_name' => $credentials['last_name'],
                         'email' => $credentials['email'],
                         'provider' => 'keycloak',
                         'provider_sub' => '',
                         'keycloak_id' => $newUserId,
-                        'issuer_id' => $credentials['issuer_id'],
+                        'custodian_id' => $credentials['custodian_id'],
                     ]);
                 }
 
@@ -278,8 +278,8 @@ class Keycloak
             return 'RESEARCHERS';
         }
 
-        if (isset($input['is_issuer']) && $input['is_issuer']) {
-            return 'ISSUERS';
+        if (isset($input['is_custodian']) && $input['is_custodian']) {
+            return 'CUSTODIANS';
         }
 
         if (isset($input['is_organisation']) && $input['is_organisation']) {

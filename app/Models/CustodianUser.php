@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class IssuerUser extends Model
+class CustodianUser extends Model
 {
     use HasFactory;
 
-    public $table = 'issuer_users';
+    public $table = 'custodian_users';
 
     public $timestamps = true;
 
@@ -20,7 +20,7 @@ class IssuerUser extends Model
         'password',
         'provider',
         'keycloak_id',
-        'issuer_id',
+        'custodian_id',
     ];
 
     protected $hidden = [

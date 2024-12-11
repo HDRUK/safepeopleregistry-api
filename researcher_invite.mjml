@@ -41,13 +41,13 @@
           <mj-wrapper border="none" direction="ltr" text-align="center" padding="20px 0px 20px 0px" >
           <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
           <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" ><mj-text align="left" padding="10px 25px 10px 25px" >
-          [[issuers.name]]<br><br>You've been invited to sign-up as a trusted Issuer, for the Researcher Registry (SPEEDI-AS) system. To begin your sign-up process, please 
+          [[custodians.name]]<br><br>You've been invited to sign-up as a trusted Data Custodian, for the SOURSD system. To begin your sign-up process, please 
           click the button below.<div><br></div><div>Please note, that this invitation is only valid for [[env(INVITE_TIME_HOURS)]] hour(s), after which, the below 
           link will no longer work. Why? This is to maintain the integrity of the system. If you don't happen to get to this email in time, worry not! You can request 
           another invite by emailing [[env(SUPPORT_EMAIL)]], and we'll issue another.<br><br>Thanks!<br>SPEEDI-AS Team.<br><div><br></div><div><br></div></div></mj-text>
           </mj-column></mj-section>
           <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
           <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
-          <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="http://localhost:3000/issuer/invited/[[issuers.unique_identifier]]" padding="10px 25px 10px 25px" >
+          <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="http://localhost:3000/custodian/invited/[[custodians.unique_identifier]]" padding="10px 25px 10px 25px" >
           Sign me up!
           </mj-button></mj-column></mj-section></mj-wrapper></mj-body></mjml >

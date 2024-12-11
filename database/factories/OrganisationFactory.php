@@ -39,6 +39,10 @@ class OrganisationFactory extends Factory
             'companies_house_no' => '10887014',
             'iso_27001_certification_num' => Str::random(12),
             'sector_id' => fake()->randomElement([0, count(Sector::SECTORS)]),
+            'charity_registration_id' => '1186569',
+            'ror_id' => '02wnqcb97',
+            'smb_status' => false,
+            'website' => 'https://www.nhs.uk/',
         ];
     }
 }

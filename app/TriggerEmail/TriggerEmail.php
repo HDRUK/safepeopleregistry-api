@@ -3,7 +3,7 @@
 namespace App\TriggerEmail;
 
 use App\Jobs\SendEmailJob;
-use App\Models\Issuer;
+use App\Models\Custodian;
 use App\Models\Organisation;
 use App\Models\OrganisationDelegate;
 use App\Models\PendingInvite;
@@ -74,22 +74,22 @@ class TriggerEmail
                     'status' => config('speedi.invite_status.PENDING'),
                 ]);
                 break;
-            case 'ISSUER':
-                $issuer = Issuer::where('id', $to)->first();
-                if ($issuer->invite_accepted_at === null) {
+            case 'CUSTODIAN':
+                $custodian = Custodian::where('id', $to)->first();
+                if ($custodian->invite_accepted_at === null) {
                     $template = EmailTemplate::where('identifier', $identifier)->first();
 
                     $newRecipients = [
-                        'id' => $issuer->id,
-                        'email' => $issuer->contact_email,
+                        'id' => $custodian->id,
+                        'email' => $custodian->contact_email,
                     ];
 
-                    $issuer->invite_sent_at = Carbon::now();
-                    $issuer->save();
+                    $custodian->invite_sent_at = Carbon::now();
+                    $custodian->save();
 
                     $ivitedBy = [];
                 } else {
-                    throw new Exception('issuer '.$issuer->id.' already accepted invite at '.$issuer->invite_accepted_at);
+                    throw new Exception('custodian '.$custodian->id.' already accepted invite at '.$custodian->invite_accepted_at);
                 }
                 break;
             case 'ORGANISATION':

@@ -5,15 +5,15 @@ namespace Database\Seeders;
 use Hash;
 use Carbon\Carbon;
 use App\Models\File;
-use App\Models\Issuer;
+use App\Models\Custodian;
 use App\Models\Permission;
 use App\Models\Registry;
 use App\Models\RegistryHasFile;
 use App\Models\User;
 use App\Models\Accreditation;
 use App\Models\RegistryHasAccreditation;
-use App\Models\UserHasIssuerApproval;
-use App\Models\UserHasIssuerPermission;
+use App\Models\UserHasCustodianApproval;
+use App\Models\UserHasCustodianPermission;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -25,8 +25,8 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         User::truncate();
-        UserHasIssuerApproval::truncate();
-        UserHasIssuerPermission::truncate();
+        UserHasCustodianApproval::truncate();
+        UserHasCustodianPermission::truncate();
 
         $signature = Str::random(64);
         $digiIdent = Hash::make(
@@ -67,20 +67,20 @@ class UserSeeder extends Seeder
         ]);
 
         $perms = Permission::all();
-        $issuers = Issuer::all();
+        $custodians = Custodian::all();
 
-        foreach ($issuers as $i) {
+        foreach ($custodians as $i) {
             foreach ($perms as $p) {
-                UserHasIssuerPermission::create([
+                UserHasCustodianPermission::create([
                     'user_id' => $user->id,
-                    'issuer_id' => $i->id,
+                    'custodian_id' => $i->id,
                     'permission_id' => $p->id,
                 ]);
             }
 
-            UserHasIssuerApproval::create([
+            UserHasCustodianApproval::create([
                 'user_id' => $user->id,
-                'issuer_id' => $i->id,
+                'custodian_id' => $i->id,
             ]);
         }
 

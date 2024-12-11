@@ -100,7 +100,7 @@ class QueryController extends Controller
      *                                  @OA\Property(property="infringement_id", type="integer", example="456"),
      *                                  @OA\Property(property="project_id", type="integer", example="1"),
      *                                  @OA\Property(property="access_key_id", type="integer", example="876"),
-     *                                  @OA\Property(property="issuer_identifier", type="string", example="ABC1234DEF-56789-0")
+     *                                  @OA\Property(property="custodian_identifier", type="string", example="ABC1234DEF-56789-0")
      *                              )
      *                          ),
      *                          @OA\Property(property="training", type="array",

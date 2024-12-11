@@ -10,8 +10,10 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        Schema::table('issuers', function (Blueprint $table) {
-            $table->tinyInteger('idvt_required')->default(0);
+        Schema::create('user_has_custodian_permissions', function (Blueprint $table) {
+            $table->integer('user_id');
+            $table->integer('permission_id');
+            $table->integer('custodian_id');
         });
     }
 
@@ -20,8 +22,6 @@ return new class () extends Migration {
      */
     public function down(): void
     {
-        Schema::table('issuers', function (Blueprint $table) {
-            $table->dropColumn('idvt_required');
-        });
+        Schema::dropIfExists('user_has_custodian_permissions');
     }
 };

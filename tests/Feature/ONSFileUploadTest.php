@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\User;
 use Database\Seeders\UserSeeder;
-use Database\Seeders\IssuerSeeder;
+use Database\Seeders\CustodianSeeder;
 use Database\Seeders\OrganisationSeeder;
 use Database\Seeders\PermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -29,7 +29,7 @@ class ONSFileUploadTest extends TestCase
         $this->seed([
             UserSeeder::class,
             PermissionSeeder::class,
-            IssuerSeeder::class,
+            CustodianSeeder::class,
             OrganisationSeeder::class,
         ]);
 
