@@ -411,7 +411,25 @@ class OrganisationTest extends TestCase
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'GET',
-                self::TEST_URL . '/1/certifications'
+                self::TEST_URL . '/1/counts/certifications'
+            );
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'message',
+            'data',
+        ]);
+
+        $content = $response->decodeResponseJson();
+        $this->assertTrue($content['data'] > 0);
+    }
+
+    public function test_the_application_can_return_affiliated_user_counts_for_organisations(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/counts/users'
             );
 
         $response->assertStatus(200);

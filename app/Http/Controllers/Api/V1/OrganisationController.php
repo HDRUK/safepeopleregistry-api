@@ -719,7 +719,7 @@ class OrganisationController extends Controller
     /**
      * No swagger, internal call
      */
-    public function certifications(Request $request, int $id): JsonResponse
+    public function countCertifications(Request $request, int $id): JsonResponse
     {
         try {
             $counts = DB::table('organisations')
@@ -733,6 +733,35 @@ class OrganisationController extends Controller
                 return response()->json([
                     'message' => 'success',
                     'data' => $counts[0]->count,
+                ], 200);
+            }
+
+            return response()->json([
+                'message' => 'success',
+                'data' => 0,
+            ], 200);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    /**
+     * No swagger, internal call
+     */
+    public function countUsers(Request $request, int $id): JsonResponse
+    {
+        try {
+            $count = DB::table('registry_has_organisations')
+                ->select(DB::raw(
+                    'COUNT(registry_id) as `count`'
+                ))
+                ->where('organisation_id', $id)
+                ->get();
+
+            if ($count && count($count) > 0) {
+                return response()->json([
+                    'message' => 'success',
+                    'data' => $count[0]->count,
                 ], 200);
             }
 
