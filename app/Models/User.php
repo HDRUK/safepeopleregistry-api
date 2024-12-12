@@ -42,13 +42,13 @@ class User extends Authenticatable
         'is_org_admin',
     ];
 
-    protected static array $sortableColumns = [
+    protected static array $searchableColumns = [
         'first_name',
         'last_name',
         'email',
     ];
 
-    protected static array $searchableColumns = [
+    protected static array $sortableColumns = [
         'first_name',
         'last_name',
         'email',

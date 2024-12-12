@@ -27,7 +27,6 @@ trait SearchManager
                 }
             }
         });
-
     }
 
     public function scopeApplySorting($query): mixed
