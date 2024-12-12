@@ -70,6 +70,10 @@ class BaseDemoSeeder extends Seeder
             'ce_certified' => true,
             'companies_house_no' => '09349495',
             'sector_id' => 5, // Charity/Non-profit
+            'charity_registration_id' => '1186569',
+            'ror_id' => '02wnqcb97',
+            'smb_status' => true,
+            'website' => 'https://www.website1.com/',
         ]);
 
         foreach ($departments as $d) {
@@ -149,6 +153,10 @@ National Public Health Ethics Committee for authorization to analyze population 
             'ce_certified' => false,
             'companies_house_no' => '15765271',
             'sector_id' => 4, // Public
+            'charity_registration_id' => '1186569',
+            'ror_id' => '02wnqcb97',
+            'smb_status' => true,
+            'website' => 'https://www.website2.com/',
         ]);
 
         foreach ($departments as $d) {
@@ -212,6 +220,10 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'ce_certified' => true,
             'companies_house_no' => '07563555',
             'sector_id' => 6, // Private/Industry
+            'charity_registration_id' => null,
+            'ror_id' => null,
+            'smb_status' => null,
+            'website' => null,
         ]);
 
         Department::create([

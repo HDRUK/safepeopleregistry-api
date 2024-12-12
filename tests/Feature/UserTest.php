@@ -195,29 +195,32 @@ class UserTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'current_page',
+            'message',
             'data' => [
-                0 => [
-                    'id',
-                    'created_at',
-                    'updated_at',
-                    'first_name',
-                    'last_name',
-                    'email',
-                    'registry_id',
-                    'user_group',
-                    'consent_scrape',
-                    'profile_steps_completed',
-                    'profile_completed_at',
-                    'orc_id',
-                    'unclaimed',
-                    'feed_source',
-                    'permissions',
-                    'registry',
-                    'pending_invites',
-                    'organisation_id',
-                    'departments',
-                ],
+                'current_page',
+                'data' => [
+                    '*' => [
+                        'id',
+                        'created_at',
+                        'updated_at',
+                        'first_name',
+                        'last_name',
+                        'email',
+                        'registry_id',
+                        'user_group',
+                        'consent_scrape',
+                        'profile_steps_completed',
+                        'profile_completed_at',
+                        'orc_id',
+                        'unclaimed',
+                        'feed_source',
+                        'permissions',
+                        'registry',
+                        'pending_invites',
+                        'organisation_id',
+                        'departments',
+                    ],
+                ]
             ],
         ]);
 

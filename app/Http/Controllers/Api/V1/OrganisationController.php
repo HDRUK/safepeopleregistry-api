@@ -53,7 +53,7 @@ class OrganisationController extends Controller
      *                  @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
      *                  @OA\Property(property="ce_certified", type="boolean", example="false"),
      *                  @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
-     *                  @OA\Property(property="companies_house_no", type="string", example="12345678")
+     *                  @OA\Property(property="companies_house_no", type="string", example="12345678"),
      *                  @OA\Property(property="charity_registration_id", type="string", example="12345678"),
      *                  @OA\Property(property="ror_id", type="string", example="05xs36f43"),
      *                  @OA\Property(property="website", type="string", example="http://www.hdruk.ac.uk"),
@@ -146,7 +146,7 @@ class OrganisationController extends Controller
      *                  @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
      *                  @OA\Property(property="ce_certified", type="boolean", example="false"),
      *                  @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
-     *                  @OA\Property(property="companies_house_no", type="string", example="12345678")
+     *                  @OA\Property(property="companies_house_no", type="string", example="12345678"),
      *                  @OA\Property(property="charity_registration_id", type="string", example="12345678"),
      *                  @OA\Property(property="ror_id", type="string", example="05xs36f43"),
      *                  @OA\Property(property="website", type="string", example="http://www.hdruk.ac.uk"),
@@ -320,7 +320,7 @@ class OrganisationController extends Controller
      *              @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
      *              @OA\Property(property="ce_certified", type="boolean", example="false"),
      *              @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
-     *              @OA\Property(property="companies_house_no", type="string", example="12345678")
+     *              @OA\Property(property="companies_house_no", type="string", example="12345678"),
      *              @OA\Property(property="sector_id", type="number", example="1"),
      *              @OA\Property(property="charity_registration_id", type="string", example="12345678"),
      *              @OA\Property(property="ror_id", type="string", example="05xs36f43"),
@@ -456,7 +456,7 @@ class OrganisationController extends Controller
      *              @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
      *              @OA\Property(property="ce_certified", type="boolean", example="false"),
      *              @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
-     *              @OA\Property(property="companies_house_no", type="string", example="12345678")
+     *              @OA\Property(property="companies_house_no", type="string", example="12345678"),
      *              @OA\Property(property="charity_registration_id", type="string", example="12345678"),
      *              @OA\Property(property="ror_id", type="string", example="05xs36f43"),
      *              @OA\Property(property="website", type="string", example="http://www.hdruk.ac.uk"),
@@ -500,7 +500,7 @@ class OrganisationController extends Controller
      *                  @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
      *                  @OA\Property(property="ce_certified", type="boolean", example="false"),
      *                  @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
-     *                  @OA\Property(property="companies_house_no", type="string", example="12345678")
+     *                  @OA\Property(property="companies_house_no", type="string", example="12345678"),
      *                  @OA\Property(property="charity_registration_id", type="string", example="12345678"),
      *                  @OA\Property(property="ror_id", type="string", example="05xs36f43"),
      *                  @OA\Property(property="website", type="string", example="http://www.hdruk.ac.uk"),
@@ -601,7 +601,7 @@ class OrganisationController extends Controller
      *              @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
      *              @OA\Property(property="ce_certified", type="boolean", example="false"),
      *              @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
-     *              @OA\Property(property="companies_house_no", type="string", example="12345678")
+     *              @OA\Property(property="companies_house_no", type="string", example="12345678"),
      *              @OA\Property(property="charity_registration_id", type="string", example="12345678"),
      *              @OA\Property(property="ror_id", type="string", example="05xs36f43"),
      *              @OA\Property(property="website", type="string", example="http://www.hdruk.ac.uk"),
@@ -644,7 +644,7 @@ class OrganisationController extends Controller
      *                  @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
      *                  @OA\Property(property="ce_certified", type="boolean", example="false"),
      *                  @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
-     *                  @OA\Property(property="companies_house_no", type="string", example="12345678")
+     *                  @OA\Property(property="companies_house_no", type="string", example="12345678"),
      *                  @OA\Property(property="charity_registration_id", type="string", example="12345678"),
      *                  @OA\Property(property="ror_id", type="string", example="05xs36f43"),
      *                  @OA\Property(property="website", type="string", example="http://www.hdruk.ac.uk"),

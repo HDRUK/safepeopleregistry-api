@@ -42,7 +42,7 @@ class OrganisationFactory extends Factory
             'charity_registration_id' => '1186569',
             'ror_id' => '02wnqcb97',
             'smb_status' => false,
-            'website' => 'https://www.nhs.uk/',
+            'website' => 'https://www.website.com/',
         ];
     }
 }

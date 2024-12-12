@@ -67,7 +67,7 @@ class OrganisationTest extends TestCase
             'charity_registration_id' => '1186569',
             'ror_id' => '02wnqcb97',
             'smb_status' => false,
-            'website' => 'https://www.nhs.uk/',
+            'website' => 'https://www.website.com/',
         ];
     }
 
@@ -82,8 +82,8 @@ class OrganisationTest extends TestCase
         $response->assertStatus(200);
         $content = $response->decodeResponseJson();
 
-        $this->assertTrue(count($content['data']) === 1);
-        $this->assertTrue($content['data'][0]['organisation_name'] === 'Health Pathways (UK) Limited');
+        $this->assertTrue(count($content['data']['data']) === 1);
+        $this->assertTrue($content['data']['data'][0]['organisation_name'] === 'Health Pathways (UK) Limited');
     }
 
     public function test_the_application_can_list_an_organisations_past_present_and_future_projects(): void
@@ -161,41 +161,45 @@ class OrganisationTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'current_page',
+            'message',
             'data' => [
-                0 => [
-                    'id',
-                    'created_at',
-                    'updated_at',
-                    'organisation_name',
-                    'address_1',
-                    'address_2',
-                    'town',
-                    'county',
-                    'country',
-                    'postcode',
-                    'lead_applicant_organisation_name',
-                    'lead_applicant_email',
-                    'organisation_unique_id',
-                    'applicant_names',
-                    'funders_and_sponsors',
-                    'sub_license_arrangements',
-                    'verified',
-                    'dsptk_ods_code',
-                    'iso_27001_certified',
-                    'ce_certified',
-                    'ce_certification_num',
-                    'approvals',
-                    'permissions',
-                    'files',
-                    'registries',
-                    'departments',
-                    'charity_registration_id',
-                    'ror_id',
-                    'smb_status',
-                    'website',
+                'current_page',
+                'data' => [
+                    '*' => [
+                        'id',
+                        'created_at',
+                        'updated_at',
+                        'organisation_name',
+                        'address_1',
+                        'address_2',
+                        'town',
+                        'county',
+                        'country',
+                        'postcode',
+                        'lead_applicant_organisation_name',
+                        'lead_applicant_email',
+                        'organisation_unique_id',
+                        'applicant_names',
+                        'funders_and_sponsors',
+                        'sub_license_arrangements',
+                        'verified',
+                        'dsptk_ods_code',
+                        'iso_27001_certified',
+                        'ce_certified',
+                        'ce_certification_num',
+                        'approvals',
+                        'permissions',
+                        'files',
+                        'registries',
+                        'departments',
+                        'sector_id',
+                        'charity_registration_id',
+                        'ror_id',
+                        'smb_status',
+                        'website',
+                    ],
                 ],
-            ],
+            ]
         ]);
     }
 
@@ -249,6 +253,7 @@ class OrganisationTest extends TestCase
                 'files',
                 'registries',
                 'departments',
+                'sector_id',
                 'charity_registration_id',
                 'ror_id',
                 'smb_status',
@@ -313,10 +318,11 @@ class OrganisationTest extends TestCase
                     'sub_license_arrangements' => 'N/A',
                     'verified' => true,
                     'companies_house_no' => '10887014',
+                    'sector_id' => fake()->randomElement([0, count(Sector::SECTORS)]),
                     'charity_registration_id' => '1186569',
                     'ror_id' => '02wnqcb97',
                     'smb_status' => false,
-                    'website' => 'https://www.nhs.uk/',
+                    'website' => 'https://www.website.com/',
                 ]
             );
 
@@ -375,6 +381,8 @@ class OrganisationTest extends TestCase
     {
         $this->testOrg['organisation_name'] = 'ZYX Org';
 
+
+
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'POST',
@@ -394,6 +402,8 @@ class OrganisationTest extends TestCase
                 $this->testOrg
             );
 
+
+
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
 
@@ -405,9 +415,9 @@ class OrganisationTest extends TestCase
 
         $response->assertStatus(200);
         $content = $response->decodeResponseJson();
-
-        $this->assertTrue(count($content['data']) > 0);
-        $this->assertTrue($content['data'][0]['organisation_name'] === 'ZYX Org');
+        // dd($content);
+        $this->assertTrue(count($content['data']['data']) > 0);
+        $this->assertTrue($content['data']['data'][0]['organisation_name'] === 'ZYX Org');
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
@@ -418,8 +428,8 @@ class OrganisationTest extends TestCase
         $response->assertStatus(200);
         $content = $response->decodeResponseJson();
 
-        $this->assertTrue(count($content['data']) > 0);
-        $this->assertTrue($content['data'][0]['organisation_name'] === 'ABC Org');
+        $this->assertTrue(count($content['data']['data']) > 0);
+        $this->assertTrue($content['data']['data'][0]['organisation_name'] === 'ABC Org');
     }
 
     public function test_the_application_can_return_certification_counts_for_organisations(): void

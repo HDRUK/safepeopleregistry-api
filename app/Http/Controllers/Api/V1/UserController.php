@@ -81,7 +81,10 @@ class UserController extends Controller
         ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return response()->json(
-            $users,
+            [
+                'message' => 'success',
+                'data' => $users,
+            ],
             200
         );
     }
