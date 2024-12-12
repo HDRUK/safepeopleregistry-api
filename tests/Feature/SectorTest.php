@@ -32,7 +32,8 @@ class SectorTest extends TestCase
         );
 
         $response->assertStatus(200);
-        $content = $response->decodeResponseJson()[0]['data']['data'];
+
+        $content = $response->decodeResponseJson()['data']['data'];
 
         $this->assertTrue(count($content) === count(Sector::SECTORS));
 

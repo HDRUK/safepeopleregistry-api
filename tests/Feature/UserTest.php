@@ -84,7 +84,7 @@ class UserTest extends TestCase
         $response->assertStatus(200);
         $content = $response->decodeResponseJson();
 
-        $this->assertTrue(count($content['data']) === 1);
+        $this->assertTrue(count($content['data']['data']) === 1);
         $this->assertTrue($content['data']['data'][0]['first_name'] === 'Bill');
         $this->assertTrue($content['data']['data'][0]['last_name'] === 'Murray');
     }
