@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use DB;
 use App\Models\Custodian;
 use App\Models\CustodianUser;
 use App\Models\CustodianUserHasPermission;

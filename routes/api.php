@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\V1\CustodianController;
 use App\Http\Controllers\Api\V1\CustodianUserController;
 use App\Http\Controllers\Api\V1\ONSSubmissionController;
 use App\Http\Controllers\Api\V1\OrganisationController;
+use App\Http\Controllers\Api\V1\OrganisationDelegatesController;
 use App\Http\Controllers\Api\V1\PermissionController;
 use App\Http\Controllers\Api\V1\ProjectController;
 use App\Http\Controllers\Api\V1\QueryController;
@@ -125,6 +126,13 @@ Route::middleware('api')->put('v1/organisations/{id}', [OrganisationController::
 Route::middleware('api')->patch('v1/organisations/{id}', [OrganisationController::class, 'edit']);
 Route::middleware('api')->delete('v1/organisations/{id}', [OrganisationController::class, 'destroy']);
 Route::middleware('api')->post('v1/organisations/permissions', [PermissionController::class, 'assignOrganisationPermissionsToFrom']);
+
+Route::middleware('api')->get('v1/organisation_delegates', [OrganisationDelegatesController::class, 'index']);
+Route::middleware('api')->get('v1/organisation_delegates/{id}', [OrganisationDelegatesController::class, 'show']);
+Route::middleware('api')->post('v1/organisation_delegates', [OrganisationDelegatesController::class, 'store']);
+Route::middleware('api')->put('v1/organisation_delegates/{id}', [OrganisationDelegatesController::class, 'update']);
+Route::middleware('api')->patch('v1/organisation_delegates/{id}', [OrganisationDelegatesController::class, 'edit']);
+Route::middleware('api')->delete('v1/organisation_delegates/{id}', [OrganisationDelegatesController::class, 'destroy']);
 
 
 Route::middleware('api')->get('v1/organisations/{id}/projects/present', [OrganisationController::class, 'presentProjects']);
