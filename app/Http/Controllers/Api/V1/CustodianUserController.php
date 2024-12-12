@@ -188,7 +188,6 @@ class CustodianUserController extends Controller
                 'first_name' => $input['first_name'],
                 'last_name' => $input['last_name'],
                 'email' => $input['email'],
-                'password' => $input['password'],
                 'provider' => '',
                 'keycloak_id' => '',
                 'custodian_id' => $input['custodian_id'],

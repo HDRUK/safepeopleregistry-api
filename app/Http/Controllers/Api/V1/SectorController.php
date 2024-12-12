@@ -18,7 +18,8 @@ class SectorController extends Controller
         $sectors = Sector::paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
-            $sectors,
+            'message' => 'success',
+            'data' => $sectors,
         ], 200);
     }
 

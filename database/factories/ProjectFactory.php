@@ -28,7 +28,6 @@ class ProjectFactory extends Factory
             'other_approval_committees' => fake()->sentence(6),
             'start_date' => Carbon::now(),
             'end_date' => Carbon::now()->addMonths(6),
-            'affiliate_id' => 1,
         ];
     }
 }

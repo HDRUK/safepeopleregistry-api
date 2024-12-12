@@ -43,6 +43,22 @@ class CreateOrganisation extends BaseFormRequest
                 'required',
                 'exists:sectors',
             ],
+            'charity_registration_id' => [
+                'string',
+                'required',
+            ],
+            'ror_id' => [
+                'string',
+                'required',
+            ],
+            'website' => [
+                'string',
+                'required',
+            ],
+            'smb_status' => [
+                'string',
+                'required',
+            ],
         ];
     }
 }
