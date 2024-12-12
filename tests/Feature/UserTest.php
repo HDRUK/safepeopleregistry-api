@@ -52,9 +52,9 @@ class UserTest extends TestCase
         $response->assertStatus(200);
         $content = $response->decodeResponseJson();
 
-        $this->assertTrue(count($content['data']) === 1);
-        $this->assertTrue($content['data'][0]['first_name'] === 'Bill');
-        $this->assertTrue($content['data'][0]['last_name'] === 'Murray');
+        $this->assertTrue(count($content['data']['data']) === 1);
+        $this->assertTrue($content['data']['data'][0]['first_name'] === 'Bill');
+        $this->assertTrue($content['data']['data'][0]['last_name'] === 'Murray');
     }
 
     public function test_the_application_can_search_users_by_first_name(): void
@@ -68,9 +68,9 @@ class UserTest extends TestCase
         $response->assertStatus(200);
         $content = $response->decodeResponseJson();
 
-        $this->assertTrue(count($content['data']) === 1);
-        $this->assertTrue($content['data'][0]['first_name'] === 'Bill');
-        $this->assertTrue($content['data'][0]['last_name'] === 'Murray');
+        $this->assertTrue(count($content['data']['data']) === 1);
+        $this->assertTrue($content['data']['data'][0]['first_name'] === 'Bill');
+        $this->assertTrue($content['data']['data'][0]['last_name'] === 'Murray');
     }
 
     public function test_the_application_can_search_users_by_last_name(): void
@@ -85,8 +85,8 @@ class UserTest extends TestCase
         $content = $response->decodeResponseJson();
 
         $this->assertTrue(count($content['data']) === 1);
-        $this->assertTrue($content['data'][0]['first_name'] === 'Bill');
-        $this->assertTrue($content['data'][0]['last_name'] === 'Murray');
+        $this->assertTrue($content['data']['data'][0]['first_name'] === 'Bill');
+        $this->assertTrue($content['data']['data'][0]['last_name'] === 'Murray');
     }
 
     /*
@@ -225,8 +225,8 @@ class UserTest extends TestCase
         ]);
 
         $content = $response->decodeResponseJson();
-        $this->assertTrue(count($content['data']) > 1);
-        $this->assertTrue($content['data'][0]['email'] == 'organisation.owner@healthdataorganisation.com');
+        $this->assertTrue(count($content['data']['data']) > 1);
+        $this->assertTrue($content['data']['data'][0]['email'] == 'organisation.owner@healthdataorganisation.com');
     }
 
     public function test_the_application_can_show_users(): void
