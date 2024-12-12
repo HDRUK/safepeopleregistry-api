@@ -773,4 +773,44 @@ class OrganisationController extends Controller
             throw new Exception($e->getMessage());
         }
     }
+
+    /**
+     * No swagger, internal call
+     */
+    public function countPresentProjects(Request $request, int $id): JsonResponse
+    {
+        try {
+            $projectCount = Project::with('organisations')
+                ->where('start_date', '<=', Carbon::now())
+                ->where('end_date', '>=', Carbon::now())
+                ->count();
+        
+            return response()->json(
+                ['data' => $projectCount],
+                200
+            );
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    /**
+     * No swagger, internal call
+     */
+    public function countPastProjects(Request $request, int $id): JsonResponse
+    {
+        try {
+            $projectCount = Project::with('organisations')
+                ->where('start_date', '<', Carbon::now())
+                ->where('end_date', '<', Carbon::now())
+                ->count(); 
+        
+            return response()->json(
+                ['data' => $projectCount],
+                200
+            );
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
 }

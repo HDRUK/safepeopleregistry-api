@@ -120,6 +120,8 @@ Route::middleware('api')->get('v1/organisations/{id}', [OrganisationController::
 Route::middleware('api')->get('v1/organisations/{id}/idvt', [OrganisationController::class, 'idvt']);
 Route::middleware('api')->get('v1/organisations/{id}/counts/certifications', [OrganisationController::class, 'countCertifications']);
 Route::middleware('api')->get('v1/organisations/{id}/counts/users', [OrganisationController::class, 'countUsers']);
+Route::middleware('api')->get('v1/organisations/{id}/counts/projects/present', [OrganisationController::class, 'countPresentProjects']);
+Route::middleware('api')->get('v1/organisations/{id}/counts/projects/past', [OrganisationController::class, 'countPastProjects']);
 Route::middleware('api')->post('v1/organisations', [OrganisationController::class, 'store']);
 Route::middleware('api')->put('v1/organisations/{id}', [OrganisationController::class, 'update']);
 Route::middleware('api')->patch('v1/organisations/{id}', [OrganisationController::class, 'edit']);
