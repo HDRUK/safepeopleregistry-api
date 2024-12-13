@@ -780,10 +780,12 @@ class OrganisationController extends Controller
     public function countPresentProjects(Request $request, int $id): JsonResponse
     {
         try {
-            $projectCount = Project::with('organisations')
-                ->where('start_date', '<=', Carbon::now())
-                ->where('end_date', '>=', Carbon::now())
-                ->count();
+            $projectCount = Project::whereHas('organisations', function ($query) use ($id) {
+                $query->where('organisations.id', $id);
+            })
+            ->where('start_date', '<=', Carbon::now())
+            ->where('end_date', '>=', Carbon::now())
+            ->count();
         
             return response()->json(
                 ['data' => $projectCount],
@@ -800,10 +802,12 @@ class OrganisationController extends Controller
     public function countPastProjects(Request $request, int $id): JsonResponse
     {
         try {
-            $projectCount = Project::with('organisations')
-                ->where('start_date', '<', Carbon::now())
-                ->where('end_date', '<', Carbon::now())
-                ->count(); 
+            $projectCount = Project::whereHas('organisations', function ($query) use ($id) {
+                $query->where('organisations.id', $id);
+            })
+            ->where('start_date', '<', Carbon::now())
+            ->where('end_date', '<', Carbon::now())
+            ->count();
         
             return response()->json(
                 ['data' => $projectCount],
