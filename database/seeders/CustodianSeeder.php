@@ -16,6 +16,7 @@ class CustodianSeeder extends Seeder
      */
     public function run(): void
     {
+
         Custodian::truncate();
         CustodianUser::truncate();
 

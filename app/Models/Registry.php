@@ -51,9 +51,24 @@ class Registry extends Model
         return $this->hasOne(Employment::class, 'registry_id');
     }
 
+    public function education(): HasMany
+    {
+        return $this->hasMany(Education::class, 'registry_id');
+    }
+
     public function training(): HasMany
     {
         return $this->hasMany(Training::class, 'registry_id');
+    }
+
+    public function accreditations(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Accreditation::class,            // Related model
+            'registry_has_accreditations',   // Pivot table name
+            'registry_id',                   // Foreign key on the pivot table for Registry
+            'accreditation_id'               // Foreign key on the pivot table for Accreditation
+        );
     }
 
     // Removed for now, in favour of a future _has_ relation as registry_id

@@ -12,6 +12,9 @@ use App\Models\Registry;
 use App\Models\Organisation;
 use App\Models\Department;
 use App\Models\ProjectHasOrganisation;
+use App\Models\ProjectHasUser;
+use App\Models\ProjectRole;
+use App\Models\ProjectHasCustodianApproval;
 use App\Models\RegistryHasOrganisation;
 use Illuminate\Database\Seeder;
 
@@ -99,10 +102,17 @@ Health Research Authority (HRA) Approval as it involves health-related research 
             'end_date' => '2026-01-12',
         ]);
 
+        ProjectHasCustodianApproval::create([
+            'project_id' => $proj->id,
+            'custodian_id' => 1,
+        ]);
+
         ProjectHasOrganisation::create([
             'project_id' => $proj->id,
             'organisation_id' => $org1->id,
         ]);
+
+        $this->addRandomUsersToProject($proj->id);
 
         $proj = Project::create([
             'unique_id' => Str::random(20),
@@ -124,6 +134,8 @@ National Public Health Ethics Committee for authorization to analyze population 
             'project_id' => $proj->id,
             'organisation_id' => $org1->id,
         ]);
+
+        $this->addRandomUsersToProject($proj->id);
 
         // --------------------------------------------------------------------------------
         // End
@@ -192,6 +204,8 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'organisation_id' => $org1->id,
         ]);
 
+        $this->addRandomUsersToProject($proj->id);
+
         // --------------------------------------------------------------------------------
         // End
         // --------------------------------------------------------------------------------
@@ -247,6 +261,8 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'project_id' => $proj->id,
             'organisation_id' => $org3->id,
         ]);
+
+        $this->addRandomUsersToProject($proj->id);
 
         // --------------------------------------------------------------------------------
         // End
@@ -714,6 +730,23 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             $user = User::where('email', $u['email'])->update([
                 'registry_id' => $reg->id,
             ]);
+        }
+    }
+
+    private function addRandomUsersToProject(int $projectId, int $nUsers = null): void
+    {
+        $nUsers = $nUsers ?? random_int(1, 10);
+        $users = User::whereNotNull("registry_id")->inRandomOrder()->limit($nUsers)->get();
+        foreach ($users as $researcher) {
+            $ident = Registry::where("id", $researcher->registry_id)->first()->digi_ident;
+            $roleId = ProjectRole::inRandomOrder()->first()->id;
+            ProjectHasUser::create(
+                [
+                    'project_id' => $projectId,
+                    'user_digital_ident' => $ident,
+                    'project_role_id' => $roleId
+                ]
+            );
         }
     }
 }

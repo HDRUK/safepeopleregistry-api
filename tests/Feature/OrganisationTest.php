@@ -467,4 +467,94 @@ class OrganisationTest extends TestCase
         $content = $response->decodeResponseJson();
         $this->assertTrue($content['data'] > 0);
     }
+
+    public function test_the_application_can_get_projects_for_an_organisation(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/projects'
+            );
+
+        $response->assertStatus(200);
+        $this->assertArrayHasKey('data', $response);
+
+
+        $this->assertCount(3, $response['data']['data']);
+
+
+        $responseWithTitleFilter = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/projects?title[]=Assessing Air Quality Impact on Respiratory Health in Urban Populations'
+            );
+
+        $this->assertCount(
+            1,
+            $responseWithTitleFilter['data']['data'],
+            'Expected exactly 1 project with the title "Assessing Air Quality Impact on Respiratory Health in Urban Populations".'
+        );
+
+        $responseSortedByTitle = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . '/1/projects?sort=title:asc'
+        );
+
+        $responseSortedByTitle->assertStatus(200);
+        $titles = array_column($responseSortedByTitle['data']['data'], 'title');
+
+        $sortedTitles = $titles;
+        sort($sortedTitles);
+
+
+        $this->assertEquals(
+            $sortedTitles,
+            $titles,
+            'The projects are not sorted alphabetically by title.'
+        );
+
+        $responseSortedByTitle = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . '/1/projects?sort=title:desc'
+        );
+
+        $responseSortedByTitle->assertStatus(200);
+        $titles = array_column($responseSortedByTitle['data']['data'], 'title');
+
+        $sortedTitles = $titles;
+        rsort($sortedTitles);
+
+        $this->assertEquals(
+            $sortedTitles,
+            $titles,
+            'The projects are not sorted alphabetically by title (descending).'
+        );
+
+        $responseSortedByTitle = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . '/1/projects?sort=title'
+        );
+        $responseSortedByTitle->assertStatus(500, 'Needs a direction');
+
+
+        $responseSortedByTitle = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . '/1/projects?sort=title:abc'
+        );
+        $responseSortedByTitle->assertStatus(500, 'unknwon direction');
+
+        $responseSortedByTitle = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . '/1/projects?sort=abc:xyz'
+        );
+        $responseSortedByTitle->assertStatus(500);
+
+
+
+    }
 }
