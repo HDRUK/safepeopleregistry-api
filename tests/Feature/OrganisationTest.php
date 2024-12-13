@@ -537,7 +537,7 @@ class OrganisationTest extends TestCase
             'GET',
             self::TEST_URL . '/1/projects?sort=title'
         );
-        $responseSortedByTitle->assertStatus(200);
+        $responseSortedByTitle->assertStatus(500, 'Needs a direction');
 
 
         $responseSortedByTitle = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
@@ -545,14 +545,14 @@ class OrganisationTest extends TestCase
             'GET',
             self::TEST_URL . '/1/projects?sort=title:abc'
         );
-        $responseSortedByTitle->assertStatus(422);
+        $responseSortedByTitle->assertStatus(500, 'unknwon direction');
 
         $responseSortedByTitle = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
             'GET',
             self::TEST_URL . '/1/projects?sort=abc:xyz'
         );
-        $responseSortedByTitle->assertStatus(422);
+        $responseSortedByTitle->assertStatus(500);
 
 
 

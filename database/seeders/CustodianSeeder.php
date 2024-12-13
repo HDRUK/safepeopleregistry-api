@@ -7,7 +7,6 @@ use App\Models\CustodianUser;
 use App\Models\CustodianUserHasPermission;
 use App\Models\Permission;
 use Hash;
-use DB;
 use Illuminate\Database\Seeder;
 
 class CustodianSeeder extends Seeder
@@ -18,10 +17,8 @@ class CustodianSeeder extends Seeder
     public function run(): void
     {
 
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         Custodian::truncate();
         CustodianUser::truncate();
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         foreach (config('speedi.custodians') as $custodian) {
             $i = Custodian::factory()->create([
