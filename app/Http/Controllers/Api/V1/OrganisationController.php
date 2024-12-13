@@ -48,11 +48,16 @@ class OrganisationController extends Controller
      *                  @OA\Property(property="postcode", type="string", example="AB12 3CD"),
      *                  @OA\Property(property="delegate", type="string", example="Prof. First Last"),
      *                  @OA\Property(property="verified", type="boolean", example="true"),
+     *                  @OA\Property(property="sector_id", type="number", example="1"),
      *                  @OA\Property(property="dsptk_ods_code", type="string", example="UY67FO"),
      *                  @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
      *                  @OA\Property(property="ce_certified", type="boolean", example="false"),
      *                  @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
-     *                  @OA\Property(property="companies_house_no", type="string", example="12345678")
+     *                  @OA\Property(property="companies_house_no", type="string", example="12345678"),
+     *                  @OA\Property(property="charity_registration_id", type="string", example="12345678"),
+     *                  @OA\Property(property="ror_id", type="string", example="05xs36f43"),
+     *                  @OA\Property(property="website", type="string", example="http://www.hdruk.ac.uk"),
+     *                  @OA\Property(property="smb_status", type="string", example="true"),
      *              )
      *          ),
      *      ),
@@ -72,11 +77,12 @@ class OrganisationController extends Controller
     {
         $organisations = [];
 
-        $issuerId = $request->get('issuer_id');
-        if (! $issuerId) {
+        $custodianId = $request->get('custodian_id');
+        if (! $custodianId) {
             $organisations = Organisation::searchViaRequest()
                 ->applySorting()
                 ->with([
+                    'departments',
                     'approvals',
                     'permissions',
                     'files',
@@ -87,10 +93,10 @@ class OrganisationController extends Controller
                 ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
         }
 
-        return response()->json(
-            $organisations,
-            200
-        );
+        return response()->json([
+            'message' => 'success',
+            'data' => $organisations,
+        ], 200);
     }
 
     /**
@@ -136,10 +142,15 @@ class OrganisationController extends Controller
      *                  @OA\Property(property="delegate", type="string", example="Prof. First Last"),
      *                  @OA\Property(property="verified", type="boolean", example="true"),
      *                  @OA\Property(property="dsptk_ods_code", type="string", example="UY67FO"),
+     *                  @OA\Property(property="sector_id", type="number", example="1"),
      *                  @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
      *                  @OA\Property(property="ce_certified", type="boolean", example="false"),
      *                  @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
-     *                  @OA\Property(property="companies_house_no", type="string", example="12345678")
+     *                  @OA\Property(property="companies_house_no", type="string", example="12345678"),
+     *                  @OA\Property(property="charity_registration_id", type="string", example="12345678"),
+     *                  @OA\Property(property="ror_id", type="string", example="05xs36f43"),
+     *                  @OA\Property(property="website", type="string", example="http://www.hdruk.ac.uk"),
+     *                  @OA\Property(property="smb_status", type="string", example="true"),
      *              )
      *          ),
      *      ),
@@ -158,6 +169,7 @@ class OrganisationController extends Controller
     public function show(Request $request, int $id): JsonResponse
     {
         $organisation = Organisation::with([
+            'departments',
             'permissions',
             'approvals',
             'files',
@@ -308,7 +320,12 @@ class OrganisationController extends Controller
      *              @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
      *              @OA\Property(property="ce_certified", type="boolean", example="false"),
      *              @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
-     *              @OA\Property(property="companies_house_no", type="string", example="12345678")
+     *              @OA\Property(property="companies_house_no", type="string", example="12345678"),
+     *              @OA\Property(property="sector_id", type="number", example="1"),
+     *              @OA\Property(property="charity_registration_id", type="string", example="12345678"),
+     *              @OA\Property(property="ror_id", type="string", example="05xs36f43"),
+     *              @OA\Property(property="website", type="string", example="http://www.hdruk.ac.uk"),
+     *              @OA\Property(property="size", type="string", example="10 to 49"),
      *          ),
      *      ),
      *
@@ -374,6 +391,10 @@ class OrganisationController extends Controller
                 'iso_27001_certification_num' => $input['iso_27001_certification_num'],
                 'ce_certified' => $input['ce_certified'],
                 'ce_certification_num' => $input['ce_certification_num'],
+                'charity_registration_id' => $input['charity_registration_id'],
+                'ror_id' => $input['ror_id'],
+                'website' => $input['website'],
+                'smb_status' => $input['smb_status'],
             ]);
 
             // Run automated IDVT
@@ -431,10 +452,16 @@ class OrganisationController extends Controller
      *              @OA\Property(property="delegate", type="string", example="Prof. First Last"),
      *              @OA\Property(property="verified", type="boolean", example="true"),
      *              @OA\Property(property="dsptk_ods_code", type="string", example="UY67FO"),
+     *              @OA\Property(property="sector_id", type="number", example="1"),
      *              @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
      *              @OA\Property(property="ce_certified", type="boolean", example="false"),
      *              @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
-     *              @OA\Property(property="companies_house_no", type="string", example="12345678")
+     *              @OA\Property(property="companies_house_no", type="string", example="12345678"),
+     *              @OA\Property(property="charity_registration_id", type="string", example="12345678"),
+     *              @OA\Property(property="ror_id", type="string", example="05xs36f43"),
+     *              @OA\Property(property="website", type="string", example="http://www.hdruk.ac.uk"),
+     *              @OA\Property(property="smb_status", type="string", example="true"),
+     * 
      *          ),
      *      ),
      *
@@ -469,10 +496,15 @@ class OrganisationController extends Controller
      *                  @OA\Property(property="delegate", type="string", example="Prof. First Last"),
      *                  @OA\Property(property="verified", type="boolean", example="true"),
      *                  @OA\Property(property="dsptk_ods_code", type="string", example="UY67FO"),
+     *                  @OA\Property(property="sector_id", type="number", example="1"),
      *                  @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
      *                  @OA\Property(property="ce_certified", type="boolean", example="false"),
      *                  @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
-     *                  @OA\Property(property="companies_house_no", type="string", example="12345678")
+     *                  @OA\Property(property="companies_house_no", type="string", example="12345678"),
+     *                  @OA\Property(property="charity_registration_id", type="string", example="12345678"),
+     *                  @OA\Property(property="ror_id", type="string", example="05xs36f43"),
+     *                  @OA\Property(property="website", type="string", example="http://www.hdruk.ac.uk"),
+     *                  @OA\Property(property="smb_status", type="string", example="true"),
      *              )
      *          ),
      *      ),
@@ -508,6 +540,11 @@ class OrganisationController extends Controller
                 'sub_license_arrangements' => $input['sub_license_arrangements'],
                 'verified' => $input['verified'],
                 'companies_house_no' => $input['companies_house_no'],
+                'sector_id' => $input['sector_id'],
+                'charity_registration_id' => $input['charity_registration_id'],
+                'ror_id' => $input['ror_id'],
+                'website' => $input['website'],
+                'smb_status' => $input['smb_status'],
             ]);
 
             return response()->json([
@@ -558,12 +595,17 @@ class OrganisationController extends Controller
      *              @OA\Property(property="country", type="string", example="Country"),
      *              @OA\Property(property="postcode", type="string", example="AB12 3CD"),
      *              @OA\Property(property="delegate", type="string", example="Prof. First Last"),
+     *              @OA\Property(property="sector_id", type="number", example="1"),
      *              @OA\Property(property="verified", type="boolean", example="true"),
      *              @OA\Property(property="dsptk_ods_code", type="string", example="UY67FO"),
      *              @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
      *              @OA\Property(property="ce_certified", type="boolean", example="false"),
      *              @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
-     *              @OA\Property(property="companies_house_no", type="string", example="12345678")
+     *              @OA\Property(property="companies_house_no", type="string", example="12345678"),
+     *              @OA\Property(property="charity_registration_id", type="string", example="12345678"),
+     *              @OA\Property(property="ror_id", type="string", example="05xs36f43"),
+     *              @OA\Property(property="website", type="string", example="http://www.hdruk.ac.uk"),
+     *              @OA\Property(property="smb_status", type="string", example="true"),
      *          ),
      *      ),
      *
@@ -597,11 +639,16 @@ class OrganisationController extends Controller
      *                  @OA\Property(property="postcode", type="string", example="AB12 3CD"),
      *                  @OA\Property(property="delegate", type="string", example="Prof. First Last"),
      *                  @OA\Property(property="verified", type="boolean", example="true"),
+     *                  @OA\Property(property="sector_id", type="number", example="1"),
      *                  @OA\Property(property="dsptk_ods_code", type="string", example="UY67FO"),
      *                  @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
      *                  @OA\Property(property="ce_certified", type="boolean", example="false"),
      *                  @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
-     *                  @OA\Property(property="companies_house_no", type="string", example="12345678")
+     *                  @OA\Property(property="companies_house_no", type="string", example="12345678"),
+     *                  @OA\Property(property="charity_registration_id", type="string", example="12345678"),
+     *                  @OA\Property(property="ror_id", type="string", example="05xs36f43"),
+     *                  @OA\Property(property="website", type="string", example="http://www.hdruk.ac.uk"),
+     *                  @OA\Property(property="smb_status", type="string", example="true"),
      *              )
      *          ),
      *      ),
@@ -637,6 +684,11 @@ class OrganisationController extends Controller
                 'sub_license_arrangements' => $input['sub_license_arrangements'],
                 'verified' => $input['verified'],
                 'companies_house_no' => $input['companies_house_no'],
+                'sector_id' => $input['sector_id'],
+                'charity_registration_id' => $input['charity_registration_id'],
+                'ror_id' => $input['ror_id'],
+                'website' => $input['website'],
+                'smb_status' => $input['smb_status'],
             ]);
 
             return response()->json([
@@ -717,7 +769,7 @@ class OrganisationController extends Controller
     /**
      * No swagger, internal call
      */
-    public function certifications(Request $request, int $id): JsonResponse
+    public function countCertifications(Request $request, int $id): JsonResponse
     {
         try {
             $counts = DB::table('organisations')
@@ -744,6 +796,7 @@ class OrganisationController extends Controller
     }
 
     /**
+<<<<<<< HEAD
             * @OA\Get(
             *      path="/api/v1/organisations/{id}/projects",
             *      summary="Return an all projects associated with an organisation",
@@ -829,4 +882,33 @@ class OrganisationController extends Controller
         ], 404);
     }
 
+=======
+     * No swagger, internal call
+     */
+    public function countUsers(Request $request, int $id): JsonResponse
+    {
+        try {
+            $count = DB::table('registry_has_organisations')
+                ->select(DB::raw(
+                    'COUNT(registry_id) as `count`'
+                ))
+                ->where('organisation_id', $id)
+                ->get();
+
+            if ($count && count($count) > 0) {
+                return response()->json([
+                    'message' => 'success',
+                    'data' => $count[0]->count,
+                ], 200);
+            }
+
+            return response()->json([
+                'message' => 'success',
+                'data' => 0,
+            ], 200);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+>>>>>>> origin/dev
 }

@@ -16,11 +16,11 @@ class CreateProjectHasCustodianApprovalTable extends Migration
         Schema::create('project_has_custodian_approval', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('project_id');
-            $table->unsignedBigInteger('issuer_id');
+            $table->unsignedBigInteger('custodian_id');
             $table->timestamps();
 
             $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');
-            $table->foreign('issuer_id')->references('id')->on('issuers')->onDelete('cascade');
+            $table->foreign('custodian_id')->references('id')->on('custodians')->onDelete('cascade');
         });
     }
 

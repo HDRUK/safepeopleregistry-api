@@ -32,7 +32,7 @@ class ResolutionController extends Controller
 
             $resolution = Resolution::create([
                 'comment' => $input['comment'],
-                'issuer_by' => $input['issuer_by'],
+                'custodian_by' => $input['custodian_by'],
                 'registry_id' => $registryId,
                 'resolved' => $input['resolved'],
             ]);

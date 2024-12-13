@@ -4,21 +4,21 @@ namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\User;
-use App\Models\IssuerUserHasPermission;
-use Database\Seeders\IssuerSeeder;
+use App\Models\CustodianUserHasPermission;
+use Database\Seeders\CustodianSeeder;
 use Database\Seeders\PermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
-class IssuerUserTest extends TestCase
+class CustodianUserTest extends TestCase
 {
     use Authorisation;
     use RefreshDatabase;
     use ActingAsKeycloakUser;
 
-    public const TEST_URL = '/api/v1/issuer_users';
+    public const TEST_URL = '/api/v1/custodian_users';
 
     private $user = null;
 
@@ -27,13 +27,13 @@ class IssuerUserTest extends TestCase
         parent::setUp();
         $this->seed([
             PermissionSeeder::class,
-            IssuerSeeder::class,
+            CustodianSeeder::class,
         ]);
 
         $this->user = User::where('id', 1)->first();
     }
 
-    public function test_the_application_can_list_issuer_users(): void
+    public function test_the_application_can_list_custodian_users(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
@@ -45,7 +45,7 @@ class IssuerUserTest extends TestCase
         $this->assertArrayHasKey('data', $response);
     }
 
-    public function test_the_application_can_show_issuer_users(): void
+    public function test_the_application_can_show_custodian_users(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
@@ -57,7 +57,7 @@ class IssuerUserTest extends TestCase
         $this->assertArrayHasKey('data', $response);
     }
 
-    public function test_the_application_can_create_issuer_users(): void
+    public function test_the_application_can_create_custodian_users(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
@@ -70,7 +70,7 @@ class IssuerUserTest extends TestCase
                     'password' => Str::random(12),
                     'provider' => fake()->word(),
                     'keycloak_id' => '',
-                    'issuer_id' => 1,
+                    'custodian_id' => 1,
                 ]
             );
 
@@ -78,7 +78,7 @@ class IssuerUserTest extends TestCase
         $this->assertArrayHasKey('data', $response);
     }
 
-    public function test_the_application_can_update_issuer_users(): void
+    public function test_the_application_can_update_custodian_users(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
@@ -91,7 +91,7 @@ class IssuerUserTest extends TestCase
                 'password' => Str::random(12),
                 'provider' => fake()->word(),
                 'keycloak_id' => '',
-                'issuer_id' => 1,
+                'custodian_id' => 1,
             ]
             );
 
@@ -119,7 +119,7 @@ class IssuerUserTest extends TestCase
         $this->assertEquals($content['last_name'], 'Name');
     }
 
-    public function test_the_application_can_delete_issuer_users(): void
+    public function test_the_application_can_delete_custodian_users(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
@@ -132,7 +132,7 @@ class IssuerUserTest extends TestCase
                 'password' => Str::random(12),
                 'provider' => fake()->word(),
                 'keycloak_id' => '',
-                'issuer_id' => 1,
+                'custodian_id' => 1,
             ]
             );
 
@@ -151,7 +151,7 @@ class IssuerUserTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_the_application_can_assign_permissions_to_issuer_users(): void
+    public function test_the_application_can_assign_permissions_to_custodian_users(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
@@ -164,7 +164,7 @@ class IssuerUserTest extends TestCase
                 'password' => Str::random(12),
                 'provider' => fake()->word(),
                 'keycloak_id' => '',
-                'issuer_id' => 1,
+                'custodian_id' => 1,
                 'permissions' => [
                     1, 3, 5,
                 ],
@@ -176,7 +176,7 @@ class IssuerUserTest extends TestCase
 
         $content = $response->decodeResponseJson()['data'];
 
-        $perms = IssuerUserHasPermission::where('issuer_user_id', $content)->get()->pluck('issuer_user_id');
+        $perms = CustodianUserHasPermission::where('custodian_user_id', $content)->get()->pluck('custodian_user_id');
         $this->assertTrue(count($perms) > 0);
     }
 }

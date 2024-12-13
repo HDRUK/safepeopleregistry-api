@@ -2,15 +2,15 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Issuer;
 use Closure;
 use Exception;
 use Hash;
+use App\Models\Custodian;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class IssuerAuthenticationMiddleware
+class CustodianAuthenticationMiddleware
 {
     /**
      * Handle an incoming request.
@@ -20,23 +20,23 @@ class IssuerAuthenticationMiddleware
     public function handle(Request $request, Closure $next): JsonResponse
     {
         try {
-            if (! $request->header('x-issuer-key')) {
+            if (! $request->header('x-custodian-key')) {
                 return response()->json([
-                    'message' => 'you must provide your Issuer key',
+                    'message' => 'you must provide your Custodian key',
                 ], Response::HTTP_UNAUTHORIZED);
             }
 
-            $issuerKey = $request->header('x-issuer-key');
-            $issuer = Issuer::where('unique_identifier', $issuerKey)->first();
-            if (! $issuer) {
+            $custodianKey = $request->header('x-custodian-key');
+            $custodian = Custodian::where('unique_identifier', $custodianKey)->first();
+            if (! $custodian) {
                 return response()->json([
-                    'message' => 'no known issuer matches the credentials provided',
+                    'message' => 'no known custodian matches the credentials provided',
                 ], Response::HTTP_UNAUTHORIZED);
             }
 
             if (! (Hash::check(
-                $issuerKey.':'.env('ISSUER_SALT_1').':'.env('ISSUER_SALT_2'),
-                $issuer->calculated_hash
+                $custodianKey.':'.env('CUSTODIAN_SALT_1').':'.env('CUSTODIAN_SALT_2'),
+                $custodian->calculated_hash
             ))) {
                 return response()->json([
                     'message' => 'the credentials provided are invalid',

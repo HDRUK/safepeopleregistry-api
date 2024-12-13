@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Traits\SearchManager;
 
 class Organisation extends Model
@@ -44,6 +45,10 @@ class Organisation extends Model
         'idvt_completed_at',
         'companies_house_no',
         'sector_id',
+        'charity_registration_id',
+        'ror_id',
+        'website',
+        'smb_status',
     ];
 
     protected $casts = [
@@ -68,15 +73,15 @@ class Organisation extends Model
     {
         return $this->belongsToMany(
             Permission::class,
-            'organisation_has_issuer_permissions',
+            'organisation_has_custodian_permissions',
         );
     }
 
     public function approvals(): BelongsToMany
     {
         return $this->belongsToMany(
-            Issuer::class,
-            'organisation_has_issuer_approvals',
+            Custodian::class,
+            'organisation_has_custodian_approvals',
         );
     }
 
@@ -94,5 +99,10 @@ class Organisation extends Model
             Registry::class,
             'registry_has_organisations',
         );
+    }
+
+    public function departments(): HasMany
+    {
+        return $this->hasMany(Department::class);
     }
 }

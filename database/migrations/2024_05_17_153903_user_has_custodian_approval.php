@@ -10,12 +10,9 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        Schema::create('endorsements', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-            $table->bigInteger('reported_by'); // custodian id mapping
-            $table->text('comment')->nullable();
-            $table->bigInteger('raised_against'); // project id mapping
+        Schema::create('user_has_custodian_approvals', function (Blueprint $table) {
+            $table->integer('user_id');
+            $table->integer('custodian_id');
         });
     }
 
@@ -24,6 +21,6 @@ return new class () extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('endorsements');
+        Schema::dropIfExists('user_has_custodian_approvals');
     }
 };

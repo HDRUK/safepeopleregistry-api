@@ -15,7 +15,7 @@ class Resolution extends Model
 
     protected $fillable = [
         'comment',
-        'issuer_by',
+        'custodian_by',
         'registry_id',
         'resolved',
     ];

@@ -3,12 +3,12 @@
 namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
-use App\Models\Issuer;
+use App\Models\Custodian;
 use App\Models\Organisation;
-use App\Models\OrganisationHasIssuerApproval;
+use App\Models\OrganisationHasCustodianApproval;
 use App\Models\User;
-use App\Models\UserHasIssuerApproval;
-use Database\Seeders\IssuerSeeder;
+use App\Models\UserHasCustodianApproval;
+use Database\Seeders\CustodianSeeder;
 use Database\Seeders\OrganisationSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\UserSeeder;
@@ -26,7 +26,7 @@ class ApprovalTest extends TestCase
 
     private $user = null;
     private $registry = null;
-    private $issuer = null;
+    private $custodian = null;
     private $organisation = null;
 
     public function setUp(): void
@@ -34,14 +34,14 @@ class ApprovalTest extends TestCase
         parent::setUp();
         $this->seed([
             PermissionSeeder::class,
-            IssuerSeeder::class,
+            CustodianSeeder::class,
             OrganisationSeeder::class,
             UserSeeder::class,
         ]);
 
         $this->user = User::where('id', 1)->first();
 
-        $this->issuer = Issuer::where('id', 1)->first();
+        $this->custodian = Custodian::where('id', 1)->first();
         $this->organisation = Organisation::where('id', 1)->first();
     }
 
@@ -53,16 +53,16 @@ class ApprovalTest extends TestCase
                 self::TEST_URL . '/researcher',
                 [
                     'user_id' => $this->user->id,
-                    'issuer_id' => $this->issuer->id,
+                    'custodian_id' => $this->custodian->id,
                 ],
             );
 
         $response->assertStatus(200);
         $this->assertTrue($response->decodeResponseJson()['data']);
 
-        $test = UserHasIssuerApproval::where([
+        $test = UserHasCustodianApproval::where([
             'user_id' => $this->user->id,
-            'issuer_id' => $this->issuer->id,
+            'custodian_id' => $this->custodian->id,
         ])->first();
 
         $this->assertTrue($test !== null);
@@ -76,16 +76,16 @@ class ApprovalTest extends TestCase
                 self::TEST_URL . '/organisation',
                 [
                     'organisation_id' => $this->organisation->id,
-                    'issuer_id' => $this->issuer->id,
+                    'custodian_id' => $this->custodian->id,
                 ],
             );
 
         $response->assertStatus(200);
         $this->assertTrue($response->decodeResponseJson()['data']);
 
-        $test = OrganisationHasIssuerApproval::where([
+        $test = OrganisationHasCustodianApproval::where([
             'organisation_id' => $this->organisation->id,
-            'issuer_id' => $this->issuer->id,
+            'custodian_id' => $this->custodian->id,
         ])->first();
 
         $this->assertTrue($test !== null);
@@ -99,7 +99,7 @@ class ApprovalTest extends TestCase
                 self::TEST_URL . '/organisation',
                 [
                     'organisation_id' => $this->organisation->id,
-                    'issuer_id' => $this->issuer->id,
+                    'custodian_id' => $this->custodian->id,
                 ],
             );
 
@@ -108,7 +108,7 @@ class ApprovalTest extends TestCase
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'DELETE',
-                self::TEST_URL . '/organisation/1/issuer/1',
+                self::TEST_URL . '/organisation/1/custodian/1',
             );
 
         $response->assertStatus(200);
@@ -122,7 +122,7 @@ class ApprovalTest extends TestCase
                 self::TEST_URL . '/researcher',
                 [
                     'user_id' => $this->user->id,
-                    'issuer_id' => $this->issuer->id,
+                    'custodian_id' => $this->custodian->id,
                 ],
             );
 
@@ -131,7 +131,7 @@ class ApprovalTest extends TestCase
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'DELETE',
-                self::TEST_URL . '/researcher/1/issuer/1',
+                self::TEST_URL . '/researcher/1/custodian/1',
             );
 
         $response->assertStatus(200);

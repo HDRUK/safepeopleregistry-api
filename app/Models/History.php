@@ -20,7 +20,7 @@ class History extends Model
         'infringement_id',
         'project_id',
         'access_key_id',
-        'issuer_identifier',
+        'custodian_identifier',
         'ledger_hash',
     ];
 

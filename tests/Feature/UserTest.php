@@ -5,12 +5,12 @@ namespace Tests\Feature;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\User;
 use App\Models\Registry;
-use App\Models\Issuer;
+use App\Models\Custodian;
 use App\Models\Project;
 use App\Models\ProjectHasCustodianApproval;
 use App\Models\ProjectHasUser;
 use Database\Seeders\EmailTemplatesSeeder;
-use Database\Seeders\IssuerSeeder;
+use Database\Seeders\CustodianSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\BaseDemoSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -33,7 +33,7 @@ class UserTest extends TestCase
         parent::setUp();
         $this->seed([
             PermissionSeeder::class,
-            IssuerSeeder::class,
+            CustodianSeeder::class,
             EmailTemplatesSeeder::class,
             BaseDemoSeeder::class,
         ]);
@@ -52,9 +52,9 @@ class UserTest extends TestCase
         $response->assertStatus(200);
         $content = $response->decodeResponseJson();
 
-        $this->assertTrue(count($content['data']) === 1);
-        $this->assertTrue($content['data'][0]['first_name'] === 'Bill');
-        $this->assertTrue($content['data'][0]['last_name'] === 'Murray');
+        $this->assertTrue(count($content['data']['data']) === 1);
+        $this->assertTrue($content['data']['data'][0]['first_name'] === 'Bill');
+        $this->assertTrue($content['data']['data'][0]['last_name'] === 'Murray');
     }
 
     public function test_the_application_can_search_users_by_first_name(): void
@@ -68,9 +68,9 @@ class UserTest extends TestCase
         $response->assertStatus(200);
         $content = $response->decodeResponseJson();
 
-        $this->assertTrue(count($content['data']) === 1);
-        $this->assertTrue($content['data'][0]['first_name'] === 'Bill');
-        $this->assertTrue($content['data'][0]['last_name'] === 'Murray');
+        $this->assertTrue(count($content['data']['data']) === 1);
+        $this->assertTrue($content['data']['data'][0]['first_name'] === 'Bill');
+        $this->assertTrue($content['data']['data'][0]['last_name'] === 'Murray');
     }
 
     public function test_the_application_can_search_users_by_last_name(): void
@@ -84,9 +84,9 @@ class UserTest extends TestCase
         $response->assertStatus(200);
         $content = $response->decodeResponseJson();
 
-        $this->assertTrue(count($content['data']) === 1);
-        $this->assertTrue($content['data'][0]['first_name'] === 'Bill');
-        $this->assertTrue($content['data'][0]['last_name'] === 'Murray');
+        $this->assertTrue(count($content['data']['data']) === 1);
+        $this->assertTrue($content['data']['data'][0]['first_name'] === 'Bill');
+        $this->assertTrue($content['data']['data'][0]['last_name'] === 'Murray');
     }
 
     /*
@@ -195,34 +195,38 @@ class UserTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'current_page',
+            'message',
             'data' => [
-                0 => [
-                    'id',
-                    'created_at',
-                    'updated_at',
-                    'first_name',
-                    'last_name',
-                    'email',
-                    'registry_id',
-                    'user_group',
-                    'consent_scrape',
-                    'profile_steps_completed',
-                    'profile_completed_at',
-                    'orc_id',
-                    'unclaimed',
-                    'feed_source',
-                    'permissions',
-                    'registry',
-                    'pending_invites',
-                    'organisation_id',
-                ],
+                'current_page',
+                'data' => [
+                    '*' => [
+                        'id',
+                        'created_at',
+                        'updated_at',
+                        'first_name',
+                        'last_name',
+                        'email',
+                        'registry_id',
+                        'user_group',
+                        'consent_scrape',
+                        'profile_steps_completed',
+                        'profile_completed_at',
+                        'orc_id',
+                        'unclaimed',
+                        'feed_source',
+                        'permissions',
+                        'registry',
+                        'pending_invites',
+                        'organisation_id',
+                        'departments',
+                    ],
+                ]
             ],
         ]);
 
         $content = $response->decodeResponseJson();
-        $this->assertTrue(count($content['data']) > 1);
-        $this->assertTrue($content['data'][0]['email'] == 'organisation.owner@healthdataorganisation.com');
+        $this->assertTrue(count($content['data']['data']) > 1);
+        $this->assertTrue($content['data']['data'][0]['email'] == 'organisation.owner@healthdataorganisation.com');
     }
 
     public function test_the_application_can_show_users(): void
@@ -388,7 +392,7 @@ class UserTest extends TestCase
 
         $project = Project::first();
         $projectId = $project->id;
-        $orgId = Issuer::first()->id;
+        $orgId = Custodian::first()->id;
 
         ProjectHasUser::create(['project_id' => $projectId, 'user_digital_ident' => $digi_ident, 'project_role_id' => 1]);
 
@@ -402,7 +406,7 @@ class UserTest extends TestCase
         $this->assertArrayHasKey('data', $response);
         $this->assertEmpty($response['data']);
 
-        ProjectHasCustodianApproval::create(['project_id' => $projectId,'issuer_id' => $orgId]);
+        ProjectHasCustodianApproval::create(['project_id' => $projectId,'custodian_id' => $orgId]);
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
             'GET',

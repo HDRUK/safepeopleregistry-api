@@ -73,7 +73,7 @@ class Registry extends Model
 
     // Removed for now, in favour of a future _has_ relation as registry_id
     // didn't lend itself to Projects now. Especially when receiving pushes
-    // from TRE/SDE issuers.
+    // from TRE/SDEs.
     //
     // public function projects(): HasMany
     // {

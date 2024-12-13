@@ -8,7 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
-class SextorTest extends TestCase
+class SectorTest extends TestCase
 {
     use Authorisation;
     use RefreshDatabase;
@@ -32,7 +32,8 @@ class SextorTest extends TestCase
         );
 
         $response->assertStatus(200);
-        $content = $response->decodeResponseJson()[0]['data'];
+
+        $content = $response->decodeResponseJson()['data']['data'];
 
         $this->assertTrue(count($content) === count(Sector::SECTORS));
 

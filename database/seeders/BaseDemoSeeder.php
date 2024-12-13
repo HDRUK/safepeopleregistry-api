@@ -10,6 +10,7 @@ use App\Models\Identity;
 use App\Models\Project;
 use App\Models\Registry;
 use App\Models\Organisation;
+use App\Models\Department;
 use App\Models\ProjectHasOrganisation;
 use App\Models\ProjectHasUser;
 use App\Models\ProjectRole;
@@ -32,6 +33,21 @@ class BaseDemoSeeder extends Seeder
             SystemConfigSeeder::class,
             ProjectRoleSeeder::class,
         ]);
+
+        $departments = [
+            [
+                'name' => 'Data Science',
+            ],
+            [
+                'name' => 'Research & Development',
+            ],
+            [
+                'name' => 'Personnel',
+            ],
+            [
+                'name' => 'Investigations',
+            ],
+        ];
 
         // --------------------------------------------------------------------------------
         // A demo Organisation which demonstrates safety at every step
@@ -57,7 +73,18 @@ class BaseDemoSeeder extends Seeder
             'ce_certified' => true,
             'companies_house_no' => '09349495',
             'sector_id' => 5, // Charity/Non-profit
+            'charity_registration_id' => '1186569',
+            'ror_id' => '02wnqcb97',
+            'smb_status' => true,
+            'website' => 'https://www.website1.com/',
         ]);
+
+        foreach ($departments as $d) {
+            Department::create([
+                'name' => $d['name'],
+                'organisation_id' => $org1->id,
+            ]);
+        }
 
         $proj = Project::create([
             'unique_id' => Str::random(20),
@@ -138,7 +165,18 @@ National Public Health Ethics Committee for authorization to analyze population 
             'ce_certified' => false,
             'companies_house_no' => '15765271',
             'sector_id' => 4, // Public
+            'charity_registration_id' => '1186569',
+            'ror_id' => '02wnqcb97',
+            'smb_status' => true,
+            'website' => 'https://www.website2.com/',
         ]);
+
+        foreach ($departments as $d) {
+            Department::create([
+                'name' => $d['name'],
+                'organisation_id' => $org2->id,
+            ]);
+        }
 
         $proj = Project::create([
             'unique_id' => Str::random(20),
@@ -196,6 +234,15 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'ce_certified' => true,
             'companies_house_no' => '07563555',
             'sector_id' => 6, // Private/Industry
+            'charity_registration_id' => null,
+            'ror_id' => null,
+            'smb_status' => null,
+            'website' => null,
+        ]);
+
+        Department::create([
+            'name' => 'Research & Development',
+            'organisation_id' => $org3->id,
         ]);
 
         $proj = Project::create([

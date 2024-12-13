@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\Issuer;
+use App\Models\Custodian;
 use App\Models\Organisation;
-use App\Models\OrganisationHasIssuerApproval;
-use App\Models\OrganisationHasIssuerPermission;
+use App\Models\OrganisationHasCustodianApproval;
+use App\Models\OrganisationHasCustodianPermission;
 use App\Models\Permission;
 use Illuminate\Database\Seeder;
 
@@ -22,18 +22,18 @@ class OrganisationSeeder extends Seeder
 
         $org = Organisation::all()[0];
 
-        $issuer = fake()->randomElement(Issuer::all()->select('id'));
+        $custodian = fake()->randomElement(Custodian::all()->select('id'));
         $perms = Permission::where('name', 'ACCESS_GATEWAY')->first();
 
-        OrganisationHasIssuerPermission::create([
+        OrganisationHasCustodianPermission::create([
             'organisation_id' => $org->id,
             'permission_id' => $perms->id,
-            'issuer_id' => $issuer['id'],
+            'custodian_id' => $custodian['id'],
         ]);
 
-        OrganisationHasIssuerApproval::create([
+        OrganisationHasCustodianApproval::create([
             'organisation_id' => $org->id,
-            'issuer_id' => $issuer['id'],
+            'custodian_id' => $custodian['id'],
         ]);
     }
 }
