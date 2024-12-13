@@ -5,10 +5,9 @@ namespace App\Http\Controllers\Api\V1;
 use Hash;
 use Keycloak;
 use Exception;
-use App\Models\ProjectHasUser;
 use App\Models\User;
-use App\Models\UserHasCustodianApproval;
-use App\Models\UserHasCustodianPermission;
+use App\Models\UserHasIssuerApproval;
+use App\Models\UserHasIssuerPermission;
 use App\Http\Requests\Users\CreateUser;
 use App\Exceptions\NotFoundException;
 use Illuminate\Http\JsonResponse;
@@ -77,14 +76,10 @@ class UserController extends Controller
             'registry.files',
             'pendingInvites',
             'organisation',
-            'departments',
         ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return response()->json(
-            [
-                'message' => 'success',
-                'data' => $users,
-            ],
+            $users,
             200
         );
     }
@@ -158,7 +153,6 @@ class UserController extends Controller
                 'registry.files',
                 'pendingInvites',
                 'organisation',
-                'departments',
             ])->findOrFail($id);
 
             return response()->json([
@@ -169,86 +163,6 @@ class UserController extends Controller
             throw new NotFoundException();
         }
     }
-
-    /**
-    * @OA\Get(
-    *      path="/api/v1/users/{id}/projects/approved",
-    *      summary="Return (approved) projects for a user",
-    *      description="Return (approved) projects for a user",
-    *      tags={"User"},
-    *      summary="User@getApprovedProjects",
-    *      security={{"bearerAuth":{}}},
-    *
-    *      @OA\Parameter(
-    *         name="id",
-    *         in="path",
-    *         description="User ID",
-    *         required=true,
-    *         example="1",
-    *
-    *         @OA\Schema(
-    *            type="integer",
-    *            description="User ID",
-    *         ),
-    *      ),
-    *
-    *      @OA\Response(
-    *          response=200,
-    *          description="Success",
-    *
-    *          @OA\JsonContent(
-    *
-    *              @OA\Property(property="message", type="string"),
-    *              @OA\Property(property="data", type="object",
-    *                  @OA\Property(property="id", type="integer", example="123"),
-    *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-    *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-    *                  @OA\Property(property="registry_id", type="integer", example="1"),
-    *                  @OA\Property(property="name", type="string", example="My First Research Project"),
-    *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
-    *                  @OA\Property(property="runs_to", type="string", example="2026-02-04"),
-    *                  @OA\Property(property="affiliate_id", type="integer", example="2")
-    *              )
-    *          ),
-    *      ),
-    *      @OA\Response(
-    *          response=404,
-    *          description="Not found response",
-    *
-    *          @OA\JsonContent(
-    *
-    *              @OA\Property(property="message", type="string", example="not found"),
-    *          )
-    *      )
-    * )
-    */
-    public function getApprovedProjects(Request $request, int $id): JsonResponse
-    {
-        $digi_ident = optional(User::with('registry')
-            ->where('id', $id)
-            ->firstOrFail()->registry)->digi_ident;
-
-        if (!$digi_ident) {
-            return response()->json([
-                'message' => 'failed',
-                'data' => $id,
-                'error' => 'cannot find user in registry',
-            ], 404);
-        }
-
-        $projects = ProjectHasUser::where('user_digital_ident', $digi_ident)
-            ->with(['project','approvals'])
-            ->whereHas('approvals')
-            ->get()
-            ->pluck('project');
-
-        return response()->json([
-            'message' => 'success',
-            'data' => $projects,
-        ], 200);
-
-    }
-
 
     /**
      * @OA\Post(
@@ -649,8 +563,8 @@ class UserController extends Controller
     {
         try {
             User::where('id', $id)->delete();
-            UserHasCustodianPermission::where('user_id', $id)->delete();
-            UserHasCustodianApproval::where('user_id', $id)->delete();
+            UserHasIssuerPermission::where('user_id', $id)->delete();
+            UserHasIssuerApproval::where('user_id', $id)->delete();
 
             return response()->json([
                 'message' => 'success',

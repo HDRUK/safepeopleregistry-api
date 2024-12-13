@@ -461,7 +461,7 @@ class OrganisationController extends Controller
      *              @OA\Property(property="ror_id", type="string", example="05xs36f43"),
      *              @OA\Property(property="website", type="string", example="http://www.hdruk.ac.uk"),
      *              @OA\Property(property="smb_status", type="string", example="true"),
-     * 
+     *
      *          ),
      *      ),
      *
@@ -796,59 +796,58 @@ class OrganisationController extends Controller
     }
 
     /**
-<<<<<<< HEAD
-            * @OA\Get(
-            *      path="/api/v1/organisations/{id}/projects",
-            *      summary="Return an all projects associated with an organisation",
-            *      description="Return an all projects associated with an organisation (i.e. data-custodian)",
-            *      tags={"organisation"},
-            *      summary="organisation@getPorjects",
-            *      security={{"bearerAuth":{}}},
-            *
-            *      @OA\Parameter(
-            *         name="id",
-            *         in="path",
-            *         description="Organisation ID",
-            *         required=true,
-            *         example="1",
-            *
-            *         @OA\Schema(
-            *            type="integer",
-            *            description="Organisation ID",
-            *         ),
-            *      ),
-            *
-            *      @OA\Response(
-            *          response=200,
-            *          description="Success",
-            *
-            *          @OA\JsonContent(
-            *
-            *              @OA\Property(property="message", type="string"),
-            *              @OA\Property(property="data", type="object",
-            *                  @OA\Property(property="id", type="integer", example="123"),
-            *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-            *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-            *                  @OA\Property(property="registry_id", type="integer", example="1"),
-            *                  @OA\Property(property="name", type="string", example="My First Research Project"),
-            *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
-            *                  @OA\Property(property="runs_to", type="string", example="2026-02-04"),
-            *                  @OA\Property(property="affiliate_id", type="integer", example="2"),
-            *              ),
-            *          ),
-            *      ),
-            *
-            *      @OA\Response(
-            *          response=404,
-            *          description="Not found response",
-            *
-            *          @OA\JsonContent(
-            *
-            *              @OA\Property(property="message", type="string", example="not found"),
-            *          )
-            *      )
-            * )
-            */
+     * @OA\Get(
+     *      path="/api/v1/organisations/{id}/projects",
+     *      summary="Return an all projects associated with an organisation",
+     *      description="Return an all projects associated with an organisation (i.e. data-custodian)",
+     *      tags={"organisation"},
+     *      summary="organisation@getPorjects",
+     *      security={{"bearerAuth":{}}},
+     *
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Organisation ID",
+     *         required=true,
+     *         example="1",
+     *
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Organisation ID",
+     *         ),
+     *      ),
+     *
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *
+     *          @OA\JsonContent(
+     *
+     *              @OA\Property(property="message", type="string"),
+     *              @OA\Property(property="data", type="object",
+     *                  @OA\Property(property="id", type="integer", example="123"),
+     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
+     *                  @OA\Property(property="registry_id", type="integer", example="1"),
+     *                  @OA\Property(property="name", type="string", example="My First Research Project"),
+     *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
+     *                  @OA\Property(property="runs_to", type="string", example="2026-02-04"),
+     *                  @OA\Property(property="affiliate_id", type="integer", example="2"),
+     *              ),
+     *          ),
+     *      ),
+     *
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *
+     *           @OA\JsonContent(
+     *
+     *              @OA\Property(property="message", type="string", example="not found"),
+     *          )
+     *      )
+     * )
+    */
     public function getProjects(Request $request, int $organisationId): JsonResponse
     {
         $approved = $request->query('approved', null);
@@ -857,7 +856,7 @@ class OrganisationController extends Controller
         $projects = Project::searchViaRequest()
           ->applySorting()
           ->with('approvals')
-          ->when(!is_null($approved), function ($query) use ($organisationId, $approved) {
+          ->when(!is_null($approved), function ($query) use ($approved) {
               if ($approved) {
                   $query->whereHas('approvals');
               } else {
@@ -882,7 +881,7 @@ class OrganisationController extends Controller
         ], 404);
     }
 
-=======
+    /**
      * No swagger, internal call
      */
     public function countUsers(Request $request, int $id): JsonResponse
@@ -910,5 +909,4 @@ class OrganisationController extends Controller
             throw new Exception($e->getMessage());
         }
     }
->>>>>>> origin/dev
 }

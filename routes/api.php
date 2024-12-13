@@ -72,7 +72,6 @@ Route::middleware('api')->post('v1/custodians', [CustodianController::class, 'st
 Route::middleware('api')->put('v1/custodians/{id}', [CustodianController::class, 'update']);
 Route::middleware('api')->patch('v1/custodians/{id}', [CustodianController::class, 'edit']);
 Route::middleware('api')->delete('v1/custodians/{id}', [CustodianController::class, 'destroy']);
-Route::middleware('api')->get('v1/custodians/{id}/projects', [CustodianController::class, 'getProjects']);
 Route::middleware(['api', 'check.custodian.access'])->post('v1/custodians/push', [CustodianController::class, 'push']);
 
 Route::middleware('api')->get('v1/custodian_users', [CustodianUserController::class, 'index']);
