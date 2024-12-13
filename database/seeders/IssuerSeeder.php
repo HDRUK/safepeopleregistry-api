@@ -7,6 +7,7 @@ use App\Models\IssuerUser;
 use App\Models\IssuerUserHasPermission;
 use App\Models\Permission;
 use Hash;
+use DB;
 use Illuminate\Database\Seeder;
 
 class IssuerSeeder extends Seeder
@@ -16,8 +17,10 @@ class IssuerSeeder extends Seeder
      */
     public function run(): void
     {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         Issuer::truncate();
         IssuerUser::truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         foreach (config('speedi.issuers') as $issuer) {
             $i = Issuer::factory()->create([

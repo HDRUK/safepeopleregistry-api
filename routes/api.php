@@ -56,7 +56,6 @@ Route::middleware('auth:api')->post('auth/register', [AuthController::class, 're
 Route::middleware('api')->get('v1/users', [UserController::class, 'index']);
 Route::middleware('api')->get('v1/users/test', [UserController::class, 'fakeEndpointForTesting']);
 Route::middleware('api')->get('v1/users/{id}', [UserController::class, 'show']);
-Route::middleware('api')->get('v1/users/{id}/projects/approved', [UserController::class, 'getApprovedProjects']);
 Route::middleware('api')->get('v1/users/identifier/{id}', [UserController::class, 'showByUniqueIdentifier']);
 Route::middleware('api')->post('v1/users', [UserController::class, 'store']);
 Route::middleware('api')->put('v1/users/{id}', [UserController::class, 'update']);
@@ -94,6 +93,7 @@ Route::middleware('api')->post('v1/endorsements', [EndorsementController::class,
 
 Route::middleware('api')->get('v1/projects', [ProjectController::class, 'index']);
 Route::middleware('api')->get('v1/projects/{id}', [ProjectController::class, 'show']);
+Route::middleware('api')->get('v1/projects/user/{registryId}/approved', [ProjectController::class, 'getApprovedProjects']);
 Route::middleware('api')->get('v1/projects/{id}/users', [ProjectController::class, 'getProjectUsers']);
 Route::middleware('api')->post('v1/projects', [ProjectController::class, 'store']);
 Route::middleware('api')->put('v1/projects/{id}', [ProjectController::class, 'update']);

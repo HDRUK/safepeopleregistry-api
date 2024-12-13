@@ -806,13 +806,9 @@ class OrganisationController extends Controller
           ->with('approvals')
           ->when(!is_null($approved), function ($query) use ($organisationId, $approved) {
               if ($approved) {
-                  $query->whereHas('approvals', function ($subQuery) use ($organisationId) {
-                      $subQuery->where('issuer_id', $organisationId);
-                  });
+                  $query->whereHas('approvals');
               } else {
-                  $query->whereDoesntHave('approvals', function ($subQuery) use ($organisationId) {
-                      $subQuery->where('issuer_id', $organisationId);
-                  });
+                  $query->whereDoesntHave('approvals');
               }
           })
           ->whereHas('organisations', function ($query) use ($organisationId) {
