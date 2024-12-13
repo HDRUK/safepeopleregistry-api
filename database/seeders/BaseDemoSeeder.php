@@ -104,7 +104,7 @@ Health Research Authority (HRA) Approval as it involves health-related research 
 
         ProjectHasCustodianApproval::create([
             'project_id' => $proj->id,
-            'issuer_id' => 1,
+            'custodian_id' => 1,
         ]);
 
         ProjectHasOrganisation::create([
