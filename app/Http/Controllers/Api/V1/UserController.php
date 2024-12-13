@@ -6,8 +6,8 @@ use Hash;
 use Keycloak;
 use Exception;
 use App\Models\User;
-use App\Models\UserHasIssuerApproval;
-use App\Models\UserHasIssuerPermission;
+use App\Models\UserHasCustodianApproval;
+use App\Models\UserHasCustodianPermission;
 use App\Http\Requests\Users\CreateUser;
 use App\Exceptions\NotFoundException;
 use Illuminate\Http\JsonResponse;
@@ -76,10 +76,14 @@ class UserController extends Controller
             'registry.files',
             'pendingInvites',
             'organisation',
+            'departments',
         ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return response()->json(
-            $users,
+            [
+                'message' => 'success',
+                'data' => $users,
+            ],
             200
         );
     }
@@ -153,6 +157,7 @@ class UserController extends Controller
                 'registry.files',
                 'pendingInvites',
                 'organisation',
+                'departments',
             ])->findOrFail($id);
 
             return response()->json([
@@ -563,8 +568,8 @@ class UserController extends Controller
     {
         try {
             User::where('id', $id)->delete();
-            UserHasIssuerPermission::where('user_id', $id)->delete();
-            UserHasIssuerApproval::where('user_id', $id)->delete();
+            UserHasCustodianPermission::where('user_id', $id)->delete();
+            UserHasCustodianApproval::where('user_id', $id)->delete();
 
             return response()->json([
                 'message' => 'success',
