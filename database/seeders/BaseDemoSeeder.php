@@ -10,12 +10,12 @@ use App\Models\Identity;
 use App\Models\Project;
 use App\Models\Registry;
 use App\Models\Organisation;
-use App\Models\Department;
 use App\Models\ProjectHasOrganisation;
 use App\Models\ProjectHasUser;
 use App\Models\ProjectRole;
 use App\Models\ProjectHasCustodianApproval;
 use App\Models\RegistryHasOrganisation;
+use App\Models\OrganisationHasDepartment;
 use Illuminate\Database\Seeder;
 
 class BaseDemoSeeder extends Seeder
@@ -30,25 +30,13 @@ class BaseDemoSeeder extends Seeder
 
         $this->call([
             SectorSeeder::class,
+            PermissionSeeder::class,
+            CustodianSeeder::class,
             SystemConfigSeeder::class,
             ProjectRoleSeeder::class,
             EmailTemplatesSeeder::class,
+            DepartmentSeeder::class,
         ]);
-
-        $departments = [
-            [
-                'name' => 'Data Science',
-            ],
-            [
-                'name' => 'Research & Development',
-            ],
-            [
-                'name' => 'Personnel',
-            ],
-            [
-                'name' => 'Investigations',
-            ],
-        ];
 
         // --------------------------------------------------------------------------------
         // A demo Organisation which demonstrates safety at every step
@@ -80,10 +68,14 @@ class BaseDemoSeeder extends Seeder
             'website' => 'https://www.website1.com/',
         ]);
 
-        foreach ($departments as $d) {
-            Department::create([
-                'name' => $d['name'],
+        $org1Depts = [
+            2, 3, 6, 11, 13, 20, 22, 23,
+        ];
+
+        foreach ($org1Depts as $depts) {
+            OrganisationHasDepartment::create([
                 'organisation_id' => $org1->id,
+                'department_id' => $depts,
             ]);
         }
 
@@ -172,10 +164,14 @@ National Public Health Ethics Committee for authorization to analyze population 
             'website' => 'https://www.website2.com/',
         ]);
 
-        foreach ($departments as $d) {
-            Department::create([
-                'name' => $d['name'],
+        $org2Depts = [
+            2, 11, 13, 23,
+        ];
+
+        foreach ($org2Depts as $depts) {
+            OrganisationHasDepartment::create([
                 'organisation_id' => $org2->id,
+                'department_id' => $depts,
             ]);
         }
 
@@ -241,10 +237,16 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'website' => null,
         ]);
 
-        Department::create([
-            'name' => 'Research & Development',
-            'organisation_id' => $org3->id,
-        ]);
+        $org3Depts = [
+            11, 16,
+        ];
+
+        foreach ($org3Depts as $depts) {
+            OrganisationHasDepartment::create([
+                'organisation_id' => $org3->id,
+                'department_id' => $depts,
+            ]);
+        }
 
         $proj = Project::create([
             'unique_id' => Str::random(20),

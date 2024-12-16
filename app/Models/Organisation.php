@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Traits\SearchManager;
 
 class Organisation extends Model
@@ -73,7 +72,7 @@ class Organisation extends Model
     {
         return $this->belongsToMany(
             Permission::class,
-            'organisation_has_custodian_permissions',
+            'organisation_has_custodian_permissions'
         );
     }
 
@@ -81,7 +80,7 @@ class Organisation extends Model
     {
         return $this->belongsToMany(
             Custodian::class,
-            'organisation_has_custodian_approvals',
+            'organisation_has_custodian_approvals'
         );
     }
 
@@ -89,7 +88,7 @@ class Organisation extends Model
     {
         return $this->belongsToMany(
             File::class,
-            'organisation_has_files',
+            'organisation_has_files'
         );
     }
 
@@ -97,12 +96,15 @@ class Organisation extends Model
     {
         return $this->belongsToMany(
             Registry::class,
-            'registry_has_organisations',
+            'registry_has_organisations'
         );
     }
 
-    public function departments(): HasMany
+    public function departments(): BelongsToMany
     {
-        return $this->hasMany(Department::class);
+        return $this->belongsToMany(
+            Department::class,
+            'organisation_has_departments'
+        );
     }
 }
