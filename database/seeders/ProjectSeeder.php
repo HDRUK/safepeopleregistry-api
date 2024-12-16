@@ -18,7 +18,6 @@ class ProjectSeeder extends Seeder
         Project::truncate();
 
         Schema::enableForeignKeyConstraints();
-
         Project::factory(5)->create();
     }
 }
