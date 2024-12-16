@@ -241,7 +241,7 @@ class ProjectController extends Controller
             'registry.training',
             'registry.accreditations',
             'role'
-        ])->paginate(3);//(int)$this->getSystemConfig('PER_PAGE'));
+        ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',
