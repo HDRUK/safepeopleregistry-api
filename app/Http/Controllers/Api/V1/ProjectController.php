@@ -241,16 +241,13 @@ class ProjectController extends Controller
             'registry.training',
             'registry.accreditations',
             'role'
-        ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
+        ])->paginate(3);//(int)$this->getSystemConfig('PER_PAGE'));
 
-        if ($project) {
-            return response()->json([
-                'message' => 'success',
-                'data' => $projectUsers,
-            ], 200);
-        }
+        return response()->json([
+            'message' => 'success',
+            'data' => $projectUsers,
+        ], 200);
 
-        throw new NotFoundException();
     }
 
     /**
