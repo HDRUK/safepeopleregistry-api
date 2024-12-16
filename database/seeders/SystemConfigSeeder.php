@@ -31,6 +31,11 @@ class SystemConfigSeeder extends Seeder
                 'description' => 'Pre-defined list of accepted file types accepted for uploads',
             ],
             [
+                'name' => 'FILE_UPLOAD_TYPES',
+                'value' => 'USER_EVIDENCE,ORG_EVIDENCE,RESEARCHER_LIST',
+                'description' => 'Pre-defined list of accepted uploadable file types to dictate the content',
+            ],
+            [
                 'name' => 'VALIDATION_SCHEMA',
                 'value' => '
                     {

@@ -461,7 +461,7 @@ class OrganisationController extends Controller
      *              @OA\Property(property="ror_id", type="string", example="05xs36f43"),
      *              @OA\Property(property="website", type="string", example="http://www.hdruk.ac.uk"),
      *              @OA\Property(property="smb_status", type="string", example="true"),
-     * 
+     *
      *          ),
      *      ),
      *

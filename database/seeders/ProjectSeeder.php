@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Project;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 
 class ProjectSeeder extends Seeder
 {
@@ -12,7 +13,11 @@ class ProjectSeeder extends Seeder
      */
     public function run(): void
     {
+        Schema::disableForeignKeyConstraints();
+
         Project::truncate();
+
+        Schema::enableForeignKeyConstraints();
 
         Project::factory(5)->create();
     }

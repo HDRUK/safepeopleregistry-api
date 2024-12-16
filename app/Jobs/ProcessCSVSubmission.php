@@ -77,7 +77,7 @@ class ProcessCSVSubmission implements ShouldQueue
                     'type' => 'USER',
                     'to' => $user->id,
                     'by' => $this->organisationID,
-                    'identifier' => 'delegate_sponsor',
+                    'identifier' => 'researcher_invite',
                 ];
 
                 TriggerEmail::spawnEmail($input);

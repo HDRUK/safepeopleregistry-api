@@ -24,10 +24,10 @@ return new class () extends Migration {
     public function down(): void
     {
         Schema::table('organisations', function (Blueprint $table) {
-          $table->dropColumn('charity_registration_id')->nullable();
-          $table->dropColumn('ror_id')->nullable();
-          $table->dropColumn('website')->nullable();
-          $table->dropColumn('smb_status')->nullable();
+            $table->dropColumn('charity_registration_id')->nullable();
+            $table->dropColumn('ror_id')->nullable();
+            $table->dropColumn('website')->nullable();
+            $table->dropColumn('smb_status')->nullable();
         });
     }
 };
