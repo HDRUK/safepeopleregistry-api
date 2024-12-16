@@ -922,7 +922,7 @@ class OrganisationController extends Controller
             ->where('start_date', '<=', Carbon::now())
             ->where('end_date', '>=', Carbon::now())
             ->count();
-        
+
             return response()->json(
                 ['data' => $projectCount],
                 200
@@ -944,7 +944,7 @@ class OrganisationController extends Controller
             ->where('start_date', '<', Carbon::now())
             ->where('end_date', '<', Carbon::now())
             ->count();
-        
+
             return response()->json(
                 ['data' => $projectCount],
                 200
