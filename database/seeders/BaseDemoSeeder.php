@@ -32,7 +32,7 @@ class BaseDemoSeeder extends Seeder
             SectorSeeder::class,
             SystemConfigSeeder::class,
             ProjectRoleSeeder::class,
-            EmailTemplateSeeder::class,
+            EmailTemplatesSeeder::class,
         ]);
 
         $departments = [
