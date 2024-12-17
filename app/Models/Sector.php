@@ -21,11 +21,16 @@ class Sector extends Model
 
     public const SECTORS = [
         'NHS',
-        'Academia',
         'NGO',
         'Public',
-        'Charity/Non-profit',
-        'Private/Industry',
+        'Healthcare Providers',
+        'Pharmaceutical and Biotechnology Companies (non-SME)',
+        'Pharmaceutical and Biotechnology Companies (SME)',
+        'Academic Research Institutions',
+        'Government Agencies: e.g., DHSC, Regulatory bodies, NICE',
+        'Non-Profit Organisations (e.g., foundations, advocacy groups, charities)',
+        'Other for-profit organisations (non-SME)',
+        'Other for-profit organisations (SME)',
     ];
 
     protected static array $searchableColumns = [

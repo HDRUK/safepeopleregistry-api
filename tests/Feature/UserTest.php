@@ -4,11 +4,6 @@ namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\User;
-use App\Models\Registry;
-use App\Models\Custodian;
-use App\Models\Project;
-use App\Models\ProjectHasCustodianApproval;
-use App\Models\ProjectHasUser;
 use Database\Seeders\EmailTemplatesSeeder;
 use Database\Seeders\CustodianSeeder;
 use Database\Seeders\PermissionSeeder;
@@ -382,41 +377,5 @@ class UserTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_the_application_can_show_user_approved_projects(): void
-    {
 
-        $registry = Registry::first();
-        $userId = User::where("registry_id", $registry->id)->first()->id;
-
-        $digi_ident = $registry->digi_ident;
-
-        $project = Project::first();
-        $projectId = $project->id;
-        $orgId = Custodian::first()->id;
-
-        ProjectHasUser::create(['project_id' => $projectId, 'user_digital_ident' => $digi_ident, 'project_role_id' => 1]);
-
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . '/' . $userId . '/projects/approved'
-        );
-
-        $response->assertStatus(200);
-        $this->assertArrayHasKey('data', $response);
-        $this->assertEmpty($response['data']);
-
-        ProjectHasCustodianApproval::create(['project_id' => $projectId,'custodian_id' => $orgId]);
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . '/' . $userId . '/projects/approved'
-        );
-
-        $response->assertStatus(200);
-        $this->assertArrayHasKey('data', $response);
-        $this->assertCount(1, $response['data']);
-        $this->assertArrayHasKey('title', $response['data'][0]);
-        $this->assertEquals($project->title, $response['data'][0]['title']);
-    }
 }

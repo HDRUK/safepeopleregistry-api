@@ -10,10 +10,12 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        Schema::create('departments', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-            $table->string('name', 256);
+        Schema::create('organisation_has_departments', function (Blueprint $table) {
+            $table->bigInteger('organisation_id');
+            $table->bigInteger('department_id');
+
+            $table->index('organisation_id');
+            $table->index('department_id');
         });
     }
 
@@ -22,6 +24,6 @@ return new class () extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('departments');
+        Schema::dropIfExists('organisation_has_departments');
     }
 };

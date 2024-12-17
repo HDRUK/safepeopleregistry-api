@@ -6,9 +6,13 @@ use KeycloakGuard\ActingAsKeycloakUser;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Registry;
+use App\Models\Custodian;
 use App\Models\Project;
 use App\Models\ProjectHasUser;
+use App\Models\ProjectHasCustodianApproval;
 use Database\Seeders\UserSeeder;
+use Database\Seeders\PermissionSeeder;
+use Database\Seeders\CustodianSeeder;
 use Database\Seeders\BaseDemoSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
@@ -30,6 +34,8 @@ class ProjectTest extends TestCase
         parent::setUp();
         $this->seed([
             UserSeeder::class,
+            PermissionSeeder::class,
+            CustodianSeeder::class,
             BaseDemoSeeder::class,
         ]);
 
@@ -230,8 +236,47 @@ class ProjectTest extends TestCase
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
-        $this->assertCount(1, $response['data']);
-        $this->assertArrayHasKey('registry', $response['data'][0]);
+        $this->assertArrayHasKey('data', $response['data']);
+        $this->assertCount(2, $response['data']['data']);
+        $this->assertArrayHasKey('registry', $response['data']['data'][0]);
+    }
 
+    public function test_the_application_can_show_user_approved_projects(): void
+    {
+
+        ProjectHasUser::truncate();
+        ProjectHasCustodianApproval::truncate();
+
+        $registry = Registry::first();
+        $digi_ident = $registry->digi_ident;
+
+        $project = Project::first();
+        $projectId = $project->id;
+        $custodianId = Custodian::first()->id;
+
+        ProjectHasUser::create(['project_id' => $projectId, 'user_digital_ident' => $digi_ident, 'project_role_id' => 1]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . '/user/' . $registry->id . '/approved'
+        );
+
+        $response->assertStatus(200);
+        $this->assertArrayHasKey('data', $response);
+        $this->assertEmpty($response['data']);
+
+        ProjectHasCustodianApproval::create(['project_id' => $projectId,'custodian_id' => $custodianId]);
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . '/user/' . $registry->id . '/approved'
+        );
+
+        $response->assertStatus(200);
+        $this->assertArrayHasKey('data', $response);
+        $this->assertCount(1, $response['data']);
+        $this->assertArrayHasKey('title', $response['data'][0]);
+        $this->assertEquals($project->title, $response['data'][0]['title']);
     }
 }

@@ -88,7 +88,7 @@ class FileUploadController extends Controller
                 $fileSystem.'.unscanned'
             );
 
-            if (! $path) {
+            if (!$path) {
                 return response()->json([
                     'message' => 'failed',
                     'data' => 'file upload failed',

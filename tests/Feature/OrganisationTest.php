@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Sector;
 use App\Models\Project;
 use App\Models\ProjectHasOrganisation;
+use App\Models\OrganisationHasDepartment;
 use Database\Seeders\CustodianSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\UserSeeder;
@@ -280,6 +281,33 @@ class OrganisationTest extends TestCase
         $this->assertArrayHasKey('data', $response);
     }
 
+    public function test_the_application_can_create_organisations_with_departments(): void
+    {
+        $isoCertified = fake()->randomElement([1, 0]);
+        $ceCertified = fake()->randomElement([1, 0]);
+
+        $this->testOrg['departments'] = [1, 2, 3];
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                $this->testOrg
+            );
+
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
+
+        $content = $response->decodeResponseJson()['data'];
+
+        $depts = OrganisationHasDepartment::where('organisation_id', $content)->get();
+        $this->assertTrue(count($depts) === 3);
+
+        foreach ($depts as $d) {
+            $this->assertTrue(in_array($d->department_id, $this->testOrg['departments']));
+        }
+    }
+
     public function test_the_application_can_update_organisations(): void
     {
         $isoCertified = fake()->randomElement([1, 0]);
@@ -488,5 +516,95 @@ class OrganisationTest extends TestCase
             );
 
         $response->assertStatus(201);
+    }
+
+    public function test_the_application_can_get_projects_for_an_organisation(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/projects'
+            );
+
+        $response->assertStatus(200);
+        $this->assertArrayHasKey('data', $response);
+
+
+        $this->assertCount(3, $response['data']['data']);
+
+
+        $responseWithTitleFilter = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/projects?title[]=Assessing Air Quality Impact on Respiratory Health in Urban Populations'
+            );
+
+        $this->assertCount(
+            1,
+            $responseWithTitleFilter['data']['data'],
+            'Expected exactly 1 project with the title "Assessing Air Quality Impact on Respiratory Health in Urban Populations".'
+        );
+
+        $responseSortedByTitle = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . '/1/projects?sort=title:asc'
+        );
+
+        $responseSortedByTitle->assertStatus(200);
+        $titles = array_column($responseSortedByTitle['data']['data'], 'title');
+
+        $sortedTitles = $titles;
+        sort($sortedTitles);
+
+
+        $this->assertEquals(
+            $sortedTitles,
+            $titles,
+            'The projects are not sorted alphabetically by title.'
+        );
+
+        $responseSortedByTitle = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . '/1/projects?sort=title:desc'
+        );
+
+        $responseSortedByTitle->assertStatus(200);
+        $titles = array_column($responseSortedByTitle['data']['data'], 'title');
+
+        $sortedTitles = $titles;
+        rsort($sortedTitles);
+
+        $this->assertEquals(
+            $sortedTitles,
+            $titles,
+            'The projects are not sorted alphabetically by title (descending).'
+        );
+
+        $responseSortedByTitle = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . '/1/projects?sort=title'
+        );
+        $responseSortedByTitle->assertStatus(500, 'Needs a direction');
+
+
+        $responseSortedByTitle = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . '/1/projects?sort=title:abc'
+        );
+        $responseSortedByTitle->assertStatus(500, 'unknwon direction');
+
+        $responseSortedByTitle = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . '/1/projects?sort=abc:xyz'
+        );
+        $responseSortedByTitle->assertStatus(500);
+
+
+
     }
 }

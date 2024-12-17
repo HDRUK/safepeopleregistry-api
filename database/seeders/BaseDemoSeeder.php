@@ -10,9 +10,12 @@ use App\Models\Identity;
 use App\Models\Project;
 use App\Models\Registry;
 use App\Models\Organisation;
-use App\Models\Department;
 use App\Models\ProjectHasOrganisation;
+use App\Models\ProjectHasUser;
+use App\Models\ProjectRole;
+use App\Models\ProjectHasCustodianApproval;
 use App\Models\RegistryHasOrganisation;
+use App\Models\OrganisationHasDepartment;
 use Illuminate\Database\Seeder;
 
 class BaseDemoSeeder extends Seeder
@@ -27,24 +30,13 @@ class BaseDemoSeeder extends Seeder
 
         $this->call([
             SectorSeeder::class,
+            PermissionSeeder::class,
+            CustodianSeeder::class,
             SystemConfigSeeder::class,
             ProjectRoleSeeder::class,
+            EmailTemplatesSeeder::class,
+            DepartmentSeeder::class,
         ]);
-
-        $departments = [
-            [
-                'name' => 'Data Science',
-            ],
-            [
-                'name' => 'Research & Development',
-            ],
-            [
-                'name' => 'Personnel',
-            ],
-            [
-                'name' => 'Investigations',
-            ],
-        ];
 
         // --------------------------------------------------------------------------------
         // A demo Organisation which demonstrates safety at every step
@@ -76,10 +68,14 @@ class BaseDemoSeeder extends Seeder
             'website' => 'https://www.website1.com/',
         ]);
 
-        foreach ($departments as $d) {
-            Department::create([
-                'name' => $d['name'],
+        $org1Depts = [
+            2, 3, 6, 11, 13, 20, 22, 23,
+        ];
+
+        foreach ($org1Depts as $depts) {
+            OrganisationHasDepartment::create([
                 'organisation_id' => $org1->id,
+                'department_id' => $depts,
             ]);
         }
 
@@ -99,10 +95,17 @@ Health Research Authority (HRA) Approval as it involves health-related research 
             'end_date' => '2026-01-12',
         ]);
 
+        ProjectHasCustodianApproval::create([
+            'project_id' => $proj->id,
+            'custodian_id' => 1,
+        ]);
+
         ProjectHasOrganisation::create([
             'project_id' => $proj->id,
             'organisation_id' => $org1->id,
         ]);
+
+        $this->addRandomUsersToProject($proj->id);
 
         $proj = Project::create([
             'unique_id' => Str::random(20),
@@ -124,6 +127,8 @@ National Public Health Ethics Committee for authorization to analyze population 
             'project_id' => $proj->id,
             'organisation_id' => $org1->id,
         ]);
+
+        $this->addRandomUsersToProject($proj->id);
 
         // --------------------------------------------------------------------------------
         // End
@@ -159,10 +164,14 @@ National Public Health Ethics Committee for authorization to analyze population 
             'website' => 'https://www.website2.com/',
         ]);
 
-        foreach ($departments as $d) {
-            Department::create([
-                'name' => $d['name'],
+        $org2Depts = [
+            2, 11, 13, 23,
+        ];
+
+        foreach ($org2Depts as $depts) {
+            OrganisationHasDepartment::create([
                 'organisation_id' => $org2->id,
+                'department_id' => $depts,
             ]);
         }
 
@@ -191,6 +200,8 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'project_id' => $proj->id,
             'organisation_id' => $org1->id,
         ]);
+
+        $this->addRandomUsersToProject($proj->id);
 
         // --------------------------------------------------------------------------------
         // End
@@ -226,10 +237,16 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'website' => null,
         ]);
 
-        Department::create([
-            'name' => 'Research & Development',
-            'organisation_id' => $org3->id,
-        ]);
+        $org3Depts = [
+            11, 16,
+        ];
+
+        foreach ($org3Depts as $depts) {
+            OrganisationHasDepartment::create([
+                'organisation_id' => $org3->id,
+                'department_id' => $depts,
+            ]);
+        }
 
         $proj = Project::create([
             'unique_id' => Str::random(20),
@@ -247,6 +264,8 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'project_id' => $proj->id,
             'organisation_id' => $org3->id,
         ]);
+
+        $this->addRandomUsersToProject($proj->id);
 
         // --------------------------------------------------------------------------------
         // End
@@ -714,6 +733,23 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             $user = User::where('email', $u['email'])->update([
                 'registry_id' => $reg->id,
             ]);
+        }
+    }
+
+    private function addRandomUsersToProject(int $projectId, int $nUsers = null): void
+    {
+        $nUsers = $nUsers ?? random_int(1, 10);
+        $users = User::whereNotNull("registry_id")->inRandomOrder()->limit($nUsers)->get();
+        foreach ($users as $researcher) {
+            $ident = Registry::where("id", $researcher->registry_id)->first()->digi_ident;
+            $roleId = ProjectRole::inRandomOrder()->first()->id;
+            ProjectHasUser::create(
+                [
+                    'project_id' => $projectId,
+                    'user_digital_ident' => $ident,
+                    'project_role_id' => $roleId
+                ]
+            );
         }
     }
 }
