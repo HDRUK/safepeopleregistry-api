@@ -27,7 +27,7 @@ class TriggerEmail
         $identifier = $input['identifier'];
 
         switch (strtoupper($type)) {
-            case 'RESEARCHER':
+            case 'USER':
                 $user = User::where('id', $to)->first();
                 $organisation = Organisation::where('id', $by)->first();
                 $template = EmailTemplate::where('identifier', $identifier)->first();

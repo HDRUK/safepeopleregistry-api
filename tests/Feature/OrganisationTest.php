@@ -16,6 +16,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
+use TriggerEmail;
+use Mockery;
 
 class OrganisationTest extends TestCase
 {
@@ -466,5 +468,25 @@ class OrganisationTest extends TestCase
 
         $content = $response->decodeResponseJson();
         $this->assertTrue($content['data'] > 0);
+    }
+
+    public function test_the_application_can_invite_a_user_for_organisations(): void
+    {
+        TriggerEmail::shouldReceive('spawnEmail');
+        TriggerEmail::makePartial();
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL . '/1/invite_user',
+                [
+                    'first_name' => fake()->firstName(),
+                    'last_name' => fake()->lastName(),
+                    'email' => fake()->email(),
+                    'identifier' => 'researcher_invite'
+                ],
+            );
+
+        $response->assertStatus(201);
     }
 }
