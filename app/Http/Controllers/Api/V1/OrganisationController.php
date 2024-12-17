@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\OrganisationIDVT;
 use App\Models\Project;
 use App\Models\Organisation;
+use App\Models\OrganisationHasDepartment;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -306,7 +307,6 @@ class OrganisationController extends Controller
      *          description="organisations definition",
      *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="name", type="string", example="organisations Name"),
      *              @OA\Property(property="address_1", type="string", example="123 Road"),
      *              @OA\Property(property="address_2", type="string", example="Address Two"),
@@ -326,6 +326,9 @@ class OrganisationController extends Controller
      *              @OA\Property(property="ror_id", type="string", example="05xs36f43"),
      *              @OA\Property(property="website", type="string", example="http://www.hdruk.ac.uk"),
      *              @OA\Property(property="size", type="string", example="10 to 49"),
+     *              @OA\Property(property="departments", type="array",
+     *                  @OA\Items(type="integer"),
+     *              )
      *          ),
      *      ),
      *
@@ -396,6 +399,15 @@ class OrganisationController extends Controller
                 'website' => $input['website'],
                 'smb_status' => $input['smb_status'],
             ]);
+
+            if (isset($input['departments'])) {
+                foreach ($input['departments'] as $dept) {
+                    OrganisationHasDepartment::create([
+                        'organisation_id' => $organisation->id,
+                        'department_id' => $dept,
+                    ]);
+                }
+            }
 
             // Run automated IDVT
             if (env('APP_ENV') !== 'testing') {

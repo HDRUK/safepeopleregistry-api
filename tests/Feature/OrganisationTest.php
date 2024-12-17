@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Sector;
 use App\Models\Project;
 use App\Models\ProjectHasOrganisation;
+use App\Models\OrganisationHasDepartment;
 use Database\Seeders\CustodianSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\UserSeeder;
@@ -276,6 +277,33 @@ class OrganisationTest extends TestCase
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
+    }
+
+    public function test_the_application_can_create_organisations_with_departments(): void
+    {
+        $isoCertified = fake()->randomElement([1, 0]);
+        $ceCertified = fake()->randomElement([1, 0]);
+
+        $this->testOrg['departments'] = [1, 2, 3];
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                $this->testOrg
+            );
+
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
+
+        $content = $response->decodeResponseJson()['data'];
+
+        $depts = OrganisationHasDepartment::where('organisation_id', $content)->get();
+        $this->assertTrue(count($depts) === 3);
+
+        foreach ($depts as $d) {
+            $this->assertTrue(in_array($d->department_id, $this->testOrg['departments']));
+        }
     }
 
     public function test_the_application_can_update_organisations(): void

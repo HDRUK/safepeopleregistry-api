@@ -10,10 +10,8 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        Schema::create('departments', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-            $table->string('name', 256);
+        Schema::table('departments', function (Blueprint $table) {
+            $table->string('category', 255)->nullable();
         });
     }
 
@@ -22,6 +20,8 @@ return new class () extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('departments');
+        Schema::table('departments', function (Blueprint $table) {
+            $table->dropIfExists('category');
+        });
     }
 };

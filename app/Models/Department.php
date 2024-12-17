@@ -17,7 +17,7 @@ class Department extends Model
 
     protected $fillable = [
         'name',
-        'organisation_id',
+        'category',
     ];
 
     protected static array $searchableColumns = [
