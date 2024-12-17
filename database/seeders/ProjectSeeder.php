@@ -14,9 +14,7 @@ class ProjectSeeder extends Seeder
     public function run(): void
     {
         Schema::disableForeignKeyConstraints();
-
         Project::truncate();
-
         Schema::enableForeignKeyConstraints();
         Project::factory(5)->create();
     }

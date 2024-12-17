@@ -7,6 +7,7 @@ use App\Models\CustodianUser;
 use App\Models\CustodianUserHasPermission;
 use App\Models\Permission;
 use Hash;
+use DB;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Schema;
 
@@ -19,8 +20,10 @@ class CustodianSeeder extends Seeder
     {
         Schema::disableForeignKeyConstraints();
 
+        //DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         Custodian::truncate();
         CustodianUser::truncate();
+        //DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         Schema::enableForeignKeyConstraints();
 
