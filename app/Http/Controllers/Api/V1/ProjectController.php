@@ -230,26 +230,24 @@ class ProjectController extends Controller
     */
     public function getProjectUsers(Request $request, int $id): JsonResponse
     {
-        $project = Project::with([
-            'projectUsers.registry.user',
-            'projectUsers.registry.organisations' => function ($query) {
-                return $query->select(['id','organisation_name']);
+        $project = Project::findOrFail($id);
+        $projectUsers = $project->projectUsers()->with([
+            'registry.user',
+            'registry.organisations' => function ($query) {
+                $query->select(['id','organisation_name']);
             },
-            'projectUsers.registry.employment',
-            'projectUsers.registry.education',
-            'projectUsers.registry.training',
-            'projectUsers.registry.accreditations',
-            'projectUsers.role'
-            ])->select(['id'])->findOrFail($id);
+            'registry.employment',
+            'registry.education',
+            'registry.training',
+            'registry.accreditations',
+            'role'
+        ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
-        if ($project) {
-            return response()->json([
-                'message' => 'success',
-                'data' => $project->projectUsers,
-            ], 200);
-        }
+        return response()->json([
+            'message' => 'success',
+            'data' => $projectUsers,
+        ], 200);
 
-        throw new NotFoundException();
     }
 
     /**

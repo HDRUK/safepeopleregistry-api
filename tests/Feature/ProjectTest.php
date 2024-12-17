@@ -236,8 +236,9 @@ class ProjectTest extends TestCase
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
-        $this->assertCount(2, $response['data']);
-        $this->assertArrayHasKey('registry', $response['data'][0]);
+        $this->assertArrayHasKey('data', $response['data']);
+        $this->assertCount(2, $response['data']['data']);
+        $this->assertArrayHasKey('registry', $response['data']['data'][0]);
     }
 
     public function test_the_application_can_show_user_approved_projects(): void
