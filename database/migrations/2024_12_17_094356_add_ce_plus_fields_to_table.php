@@ -14,8 +14,8 @@ class AddCePlusFieldsToTable extends Migration
     public function up()
     {
         Schema::table('organisations', function (Blueprint $table) {
-            $table->tinyInteger('ce_plus_certified')->default(0);
-            $table->string('ce_plus_certification_num', 255)->nullable();
+            $table->tinyInteger('ce_plus_certified')->default(0)->after('ce_certification_num');
+            $table->string('ce_plus_certification_num', 255)->nullable()->after('ce_plus_certified');
         });
     }
 
