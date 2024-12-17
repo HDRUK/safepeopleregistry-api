@@ -13,7 +13,7 @@ class AddCePlusFieldsToTable extends Migration
      */
     public function up()
     {
-        Schema::table('your_table_name', function (Blueprint $table) {
+        Schema::table('organisations', function (Blueprint $table) {
             $table->tinyInteger('ce_plus_certified')->default(0);
             $table->string('ce_plus_certification_num', 255)->nullable();
         });
@@ -26,7 +26,7 @@ class AddCePlusFieldsToTable extends Migration
      */
     public function down()
     {
-        Schema::table('your_table_name', function (Blueprint $table) {
+        Schema::table('organisations', function (Blueprint $table) {
             $table->dropColumn('ce_plus_certified');
             $table->dropColumn('ce_plus_certification_num');
         });

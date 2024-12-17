@@ -60,6 +60,7 @@ class BaseDemoSeeder extends Seeder
             'dsptk_ods_code' => '8HQ90',
             'iso_27001_certified' => true,
             'ce_certified' => true,
+            'ce_plus_certified' => true,
             'companies_house_no' => '09349495',
             'sector_id' => 5, // Charity/Non-profit
             'charity_registration_id' => '1186569',
@@ -156,6 +157,7 @@ National Public Health Ethics Committee for authorization to analyze population 
             'dsptk_ods_code' => '',
             'iso_27001_certified' => true,
             'ce_certified' => false,
+            'ce_plus_certified' => false,
             'companies_house_no' => '15765271',
             'sector_id' => 4, // Public
             'charity_registration_id' => '1186569',
@@ -229,6 +231,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'dsptk_ods_code' => '',
             'iso_27001_certified' => true,
             'ce_certified' => true,
+            'ce_plus_certified' => true,
             'companies_house_no' => '07563555',
             'sector_id' => 6, // Private/Industry
             'charity_registration_id' => null,
