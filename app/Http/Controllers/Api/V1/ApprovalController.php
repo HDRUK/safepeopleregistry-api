@@ -103,4 +103,48 @@ class ApprovalController extends Controller
         }
 
     }
+
+    public function getEntityHasCustodianApproval(Request $request, string $entityType, string $id, string $custodianId): JsonResponse
+    {
+        try {
+            switch (strtoupper($entityType)) {
+                case 'USER':
+                    $approvals = UserHasCustodianApproval::where([
+                        ['custodian_id', '=', $custodianId],
+                        ['user_id', '=', $id]
+                    ])->get();
+                    break;
+
+                case 'ORGANISATION':
+                    $approvals = OrganisationHasCustodianApproval::where([
+                        ['custodian_id', '=', $custodianId],
+                        ['organisation_id', '=', $id]
+                    ])->get();
+                    break;
+
+                default:
+                    return response()->json([
+                        'message' => 'Unknown entity type',
+                        'data' => [],
+                    ], 400);
+            }
+
+            if ($approvals->isEmpty()) {
+                return response()->json([
+                    'message' => 'No approvals found',
+                    'data' => [],
+                ], 404);
+            }
+
+            return response()->json([
+                'message' => 'success',
+                'data' => $approvals,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Error retrieving approvals',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }
