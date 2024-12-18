@@ -13,8 +13,6 @@ return new class () extends Migration {
         Schema::table('educations', function (Blueprint $table) {
             $table->string('from', 10)->change();
             $table->string('to', 10)->change();
-
-            $table->dropColumn('registry_id');
         });
     }
 

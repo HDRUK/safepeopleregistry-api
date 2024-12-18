@@ -77,6 +77,7 @@ class UserController extends Controller
             'pendingInvites',
             'organisation',
             'departments',
+            'educations',
         ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return response()->json(
@@ -158,6 +159,7 @@ class UserController extends Controller
                 'pendingInvites',
                 'organisation',
                 'departments',
+                'educations',
             ])->findOrFail($id);
 
             return response()->json([
