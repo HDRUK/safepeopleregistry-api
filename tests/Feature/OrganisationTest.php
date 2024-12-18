@@ -7,18 +7,22 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Sector;
 use App\Models\Project;
+use App\Jobs\SendEmailJob;
+use App\Models\PendingInvite;
 use App\Models\ProjectHasOrganisation;
 use App\Models\OrganisationHasDepartment;
 use Database\Seeders\CustodianSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\UserSeeder;
 use Database\Seeders\BaseDemoSeeder;
+use Database\Seeders\EmailTemplatesSeeder;
+use Database\Seeders\OrganisationDelegateSeeder;
+use Database\Seeders\OrganisationSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
-use TriggerEmail;
-use Mockery;
 
 class OrganisationTest extends TestCase
 {
@@ -35,9 +39,12 @@ class OrganisationTest extends TestCase
     {
         parent::setUp();
         $this->seed([
-            UserSeeder::class,
             PermissionSeeder::class,
             CustodianSeeder::class,
+            UserSeeder::class,
+            OrganisationSeeder::class,
+            OrganisationDelegateSeeder::class,
+            EmailTemplatesSeeder::class,
             BaseDemoSeeder::class,
         ]);
 
@@ -500,8 +507,8 @@ class OrganisationTest extends TestCase
 
     public function test_the_application_can_invite_a_user_for_organisations(): void
     {
-        TriggerEmail::shouldReceive('spawnEmail');
-        TriggerEmail::makePartial();
+        Queue::fake();
+        Queue::assertNothingPushed();
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
@@ -516,6 +523,14 @@ class OrganisationTest extends TestCase
             );
 
         $response->assertStatus(201);
+
+        Queue::assertPushed(SendEmailJob::class);
+
+        $invites = PendingInvite::all();
+
+        $this->assertTrue(count($invites) === 1);
+        $this->assertTrue($invites[0]->user_id === 19);
+        $this->assertTrue($invites[0]->organisation_id === 1);
     }
 
     public function test_the_application_can_get_projects_for_an_organisation(): void
