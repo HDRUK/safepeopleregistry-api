@@ -103,7 +103,55 @@ class ApprovalController extends Controller
         }
 
     }
-
+    /**
+     * @OA\Get(
+     *     path="/v1/approvals/{entity_type}/{id}/custodian/{custodian_id}",
+     *     summary="Get approvals by entity type and custodian ID",
+     *     tags={"Approvals"},
+     *     @OA\Parameter(
+     *         name="entity_type",
+     *         in="path",
+     *         required=true,
+     *         description="The entity type (USER or ORGANISATION)",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="The ID of the user or organisation",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="custodian_id",
+     *         in="path",
+     *         required=true,
+     *         description="The ID of the custodian",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Success",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="data", type="array", @OA\Items())
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="No approvals found"
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Unknown entity type"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Error retrieving approvals"
+     *     )
+     * )
+     */
     public function getEntityHasCustodianApproval(Request $request, string $entityType, string $id, string $custodianId): JsonResponse
     {
         try {
