@@ -59,7 +59,7 @@ class ProcessCSVSubmission implements ShouldQueue
 
                 $input = [
                     'type' => 'USER',
-                    'to' => $user->id,
+                    'to' => $unclaimedUser->id,
                     'by' => $this->organisationID,
                     'identifier' => 'researcher_invite',
                 ];
