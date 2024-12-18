@@ -118,9 +118,4 @@ class User extends Authenticatable
             'user_has_departments'
         );
     }
-
-    public function educations(): HasMany
-    {
-        return $this->hasMany(Education::class, 'registry_id');
-    }
 }
