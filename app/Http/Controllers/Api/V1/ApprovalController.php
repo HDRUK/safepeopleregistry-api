@@ -176,7 +176,6 @@ class ApprovalController extends Controller
                         'data' => [],
                     ], 400);
             }
-
             if ($approvals->isEmpty()) {
                 return response()->json([
                     'message' => 'No approvals found',
