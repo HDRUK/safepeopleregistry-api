@@ -13,6 +13,7 @@ use App\Models\ProjectHasOrganisation;
 use App\Models\OrganisationHasDepartment;
 use Database\Seeders\CustodianSeeder;
 use Database\Seeders\UserSeeder;
+use Database\Seeders\PermissionSeeder;
 use Database\Seeders\BaseDemoSeeder;
 use Database\Seeders\EmailTemplatesSeeder;
 use Database\Seeders\OrganisationDelegateSeeder;
