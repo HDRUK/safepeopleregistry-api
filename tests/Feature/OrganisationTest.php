@@ -12,12 +12,10 @@ use App\Models\PendingInvite;
 use App\Models\ProjectHasOrganisation;
 use App\Models\OrganisationHasDepartment;
 use Database\Seeders\CustodianSeeder;
-use Database\Seeders\PermissionSeeder;
 use Database\Seeders\UserSeeder;
 use Database\Seeders\BaseDemoSeeder;
 use Database\Seeders\EmailTemplatesSeeder;
 use Database\Seeders\OrganisationDelegateSeeder;
-use Database\Seeders\OrganisationSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
@@ -42,10 +40,9 @@ class OrganisationTest extends TestCase
             PermissionSeeder::class,
             CustodianSeeder::class,
             UserSeeder::class,
-            OrganisationSeeder::class,
-            OrganisationDelegateSeeder::class,
             EmailTemplatesSeeder::class,
             BaseDemoSeeder::class,
+            OrganisationDelegateSeeder::class,
         ]);
 
         $this->user = User::where('id', 1)->first();

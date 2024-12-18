@@ -925,7 +925,7 @@ class OrganisationController extends Controller
         }
     }
 
-        /**
+    /**
      * @OA\Post(
      *      path="/api/v1/organisations/{id}/invite_user",
      *      summary="Invites a user to org",
@@ -952,10 +952,9 @@ class OrganisationController extends Controller
      *          description="Invite definition",
      *
      *          @OA\JsonContent(
-     *
-     *                  @OA\Property(property="last_name", type="string", example="Smith"),
-     *                  @OA\Property(property="first_name", type="string", example="John"),
-     *                  @OA\Property(property="email", type="string", example="someone@somewhere.com"),
+     *              @OA\Property(property="last_name", type="string", example="Smith"),
+     *              @OA\Property(property="first_name", type="string", example="John"),
+     *              @OA\Property(property="email", type="string", example="someone@somewhere.com"),
      *          ),
      *      ),
      *

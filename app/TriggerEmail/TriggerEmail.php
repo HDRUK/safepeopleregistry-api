@@ -31,6 +31,7 @@ class TriggerEmail
                 $user = User::where('id', $to)->first();
                 $organisation = Organisation::where('id', $by)->first();
                 $template = EmailTemplate::where('identifier', $identifier)->first();
+
                 $delegate = OrganisationDelegate::where([
                     'organisation_id' => $by,
                     'priority_order' => 0,
