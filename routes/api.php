@@ -189,6 +189,7 @@ Route::middleware('api')->post('v1/trigger_email', [TriggerEmailController::clas
 Route::middleware('api')->post('v1/files', [FileUploadController::class, 'store']);
 
 Route::middleware('api')->post('v1/approvals/{entity_type}', [ApprovalController::class, 'store']);
+Route::middleware('api')->get('v1/approvals/{entity_type}/{id}/custodian/{custodian_id}', [ApprovalController::class, 'getEntityHasCustodianApproval']);
 Route::middleware('api')->delete('v1/approvals/{entity_type}/{id}/custodian/{custodian_id}', [ApprovalController::class, 'delete']);
 
 Route::get('v1/system_config', [SystemConfigController::class, 'index']);

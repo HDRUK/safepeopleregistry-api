@@ -136,4 +136,52 @@ class ApprovalTest extends TestCase
 
         $response->assertStatus(200);
     }
+
+    public function test_the_application_can_get_user_custodian_approvals(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/user/'. $this->user->id . '/custodian/' . $this->custodian->id,
+            );
+
+        $response->assertStatus(200);
+        $responseData = $response->decodeResponseJson()['data'];
+        $this->assertEquals(
+            [
+                [
+                    'user_id' => $this->user->id,
+                    'custodian_id' => $this->custodian->id,
+                ]
+            ],
+            $responseData
+        );
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . '/user/'. $this->user->id . '/custodian/' . 100,
+        );
+
+        $response->assertStatus(404);
+
+    }
+
+    public function test_the_application_can_get_organisation_custodian_approvals(): void
+    {
+        $orgIsApproved = OrganisationHasCustodianApproval::where(
+            [
+                'custodian_id' => $this->custodian->id,
+                'organisation_id' => $this->organisation->id
+            ]
+        )->exists();
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/organisation/'. $this->organisation->id . '/custodian/' . $this->custodian->id,
+            );
+        $response->assertStatus($orgIsApproved ? 200 : 404);
+
+    }
 }
