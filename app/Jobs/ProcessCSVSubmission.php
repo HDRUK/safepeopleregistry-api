@@ -53,29 +53,12 @@ class ProcessCSVSubmission implements ShouldQueue
                 'email' => $row['email'],
             ])->first();
 
-            if (! $user) {
-                $registry = Registry::create([
-                    'dl_ident' => null,
-                    'pp_ident' => null,
-                    'digi_ident' => RMC::generateDigitalIdentifierForRegistry(),
-                    'verified' => 0,
-                ]);
-
-                // Create unclaimed account
-                $user = User::create([
-                    'first_name' => $row['firstname'],
-                    'last_name' => $row['lastname'],
-                    'email' => $row['email'],
-                    'unclaimed' => 1,
-                    'feed_source' => 'ORG',
-                    'registry_id' => $registry->id,
-                    'user_group' => '',
-                    'orc_id' => '',
-                ]);
+            if (!$user) {
+                $unclaimedUser = RMC::createUnclaimedUser($row);
 
                 $input = [
                     'type' => 'USER',
-                    'to' => $user->id,
+                    'to' => $unclaimedUser->id,
                     'by' => $this->organisationID,
                     'identifier' => 'researcher_invite',
                 ];

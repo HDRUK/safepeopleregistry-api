@@ -69,7 +69,7 @@ class EmailSendTest extends TestCase
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json('POST', self::TEST_URL, [
                 'to' => 1,
-                'type' => 'researcher',
+                'type' => 'USER',
                 'by' => 1,
                 'identifier' => 'researcher_invite',
             ]);
