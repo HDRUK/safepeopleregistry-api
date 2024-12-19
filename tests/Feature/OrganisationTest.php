@@ -508,26 +508,35 @@ class OrganisationTest extends TestCase
         Queue::fake();
         Queue::assertNothingPushed();
 
+        $email = fake()->email();
+        $firstName = fake()->firstName();
+        $lastName = fake()->lastName();
+
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'POST',
                 self::TEST_URL . '/1/invite_user',
                 [
-                    'first_name' => fake()->firstName(),
-                    'last_name' => fake()->lastName(),
-                    'email' => fake()->email(),
+                    'first_name' => $firstName,
+                    'last_name' => $lastName,
+                    'email' => $email,
                     'identifier' => 'researcher_invite'
                 ],
             );
 
         $response->assertStatus(201);
 
+        $this->assertDatabaseHas('users', [
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'email' => $email,
+        ]);
+
         Queue::assertPushed(SendEmailJob::class);
 
         $invites = PendingInvite::all();
 
         $this->assertTrue(count($invites) === 1);
-        $this->assertTrue($invites[0]->user_id === 19);
         $this->assertTrue($invites[0]->organisation_id === 1);
     }
 
