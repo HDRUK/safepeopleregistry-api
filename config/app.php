@@ -126,6 +126,8 @@ return [
 
     'cipher' => 'AES-256-CBC',
 
+    'rate_limit' => env('RATE_LIMIT', 10000),
+
     /*
     |--------------------------------------------------------------------------
     | Maintenance Mode Driver
