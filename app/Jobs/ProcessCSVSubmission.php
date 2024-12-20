@@ -4,7 +4,6 @@ namespace App\Jobs;
 
 use App\Models\File;
 use App\Models\OrganisationHasFile;
-use App\Models\Registry;
 use App\Models\User;
 use App\Traits\CommonFunctions;
 use Illuminate\Bus\Queueable;

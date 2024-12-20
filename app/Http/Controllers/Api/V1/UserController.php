@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use Hash;
 use Keycloak;
 use Exception;
+use RulesEngineManagementController as REMC;
 use App\Models\User;
 use App\Models\UserHasCustodianApproval;
 use App\Models\UserHasCustodianPermission;
@@ -160,6 +161,7 @@ class UserController extends Controller
                 'pendingInvites',
                 'organisation',
                 'departments',
+                'registry.identity',
                 'registry.education',
                 'registry.training',
             ])->findOrFail($id);
@@ -167,6 +169,7 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'success',
                 'data' => $user,
+                'rules' => REMC::callRulesEngine($user->toArray()),
             ], 200);
         } catch (Exception $e) {
             throw new NotFoundException();

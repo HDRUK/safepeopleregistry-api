@@ -229,11 +229,18 @@ class UserTest extends TestCase
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
             'GET',
-            self::TEST_URL . '/1'
+            self::TEST_URL . '/10' // One of the researchers
         );
 
         $response->assertStatus(200);
+        $content = $response->decodeResponseJson();
+
         $this->assertArrayHasKey('data', $response);
+        $this->assertArrayHasKey('rules', $response);
+        $this->assertTrue($content['rules']['result']['rule_alert'] === 'ok');
+
+        $this->assertArrayHasKey('result', $content['rules']);
+        $this->assertArrayHasKey('trace', $content['rules']);
     }
 
     public function test_the_application_can_create_users(): void

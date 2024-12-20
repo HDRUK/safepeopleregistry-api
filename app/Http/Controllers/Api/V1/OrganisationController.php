@@ -16,7 +16,6 @@ use App\Models\OrganisationHasDepartment;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-
 use TriggerEmail;
 
 class OrganisationController extends Controller
