@@ -9,6 +9,8 @@ use App\Models\User;
 use App\Models\Identity;
 use App\Models\Project;
 use App\Models\Registry;
+use App\Models\Education;
+use App\Models\Training;
 use App\Models\Organisation;
 use App\Models\ProjectHasOrganisation;
 use App\Models\ProjectHasUser;
@@ -648,7 +650,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         // --------------------------------------------------------------------------------
         $this->createUserRegistry($org1Researchers);
         $this->createUserRegistry($org2Researchers);
-        $this->createUserRegistry($org3Researchers);
+        $this->createUserRegistry($org3Researchers, false);
 
         // --------------------------------------------------------------------------------
         // Create Identities for the above users
@@ -723,7 +725,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         }
     }
 
-    private function createUserRegistry(array $input): void
+    private function createUserRegistry(array $input, bool $legit = true): void
     {
         foreach ($input as $u) {
             $reg = Registry::create([
@@ -733,9 +735,115 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'verified' =>       0,
             ]);
 
-            $user = User::where('email', $u['email'])->update([
+            $user = User::where('email', $u['email'])->first();
+
+            $user->update([
                 'registry_id' => $reg->id,
             ]);
+
+            if ($user->user_group !== RMC::KC_GROUP_USERS) {
+                continue;
+            }
+
+            $educations = [];
+
+            // Make up some Education entries for these users
+            if ($legit) {
+                $educations = [
+                    [
+                        'title' => 'Infectious Disease \'Omics',
+                        'from' => Carbon::now()->subYears(10)->toDateString(),
+                        'to' => Carbon::now()->subYears(6)->toDateString(),
+                        'institute_name' => 'London School of Hygiene & Tropical Medicine',
+                        'institute_address' => 'Keppel Street, London, WC1E 7HT',
+                        'institute_identifier' => '00a0jsq62', // ROR
+                        'source' => 'user',
+                        'registry_id' => $reg->id,
+                    ],
+                    [
+                        'title' => 'MSc Health Data Science',
+                        'from' => Carbon::now()->subYears(5)->toDateString(),
+                        'to' => Carbon::now()->subYears(4)->toDateString(),
+                        'institute_name' => 'University of Exeter',
+                        'institute_address' => 'Stocker Road, Exeter, Devon EX4 4SZ',
+                        'institute_identifier' => '03yghzc09',
+                        'source' => 'user',
+                        'registry_id' => $reg->id,
+                    ],
+                ];
+            } else {
+                $educations = [
+                    [
+                        'title' => 'Lobbying and Manipulation tactics for Policy',
+                        'from' => Carbon::now()->subYears(10)->toDateString(),
+                        'to' => Carbon::now()->subYears(6)->toDateString(),
+                        'institute_name' => 'London School of Lobbying',
+                        'institute_address' => 'Fake Street, London, WC1E 7HT',
+                        'institute_identifier' => '', // ROR
+                        'source' => 'user',
+                        'registry_id' => $reg->id,
+                    ],
+                ];
+            }
+
+            foreach ($educations as $edu) {
+                $ed = Education::create([
+                    'title' => $edu['title'],
+                    'from' => $edu['from'],
+                    'to' => $edu['to'],
+                    'institute_name' => $edu['institute_name'],
+                    'institute_address' => $edu['institute_address'],
+                    'institute_identifier' => $edu['institute_identifier'],
+                    'source' => $edu['source'],
+                    'registry_id' => $edu['registry_id'],
+                ]);
+            }
+
+            $trainings = [];
+
+            if ($legit) {
+                // Make up some training entries for these users
+                $trainings = [
+                    [
+                        'registry_id' => $reg->id,
+                        'provider' => 'UK Data Service',
+                        'awarded_at' => Carbon::now()->subYears(2)->toDateString(),
+                        'expires_at' => Carbon::now()->addYears(3)->toDateString(),
+                        'expires_in_years' => 5,
+                        'training_name' => 'Safe Researcher Training',
+                    ],
+                    [
+                        'registry_id' => $reg->id,
+                        'provider' => 'Medical Research Council (MRC)',
+                        'awarded_at' => Carbon::now()->subYears(2)->toDateString(),
+                        'expires_at' => Carbon::now()->addYears(3)->toDateString(),
+                        'expires_in_years' => 5,
+                        'training_name' => 'Research, GDPR, and Confidentiality',
+                    ],
+                ];
+            } else {
+                $trainings = [
+                    [
+                        'registry_id' => $reg->id,
+                        'provider' => 'Office of National Statistics (ONS)',
+                        'awarded_at' => Carbon::now()->subYears(10)->toDateString(),
+                        'expires_at' => Carbon::now()->subYears(5)->toDateString(),
+                        'expires_in_years' => 2,
+                        'training_name' => 'Safe Researcher Training',
+                    ],
+                ];
+            }
+
+            foreach ($trainings as $tr) {
+                $training = Training::create([
+                    'registry_id' => $tr['registry_id'],
+                    'provider' => $tr['provider'],
+                    'awarded_at' => $tr['awarded_at'],
+                    'expires_at' => $tr['expires_at'],
+                    'expires_in_years' => $tr['expires_in_years'],
+                    'training_name' => $tr['training_name'],
+                ]);
+            }
         }
     }
 

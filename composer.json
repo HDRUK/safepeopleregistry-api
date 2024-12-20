@@ -69,7 +69,7 @@
             "vendor/bin/pint --preset psr12"
         ],
         "phpstan": [
-            "vendor/bin/phpstan analyse app  --memory-limit 512M"
+            "vendor/bin/phpstan analyse app -vvv  --memory-limit 512M"
         ]
     },
     "extra": {

@@ -4,12 +4,13 @@ includes:
 parameters:
     paths:
         - app/
+    reportUnmatchedIgnoredErrors: false
 
     # Level 9 is the highest level
     level: 5
 
     ignoreErrors:
-#        - '#PHPDoc tag @var#'
+        - '#Call to an undefined static method Illuminate\\Support\\Facades\\Auth::token#'
 #
 #    excludePaths:
 #        - ./*/*/FileToBeExcluded.php

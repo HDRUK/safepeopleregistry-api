@@ -32,27 +32,18 @@ class CustodianSeeder extends Seeder
                 'idvt_required' => fake()->randomElement([0, 1]),
             ]);
 
-            for ($x = 0; $x < fake()->randomElement([1, 3]); $x++) {
+            for ($x = 0; $x < 1; $x++) {
                 $iu = CustodianUser::factory()->create([
-                    'first_name' => fake()->firstname(),
-                    'last_name' => fake()->lastname(),
-                    'email' => fake()->email(),
+                    'first_name' => 'Custodian',
+                    'last_name' => 'Admin',
+                    'email' => 'custodian' . ($x + 1) . '@' . $custodian['name'] . '.notreal',
                     'password' => Hash::make('t3mpP4ssword!'),
                     'provider' => '',
                     'keycloak_id' => '',
                     'custodian_id' => $i->id,
                 ]);
 
-                $arrs = [
-                    'CUSTODIAN_ADMIN',
-                    'CUSTODIAN_CREATE',
-                    'CUSTODIAN_READ',
-                    'CUSTODIAN_UPDATE',
-                    'CUSTODIAN_KEYCARD_CREATE',
-                    'CUSTODIAN_KEYCARD_REVOKE',
-                ];
-
-                $perm = Permission::where('name', '=', fake()->randomElement($arrs))->first();
+                $perm = Permission::where('name', '=', 'CUSTODIAN_ADMIN')->first();
                 CustodianUserHasPermission::create([
                     'custodian_user_id' => $iu->id,
                     'permission_id' => $perm->id,
