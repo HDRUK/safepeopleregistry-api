@@ -67,11 +67,12 @@ class TrainingController extends Controller
         ], 200);
     }
 
+
     /**
      * @OA\Get(
      *      path="/api/v1/training/{id}",
-     *      summary="Return a Training entry by ID",
-     *      description="Return a Training entry by ID",
+     *      summary="Return a trainings by registry id",
+     *      description="Return a trainings by  registry id",
      *      tags={"Training"},
      *      summary="Training@show",
      *      security={{"bearerAuth":{}}},
@@ -79,22 +80,20 @@ class TrainingController extends Controller
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="Training entry ID",
+     *         description="Training entry registry id",
      *         required=true,
      *         example="1",
      *
      *         @OA\Schema(
      *            type="integer",
-     *            description="Training entry ID",
+     *            description="Training entry registry id",
      *         ),
      *      ),
      *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -109,29 +108,23 @@ class TrainingController extends Controller
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
      * )
      */
-    public function show(Request $request, int $id): JsonResponse
+    public function indexByRegistryId(Request $request, int $registryId): JsonResponse
     {
-        $trainings = Training::findOrFail($id);
-        if ($trainings) {
-            return response()->json([
-                'message' => 'success',
-                'data' => $trainings,
-            ], 200);
-        }
+        $trainings = Training::where('registry_id', $registryId)->get();
 
-        throw new NotFoundException();
+        return response()->json([
+            'message' => 'success',
+            'data' => $trainings,
+        ], 200);
     }
 
     /**
