@@ -164,7 +164,7 @@ class UserController extends Controller
                 'registry.identity',
                 'registry.education',
                 'registry.training',
-            ])->findOrFail($id);
+            ])->where('id', $id)->first();
 
             return response()->json([
                 'message' => 'success',
