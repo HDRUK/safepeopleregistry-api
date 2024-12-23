@@ -228,7 +228,6 @@ class UserTest extends TestCase
     public function test_the_application_can_show_users(): void
     {
         $user = User::where('user_group', RMC::KC_GROUP_USERS)->first();
-        dd(self::TEST_URL . '/' . $user->id);
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
             'GET',
