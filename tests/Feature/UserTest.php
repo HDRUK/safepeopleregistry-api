@@ -245,6 +245,8 @@ class UserTest extends TestCase
             ]
         );
 
+        dd($response->decodeResponseJson()['data']);
+
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
 
