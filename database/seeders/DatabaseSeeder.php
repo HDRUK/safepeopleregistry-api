@@ -13,24 +13,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            SectorSeeder::class,
-            SystemConfigSeeder::class,
-            IDVTPluginSeeder::class,
-            PermissionSeeder::class,
-            CustodianSeeder::class,
-            OrganisationSeeder::class,
-            OrganisationDelegateSeeder::class,
-            IdentitySeeder::class,
-            ProjectSeeder::class,
-            TrainingSeeder::class,
-            HistorySeeder::class,
-            EmploymentSeeder::class,
-            ExperienceSeeder::class,
-            EmailTemplatesSeeder::class,
-            AccreditationSeeder::class,
-            UserSeeder::class,
-            InfringementSeeder::class,
-            ResolutionSeeder::class,
+            BaseDemoSeeder::class,
         ]);
     }
 }

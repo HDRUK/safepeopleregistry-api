@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use RegistryManagementController as RMC;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\User;
 use Database\Seeders\EmailTemplatesSeeder;
@@ -226,14 +227,22 @@ class UserTest extends TestCase
 
     public function test_the_application_can_show_users(): void
     {
+        $user = User::where('user_group', RMC::KC_GROUP_USERS)->first();
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
             'GET',
-            self::TEST_URL . '/1'
+            self::TEST_URL . '/' . $user->id // One of the researchers
         );
 
         $response->assertStatus(200);
+        $content = $response->decodeResponseJson();
+
         $this->assertArrayHasKey('data', $response);
+        $this->assertArrayHasKey('rules', $response);
+        $this->assertTrue($content['rules']['result']['rule_alert'] === 'ok');
+
+        $this->assertArrayHasKey('result', $content['rules']);
+        $this->assertArrayHasKey('trace', $content['rules']);
     }
 
     public function test_the_application_can_create_users(): void

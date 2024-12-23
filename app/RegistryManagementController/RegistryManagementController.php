@@ -127,22 +127,22 @@ class RegistryManagementController
 
     public static function createUnclaimedUser(array $user): User
     {
-      $registry = Registry::create([
-        'dl_ident' => null,
-        'pp_ident' => null,
-        'digi_ident' => RegistryManagementController::generateDigitalIdentifierForRegistry(),
-        'verified' => 0,
-      ]);
+        $registry = Registry::create([
+          'dl_ident' => null,
+          'pp_ident' => null,
+          'digi_ident' => RegistryManagementController::generateDigitalIdentifierForRegistry(),
+          'verified' => 0,
+        ]);
 
-      return User::create([
-          'first_name' => $user['firstname'],
-          'last_name' => $user['lastname'],
-          'email' => $user['email'],
-          'unclaimed' => 1,
-          'feed_source' => 'ORG',
-          'registry_id' => $registry->id,
-          'user_group' => '',
-          'orc_id' => '',
-      ]);
+        return User::create([
+            'first_name' => $user['firstname'],
+            'last_name' => $user['lastname'],
+            'email' => $user['email'],
+            'unclaimed' => 1,
+            'feed_source' => 'ORG',
+            'registry_id' => $registry->id,
+            'user_group' => '',
+            'orc_id' => '',
+        ]);
     }
 }
