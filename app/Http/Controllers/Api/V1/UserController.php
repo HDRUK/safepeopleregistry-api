@@ -10,7 +10,6 @@ use App\Models\User;
 use App\Models\UserHasCustodianApproval;
 use App\Models\UserHasCustodianPermission;
 use App\Http\Requests\Users\CreateUser;
-use App\Exceptions\NotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -172,7 +171,7 @@ class UserController extends Controller
                 'rules' => REMC::callRulesEngine($user->toArray()),
             ], 200);
         } catch (Exception $e) {
-            throw new NotFoundException();
+            throw new Exception($e->getMessage());
         }
     }
 
