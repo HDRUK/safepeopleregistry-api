@@ -230,6 +230,12 @@ class UserTest extends TestCase
 
     public function test_the_application_can_show_users(): void
     {
+        $fakeUrl = env('RULES_ENGINE_SERVICE', 'https://rules-engine.test') .
+        env('RULES_ENGINE_PROJECT_ID', '298357293857') . '/evaluate/' .
+        env('RULES_ENGINE_EVAL_MODEL', 'something.json');
+
+        dd($fakeUrl);
+
         Http::fake([
             env('RULES_ENGINE_SERVICE', 'https://rules-engine.test') .
             env('RULES_ENGINE_PROJECT_ID', '298357293857') . '/evaluate/' .
