@@ -245,7 +245,7 @@ class UserTest extends TestCase
             ]
         );
 
-        dd($response->decodeResponseJson()['data']);
+        dd(User::where('id', $response->decodeResponseJson()['data']));
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
