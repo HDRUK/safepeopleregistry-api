@@ -55,6 +55,7 @@ class ProjectHasUserObserver
                 WebhookCall::create()
                     ->url($whr->url)
                     ->payload([
+                        'type' => 'user-left-project',
                         'user' => $user->registry->digi_ident,
                         'project' => Project::where('id', $projectHasUser->project_id)->first()->unique_id,
                     ])
