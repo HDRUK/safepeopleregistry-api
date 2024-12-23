@@ -8,9 +8,9 @@ class RulesEngineManagementController
 {
     public static function callRulesEngine(array $payload): array
     {
-        $rulesServiceUrl = env('RULES_ENGINE_SERVICE') .
-            env('RULES_ENGINE_PROJECT_ID') . '/evaluate/' .
-            env('RULES_ENGINE_EVAL_MODEL');
+        $rulesServiceUrl = env('RULES_ENGINE_SERVICE', 'https://rules-engine.test') .
+            env('RULES_ENGINE_PROJECT_ID', '298357293857') . '/evaluate/' .
+            env('RULES_ENGINE_EVAL_MODEL', 'something.json');
 
         $response = Http::withHeaders([
             'X-Access-Token' => env('RULES_ENGINE_PROJECT_TOKEN'),
