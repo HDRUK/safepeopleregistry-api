@@ -18,6 +18,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
+use Spatie\WebhookServer\CallWebhookJob;
+use Illuminate\Support\Facades\Queue;
 
 class ProjectTest extends TestCase
 {
@@ -237,7 +239,7 @@ class ProjectTest extends TestCase
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
         $this->assertArrayHasKey('data', $response['data']);
-        $this->assertCount(2, $response['data']['data']);
+        $this->assertCount(3, $response['data']['data']);
         $this->assertArrayHasKey('registry', $response['data']['data'][0]);
     }
 
@@ -278,5 +280,44 @@ class ProjectTest extends TestCase
         $this->assertCount(1, $response['data']);
         $this->assertArrayHasKey('title', $response['data'][0]);
         $this->assertEquals($project->title, $response['data'][0]['title']);
+    }
+
+    public function test_the_application_can_create_webhooks_on_user_leaving_project(): void
+    {
+        Queue::fake();
+
+        // Flush and create anew
+        ProjectHasUser::truncate();
+        ProjectHasCustodianApproval::truncate();
+
+        $registry = Registry::first();
+        $project = Project::first();
+        $custodian = Custodian::first();
+
+        ProjectHasCustodianApproval::create([
+            'project_id' => $project->id,
+            'custodian_id' => 1,
+        ]);
+
+        ProjectHasUser::create([
+            'project_id' => $project->id,
+            'user_digital_ident' => $registry->digi_ident,
+            'project_role_id' => 7,
+        ]);
+
+        // Now remove said user from project
+        $phu = ProjectHasUser::where([
+            'project_id' => $project->id,
+            'user_digital_ident' => $registry->digi_ident,
+            'project_role_id' => 7,
+        ])->first();
+
+        if ($phu) {
+            $phu->delete();
+        }
+
+        // Observer should have kicked in, so let's ensure the
+        // job for the webhook was created
+        Queue::assertPushed(CallWebhookJob::class);
     }
 }
