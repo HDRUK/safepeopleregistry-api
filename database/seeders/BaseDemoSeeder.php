@@ -38,6 +38,7 @@ class BaseDemoSeeder extends Seeder
             ProjectRoleSeeder::class,
             EmailTemplatesSeeder::class,
             DepartmentSeeder::class,
+            WebhookEventTriggerSeeder::class,
         ]);
 
         // --------------------------------------------------------------------------------
@@ -82,7 +83,7 @@ class BaseDemoSeeder extends Seeder
             ]);
         }
 
-        $proj = Project::create([
+        $org1Proj1 = Project::create([
             'unique_id' => Str::random(20),
             'title' => 'Exploring the Impact of Digital Health Interventions on Mental Health Outcomes in Young Adults',
             'lay_summary' => 'This study aims to evaluate how digital mental health interventions (such as mobile apps for meditation, cognitive behavioral therapy, and mental health tracking) affect the mental health and well-being of young adults aged 18-30. By analyzing data from a large sample of users who have consented to share their anonymized usage information and mental health outcomes, we hope to understand which types of interventions are most effective and identify patterns in user engagement. This information will be essential for designing better digital health tools that support young adult mental health.',
@@ -99,18 +100,16 @@ Health Research Authority (HRA) Approval as it involves health-related research 
         ]);
 
         ProjectHasCustodianApproval::create([
-            'project_id' => $proj->id,
+            'project_id' => $org1Proj1->id,
             'custodian_id' => 1,
         ]);
 
         ProjectHasOrganisation::create([
-            'project_id' => $proj->id,
+            'project_id' => $org1Proj1->id,
             'organisation_id' => $org1->id,
         ]);
 
-        $this->addRandomUsersToProject($proj->id);
-
-        $proj = Project::create([
+        $org1Proj2 = Project::create([
             'unique_id' => Str::random(20),
             'title' => 'Assessing Air Quality Impact on Respiratory Health in Urban Populations',
             'lay_summary' => 'This research seeks to understand how air quality in densely populated urban areas affects respiratory health, particularly focusing on conditions like asthma and chronic obstructive pulmonary disease (COPD). By analyzing anonymized health data and environmental sensor data, we aim to identify correlations between air pollution levels and the prevalence of respiratory issues. This insight could help guide policies on urban planning and pollution reduction to improve public health outcomes in cities.',
@@ -127,11 +126,9 @@ National Public Health Ethics Committee for authorization to analyze population 
         ]);
 
         ProjectHasOrganisation::create([
-            'project_id' => $proj->id,
+            'project_id' => $org1Proj2->id,
             'organisation_id' => $org1->id,
         ]);
-
-        $this->addRandomUsersToProject($proj->id);
 
         // --------------------------------------------------------------------------------
         // End
@@ -383,6 +380,10 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'affiliations' => [
                     1, 2,
                 ],
+                'projects' => [
+                    $org1Proj1->id,
+                    $org1Proj2->id,
+                ],
                 'identity' => [
                     'selfie_path' => '/path/to/non/existent/selfie/',
                     'passport_path' => '/path/to/non/existent/passport/',
@@ -407,6 +408,9 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'user_group' => RMC::KC_GROUP_USERS,
                 'affiliations' => [
                     1,
+                ],
+                'projects' => [
+                    $org1Proj1->id,
                 ],
                 'identity' => [
                     'selfie_path' => '/path/to/non/existent/selfie/',
@@ -433,6 +437,9 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'affiliations' => [
                     1,
                 ],
+                'projects' => [
+                    $org1Proj2->id,
+                ],
                 'identity' => [
                     'selfie_path' => '/path/to/non/existent/selfie/',
                     'passport_path' => '/path/to/non/existent/passport/',
@@ -457,6 +464,9 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'user_group' => RMC::KC_GROUP_USERS,
                 'affiliations' => [
                     1,
+                ],
+                'projects' => [
+                    $org1Proj2->id,
                 ],
                 'identity' => [
                     'selfie_path' => '/path/to/non/existent/selfie/',
@@ -667,6 +677,11 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         $this->createRegistryAffiliations($org3Researchers);
 
         // --------------------------------------------------------------------------------
+        // Link Researchers to projects
+        // --------------------------------------------------------------------------------
+        $this->linkUsersToProjects($org1Researchers);
+
+        // --------------------------------------------------------------------------------
         // End
         // --------------------------------------------------------------------------------
     }
@@ -705,6 +720,21 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 RegistryHasOrganisation::create([
                     'registry_id' =>        $user->registry_id,
                     'organisation_id' =>    $aff,
+                ]);
+            }
+        }
+    }
+
+    private function linkUsersToProjects(array $input): void
+    {
+        foreach ($input as $u) {
+            $user = User::where('email', $u['email'])->first();
+
+            foreach ($u['projects'] as $p) {
+                ProjectHasUser::create([
+                    'project_id' => $p,
+                    'user_digital_ident' => Registry::where('id', $user->registry_id)->first()->digi_ident,
+                    'project_role_id' => 7,
                 ]);
             }
         }
