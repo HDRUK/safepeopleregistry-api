@@ -231,9 +231,9 @@ class UserTest extends TestCase
     public function test_the_application_can_show_users(): void
     {
         Http::fake([
-            env('RULES_ENGINE_SERVICE') .
-            env('RULES_ENGINE_PROJECT_ID') . '/evaluate/' .
-            env('RULES_ENGINE_EVAL_MODEL') => Http::response($this->rulesStr, 200, [])
+            env('RULES_ENGINE_SERVICE', 'https://rules-engine.test') .
+            env('RULES_ENGINE_PROJECT_ID', '298357293857') . '/evaluate/' .
+            env('RULES_ENGINE_EVAL_MODEL', 'something.json') => Http::response($this->rulesStr, 200, [])
         ]);
 
         $user = User::where('user_group', RMC::KC_GROUP_USERS)->first();
