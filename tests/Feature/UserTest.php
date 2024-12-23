@@ -245,7 +245,7 @@ class UserTest extends TestCase
             ]
         );
 
-        dd(User::where('id', $response->decodeResponseJson()['data']));
+        dd(User::where('user_group', RMC::KC_GROUP_USERS)->first());
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
