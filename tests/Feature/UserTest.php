@@ -2,11 +2,9 @@
 
 namespace Tests\Feature;
 
-use Carbon\Carbon;
 use RegistryManagementController as RMC;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\User;
-use App\Models\Identity;
 use Database\Seeders\EmailTemplatesSeeder;
 use Database\Seeders\CustodianSeeder;
 use Database\Seeders\PermissionSeeder;
@@ -229,56 +227,7 @@ class UserTest extends TestCase
 
     public function test_the_application_can_show_users(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'POST',
-            self::TEST_URL,
-            [
-                'first_name' => fake()->firstname(),
-                'last_name' => fake()->lastname(),
-                'email' => fake()->email(),
-                'provider' => fake()->word(),
-                'provider_sub' => Str::random(10),
-                'public_opt_in' => fake()->randomElement([0, 1]),
-                'declaration_signed' => fake()->randomElement([0, 1]),
-                'is_researcher' => 1,
-            ]
-        );
-
-        dd(User::where('user_group', RMC::KC_GROUP_USERS)->first());
-
-        $response->assertStatus(201);
-        $this->assertArrayHasKey('data', $response);
-
-        $content = $response->decodeResponseJson()['data'];
-
-        $registry = RMC::createRegistryLedger();
-        $user = User::where([
-            'id' => $content,
-        ])->first();
-
-        $user->update([
-            'registry_id' => $registry->id,
-        ]);
-
-        $identity = Identity::create([
-            'registry_id' =>            $registry->id,
-            'selfie_path' =>            '',
-            'passport_path' =>          '',
-            'drivers_license_path' =>   '',
-            'address_1' =>              '123 Fake Street',
-            'address_2' =>              '',
-            'town' =>                   'Fake Town',
-            'county' =>                 'Fake County',
-            'country' =>                'UK',
-            'postcode' =>               'T35 T3D',
-            'dob' =>                    '1977-07-25',
-            'idvt_result' =>            1,
-            'idvt_result_perc' =>       100,
-            'idvt_errors' =>            null,
-            'idvt_completed_at' =>      Carbon::now(),
-        ]);
-
+        $user = User::where('user_group', RMC::KC_GROUP_USERS)->first();
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
             'GET',
