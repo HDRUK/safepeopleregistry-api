@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use Http;
+use RegistryManagementController as RMC;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\User;
 use Database\Seeders\EmailTemplatesSeeder;
@@ -22,6 +24,8 @@ class UserTest extends TestCase
     public const TEST_URL = '/api/v1/users';
 
     private $user = null;
+
+    private $rulesStr = '{"performance":"1.079917ms","result":{"rule_alert":"ok"},"trace":{"f0f95b67-1c93-45d2-ba72-b113827c8613":{"id":"f0f95b67-1c93-45d2-ba72-b113827c8613","name":"request","input":null,"output":null},"974d8379-3471-4e74-8929-f3bd3b1f3faf":{"id":"974d8379-3471-4e74-8929-f3bd3b1f3faf","name":"Country Sanction","input":{"consent_scrape":false,"created_at":"2024-12-23T13:45:07.000000Z","declaration_signed":0,"departments":[],"email":"dan.ackroyd@ghostbusters.com","first_name":"Dan","id":10,"is_delegate":0,"is_org_admin":0,"last_name":"Ackroyd","orcid_scanning":false,"organisation_id":0,"pending_invites":[],"permissions":[],"public_opt_in":0,"registry":{"created_at":"2024-12-23T13:45:07.000000Z","deleted_at":null,"education":[{"created_at":"2024-12-23T13:45:07.000000Z","from":"2014-12-23","id":1,"institute_address":"Keppel Street, London, WC1E 7HT","institute_identifier":"00a0jsq62","institute_name":"London School of Hygiene &amp; Tropical Medicine","registry_id":1,"source":"user","title":"Infectious Disease &#039;Omics","to":"2018-12-23","updated_at":"2024-12-23T13:45:07.000000Z"},{"created_at":"2024-12-23T13:45:07.000000Z","from":"2019-12-23","id":2,"institute_address":"Stocker Road, Exeter, Devon EX4 4SZ","institute_identifier":"03yghzc09","institute_name":"University of Exeter","registry_id":1,"source":"user","title":"MSc Health Data Science","to":"2020-12-23","updated_at":"2024-12-23T13:45:07.000000Z"}],"files":[],"id":1,"identity":{"address_1":"123 Road name","address_2":"","country":"USA","county":"Illinois","created_at":"2024-12-23T13:45:09.000000Z","deleted_at":null,"dob":"1962-01-01","drivers_license_path":"\/path\/to\/non\/existent\/license\/","id":1,"idvt_completed_at":"2024-12-23 13:45:07","idvt_errors":null,"idvt_result":1,"idvt_result_perc":100,"passport_path":"\/path\/to\/non\/existent\/passport\/","postcode":"62629","registry_id":1,"selfie_path":"\/path\/to\/non\/existent\/selfie\/","town":"Springfield","updated_at":"2024-12-23T13:45:09.000000Z"},"training":[{"awarded_at":"2022-12-23 00:00:00","created_at":"2024-12-23T13:45:07.000000Z","expires_at":"2027-12-23 00:00:00","expires_in_years":5,"id":1,"provider":"UK Data Service","registry_id":1,"training_name":"Safe Researcher Training","updated_at":"2024-12-23T13:45:07.000000Z"},{"awarded_at":"2022-12-23 00:00:00","created_at":"2024-12-23T13:45:07.000000Z","expires_at":"2027-12-23 00:00:00","expires_in_years":5,"id":2,"provider":"Medical Research Council (MRC)","registry_id":1,"training_name":"Research, GDPR, and Confidentiality","updated_at":"2024-12-23T13:45:07.000000Z"}],"updated_at":"2024-12-23T13:45:07.000000Z","verified":false},"registry_id":1,"unclaimed":0,"updated_at":"2024-12-23T13:45:07.000000Z","user_group":"USERS"},"output":{"rule_alert":"ok"},"performance":"252.042\u00b5s","traceData":{"index":0,"reference_map":[],"rule":{"_description":"Defines country cleared on sanctions list","_id":"a19572dc-7dea-4be4-94cc-95e0c05d14a1","registry.identity.country[7e128890-760a-473d-adaa-266c2c4c3b1f]":"== \"USA\""}}},"60af625b-0162-4a45-8ff0-224e22da162d":{"id":"60af625b-0162-4a45-8ff0-224e22da162d","name":"Country Sanction Switch","input":{"consent_scrape":false,"created_at":"2024-12-23T13:45:07.000000Z","declaration_signed":0,"departments":[],"email":"dan.ackroyd@ghostbusters.com","first_name":"Dan","id":10,"is_delegate":0,"is_org_admin":0,"last_name":"Ackroyd","orcid_scanning":false,"organisation_id":0,"pending_invites":[],"permissions":[],"public_opt_in":0,"registry":{"created_at":"2024-12-23T13:45:07.000000Z","deleted_at":null,"education":[{"created_at":"2024-12-23T13:45:07.000000Z","from":"2014-12-23","id":1,"institute_address":"Keppel Street, London, WC1E 7HT","institute_identifier":"00a0jsq62","institute_name":"London School of Hygiene &amp; Tropical Medicine","registry_id":1,"source":"user","title":"Infectious Disease &#039;Omics","to":"2018-12-23","updated_at":"2024-12-23T13:45:07.000000Z"},{"created_at":"2024-12-23T13:45:07.000000Z","from":"2019-12-23","id":2,"institute_address":"Stocker Road, Exeter, Devon EX4 4SZ","institute_identifier":"03yghzc09","institute_name":"University of Exeter","registry_id":1,"source":"user","title":"MSc Health Data Science","to":"2020-12-23","updated_at":"2024-12-23T13:45:07.000000Z"}],"files":[],"id":1,"identity":{"address_1":"123 Road name","address_2":"","country":"USA","county":"Illinois","created_at":"2024-12-23T13:45:09.000000Z","deleted_at":null,"dob":"1962-01-01","drivers_license_path":"\/path\/to\/non\/existent\/license\/","id":1,"idvt_completed_at":"2024-12-23 13:45:07","idvt_errors":null,"idvt_result":1,"idvt_result_perc":100,"passport_path":"\/path\/to\/non\/existent\/passport\/","postcode":"62629","registry_id":1,"selfie_path":"\/path\/to\/non\/existent\/selfie\/","town":"Springfield","updated_at":"2024-12-23T13:45:09.000000Z"},"training":[{"awarded_at":"2022-12-23 00:00:00","created_at":"2024-12-23T13:45:07.000000Z","expires_at":"2027-12-23 00:00:00","expires_in_years":5,"id":1,"provider":"UK Data Service","registry_id":1,"training_name":"Safe Researcher Training","updated_at":"2024-12-23T13:45:07.000000Z"},{"awarded_at":"2022-12-23 00:00:00","created_at":"2024-12-23T13:45:07.000000Z","expires_at":"2027-12-23 00:00:00","expires_in_years":5,"id":2,"provider":"Medical Research Council (MRC)","registry_id":1,"training_name":"Research, GDPR, and Confidentiality","updated_at":"2024-12-23T13:45:07.000000Z"}],"updated_at":"2024-12-23T13:45:07.000000Z","verified":false},"registry_id":1,"unclaimed":0,"updated_at":"2024-12-23T13:45:07.000000Z","user_group":"USERS"},"output":{"consent_scrape":false,"created_at":"2024-12-23T13:45:07.000000Z","declaration_signed":0,"departments":[],"email":"dan.ackroyd@ghostbusters.com","first_name":"Dan","id":10,"is_delegate":0,"is_org_admin":0,"last_name":"Ackroyd","orcid_scanning":false,"organisation_id":0,"pending_invites":[],"permissions":[],"public_opt_in":0,"registry":{"created_at":"2024-12-23T13:45:07.000000Z","deleted_at":null,"education":[{"created_at":"2024-12-23T13:45:07.000000Z","from":"2014-12-23","id":1,"institute_address":"Keppel Street, London, WC1E 7HT","institute_identifier":"00a0jsq62","institute_name":"London School of Hygiene &amp; Tropical Medicine","registry_id":1,"source":"user","title":"Infectious Disease &#039;Omics","to":"2018-12-23","updated_at":"2024-12-23T13:45:07.000000Z"},{"created_at":"2024-12-23T13:45:07.000000Z","from":"2019-12-23","id":2,"institute_address":"Stocker Road, Exeter, Devon EX4 4SZ","institute_identifier":"03yghzc09","institute_name":"University of Exeter","registry_id":1,"source":"user","title":"MSc Health Data Science","to":"2020-12-23","updated_at":"2024-12-23T13:45:07.000000Z"}],"files":[],"id":1,"identity":{"address_1":"123 Road name","address_2":"","country":"USA","county":"Illinois","created_at":"2024-12-23T13:45:09.000000Z","deleted_at":null,"dob":"1962-01-01","drivers_license_path":"\/path\/to\/non\/existent\/license\/","id":1,"idvt_completed_at":"2024-12-23 13:45:07","idvt_errors":null,"idvt_result":1,"idvt_result_perc":100,"passport_path":"\/path\/to\/non\/existent\/passport\/","postcode":"62629","registry_id":1,"selfie_path":"\/path\/to\/non\/existent\/selfie\/","town":"Springfield","updated_at":"2024-12-23T13:45:09.000000Z"},"training":[{"awarded_at":"2022-12-23 00:00:00","created_at":"2024-12-23T13:45:07.000000Z","expires_at":"2027-12-23 00:00:00","expires_in_years":5,"id":1,"provider":"UK Data Service","registry_id":1,"training_name":"Safe Researcher Training","updated_at":"2024-12-23T13:45:07.000000Z"},{"awarded_at":"2022-12-23 00:00:00","created_at":"2024-12-23T13:45:07.000000Z","expires_at":"2027-12-23 00:00:00","expires_in_years":5,"id":2,"provider":"Medical Research Council (MRC)","registry_id":1,"training_name":"Research, GDPR, and Confidentiality","updated_at":"2024-12-23T13:45:07.000000Z"}],"updated_at":"2024-12-23T13:45:07.000000Z","verified":false},"registry_id":1,"unclaimed":0,"updated_at":"2024-12-23T13:45:07.000000Z","user_group":"USERS"},"performance":"70.25\u00b5s","traceData":null},"a6fe621c-a071-4da5-85c8-4ab6b662681d":{"id":"a6fe621c-a071-4da5-85c8-4ab6b662681d","name":"response","input":null,"output":null}}}';
 
     public function setUp(): void
     {
@@ -226,14 +230,30 @@ class UserTest extends TestCase
 
     public function test_the_application_can_show_users(): void
     {
+        $fakeUrl = env('RULES_ENGINE_SERVICE', 'https://rules-engine.test') .
+        env('RULES_ENGINE_PROJECT_ID', '298357293857') . '/evaluate/' .
+        env('RULES_ENGINE_EVAL_MODEL', 'something.json');
+
+        Http::fake([
+            $fakeUrl => Http::response($this->rulesStr, 200),
+        ]);
+
+        $user = User::where('user_group', RMC::KC_GROUP_USERS)->first();
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
             'GET',
-            self::TEST_URL . '/1'
+            self::TEST_URL . '/' . $user->id // One of the researchers
         );
 
         $response->assertStatus(200);
+        $content = $response->decodeResponseJson();
+
         $this->assertArrayHasKey('data', $response);
+        $this->assertArrayHasKey('rules', $response);
+        $this->assertTrue($content['rules']['result']['rule_alert'] === 'ok');
+
+        $this->assertArrayHasKey('result', $content['rules']);
+        $this->assertArrayHasKey('trace', $content['rules']);
     }
 
     public function test_the_application_can_create_users(): void

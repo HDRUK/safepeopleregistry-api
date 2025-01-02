@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use DB;
 use Hash;
 use Exception;
+use RegistryManagementController as RMC;
 use Carbon\Carbon;
 use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
@@ -16,6 +17,7 @@ use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Requests\Organisations\EditOrganisation;
+use TriggerEmail;
 
 class OrganisationController extends Controller
 {
@@ -878,6 +880,86 @@ class OrganisationController extends Controller
                 'message' => 'success',
                 'data' => 0,
             ], 200);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    /**
+     * @OA\Post(
+     *      path="/api/v1/organisations/{id}/invite_user",
+     *      summary="Invites a user to org",
+     *      description="Invites a user to org",
+     *      tags={"organisations"},
+     *      summary="organisations@invite_user",
+     *      security={{"bearerAuth":{}}},
+     *
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="organisations entry ID",
+     *         required=true,
+     *         example="1",
+     *
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="organisations entry ID",
+     *         ),
+     *      ),
+     *
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="Invite definition",
+     *
+     *          @OA\JsonContent(
+     *              @OA\Property(property="last_name", type="string", example="Smith"),
+     *              @OA\Property(property="first_name", type="string", example="John"),
+     *              @OA\Property(property="email", type="string", example="someone@somewhere.com"),
+     *          ),
+     *      ),
+     *
+     *      @OA\Response(
+     *          response=201,
+     *          description="Success",
+     *
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="integer", example="1"),
+     *          ),
+     *      ),
+     *
+     *      @OA\Response(
+     *          response=500,
+     *          description="Error",
+     *
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="error")
+     *          )
+     *      )
+     * )
+     */
+    public function inviteUser(Request $request, int $id): JsonResponse
+    {
+        try {
+            $unclaimedUser = RMC::createUnclaimedUser([
+                'firstname' => $request['first_name'],
+                'lastname' => $request['last_name'],
+                'email' => $request['email']
+            ]);
+
+            $input = [
+                'type' => 'USER',
+                'to' => $unclaimedUser->id,
+                'by' => $id,
+                'identifier' => $request['identifier'],
+            ];
+
+            TriggerEmail::spawnEmail($input);
+
+            return response()->json([
+                'message' => 'success',
+                'data' => $unclaimedUser->id,
+            ], 201);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }

@@ -33,16 +33,16 @@ class Identity extends Model
         'idvt_completed_at',
     ];
 
-    protected $hidden = [
-        'selfie_path',
-        'passport_path',
-        'drivers_license_path',
-        'address_1',
-        'address_2',
-        'town',
-        'county',
-        'country',
-        'postcode',
-        'dob',
-    ];
+    // protected $hidden = [
+    //     'selfie_path',
+    //     'passport_path',
+    //     'drivers_license_path',
+    //     'address_1',
+    //     'address_2',
+    //     'town',
+    //     'county',
+    //     'country',
+    //     'postcode',
+    //     'dob',
+    // ];
 }
