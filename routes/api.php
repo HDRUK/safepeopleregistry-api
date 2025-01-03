@@ -59,7 +59,8 @@ Route::middleware('api')->post('v1/users/permissions', [PermissionController::cl
 Route::middleware('api')->post('v1/users/change-password/{userId}', [AuthController::class, 'changePassword']);
 
 Route::middleware('api')->get('v1/training', [TrainingController::class, 'index']);
-Route::middleware('api')->get('v1/training/{id}', [TrainingController::class, 'indexByRegistryId']);
+Route::middleware('api')->get('v1/training/registry/{registryId}', [TrainingController::class, 'indexByRegistryId']);
+Route::middleware('api')->get('v1/training/{id}', [TrainingController::class, 'show']);
 Route::middleware('api')->post('v1/training', [TrainingController::class, 'store']);
 Route::middleware('api')->put('v1/training/{id}', [TrainingController::class, 'update']);
 Route::middleware('api')->patch('v1/training/{id}', [TrainingController::class, 'edit']);
