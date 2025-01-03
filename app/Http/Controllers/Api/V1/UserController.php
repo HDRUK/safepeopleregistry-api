@@ -168,7 +168,7 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'success',
                 'data' => $user,
-                'rules' => REMC::callRulesEngine($user->toArray()),
+                //'rules' => REMC::callRulesEngine($user->toArray()),
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
