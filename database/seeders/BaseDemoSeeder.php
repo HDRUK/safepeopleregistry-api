@@ -29,6 +29,15 @@ class BaseDemoSeeder extends Seeder
     {
         // Probably need a migrate fresh here to fully clear
         // the database before hand.
+        SectorSeeder::truncate();
+        PermissionSeeder::truncate();
+        CustodianSeeder::truncate();
+        SystemConfigSeeder::truncate();
+        ProjectRoleSeeder::truncate();
+        EmailTemplatesSeeder::truncate();
+        DepartmentSeeder::truncate();
+        WebhookEventTriggerSeeder::truncate();
+
 
         $this->call([
             SectorSeeder::class,
