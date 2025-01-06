@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Exception;
-use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Training;
 use App\Traits\CommonFunctions;
@@ -124,7 +123,7 @@ class TrainingController extends Controller
         ], 200);
     }
 
-        /**
+    /**
      * @OA\Get(
      *      path="/api/v1/training/{id}",
      *      summary="Return a training record",
