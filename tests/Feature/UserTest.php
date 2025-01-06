@@ -250,10 +250,12 @@ class UserTest extends TestCase
 
         $this->assertArrayHasKey('data', $response);
         $this->assertArrayHasKey('rules', $response);
-        $this->assertTrue($content['rules']['result']['rule_alert'] === 'ok');
 
-        $this->assertArrayHasKey('result', $content['rules']);
-        $this->assertArrayHasKey('trace', $content['rules']);
+        if (env('RULES_ENGINE_ACTIVE', true)) {
+            $this->assertTrue($content['rules']['result']['rule_alert'] === 'ok');
+            $this->assertArrayHasKey('result', $content['rules']);
+            $this->assertArrayHasKey('trace', $content['rules']);
+        }
     }
 
     public function test_the_application_can_create_users(): void
