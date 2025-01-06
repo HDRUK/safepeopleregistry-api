@@ -38,6 +38,8 @@ class Organisation extends Model
         'iso_27001_certification_num',
         'ce_certified',
         'ce_certification_num',
+        'ce_plus_certified',
+        'ce_plus_certification_num',
         'idvt_result',
         'idvt_result_perc',
         'idvt_errors',

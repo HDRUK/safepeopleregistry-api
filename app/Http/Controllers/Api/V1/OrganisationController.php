@@ -660,12 +660,14 @@ class OrganisationController extends Controller
                 return response()->json(['message' => 'not found'], 404);
             }
 
-            $organisation->update(array_filter($request->validated(), fn ($value) => $value !== null));
+            $valuesToUpdate = array_filter($request->validated(), fn ($value) => !is_null($value));
+            $updated = $organisation->update($valuesToUpdate);
 
-            return response()->json([
-                'message' => 'success',
-                'data' => $organisation
-            ], 200);
+            if ($updated) {
+                return response()->json(['message' => 'Updated successfully', 'data' => $updated], 200);
+            } else {
+                return response()->json(['message' => 'Failed to update organisation'], 500);
+            }
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'error',
