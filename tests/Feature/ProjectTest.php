@@ -9,7 +9,6 @@ use App\Models\Registry;
 use App\Models\Custodian;
 use App\Models\Project;
 use App\Models\ProjectHasUser;
-use App\Models\ProjectHasCustodianApproval;
 use Database\Seeders\UserSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\CustodianSeeder;
@@ -247,7 +246,7 @@ class ProjectTest extends TestCase
     {
 
         ProjectHasUser::truncate();
-        ProjectHasCustodianApproval::truncate();
+        ProjectHasCustodian::truncate();
 
         $registry = Registry::first();
         $digi_ident = $registry->digi_ident;
@@ -256,7 +255,7 @@ class ProjectTest extends TestCase
         $projectId = $project->id;
         $custodianId = Custodian::first()->id;
 
-        ProjectHasUser::create(['project_id' => $projectId, 'user_digital_ident' => $digi_ident, 'project_role_id' => 1]);
+        ProjectHasUser::create(['project_id' => $projectId, 'user_digital_ident' => $digi_ident, 'project_role_id' => 1, 'approved' => true]);
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
@@ -268,7 +267,7 @@ class ProjectTest extends TestCase
         $this->assertArrayHasKey('data', $response);
         $this->assertEmpty($response['data']);
 
-        ProjectHasCustodianApproval::create(['project_id' => $projectId,'custodian_id' => $custodianId]);
+        ProjectHasCustodian::create(['project_id' => $projectId,'custodian_id' => $custodianId, 'approved' => true]);
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
             'GET',
@@ -288,15 +287,16 @@ class ProjectTest extends TestCase
 
         // Flush and create anew
         ProjectHasUser::truncate();
-        ProjectHasCustodianApproval::truncate();
+        ProjectHasCustodian::truncate();
 
         $registry = Registry::first();
         $project = Project::first();
         $custodian = Custodian::first();
 
-        ProjectHasCustodianApproval::create([
+        ProjectHasCustodian::create([
             'project_id' => $project->id,
             'custodian_id' => 1,
+            'approved' => true
         ]);
 
         ProjectHasUser::create([

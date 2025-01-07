@@ -15,7 +15,7 @@ use App\Models\Organisation;
 use App\Models\ProjectHasOrganisation;
 use App\Models\ProjectHasUser;
 use App\Models\ProjectRole;
-use App\Models\ProjectHasCustodianApproval;
+use App\Models\ProjectHasCustodian;
 use App\Models\RegistryHasOrganisation;
 use App\Models\OrganisationHasDepartment;
 use Illuminate\Database\Seeder;
@@ -97,9 +97,10 @@ Health Research Authority (HRA) Approval as it involves health-related research 
             'end_date' => '2026-01-12',
         ]);
 
-        ProjectHasCustodianApproval::create([
+        ProjectHasCustodian::create([
             'project_id' => $org1Proj1->id,
             'custodian_id' => 1,
+            'approved' => true
         ]);
 
         ProjectHasOrganisation::create([
