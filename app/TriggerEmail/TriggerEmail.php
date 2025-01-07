@@ -4,9 +4,11 @@ namespace App\TriggerEmail;
 
 use App\Jobs\SendEmailJob;
 use App\Models\Custodian;
+use App\Models\CustodianUser;
 use App\Models\Organisation;
 use App\Models\OrganisationDelegate;
 use App\Models\PendingInvite;
+use App\Models\Permission;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
@@ -92,6 +94,26 @@ class TriggerEmail
                     throw new Exception('custodian '.$custodian->id.' already accepted invite at '.$custodian->invite_accepted_at);
                 }
                 break;
+            case 'CUSTODIAN_USER':
+                $user = CustodianUser::where('id', $to)->with('permission')->first();
+                $custodian = Custodian::where('id', $user->custodian_id)->first();
+
+                // dd($user);
+
+                $permission = Permission::where('id', $user->permission_id)->first();
+
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+
+                $newRecipients = [
+                    'id' => $user->id,
+                    'email' => $user->email,
+                ];
+
+                $replacements = [
+                    '[[custodian.name]]' => $custodian->name,
+                    '[[permission.name]]' => $user->permission->name,
+                    '[[env(SUPPORT_EMAIL)]]' => env('SUPPORT_EMAIL'),
+                ];
             case 'ORGANISATION':
                 break;
             default: // Unknown type.

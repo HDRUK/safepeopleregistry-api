@@ -80,6 +80,7 @@ Route::middleware('api')->post('v1/custodian_users', [CustodianUserController::c
 Route::middleware('api')->put('v1/custodian_users/{id}', [CustodianUserController::class, 'update']);
 Route::middleware('api')->patch('v1/custodian_users/{id}', [CustodianUserController::class, 'edit']);
 Route::middleware('api')->delete('v1/custodian_users/{id}', [CustodianUserController::class, 'destroy']);
+Route::middleware('api')->post('v1/custodian_users/invite/{id}', [CustodianUserController::class, 'inviteUser']);
 
 Route::middleware('api')->get('v1/endorsements', [EndorsementController::class, 'index']);
 Route::middleware('api')->get('v1/endorsements/{id}', [EndorsementController::class, 'show']);

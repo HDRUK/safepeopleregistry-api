@@ -2,8 +2,12 @@
 
 namespace App\Models;
 
+use CustodianUserHasPermission;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\CustodianUserHasPermission;
+use App\Models\CustodianUserHasPermission;
 
 class CustodianUser extends Model
 {
@@ -27,4 +31,13 @@ class CustodianUser extends Model
         'password',
         'keycloak_id',
     ];
+
+    // public function permissions(): HasMany
+    // {
+    //     return $this->hasMany(
+    //         CustodianUserHasPermission::class,
+    //         'custodian_user_has_permissions'
+    //     );
+    // }
+
 }
