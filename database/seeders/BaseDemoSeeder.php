@@ -12,6 +12,7 @@ use App\Models\Registry;
 use App\Models\Education;
 use App\Models\Training;
 use App\Models\Organisation;
+use App\Models\Custodian;
 use App\Models\ProjectHasOrganisation;
 use App\Models\ProjectHasUser;
 use App\Models\ProjectRole;
@@ -99,7 +100,7 @@ Health Research Authority (HRA) Approval as it involves health-related research 
 
         ProjectHasCustodian::create([
             'project_id' => $org1Proj1->id,
-            'custodian_id' => 1,
+            'custodian_id' => Custodian::first()->id,
             'approved' => true
         ]);
 
@@ -122,6 +123,12 @@ Environmental Data Ethics Committee (if available within the environmental data 
 National Public Health Ethics Committee for authorization to analyze population health data on respiratory conditions.',
             'start_date' => '2025-03-01',
             'end_date' => '2025-09-01',
+        ]);
+
+        ProjectHasCustodian::create([
+            'project_id' => $org1Proj2->id,
+            'custodian_id' => Custodian::first()->id,
+            'approved' => true
         ]);
 
         ProjectHasOrganisation::create([
@@ -188,6 +195,12 @@ University Institutional Review Board (IRB) for ethical review.
 Social Media Platform’s Data Access Committee to allow access to platform data.',
             'start_date' => '2025-01-01',
             'end_date' => '2026-01-01',
+        ]);
+
+        ProjectHasCustodian::create([
+            'project_id' => $proj->id,
+            'custodian_id' => Custodian::first()->id,
+            'approved' => true
         ]);
 
         ProjectHasOrganisation::create([
@@ -259,6 +272,12 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'other_approval_committees' => 'N/A',
             'start_date' => '2024-06-01',
             'end_date' => '2025-12-31',
+        ]);
+
+        ProjectHasCustodian::create([
+            'project_id' => $proj->id,
+            'custodian_id' => Custodian::first()->id,
+            'approved' => true
         ]);
 
         ProjectHasOrganisation::create([

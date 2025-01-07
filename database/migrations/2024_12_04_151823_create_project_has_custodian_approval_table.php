@@ -13,7 +13,7 @@ class CreateProjectHasCustodianApprovalTable extends Migration
      */
     public function up()
     {
-        Schema::create('project_has_custodians', function (Blueprint $table) {
+        Schema::create('project_has_custodian_approval', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('project_id');
             $table->unsignedBigInteger('custodian_id');
@@ -31,6 +31,6 @@ class CreateProjectHasCustodianApprovalTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('project_has_custodians');
+        Schema::dropIfExists('project_has_custodian_approval');
     }
 }
