@@ -9,6 +9,7 @@ use App\Models\Registry;
 use App\Models\Custodian;
 use App\Models\Project;
 use App\Models\ProjectHasUser;
+use App\Models\ProjectHasCustodian;
 use Database\Seeders\UserSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\CustodianSeeder;

@@ -7,6 +7,7 @@ use App\Models\Registry;
 use App\Models\Project;
 use App\Models\Custodian;
 use App\Models\ProjectHasUser;
+use App\Models\ProjectHasCustodian;
 use App\Models\WebhookEventTrigger;
 use App\Models\CustodianWebhookReceiver;
 use Spatie\WebhookServer\WebhookCall;

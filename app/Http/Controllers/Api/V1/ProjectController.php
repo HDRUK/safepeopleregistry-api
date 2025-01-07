@@ -668,8 +668,10 @@ class ProjectController extends Controller
         }
 
         $projects = ProjectHasUser::where('user_digital_ident', $digi_ident)
-            ->with(['project', 'approvals'])
-            ->whereHas('approvals')
+            ->with('project')
+            ->whereHas('project.custodians', function ($query) {
+                $query->where('approved', true);
+            })
             ->get()
             ->pluck('project');
 

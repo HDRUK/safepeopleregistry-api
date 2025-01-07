@@ -68,4 +68,14 @@ class Project extends Model
             'custodian_id'
         )->withPivot('approved');
     }
+
+    public function approvals(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Custodian::class,
+            'project_has_custodians',
+            'project_id',
+            'custodian_id'
+        )->wherePivot('approved', true);
+    }
 }
