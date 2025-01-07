@@ -16,6 +16,7 @@ use App\Models\OrganisationHasDepartment;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Http\Requests\Organisations\EditOrganisation;
 use TriggerEmail;
 
 class OrganisationController extends Controller
@@ -573,148 +574,107 @@ class OrganisationController extends Controller
     /**
      * @OA\Patch(
      *      path="/api/v1/organisations/{id}",
-     *      summary="Edit an organisations entry",
-     *      description="Edit a organisations entry",
+     *      summary="Edit an organisation's entry",
+     *      description="Edit specific fields of an organisation's entry",
      *      tags={"organisations"},
-     *      summary="organisations@edit",
      *      security={{"bearerAuth":{}}},
      *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="organisations entry ID",
+     *         description="Organisation entry ID",
      *         required=true,
      *         example="1",
-     *
      *         @OA\Schema(
      *            type="integer",
-     *            description="organisations entry ID",
+     *            description="Organisation entry ID",
      *         ),
      *      ),
      *
      *      @OA\RequestBody(
      *          required=true,
-     *          description="organisations definition",
-     *
+     *          description="Fields to update",
      *          @OA\JsonContent(
-     *
-     *              @OA\Property(property="id", type="integer", example="123"),
-     *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *              @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *              @OA\Property(property="name", type="string", example="organisations Name"),
+     *              @OA\Property(property="organisation_name", type="string", example="New Name"),
      *              @OA\Property(property="address_1", type="string", example="123 Road"),
      *              @OA\Property(property="address_2", type="string", example="Address Two"),
      *              @OA\Property(property="town", type="string", example="Town"),
      *              @OA\Property(property="county", type="string", example="County"),
      *              @OA\Property(property="country", type="string", example="Country"),
      *              @OA\Property(property="postcode", type="string", example="AB12 3CD"),
-     *              @OA\Property(property="delegate", type="string", example="Prof. First Last"),
-     *              @OA\Property(property="sector_id", type="number", example="1"),
-     *              @OA\Property(property="verified", type="boolean", example="true"),
-     *              @OA\Property(property="dsptk_ods_code", type="string", example="UY67FO"),
-     *              @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
-     *              @OA\Property(property="ce_certified", type="boolean", example="false"),
-     *              @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
+     *              @OA\Property(property="lead_applicant_organisation_name", type="string", example="Lead Organisation"),
+     *              @OA\Property(property="lead_applicant_email", type="string", example="lead@example.com"),
+     *              @OA\Property(property="password", type="string", example="password123"),
+     *              @OA\Property(property="organisation_unique_id", type="string", example="unique123"),
+     *              @OA\Property(property="applicant_names", type="string", example="John Doe"),
+     *              @OA\Property(property="funders_and_sponsors", type="string", example="Fund A"),
+     *              @OA\Property(property="sub_license_arrangements", type="string", example="Arrangements"),
+     *              @OA\Property(property="verified", type="boolean", example=true),
      *              @OA\Property(property="companies_house_no", type="string", example="12345678"),
-     *              @OA\Property(property="charity_registration_id", type="string", example="12345678"),
-     *              @OA\Property(property="ror_id", type="string", example="05xs36f43"),
-     *              @OA\Property(property="website", type="string", example="http://www.hdruk.ac.uk"),
-     *              @OA\Property(property="smb_status", type="string", example="true"),
-     *          ),
-     *      ),
-     *
-     *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *
-     *          @OA\JsonContent(
-     *
-     *              @OA\Property(property="message", type="string", example="not found")
+     *              @OA\Property(property="sector_id", type="integer", example=1),
+     *              @OA\Property(property="dsptk_certified", type="boolean", example=true),
+     *              @OA\Property(property="dsptk_certification_num", type="string", example="CERT123"),
+     *              @OA\Property(property="iso_27001_certified", type="boolean", example=true),
+     *              @OA\Property(property="iso_27001_certification_num", type="string", example="ISO123"),
+     *              @OA\Property(property="ce_certified", type="boolean", example=false),
+     *              @OA\Property(property="ce_certification_num", type="string", example="CE123"),
+     *              @OA\Property(property="charity_registration_id", type="string", example="CHARITY123"),
+     *              @OA\Property(property="ror_id", type="string", example="ROR123"),
+     *              @OA\Property(property="website", type="string", example="http://www.example.com"),
+     *              @OA\Property(property="smb_status", type="boolean", example=true),
      *          ),
      *      ),
      *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="name", type="string", example="organisations Name"),
-     *                  @OA\Property(property="address_1", type="string", example="123 Road"),
-     *                  @OA\Property(property="address_2", type="string", example="Address Two"),
-     *                  @OA\Property(property="town", type="string", example="Town"),
-     *                  @OA\Property(property="county", type="string", example="County"),
-     *                  @OA\Property(property="country", type="string", example="Country"),
-     *                  @OA\Property(property="postcode", type="string", example="AB12 3CD"),
-     *                  @OA\Property(property="delegate", type="string", example="Prof. First Last"),
-     *                  @OA\Property(property="verified", type="boolean", example="true"),
-     *                  @OA\Property(property="sector_id", type="number", example="1"),
-     *                  @OA\Property(property="dsptk_ods_code", type="string", example="UY67FO"),
-     *                  @OA\Property(property="iso_27001_certified", type="boolean", example="true"),
-     *                  @OA\Property(property="ce_certified", type="boolean", example="false"),
-     *                  @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
-     *                  @OA\Property(property="ce_plus_certified", type="boolean", example="false"),
-     *                  @OA\Property(property="ce_plus_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
-     *                  @OA\Property(property="companies_house_no", type="string", example="12345678"),
-     *                  @OA\Property(property="charity_registration_id", type="string", example="12345678"),
-     *                  @OA\Property(property="ror_id", type="string", example="05xs36f43"),
-     *                  @OA\Property(property="website", type="string", example="http://www.hdruk.ac.uk"),
-     *                  @OA\Property(property="smb_status", type="string", example="true"),
-     *              )
+     *              @OA\Property(property="data", type="object")
+     *          ),
+     *      ),
+     *
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not Found",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
      *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="error")
-     *          )
+     *          ),
      *      )
      * )
      */
-    public function edit(Request $request, int $id): JsonResponse
+    public function edit(EditOrganisation $request, int $id): JsonResponse
     {
         try {
-            $input = $request->all();
-            Organisation::where('id', $id)->update([
-                'organisation_name' => $input['organisation_name'],
-                'address_1' => $input['address_1'],
-                'address_2' => $input['address_2'],
-                'town' => $input['town'],
-                'county' => $input['county'],
-                'country' => $input['country'],
-                'postcode' => $input['postcode'],
-                'lead_applicant_organisation_name' => $input['lead_applicant_organisation_name'],
-                'lead_applicant_email' => $input['lead_applicant_email'],
-                'organisation_unique_id' => $input['organisation_unique_id'],
-                'applicant_names' => $input['applicant_names'],
-                'funders_and_sponsors' => $input['funders_and_sponsors'],
-                'sub_license_arrangements' => $input['sub_license_arrangements'],
-                'verified' => $input['verified'],
-                'companies_house_no' => $input['companies_house_no'],
-                'sector_id' => $input['sector_id'],
-                'charity_registration_id' => $input['charity_registration_id'],
-                'ror_id' => $input['ror_id'],
-                'website' => $input['website'],
-                'smb_status' => $input['smb_status'],
-            ]);
+            $organisation = Organisation::find($id);
 
-            return response()->json([
-                'message' => 'success',
-                'data' => Organisation::where('id', $id)->first(),
-            ], 200);
+            if (!$organisation) {
+                return response()->json(['message' => 'not found'], 404);
+            }
+
+            $updated = $organisation->update($request->validated());
+
+            if ($updated) {
+                return response()->json(['message' => 'Updated successfully', 'data' => $updated], 200);
+            } else {
+                return response()->json(['message' => 'Failed to update organisation'], 500);
+            }
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+            return response()->json([
+                'message' => 'error',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
+
 
     /**
      * @OA\Delete(
