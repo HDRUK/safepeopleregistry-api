@@ -240,7 +240,6 @@ class Keycloak
 
             $responseData = $response->json();
             dd($responseData);
-
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }

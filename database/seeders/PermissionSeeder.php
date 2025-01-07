@@ -69,6 +69,7 @@ class PermissionSeeder extends Seeder
             [
                 'name' => 'CUSTODIAN_ADMIN',
                 'enabled' => 1,
+                'description' => 'administrator'
             ],
             [
                 'name' => 'CUSTODIAN_READ',
@@ -77,6 +78,7 @@ class PermissionSeeder extends Seeder
             [
                 'name' => 'CUSTODIAN_UPDATE',
                 'enabled' => 1,
+                'description' => 'approver'
             ],
             [
                 'name' => 'CUSTODIAN_CREATE',

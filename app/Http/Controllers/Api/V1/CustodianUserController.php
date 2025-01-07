@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\V1;
 
 use Hash;
 use Exception;
+use RegistryManagementController as RMC;
+use TriggerEmail;
 use App\Http\Controllers\Controller;
 use App\Models\CustodianUser;
 use App\Models\CustodianUserHasPermission;
@@ -70,26 +72,21 @@ class CustodianUserController extends Controller
      *      tags={"CustodianUser"},
      *      summary="CustodianUser@show",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="CustodianUser entry ID",
      *         required=true,
      *         example="1",
-     *
      *         @OA\Schema(
      *            type="integer",
      *            description="CustodianUser entry ID",
      *         ),
      *      ),
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -98,17 +95,17 @@ class CustodianUserController extends Controller
      *                  @OA\Property(property="first_name", type="string", example="David"),
      *                  @OA\Property(property="last_name", type="string", example="Davidson"),
      *                  @OA\Property(property="email", type="string", example="david@davidson.com"),
-     *                  @OA\Property(property="custodian_id", type="integer", example="1")
+     *                  @OA\Property(property="custodian_id", type="integer", example="1"),
+     *                  @OA\Property(property="permissions", type="array",
+     *                      @OA\Items(type="integer", example="10")
+     *                  )
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -199,6 +196,7 @@ class CustodianUserController extends Controller
                 ])->delete();
 
                 $perms = Permission::whereIn('id', $input['permissions'])->get();
+
                 foreach ($perms as $perm) {
                     $p = CustodianUserHasPermission::create([
                         'custodian_user_id' => $user->id,
@@ -406,6 +404,7 @@ class CustodianUserController extends Controller
                 ])->delete();
 
                 $perms = Permission::whereIn('id', $input['permissions'])->get();
+
                 foreach ($perms as $perm) {
                     $p = CustodianUserHasPermission::create([
                         'custodian_user_id' => $user->id,
@@ -426,6 +425,84 @@ class CustodianUserController extends Controller
                 'data' => null,
                 'error' => 'unable to save custodian user',
             ], 400);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+        /**
+     * @OA\Post(
+     *      path="/api/v1/custodian_users/invite/{id}",
+     *      summary="Invites a user to a custodian",
+     *      description="Invites a user to a custodian",
+     *      tags={"custodians"},
+     *      summary="custodians@invite_user",
+     *      security={{"bearerAuth":{}}},
+     *
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="custodian entry ID",
+     *         required=true,
+     *         example="1",
+     *
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="custodian entry ID",
+     *         ),
+     *      ),
+     *
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="Invite definition",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="last_name", type="string", example="Smith"),
+     *              @OA\Property(property="first_name", type="string", example="John"),
+     *              @OA\Property(property="email", type="string", example="someone@somewhere.com"),
+     *              @OA\Property(property="permissions", type="array",
+     *                  @OA\Items(type="integer", example="10")
+     *              )
+     *          ),
+     *      ),
+     *
+     *      @OA\Response(
+     *          response=201,
+     *          description="Success",
+     *
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="integer", example="1"),
+     *          ),
+     *      ),
+     *
+     *      @OA\Response(
+     *          response=500,
+     *          description="Error",
+     *
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="error")
+     *          )
+     *      )
+     * )
+     */
+    public function inviteUser(Request $request, int $id): JsonResponse
+    {
+        try {
+            $user = CustodianUser::where('id', $id)->first();
+
+            $input = [
+                'type' => 'CUSTODIAN_USER',
+                'to' => $user->id,
+                'by' => $id,
+                'identifier' => 'custodian_user_invite',
+            ];
+
+            TriggerEmail::spawnEmail($input);
+
+            return response()->json([
+                'message' => 'success',
+                'data' => $user,
+            ], 201);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
