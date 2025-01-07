@@ -7,13 +7,18 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Sector;
 use App\Models\Project;
+use App\Jobs\SendEmailJob;
+use App\Models\PendingInvite;
 use App\Models\ProjectHasOrganisation;
 use App\Models\OrganisationHasDepartment;
 use Database\Seeders\CustodianSeeder;
-use Database\Seeders\PermissionSeeder;
 use Database\Seeders\UserSeeder;
+use Database\Seeders\PermissionSeeder;
 use Database\Seeders\BaseDemoSeeder;
+use Database\Seeders\EmailTemplatesSeeder;
+use Database\Seeders\OrganisationDelegateSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
@@ -33,10 +38,12 @@ class OrganisationTest extends TestCase
     {
         parent::setUp();
         $this->seed([
-            UserSeeder::class,
             PermissionSeeder::class,
             CustodianSeeder::class,
+            UserSeeder::class,
+            EmailTemplatesSeeder::class,
             BaseDemoSeeder::class,
+            OrganisationDelegateSeeder::class,
         ]);
 
         $this->user = User::where('id', 1)->first();
@@ -64,6 +71,8 @@ class OrganisationTest extends TestCase
             'iso_27001_certification_num' => '',
             'ce_certified' => 1,
             'ce_certification_num' => 'A1234',
+            'ce_plus_certified' => 1,
+            'ce_plus_certified_num' => 'B5678',
             'sector_id' => fake()->randomElement([0, count(Sector::SECTORS)]),
             'charity_registration_id' => '1186569',
             'ror_id' => '02wnqcb97',
@@ -188,6 +197,8 @@ class OrganisationTest extends TestCase
                         'iso_27001_certified',
                         'ce_certified',
                         'ce_certification_num',
+                        'ce_plus_certified',
+                        'ce_plus_certification_num',
                         'approvals',
                         'permissions',
                         'files',
@@ -249,6 +260,8 @@ class OrganisationTest extends TestCase
                 'iso_27001_certified',
                 'ce_certified',
                 'ce_certification_num',
+                'ce_plus_certified',
+                'ce_plus_certification_num',
                 'approvals',
                 'permissions',
                 'files',
@@ -494,6 +507,43 @@ class OrganisationTest extends TestCase
 
         $content = $response->decodeResponseJson();
         $this->assertTrue($content['data'] > 0);
+    }
+
+    public function test_the_application_can_invite_a_user_for_organisations(): void
+    {
+        Queue::fake();
+        Queue::assertNothingPushed();
+
+        $email = fake()->email();
+        $firstName = fake()->firstName();
+        $lastName = fake()->lastName();
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL . '/1/invite_user',
+                [
+                    'first_name' => $firstName,
+                    'last_name' => $lastName,
+                    'email' => $email,
+                    'identifier' => 'researcher_invite'
+                ],
+            );
+
+        $response->assertStatus(201);
+
+        $this->assertDatabaseHas('users', [
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'email' => $email,
+        ]);
+
+        Queue::assertPushed(SendEmailJob::class);
+
+        $invites = PendingInvite::all();
+
+        $this->assertTrue(count($invites) === 1);
+        $this->assertTrue($invites[0]->organisation_id === 1);
     }
 
     public function test_the_application_can_get_projects_for_an_organisation(): void

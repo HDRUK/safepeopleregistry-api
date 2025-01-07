@@ -9,6 +9,8 @@ use App\Models\User;
 use App\Models\Identity;
 use App\Models\Project;
 use App\Models\Registry;
+use App\Models\Education;
+use App\Models\Training;
 use App\Models\Organisation;
 use App\Models\ProjectHasOrganisation;
 use App\Models\ProjectHasUser;
@@ -25,9 +27,6 @@ class BaseDemoSeeder extends Seeder
      */
     public function run(): void
     {
-        // Probably need a migrate fresh here to fully clear
-        // the database before hand.
-
         $this->call([
             SectorSeeder::class,
             PermissionSeeder::class,
@@ -36,6 +35,8 @@ class BaseDemoSeeder extends Seeder
             ProjectRoleSeeder::class,
             EmailTemplatesSeeder::class,
             DepartmentSeeder::class,
+            WebhookEventTriggerSeeder::class,
+            // UserSeeder::class,
         ]);
 
         // --------------------------------------------------------------------------------
@@ -60,6 +61,7 @@ class BaseDemoSeeder extends Seeder
             'dsptk_ods_code' => '8HQ90',
             'iso_27001_certified' => true,
             'ce_certified' => true,
+            'ce_plus_certified' => true,
             'companies_house_no' => '09349495',
             'sector_id' => 5, // Charity/Non-profit
             'charity_registration_id' => '1186569',
@@ -79,7 +81,7 @@ class BaseDemoSeeder extends Seeder
             ]);
         }
 
-        $proj = Project::create([
+        $org1Proj1 = Project::create([
             'unique_id' => Str::random(20),
             'title' => 'Exploring the Impact of Digital Health Interventions on Mental Health Outcomes in Young Adults',
             'lay_summary' => 'This study aims to evaluate how digital mental health interventions (such as mobile apps for meditation, cognitive behavioral therapy, and mental health tracking) affect the mental health and well-being of young adults aged 18-30. By analyzing data from a large sample of users who have consented to share their anonymized usage information and mental health outcomes, we hope to understand which types of interventions are most effective and identify patterns in user engagement. This information will be essential for designing better digital health tools that support young adult mental health.',
@@ -96,18 +98,16 @@ Health Research Authority (HRA) Approval as it involves health-related research 
         ]);
 
         ProjectHasCustodianApproval::create([
-            'project_id' => $proj->id,
+            'project_id' => $org1Proj1->id,
             'custodian_id' => 1,
         ]);
 
         ProjectHasOrganisation::create([
-            'project_id' => $proj->id,
+            'project_id' => $org1Proj1->id,
             'organisation_id' => $org1->id,
         ]);
 
-        $this->addRandomUsersToProject($proj->id);
-
-        $proj = Project::create([
+        $org1Proj2 = Project::create([
             'unique_id' => Str::random(20),
             'title' => 'Assessing Air Quality Impact on Respiratory Health in Urban Populations',
             'lay_summary' => 'This research seeks to understand how air quality in densely populated urban areas affects respiratory health, particularly focusing on conditions like asthma and chronic obstructive pulmonary disease (COPD). By analyzing anonymized health data and environmental sensor data, we aim to identify correlations between air pollution levels and the prevalence of respiratory issues. This insight could help guide policies on urban planning and pollution reduction to improve public health outcomes in cities.',
@@ -124,11 +124,9 @@ National Public Health Ethics Committee for authorization to analyze population 
         ]);
 
         ProjectHasOrganisation::create([
-            'project_id' => $proj->id,
+            'project_id' => $org1Proj2->id,
             'organisation_id' => $org1->id,
         ]);
-
-        $this->addRandomUsersToProject($proj->id);
 
         // --------------------------------------------------------------------------------
         // End
@@ -156,6 +154,7 @@ National Public Health Ethics Committee for authorization to analyze population 
             'dsptk_ods_code' => '',
             'iso_27001_certified' => true,
             'ce_certified' => false,
+            'ce_plus_certified' => false,
             'companies_house_no' => '15765271',
             'sector_id' => 4, // Public
             'charity_registration_id' => '1186569',
@@ -229,6 +228,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'dsptk_ods_code' => '',
             'iso_27001_certified' => true,
             'ce_certified' => true,
+            'ce_plus_certified' => true,
             'companies_house_no' => '07563555',
             'sector_id' => 6, // Private/Industry
             'charity_registration_id' => null,
@@ -378,6 +378,10 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'affiliations' => [
                     1, 2,
                 ],
+                'projects' => [
+                    $org1Proj1->id,
+                    $org1Proj2->id,
+                ],
                 'identity' => [
                     'selfie_path' => '/path/to/non/existent/selfie/',
                     'passport_path' => '/path/to/non/existent/passport/',
@@ -402,6 +406,9 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'user_group' => RMC::KC_GROUP_USERS,
                 'affiliations' => [
                     1,
+                ],
+                'projects' => [
+                    $org1Proj1->id,
                 ],
                 'identity' => [
                     'selfie_path' => '/path/to/non/existent/selfie/',
@@ -428,6 +435,9 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'affiliations' => [
                     1,
                 ],
+                'projects' => [
+                    $org1Proj2->id,
+                ],
                 'identity' => [
                     'selfie_path' => '/path/to/non/existent/selfie/',
                     'passport_path' => '/path/to/non/existent/passport/',
@@ -452,6 +462,9 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'user_group' => RMC::KC_GROUP_USERS,
                 'affiliations' => [
                     1,
+                ],
+                'projects' => [
+                    $org1Proj2->id,
                 ],
                 'identity' => [
                     'selfie_path' => '/path/to/non/existent/selfie/',
@@ -645,7 +658,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         // --------------------------------------------------------------------------------
         $this->createUserRegistry($org1Researchers);
         $this->createUserRegistry($org2Researchers);
-        $this->createUserRegistry($org3Researchers);
+        $this->createUserRegistry($org3Researchers, false);
 
         // --------------------------------------------------------------------------------
         // Create Identities for the above users
@@ -660,6 +673,11 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         $this->createRegistryAffiliations($org1Researchers);
         $this->createRegistryAffiliations($org2Researchers);
         $this->createRegistryAffiliations($org3Researchers);
+
+        // --------------------------------------------------------------------------------
+        // Link Researchers to projects
+        // --------------------------------------------------------------------------------
+        $this->linkUsersToProjects($org1Researchers);
 
         // --------------------------------------------------------------------------------
         // End
@@ -705,6 +723,21 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         }
     }
 
+    private function linkUsersToProjects(array $input): void
+    {
+        foreach ($input as $u) {
+            $user = User::where('email', $u['email'])->first();
+
+            foreach ($u['projects'] as $p) {
+                ProjectHasUser::create([
+                    'project_id' => $p,
+                    'user_digital_ident' => Registry::where('id', $user->registry_id)->first()->digi_ident,
+                    'project_role_id' => 7,
+                ]);
+            }
+        }
+    }
+
     private function createUsers(array $input): void
     {
         foreach ($input as $u) {
@@ -720,7 +753,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         }
     }
 
-    private function createUserRegistry(array $input): void
+    private function createUserRegistry(array $input, bool $legit = true): void
     {
         foreach ($input as $u) {
             $reg = Registry::create([
@@ -730,9 +763,115 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'verified' =>       0,
             ]);
 
-            $user = User::where('email', $u['email'])->update([
+            $user = User::where('email', $u['email'])->first();
+
+            $user->update([
                 'registry_id' => $reg->id,
             ]);
+
+            if ($user->user_group !== RMC::KC_GROUP_USERS) {
+                continue;
+            }
+
+            $educations = [];
+
+            // Make up some Education entries for these users
+            if ($legit) {
+                $educations = [
+                    [
+                        'title' => 'Infectious Disease \'Omics',
+                        'from' => Carbon::now()->subYears(10)->toDateString(),
+                        'to' => Carbon::now()->subYears(6)->toDateString(),
+                        'institute_name' => 'London School of Hygiene & Tropical Medicine',
+                        'institute_address' => 'Keppel Street, London, WC1E 7HT',
+                        'institute_identifier' => '00a0jsq62', // ROR
+                        'source' => 'user',
+                        'registry_id' => $reg->id,
+                    ],
+                    [
+                        'title' => 'MSc Health Data Science',
+                        'from' => Carbon::now()->subYears(5)->toDateString(),
+                        'to' => Carbon::now()->subYears(4)->toDateString(),
+                        'institute_name' => 'University of Exeter',
+                        'institute_address' => 'Stocker Road, Exeter, Devon EX4 4SZ',
+                        'institute_identifier' => '03yghzc09',
+                        'source' => 'user',
+                        'registry_id' => $reg->id,
+                    ],
+                ];
+            } else {
+                $educations = [
+                    [
+                        'title' => 'Lobbying and Manipulation tactics for Policy',
+                        'from' => Carbon::now()->subYears(10)->toDateString(),
+                        'to' => Carbon::now()->subYears(6)->toDateString(),
+                        'institute_name' => 'London School of Lobbying',
+                        'institute_address' => 'Fake Street, London, WC1E 7HT',
+                        'institute_identifier' => '', // ROR
+                        'source' => 'user',
+                        'registry_id' => $reg->id,
+                    ],
+                ];
+            }
+
+            foreach ($educations as $edu) {
+                $ed = Education::create([
+                    'title' => $edu['title'],
+                    'from' => $edu['from'],
+                    'to' => $edu['to'],
+                    'institute_name' => $edu['institute_name'],
+                    'institute_address' => $edu['institute_address'],
+                    'institute_identifier' => $edu['institute_identifier'],
+                    'source' => $edu['source'],
+                    'registry_id' => $edu['registry_id'],
+                ]);
+            }
+
+            $trainings = [];
+
+            if ($legit) {
+                // Make up some training entries for these users
+                $trainings = [
+                    [
+                        'registry_id' => $reg->id,
+                        'provider' => 'UK Data Service',
+                        'awarded_at' => Carbon::now()->subYears(2)->toDateString(),
+                        'expires_at' => Carbon::now()->addYears(3)->toDateString(),
+                        'expires_in_years' => 5,
+                        'training_name' => 'Safe Researcher Training',
+                    ],
+                    [
+                        'registry_id' => $reg->id,
+                        'provider' => 'Medical Research Council (MRC)',
+                        'awarded_at' => Carbon::now()->subYears(2)->toDateString(),
+                        'expires_at' => Carbon::now()->addYears(3)->toDateString(),
+                        'expires_in_years' => 5,
+                        'training_name' => 'Research, GDPR, and Confidentiality',
+                    ],
+                ];
+            } else {
+                $trainings = [
+                    [
+                        'registry_id' => $reg->id,
+                        'provider' => 'Office of National Statistics (ONS)',
+                        'awarded_at' => Carbon::now()->subYears(10)->toDateString(),
+                        'expires_at' => Carbon::now()->subYears(5)->toDateString(),
+                        'expires_in_years' => 2,
+                        'training_name' => 'Safe Researcher Training',
+                    ],
+                ];
+            }
+
+            foreach ($trainings as $tr) {
+                $training = Training::create([
+                    'registry_id' => $tr['registry_id'],
+                    'provider' => $tr['provider'],
+                    'awarded_at' => $tr['awarded_at'],
+                    'expires_at' => $tr['expires_at'],
+                    'expires_in_years' => $tr['expires_in_years'],
+                    'training_name' => $tr['training_name'],
+                ]);
+            }
         }
     }
 

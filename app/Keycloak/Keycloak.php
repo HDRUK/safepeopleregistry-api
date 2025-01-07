@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Registry;
 use App\Models\CustodianUser;
 use App\Models\RegistryHasOrganisation;
+use RegistryManagementController as RMC;
 use Illuminate\Support\Str;
 
 class Keycloak
@@ -275,15 +276,15 @@ class Keycloak
     public function determineUserGroup(array $input): string
     {
         if (isset($input['is_researcher']) && $input['is_researcher']) {
-            return 'RESEARCHERS';
+            return RMC::KC_GROUP_USERS;
         }
 
         if (isset($input['is_custodian']) && $input['is_custodian']) {
-            return 'CUSTODIANS';
+            return RMC::KC_GROUP_CUSTODIANS;
         }
 
         if (isset($input['is_organisation']) && $input['is_organisation']) {
-            return 'ORGANISATIONS';
+            return RMC::KC_GROUP_ORGANISATIONS;
         }
 
         return '';

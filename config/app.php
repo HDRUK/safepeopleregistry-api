@@ -126,6 +126,8 @@ return [
 
     'cipher' => 'AES-256-CBC',
 
+    'rate_limit' => env('RATE_LIMIT', 10000),
+
     /*
     |--------------------------------------------------------------------------
     | Maintenance Mode Driver
@@ -182,6 +184,7 @@ return [
         SwooleTW\Http\LaravelServiceProvider::class,
         App\Providers\TriggerEmailServiceProvider::class,
         App\Providers\RegistryManagementControllerServiceProvider::class,
+        App\Providers\RulesEngineManagementControllerServiceProvider::class,
     ])->toArray(),
 
     /*
@@ -200,6 +203,7 @@ return [
         'OrcID' => App\OrcID\OrcIDFacade::class,
         'TriggerEmail' => App\TriggerEmail\TriggerEmailFacade::class,
         'RegistryManagementController' => App\RegistryManagementController\RegistryManagementController::class,
+        'RulesEngineManagementController' => App\RulesEngineManagementController\RulesEngineManagementController::class,
     ])->toArray(),
 
 ];

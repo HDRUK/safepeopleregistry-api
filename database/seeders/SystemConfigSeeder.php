@@ -54,6 +54,10 @@ class SystemConfigSeeder extends Seeder
                                 "type": "string",
                                 "pattern": "^([a-zA-Z0-9]+-){4}[a-zA-Z0-9]+$"
                             },
+                            "ce_plus_certification_num": {
+                                "type": "string",
+                                "pattern": "^([a-zA-Z0-9]+-){4}[a-zA-Z0-9]+$"
+                            },
                             "orc_id": {
                                 "type": "string",
                                 "pattern": "^[\\\d]{4}-[\\\d]{4}-[\\\d]{4}-[\\\d]{3}(0|9|X)$"

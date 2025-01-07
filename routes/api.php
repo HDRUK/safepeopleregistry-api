@@ -59,6 +59,7 @@ Route::middleware('api')->post('v1/users/permissions', [PermissionController::cl
 Route::middleware('api')->post('v1/users/change-password/{userId}', [AuthController::class, 'changePassword']);
 
 Route::middleware('api')->get('v1/training', [TrainingController::class, 'index']);
+Route::middleware('api')->get('v1/training/registry/{registryId}', [TrainingController::class, 'indexByRegistryId']);
 Route::middleware('api')->get('v1/training/{id}', [TrainingController::class, 'show']);
 Route::middleware('api')->post('v1/training', [TrainingController::class, 'store']);
 Route::middleware('api')->put('v1/training/{id}', [TrainingController::class, 'update']);
@@ -127,6 +128,7 @@ Route::middleware('api')->post('v1/organisations', [OrganisationController::clas
 Route::middleware('api')->put('v1/organisations/{id}', [OrganisationController::class, 'update']);
 Route::middleware('api')->patch('v1/organisations/{id}', [OrganisationController::class, 'edit']);
 Route::middleware('api')->delete('v1/organisations/{id}', [OrganisationController::class, 'destroy']);
+Route::middleware('api')->post('v1/organisations/{id}/invite_user', [OrganisationController::class, 'inviteUser']);
 Route::middleware('api')->post('v1/organisations/permissions', [PermissionController::class, 'assignOrganisationPermissionsToFrom']);
 Route::middleware('api')->get('v1/organisations/{id}/projects', [OrganisationController::class, 'getProjects']);
 
@@ -189,6 +191,7 @@ Route::middleware('api')->post('v1/trigger_email', [TriggerEmailController::clas
 Route::middleware('api')->post('v1/files', [FileUploadController::class, 'store']);
 
 Route::middleware('api')->post('v1/approvals/{entity_type}', [ApprovalController::class, 'store']);
+Route::middleware('api')->get('v1/approvals/{entity_type}/{id}/custodian/{custodian_id}', [ApprovalController::class, 'getEntityHasCustodianApproval']);
 Route::middleware('api')->delete('v1/approvals/{entity_type}/{id}/custodian/{custodian_id}', [ApprovalController::class, 'delete']);
 
 Route::get('v1/system_config', [SystemConfigController::class, 'index']);

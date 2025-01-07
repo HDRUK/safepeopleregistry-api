@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Exception;
-use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Training;
 use App\Traits\CommonFunctions;
@@ -67,34 +66,30 @@ class TrainingController extends Controller
         ], 200);
     }
 
+
     /**
      * @OA\Get(
-     *      path="/api/v1/training/{id}",
-     *      summary="Return a Training entry by ID",
-     *      description="Return a Training entry by ID",
+     *      path="/api/v1/training/registry/{id}",
+     *      summary="Return a list of training by registry id",
+     *      description="Return a list of training by registry id",
      *      tags={"Training"},
      *      summary="Training@show",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="Training entry ID",
+     *         description="Training registry id",
      *         required=true,
      *         example="1",
-     *
      *         @OA\Schema(
      *            type="integer",
-     *            description="Training entry ID",
+     *            description="Training registry id",
      *         ),
      *      ),
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -109,13 +104,66 @@ class TrainingController extends Controller
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
+     *              @OA\Property(property="message", type="string", example="not found"),
+     *          )
+     *      )
+     * )
+     */
+    public function indexByRegistryId(Request $request, int $registryId): JsonResponse
+    {
+        $trainings = Training::where('registry_id', $registryId)->get();
+
+        return response()->json([
+            'message' => 'success',
+            'data' => $trainings,
+        ], 200);
+    }
+
+    /**
+     * @OA\Get(
+     *      path="/api/v1/training/{id}",
+     *      summary="Return a training record",
+     *      description="Return a training record by registry id",
+     *      tags={"Training"},
+     *      summary="Training@show",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Training id",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Training id",
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string"),
+     *              @OA\Property(property="data", type="object",
+     *                  @OA\Property(property="id", type="integer", example="123"),
+     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
+     *                  @OA\Property(property="registry_id", type="integer", example="1"),
+     *                  @OA\Property(property="provider", type="string", example="ONS"),
+     *                  @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
+     *                  @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
+     *                  @OA\Property(property="expires_in_years", type="integer", example="2"),
+     *                  @OA\Property(property="training_name", type="string", example="Safe Researcher Training")
+     *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -123,15 +171,10 @@ class TrainingController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
-        $trainings = Training::findOrFail($id);
-        if ($trainings) {
-            return response()->json([
-                'message' => 'success',
-                'data' => $trainings,
-            ], 200);
-        }
-
-        throw new NotFoundException();
+        return response()->json([
+            'message' => 'success',
+            'data' => Training::where('id', $id)->first(),
+        ], 200);
     }
 
     /**
@@ -142,13 +185,10 @@ class TrainingController extends Controller
      *      tags={"Training"},
      *      summary="Training@store",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Training definition",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="registry_id", type="integer", example="1"),
      *              @OA\Property(property="provider", type="string", example="ONS"),
      *              @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
@@ -157,13 +197,10 @@ class TrainingController extends Controller
      *              @OA\Property(property="training_name", type="string", example="Safe Researcher Training")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
