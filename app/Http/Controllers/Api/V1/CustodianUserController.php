@@ -96,7 +96,9 @@ class CustodianUserController extends Controller
      *                  @OA\Property(property="last_name", type="string", example="Davidson"),
      *                  @OA\Property(property="email", type="string", example="david@davidson.com"),
      *                  @OA\Property(property="custodian_id", type="integer", example="1"),
-     *                  @OA\Property(property="permissions", type="array", example="[10]")
+     *                  @OA\Property(property="permissions", type="array",
+     *                      @OA\Items(type="integer", example="10")
+     *                  )
      *              )
      *          ),
      *      ),
@@ -458,7 +460,9 @@ class CustodianUserController extends Controller
      *              @OA\Property(property="last_name", type="string", example="Smith"),
      *              @OA\Property(property="first_name", type="string", example="John"),
      *              @OA\Property(property="email", type="string", example="someone@somewhere.com"),
-     *              @OA\Property(property="permissions", type="array", example="[10]"),
+     *              @OA\Property(property="permissions", type="array",
+     *                  @OA\Items(type="integer", example="10")
+     *              )
      *          ),
      *      ),
      *
@@ -491,7 +495,7 @@ class CustodianUserController extends Controller
                 'type' => 'CUSTODIAN_USER',
                 'to' => $user->id,
                 'by' => $id,
-                'identifier' => 'custodian_invite',
+                'identifier' => 'custodian_user_invite',
             ];
 
             TriggerEmail::spawnEmail($input);

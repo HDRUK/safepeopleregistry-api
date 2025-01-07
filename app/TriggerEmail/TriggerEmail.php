@@ -96,12 +96,18 @@ class TriggerEmail
                 }
                 break;
             case 'CUSTODIAN_USER':
-                $user = CustodianUser::where('id', $to)->with('permission')->first();
+                $user = CustodianUser::with('permissions')->where('id', $to)->first();
                 $custodian = Custodian::where('id', $user->custodian_id)->first();
 
-                // dd($user);
+                dd($user);
 
-                $permission = Permission::where('id', $user->permission_id)->first();
+                $role_description = '';
+
+                if(count($user->permissions) > 0) {
+                    $permission = Permission::where('id', $user->permissions[0])->first();
+
+                    $role_description = "as an $permission->description";
+                }
 
                 $template = EmailTemplate::where('identifier', $identifier)->first();
 
@@ -111,8 +117,12 @@ class TriggerEmail
                 ];
 
                 $replacements = [
+                    '[[user.id]]' => $user->id,
+                    '[[user.first_name]]' => $user->first_name,
+                    '[[user.last_name]]' => $user->last_name,
                     '[[custodian.name]]' => $custodian->name,
-                    '[[permission.name]]' => $user->permission->name,
+                    '[[custodian.id]]' => $custodian->id,
+                    '[[role.description]]' => $role_description,
                     '[[env(SUPPORT_EMAIL)]]' => env('SUPPORT_EMAIL'),
                 ];
             case 'ORGANISATION':
