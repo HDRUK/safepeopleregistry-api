@@ -661,58 +661,73 @@ class CustodianController extends Controller
     }
 
     /**
-         * @OA\Get(
-         *      path="/api/v1/custodian/{id}/projects",
-         *      summary="Return an all projects associated with a custodian",
-         *      description="Return an all projects associated with an custodian",
-         *      tags={"custodian"},
-         *      summary="custodian@getPorjects",
-         *      security={{"bearerAuth":{}}},
-         *
-         *      @OA\Parameter(
-         *         name="id",
-         *         in="path",
-         *         description="Custodian ID",
-         *         required=true,
-         *         example="1",
-         *
-         *         @OA\Schema(
-         *            type="integer",
-         *            description="Custodian ID",
-         *         ),
-         *      ),
-         *
-         *      @OA\Response(
-         *          response=200,
-         *          description="Success",
-         *
-         *          @OA\JsonContent(
-         *
-         *              @OA\Property(property="message", type="string"),
-         *              @OA\Property(property="data", type="object",
-         *                  @OA\Property(property="id", type="integer", example="123"),
-         *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-         *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-         *                  @OA\Property(property="registry_id", type="integer", example="1"),
-         *                  @OA\Property(property="name", type="string", example="My First Research Project"),
-         *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
-         *                  @OA\Property(property="runs_to", type="string", example="2026-02-04"),
-         *                  @OA\Property(property="affiliate_id", type="integer", example="2"),
-         *              ),
-         *          ),
-         *      ),
-         *
-         *      @OA\Response(
-         *          response=404,
-         *          description="Not found response",
-         *
-         *           @OA\JsonContent(
-         *
-         *              @OA\Property(property="message", type="string", example="not found"),
-         *          )
-         *      )
-         * )
-        */
+     * @OA\Get(
+     *      path="/api/v1/custodian/{custodianId}/projects",
+     *      summary="Return all projects associated with a custodian",
+     *      description="Fetch a list of projects along with pagination details for a specified custodian.",
+     *      tags={"custodian"},
+     *      security={{"bearerAuth":{}}},
+     *
+     *      @OA\Parameter(
+     *          name="custodianId",
+     *          in="path",
+     *          description="The ID of the custodian whose projects are to be retrieved",
+     *          required=true,
+     *          example="1",
+     *          @OA\Schema(
+     *              type="integer"
+     *          ),
+     *      ),
+     *
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="object",
+     *                  @OA\Property(property="current_page", type="integer", example=1),
+     *                  @OA\Property(property="per_page", type="integer", example=25),
+     *                  @OA\Property(property="total", type="integer", example=24),
+     *                  @OA\Property(property="data", type="array",
+     *                      @OA\Items(
+     *                          @OA\Property(property="id", type="integer", example=24),
+     *                          @OA\Property(property="created_at", type="string", example="2025-01-07T13:16:28.000000Z"),
+     *                          @OA\Property(property="updated_at", type="string", example="2025-01-07T13:16:28.000000Z"),
+     *                          @OA\Property(property="unique_id", type="string", example="mMebnR5FySYtPA7UgRoU"),
+     *                          @OA\Property(property="title", type="string", example="Analyzing Health Data to Identify Resilient Smokers"),
+     *                          @OA\Property(property="lay_summary", type="string", example="This study aims to explore..."),
+     *                          @OA\Property(property="public_benefit", type="string", example="The research findings could benefit society..."),
+     *                          @OA\Property(property="request_category_type", type="string", example="Commercial Health Data Analysis"),
+     *                          @OA\Property(property="technical_summary", type="string", example="This study will collect detailed..."),
+     *                          @OA\Property(property="start_date", type="string", example="2024-06-01 00:00:00"),
+     *                          @OA\Property(property="end_date", type="string", example="2025-12-31 00:00:00"),
+     *                          @OA\Property(property="approvals", type="array",
+     *                              @OA\Items(
+     *                                  @OA\Property(property="id", type="integer", example=1),
+     *                                  @OA\Property(property="name", type="string", example="SAIL Databank"),
+     *                                  @OA\Property(property="contact_email", type="string", example="sail@email.com"),
+     *                                  @OA\Property(property="enabled", type="boolean", example=true)
+     *                              )
+     *                          )
+     *                      )
+     *                  ),
+     *                  @OA\Property(property="first_page_url", type="string", example="http://localhost:8100/api/v1/custodians/1/projects?page=1"),
+     *                  @OA\Property(property="last_page_url", type="string", example="http://localhost:8100/api/v1/custodians/1/projects?page=1"),
+     *                  @OA\Property(property="next_page_url", type="string", example=null),
+     *                  @OA\Property(property="prev_page_url", type="string", example=null)
+     *              )
+     *          )
+     *      ),
+     *
+     *      @OA\Response(
+     *          response=404,
+     *          description="Custodian not found",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *          )
+     *      )
+     * )
+     */
     public function getProjects(Request $request, int $custodianId): JsonResponse
     {
         $approved = $request->query('approved', null);

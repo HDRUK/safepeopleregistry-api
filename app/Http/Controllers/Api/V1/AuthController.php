@@ -68,7 +68,6 @@ class AuthController extends Controller
         }
 
         $user = User::where('keycloak_id', $arr['sub'])->first();
-
         if (!$user) {
             return response()->json([
                 'message' => 'not found',
