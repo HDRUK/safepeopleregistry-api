@@ -27,9 +27,6 @@ class BaseDemoSeeder extends Seeder
      */
     public function run(): void
     {
-        // Probably need a migrate fresh here to fully clear
-        // the database before hand.
-
         $this->call([
             SectorSeeder::class,
             PermissionSeeder::class,
@@ -39,6 +36,7 @@ class BaseDemoSeeder extends Seeder
             EmailTemplatesSeeder::class,
             DepartmentSeeder::class,
             WebhookEventTriggerSeeder::class,
+            // UserSeeder::class,
         ]);
 
         // --------------------------------------------------------------------------------
