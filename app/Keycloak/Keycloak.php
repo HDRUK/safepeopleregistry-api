@@ -24,6 +24,21 @@ class Keycloak
         ])->get($userInfoUrl);
     }
 
+    public function updateSoursdDigitalIdentifier(User $user)
+    {
+        $userUrl = env('KEYCLOAK_BASE_URL') . '/admin/realms/' . env('KEYCLOAK_REALM') . '/users/' . $user->keycloak_id;
+        return Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->getServiceToken(),
+        ])->put(
+            $userUrl,
+            [
+                'attributes' => [
+                    'soursdDigitalIdentifier' => [Registry::where('id', $user->registry_id)->first()->digi_ident],
+                ],
+            ],
+        );
+    }
+
     public function create(array $credentials): array
     {
         try {
