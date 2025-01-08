@@ -50,11 +50,6 @@ class Project extends Model
         return $this->hasMany(ProjectHasUser::class);
     }
 
-    public function approvals(): HasMany
-    {
-        return $this->hasMany(ProjectHasCustodianApproval::class);
-    }
-
 
     public function organisations(): BelongsToMany
     {
@@ -62,5 +57,25 @@ class Project extends Model
             Organisation::class,
             'project_has_organisations'
         );
+    }
+
+    public function custodians(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Custodian::class,
+            'project_has_custodians',
+            'project_id',
+            'custodian_id'
+        )->withPivot('approved');
+    }
+
+    public function approvals(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Custodian::class,
+            'project_has_custodians',
+            'project_id',
+            'custodian_id'
+        )->wherePivot('approved', true);
     }
 }

@@ -7,8 +7,8 @@ use App\Models\Registry;
 use App\Models\Project;
 use App\Models\Custodian;
 use App\Models\ProjectHasUser;
+use App\Models\ProjectHasCustodian;
 use App\Models\WebhookEventTrigger;
-use App\Models\ProjectHasCustodianApproval;
 use App\Models\CustodianWebhookReceiver;
 use Spatie\WebhookServer\WebhookCall;
 
@@ -45,7 +45,9 @@ class ProjectHasUserObserver
         $registry = Registry::where('digi_ident', $projectHasUser->user_digital_ident)->first();
         $user = User::where('registry_id', $registry->id)->first();
 
-        $custodianApproval = ProjectHasCustodianApproval::where('project_id', $projectHasUser->project_id)->first();
+        $custodianApproval = ProjectHasCustodian::where('project_id', $projectHasUser->project_id)
+           ->where("approved", true)
+           ->first();
         $whr = CustodianWebhookReceiver::where([
             'custodian_id' => $custodianApproval->custodian_id,
         ])->first();
