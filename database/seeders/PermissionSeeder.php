@@ -90,6 +90,7 @@ class PermissionSeeder extends Seeder
             Permission::create([
                 'name' => $perm['name'],
                 'enabled' => $perm['enabled'],
+                'description' => isset($perm['description']) ? $perm['description'] : null,
             ]);
         }
     }

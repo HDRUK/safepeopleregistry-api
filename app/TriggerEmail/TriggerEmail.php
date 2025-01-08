@@ -99,12 +99,10 @@ class TriggerEmail
                 $user = CustodianUser::with('permissions')->where('id', $to)->first();
                 $custodian = Custodian::where('id', $user->custodian_id)->first();
 
-                dd($user);
-
                 $role_description = '';
 
                 if(count($user->permissions) > 0) {
-                    $permission = Permission::where('id', $user->permissions[0])->first();
+                    $permission = Permission::where('id', $user->permissions[0]->permission_id)->first();
 
                     $role_description = "as an $permission->description";
                 }
