@@ -142,6 +142,68 @@ class CustodianController extends Controller
 
     /**
      * @OA\Get(
+     *      path="/api/v1/custodians/email/{email}",
+     *      summary="Return a Custodian by email",
+     *      description="Return a Custodian by email",
+     *      tags={"Custodian"},
+     *      summary="Custodian@showByEmail",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="contact_email",
+     *         in="path",
+     *         description="Custodian contact email",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="string",
+     *            description="Custodian contact email",
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string"),
+     *              @OA\Property(property="data", type="object",
+     *                  @OA\Property(property="id", type="integer", example="123"),
+     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
+     *                  @OA\Property(property="name", type="string", example="A Custodian"),
+     *                  @OA\Property(property="contact_email", type="string", example="person@somewhere.com"),
+     *                  @OA\Property(property="enabled", type="boolean", example="true"),
+     *                  @OA\Property(property="invite_accepted_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="invite_sent_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="idvt_required", type="boolean", example="true")
+     *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found"),
+     *          )
+     *      )
+     * )
+     */
+    public function showByEmail(Request $request, string $email): JsonResponse
+    {
+        $custodian = Custodian::where('contact_email', $email);
+        if ($custodian) {
+            return response()->json([
+                'message' => 'success',
+                'data' => $custodian,
+            ], 200);
+        }
+
+        return response()->json([
+            'message' => 'not found',
+            'data' => null,
+        ], 404);
+    }
+
+    /**
+     * @OA\Get(
      *      path="/api/v1/custodians/identifier/{id}",
      *      summary="Return a Custodian entry by Unique Identifier",
      *      description="Return an Custodian entry by Unique Identifier",
