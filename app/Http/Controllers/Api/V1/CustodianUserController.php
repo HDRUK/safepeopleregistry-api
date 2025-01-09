@@ -19,7 +19,6 @@ class CustodianUserController extends Controller
      *      summary="Return a list of Custodian Users",
      *      description="Return a list of Custodian Users",
      *      tags={"CustodianUsers"},
-     *      summary="CustodianUsers@index",
      *      security={{"bearerAuth":{}}},
      *
      *      @OA\Response(
@@ -36,8 +35,22 @@ class CustodianUserController extends Controller
      *                  @OA\Property(property="first_name", type="string", example="David"),
      *                  @OA\Property(property="last_name", type="string", example="Davidson"),
      *                  @OA\Property(property="email", type="string", example="david@davidson.com"),
-     *                  @OA\Property(property="custodian_id", type="integer", example="1")
-     *              )
+     *                  @OA\Property(property="provider", type="string", example=""),
+     *                  @OA\Property(property="custodian_id", type="integer", example=1),
+     *                  @OA\Property(property="user_permissions", type="array",
+     *                      @OA\Items(
+     *                          @OA\Property(property="custodian_user_id", type="integer", example=1),
+     *                          @OA\Property(property="permission_id", type="integer", example=10),
+     *                          @OA\Property(property="permission", type="object",
+     *                              @OA\Property(property="id", type="integer", example=10),
+     *                              @OA\Property(property="created_at", type="string", format="date-time", example="2025-01-08T09:37:59.000000Z"),
+     *                              @OA\Property(property="updated_at", type="string", format="date-time", example="2025-01-08T09:37:59.000000Z"),
+     *                              @OA\Property(property="name", type="string", example="CUSTODIAN_ADMIN"),
+     *                              @OA\Property(property="enabled", type="boolean", example=true)
+     *                          )
+     *                      )
+     *                  )
+     *              ),
      *          ),
      *      ),
      *
@@ -54,7 +67,7 @@ class CustodianUserController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $users = CustodianUser::all();
+        $users = CustodianUser::with("userPermissions.permission")->get();
 
         return response()->json([
             'message' => 'success',
@@ -98,11 +111,23 @@ class CustodianUserController extends Controller
      *                  @OA\Property(property="first_name", type="string", example="David"),
      *                  @OA\Property(property="last_name", type="string", example="Davidson"),
      *                  @OA\Property(property="email", type="string", example="david@davidson.com"),
-     *                  @OA\Property(property="custodian_id", type="integer", example="1")
+     *                  @OA\Property(property="custodian_id", type="integer", example="1"),
+     *                  @OA\Property(property="user_permissions", type="array",
+     *                      @OA\Items(
+     *                          @OA\Property(property="custodian_user_id", type="integer", example=1),
+     *                          @OA\Property(property="permission_id", type="integer", example=10),
+     *                          @OA\Property(property="permission", type="object",
+     *                              @OA\Property(property="id", type="integer", example=10),
+     *                              @OA\Property(property="created_at", type="string", format="date-time", example="2025-01-08T09:37:59.000000Z"),
+     *                              @OA\Property(property="updated_at", type="string", format="date-time", example="2025-01-08T09:37:59.000000Z"),
+     *                              @OA\Property(property="name", type="string", example="CUSTODIAN_ADMIN"),
+     *                              @OA\Property(property="enabled", type="boolean", example=true)
+     *                          )
+     *                      )
+     *                  )
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
