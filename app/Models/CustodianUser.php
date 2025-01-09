@@ -27,4 +27,9 @@ class CustodianUser extends Model
         'password',
         'keycloak_id',
     ];
+
+    public function userPermissions()
+    {
+        return $this->hasMany(CustodianUserHasPermission::class, 'custodian_user_id', 'id');
+    }
 }
