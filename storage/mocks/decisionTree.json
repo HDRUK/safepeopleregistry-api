@@ -1,0 +1,224 @@
+{
+    "contentType": "application/vnd.gorules.decision",
+    "nodes": [
+        {
+            "type": "decisionTableNode",
+            "content": {
+                "hitPolicy": "first",
+                "rules": [
+                    {
+                        "_id": "760bee49-26e1-42a0-adb1-a3a157621d35",
+                        "_description": "",
+                        "337018f4-b430-41e3-a1c4-0f8ce26db9d7": "",
+                        "7bcc7d85-f3f1-4eb3-98e5-1651b5617ae5": ""
+                    }
+                ],
+                "inputs": [
+                    {
+                        "id": "7bcc7d85-f3f1-4eb3-98e5-1651b5617ae5",
+                        "name": "Input"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "id": "337018f4-b430-41e3-a1c4-0f8ce26db9d7",
+                        "name": "Output",
+                        "field": "output"
+                    }
+                ],
+                "passThrough": true,
+                "inputField": null,
+                "outputPath": null,
+                "executionMode": "single"
+            },
+            "id": "0d48e761-7b78-4681-8efa-581d6a4130e0",
+            "name": "countrySanctions",
+            "position": {
+                "x": 140,
+                "y": 120
+            }
+        },
+        {
+            "type": "decisionTableNode",
+            "content": {
+                "hitPolicy": "first",
+                "rules": [],
+                "inputs": [
+                    {
+                        "id": "c0b79b96-3635-4f0a-a394-a961a9acf8dc",
+                        "name": "Input"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "id": "b3443c53-277e-4ab8-baec-e84c7b1b4977",
+                        "name": "Output",
+                        "field": "output"
+                    }
+                ],
+                "passThrough": true,
+                "inputField": null,
+                "outputPath": null,
+                "executionMode": "single"
+            },
+            "id": "19ea30ef-73c5-4ae5-bf23-f8058dfd8b6c",
+            "name": "userLocation",
+            "position": {
+                "x": 440,
+                "y": 125
+            }
+        },
+        {
+            "type": "decisionTableNode",
+            "content": {
+                "hitPolicy": "first",
+                "rules": [],
+                "inputs": [
+                    {
+                        "id": "372a5e50-8753-43f6-bdd1-c9ba861f6262",
+                        "name": "Input"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "id": "29529141-27cc-4f53-9fb4-c3a9c197f330",
+                        "name": "Output",
+                        "field": "output"
+                    }
+                ],
+                "passThrough": true,
+                "inputField": null,
+                "outputPath": null,
+                "executionMode": "single"
+            },
+            "id": "40bf9bd2-756a-47f2-b2b6-b6cd48657a8e",
+            "name": "dueDiligence",
+            "position": {
+                "x": 530,
+                "y": 290
+            }
+        },
+        {
+            "type": "decisionTableNode",
+            "content": {
+                "hitPolicy": "first",
+                "rules": [],
+                "inputs": [
+                    {
+                        "id": "3273deb8-d390-432c-83de-15c4360ef94e",
+                        "name": "Input"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "id": "25b74443-464f-4881-ae97-dff802242135",
+                        "name": "Output",
+                        "field": "output"
+                    }
+                ],
+                "passThrough": true,
+                "inputField": null,
+                "outputPath": null,
+                "executionMode": "single"
+            },
+            "id": "a881dc66-71b4-41d1-83ef-7ca257093216",
+            "name": "training",
+            "position": {
+                "x": 885,
+                "y": 315
+            }
+        },
+        {
+            "type": "decisionTableNode",
+            "content": {
+                "hitPolicy": "first",
+                "rules": [],
+                "inputs": [
+                    {
+                        "id": "7bc8cd3a-79db-405f-ba17-2774690cebeb",
+                        "name": "Input"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "id": "4079502a-0411-46ea-b52f-276324c92a70",
+                        "name": "Output",
+                        "field": "output"
+                    }
+                ],
+                "passThrough": true,
+                "inputField": null,
+                "outputPath": null,
+                "executionMode": "single"
+            },
+            "id": "fb53df37-6515-4084-a9ee-e507ed292acd",
+            "name": "dataSecurityCompliance",
+            "position": {
+                "x": 980,
+                "y": 460
+            }
+        },
+        {
+            "type": "decisionTableNode",
+            "content": {
+                "hitPolicy": "first",
+                "rules": [],
+                "inputs": [
+                    {
+                        "id": "4f4a825e-b173-4281-aca4-6619345843db",
+                        "name": "Input"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "id": "f42da38c-7fbf-4e9f-a81f-bad1bd177dec",
+                        "name": "Output",
+                        "field": "output"
+                    }
+                ],
+                "passThrough": true,
+                "inputField": null,
+                "outputPath": null,
+                "executionMode": "single"
+            },
+            "id": "01556f3c-02fc-4003-b90a-95c51c9630f0",
+            "name": "delegate",
+            "position": {
+                "x": 1225,
+                "y": 575
+            }
+        }
+    ],
+    "edges": [
+        {
+            "id": "2de64468-7dc4-4d7f-a8ed-7b6b1dd1cd93",
+            "sourceId": "0d48e761-7b78-4681-8efa-581d6a4130e0",
+            "targetId": "19ea30ef-73c5-4ae5-bf23-f8058dfd8b6c",
+            "type": "edge"
+        },
+        {
+            "id": "cd48943f-1320-4007-aeec-f00925b448b6",
+            "sourceId": "19ea30ef-73c5-4ae5-bf23-f8058dfd8b6c",
+            "targetId": "40bf9bd2-756a-47f2-b2b6-b6cd48657a8e",
+            "type": "edge"
+        },
+        {
+            "id": "5c8e64aa-e2bc-4ab4-a128-464b0e807234",
+            "sourceId": "40bf9bd2-756a-47f2-b2b6-b6cd48657a8e",
+            "targetId": "a881dc66-71b4-41d1-83ef-7ca257093216",
+            "type": "edge"
+        },
+        {
+            "id": "afb73e92-8f56-483f-8068-9e162eca3641",
+            "sourceId": "a881dc66-71b4-41d1-83ef-7ca257093216",
+            "targetId": "fb53df37-6515-4084-a9ee-e507ed292acd",
+            "type": "edge"
+        },
+        {
+            "id": "ab7e2033-6ab2-4918-b7c6-cc7b5c656105",
+            "sourceId": "fb53df37-6515-4084-a9ee-e507ed292acd",
+            "targetId": "01556f3c-02fc-4003-b90a-95c51c9630f0",
+            "type": "edge"
+        }
+    ]
+}
