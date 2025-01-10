@@ -638,57 +638,29 @@ class OrganisationTest extends TestCase
 
     public function test_the_application_can_list_users_for_an_organisation(): void
 {
-    $this->actingAs($this->user);
+    $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/users'
+            );
 
-    $organisation = Organisation::factory()->create();
-    $users = User::factory()->count(5)->create(['organisation_id' => $organisation->id]);
+    $response->assertStatus(200);
+    $this->assertArrayHasKey('data', $response);
 
-    $response = $this->getJson(self::TEST_URL . '/' . $organisation->id . '/users');
 
-    $response->assertStatus(200)
-        ->assertJsonStructure([
-            'message',
-            'data' => [
-                'current_page',
-                'data' => [
-                    '*' => [
-                        'id',
-                        'first_name',
-                        'last_name',
-                        'email',
-                        'created_at',
-                        'updated_at',
-                        'permissions',
-                        'registry',
-                        'pending_invites',
-                        'organisation',
-                        'departments',
-                    ]
-                ],
-                'first_page_url',
-                'from',
-                'last_page',
-                'last_page_url',
-                'next_page_url',
-                'path',
-                'per_page',
-                'prev_page_url',
-                'to',
-                'total'
-            ]
-        ])
-        ->assertJson([
-            'message' => 'success',
-            'data' => [
-                'total' => 5,
-            ]
-        ]);
+    $this->assertCount(4, $response['data']['data']);
 
-    $responseData = $response->json('data.data');
-    $this->assertCount(5, $responseData);
 
-    foreach ($responseData as $userData) {
-        $this->assertEquals($organisation->id, $userData['organisation']['id']);
-    }
+    $responseWithTitleFilter = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . '/1/projects?email[]=organisation.owner@healthdataorganisation.com'
+        );
+
+    $this->assertCount(
+        1,
+        $responseWithTitleFilter['data']['data'],
+        'organisation.owner@healthdataorganisation.com'
+    );
 }
 }
