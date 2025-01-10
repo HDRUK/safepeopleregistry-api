@@ -83,6 +83,7 @@ Route::middleware('api')->post('v1/custodian_users', [CustodianUserController::c
 Route::middleware('api')->put('v1/custodian_users/{id}', [CustodianUserController::class, 'update']);
 Route::middleware('api')->patch('v1/custodian_users/{id}', [CustodianUserController::class, 'edit']);
 Route::middleware('api')->delete('v1/custodian_users/{id}', [CustodianUserController::class, 'destroy']);
+Route::middleware('api')->post('v1/custodian_users/invite/{id}', [CustodianUserController::class, 'inviteUser']);
 
 Route::middleware('api')->get('v1/endorsements', [EndorsementController::class, 'index']);
 Route::middleware('api')->get('v1/endorsements/{id}', [EndorsementController::class, 'show']);
@@ -132,6 +133,7 @@ Route::middleware('api')->delete('v1/organisations/{id}', [OrganisationControlle
 Route::middleware('api')->post('v1/organisations/{id}/invite_user', [OrganisationController::class, 'inviteUser']);
 Route::middleware('api')->post('v1/organisations/permissions', [PermissionController::class, 'assignOrganisationPermissionsToFrom']);
 Route::middleware('api')->get('v1/organisations/{id}/projects', [OrganisationController::class, 'getProjects']);
+Route::middleware('api')->get('v1/organisations/{id}/users', [OrganisationController::class, 'getUsers']);
 
 Route::middleware('api')->get('v1/organisation_delegates', [OrganisationDelegatesController::class, 'index']);
 Route::middleware('api')->get('v1/organisation_delegates/{id}', [OrganisationDelegatesController::class, 'show']);

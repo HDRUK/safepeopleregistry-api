@@ -635,4 +635,31 @@ class OrganisationTest extends TestCase
 
 
     }
+
+    public function test_the_application_can_list_users_for_an_organisation(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+                ->json(
+                    'GET',
+                    self::TEST_URL . '/1/users'
+                );
+
+        $response->assertStatus(200);
+        $this->assertArrayHasKey('data', $response);
+
+        $this->assertCount(5, $response['data']['data']);
+
+
+        $responseWithEmailFilter = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/users?email[]=organisation.owner@healthdataorganisation.com'
+            );
+            
+        $this->assertCount(
+            1,
+            $responseWithEmailFilter['data']['data'],
+            'organisation.owner@healthdataorganisation.com'
+        );
+    }
 }
