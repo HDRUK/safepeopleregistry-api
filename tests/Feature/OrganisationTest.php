@@ -647,19 +647,19 @@ class OrganisationTest extends TestCase
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
 
-        dd($response['data']['data']);
         $this->assertCount(5, $response['data']['data']);
 
 
-        $responseWithTitleFilter = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $responseWithEmailFilter = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'GET',
                 self::TEST_URL . '/1/projects?email[]=organisation.owner@healthdataorganisation.com'
             );
-
+            
+        dd($responseWithEmailFilter['data']['data']);
         $this->assertCount(
             1,
-            $responseWithTitleFilter['data']['data'],
+            $responseWithEmailFilter['data']['data'],
             'organisation.owner@healthdataorganisation.com'
         );
     }
