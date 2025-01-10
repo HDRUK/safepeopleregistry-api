@@ -131,6 +131,7 @@ Route::middleware('api')->delete('v1/organisations/{id}', [OrganisationControlle
 Route::middleware('api')->post('v1/organisations/{id}/invite_user', [OrganisationController::class, 'inviteUser']);
 Route::middleware('api')->post('v1/organisations/permissions', [PermissionController::class, 'assignOrganisationPermissionsToFrom']);
 Route::middleware('api')->get('v1/organisations/{id}/projects', [OrganisationController::class, 'getProjects']);
+Route::middleware('api')->get('v1/organisations/{id}/users', [OrganisationController::class, 'getUsers']);
 
 Route::middleware('api')->get('v1/organisation_delegates', [OrganisationDelegatesController::class, 'index']);
 Route::middleware('api')->get('v1/organisation_delegates/{id}', [OrganisationDelegatesController::class, 'show']);
