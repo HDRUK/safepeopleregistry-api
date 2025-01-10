@@ -4,9 +4,13 @@ namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\User;
+use App\Jobs\SendEmailJob;
+use Illuminate\Support\Facades\Queue;
 use App\Models\CustodianUserHasPermission;
+use App\Models\CustodianUser;
 use Database\Seeders\CustodianSeeder;
 use Database\Seeders\PermissionSeeder;
+use Database\Seeders\EmailTemplatesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -28,6 +32,7 @@ class CustodianUserTest extends TestCase
         $this->seed([
             PermissionSeeder::class,
             CustodianSeeder::class,
+            EmailTemplatesSeeder::class,
         ]);
 
         $this->user = User::where('id', 1)->first();
@@ -149,6 +154,48 @@ class CustodianUserTest extends TestCase
             );
 
         $response->assertStatus(200);
+    }
+
+    public function test_the_application_can_invite_a_user_for_custodian(): void
+    {
+        Queue::fake();
+        Queue::assertNothingPushed();
+
+        $email = fake()->email();
+        $firstName = fake()->firstName();
+        $lastName = fake()->lastName();
+
+        $user = CustodianUser::create([
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'email' => $email,
+            'provider' => '',
+            'keycloak_id' => '',
+            'custodian_id' => 1,
+        ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL . '/invite/1',
+                [
+                    'first_name' => $firstName,
+                    'last_name' => $lastName,
+                    'email' => $email,
+                    'identifier' => 'custodian_user_invite',
+                    'custodian_id' => 1,
+                ],
+            );
+
+        $response->assertStatus(201);
+
+        $this->assertDatabaseHas('custodian_users', [
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'email' => $email,
+        ]);
+
+        Queue::assertPushed(SendEmailJob::class);
     }
 
     public function test_the_application_can_assign_permissions_to_custodian_users(): void

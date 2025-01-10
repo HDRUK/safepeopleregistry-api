@@ -69,10 +69,12 @@ class PermissionSeeder extends Seeder
             [
                 'name' => 'CUSTODIAN_ADMIN',
                 'enabled' => 1,
+                'description' => 'administrator'
             ],
             [
                 'name' => 'CUSTODIAN_APPROVER',
                 'enabled' => 1,
+                'description' => 'approver'
             ],
             [
                 'name' => 'CUSTODIAN_KEYCARD_CREATE',
@@ -88,6 +90,7 @@ class PermissionSeeder extends Seeder
             Permission::create([
                 'name' => $perm['name'],
                 'enabled' => $perm['enabled'],
+                'description' => isset($perm['description']) ? $perm['description'] : null,
             ]);
         }
     }

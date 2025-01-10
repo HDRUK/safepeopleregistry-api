@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\V1;
 
 use Hash;
 use Exception;
+use RegistryManagementController as RMC;
+use TriggerEmail;
 use App\Http\Controllers\Controller;
 use App\Models\CustodianUser;
 use App\Models\CustodianUserHasPermission;
@@ -83,26 +85,21 @@ class CustodianUserController extends Controller
      *      tags={"CustodianUser"},
      *      summary="CustodianUser@show",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="CustodianUser entry ID",
      *         required=true,
      *         example="1",
-     *
      *         @OA\Schema(
      *            type="integer",
      *            description="CustodianUser entry ID",
      *         ),
      *      ),
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -131,9 +128,7 @@ class CustodianUserController extends Controller
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -224,6 +219,7 @@ class CustodianUserController extends Controller
                 ])->delete();
 
                 $perms = Permission::whereIn('id', $input['permissions'])->get();
+
                 foreach ($perms as $perm) {
                     $p = CustodianUserHasPermission::create([
                         'custodian_user_id' => $user->id,
@@ -431,6 +427,7 @@ class CustodianUserController extends Controller
                 ])->delete();
 
                 $perms = Permission::whereIn('id', $input['permissions'])->get();
+
                 foreach ($perms as $perm) {
                     $p = CustodianUserHasPermission::create([
                         'custodian_user_id' => $user->id,
@@ -451,6 +448,30 @@ class CustodianUserController extends Controller
                 'data' => null,
                 'error' => 'unable to save custodian user',
             ], 400);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    //Hide from swagger docs
+    public function inviteUser(Request $request, int $id): JsonResponse
+    {
+        try {
+            $user = CustodianUser::where('id', $id)->first();
+
+            $input = [
+                'type' => 'CUSTODIAN_USER',
+                'to' => $user->id,
+                'by' => $id,
+                'identifier' => 'custodian_user_invite',
+            ];
+
+            TriggerEmail::spawnEmail($input);
+
+            return response()->json([
+                'message' => 'success',
+                'data' => $user,
+            ], 201);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
