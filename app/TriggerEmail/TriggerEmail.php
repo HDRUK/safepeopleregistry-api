@@ -90,6 +90,11 @@ class TriggerEmail
                     $custodian->invite_sent_at = Carbon::now();
                     $custodian->save();
 
+                    $replacements = [
+                        '[[custodian.unique_identifier]]' => $custodian->unique_identifier,
+                        '[[env(SUPPORT_EMAIL)]]' => env('SUPPORT_EMAIL'),
+                    ];
+
                     $ivitedBy = [];
                 } else {
                     throw new Exception('custodian '.$custodian->id.' already accepted invite at '.$custodian->invite_accepted_at);
@@ -119,6 +124,7 @@ class TriggerEmail
                     '[[user.first_name]]' => $user->first_name,
                     '[[user.last_name]]' => $user->last_name,
                     '[[custodian.name]]' => $custodian->name,
+                    '[[custodian.unique_identifier]]' => $custodian->unique_identifier,
                     '[[custodian.id]]' => $custodian->id,
                     '[[role.description]]' => $role_description,
                     '[[env(SUPPORT_EMAIL)]]' => env('SUPPORT_EMAIL'),
