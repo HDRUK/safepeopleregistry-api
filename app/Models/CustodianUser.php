@@ -30,11 +30,13 @@ class CustodianUser extends Model
         'keycloak_id',
     ];
 
-    public function permissions(): HasMany
+    /**
+     * Get the permissions associated with the custodian user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function userPermissions()
     {
-        return $this->hasMany(
-            CustodianUserHasPermission::class,
-        );
+        return $this->hasMany(CustodianUserHasPermission::class, 'custodian_user_id', 'id');
     }
-
 }

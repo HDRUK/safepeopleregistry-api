@@ -96,13 +96,13 @@ class TriggerEmail
                 }
                 break;
             case 'CUSTODIAN_USER':
-                $user = CustodianUser::with('permissions')->where('id', $to)->first();
+                $user = CustodianUser::with('userPermissions.permission')->where('id', $to)->first();
                 $custodian = Custodian::where('id', $user->custodian_id)->first();
 
                 $role_description = '';
 
-                if(count($user->permissions) > 0) {
-                    $permission = Permission::where('id', $user->permissions[0]->permission_id)->first();
+                if(count($user->userPermissions) > 0) {
+                    $permission = Permission::where('id', $user->userPermissions[0]->permission_id)->first();
 
                     $role_description = "as an $permission->description";
                 }

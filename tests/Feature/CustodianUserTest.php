@@ -184,7 +184,6 @@ class CustodianUserTest extends TestCase
                     'email' => $email,
                     'identifier' => 'custodian_user_invite',
                     'custodian_id' => 1,
-                    'permissions' => [10]
                 ],
             );
 
