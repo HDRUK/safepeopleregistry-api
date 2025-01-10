@@ -637,30 +637,30 @@ class OrganisationTest extends TestCase
     }
 
     public function test_the_application_can_list_users_for_an_organisation(): void
-{
-    $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+                ->json(
+                    'GET',
+                    self::TEST_URL . '/1/users'
+                );
+
+        $response->assertStatus(200);
+        $this->assertArrayHasKey('data', $response);
+
+
+        $this->assertCount(4, $response['data']['data']);
+
+
+        $responseWithTitleFilter = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'GET',
-                self::TEST_URL . '/1/users'
+                self::TEST_URL . '/1/projects?email[]=organisation.owner@healthdataorganisation.com'
             );
 
-    $response->assertStatus(200);
-    $this->assertArrayHasKey('data', $response);
-
-
-    $this->assertCount(4, $response['data']['data']);
-
-
-    $responseWithTitleFilter = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . '/1/projects?email[]=organisation.owner@healthdataorganisation.com'
+        $this->assertCount(
+            1,
+            $responseWithTitleFilter['data']['data'],
+            'organisation.owner@healthdataorganisation.com'
         );
-
-    $this->assertCount(
-        1,
-        $responseWithTitleFilter['data']['data'],
-        'organisation.owner@healthdataorganisation.com'
-    );
-}
+    }
 }
