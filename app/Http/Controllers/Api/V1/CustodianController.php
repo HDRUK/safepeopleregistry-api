@@ -142,6 +142,11 @@ class CustodianController extends Controller
 
     /**
      * @OA\Get(
+<<<<<<< Updated upstream
+=======
+<<<<<<< Updated upstream
+=======
+>>>>>>> Stashed changes
      *      path="/api/v1/custodians/email/{email}",
      *      summary="Return a Custodian by email",
      *      description="Return a Custodian by email",
@@ -188,7 +193,13 @@ class CustodianController extends Controller
      */
     public function showByEmail(Request $request, string $email): JsonResponse
     {
+<<<<<<< Updated upstream
         $custodian = Custodian::where('contact_email', $email);
+=======
+
+        $custodian = Custodian::where('contact_email', $email)->first();
+
+>>>>>>> Stashed changes
         if ($custodian) {
             return response()->json([
                 'message' => 'success',
@@ -204,6 +215,10 @@ class CustodianController extends Controller
 
     /**
      * @OA\Get(
+<<<<<<< Updated upstream
+=======
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
      *      path="/api/v1/custodians/identifier/{id}",
      *      summary="Return a Custodian entry by Unique Identifier",
      *      description="Return an Custodian entry by Unique Identifier",
@@ -444,10 +459,12 @@ class CustodianController extends Controller
             $input = $request->all();
 
             $custodian = Custodian::where('id', $id)->first();
-            $custodian->name = $input['name'];
+
+            $custodian->invite_accepted_at = isset($input['invite_accepted_at'])  ? $input['invite_accepted_at'] : $custodian->invite_accepted_at;
+            $custodian->name = isset($input['name'])  ? $input['name'] : $custodian->name;
             $custodian->contact_email = isset($input['contact_email']) ? $input['contact_email'] : $custodian->contact_email;
-            $custodian->enabled = $input['enabled'];
-            $custodian->idvt_required = isset($input['idvt_required']) ? $input['idvt_required'] : false;
+            $custodian->enabled = isset($input['enabled']) ? $input['enabled'] : $custodian->enabled;
+            $custodian->idvt_required = isset($input['idvt_required']) ? $input['idvt_required'] : $custodian->idvt_required;
 
             if ($custodian->save()) {
                 return response()->json([
@@ -546,9 +563,11 @@ class CustodianController extends Controller
             $input = $request->all();
 
             $custodian = Custodian::where('id', $id)->first();
-            $custodian->name = $input['name'];
+
+            $custodian->invite_accepted_at = isset($input['invite_accepted_at'])  ? $input['invite_accepted_at'] : $custodian->invite_accepted_at;
+            $custodian->name = isset($input['name'])  ? $input['name'] : $custodian->name;
             $custodian->contact_email = isset($input['contact_email']) ? $input['contact_email'] : $custodian->contact_email;
-            $custodian->enabled = $input['enabled'];
+            $custodian->enabled = isset($input['enabled']) ? $input['enabled'] : $custodian->enabled;
             $custodian->idvt_required = isset($input['idvt_required']) ? $input['idvt_required'] : $custodian->idvt_required;
 
             if ($custodian->save()) {
