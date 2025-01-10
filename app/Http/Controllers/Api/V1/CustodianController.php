@@ -142,11 +142,6 @@ class CustodianController extends Controller
 
     /**
      * @OA\Get(
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
->>>>>>> Stashed changes
      *      path="/api/v1/custodians/email/{email}",
      *      summary="Return a Custodian by email",
      *      description="Return a Custodian by email",
@@ -193,13 +188,8 @@ class CustodianController extends Controller
      */
     public function showByEmail(Request $request, string $email): JsonResponse
     {
-<<<<<<< Updated upstream
-        $custodian = Custodian::where('contact_email', $email);
-=======
-
         $custodian = Custodian::where('contact_email', $email)->first();
 
->>>>>>> Stashed changes
         if ($custodian) {
             return response()->json([
                 'message' => 'success',
@@ -215,10 +205,6 @@ class CustodianController extends Controller
 
     /**
      * @OA\Get(
-<<<<<<< Updated upstream
-=======
->>>>>>> Stashed changes
->>>>>>> Stashed changes
      *      path="/api/v1/custodians/identifier/{id}",
      *      summary="Return a Custodian entry by Unique Identifier",
      *      description="Return an Custodian entry by Unique Identifier",
