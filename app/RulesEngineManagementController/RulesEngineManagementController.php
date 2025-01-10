@@ -54,6 +54,6 @@ class RulesEngineManagementController
         // Mock return for now
         $filePath = storage_path('mocks/decisionTree.json');
         $jsonData = json_decode(file_get_contents($filePath), true);
-        return response()->json($jsonData);
+        return response()->json(['data' => $jsonData]);
     }
 }
