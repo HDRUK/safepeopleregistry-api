@@ -430,62 +430,7 @@ class CustodianUserController extends Controller
         }
     }
 
-        /**
-     * @OA\Post(
-     *      path="/api/v1/custodian_users/invite/{id}",
-     *      summary="Invites a user to a custodian",
-     *      description="Invites a user to a custodian",
-     *      tags={"custodians"},
-     *      summary="custodians@invite_user",
-     *      security={{"bearerAuth":{}}},
-     *
-     *      @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="custodian entry ID",
-     *         required=true,
-     *         example="1",
-     *
-     *         @OA\Schema(
-     *            type="integer",
-     *            description="custodian entry ID",
-     *         ),
-     *      ),
-     *
-     *      @OA\RequestBody(
-     *          required=true,
-     *          description="Invite definition",
-     *
-     *          @OA\JsonContent(
-     *              @OA\Property(property="last_name", type="string", example="Smith"),
-     *              @OA\Property(property="first_name", type="string", example="John"),
-     *              @OA\Property(property="email", type="string", example="someone@somewhere.com"),
-     *              @OA\Property(property="permissions", type="array",
-     *                  @OA\Items(type="integer", example="10")
-     *              )
-     *          ),
-     *      ),
-     *
-     *      @OA\Response(
-     *          response=201,
-     *          description="Success",
-     *
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data", type="integer", example="1"),
-     *          ),
-     *      ),
-     *
-     *      @OA\Response(
-     *          response=500,
-     *          description="Error",
-     *
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="error")
-     *          )
-     *      )
-     * )
-     */
+    //Hide from swagger docs
     public function inviteUser(Request $request, int $id): JsonResponse
     {
         try {
