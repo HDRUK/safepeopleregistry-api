@@ -45,7 +45,6 @@ class RunRulesEngine extends Command
             env('RULES_ENGINE_SERVICE').env('RULES_ENGINE_PROJECT_ID').'/evaluate/'.env('RULES_ENGINE_DOCUMENT_ID'),
             $body
         );
-        return $response;
 
         // Debug line for the time being, to prove concept.
         dd($response);
