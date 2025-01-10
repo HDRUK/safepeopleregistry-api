@@ -43,12 +43,12 @@ class ProjectHasUser extends Model
     public function approvals(): HasManyThrough
     {
         return $this->hasManyThrough(
+            ProjectHasCustodian::class,
             Project::class,
-            ProjectHasCustodianApproval::class,
-            'project_id',   // Foreign key on ProjectHasCustodianApproval
-            'id',           // Foreign key on Project
-            'project_id',   // Local key on ProjectHasUser
-            'project_id'    // Local key on ProjectHasCustodianApproval
-        );
+            'id',
+            'id',
+            'project_id',
+            'project_id'
+        )->where('approved', true);
     }
 }
