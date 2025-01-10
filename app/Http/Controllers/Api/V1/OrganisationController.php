@@ -13,6 +13,7 @@ use App\Jobs\OrganisationIDVT;
 use App\Models\Project;
 use App\Models\Organisation;
 use App\Models\OrganisationHasDepartment;
+use App\Models\User;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -855,6 +856,95 @@ class OrganisationController extends Controller
             'message' => 'not found',
             'data' => null,
         ], 404);
+    }
+
+        /**
+     * @OA\Get(
+     *      path="/api/v1/organisations/{id}/users",
+     *      summary="Return all users associated with an organisation",
+     *      description="Return all users associated with an organisation",
+     *      tags={"organisation"},
+     *      summary="organisation@getUsers",
+     *      security={{"bearerAuth":{}}},
+     *
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Organisation ID",
+     *         required=true,
+     *         example="1",
+     *
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Organisation ID",
+     *         ),
+     *      ),
+     *
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="object",
+     *                  @OA\Property(property="current_page", type="integer", example=1),
+     *                  @OA\Property(property="data", type="array",
+     *                      @OA\Items(
+     *                          @OA\Property(property="id", type="integer", example=1),
+     *                          @OA\Property(property="first_name", type="string", example="John"),
+     *                          @OA\Property(property="last_name", type="string", example="Doe"),
+     *                          @OA\Property(property="email", type="string", example="john.doe@example.com"),
+     *                          @OA\Property(property="created_at", type="string", example="2023-06-01T12:00:00Z"),
+     *                          @OA\Property(property="updated_at", type="string", example="2023-06-01T12:00:00Z")
+     *                      )
+     *                  ),
+     *                  @OA\Property(property="first_page_url", type="string"),
+     *                  @OA\Property(property="from", type="integer"),
+     *                  @OA\Property(property="last_page", type="integer"),
+     *                  @OA\Property(property="last_page_url", type="string"),
+     *                  @OA\Property(property="next_page_url", type="string"),
+     *                  @OA\Property(property="path", type="string"),
+     *                  @OA\Property(property="per_page", type="integer"),
+     *                  @OA\Property(property="prev_page_url", type="string"),
+     *                  @OA\Property(property="to", type="integer"),
+     *                  @OA\Property(property="total", type="integer")
+     *              )
+     *          ),
+     *      ),
+     *
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found"),
+     *          )
+     *      )
+     * )
+     */
+    public function getUsers(Request $request, int $organisationId): JsonResponse
+    {
+        try {
+            $users = User::searchViaRequest()
+                ->with([
+                'permissions',
+                'registry',
+                'registry.files',
+                'pendingInvites',
+                'organisation',
+                'departments',
+                'registry.education',
+                'registry.training',
+            ])->where('organisation_id', $organisationId)
+              ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+
+              return response()->json([
+                'message' => 'success',
+                'data' => $users,
+            ], 200);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
     }
 
     /**
