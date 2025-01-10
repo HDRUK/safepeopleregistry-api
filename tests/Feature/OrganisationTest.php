@@ -653,10 +653,9 @@ class OrganisationTest extends TestCase
         $responseWithEmailFilter = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'GET',
-                self::TEST_URL . '/1/projects?email[]=organisation.owner@healthdataorganisation.com'
+                self::TEST_URL . '/1/users?email[]=organisation.owner@healthdataorganisation.com'
             );
             
-        dd($responseWithEmailFilter['data']['data']);
         $this->assertCount(
             1,
             $responseWithEmailFilter['data']['data'],
