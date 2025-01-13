@@ -567,6 +567,13 @@ class OrganisationController extends Controller
                 'smb_status' => $input['smb_status'],
             ]);
 
+            if ($request->has('subsidiaries')) {
+                $this->cleanSubsidiaries($id);
+                foreach ($request->input('subsidiaries') as $subsidiary) {
+                    $this->addSubsidiary($id, $subsidiary);
+                }
+            }
+
             return response()->json([
                 'message' => 'success',
                 'data' => Organisation::where('id', $id)->first(),
@@ -669,6 +676,7 @@ class OrganisationController extends Controller
 
             if ($updated) {
                 if ($request->has('subsidiaries')) {
+                    $this->cleanSubsidiaries($id);
                     foreach ($request->input('subsidiaries') as $subsidiary) {
                         $this->addSubsidiary($id, $subsidiary);
                     }
@@ -1109,6 +1117,11 @@ class OrganisationController extends Controller
         }
     }
 
+    public function cleanSubsidiaries(int $organisationId)
+    {
+        OrganisationHasSubsidiary::where('organisation_id', $organisationId)->delete();
+
+    }
 
     public function addSubsidiary(int $organisationId, array $subsidiary)
     {
