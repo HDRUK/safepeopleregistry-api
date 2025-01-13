@@ -200,6 +200,8 @@ Route::get('v1/system_config', [SystemConfigController::class, 'index']);
 Route::post('v1/system_config', [SystemConfigController::class, 'store']);
 Route::get('v1/system_config/{name}', [SystemConfigController::class, 'getByName']);
 
+Route::middleware('api')->get('v1/rules', [RulesEngineManagementController::class, 'getRules']);
+
 // ONS CSV RESEARCHER FEED
 Route::post('v1/ons_researcher_feed', [ONSSubmissionController::class, 'receiveCSV']);
 
