@@ -13,6 +13,7 @@ use App\Jobs\OrganisationIDVT;
 use App\Models\Project;
 use App\Models\Organisation;
 use App\Models\OrganisationHasDepartment;
+use App\Models\OrganisationHasSubsidiary;
 use App\Models\User;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
@@ -88,6 +89,7 @@ class OrganisationController extends Controller
                 ->applySorting()
                 ->with([
                     'departments',
+                    'subsidiaries',
                     'approvals',
                     'permissions',
                     'files',
@@ -175,6 +177,7 @@ class OrganisationController extends Controller
     {
         $organisation = Organisation::with([
             'departments',
+            'subsidiaries',
             'permissions',
             'approvals',
             'files',
@@ -664,6 +667,11 @@ class OrganisationController extends Controller
             $updated = $organisation->update($request->validated());
 
             if ($updated) {
+                if ($request->has('subsidiaries')) {
+                    foreach ($request->input('subsidiaries') as $subsidiary) {
+                        $this->addSubsidiary($id, $subsidiary);
+                    }
+                }
                 return response()->json(['message' => 'Updated successfully', 'data' => $updated], 200);
             } else {
                 return response()->json(['message' => 'Failed to update organisation'], 500);
@@ -858,7 +866,7 @@ class OrganisationController extends Controller
         ], 404);
     }
 
-        /**
+    /**
      * @OA\Get(
      *      path="/api/v1/organisations/{id}/users",
      *      summary="Return all users associated with an organisation",
@@ -938,9 +946,9 @@ class OrganisationController extends Controller
             ])->where('organisation_id', $organisationId)
               ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
-              return response()->json([
-                'message' => 'success',
-                'data' => $users,
+            return response()->json([
+              'message' => 'success',
+              'data' => $users,
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -1098,5 +1106,28 @@ class OrganisationController extends Controller
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
+    }
+
+
+    public function addSubsidiary(int $organisationId, array $subsidiary)
+    {
+        $subsidiaryData = [
+            'organisation_id' => $organisationId,
+            'subsidiary_name' => $subsidiary['subsidiary_name'] ?? null,
+            'address_1' => $subsidiary['subsidiary_address']['addressLine1'] ?? null,
+            'address_2' => $subsidiary['subsidiary_address']['addressLine2'] ?? null,
+            'town' => $subsidiary['subsidiary_address']['town'] ?? null,
+            'county' => $subsidiary['subsidiary_address']['county'] ?? null,
+            'country' => $subsidiary['subsidiary_address']['country'] ?? null,
+            'postcode' => $subsidiary['subsidiary_address']['postcode'] ?? null,
+        ];
+
+        return OrganisationHasSubsidiary::updateOrCreate(
+            [
+                'organisation_id' => $organisationId,
+                'subsidiary_name' => $subsidiaryData['subsidiary_name'],
+            ],
+            $subsidiaryData
+        );
     }
 }

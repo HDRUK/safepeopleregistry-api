@@ -655,7 +655,7 @@ class OrganisationTest extends TestCase
                 'GET',
                 self::TEST_URL . '/1/users?email[]=organisation.owner@healthdataorganisation.com'
             );
-            
+
         $this->assertCount(
             1,
             $responseWithEmailFilter['data']['data'],
