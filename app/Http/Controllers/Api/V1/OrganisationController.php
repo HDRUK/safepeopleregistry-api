@@ -14,6 +14,7 @@ use App\Models\Project;
 use App\Models\Organisation;
 use App\Models\OrganisationHasDepartment;
 use App\Models\OrganisationHasSubsidiary;
+use App\Models\Subsidiary;
 use App\Models\User;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
@@ -1112,22 +1113,24 @@ class OrganisationController extends Controller
     public function addSubsidiary(int $organisationId, array $subsidiary)
     {
         $subsidiaryData = [
-            'organisation_id' => $organisationId,
-            'subsidiary_name' => $subsidiary['subsidiary_name'] ?? null,
-            'address_1' => $subsidiary['subsidiary_address']['addressLine1'] ?? null,
-            'address_2' => $subsidiary['subsidiary_address']['addressLine2'] ?? null,
-            'town' => $subsidiary['subsidiary_address']['town'] ?? null,
-            'county' => $subsidiary['subsidiary_address']['county'] ?? null,
-            'country' => $subsidiary['subsidiary_address']['country'] ?? null,
-            'postcode' => $subsidiary['subsidiary_address']['postcode'] ?? null,
+            'name' => $subsidiary['name'] ?? null,
+            'address_1' => $subsidiary['address']['addressLine1'] ?? null,
+            'address_2' => $subsidiary['address']['addressLine2'] ?? null,
+            'town' => $subsidiary['address']['town'] ?? null,
+            'county' => $subsidiary['address']['county'] ?? null,
+            'country' => $subsidiary['address']['country'] ?? null,
+            'postcode' => $subsidiary['address']['postcode'] ?? null,
         ];
 
-        return OrganisationHasSubsidiary::updateOrCreate(
+        $subsidiary = Subsidiary::updateOrCreate(
+            $subsidiaryData
+        );
+
+        OrganisationHasSubsidiary::updateOrCreate(
             [
                 'organisation_id' => $organisationId,
-                'subsidiary_name' => $subsidiaryData['subsidiary_name'],
-            ],
-            $subsidiaryData
+                'subsidiary_id' => $subsidiary->id
+            ]
         );
     }
 }
