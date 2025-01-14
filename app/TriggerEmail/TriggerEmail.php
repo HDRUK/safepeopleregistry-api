@@ -91,7 +91,7 @@ class TriggerEmail
                     $custodian->save();
 
                     $replacements = [
-                        '[[custodian.unique_identifier]]' => $custodian->unique_identifier,
+                        '[[custodian.contact_email]]' => $custodian->contact_email,
                         '[[env(SUPPORT_EMAIL)]]' => env('SUPPORT_EMAIL'),
                     ];
 
@@ -124,7 +124,7 @@ class TriggerEmail
                     '[[user.first_name]]' => $user->first_name,
                     '[[user.last_name]]' => $user->last_name,
                     '[[custodian.name]]' => $custodian->name,
-                    '[[custodian.unique_identifier]]' => $custodian->unique_identifier,
+                    '[[user.email]]' => $user->unique_identifier,
                     '[[custodian.id]]' => $custodian->id,
                     '[[role.description]]' => $role_description,
                     '[[env(SUPPORT_EMAIL)]]' => env('SUPPORT_EMAIL'),

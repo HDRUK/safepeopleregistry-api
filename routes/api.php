@@ -79,6 +79,7 @@ Route::middleware(['api', 'check.custodian.access'])->post('v1/custodians/push',
 
 Route::middleware('api')->get('v1/custodian_users', [CustodianUserController::class, 'index']);
 Route::middleware('api')->get('v1/custodian_users/{id}', [CustodianUserController::class, 'show']);
+Route::middleware('api')->get('v1/custodian_users/email/{email}', [CustodianUserController::class, 'showByEmail']);
 Route::middleware('api')->post('v1/custodian_users', [CustodianUserController::class, 'store']);
 Route::middleware('api')->put('v1/custodian_users/{id}', [CustodianUserController::class, 'update']);
 Route::middleware('api')->patch('v1/custodian_users/{id}', [CustodianUserController::class, 'edit']);

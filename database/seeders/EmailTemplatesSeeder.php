@@ -137,7 +137,7 @@ class EmailTemplatesSeeder extends Seeder
           </mj-column></mj-section>
           <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
           <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
-          <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="http://localhost:3000/data-custodian/invite/[[custodian.unique_identifier]]" padding="10px 25px 10px 25px" >
+          <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="http://localhost:3000/data-custodian/invite/[[custodian.contact_email]]" padding="10px 25px 10px 25px" >
           Sign me up!
           </mj-button></mj-column></mj-section></mj-wrapper></mj-body></mjml >',
             'buttons' => '',
@@ -196,7 +196,7 @@ class EmailTemplatesSeeder extends Seeder
                     </mj-section>
                     <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
                       <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
-                        <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="http://localhost:3000/data-custodian/invite/[[custodian.unique_identifier]]" padding="10px 25px 10px 25px" >
+                        <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="http://localhost:3000/data-custodian/invite/user/[[user.email]]" padding="10px 25px 10px 25px" >
                           Sign me up!
                         </mj-button>
                       </mj-column>
