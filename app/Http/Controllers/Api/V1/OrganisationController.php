@@ -681,7 +681,7 @@ class OrganisationController extends Controller
                         $this->addSubsidiary($id, $subsidiary);
                     }
                 }
-                return response()->json(['message' => 'Updated successfully', 'data' => $updated], 200);
+                return response()->json(['message' => 'success', 'data' => $updated], 200);
             } else {
                 return response()->json(['message' => 'Failed to update organisation'], 500);
             }
@@ -1125,10 +1125,13 @@ class OrganisationController extends Controller
 
     public function addSubsidiary(int $organisationId, array $subsidiary)
     {
+        if (is_null($subsidiary['name'])) {
+            return;
+        }
         $subsidiaryData = [
-            'name' => $subsidiary['name'] ?? null,
-            'address_1' => $subsidiary['address']['addressLine1'] ?? null,
-            'address_2' => $subsidiary['address']['addressLine2'] ?? null,
+            'name' => $subsidiary['name'],
+            'address_1' => $subsidiary['address']['address_1'] ?? null,
+            'address_2' => $subsidiary['address']['address_1'] ?? null,
             'town' => $subsidiary['address']['town'] ?? null,
             'county' => $subsidiary['address']['county'] ?? null,
             'country' => $subsidiary['address']['country'] ?? null,
