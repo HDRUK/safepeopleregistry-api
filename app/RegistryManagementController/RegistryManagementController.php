@@ -53,7 +53,7 @@ class RegistryManagementController
                     $existingUser->email = $input['email'];
                     $existingUser->keycloak_id = $input['sub'];
                     $existingUser->user_group = RegistryManagementController::KC_GROUP_USERS;
-                    $existingUser->unclaimed = false;
+                    $existingUser->unclaimed = 0;
 
                     $existingUser->save();
 
@@ -80,7 +80,7 @@ class RegistryManagementController
                     $existingUser->email = $input['email'];
                     $existingUser->keycloak_id = $input['sub'];
                     $existingUser->user_group = RegistryManagementController::KC_GROUP_ORGANISATIONS;
-                    $existingUser->unclaimed = false;
+                    $existingUser->unclaimed = 0;
 
                     $existingUser->save();
 
@@ -108,7 +108,7 @@ class RegistryManagementController
                     $existingUser->email = $input['email'];
                     $existingUser->keycloak_id = $input['sub'];
                     $existingUser->user_group = RegistryManagementController::KC_GROUP_CUSTODIANS;
-                    $existingUser->unclaimed = false;
+                    $existingUser->unclaimed = 0;
 
                     $existingUser->save();
 
