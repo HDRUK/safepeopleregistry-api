@@ -66,6 +66,20 @@ class CustodianTest extends TestCase
         $this->assertArrayHasKey('data', $response);
     }
 
+    public function test_the_application_can_show_custodians_by_email(): void
+    {
+        $custodian = Custodian::where('id', 1)->first();
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/email/' . $custodian->contact_email
+            );
+
+        $response->assertStatus(200);
+        $this->assertArrayHasKey('data', $response);
+    }
+
     public function test_the_application_can_create_custodians(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())

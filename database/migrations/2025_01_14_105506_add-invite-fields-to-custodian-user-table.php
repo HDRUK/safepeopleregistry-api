@@ -10,7 +10,7 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        Schema::table('permissions', function (Blueprint $table) {
+        Schema::table('custodian_users', function (Blueprint $table) {
             $table->timestamp('invite_accepted_at')->nullable();
             $table->timestamp('invite_sent_at')->nullable();
         });
@@ -21,7 +21,7 @@ return new class () extends Migration {
      */
     public function down(): void
     {
-        Schema::table('permissions', function (Blueprint $table) {
+        Schema::table('custodian_users', function (Blueprint $table) {
             $table->dropIfExists('invite_accepted_at');
             $table->dropIfExists('invite_sent_at');
         });

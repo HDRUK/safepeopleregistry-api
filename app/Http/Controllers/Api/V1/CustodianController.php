@@ -153,7 +153,7 @@ class CustodianController extends Controller
      *         in="path",
      *         description="Custodian contact email",
      *         required=true,
-     *         example="1",
+     *         example="person@somewhere.com",
      *         @OA\Schema(
      *            type="string",
      *            description="Custodian contact email",

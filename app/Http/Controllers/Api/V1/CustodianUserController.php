@@ -138,10 +138,17 @@ class CustodianUserController extends Controller
     {
         $user = CustodianUser::where('id', $id)->first();
 
+        if($user) {
+            return response()->json([
+                'message' => 'success',
+                'data' => $user,
+            ], 200);
+        }
+
         return response()->json([
-            'message' => 'success',
-            'data' => $user,
-        ], 200);
+            'message' => 'not found',
+            'data' => null,
+        ], 404);
     }
 
         /**
@@ -205,10 +212,17 @@ class CustodianUserController extends Controller
     {
         $user = CustodianUser::where('email', $email)->first();
 
+        if($user) {
+            return response()->json([
+                'message' => 'success',
+                'data' => $user,
+            ], 200);
+        }
+
         return response()->json([
-            'message' => 'success',
-            'data' => $user,
-        ], 200);
+            'message' => 'not found',
+            'data' => null,
+        ], 404);
     }
 
     /**
@@ -219,13 +233,10 @@ class CustodianUserController extends Controller
      *      tags={"CustodianUser"},
      *      summary="CustodianUser@store",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="CustodianUser definition",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="custodian_id", type="integer", example="1"),
      *              @OA\Property(property="first_name", type="string", example="First"),
      *              @OA\Property(property="last_name", type="string", example="Last"),
@@ -233,34 +244,25 @@ class CustodianUserController extends Controller
      *              @OA\Property(property="password", type="string", example="SomeP4ssw0rd!")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=201,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="integer", example="1")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -380,6 +382,7 @@ class CustodianUserController extends Controller
             $user->provider = isset($input['provider']) ? $input['provider'] : $user->provider;
             $user->keycloak_id = isset($input['keycloak_id']) ? $input['keycloak_id'] : $user->keycloak_id;
             $user->custodian_id = isset($input['custodian_id']) ? $input['custodian_id'] : $user->custodian_id;
+            $user->invite_accepted_at = isset($input['invite_accepted_at']) ? $input['invite_accepted_at'] : $user->invite_accepted_at;
 
             if (isset($input['permissions'])) {
                 CustodianUserHasPermission::where([
@@ -487,6 +490,7 @@ class CustodianUserController extends Controller
             $user->provider = isset($input['provider']) ? $input['provider'] : $user->provider;
             $user->keycloak_id = isset($input['keycloak_id']) ? $input['keycloak_id'] : $user->keycloak_id;
             $user->custodian_id = isset($input['custodian_id']) ? $input['custodian_id'] : $user->custodian_id;
+            $user->invite_accepted_at = isset($input['invite_accepted_at']) ? $input['invite_accepted_at'] : $user->invite_accepted_at;
 
             if (isset($input['permissions'])) {
                 CustodianUserHasPermission::where([
@@ -525,6 +529,12 @@ class CustodianUserController extends Controller
     {
         try {
             $user = CustodianUser::where('id', $id)->first();
+
+            $unclaimedUser = RMC::createUnclaimedUser([
+                'firstname' => $user['first_name'],
+                'lastname' => $user['last_name'],
+                'email' => $user['email']
+            ]);
 
             $input = [
                 'type' => 'CUSTODIAN_USER',
