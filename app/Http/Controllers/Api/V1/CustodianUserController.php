@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use Hash;
 use Exception;
 use TriggerEmail;
+use RegistryManagementController as RMC;
 use App\Http\Controllers\Controller;
 use App\Models\CustodianUser;
 use App\Models\CustodianUserHasPermission;
