@@ -40,26 +40,31 @@ class RegistryManagementController
      *      simply logging in accounts
      * @return boolean
      */
-    public static function createNewUser(array $input, string $accountType): bool
+    public static function createNewUser(array $input, string | null $accountType): mixed
     {
-        $existingUser = User::where('email', $input['email'])->first();
+        $unclaimedUser = User::where('email', $input['email'])->whereNull('keycloak_id')->first();
+
+        if($unclaimedUser) {
+            $unclaimedUser->first_name = $input['given_name'];
+            $unclaimedUser->last_name = $input['family_name'];
+            $unclaimedUser->email = $input['email'];
+            $unclaimedUser->keycloak_id = $input['sub'];
+            $unclaimedUser->unclaimed = 0;
+
+            $unclaimedUser->save();
+
+            return [
+                "unclaimedUserId" => $unclaimedUser->id
+            ];
+        }
+
+        return [
+            "unclaimedUserId" => $unclaimedUser
+        ];
 
         switch (strtolower($accountType)) {
             case 'user':
-                // First ensure that this user doesn't already exist
-                if($existingUser && !isset($existingUser['keycloak_id'])) {
-                    $existingUser->first_name = $input['given_name'];
-                    $existingUser->last_name = $input['family_name'];
-                    $existingUser->email = $input['email'];
-                    $existingUser->keycloak_id = $input['sub'];
-                    $existingUser->user_group = RegistryManagementController::KC_GROUP_USERS;
-                    $existingUser->unclaimed = 0;
-
-                    $existingUser->save();
-
-                    return true;
-                }
-                else if (!RegistryManagementController::checkDuplicateKeycloakID($input['sub'])) {
+                if (!RegistryManagementController::checkDuplicateKeycloakID($input['sub'])) {
                     $user = User::create([
                         'first_name' => $input['given_name'],
                         'last_name' => $input['family_name'],
@@ -69,24 +74,15 @@ class RegistryManagementController
                         'user_group' => RegistryManagementController::KC_GROUP_USERS,
                     ]);
 
-                    return true;
+                    return [
+                        "userId" => $user->id
+                    ];
                 }
+
                 return false;
 
             case 'organisation':
-                if($existingUser && !isset($existingUser['keycloak_id'])) {
-                    $existingUser->first_name = $input['given_name'];
-                    $existingUser->last_name = $input['family_name'];
-                    $existingUser->email = $input['email'];
-                    $existingUser->keycloak_id = $input['sub'];
-                    $existingUser->user_group = RegistryManagementController::KC_GROUP_ORGANISATIONS;
-                    $existingUser->unclaimed = 0;
-
-                    $existingUser->save();
-
-                    return true;
-                }
-                else if (!RegistryManagementController::checkDuplicateKeycloakID($input['sub'])) {
+                if (!RegistryManagementController::checkDuplicateKeycloakID($input['sub'])) {
                     $user = User::create([
                         'first_name' => $input['given_name'],
                         'last_name' => $input['family_name'],
@@ -96,25 +92,15 @@ class RegistryManagementController
                         'user_group' => RegistryManagementController::KC_GROUP_ORGANISATIONS,
                     ]);
 
-                    return true;
+                    return [
+                        "userId" => $user->id
+                    ];
                 }
 
                 return false;
 
             case 'custodian':
-                 if($existingUser && !isset($existingUser['keycloak_id'])) {
-                    $existingUser->first_name = $input['given_name'];
-                    $existingUser->last_name = $input['family_name'];
-                    $existingUser->email = $input['email'];
-                    $existingUser->keycloak_id = $input['sub'];
-                    $existingUser->user_group = RegistryManagementController::KC_GROUP_CUSTODIANS;
-                    $existingUser->unclaimed = 0;
-
-                    $existingUser->save();
-
-                    return true;
-                }
-                else if (!RegistryManagementController::checkDuplicateKeycloakID($input['sub'])) {
+                if (!RegistryManagementController::checkDuplicateKeycloakID($input['sub'])) {
                     $user = User::create([
                         'first_name' => $input['given_name'],
                         'last_name' => $input['family_name'],
@@ -124,7 +110,9 @@ class RegistryManagementController
                         'user_group' => RegistryManagementController::KC_GROUP_CUSTODIANS,
                     ]);
 
-                    return true;
+                    return [
+                        "userId" => $user->id
+                    ];
                 }
 
                 return false;
@@ -181,6 +169,7 @@ class RegistryManagementController
             'registry_id' => $registry->id,
             'user_group' => '',
             'orc_id' => '',
+            'user_group' => isset($user['user_group']) ? $user['user_group'] : null
         ]);
     }
 }

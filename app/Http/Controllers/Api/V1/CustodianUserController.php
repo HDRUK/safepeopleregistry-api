@@ -151,80 +151,6 @@ class CustodianUserController extends Controller
         ], 404);
     }
 
-        /**
-     * @OA\Get(
-     *      path="/api/v1/custodian_users/email/{email}",
-     *      summary="Return a CustodianUser entry by email",
-     *      description="Return a CustodianUser entry by email",
-     *      tags={"CustodianUser"},
-     *      summary="CustodianUser@showByEmail",
-     *      security={{"bearerAuth":{}}},
-     *      @OA\Parameter(
-     *         name="email",
-     *         in="path",
-     *         description="CustodianUser entry email",
-     *         required=true,
-     *         example="xyz@email.com",
-     *         @OA\Schema(
-     *            type="string",
-     *            description="CustodianUser entry email",
-     *         ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Success",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="first_name", type="string", example="David"),
-     *                  @OA\Property(property="last_name", type="string", example="Davidson"),
-     *                  @OA\Property(property="email", type="string", example="david@davidson.com"),
-     *                  @OA\Property(property="custodian_id", type="integer", example="1"),
-     *                  @OA\Property(property="user_permissions", type="array",
-     *                      @OA\Items(
-     *                          @OA\Property(property="custodian_user_id", type="integer", example=1),
-     *                          @OA\Property(property="permission_id", type="integer", example=10),
-     *                          @OA\Property(property="permission", type="object",
-     *                              @OA\Property(property="id", type="integer", example=10),
-     *                              @OA\Property(property="created_at", type="string", format="date-time", example="2025-01-08T09:37:59.000000Z"),
-     *                              @OA\Property(property="updated_at", type="string", format="date-time", example="2025-01-08T09:37:59.000000Z"),
-     *                              @OA\Property(property="name", type="string", example="CUSTODIAN_ADMIN"),
-     *                              @OA\Property(property="enabled", type="boolean", example=true)
-     *                          )
-     *                      )
-     *                  )
-     *              )
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found"),
-     *          )
-     *      )
-     * )
-     */
-    public function showByEmail(Request $request, string $email): JsonResponse
-    {
-        $user = CustodianUser::where('email', $email)->first();
-
-        if($user) {
-            return response()->json([
-                'message' => 'success',
-                'data' => $user,
-            ], 200);
-        }
-
-        return response()->json([
-            'message' => 'not found',
-            'data' => null,
-        ], 404);
-    }
-
     /**
      * @OA\Post(
      *      path="/api/v1/custodian_users",
@@ -382,7 +308,6 @@ class CustodianUserController extends Controller
             $user->provider = isset($input['provider']) ? $input['provider'] : $user->provider;
             $user->keycloak_id = isset($input['keycloak_id']) ? $input['keycloak_id'] : $user->keycloak_id;
             $user->custodian_id = isset($input['custodian_id']) ? $input['custodian_id'] : $user->custodian_id;
-            $user->invite_accepted_at = isset($input['invite_accepted_at']) ? $input['invite_accepted_at'] : $user->invite_accepted_at;
 
             if (isset($input['permissions'])) {
                 CustodianUserHasPermission::where([
@@ -490,7 +415,6 @@ class CustodianUserController extends Controller
             $user->provider = isset($input['provider']) ? $input['provider'] : $user->provider;
             $user->keycloak_id = isset($input['keycloak_id']) ? $input['keycloak_id'] : $user->keycloak_id;
             $user->custodian_id = isset($input['custodian_id']) ? $input['custodian_id'] : $user->custodian_id;
-            $user->invite_accepted_at = isset($input['invite_accepted_at']) ? $input['invite_accepted_at'] : $user->invite_accepted_at;
 
             if (isset($input['permissions'])) {
                 CustodianUserHasPermission::where([
@@ -533,14 +457,16 @@ class CustodianUserController extends Controller
             $unclaimedUser = RMC::createUnclaimedUser([
                 'firstname' => $user['first_name'],
                 'lastname' => $user['last_name'],
-                'email' => $user['email']
+                'email' => $user['email'],
+                'user_group' => 'CUSTODIANS',
             ]);
 
             $input = [
                 'type' => 'CUSTODIAN_USER',
                 'to' => $user->id,
+                'unclaimedUserId' => $unclaimedUser->id,
                 'by' => $id,
-                'identifier' => 'custodian_user_invite',
+                'identifier' => 'custodian_user_invite'
             ];
 
             TriggerEmail::spawnEmail($input);

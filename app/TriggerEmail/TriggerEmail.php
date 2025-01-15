@@ -24,6 +24,7 @@ class TriggerEmail
         $template = null;
 
         $type = $input['type'];
+        $unclaimedUserId = isset($input['unclaimedUserId']) ? $input['unclaimedUserId'] : null;
         $to = $input['to'];
         $by = isset($input['by']) ? $input['by'] : null;
         $identifier = $input['identifier'];
@@ -74,11 +75,13 @@ class TriggerEmail
                 PendingInvite::create([
                     'user_id' => $user->id,
                     'organisation_id' => $organisation->id,
+                    'invite_sent_at' => Carbon::now(),
                     'status' => config('speedi.invite_status.PENDING'),
                 ]);
                 break;
             case 'CUSTODIAN':
                 $custodian = Custodian::where('id', $to)->first();
+
                 if ($custodian->invite_accepted_at === null) {
                     $template = EmailTemplate::where('identifier', $identifier)->first();
 
@@ -87,11 +90,7 @@ class TriggerEmail
                         'email' => $custodian->contact_email,
                     ];
 
-                    $custodian->invite_sent_at = Carbon::now();
-                    $custodian->save();
-
                     $replacements = [
-                        '[[custodian.contact_email]]' => base64_encode($custodian->contact_email),
                         '[[env(SUPPORT_EMAIL)]]' => env('SUPPORT_EMAIL'),
                     ];
 
@@ -99,6 +98,13 @@ class TriggerEmail
                 } else {
                     throw new Exception('custodian '.$custodian->id.' already accepted invite at '.$custodian->invite_accepted_at);
                 }
+
+                PendingInvite::create([
+                    'user_id' => $unclaimedUserId,
+                    'status' => config('speedi.invite_status.PENDING'),
+                    'invite_sent_at' => Carbon::now()
+                ]);
+
                 break;
             case 'CUSTODIAN_USER':
                 $user = CustodianUser::with('userPermissions.permission')->where('id', $to)->first();
@@ -124,16 +130,24 @@ class TriggerEmail
                     '[[user.first_name]]' => $user->first_name,
                     '[[user.last_name]]' => $user->last_name,
                     '[[custodian.name]]' => $custodian->name,
-                    '[[user.email]]' => base64_encode($user->email),
                     '[[custodian.id]]' => $custodian->id,
                     '[[role.description]]' => $role_description,
                     '[[env(SUPPORT_EMAIL)]]' => env('SUPPORT_EMAIL'),
                 ];
+
+                PendingInvite::create([
+                    'user_id' => $unclaimedUserId,
+                    'status' => config('speedi.invite_status.PENDING'),
+                    'invite_sent_at' => Carbon::now()
+                ]);
             case 'ORGANISATION':
                 break;
             default: // Unknown type.
                 break;
         }
+
+
+        // dd($newRecipients, $template, $replacements);
 
         SendEmailJob::dispatch($newRecipients, $template, $replacements, $invitedBy);
     }

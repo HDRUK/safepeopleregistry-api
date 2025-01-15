@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api\V1;
 use Keycloak;
 use Exception;
 use RegistryManagementController as RMC;
+use Carbon\Carbon;
 use App\Models\Organisation;
 use App\Models\OrganisationDelegate;
+use App\Models\PendingInvite;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -34,17 +36,29 @@ class AuthController extends Controller
         $response = Keycloak::getUserInfo($request->headers->get('Authorization'));
         $payload = $response->json();
 
-        if (RMC::createNewUser($payload, $accountType)) {
+        $user = RMC::createNewUser($payload, $accountType);
+
+        if ($user) {
+            if(isset($user['unclaimedUserId'])) {
+                $pendingInvite = PendingInvite::where('user_id', $user['unclaimedUserId'])->first();
+
+                if($pendingInvite) {
+                    $pendingInvite->invite_accepted_at = Carbon::now();
+                    $pendingInvite->status = config('speedi.invite_status.COMPLETE');
+                    $pendingInvite->save();
+                }
+            }
+
             return response()->json([
                 'message' => 'success',
-                'data' => null,
+                'data' => $user,
             ], 201);
         }
 
         return response()->json([
-            'message' => 'failed',
-            'data' => 'user already exists',
-        ], 400);
+            'message' => 'success',
+            'data' => $user,
+        ], 200);
     }
 
     public function me(Request $request): JsonResponse
@@ -67,6 +81,9 @@ class AuthController extends Controller
         }
 
         $user = User::where('keycloak_id', $arr['sub'])->first();
+
+        //If unclaimed user and account type and just logged in
+
         if (!$user) {
             return response()->json([
                 'message' => 'not found',

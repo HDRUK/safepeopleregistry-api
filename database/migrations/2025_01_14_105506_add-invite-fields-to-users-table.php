@@ -10,9 +10,12 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        Schema::table('custodian_users', function (Blueprint $table) {
+        Schema::table('pending_invites', function (Blueprint $table) {
             $table->timestamp('invite_accepted_at')->nullable();
             $table->timestamp('invite_sent_at')->nullable();
+            $table->timestamp('invite_code')->nullable();
+
+            $table->bigInteger('organisation_id')->nullable()->change();
         });
     }
 
@@ -21,9 +24,12 @@ return new class () extends Migration {
      */
     public function down(): void
     {
-        Schema::table('custodian_users', function (Blueprint $table) {
+        Schema::table('pending_invites', function (Blueprint $table) {
             $table->dropIfExists('invite_accepted_at');
             $table->dropIfExists('invite_sent_at');
+            $table->dropIfExists('invite_code');
+
+            $table->bigInteger('organisation_id')->nullable(false)->change();
         });
     }
 };

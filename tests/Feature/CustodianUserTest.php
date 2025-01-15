@@ -8,6 +8,7 @@ use App\Jobs\SendEmailJob;
 use Illuminate\Support\Facades\Queue;
 use App\Models\CustodianUserHasPermission;
 use App\Models\CustodianUser;
+use App\Models\PendingInvite;
 use Database\Seeders\CustodianSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\EmailTemplatesSeeder;
@@ -56,20 +57,6 @@ class CustodianUserTest extends TestCase
             ->json(
                 'GET',
                 self::TEST_URL . '/1'
-            );
-
-        $response->assertStatus(200);
-        $this->assertArrayHasKey('data', $response);
-    }
-
-    public function test_the_application_can_show_custodian_users_by_email(): void
-    {
-        $custodianUser = CustodianUser::where('id', 1)->first();
-
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-            ->json(
-                'GET',
-                self::TEST_URL . '/email/' . $custodianUser->email
             );
 
         $response->assertStatus(200);
@@ -175,41 +162,19 @@ class CustodianUserTest extends TestCase
         Queue::fake();
         Queue::assertNothingPushed();
 
-        $email = fake()->email();
-        $firstName = fake()->firstName();
-        $lastName = fake()->lastName();
-
-        $user = CustodianUser::create([
-            'first_name' => $firstName,
-            'last_name' => $lastName,
-            'email' => $email,
-            'provider' => '',
-            'keycloak_id' => '',
-            'custodian_id' => 1,
-        ]);
-
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'POST',
-                self::TEST_URL . '/invite/1',
-                [
-                    'first_name' => $firstName,
-                    'last_name' => $lastName,
-                    'email' => $email,
-                    'identifier' => 'custodian_user_invite',
-                    'custodian_id' => 1,
-                ],
+                self::TEST_URL . '/invite/1'
             );
 
         $response->assertStatus(201);
 
-        $this->assertDatabaseHas('custodian_users', [
-            'first_name' => $firstName,
-            'last_name' => $lastName,
-            'email' => $email,
-        ]);
-
         Queue::assertPushed(SendEmailJob::class);
+
+        $invites = PendingInvite::all();
+
+        $this->assertTrue(count($invites) === 1);
     }
 
     public function test_the_application_can_assign_permissions_to_custodian_users(): void

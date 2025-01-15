@@ -69,7 +69,7 @@ Route::middleware('api')->delete('v1/training/{id}', [TrainingController::class,
 Route::middleware('api')->get('v1/custodians', [CustodianController::class, 'index']);
 Route::middleware('api')->get('v1/custodians/{id}', [CustodianController::class, 'show']);
 Route::middleware('api')->get('v1/custodians/identifier/{id}', [CustodianController::class, 'showByUniqueIdentifier']);
-Route::middleware('api')->get('v1/custodians/email/{email}', [CustodianController::class, 'showByEmail']);
+Route::middleware('api')->post('v1/custodians/invite/{id}', [CustodianController::class, 'inviteUser']);
 Route::middleware('api')->get('v1/custodians/{id}/projects', [CustodianController::class, 'getProjects']);
 Route::middleware('api')->post('v1/custodians', [CustodianController::class, 'store']);
 Route::middleware('api')->put('v1/custodians/{id}', [CustodianController::class, 'update']);
@@ -79,7 +79,6 @@ Route::middleware(['api', 'check.custodian.access'])->post('v1/custodians/push',
 
 Route::middleware('api')->get('v1/custodian_users', [CustodianUserController::class, 'index']);
 Route::middleware('api')->get('v1/custodian_users/{id}', [CustodianUserController::class, 'show']);
-Route::middleware('api')->get('v1/custodian_users/email/{email}', [CustodianUserController::class, 'showByEmail']);
 Route::middleware('api')->post('v1/custodian_users', [CustodianUserController::class, 'store']);
 Route::middleware('api')->put('v1/custodian_users/{id}', [CustodianUserController::class, 'update']);
 Route::middleware('api')->patch('v1/custodian_users/{id}', [CustodianUserController::class, 'edit']);
