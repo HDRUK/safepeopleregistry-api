@@ -109,4 +109,12 @@ class Organisation extends Model
             'organisation_has_departments'
         );
     }
+
+    public function subsidiaries(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Subsidiary::class,
+            'organisation_has_subsidiaries'
+        );
+    }
 }

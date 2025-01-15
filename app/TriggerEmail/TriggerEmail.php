@@ -112,7 +112,7 @@ class TriggerEmail
 
                 $role_description = '';
 
-                if(count($user->userPermissions) > 0) {
+                if (count($user->userPermissions) > 0) {
                     $permission = Permission::where('id', $user->userPermissions[0]->permission_id)->first();
 
                     $role_description = "as an $permission->description";
@@ -140,6 +140,8 @@ class TriggerEmail
                     'status' => config('speedi.invite_status.PENDING'),
                     'invite_sent_at' => Carbon::now()
                 ]);
+
+                break;
             case 'ORGANISATION':
                 break;
             default: // Unknown type.
