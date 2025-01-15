@@ -16,7 +16,6 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
-use App\Models\PendingInvite;
 
 class AuthController extends Controller
 {
