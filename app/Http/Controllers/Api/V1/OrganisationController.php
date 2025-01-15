@@ -13,6 +13,8 @@ use App\Jobs\OrganisationIDVT;
 use App\Models\Project;
 use App\Models\Organisation;
 use App\Models\OrganisationHasDepartment;
+use App\Models\OrganisationHasSubsidiary;
+use App\Models\Subsidiary;
 use App\Models\User;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
@@ -88,6 +90,7 @@ class OrganisationController extends Controller
                 ->applySorting()
                 ->with([
                     'departments',
+                    'subsidiaries',
                     'approvals',
                     'permissions',
                     'files',
@@ -175,6 +178,7 @@ class OrganisationController extends Controller
     {
         $organisation = Organisation::with([
             'departments',
+            'subsidiaries',
             'permissions',
             'approvals',
             'files',
@@ -563,6 +567,13 @@ class OrganisationController extends Controller
                 'smb_status' => $input['smb_status'],
             ]);
 
+            if ($request->has('subsidiaries')) {
+                $this->cleanSubsidiaries($id);
+                foreach ($request->input('subsidiaries') as $subsidiary) {
+                    $this->addSubsidiary($id, $subsidiary);
+                }
+            }
+
             return response()->json([
                 'message' => 'success',
                 'data' => Organisation::where('id', $id)->first(),
@@ -664,7 +675,13 @@ class OrganisationController extends Controller
             $updated = $organisation->update($request->validated());
 
             if ($updated) {
-                return response()->json(['message' => 'Updated successfully', 'data' => $updated], 200);
+                if ($request->has('subsidiaries')) {
+                    $this->cleanSubsidiaries($id);
+                    foreach ($request->input('subsidiaries') as $subsidiary) {
+                        $this->addSubsidiary($id, $subsidiary);
+                    }
+                }
+                return response()->json(['message' => 'success', 'data' => $updated], 200);
             } else {
                 return response()->json(['message' => 'Failed to update organisation'], 500);
             }
@@ -858,7 +875,7 @@ class OrganisationController extends Controller
         ], 404);
     }
 
-        /**
+    /**
      * @OA\Get(
      *      path="/api/v1/organisations/{id}/users",
      *      summary="Return all users associated with an organisation",
@@ -938,9 +955,9 @@ class OrganisationController extends Controller
             ])->where('organisation_id', $organisationId)
               ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
-              return response()->json([
-                'message' => 'success',
-                'data' => $users,
+            return response()->json([
+              'message' => 'success',
+              'data' => $users,
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -1098,5 +1115,38 @@ class OrganisationController extends Controller
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
+    }
+
+    public function cleanSubsidiaries(int $organisationId)
+    {
+        OrganisationHasSubsidiary::where('organisation_id', $organisationId)->delete();
+
+    }
+
+    public function addSubsidiary(int $organisationId, array $subsidiary)
+    {
+        if (is_null($subsidiary['name'])) {
+            return;
+        }
+        $subsidiaryData = [
+            'name' => $subsidiary['name'],
+            'address_1' => $subsidiary['address']['address_1'] ?? null,
+            'address_2' => $subsidiary['address']['address_1'] ?? null,
+            'town' => $subsidiary['address']['town'] ?? null,
+            'county' => $subsidiary['address']['county'] ?? null,
+            'country' => $subsidiary['address']['country'] ?? null,
+            'postcode' => $subsidiary['address']['postcode'] ?? null,
+        ];
+
+        $subsidiary = Subsidiary::updateOrCreate(
+            $subsidiaryData
+        );
+
+        OrganisationHasSubsidiary::updateOrCreate(
+            [
+                'organisation_id' => $organisationId,
+                'subsidiary_id' => $subsidiary->id
+            ]
+        );
     }
 }
