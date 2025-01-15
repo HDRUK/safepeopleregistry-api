@@ -8,7 +8,7 @@ use RegistryManagementController as RMC;
 use Carbon\Carbon;
 use App\Models\Organisation;
 use App\Models\OrganisationDelegate;
-use App\Models\PendingInvites;
+use App\Models\PendingInvite;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -41,7 +41,7 @@ class AuthController extends Controller
 
         if ($user) {
             if(isset($user['unclaimedUserId'])) {
-                $pendingInvite = PendingInvites::where('user_id', $user['unclaimedUserId'])->first();
+                $pendingInvite = PendingInvite::where('user_id', $user['unclaimedUserId'])->first();
 
                 if($pendingInvite) {
                     $pendingInvite->invite_accepted_at = Carbon::now();
