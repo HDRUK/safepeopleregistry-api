@@ -38,7 +38,7 @@ class RegistryManagementController
      *      organisation or custodian. The key part here is that only "user"'s will
      *      require a Registry ledger created as part of the process. The others are
      *      simply logging in accounts
-     * @return boolean
+     * @return mixed
      */
     public static function createNewUser(array $input, string | null $accountType): mixed
     {
@@ -57,10 +57,6 @@ class RegistryManagementController
                 "unclaimedUserId" => $unclaimedUser->id
             ];
         }
-
-        return [
-            "unclaimedUserId" => $unclaimedUser
-        ];
 
         switch (strtolower($accountType)) {
             case 'user':
@@ -167,9 +163,8 @@ class RegistryManagementController
             'unclaimed' => 1,
             'feed_source' => 'ORG',
             'registry_id' => $registry->id,
-            'user_group' => '',
             'orc_id' => '',
-            'user_group' => isset($user['user_group']) ? $user['user_group'] : null
+            'user_group' => isset($user['user_group']) ? $user['user_group'] : ''
         ]);
     }
 }
