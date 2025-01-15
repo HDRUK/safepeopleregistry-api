@@ -7,6 +7,8 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Sector;
 use App\Models\Project;
+use App\Models\Organisation;
+use App\Models\Subsidiary;
 use App\Jobs\SendEmailJob;
 use App\Models\PendingInvite;
 use App\Models\ProjectHasOrganisation;
@@ -364,6 +366,16 @@ class OrganisationTest extends TestCase
                     'ror_id' => '02wnqcb97',
                     'smb_status' => false,
                     'website' => 'https://www.website.com/',
+                    'subsidiaries' => [
+                        [
+                            'name' => 'test sub',
+                            'address' => [
+                                'address_1' => '123 Fake St',
+                                'county' => 'Springfield',
+                                'postcode' => '6789'
+                            ]
+                        ]
+                    ]
                 ]
             );
 
@@ -373,6 +385,22 @@ class OrganisationTest extends TestCase
         $this->assertDatabaseHas('organisations', [
             'verified' => true,
         ]);
+
+        $this->assertDatabaseHas('subsidiaries', [
+            'name' => 'test sub',
+            'address_1' => '123 Fake St',
+            'county' => 'Springfield',
+            'postcode' => '6789',
+        ]);
+
+        $organisationId = Organisation::where('organisation_name', 'Test Organisation')->first()->id;
+        $subsidiaryId = Subsidiary::where('name', 'test sub')->first()->id;
+
+        $this->assertDatabaseHas('organisation_has_subsidiaries', [
+            'organisation_id' => $organisationId,
+            'subsidiary_id' => $subsidiaryId,
+        ]);
+
     }
 
     public function test_the_application_can_delete_organisations(): void
@@ -655,7 +683,7 @@ class OrganisationTest extends TestCase
                 'GET',
                 self::TEST_URL . '/1/users?email[]=organisation.owner@healthdataorganisation.com'
             );
-            
+
         $this->assertCount(
             1,
             $responseWithEmailFilter['data']['data'],
