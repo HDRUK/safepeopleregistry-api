@@ -793,7 +793,7 @@ class CustodianController extends Controller
 
             return response()->json([
                 'message' => 'success',
-                'data' => $user,
+                'data' => $custodian,
             ], 201);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
