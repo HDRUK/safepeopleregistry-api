@@ -464,7 +464,7 @@ class CustodianUserController extends Controller
             $input = [
                 'type' => 'CUSTODIAN_USER',
                 'to' => $user->id,
-                'unclaimedUserId' => $unclaimedUser->id,
+                'unclaimed_user_id' => $unclaimedUser->id,
                 'by' => $id,
                 'identifier' => 'custodian_user_invite'
             ];

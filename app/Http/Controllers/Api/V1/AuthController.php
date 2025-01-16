@@ -39,8 +39,8 @@ class AuthController extends Controller
         $user = RMC::createNewUser($payload, $accountType);
 
         if ($user) {
-            if(isset($user['unclaimedUserId'])) {
-                $pendingInvite = PendingInvite::where('user_id', $user['unclaimedUserId'])->first();
+            if(isset($user['unclaimed_user_id'])) {
+                $pendingInvite = PendingInvite::where('user_id', $user['unclaimed_user_id'])->first();
 
                 if($pendingInvite) {
                     $pendingInvite->invite_accepted_at = Carbon::now();

@@ -24,7 +24,7 @@ class TriggerEmail
         $template = null;
 
         $type = $input['type'];
-        $unclaimedUserId = isset($input['unclaimedUserId']) ? $input['unclaimedUserId'] : null;
+        $unclaimedUserId = isset($input['unclaimed_user_id']) ? $input['unclaimed_user_id'] : null;
         $to = $input['to'];
         $by = isset($input['by']) ? $input['by'] : null;
         $identifier = $input['identifier'];

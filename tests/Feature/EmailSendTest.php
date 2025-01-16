@@ -55,7 +55,7 @@ class EmailSendTest extends TestCase
                     'to' => 1, // Primary key - in this instance, it relates to pre-seeded Custodian record
                     'type' => 'custodian', // Type of model relating to email
                     'identifier' => 'custodian_invite', // Email Template
-                    'unclaimedUserId' => 1,
+                    'unclaimed_user_id' => 1,
                 ]
             );
 

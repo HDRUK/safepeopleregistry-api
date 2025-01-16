@@ -54,7 +54,7 @@ class RegistryManagementController
             $unclaimedUser->save();
 
             return [
-                "unclaimedUserId" => $unclaimedUser->id
+                "unclaimed_user_id" => $unclaimedUser->id
             ];
         }
 
@@ -71,7 +71,7 @@ class RegistryManagementController
                     ]);
 
                     return [
-                        "userId" => $user->id
+                        "user_id" => $user->id
                     ];
                 }
 
@@ -89,7 +89,7 @@ class RegistryManagementController
                     ]);
 
                     return [
-                        "userId" => $user->id
+                        "user_id" => $user->id
                     ];
                 }
 
@@ -107,7 +107,7 @@ class RegistryManagementController
                     ]);
 
                     return [
-                        "userId" => $user->id
+                        "user_id" => $user->id
                     ];
                 }
 
