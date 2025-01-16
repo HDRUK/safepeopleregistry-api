@@ -148,9 +148,6 @@ class TriggerEmail
                 break;
         }
 
-
-        // dd($newRecipients, $template, $replacements);
-
         SendEmailJob::dispatch($newRecipients, $template, $replacements, $invitedBy);
     }
 }

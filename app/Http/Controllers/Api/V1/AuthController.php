@@ -56,7 +56,7 @@ class AuthController extends Controller
         }
 
         return response()->json([
-            'message' => 'success',
+            'message' => 'failed',
             'data' => 'user already exists',
         ], 400);
     }
