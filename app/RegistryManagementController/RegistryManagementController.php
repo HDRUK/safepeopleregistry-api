@@ -143,12 +143,9 @@ class RegistryManagementController
             'registry_id' => $registry->id,
             'user_group' => '',
             'orc_id' => '',
-<<<<<<< Updated upstream
-=======
             'user_group' => isset($user['user_group']) ? $user['user_group'] : '',
             'custodian_id' => isset($user['custodian_id']) ? $user['custodian_id'] : null,
             'custodian_user_id' => isset($user['custodian_user_id']) ? $user['custodian_user_id'] : null
->>>>>>> Stashed changes
         ]);
     }
 }

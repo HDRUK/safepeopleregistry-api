@@ -458,8 +458,6 @@ class CustodianUserController extends Controller
         try {
             $user = CustodianUser::where('id', $id)->first();
 
-<<<<<<< Updated upstream
-=======
             $unclaimedUser = RMC::createUnclaimedUser([
                 'firstname' => $user['first_name'],
                 'lastname' => $user['last_name'],
@@ -468,7 +466,6 @@ class CustodianUserController extends Controller
                 'custodian_user_id' => $id
             ]);
 
->>>>>>> Stashed changes
             $input = [
                 'type' => 'CUSTODIAN_USER',
                 'to' => $user->id,

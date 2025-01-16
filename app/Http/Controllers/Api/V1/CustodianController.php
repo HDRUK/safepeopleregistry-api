@@ -760,8 +760,6 @@ class CustodianController extends Controller
             'data' => null,
         ], 404);
     }
-<<<<<<< Updated upstream
-=======
 
     //Hide from swagger docs
     public function inviteUser(Request $request, int $id): JsonResponse
@@ -795,5 +793,4 @@ class CustodianController extends Controller
             throw new Exception($e->getMessage());
         }
     }
->>>>>>> Stashed changes
 }
