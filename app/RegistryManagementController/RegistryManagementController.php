@@ -38,13 +38,28 @@ class RegistryManagementController
      *      organisation or custodian. The key part here is that only "user"'s will
      *      require a Registry ledger created as part of the process. The others are
      *      simply logging in accounts
-     * @return boolean
+     * @return mixed
      */
-    public static function createNewUser(array $input, string $accountType): bool
+    public static function createNewUser(array $input, string | null $accountType): mixed
     {
+        $unclaimedUser = User::where('email', $input['email'])->whereNull('keycloak_id')->first();
+
+        if($unclaimedUser) {
+            $unclaimedUser->first_name = $input['given_name'];
+            $unclaimedUser->last_name = $input['family_name'];
+            $unclaimedUser->email = $input['email'];
+            $unclaimedUser->keycloak_id = $input['sub'];
+            $unclaimedUser->unclaimed = 0;
+
+            $unclaimedUser->save();
+
+            return [
+                "unclaimed_user_id" => $unclaimedUser->id
+            ];
+        }
+
         switch (strtolower($accountType)) {
             case 'user':
-                // First ensure that this user doesn't already exist
                 if (!RegistryManagementController::checkDuplicateKeycloakID($input['sub'])) {
                     $user = User::create([
                         'first_name' => $input['given_name'],
@@ -55,8 +70,11 @@ class RegistryManagementController
                         'user_group' => RegistryManagementController::KC_GROUP_USERS,
                     ]);
 
-                    return true;
+                    return [
+                        "user_id" => $user->id
+                    ];
                 }
+
                 return false;
 
             case 'organisation':
@@ -70,7 +88,9 @@ class RegistryManagementController
                         'user_group' => RegistryManagementController::KC_GROUP_ORGANISATIONS,
                     ]);
 
-                    return true;
+                    return [
+                        "user_id" => $user->id
+                    ];
                 }
 
                 return false;
@@ -86,7 +106,9 @@ class RegistryManagementController
                         'user_group' => RegistryManagementController::KC_GROUP_CUSTODIANS,
                     ]);
 
-                    return true;
+                    return [
+                        "user_id" => $user->id
+                    ];
                 }
 
                 return false;
@@ -141,7 +163,6 @@ class RegistryManagementController
             'unclaimed' => 1,
             'feed_source' => 'ORG',
             'registry_id' => $registry->id,
-            'user_group' => '',
             'orc_id' => '',
             'user_group' => isset($user['user_group']) ? $user['user_group'] : '',
             'custodian_id' => isset($user['custodian_id']) ? $user['custodian_id'] : null,

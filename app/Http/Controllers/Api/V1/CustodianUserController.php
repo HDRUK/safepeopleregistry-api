@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use Hash;
 use Exception;
 use TriggerEmail;
+use RegistryManagementController as RMC;
 use App\Http\Controllers\Controller;
 use App\Models\CustodianUser;
 use App\Models\CustodianUserHasPermission;
@@ -137,10 +138,17 @@ class CustodianUserController extends Controller
     {
         $user = CustodianUser::where('id', $id)->first();
 
+        if($user) {
+            return response()->json([
+                'message' => 'success',
+                'data' => $user,
+            ], 200);
+        }
+
         return response()->json([
-            'message' => 'success',
-            'data' => $user,
-        ], 200);
+            'message' => 'not found',
+            'data' => null,
+        ], 404);
     }
 
     /**
@@ -151,13 +159,10 @@ class CustodianUserController extends Controller
      *      tags={"CustodianUser"},
      *      summary="CustodianUser@store",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="CustodianUser definition",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="custodian_id", type="integer", example="1"),
      *              @OA\Property(property="first_name", type="string", example="First"),
      *              @OA\Property(property="last_name", type="string", example="Last"),
@@ -165,34 +170,25 @@ class CustodianUserController extends Controller
      *              @OA\Property(property="password", type="string", example="SomeP4ssw0rd!")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=201,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="integer", example="1")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -469,8 +465,9 @@ class CustodianUserController extends Controller
             $input = [
                 'type' => 'CUSTODIAN_USER',
                 'to' => $user->id,
+                'unclaimed_user_id' => $unclaimedUser->id,
                 'by' => $id,
-                'identifier' => 'custodian_user_invite',
+                'identifier' => 'custodian_user_invite'
             ];
 
             TriggerEmail::spawnEmail($input);

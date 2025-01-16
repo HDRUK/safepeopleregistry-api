@@ -24,6 +24,7 @@ class TriggerEmail
         $template = null;
 
         $type = $input['type'];
+        $unclaimedUserId = isset($input['unclaimed_user_id']) ? $input['unclaimed_user_id'] : null;
         $to = $input['to'];
         $by = isset($input['by']) ? $input['by'] : null;
         $identifier = $input['identifier'];
@@ -74,11 +75,13 @@ class TriggerEmail
                 PendingInvite::create([
                     'user_id' => $user->id,
                     'organisation_id' => $organisation->id,
+                    'invite_sent_at' => Carbon::now(),
                     'status' => config('speedi.invite_status.PENDING'),
                 ]);
                 break;
             case 'CUSTODIAN':
                 $custodian = Custodian::where('id', $to)->first();
+
                 if ($custodian->invite_accepted_at === null) {
                     $template = EmailTemplate::where('identifier', $identifier)->first();
 
@@ -87,13 +90,21 @@ class TriggerEmail
                         'email' => $custodian->contact_email,
                     ];
 
-                    $custodian->invite_sent_at = Carbon::now();
-                    $custodian->save();
+                    $replacements = [
+                        '[[env(SUPPORT_EMAIL)]]' => env('SUPPORT_EMAIL'),
+                    ];
 
                     $ivitedBy = [];
                 } else {
                     throw new Exception('custodian '.$custodian->id.' already accepted invite at '.$custodian->invite_accepted_at);
                 }
+
+                PendingInvite::create([
+                    'user_id' => $unclaimedUserId,
+                    'status' => config('speedi.invite_status.PENDING'),
+                    'invite_sent_at' => Carbon::now()
+                ]);
+
                 break;
             case 'CUSTODIAN_USER':
                 $user = CustodianUser::with('userPermissions.permission')->where('id', $to)->first();
@@ -123,7 +134,14 @@ class TriggerEmail
                     '[[role.description]]' => $role_description,
                     '[[env(SUPPORT_EMAIL)]]' => env('SUPPORT_EMAIL'),
                 ];
-                // no break
+
+                PendingInvite::create([
+                    'user_id' => $unclaimedUserId,
+                    'status' => config('speedi.invite_status.PENDING'),
+                    'invite_sent_at' => Carbon::now()
+                ]);
+
+                break;
             case 'ORGANISATION':
                 break;
             default: // Unknown type.
