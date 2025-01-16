@@ -18,6 +18,8 @@ class PendingInvite extends Model
         'user_id',
         'organisation_id',
         'status',
+        'invite_accepted_at',
+        'invite_sent_at'
     ];
 
     public function organisation(): HasOne

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\V1;
 
 use Exception;
 use Hash;
+use RegistryManagementController as RMC;
+use TriggerEmail;
 use App\Http\Controllers\Controller;
 use App\Models\Custodian;
 use App\Models\Organisation;
@@ -382,10 +384,12 @@ class CustodianController extends Controller
             $input = $request->all();
 
             $custodian = Custodian::where('id', $id)->first();
-            $custodian->name = $input['name'];
+
+            $custodian->invite_accepted_at = isset($input['invite_accepted_at'])  ? $input['invite_accepted_at'] : $custodian->invite_accepted_at;
+            $custodian->name = isset($input['name'])  ? $input['name'] : $custodian->name;
             $custodian->contact_email = isset($input['contact_email']) ? $input['contact_email'] : $custodian->contact_email;
-            $custodian->enabled = $input['enabled'];
-            $custodian->idvt_required = isset($input['idvt_required']) ? $input['idvt_required'] : false;
+            $custodian->enabled = isset($input['enabled']) ? $input['enabled'] : $custodian->enabled;
+            $custodian->idvt_required = isset($input['idvt_required']) ? $input['idvt_required'] : $custodian->idvt_required;
 
             if ($custodian->save()) {
                 return response()->json([
@@ -484,9 +488,11 @@ class CustodianController extends Controller
             $input = $request->all();
 
             $custodian = Custodian::where('id', $id)->first();
-            $custodian->name = $input['name'];
+
+            $custodian->invite_accepted_at = isset($input['invite_accepted_at'])  ? $input['invite_accepted_at'] : $custodian->invite_accepted_at;
+            $custodian->name = isset($input['name'])  ? $input['name'] : $custodian->name;
             $custodian->contact_email = isset($input['contact_email']) ? $input['contact_email'] : $custodian->contact_email;
-            $custodian->enabled = $input['enabled'];
+            $custodian->enabled = isset($input['enabled']) ? $input['enabled'] : $custodian->enabled;
             $custodian->idvt_required = isset($input['idvt_required']) ? $input['idvt_required'] : $custodian->idvt_required;
 
             if ($custodian->save()) {
@@ -759,5 +765,37 @@ class CustodianController extends Controller
             'message' => 'not found',
             'data' => null,
         ], 404);
+    }
+
+    //Hide from swagger docs
+    public function inviteUser(Request $request, int $id): JsonResponse
+    {
+        try {
+            $user = Custodian::where('id', $id)->first();
+
+            $unclaimedUser = RMC::createUnclaimedUser([
+                'firstname' => '',
+                'lastname' => '',
+                'email' => $user['contact_email'],
+                'user_group' => 'CUSTODIANS',
+            ]);
+
+            $input = [
+                'type' => 'CUSTODIAN',
+                'to' => $user->id,
+                'unclaimed_user_id' => $unclaimedUser->id,
+                'by' => $id,
+                'identifier' => 'custodian_invite'
+            ];
+
+            TriggerEmail::spawnEmail($input);
+
+            return response()->json([
+                'message' => 'success',
+                'data' => $user,
+            ], 201);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
     }
 }

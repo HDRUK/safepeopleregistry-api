@@ -69,6 +69,7 @@ Route::middleware('api')->delete('v1/training/{id}', [TrainingController::class,
 Route::middleware('api')->get('v1/custodians', [CustodianController::class, 'index']);
 Route::middleware('api')->get('v1/custodians/{id}', [CustodianController::class, 'show']);
 Route::middleware('api')->get('v1/custodians/identifier/{id}', [CustodianController::class, 'showByUniqueIdentifier']);
+Route::middleware('api')->post('v1/custodians/invite/{id}', [CustodianController::class, 'inviteUser']);
 Route::middleware('api')->get('v1/custodians/{id}/projects', [CustodianController::class, 'getProjects']);
 Route::middleware('api')->post('v1/custodians', [CustodianController::class, 'store']);
 Route::middleware('api')->put('v1/custodians/{id}', [CustodianController::class, 'update']);

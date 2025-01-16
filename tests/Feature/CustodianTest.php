@@ -9,9 +9,12 @@ use App\Models\Sector;
 use Carbon\Carbon;
 use Database\Seeders\CustodianSeeder;
 use Database\Seeders\PermissionSeeder;
+use Database\Seeders\EmailTemplatesSeeder;
+use App\Models\PendingInvite;
 use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
@@ -34,6 +37,7 @@ class CustodianTest extends TestCase
             PermissionSeeder::class,
             UserSeeder::class,
             CustodianSeeder::class,
+            EmailTemplatesSeeder::class
         ]);
 
         $this->user = User::where('id', 1)->first();
@@ -64,6 +68,25 @@ class CustodianTest extends TestCase
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
+    }
+
+    public function test_the_application_can_invite_a_custodian(): void
+    {
+
+        Queue::fake();
+        Queue::assertNothingPushed();
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL . '/invite/1',
+            );
+
+        $response->assertStatus(201);
+
+        $invites = PendingInvite::all();
+
+        $this->assertTrue(count($invites) === 1);
     }
 
     public function test_the_application_can_create_custodians(): void
