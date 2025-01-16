@@ -776,7 +776,7 @@ class CustodianController extends Controller
             $unclaimedUser = RMC::createUnclaimedUser([
                 'firstname' => '',
                 'lastname' => '',
-                'email' => $user['contact_email'],
+                'email' => $custodian['contact_email'],
                 'user_group' => 'CUSTODIANS',
                 'custodian_id' => $id
             ]);
