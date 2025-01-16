@@ -760,4 +760,40 @@ class CustodianController extends Controller
             'data' => null,
         ], 404);
     }
+<<<<<<< Updated upstream
+=======
+
+    //Hide from swagger docs
+    public function inviteUser(Request $request, int $id): JsonResponse
+    {
+        try {
+            $custodian = Custodian::where('id', $id)->first();
+
+            $unclaimedUser = RMC::createUnclaimedUser([
+                'firstname' => '',
+                'lastname' => '',
+                'email' => $user['contact_email'],
+                'user_group' => 'CUSTODIANS',
+                'custodian_id' => $id
+            ]);
+
+            $input = [
+                'type' => 'CUSTODIAN',
+                'to' => $custodian->id,
+                'unclaimedUserId' => $unclaimedUser->id,
+                'by' => $id,
+                'identifier' => 'custodian_invite'
+            ];
+
+            TriggerEmail::spawnEmail($input);
+
+            return response()->json([
+                'message' => 'success',
+                'data' => $user,
+            ], 201);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+>>>>>>> Stashed changes
 }
