@@ -164,7 +164,9 @@ class RegistryManagementController
             'feed_source' => 'ORG',
             'registry_id' => $registry->id,
             'orc_id' => '',
-            'user_group' => isset($user['user_group']) ? $user['user_group'] : ''
+            'user_group' => isset($user['user_group']) ? $user['user_group'] : '',
+            'custodian_id' => isset($user['custodian_id']) ? $user['custodian_id'] : null,
+            'custodian_user_id' => isset($user['custodian_user_id']) ? $user['custodian_user_id'] : null
         ]);
     }
 }

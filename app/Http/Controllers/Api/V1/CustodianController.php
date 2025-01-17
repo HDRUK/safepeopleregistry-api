@@ -771,18 +771,19 @@ class CustodianController extends Controller
     public function inviteUser(Request $request, int $id): JsonResponse
     {
         try {
-            $user = Custodian::where('id', $id)->first();
+            $custodian = Custodian::where('id', $id)->first();
 
             $unclaimedUser = RMC::createUnclaimedUser([
                 'firstname' => '',
                 'lastname' => '',
-                'email' => $user['contact_email'],
+                'email' => $custodian['contact_email'],
                 'user_group' => 'CUSTODIANS',
+                'custodian_id' => $id
             ]);
 
             $input = [
                 'type' => 'CUSTODIAN',
-                'to' => $user->id,
+                'to' => $custodian->id,
                 'unclaimed_user_id' => $unclaimedUser->id,
                 'by' => $id,
                 'identifier' => 'custodian_invite'
@@ -792,7 +793,7 @@ class CustodianController extends Controller
 
             return response()->json([
                 'message' => 'success',
-                'data' => $user,
+                'data' => $custodian,
             ], 201);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
