@@ -16,7 +16,7 @@ use App\Models\OrganisationHasDepartment;
 use App\Models\OrganisationHasSubsidiary;
 use App\Models\Subsidiary;
 use App\Models\User;
-// use App\Models\RegistryHasOrganisation;
+use App\Models\RegistryHasOrganisation;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -943,19 +943,15 @@ class OrganisationController extends Controller
     public function getUsers(Request $request, int $organisationId): JsonResponse
     {
         try {
-            // $organisation = Organisation::findOrFail($id);
-            // $users = $organisation->registries()->with([
-            //     'permissions',
-            //     'registry',
-            //     'registry.files',
-            //     'pendingInvites',
-            //     'organisation',
-            //     'departments',
-            //     'registry.education',
-            //     'registry.training',
-            // ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
+            // Get registry IDs associated with the organization
+            $registryIds = RegistryHasOrganisation::where('organisation_id', $organisationId)
+                ->pluck('registry_id');
 
+            // Fetch users based on the registry IDs
             $users = User::searchViaRequest()
+                ->whereHas('registry', function ($query) use ($registryIds) {
+                    $query->whereIn('id', $registryIds);
+                })
                 ->with([
                     'permissions',
                     'registry',
@@ -966,7 +962,6 @@ class OrganisationController extends Controller
                     'registry.education',
                     'registry.training',
                 ])
-                ->where('organisation_id', $organisationId)
                 ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
             return response()->json([
@@ -978,7 +973,7 @@ class OrganisationController extends Controller
         }
     }
 
-    //     /**
+    //   
     //  * @OA\Delete(
     //  *      path="/api/v1/organisations/{id}/users/{registryId}",
     //  *      summary="Remove a user from an organisation",
@@ -1031,33 +1026,24 @@ class OrganisationController extends Controller
     //  *              @OA\Property(property="message", type="string", example="User or organisation not found"),
     //  *          )
     //  *      ),
-    //  *
-    //  *      @OA\Response(
-    //  *          response=403,
-    //  *          description="Forbidden",
-    //  *
-    //  *          @OA\JsonContent(
-    //  *              @OA\Property(property="message", type="string", example="User is not associated with this organisation"),
-    //  *          )
-    //  *      )
     //  * )
     //  */
-    // public function removeUser(Request $request, int $id, int $registryId): JsonResponse
-    // {
-    //     try {
-    //         RegistryHasOrganisation::where([
-    //             'organisation_id' => $id,
-    //             'registry_id' => $registryId,
-    //         ])->delete();
+    public function removeUser(Request $request, int $id, int $registryId): JsonResponse
+    {
+        try {
+            RegistryHasOrganisation::where([
+                'organisation_id' => $id,
+                'registry_id' => $registryId,
+            ])->delete();
 
-    //         return response()->json([
-    //             'message' => 'success',
-    //             'data' => null,
-    //         ], 200);
-    //     } catch (Exception $e) {
-    //         throw new Exception($e->getMessage());
-    //     }
-    // }
+            return response()->json([
+                'message' => 'success',
+                'data' => 'User removed from organisation',
+            ], 200);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
 
     /**
      * No swagger, internal call
