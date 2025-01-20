@@ -496,11 +496,7 @@ class UserController extends Controller
                 ], 404);
             }
 
-            $input = $request->only([
-                'first_name', 'last_name', 'email', 'password', 'registry_id',
-                'consent_scrape', 'profile_steps_completed', 'profile_completed_at',
-                'public_opt_in', 'declaration_signed', 'organisation_id', 'orc_id'
-            ]);
+            $input = $request->only(app(User::class)->getFillable());
 
             if (isset($input['password'])) {
                 $input['password'] = Hash::make($input['password']);
