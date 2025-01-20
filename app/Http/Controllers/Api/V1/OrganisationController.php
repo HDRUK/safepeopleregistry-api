@@ -432,6 +432,54 @@ class OrganisationController extends Controller
         }
     }
 
+    //Hide from swagger
+    public function storeUnclaimed(Request $request): JsonResponse
+    {
+        try {
+            $input = $request->all();
+            $organisation = Organisation::create([
+                'organisation_name' => '',
+                'address_1' => '',
+                'address_2' => '',
+                'town' => '',
+                'county' => '',
+                'country' => '',
+                'postcode' => '',
+                'lead_applicant_organisation_name' => '',
+                'lead_applicant_email' => $input['lead_applicant_email'],
+                'password' => '',
+                'organisation_unique_id' => '',
+                'applicant_names' => '',
+                'funders_and_sponsors' => '',
+                'sub_license_arrangements' => '',
+                'verified' => 0,
+                'companies_house_no' => '',
+                'sector_id' => 0,
+                'dsptk_certified' => 0,
+                'dsptk_certification_num' => '',
+                'iso_27001_certified' => 0,
+                'iso_27001_certification_num' => '',
+                'ce_certified' => 0,
+                'ce_certification_num' => '',
+                'ce_plus_certified' => 0,
+                'ce_plus_certification_num' => '',
+                'charity_registration_id' => '',
+                'ror_id' => '',
+                'website' => '',
+                'smb_status' => 0,
+                'unclaimed' => 1
+            ]);
+
+            return response()->json([
+                'message' => 'success',
+                'data' => $organisation->id,
+            ], 201);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+
     /**
      * @OA\Put(
      *      path="/api/v1/organisations/{id}",
@@ -1148,6 +1196,39 @@ class OrganisationController extends Controller
             return response()->json([
                 'message' => 'success',
                 'data' => $unclaimedUser->id,
+            ], 201);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    //Hide from swagger docs
+    public function invite(Request $request, int $id): JsonResponse
+    {
+        try {
+            $organisation = Organisation::where('id', $id)->first();
+
+            $unclaimedUser = RMC::createUnclaimedUser([
+                'firstname' => '',
+                'lastname' => '',
+                'email' => $organisation['lead_applicant_email'],
+                'user_group' => 'ORGANISATIONS',
+                'organisation_id' => $id
+            ]);
+
+            $input = [
+                'type' => 'ORGANISATION',
+                'to' => $organisation->id,
+                'unclaimed_user_id' => $unclaimedUser->id,
+                'by' => $id,
+                'identifier' => 'organisation_invite'
+            ];
+
+            TriggerEmail::spawnEmail($input);
+
+            return response()->json([
+                'message' => 'success',
+                'data' => $organisation,
             ], 201);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());

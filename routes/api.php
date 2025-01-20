@@ -69,7 +69,7 @@ Route::middleware('api')->delete('v1/training/{id}', [TrainingController::class,
 Route::middleware('api')->get('v1/custodians', [CustodianController::class, 'index']);
 Route::middleware('api')->get('v1/custodians/{id}', [CustodianController::class, 'show']);
 Route::middleware('api')->get('v1/custodians/identifier/{id}', [CustodianController::class, 'showByUniqueIdentifier']);
-Route::middleware('api')->post('v1/custodians/invite/{id}', [CustodianController::class, 'inviteUser']);
+Route::middleware('api')->post('v1/custodians/invite/{id}', [CustodianController::class, 'invite']);
 Route::middleware('api')->get('v1/custodians/{id}/projects', [CustodianController::class, 'getProjects']);
 Route::middleware('api')->post('v1/custodians', [CustodianController::class, 'store']);
 Route::middleware('api')->put('v1/custodians/{id}', [CustodianController::class, 'update']);
@@ -83,7 +83,7 @@ Route::middleware('api')->post('v1/custodian_users', [CustodianUserController::c
 Route::middleware('api')->put('v1/custodian_users/{id}', [CustodianUserController::class, 'update']);
 Route::middleware('api')->patch('v1/custodian_users/{id}', [CustodianUserController::class, 'edit']);
 Route::middleware('api')->delete('v1/custodian_users/{id}', [CustodianUserController::class, 'destroy']);
-Route::middleware('api')->post('v1/custodian_users/invite/{id}', [CustodianUserController::class, 'inviteUser']);
+Route::middleware('api')->post('v1/custodian_users/invite/{id}', [CustodianUserController::class, 'invite']);
 
 Route::middleware('api')->get('v1/endorsements', [EndorsementController::class, 'index']);
 Route::middleware('api')->get('v1/endorsements/{id}', [EndorsementController::class, 'show']);
@@ -127,10 +127,12 @@ Route::middleware('api')->get('v1/organisations/{id}/counts/users', [Organisatio
 Route::middleware('api')->get('v1/organisations/{id}/counts/projects/present', [OrganisationController::class, 'countPresentProjects']);
 Route::middleware('api')->get('v1/organisations/{id}/counts/projects/past', [OrganisationController::class, 'countPastProjects']);
 Route::middleware('api')->post('v1/organisations', [OrganisationController::class, 'store']);
+Route::middleware('api')->post('v1/organisations/unclaimed', [OrganisationController::class, 'storeUnclaimed']);
 Route::middleware('api')->put('v1/organisations/{id}', [OrganisationController::class, 'update']);
 Route::middleware('api')->patch('v1/organisations/{id}', [OrganisationController::class, 'edit']);
 Route::middleware('api')->delete('v1/organisations/{id}', [OrganisationController::class, 'destroy']);
 Route::middleware('api')->delete('v1/organisations/{id}/users/{registryId}', [OrganisationController::class, 'removeUser']);
+Route::middleware('api')->post('v1/organisations/{id}/invite', [OrganisationController::class, 'invite']);
 Route::middleware('api')->post('v1/organisations/{id}/invite_user', [OrganisationController::class, 'inviteUser']);
 Route::middleware('api')->post('v1/organisations/permissions', [PermissionController::class, 'assignOrganisationPermissionsToFrom']);
 Route::middleware('api')->get('v1/organisations/{id}/projects', [OrganisationController::class, 'getProjects']);
