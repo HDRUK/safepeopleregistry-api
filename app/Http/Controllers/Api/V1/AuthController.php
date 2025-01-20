@@ -38,10 +38,10 @@ class AuthController extends Controller
         $user = RMC::createNewUser($payload, $request);
 
         if ($user) {
-            if(isset($user['unclaimed_user_id'])) {
+            if (isset($user['unclaimed_user_id'])) {
                 $pendingInvite = PendingInvite::where('user_id', $user['unclaimed_user_id'])->first();
 
-                if($pendingInvite) {
+                if ($pendingInvite) {
                     $pendingInvite->invite_accepted_at = Carbon::now();
                     $pendingInvite->status = config('speedi.invite_status.COMPLETE');
                     $pendingInvite->save();

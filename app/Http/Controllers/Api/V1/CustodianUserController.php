@@ -138,7 +138,7 @@ class CustodianUserController extends Controller
     {
         $user = CustodianUser::where('id', $id)->first();
 
-        if($user) {
+        if ($user) {
             return response()->json([
                 'message' => 'success',
                 'data' => $user,
