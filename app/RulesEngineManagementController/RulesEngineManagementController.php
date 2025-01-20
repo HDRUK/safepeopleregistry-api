@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
-/**
- * @method static RulesEngineManagementController evaluateRulesEngine(array $payload)
- */
 class RulesEngineManagementController
 {
     public static function evaluateRulesEngine(array $payload): array
