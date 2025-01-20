@@ -1,0 +1,371 @@
+<?php
+
+namespace App\Http\Controllers\Api\V1;
+
+use Exception;
+use Carbon\Carbon;
+use App\Models\Affiliation;
+use App\Models\RegistryHasAffiliation;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use App\Traits\CommonFunctions;
+
+class AffiliationController extends Controller
+{
+    use CommonFunctions;
+
+    /**
+     * @OA\Get(
+     *      path="/api/v1/affiliations/registry/{id}",
+     *      summary="Return a list of affiliations by registry id",
+     *      description="Return a list of affiliations by registry id",
+     *      tags={"Affiliations"},
+     *      summary="Affiliations@show",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Affiliations registry id",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Affiliations registry id",
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string"),
+     *              @OA\Property(property="data", type="object",
+     *                  @OA\Property(property="member_id", type="string", example="A1234"),
+     *                  @OA\Property(property="organisation_id", type="integer", example="1"),
+     *                  @OA\Property(property="current_employer", type="integer", example="1"),
+     *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found"),
+     *          )
+     *      )
+     * )
+     */
+    public function indexByRegistryId(Request $request, int $registryId): JsonResponse
+    {
+        $rha = RegistryHasAffilitation::where('registry_id', $registryId)
+            ->get()
+            ->select('affilitation_id');
+
+        $affilitations = Affilitation::whereIn('id', $rha)
+            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+
+        return response()->json([
+            'message' => 'success',
+            'data' => $affilitations,
+        ], 200);
+    }
+
+    /**
+     * @OA\Post(
+     *      path="/api/v1/affiliations",
+     *      summary="Create an Affiliation entry",
+     *      description="Create an Affiliation entry",
+     *      tags={"Affiliations"},
+     *      summary="Affiliations@store",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="registry_id",
+     *         in="path",
+     *         description="Registry entry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Registry entry ID",
+     *         ),
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="Affiliation definition",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="member_id", type="string", example="A1234"),
+     *              @OA\Property(property="organisation_id", type="integer", example="1"),
+     *              @OA\Property(property="current_employer", type="integer", example="1"),
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="object",
+     *                  @OA\Property(property="id", type="integer", example="123"),
+     *                  @OA\Property(property="member_id", type="string", example="A1234"),
+     *                  @OA\Property(property="organisation_id", type="integer", example="1"),
+     *                  @OA\Property(property="current_employer", type="integer", example="1"),
+     *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=500,
+     *          description="Error",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="error")
+     *          )
+     *      )
+     * )
+     */
+    public function storeByRegistryId(Request $request, int $registryId): JsonResponse
+    {
+        try {
+            $input = $request->all();
+
+            $affilitation = Affilitation::create([
+                'member_id' => $request['member_id'],
+                'organisation_id' => $input['organisation_id'],
+                'current_employer' => $input['current_employer']
+            ]);
+
+            RegistryHasAffilitation::create([
+                'registry_id' => $registryId,
+                'affilitation_id' => $affilitation->id,
+            ]);
+
+            return response()->json([
+                'message' => 'success',
+                'data' => $affilitation->id,
+            ], 201);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    /**
+     * @OA\Put(
+     *      path="/api/v1/affiliations/{id}",
+     *      summary="Update an Affiliation entry",
+     *      description="Update an Affiliation entry",
+     *      tags={"Affiliations"},
+     *      summary="Affiliations@update",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Affiliation entry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Affiliation entry ID",
+     *         ),
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="Affiliation definition",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="member_id", type="string", example="A1234"),
+     *              @OA\Property(property="organisation_id", type="integer", example="1"),
+     *              @OA\Property(property="current_employer", type="integer", example="1"),
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="object",
+     *                  @OA\Property(property="id", type="integer", example="123"),
+     *                  @OA\Property(property="member_id", type="string", example="A1234"),
+     *                  @OA\Property(property="organisation_id", type="integer", example="1"),
+     *                  @OA\Property(property="current_employer", type="integer", example="1"),
+     *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=500,
+     *          description="Error",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="error")
+     *          )
+     *      )
+     * )
+     */
+    public function update(Request $request, int $id): JsonResponse
+    {
+        try {
+            $input = $request->all();
+            $affilitation = Affilitation::where('id', $id)->first();
+
+            $affilitation->member_id = $input['member_id'];
+            $affilitation->organisation_id = $input['organisation_id'];
+            $affilitation->current_employer = $input['current_employer'];
+
+            $affilitation->save();
+
+            return response()->json([
+                'message' => 'success',
+                'data' => $affilitation,
+            ], 200);
+
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    /**
+     * @OA\Patch(
+     *      path="/api/v1/affiliations/{id}",
+     *      summary="Edit an Affiliation entry",
+     *      description="Edit an Affiliation entry",
+     *      tags={"Affiliations"},
+     *      summary="Affiliations@edit",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Affiliation entry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Affiliation entry ID",
+     *         ),
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="Affiliation definition",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="member_id", type="string", example="A1234"),
+     *              @OA\Property(property="organisation_id", type="integer", example="1"),
+     *              @OA\Property(property="current_employer", type="integer", example="1"),
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="object",
+     *                  @OA\Property(property="id", type="integer", example="123"),
+     *                  @OA\Property(property="member_id", type="string", example="A1234"),
+     *                  @OA\Property(property="organisation_id", type="integer", example="1"),
+     *                  @OA\Property(property="current_employer", type="integer", example="1"),
+     *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=500,
+     *          description="Error",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="error")
+     *          )
+     *      )
+     * )
+     */
+    public function edit(Request $request, int $id): JsonResponse
+    {
+        try {
+            $input = $request->all();
+            $affilitation = Affilitation::where('id', $id)->first();
+
+            $affilitation->member_id = isset($input['member_id']) ? $input['member_id'] : $affiliation['member_id'];
+            $affilitation->organisation_id = isset($input['organisation_id']) ? $input['organisation_id'] : $affiliation['organisation_id'];
+            $affilitation->current_employer = isset($input['current_employer']) ? $input['current_employer'] : $affiliation['current_employer'];
+
+            $affilitation->save();
+
+            return response()->json([
+                'message' => 'success',
+                'data' => $affilitation,
+            ], 200);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    /**
+     * @OA\Delete(
+     *      path="/api/v1/training/{id}",
+     *      summary="Delete a affiliation entry from the system by ID",
+     *      description="Delete a affiliation entry from the system",
+     *      tags={"Affiliation"},
+     *      summary="Affiliation@destroy",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Affiliation entry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Affiliation entry ID",
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *           ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=500,
+     *          description="Error",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="error")
+     *          )
+     *      )
+     * )
+     */
+    public function destroy(Request $request, int $id): JsonResponse
+    {
+        try {
+            Affilitation::where('id', $id)->first()->delete();
+
+            RegistryHasAffilitation::where(
+                'affilitation_id', $id
+            )->delete();
+
+            return response()->json([
+                'message' => 'success',
+                'data' => null,
+            ], 200);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+}

@@ -155,6 +155,12 @@ Route::middleware('api')->put('v1/accreditations/{id}/{registryId}', [Accreditat
 Route::middleware('api')->patch('v1/accreditations/{id}/{registryId}', [AccreditationController::class, 'editByRegistryId']);
 Route::middleware('api')->delete('v1/accreditations/{id}/{registryId}', [AccreditationController::class, 'destroyByRegistryId']);
 
+Route::middleware('api')->get('v1/affiliations/{registryId}', [AccreditationController::class, 'indexByRegistryId']);
+Route::middleware('api')->post('v1/affiliations/{registryId}', [AccreditationController::class, 'storeByRegistryId']);
+Route::middleware('api')->put('v1/affiliations/{id}', [AccreditationController::class, 'update']);
+Route::middleware('api')->patch('v1/affiliations/{id}', [AccreditationController::class, 'edit']);
+Route::middleware('api')->delete('v1/affiliations/{id}', [AccreditationController::class, 'destroy']);
+
 Route::middleware('api')->get('v1/educations/{registryId}', [EducationController::class, 'indexByRegistryId']);
 Route::middleware('api')->get('v1/educations/{id}/{registryId}', [EducationController::class, 'showByRegistryId']);
 Route::middleware('api')->post('v1/educations/{registryId}', [EducationController::class, 'storeByRegistryId']);
