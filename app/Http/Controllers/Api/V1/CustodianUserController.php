@@ -459,6 +459,7 @@ class CustodianUserController extends Controller
                 'lastname' => $user['last_name'],
                 'email' => $user['email'],
                 'user_group' => 'CUSTODIANS',
+                'custodian_user_id' => $id
             ]);
 
             $input = [

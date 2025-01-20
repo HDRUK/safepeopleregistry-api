@@ -35,6 +35,8 @@ class User extends Authenticatable
         'public_opt_in',
         'declaration_signed',
         'organisation_id',
+        'custodian_id',
+        'custodian_user_id',
         'orc_id',
         'orcid_scanning',
         'orcid_scanning_completed_at',
@@ -108,6 +110,20 @@ class User extends Authenticatable
     {
         return $this->belongsTo(
             Organisation::class
+        );
+    }
+
+    public function custodian(): BelongsTo
+    {
+        return $this->belongsTo(
+            Custodian::class
+        );
+    }
+
+    public function custodian_user(): BelongsTo
+    {
+        return $this->belongsTo(
+            CustodianUser::class
         );
     }
 

@@ -294,6 +294,23 @@ class OrganisationTest extends TestCase
         $this->assertArrayHasKey('data', $response);
     }
 
+    public function test_the_application_can_create_unclaimed_organisations(): void
+    {
+        $email = fake()->email();
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL . '/unclaimed',
+                [
+                    'lead_applicant_email' => $email
+                ]
+            );
+
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
+    }
+
     public function test_the_application_can_create_organisations_with_departments(): void
     {
         $isoCertified = fake()->randomElement([1, 0]);
@@ -572,6 +589,25 @@ class OrganisationTest extends TestCase
 
         $this->assertTrue(count($invites) === 1);
         $this->assertTrue($invites[0]->organisation_id === 1);
+    }
+
+    public function test_the_application_can_invite_organisations(): void
+    {
+
+        Queue::fake();
+        Queue::assertNothingPushed();
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL . '/2/invite/',
+            );
+
+        $response->assertStatus(201);
+
+        $invites = PendingInvite::all();
+
+        $this->assertTrue(count($invites) === 1);
     }
 
     public function test_the_application_can_get_projects_for_an_organisation(): void
