@@ -146,7 +146,9 @@ class Keycloak
                         ]);
                     }
 
-                    Keycloak::updateSoursdDigitalIdentifier($user);
+                    if (env('APP_ENV') !== 'testing') {
+                        Keycloak::updateSoursdDigitalIdentifier($user);
+                    }
                 }
 
                 return [
