@@ -7,6 +7,7 @@ use Hash;
 use Keycloak;
 use App\Models\User;
 use App\Models\Registry;
+use Illuminate\Http\Request;
 
 class RegistryManagementController
 {
@@ -40,7 +41,7 @@ class RegistryManagementController
      *      simply logging in accounts
      * @return mixed
      */
-    public static function createNewUser(array $input, string | null $accountType): mixed
+    public static function createNewUser(array $input, Request $request): mixed
     {
         $unclaimedUser = User::where('email', $input['email'])->whereNull('keycloak_id')->first();
 
@@ -58,7 +59,7 @@ class RegistryManagementController
             ];
         }
 
-        switch (strtolower($accountType)) {
+        switch (strtolower($request['account_type'])) {
             case 'user':
                 if (!RegistryManagementController::checkDuplicateKeycloakID($input['sub'])) {
                     $user = User::create([
@@ -85,6 +86,7 @@ class RegistryManagementController
                         'email' => $input['email'],
                         'keycloak_id' => $input['sub'],
                         'registry_id' => null,
+                        'organisation_id' => $request['organisation_id'],
                         'user_group' => RegistryManagementController::KC_GROUP_ORGANISATIONS,
                     ]);
 
@@ -164,7 +166,8 @@ class RegistryManagementController
             'feed_source' => 'ORG',
             'registry_id' => $registry->id,
             'orc_id' => '',
-            'user_group' => isset($user['user_group']) ? $user['user_group'] : ''
+            'user_group' => isset($user['user_group']) ? $user['user_group'] : '',
+            'organisation_id' => isset($user['organisation_id']) ? $user['organisation_id'] : ''
         ]);
     }
 }

@@ -91,6 +91,7 @@ class TriggerEmail
                     ];
 
                     $replacements = [
+                        '[[custodian.name]]' => $custodian->name,
                         '[[env(SUPPORT_EMAIL)]]' => env('SUPPORT_EMAIL'),
                     ];
 
@@ -143,6 +144,25 @@ class TriggerEmail
 
                 break;
             case 'ORGANISATION':
+                $organisation = Organisation::where('id', $to)->first();
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+
+                $newRecipients = [
+                    'id' => $organisation->id,
+                    'email' => $organisation->lead_applicant_email,
+                ];
+
+                $replacements = [
+                    '[[organisation.name]]' => $organisation->name,
+                    '[[env(SUPPORT_EMAIL)]]' => env('SUPPORT_EMAIL'),
+                ];
+
+                PendingInvite::create([
+                    'user_id' => $unclaimedUserId,
+                    'status' => config('speedi.invite_status.PENDING'),
+                    'invite_sent_at' => Carbon::now()
+                ]);
+
                 break;
             default: // Unknown type.
                 break;

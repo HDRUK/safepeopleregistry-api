@@ -768,10 +768,10 @@ class CustodianController extends Controller
     }
 
     //Hide from swagger docs
-    public function inviteUser(Request $request, int $id): JsonResponse
+    public function invite(Request $request, int $id): JsonResponse
     {
         try {
-            $user = Custodian::where('id', $id)->first();
+            $custodian = Custodian::where('id', $id)->first();
 
             $unclaimedUser = RMC::createUnclaimedUser([
                 'firstname' => '',
@@ -782,7 +782,7 @@ class CustodianController extends Controller
 
             $input = [
                 'type' => 'CUSTODIAN',
-                'to' => $user->id,
+                'to' => $custodian->id,
                 'unclaimed_user_id' => $unclaimedUser->id,
                 'by' => $id,
                 'identifier' => 'custodian_invite'
@@ -792,7 +792,7 @@ class CustodianController extends Controller
 
             return response()->json([
                 'message' => 'success',
-                'data' => $user,
+                'data' => $custodian,
             ], 201);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());

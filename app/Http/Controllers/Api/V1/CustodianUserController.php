@@ -449,7 +449,7 @@ class CustodianUserController extends Controller
     }
 
     //Hide from swagger docs
-    public function inviteUser(Request $request, int $id): JsonResponse
+    public function invite(Request $request, int $id): JsonResponse
     {
         try {
             $user = CustodianUser::where('id', $id)->first();
