@@ -460,6 +460,8 @@ class OrganisationController extends Controller
                 'iso_27001_certification_num' => '',
                 'ce_certified' => 0,
                 'ce_certification_num' => '',
+                'ce_plus_certified' => 0,
+                'ce_plus_certification_num' => '',
                 'charity_registration_id' => '',
                 'ror_id' => '',
                 'website' => '',

@@ -35,7 +35,7 @@ class RegistryManagementController
      * Creates a new user based on incoming data.
      *
      * @param array $input The user details to be created from
-     * @param array $request The type of account to create. Being either: user,
+     * @param Request $request The type of account to create. Being either: user,
      *      organisation or custodian. The key part here is that only "user"'s will
      *      require a Registry ledger created as part of the process. The others are
      *      simply logging in accounts
@@ -59,7 +59,9 @@ class RegistryManagementController
             ];
         }
 
-        switch (strtolower($request['account_type'])) {
+        $accountType = isset($request['account_type']) ? $request['account_type'] : '';
+
+        switch (strtolower($accountType)) {
             case 'user':
                 if (!RegistryManagementController::checkDuplicateKeycloakID($input['sub'])) {
                     $user = User::create([
