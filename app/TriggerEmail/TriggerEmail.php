@@ -153,7 +153,7 @@ class TriggerEmail
                 ];
 
                 $replacements = [
-                    '[[organisation.name]]' => $organisation->name,
+                    '[[organisation.name]]' => $organisation->organisation_name,
                     '[[env(SUPPORT_EMAIL)]]' => env('SUPPORT_EMAIL'),
                 ];
 

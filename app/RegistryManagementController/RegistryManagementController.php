@@ -35,7 +35,7 @@ class RegistryManagementController
      * Creates a new user based on incoming data.
      *
      * @param array $input The user details to be created from
-     * @param string $accountType The type of account to create. Being either: user,
+     * @param array $request The type of account to create. Being either: user,
      *      organisation or custodian. The key part here is that only "user"'s will
      *      require a Registry ledger created as part of the process. The others are
      *      simply logging in accounts
