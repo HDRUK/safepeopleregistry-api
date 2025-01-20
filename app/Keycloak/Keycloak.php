@@ -33,7 +33,9 @@ class Keycloak
             $userUrl,
             [
                 'attributes' => [
-                    'soursdDigitalIdentifier' => [Registry::where('id', $user->registry_id)->first()->digi_ident],
+                    'soursdDigitalIdentifier' => [
+                        Registry::where('id', $user->registry_id)->first()->digi_ident
+                    ],
                 ],
             ],
         );
@@ -143,6 +145,8 @@ class Keycloak
                             'organisation_id' => $credentials['organisation_id'],
                         ]);
                     }
+
+                    Keycloak::updateSoursdDigitalIdentifier($user);
                 }
 
                 return [
@@ -266,6 +270,14 @@ class Keycloak
     {
         try {
             $authUrl = env('KEYCLOAK_BASE_URL').'/realms/'.env('KEYCLOAK_REALM').'/protocol/openid-connect/token';
+
+            // $credentials = [
+            //     'grant_type' => 'password',
+            //     'client_id' => env('KEYCLOAK_CLIENT_ID'),
+            //     'client_secret' => env('KEYCLOAK_CLIENT_SECRET'),
+            //     'username' => 'developers@hdruk.ac.uk',
+            //     'password' => 'Challenge12Havoc!',
+            // ];
 
             $credentials = [
                 'client_secret' => env('KEYCLOAK_CLIENT_SECRET'),
