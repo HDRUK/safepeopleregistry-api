@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 /**
- * @method RulesEngineManagementController|static evaluateRulesEngine(array $payload)
+ * @method static RulesEngineManagementController evaluateRulesEngine(array $payload)
  */
 class RulesEngineManagementController
 {
