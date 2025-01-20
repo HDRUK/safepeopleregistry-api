@@ -7,6 +7,7 @@ use Hash;
 use Keycloak;
 use App\Models\User;
 use App\Models\Registry;
+use Illuminate\Http\Request;
 
 class RegistryManagementController
 {
@@ -34,13 +35,13 @@ class RegistryManagementController
      * Creates a new user based on incoming data.
      *
      * @param array $input The user details to be created from
-     * @param string $accountType The type of account to create. Being either: user,
+     * @param Request $request The type of account to create. Being either: user,
      *      organisation or custodian. The key part here is that only "user"'s will
      *      require a Registry ledger created as part of the process. The others are
      *      simply logging in accounts
      * @return mixed
      */
-    public static function createNewUser(array $input, string | null $accountType): mixed
+    public static function createNewUser(array $input, Request $request): mixed
     {
         $unclaimedUser = User::where('email', $input['email'])->whereNull('keycloak_id')->first();
 
@@ -57,6 +58,8 @@ class RegistryManagementController
                 "unclaimed_user_id" => $unclaimedUser->id
             ];
         }
+
+        $accountType = isset($request['account_type']) ? $request['account_type'] : '';
 
         switch (strtolower($accountType)) {
             case 'user':
@@ -85,6 +88,7 @@ class RegistryManagementController
                         'email' => $input['email'],
                         'keycloak_id' => $input['sub'],
                         'registry_id' => null,
+                        'organisation_id' => $request['organisation_id'],
                         'user_group' => RegistryManagementController::KC_GROUP_ORGANISATIONS,
                     ]);
 
@@ -165,6 +169,7 @@ class RegistryManagementController
             'registry_id' => $registry->id,
             'orc_id' => '',
             'user_group' => isset($user['user_group']) ? $user['user_group'] : '',
+            'organisation_id' => isset($user['organisation_id']) ? $user['organisation_id'] : '',
             'custodian_id' => isset($user['custodian_id']) ? $user['custodian_id'] : null,
             'custodian_user_id' => isset($user['custodian_user_id']) ? $user['custodian_user_id'] : null
         ]);

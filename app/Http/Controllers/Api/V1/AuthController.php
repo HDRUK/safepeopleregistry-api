@@ -31,12 +31,11 @@ class AuthController extends Controller
     public function registerKeycloakUser(Request $request): JsonResponse
     {
         $token = explode('Bearer ', $request->headers->get('Authorization'));
-        $accountType = $request->get('account_type');
 
         $response = Keycloak::getUserInfo($request->headers->get('Authorization'));
         $payload = $response->json();
 
-        $user = RMC::createNewUser($payload, $accountType);
+        $user = RMC::createNewUser($payload, $request);
 
         if ($user) {
             if(isset($user['unclaimed_user_id'])) {
