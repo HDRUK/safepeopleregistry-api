@@ -489,24 +489,24 @@ class UserController extends Controller
         try {
             $input = $request->all();
 
-            $user = User::where('id', $id)->first();
-            $user->first_name = isset($input['first_name']) ? $input['first_name'] : $user->first_name;
-            $user->last_name = isset($input['last_name']) ? $input['last_name'] : $user->last_name;
-            $user->email = isset($input['email']) ? $input['email'] : $user->email;
-            $user->password = isset($input['password']) ? Hash::make($input['password']) : $user->password;
-            $user->registry_id = isset($input['registry_id']) ? $input['registry_id'] : $user->registry_id;
-            $user->consent_scrape = isset($input['consent_scrape']) ? $input['consent_scrape'] : $user->consent_scrape;
-            $user->profile_steps_completed = isset($input['profile_steps_completed']) ? $input['profile_steps_completed'] : $user->profile_steps_completed;
-            $user->profile_completed_at = isset($input['profile_completed_at']) ? $input['profile_completed_at'] : $user->profile_completed_at;
-            $user->public_opt_in = isset($input['public_opt_in']) ? $input['public_opt_in'] : $user->public_opt_in;
-            $user->declaration_signed = isset($input['declaration_signed']) ? $input['declaration_signed'] : $user->declaration_signed;
-            $user->organisation_id = isset($input['organisation_id']) ? $input['organisation_id'] : $user->organisation_id;
-            $user->orc_id = isset($input['orc_id']) ? $input['orc_id'] : $user->orc_id;
+            $user = User::find($id);
+            if (!$user) {
+                return response()->json([
+                    'message' => 'User not found'
+                ], 404);
+            }
 
-            if ($user->save()) {
+            $input = $request->only(app(User::class)->getFillable());
+
+            if (isset($input['password'])) {
+                $input['password'] = Hash::make($input['password']);
+            }
+
+            $updated = $user->update($input);
+            if ($updated) {
                 return response()->json([
                     'message' => 'success',
-                    'data' => $user,
+                    'data' => User::find($id)
                 ], 200);
             }
 
@@ -514,7 +514,7 @@ class UserController extends Controller
                 'message' => 'failed',
                 'data' => null,
                 'error' => 'unable to save user',
-            ], 400);
+            ], 409);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
