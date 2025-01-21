@@ -52,7 +52,6 @@ class RulesEngineManagementController
 
         return response()->json($response->json());
         */
-        // Mock return for now
 
         $rules = Rules::all();
         return response()->json([
