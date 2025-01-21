@@ -821,6 +821,84 @@ class CustodianController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Patch(
+     *      path="/api/v1/custodians/{id}/rules",
+     *      summary="Update rules for a specific custodian",
+     *      description="Updates the list of rules associated with the given custodian ID by syncing provided rule IDs.",
+     *      tags={"Custodians"},
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          required=true,
+     *          description="ID of the custodian",
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="rule_ids", type="array",
+     *                  @OA\Items(type="integer"),
+     *                  example={1,2,3}
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successfully updated rules",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="Rules updated successfully"),
+     *              @OA\Property(property="data", type="array",
+     *                  @OA\Items(
+     *                      type="object",
+     *                      @OA\Property(property="id", type="integer", example=2),
+     *                      @OA\Property(property="name", type="string", example="userLocation"),
+     *                      @OA\Property(property="title", type="string", example="User location"),
+     *                      @OA\Property(property="description", type="string", example="A User should be located in a country which adheres to equivalent data protection law.")
+     *                  )
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid request",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="Invalid rule IDs provided")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Custodian not found",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="Custodian not found")
+     *          )
+     *      )
+     * )
+     */
+    public function updateCustodianRules(Request $request, int $custodianId): JsonResponse
+    {
+        $validated = $request->validate([
+            'rule_ids' => 'required|array',
+            'rule_ids.*' => 'integer|exists:rules,id',
+        ]);
+
+        $custodian = Custodian::find($custodianId);
+        if (!$custodian) {
+            return response()->json(['message' => 'Custodian not found'], 404);
+        }
+
+        $custodian->rules()->sync($validated['rule_ids']);
+
+        return response()->json([
+            'message' => 'success',
+            'data' => true
+        ]);
+    }
+
     //Hide from swagger docs
     public function invite(Request $request, int $id): JsonResponse
     {
