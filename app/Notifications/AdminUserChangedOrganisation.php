@@ -24,7 +24,7 @@ class AdminUserChangedOrganisation extends Notification
      */
     public function via($notifiable)
     {
-        return ['database']; // Send only to the database
+        return ['database'];
     }
 
     /**

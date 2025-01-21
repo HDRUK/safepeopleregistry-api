@@ -27,6 +27,7 @@ use App\Http\Controllers\Api\V1\EmploymentController;
 use App\Http\Controllers\Api\V1\EducationController;
 use App\Http\Controllers\Api\V1\EmailTemplateController;
 use App\Http\Controllers\Api\V1\SectorController;
+use App\Http\Controllers\Api\V1\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -57,6 +58,12 @@ Route::middleware('api')->patch('v1/users/{id}', [UserController::class, 'edit']
 Route::middleware('api')->delete('v1/users/{id}', [UserController::class, 'destroy']);
 Route::middleware('api')->post('v1/users/permissions', [PermissionController::class, 'assignUserPermissionsToFrom']);
 Route::middleware('api')->post('v1/users/change-password/{userId}', [AuthController::class, 'changePassword']);
+
+Route::middleware('api')->get('v1/users/{id}/notifications', [NotificationController::class, 'getUserNotifications']);
+Route::middleware('api')->patch('v1/users/{id}/notifications/read', [NotificationController::class, 'markUserNotficationsAsRead']);
+Route::middleware('api')->patch('v1/users/{userId}/notifications/{notificationId}/read', [NotificationController::class, 'markUserNotificationAsRead']);
+Route::middleware('api')->patch('v1/users/{userId}/notifications/{notificationId}/unread', [NotificationController::class, 'markUserNotificationAsUnread']);
+
 
 Route::middleware('api')->get('v1/training', [TrainingController::class, 'index']);
 Route::middleware('api')->get('v1/training/registry/{registryId}', [TrainingController::class, 'indexByRegistryId']);

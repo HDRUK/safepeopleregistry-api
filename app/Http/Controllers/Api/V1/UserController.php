@@ -16,6 +16,8 @@ use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use App\Traits\CommonFunctions;
 use App\Traits\CheckPermissions;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\AdminUserChangedOrganisation;
 
 class UserController extends Controller
 {
@@ -488,8 +490,10 @@ class UserController extends Controller
     {
         try {
             $input = $request->all();
-
             $user = User::find($id);
+
+            $original_org_id = $user->organisation_id;
+
             if (!$user) {
                 return response()->json([
                     'message' => 'User not found'
@@ -504,6 +508,10 @@ class UserController extends Controller
 
             $updated = $user->update($input);
             if ($updated) {
+
+                $usersToNotify = User::all();//where("organisation_id", $original_org_id)->get();
+                Notification::send($usersToNotify, new AdminUserChangedOrganisation("A user has changed their details"));
+
                 return response()->json([
                     'message' => 'success',
                     'data' => User::find($id)

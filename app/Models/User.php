@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use App\Traits\SearchManager;
 
 class User extends Authenticatable
 {
     use HasFactory;
+    use Notifiable;
     use SearchManager;
 
     public const GROUP_USERS = 'USERS';
