@@ -11,11 +11,9 @@ return new class () extends Migration {
             $table->unsignedBigInteger('custodian_id');
             $table->unsignedBigInteger('rule_id');
 
-            // Foreign keys
             $table->foreign('custodian_id')->references('id')->on('custodians')->onDelete('cascade');
             $table->foreign('rule_id')->references('id')->on('rules')->onDelete('cascade');
 
-            // Composite primary key
             $table->primary(['custodian_id', 'rule_id']);
         });
     }
