@@ -6,9 +6,9 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Accreditation>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Affiliation>
  */
-class AccreditationFactory extends Factory
+class AffiliationFactory extends Factory
 {
     /**
      * Define the model's default state.

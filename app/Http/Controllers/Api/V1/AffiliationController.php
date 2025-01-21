@@ -57,16 +57,16 @@ class AffiliationController extends Controller
      */
     public function indexByRegistryId(Request $request, int $registryId): JsonResponse
     {
-        $rha = RegistryHasAffilitation::where('registry_id', $registryId)
+        $rha = RegistryHasAffiliation::where('registry_id', $registryId)
             ->get()
-            ->select('affilitation_id');
+            ->select('affiliation_id');
 
-        $affilitations = Affilitation::whereIn('id', $rha)
+        $affiliations = Affiliation::whereIn('id', $rha)
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',
-            'data' => $affilitations,
+            'data' => $affiliations,
         ], 200);
     }
 
@@ -132,20 +132,20 @@ class AffiliationController extends Controller
         try {
             $input = $request->all();
 
-            $affilitation = Affilitation::create([
+            $affiliation = Affiliation::create([
                 'member_id' => $request['member_id'],
                 'organisation_id' => $input['organisation_id'],
                 'current_employer' => $input['current_employer']
             ]);
 
-            RegistryHasAffilitation::create([
+            RegistryHasAffiliation::create([
                 'registry_id' => $registryId,
-                'affilitation_id' => $affilitation->id,
+                'affiliation_id' => $affiliation->id,
             ]);
 
             return response()->json([
                 'message' => 'success',
-                'data' => $affilitation->id,
+                'data' => $affiliation->id,
             ], 201);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -213,17 +213,17 @@ class AffiliationController extends Controller
     {
         try {
             $input = $request->all();
-            $affilitation = Affilitation::where('id', $id)->first();
+            $affiliation = Affiliation::where('id', $id)->first();
 
-            $affilitation->member_id = $input['member_id'];
-            $affilitation->organisation_id = $input['organisation_id'];
-            $affilitation->current_employer = $input['current_employer'];
+            $affiliation->member_id = $input['member_id'];
+            $affiliation->organisation_id = $input['organisation_id'];
+            $affiliation->current_employer = $input['current_employer'];
 
-            $affilitation->save();
+            $affiliation->save();
 
             return response()->json([
                 'message' => 'success',
-                'data' => $affilitation,
+                'data' => $affiliation,
             ], 200);
 
         } catch (Exception $e) {
@@ -292,17 +292,17 @@ class AffiliationController extends Controller
     {
         try {
             $input = $request->all();
-            $affilitation = Affilitation::where('id', $id)->first();
+            $affiliation = Affiliation::where('id', $id)->first();
 
-            $affilitation->member_id = isset($input['member_id']) ? $input['member_id'] : $affiliation['member_id'];
-            $affilitation->organisation_id = isset($input['organisation_id']) ? $input['organisation_id'] : $affiliation['organisation_id'];
-            $affilitation->current_employer = isset($input['current_employer']) ? $input['current_employer'] : $affiliation['current_employer'];
+            $affiliation->member_id = isset($input['member_id']) ? $input['member_id'] : $affiliation['member_id'];
+            $affiliation->organisation_id = isset($input['organisation_id']) ? $input['organisation_id'] : $affiliation['organisation_id'];
+            $affiliation->current_employer = isset($input['current_employer']) ? $input['current_employer'] : $affiliation['current_employer'];
 
-            $affilitation->save();
+            $affiliation->save();
 
             return response()->json([
                 'message' => 'success',
-                'data' => $affilitation,
+                'data' => $affiliation,
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -354,10 +354,10 @@ class AffiliationController extends Controller
     public function destroy(Request $request, int $id): JsonResponse
     {
         try {
-            Affilitation::where('id', $id)->first()->delete();
+            Affiliation::where('id', $id)->first()->delete();
 
-            RegistryHasAffilitation::where(
-                'affilitation_id', $id
+            RegistryHasAffiliation::where(
+                'affiliation_id', $id
             )->delete();
 
             return response()->json([

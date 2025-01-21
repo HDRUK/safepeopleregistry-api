@@ -12,6 +12,7 @@ return new class () extends Migration {
     {
         Schema::create('affiliations', function (Blueprint $table) {
             $table->id();
+            $table->timestamps();
             $table->bigInteger('organisation_id');
             $table->string('member_id', 255);
             $table->bigInteger('current_employer')->default(0);
