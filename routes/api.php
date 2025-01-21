@@ -167,6 +167,7 @@ Route::middleware('api')->get('v1/employments/{id}/{registryId}', [EmploymentCon
 Route::middleware('api')->post('v1/employments/{registryId}', [EmploymentController::class, 'storeByRegistryId']);
 Route::middleware('api')->put('v1/employments/{id}/{registryId}', [EmploymentController::class, 'updateByRegistryId']);
 Route::middleware('api')->patch('v1/employments/{id}/{registryId}', [EmploymentController::class, 'editByRegistryId']);
+Route::middleware('api')->patch('v1/employments/{id}/{registryId}/verify_email', [EmploymentController::class, 'verifyEmailForEmployment']);
 Route::middleware('api')->delete('v1/employments/{id}/{registryId}', [EmploymentController::class, 'destroyByRegistryId']);
 
 Route::middleware('api')->get('v1/sectors', [SectorController::class, 'index']);

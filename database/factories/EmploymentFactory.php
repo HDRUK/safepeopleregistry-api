@@ -26,6 +26,7 @@ class EmploymentFactory extends Factory
             'employer_address' => fake()->address(),
             'ror' => fake()->url(),
             'registry_id' => 1,
+            'email' => fake()->email(),
         ];
     }
 }

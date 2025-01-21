@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\User;
 use App\Models\Registry;
+use App\Models\Employment;
 use Database\Seeders\UserSeeder;
 use Database\Seeders\EmploymentSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -60,6 +61,9 @@ class EmploymentTest extends TestCase
 
         $this->assertEquals($content['message'], 'success');
         $this->assertNotNull($content['data']);
+
+        $employment = Employment::where('id', $content['data'])->first();
+        $this->assertEquals($employment->email, 'test@demoemployer.com');
     }
 
     public function test_the_application_can_edit_employments_by_registry_id(): void
@@ -118,6 +122,38 @@ class EmploymentTest extends TestCase
         $response->assertStatus(200);
 
         $this->assertEquals($content['data']['employer_name'], 'Demo Employer Name 2');
+        $this->assertEquals($content['data']['email'], 'test1@demoemployer.com');
+    }
+
+    public function test_the_application_can_verify_a_pro_email_by_registry_id(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL . '/' . $this->registry->id,
+                $this->prepareEmploymentPayload()
+            );
+
+        $content = $response->decodeResponseJson();
+        $employmentId = $content['data'];
+
+        $response->assertStatus(201);
+
+        $this->assertEquals($content['message'], 'success');
+        $this->assertEquals(Employment::where('id', $employmentId)->select('email_verified')->first()['email_verified'], 0);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PATCH',
+                self::TEST_URL . '/' . $employmentId . '/' . $this->registry->id . '/verify_email',
+                [],
+            );
+
+        $content = $response->decodeResponseJson();
+        $response->assertStatus(200);
+        $this->assertEquals($content['message'], 'success');
+
+        $this->assertEquals(Employment::where('id', $employmentId)->select('email_verified')->first()['email_verified'], 1);
     }
 
     public function test_the_application_can_delete_employments_by_registry_id(): void
@@ -158,6 +194,7 @@ class EmploymentTest extends TestCase
             'employer_address' => fake()->address(),
             'ror' => fake()->url(),
             'registry_id' => 1,
+            'email' => 'test@demoemployer.com',
         ];
     }
 
@@ -173,6 +210,7 @@ class EmploymentTest extends TestCase
             'employer_address' => fake()->address(),
             'ror' => fake()->url(),
             'registry_id' => 1,
+            'email' => 'test1@demoemployer.com',
         ];
     }
 
