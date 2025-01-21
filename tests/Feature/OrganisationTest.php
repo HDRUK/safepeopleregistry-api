@@ -710,8 +710,8 @@ class OrganisationTest extends TestCase
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
-        $this->assertCount(4, $response['data']['data']);
-
+        $this->assertCount(5, $response['data']['data']);
+        
         $responseWithEmailFilter = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'GET',
