@@ -16,7 +16,6 @@ use App\Models\OrganisationHasDepartment;
 use App\Models\OrganisationHasSubsidiary;
 use App\Models\Subsidiary;
 use App\Models\User;
-use App\Models\RegistryHasOrganisation;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -991,102 +990,22 @@ class OrganisationController extends Controller
     public function getUsers(Request $request, int $organisationId): JsonResponse
     {
         try {
-            // Get registry IDs associated with the organization
-            $registryIds = RegistryHasOrganisation::where('organisation_id', $organisationId)
-                ->pluck('registry_id');
-
-            // Fetch users based on the registry IDs
             $users = User::searchViaRequest()
-                ->whereHas('registry', function ($query) use ($registryIds) {
-                    $query->whereIn('id', $registryIds);
-                })
                 ->with([
-                    'permissions',
-                    'registry',
-                    'registry.files',
-                    'pendingInvites',
-                    'organisation',
-                    'departments',
-                    'registry.education',
-                    'registry.training',
-                ])
-                ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+                'permissions',
+                'registry',
+                'registry.files',
+                'pendingInvites',
+                'organisation',
+                'departments',
+                'registry.education',
+                'registry.training',
+            ])->where('organisation_id', $organisationId)
+              ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
             return response()->json([
-                'message' => 'success',
-                'data' => $users,
-            ], 200);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
-    }
-
-    //   
-    //  * @OA\Delete(
-    //  *      path="/api/v1/organisations/{id}/users/{registryId}",
-    //  *      summary="Remove a user from an organisation",
-    //  *      description="Remove a specific user from an organisation by registry ID",
-    //  *      tags={"organisation"},
-    //  *      summary="organisation@removeUser",
-    //  *      security={{"bearerAuth":{}}},
-    //  *
-    //  *      @OA\Parameter(
-    //  *         name="id",
-    //  *         in="path",
-    //  *         description="Organisation ID",
-    //  *         required=true,
-    //  *         example="1",
-    //  *
-    //  *         @OA\Schema(
-    //  *            type="integer",
-    //  *            description="Organisation ID",
-    //  *         ),
-    //  *      ),
-    //  *
-    //  *      @OA\Parameter(
-    //  *         name="registryId",
-    //  *         in="path",
-    //  *         description="Registry ID of the user",
-    //  *         required=true,
-    //  *         example="1",
-    //  *
-    //  *         @OA\Schema(
-    //  *            type="integer",
-    //  *            description="Registry ID",
-    //  *         ),
-    //  *      ),
-    //  *
-    //  *      @OA\Response(
-    //  *          response=200,
-    //  *          description="Success",
-    //  *
-    //  *          @OA\JsonContent(
-    //  *              @OA\Property(property="message", type="string", example="success"),
-    //  *              @OA\Property(property="data", type="string", example="User removed from organisation"),
-    //  *          ),
-    //  *      ),
-    //  *
-    //  *      @OA\Response(
-    //  *          response=404,
-    //  *          description="Not found response",
-    //  *
-    //  *          @OA\JsonContent(
-    //  *              @OA\Property(property="message", type="string", example="User or organisation not found"),
-    //  *          )
-    //  *      ),
-    //  * )
-    //  */
-    public function removeUser(Request $request, int $id, int $registryId): JsonResponse
-    {
-        try {
-            RegistryHasOrganisation::where([
-                'organisation_id' => $id,
-                'registry_id' => $registryId,
-            ])->delete();
-
-            return response()->json([
-                'message' => 'success',
-                'data' => 'User removed from organisation',
+              'message' => 'success',
+              'data' => $users,
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());

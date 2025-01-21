@@ -502,6 +502,7 @@ class UserController extends Controller
             $user->declaration_signed = isset($input['declaration_signed']) ? $input['declaration_signed'] : $user->declaration_signed;
             $user->organisation_id = isset($input['organisation_id']) ? $input['organisation_id'] : $user->organisation_id;
             $user->orc_id = isset($input['orc_id']) ? $input['orc_id'] : $user->orc_id;
+            $user->is_delegate = isset($input['is_delegate']) ? $input['is_delegate'] : $user->is_delegate;
 
             if ($user->save()) {
                 return response()->json([

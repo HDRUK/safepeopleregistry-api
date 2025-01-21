@@ -131,7 +131,6 @@ Route::middleware('api')->post('v1/organisations/unclaimed', [OrganisationContro
 Route::middleware('api')->put('v1/organisations/{id}', [OrganisationController::class, 'update']);
 Route::middleware('api')->patch('v1/organisations/{id}', [OrganisationController::class, 'edit']);
 Route::middleware('api')->delete('v1/organisations/{id}', [OrganisationController::class, 'destroy']);
-Route::middleware('api')->delete('v1/organisations/{id}/users/{registryId}', [OrganisationController::class, 'removeUser']);
 Route::middleware('api')->post('v1/organisations/{id}/invite', [OrganisationController::class, 'invite']);
 Route::middleware('api')->post('v1/organisations/{id}/invite_user', [OrganisationController::class, 'inviteUser']);
 Route::middleware('api')->post('v1/organisations/permissions', [PermissionController::class, 'assignOrganisationPermissionsToFrom']);
