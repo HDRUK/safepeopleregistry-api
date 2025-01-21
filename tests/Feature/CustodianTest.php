@@ -8,6 +8,7 @@ use App\Models\Custodian;
 use App\Models\Sector;
 use Carbon\Carbon;
 use Database\Seeders\CustodianSeeder;
+use Database\Seeders\RulesSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\EmailTemplatesSeeder;
 use App\Models\PendingInvite;
@@ -36,6 +37,7 @@ class CustodianTest extends TestCase
         $this->seed([
             PermissionSeeder::class,
             UserSeeder::class,
+            RulesSeeder::class,
             CustodianSeeder::class,
             EmailTemplatesSeeder::class
         ]);
@@ -511,4 +513,68 @@ class CustodianTest extends TestCase
         $this->assertTrue(count($content['data']) > 0);
         $this->assertTrue($content['data']['data'][0]['name'] === 'ABC Custodian');
     }
+
+    public function test_can_get_rules_for_existing_custodian(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                "/api/v1/custodians/1/rules"
+            );
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'message',
+            'data' => [
+                '*' => [
+                    'id',
+                    'name',
+                    'title',
+                    'description'
+                ]
+            ]
+        ]);
+
+        $nonexistentId = 99999;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                "/api/v1/custodians/{$nonexistentId}/rules"
+            );
+
+        $response->assertStatus(404);
+    }
+
+
+    public function test_can_update_rules_for_existing_custodian(): void
+    {
+        $newRuleIds = [1,3,4];
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PATCH',
+                "/api/v1/custodians/1/rules",
+                ['rule_ids' => $newRuleIds]
+            );
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'message' => 'success',
+            'data' => true,
+        ]);
+
+        $this->assertDatabaseCount('custodian_rule', count($newRuleIds));
+        foreach ($newRuleIds as $ruleId) {
+            $this->assertDatabaseHas('custodian_rule', [
+                'custodian_id' => $this->custodian->id,
+                'rule_id' => $ruleId
+            ]);
+        }
+    }
+
+
+
+
+
 }
