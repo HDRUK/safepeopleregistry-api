@@ -172,6 +172,32 @@ class EmploymentController extends Controller
         }
     }
 
+    public function verifyEmailForEmployment(Request $request, int $id, int $registryId): JsonResponse
+    {
+        try {
+            $em = Employment::where([
+                'id' => $id,
+                'registry_id' => $registryId,
+            ])->first();
+
+            $em->email_verified = 1;
+
+            if ($em->save()) {
+                return response()->json([
+                    'message' => 'success',
+                    'data' => null,
+                ], 200);
+            }
+
+            return response()->json([
+                'message' => 'failed',
+                'data' => null,
+            ], 500);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
     public function destroyByRegistryId(Request $request, int $id, int $registryId): JsonResponse
     {
         try {

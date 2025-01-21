@@ -12,6 +12,7 @@ return new class () extends Migration {
     {
         Schema::table('employments', function (Blueprint $table) {
             $table->string('email', 255);
+            $table->tinyInteger('email_verified')->default(0);
         });
     }
 
@@ -22,6 +23,7 @@ return new class () extends Migration {
     {
         Schema::table('employments', function (Blueprint $table) {
             $table->dropColumn('email');
+            $table->dropColumn('email_verified');
         });
     }
 };
