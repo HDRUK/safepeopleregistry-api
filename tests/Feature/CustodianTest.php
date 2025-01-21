@@ -564,10 +564,15 @@ class CustodianTest extends TestCase
             'data' => true,
         ]);
 
-        $this->assertDatabaseCount('custodian_rule', count($newRuleIds));
+        $this->assertEquals(
+            count($newRuleIds),
+            \DB::table('custodian_has_rules')
+                ->where('custodian_id', 1)
+                ->count()
+        );
         foreach ($newRuleIds as $ruleId) {
-            $this->assertDatabaseHas('custodian_rule', [
-                'custodian_id' => $this->custodian->id,
+            $this->assertDatabaseHas('custodian_has_rules', [
+                'custodian_id' => 1,
                 'rule_id' => $ruleId
             ]);
         }
