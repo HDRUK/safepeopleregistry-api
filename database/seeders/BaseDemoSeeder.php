@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Str;
+use Keycloak;
 use RegistryManagementController as RMC;
 use Carbon\Carbon;
 use App\Models\User;
@@ -806,6 +807,8 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             $user->update([
                 'registry_id' => $reg->id,
             ]);
+
+            Keycloak::updateSoursdDigitalIdentifier($user);
 
             if ($user->user_group !== RMC::KC_GROUP_USERS) {
                 continue;
