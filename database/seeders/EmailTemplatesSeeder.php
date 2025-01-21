@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 
 class EmailTemplatesSeeder extends Seeder
 {
-  private $mjmlHead = '
+    private $mjmlHead = '
     <mj-head>
       <mj-html-attributes>
         <mj-html-attribute class="easy-email" multiple-attributes="false" attribute-name="text-color" text-color="#000000"></mj-html-attribute>
@@ -31,7 +31,7 @@ class EmailTemplatesSeeder extends Seeder
     </mj-head>
   ';
 
-  private $titleBar = '
+    private $titleBar = '
     <mj-wrapper padding="20px 0px 20px 0px" border="none" direction="ltr" text-align="center" >
       <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
         <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
@@ -46,7 +46,7 @@ class EmailTemplatesSeeder extends Seeder
     </mj-section>
   ';
 
-  private $supportFooter = '
+    private $supportFooter = '
     <div>
         Please note, if you encounter any issue whilst registering you can request help by emailing [[env(SUPPORT_EMAIL)]].<br/><br/>Thanks!<br/>SPEEDI-AS Team.<br/>                         
     </div>

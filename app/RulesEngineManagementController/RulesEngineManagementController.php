@@ -5,6 +5,7 @@ namespace App\RulesEngineManagementController;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use App\Models\Rules;
 
 class RulesEngineManagementController
 {
@@ -52,8 +53,11 @@ class RulesEngineManagementController
         return response()->json($response->json());
         */
         // Mock return for now
-        $filePath = storage_path('mocks/decisionTree.json');
-        $jsonData = json_decode(file_get_contents($filePath), true);
-        return response()->json(['data' => $jsonData]);
+
+        $rules = Rules::all();
+        return response()->json([
+            'data' => $rules
+        ]);
+
     }
 }
