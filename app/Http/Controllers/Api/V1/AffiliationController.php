@@ -17,7 +17,7 @@ class AffiliationController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/api/v1/affiliations/registry/{id}",
+     *      path="/api/v1/affiliations/{registryId}",
      *      summary="Return a list of affiliations by registry id",
      *      description="Return a list of affiliations by registry id",
      *      tags={"Affiliations"},
@@ -72,7 +72,7 @@ class AffiliationController extends Controller
 
     /**
      * @OA\Post(
-     *      path="/api/v1/affiliations",
+     *      path="/api/v1/affiliations/{registryId}",
      *      summary="Create an Affiliation entry",
      *      description="Create an Affiliation entry",
      *      tags={"Affiliations"},
