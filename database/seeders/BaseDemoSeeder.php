@@ -349,7 +349,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'email' => 'delegate.sponsor@tandyenergyltd.com',
                 'is_delegate' => 1,
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
-                'organisation_id' => $org1->id, // Needed because this is an org admin
+                'organisation_id' => $org2->id, // Needed because this is an org admin
                 'keycloak_id' => '6a09ff56-b655-4e28-805e-50de8789bd66', // Dragons ahead - needs to map 1:1 with KC users
             ],
         ];
