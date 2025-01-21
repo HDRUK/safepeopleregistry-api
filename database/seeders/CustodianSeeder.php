@@ -27,7 +27,7 @@ class CustodianSeeder extends Seeder
         Schema::enableForeignKeyConstraints();
 
         $ruleIds = Rules::select('id')->pluck('id')->toArray();
-        $nRules = count($ruleIds);
+        $nRules = count($ruleIds) ?? 0;
 
         foreach (config('speedi.custodians') as $custodian) {
             $i = Custodian::factory()->create([
@@ -37,8 +37,10 @@ class CustodianSeeder extends Seeder
                 'idvt_required' => fake()->randomElement([0, 1]),
             ]);
 
-            $randomRules = collect($ruleIds)->random(rand(2, $nRules))->toArray();
-            $i->rules()->attach($randomRules);
+            if ($nRules > 0) {
+                $randomRules = collect($ruleIds)->random(rand(2, $nRules))->toArray();
+                $i->rules()->attach($randomRules);
+            }
 
             for ($x = 0; $x < 1; $x++) {
                 $iu = CustodianUser::factory()->create([
