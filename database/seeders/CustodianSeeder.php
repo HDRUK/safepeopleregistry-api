@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Custodian;
+use App\Models\Rules;
 use App\Models\CustodianUser;
 use App\Models\CustodianWebhookReceiver;
 use App\Models\CustodianUserHasPermission;
@@ -25,7 +26,7 @@ class CustodianSeeder extends Seeder
 
         Schema::enableForeignKeyConstraints();
 
-        $ruleIds = Rule::select('id')->pluck('id')->toArray();
+        $ruleIds = Rules::select('id')->pluck('id')->toArray();
         $nRules = count($ruleIds);
 
         foreach (config('speedi.custodians') as $custodian) {

@@ -19,6 +19,8 @@ class Rules extends Model
         'description'
     ];
 
+    protected $hidden = ['pivot'];
+
     public function custodians()
     {
         return $this->belongsToMany(Custodian::class, 'custodian_has_rules', 'rule_id', 'custodian_id');

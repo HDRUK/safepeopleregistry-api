@@ -767,6 +767,60 @@ class CustodianController extends Controller
         ], 404);
     }
 
+    /**
+     * @OA\Get(
+     *      path="/api/v1/custodians/{id}/rules",
+     *      summary="Get rules for a specific custodian",
+     *      description="Fetches the list of rules associated with the given custodian ID.",
+     *      tags={"Custodians"},
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          required=true,
+     *          description="ID of the custodian",
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successfully retrieved rules",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="array",
+     *                  @OA\Items(
+     *                      type="object",
+     *                      @OA\Property(property="id", type="integer", example=2),
+     *                      @OA\Property(property="name", type="string", example="userLocation"),
+     *                      @OA\Property(property="title", type="string", example="User location"),
+     *                      @OA\Property(property="description", type="string", example="A User should be located in a country which adheres to equivalent data protection law.")
+     *                  )
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Custodian not found",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="Custodian not found")
+     *          )
+     *      )
+     * )
+     */
+    public function getRules(Request $request, int $custodianId): JsonResponse
+    {
+
+        $custodian = Custodian::with('rules')->find($custodianId);
+        if (!$custodian) {
+            return response()->json(['message' => 'Custodian not found'], 404);
+        }
+
+        return response()->json([
+            'message' => 'success',
+            'data' => $custodian->rules
+        ]);
+    }
+
     //Hide from swagger docs
     public function invite(Request $request, int $id): JsonResponse
     {

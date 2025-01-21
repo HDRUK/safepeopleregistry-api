@@ -45,4 +45,9 @@ class Custodian extends Model
         'name',
         'contact_email',
     ];
+
+    public function rules()
+    {
+        return $this->belongsToMany(Rules::class, 'custodian_has_rules', 'custodian_id', 'rule_id');
+    }
 }
