@@ -61,7 +61,7 @@ class AffiliationController extends Controller
             ->get()
             ->select('affiliation_id');
 
-        $affiliations = Affiliation::whereIn('id', $rha)
+        $affiliations = Affiliation::with(['organisation' => function($query) { $query->select('id', 'organisation_name'); }] )->whereIn('id', $rha)
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
@@ -94,6 +94,7 @@ class AffiliationController extends Controller
      *          description="Affiliation definition",
      *          @OA\JsonContent(
      *              @OA\Property(property="member_id", type="string", example="A1234"),
+     *              @OA\Property(property="relationship", type="string", example="employee"),
      *              @OA\Property(property="organisation_id", type="integer", example="1"),
      *              @OA\Property(property="current_employer", type="integer", example="1"),
      *          ),
@@ -115,6 +116,7 @@ class AffiliationController extends Controller
      *                  @OA\Property(property="member_id", type="string", example="A1234"),
      *                  @OA\Property(property="organisation_id", type="integer", example="1"),
      *                  @OA\Property(property="current_employer", type="integer", example="1"),
+     *                  @OA\Property(property="relationship", type="string", example="employee"),
      *              )
      *          ),
      *      ),
@@ -135,7 +137,8 @@ class AffiliationController extends Controller
             $affiliation = Affiliation::create([
                 'member_id' => $request['member_id'],
                 'organisation_id' => $input['organisation_id'],
-                'current_employer' => $input['current_employer']
+                'current_employer' => $input['current_employer'],
+                'relationship' => $input['relationship']
             ]);
 
             RegistryHasAffiliation::create([
@@ -176,6 +179,7 @@ class AffiliationController extends Controller
      *          description="Affiliation definition",
      *          @OA\JsonContent(
      *              @OA\Property(property="member_id", type="string", example="A1234"),
+     *              @OA\Property(property="relationship", type="string", example="employee"),
      *              @OA\Property(property="organisation_id", type="integer", example="1"),
      *              @OA\Property(property="current_employer", type="integer", example="1"),
      *          ),
@@ -195,6 +199,7 @@ class AffiliationController extends Controller
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="member_id", type="string", example="A1234"),
+     *                  @OA\Property(property="relationship", type="string", example="employee"),
      *                  @OA\Property(property="organisation_id", type="integer", example="1"),
      *                  @OA\Property(property="current_employer", type="integer", example="1"),
      *              )
@@ -218,6 +223,7 @@ class AffiliationController extends Controller
             $affiliation->member_id = $input['member_id'];
             $affiliation->organisation_id = $input['organisation_id'];
             $affiliation->current_employer = $input['current_employer'];
+            $affiliation->relationship = $input['relationship'];
 
             $affiliation->save();
 
@@ -255,6 +261,7 @@ class AffiliationController extends Controller
      *          description="Affiliation definition",
      *          @OA\JsonContent(
      *              @OA\Property(property="member_id", type="string", example="A1234"),
+     *              @OA\Property(property="relationship", type="string", example="employee"),
      *              @OA\Property(property="organisation_id", type="integer", example="1"),
      *              @OA\Property(property="current_employer", type="integer", example="1"),
      *          ),
@@ -274,6 +281,7 @@ class AffiliationController extends Controller
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="member_id", type="string", example="A1234"),
+     *                  @OA\Property(property="relationship", type="string", example="employee"),
      *                  @OA\Property(property="organisation_id", type="integer", example="1"),
      *                  @OA\Property(property="current_employer", type="integer", example="1"),
      *              )
@@ -297,6 +305,7 @@ class AffiliationController extends Controller
             $affiliation->member_id = isset($input['member_id']) ? $input['member_id'] : $affiliation['member_id'];
             $affiliation->organisation_id = isset($input['organisation_id']) ? $input['organisation_id'] : $affiliation['organisation_id'];
             $affiliation->current_employer = isset($input['current_employer']) ? $input['current_employer'] : $affiliation['current_employer'];
+            $affiliation->relationship = isset($input['relationship']) ? $input['relationship'] : $affiliation['relationship'];
 
             $affiliation->save();
 

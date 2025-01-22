@@ -17,5 +17,16 @@ class Affiliation extends Model
         'organisation_id',
         'current_employer',
         'member_id',
+        'relationship'
     ];
+
+    /**
+     * Get the permissions associated with the custodian user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function organisation()
+    {
+        return $this->belongsTo(Organisation::class, 'organisation_id', 'id');
+    }
 }

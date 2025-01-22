@@ -16,6 +16,7 @@ return new class () extends Migration {
             $table->bigInteger('organisation_id');
             $table->string('member_id', 255);
             $table->bigInteger('current_employer')->default(0);
+            $table->string('relationship', 255)->nullable();
         });
 
         Schema::create('registry_has_affiliations', function (Blueprint $table) {

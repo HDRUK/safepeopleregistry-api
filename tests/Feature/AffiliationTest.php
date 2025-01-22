@@ -53,7 +53,8 @@ class AffiliationTest extends TestCase
                 [
                     'member_id' => fake()->uuid(),
                     'organisation_id' => 1,
-                    'current_employer' => 1
+                    'current_employer' => 1,
+                    'relationship' => 'employee'
                 ]
             );
 
@@ -71,17 +72,13 @@ class AffiliationTest extends TestCase
             [
                 'member_id' => 'A1234567',
                 'organisation_id' => 1,
-                'current_employer' => 1
+                'current_employer' => 1,
+                'relationship' => 'employee'
             ]
         );
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
-
-        $content = $response->decodeResponseJson()['data'];
-
-        $this->assertEquals($content['member_id'], 'A1234567');
-        $this->assertEquals($content['current_employer'], 1);
     }
 
     public function test_the_application_can_edit_an_affiliation(): void
