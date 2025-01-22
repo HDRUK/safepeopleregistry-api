@@ -11,6 +11,7 @@ use App\Models\Identity;
 use App\Models\Project;
 use App\Models\Registry;
 use App\Models\Education;
+use App\Models\Employment;
 use App\Models\Training;
 use App\Models\Organisation;
 use App\Models\Custodian;
@@ -430,6 +431,28 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                     'idvt_errors' => null,
                     'idvt_completed_at' => Carbon::now(),
                 ],
+                'employments' => [
+                    [
+                        'employer_name' => 'Health Pathways UK Ltd',
+                        'from' => Carbon::now()->subYears(6)->toDateString(),
+                        'to' => '',
+                        'is_current' => 1,
+                        'department' => 'Research',
+                        'role' => 'Principal Investigator (PI)',
+                        'employer_address' => '235 Fake Road, Fake Town, Fake County, USA, 87659',
+                        'ror' => '1234567',
+                    ],
+                    [
+                        'employer_name' => 'Generic Research Institute',
+                        'from' => Carbon::now()->subYears(10)->toDateString(),
+                        'to' => Carbon::now()->subYears(6)->toDateString(),
+                        'is_current' => 0,
+                        'department' => 'Research',
+                        'role' => 'Data Analyst',
+                        'employer_address' => '456 Fake Road, Fake Town, Fake County, USA, 87659',
+                        'ror' => '9876543',
+                    ],
+                ],
             ],
             [
                 'first_name' => 'Sigourney',
@@ -707,6 +730,11 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         $this->createIdentities($org3Researchers);
 
         // --------------------------------------------------------------------------------
+        // Create Employments for the above users
+        // --------------------------------------------------------------------------------
+        $this->createEmployments($org1Researchers);
+
+        // --------------------------------------------------------------------------------
         // Above users having affiliations between orgs
         // --------------------------------------------------------------------------------
         $this->createRegistryAffiliations($org1Researchers);
@@ -745,6 +773,32 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'idvt_errors' =>            $u['identity']['idvt_errors'],
                 'idvt_completed_at' =>      $u['identity']['idvt_completed_at'],
             ]);
+        }
+    }
+
+    private function createEmployments(array $input): void
+    {
+        foreach ($input as $u) {
+            $user = User::where('email', $u['email'])->first();
+
+            if (!isset($u['employments'])) {
+                continue;
+            }
+
+            foreach ($u['employments'] as $e) {
+                Employment::create([
+                    'employer_name' => $e['employer_name'],
+                    'from' => $e['from'],
+                    'to' => $e['to'],
+                    'is_current' => $e['is_current'],
+                    'department' => $e['department'],
+                    'role' => $e['role'],
+                    'employer_address' => $e['employer_address'],
+                    'ror' => $e['ror'],
+                    'registry_id' => $user->registry_id,
+                    'email' => strtolower($user->first_name . '.' . $user->last_name . '@' . str_replace(' ', '', $e['employer_name']) . '.com'),
+                ]);
+            }
         }
     }
 

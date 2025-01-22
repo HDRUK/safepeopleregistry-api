@@ -7,6 +7,7 @@ use Keycloak;
 use Exception;
 use RulesEngineManagementController as REMC;
 use App\Models\User;
+use App\Models\Registry;
 use App\Models\UserHasCustodianApproval;
 use App\Models\UserHasCustodianPermission;
 use App\Http\Requests\Users\CreateUser;
@@ -88,6 +89,36 @@ class UserController extends Controller
             ],
             200
         );
+    }
+
+    public function validateUserRequest(Request $request): JsonResponse
+    {
+        $input = $request->only(['email']);
+        $retVal = User::searchByEmail($input['email']);
+
+        $returnPayload = [];
+
+        if ($retVal) {
+            $user = User::where('registry_id', $retVal->registry_id)->first();
+            $returnPayload = [
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'public_opt_in' => $user->public_opt_in,
+                'digital_identifier' => Registry::where('id', $retVal->registry_id)->select('digi_ident')->first()['digi_ident'],
+                'email' => $input['email'],
+                'identity_source' => $retVal->source,
+            ];
+
+            return response()->json([
+                'message' => 'success',
+                'data' => $returnPayload,
+            ], 200);
+        }
+
+        return response()->json([
+            'message' => 'not_found',
+            'data' => null,
+        ], 404);
     }
 
     /**

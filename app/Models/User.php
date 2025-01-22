@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -143,5 +144,26 @@ class User extends Authenticatable
             Department::class,
             'user_has_departments'
         );
+    }
+
+    public static function searchByEmail(string $email): \stdClass
+    {
+        $results = DB::select(
+            '
+            SELECT \'users\' as source, registry_id
+            FROM users
+            where email = ?
+
+            UNION ALL
+            
+            SELECT \'employment\' as source, registry_id
+            FROM employments
+            WHERE email = ?
+            ',
+            [$email, $email]
+        );
+
+        $records = collect($results)->toArray();
+        return $records[0];
     }
 }
