@@ -14,6 +14,16 @@ class User extends Authenticatable
     use HasFactory;
     use SearchManager;
 
+    public const GROUP_USERS = 'USERS';
+    public const GROUP_ORGANISATIONS = 'ORGANISATIONS';
+    public const GROUP_ADMINS = 'ADMINS';
+    public const GROUP_CUSTODIANS = 'CUSTODIANS';
+
+    public const GROUP_KC_USERS = '\Researchers';
+    public const GROUP_KC_ORGANISATIONS = '\Organisations';
+    public const GROUP_KC_CUSTODIANS = '\Custodians';
+    public const GROUP_KC_ADMINS = '\Admins';
+
     /**
      * The attributes that are mass assignable.
      *
