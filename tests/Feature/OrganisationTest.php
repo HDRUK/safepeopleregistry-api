@@ -581,6 +581,10 @@ class OrganisationTest extends TestCase
             'first_name' => $firstName,
             'last_name' => $lastName,
             'email' => $email,
+            'organisation_id' => 0,
+            'is_delegate' => 0,
+            'user_group' => 'USERS',
+            'role' => null,
         ]);
 
         Queue::assertPushed(SendEmailJob::class);
