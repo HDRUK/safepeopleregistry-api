@@ -42,364 +42,364 @@ class UserTest extends TestCase
         $this->user = User::where('id', 1)->first();
     }
 
-    // public function test_the_application_can_search_users_by_email(): void
-    // {
-    //     $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-    //         ->json(
-    //             'GET',
-    //             self::TEST_URL . '?email[]=bill.murray@ghostbusters.com',
-    //         );
+    public function test_the_application_can_search_users_by_email(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '?email[]=bill.murray@ghostbusters.com',
+            );
 
-    //     $response->assertStatus(200);
-    //     $content = $response->decodeResponseJson();
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson();
 
-    //     $this->assertTrue(count($content['data']['data']) === 1);
-    //     $this->assertTrue($content['data']['data'][0]['first_name'] === 'Bill');
-    //     $this->assertTrue($content['data']['data'][0]['last_name'] === 'Murray');
-    // }
+        $this->assertTrue(count($content['data']['data']) === 1);
+        $this->assertTrue($content['data']['data'][0]['first_name'] === 'Bill');
+        $this->assertTrue($content['data']['data'][0]['last_name'] === 'Murray');
+    }
 
-    // public function test_the_application_can_search_users_by_first_name(): void
-    // {
-    //     $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-    //         ->json(
-    //             'GET',
-    //             self::TEST_URL . '?first_name[]=bill',
-    //         );
+    public function test_the_application_can_search_users_by_first_name(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '?first_name[]=bill',
+            );
 
-    //     $response->assertStatus(200);
-    //     $content = $response->decodeResponseJson();
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson();
 
-    //     $this->assertTrue(count($content['data']['data']) === 1);
-    //     $this->assertTrue($content['data']['data'][0]['first_name'] === 'Bill');
-    //     $this->assertTrue($content['data']['data'][0]['last_name'] === 'Murray');
-    // }
+        $this->assertTrue(count($content['data']['data']) === 1);
+        $this->assertTrue($content['data']['data'][0]['first_name'] === 'Bill');
+        $this->assertTrue($content['data']['data'][0]['last_name'] === 'Murray');
+    }
 
-    // public function test_the_application_can_search_users_by_last_name(): void
-    // {
-    //     $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-    //         ->json(
-    //             'GET',
-    //             self::TEST_URL . '?last_name[]=murray',
-    //         );
+    public function test_the_application_can_search_users_by_last_name(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '?last_name[]=murray',
+            );
 
-    //     $response->assertStatus(200);
-    //     $content = $response->decodeResponseJson();
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson();
 
-    //     $this->assertTrue(count($content['data']['data']) === 1);
-    //     $this->assertTrue($content['data']['data'][0]['first_name'] === 'Bill');
-    //     $this->assertTrue($content['data']['data'][0]['last_name'] === 'Murray');
-    // }
+        $this->assertTrue(count($content['data']['data']) === 1);
+        $this->assertTrue($content['data']['data'][0]['first_name'] === 'Bill');
+        $this->assertTrue($content['data']['data'][0]['last_name'] === 'Murray');
+    }
 
-    // /*
-    // // LS - Doesn't work with base demo seeder - TODO
-    // public function test_the_application_can_call_me_with_valid_token(): void
-    // {
-    //     $user = User::where('id', 1)->first();
+    /*
+    // LS - Doesn't work with base demo seeder - TODO
+    public function test_the_application_can_call_me_with_valid_token(): void
+    {
+        $user = User::where('id', 1)->first();
 
-    //     $payload = $this->getMockedKeycloakPayload();
-    //     $payload['sub'] = $this->user->keycloak_id;
+        $payload = $this->getMockedKeycloakPayload();
+        $payload['sub'] = $this->user->keycloak_id;
 
-    //     $response = $this->actingAsKeycloakUser($this->user, $payload)
-    //         ->json(
-    //             'GET',
-    //             '/api/auth/me'
-    //         );
+        $response = $this->actingAsKeycloakUser($this->user, $payload)
+            ->json(
+                'GET',
+                '/api/auth/me'
+            );
 
-    //     $response->assertStatus(200);
+        $response->assertStatus(200);
 
-    //     $content = $response->decodeResponseJson();
-    //     $this->assertEquals($content['data']['email'], 'loki.sinclair@hdruk.ac.uk');
-    // }
-    // */
+        $content = $response->decodeResponseJson();
+        $this->assertEquals($content['data']['email'], 'loki.sinclair@hdruk.ac.uk');
+    }
+    */
 
-    // public function test_the_application_returns_404_when_call_to_me_with_non_existent_user(): void
-    // {
-    //     putenv('KEYCLOAK_LOAD_USER_FROM_DATABASE=false');
+    public function test_the_application_returns_404_when_call_to_me_with_non_existent_user(): void
+    {
+        putenv('KEYCLOAK_LOAD_USER_FROM_DATABASE=false');
 
-    //     $payload = $this->getMockedKeycloakPayload();
-    //     $payload['sub'] = $this->user->keycloak_id;
+        $payload = $this->getMockedKeycloakPayload();
+        $payload['sub'] = $this->user->keycloak_id;
 
-    //     $this->user->delete();
+        $this->user->delete();
 
-    //     $response = $this->actingAsKeycloakUser($this->user, $payload)
-    //         ->json(
-    //             'GET',
-    //             '/api/auth/me'
-    //         );
+        $response = $this->actingAsKeycloakUser($this->user, $payload)
+            ->json(
+                'GET',
+                '/api/auth/me'
+            );
 
-    //     $response->assertStatus(404);
+        $response->assertStatus(404);
 
-    //     putenv('KEYCLOAK_LOAD_USER_FROM_DATABASE=true');
-    // }
+        putenv('KEYCLOAK_LOAD_USER_FROM_DATABASE=true');
+    }
 
-    // public function test_the_application_returns_error_when_call_to_me_with_invalid_token(): void
-    // {
-    //     putenv('KEYCLOAK_LOAD_USER_FROM_DATABASE=false');
+    public function test_the_application_returns_error_when_call_to_me_with_invalid_token(): void
+    {
+        putenv('KEYCLOAK_LOAD_USER_FROM_DATABASE=false');
 
-    //     $payload = $this->getMockedKeycloakPayload();
-    //     $payload['exp'] = 1632805681; // 3 years ago (currently..!)
+        $payload = $this->getMockedKeycloakPayload();
+        $payload['exp'] = 1632805681; // 3 years ago (currently..!)
 
-    //     $response = $this->actingAsKeycloakUser($this->user, $payload)
-    //         ->json(
-    //             'GET',
-    //             '/api/auth/me'
-    //         );
+        $response = $this->actingAsKeycloakUser($this->user, $payload)
+            ->json(
+                'GET',
+                '/api/auth/me'
+            );
 
-    //     $response->assertStatus(500);
+        $response->assertStatus(500);
 
-    //     putenv('KEYCLOAK_LOAD_USER_FROM_DATABASE=true');
-    // }
+        putenv('KEYCLOAK_LOAD_USER_FROM_DATABASE=true');
+    }
 
-    // public function test_the_application_responds_correctly_to_allowed_permissions(): void
-    // {
-    //     $payload = $this->getMockedKeycloakPayload();
-    //     $payload['realm_access'] = [
-    //         'roles' => [
-    //             'admin',
-    //         ],
-    //     ];
+    public function test_the_application_responds_correctly_to_allowed_permissions(): void
+    {
+        $payload = $this->getMockedKeycloakPayload();
+        $payload['realm_access'] = [
+            'roles' => [
+                'admin',
+            ],
+        ];
 
-    //     $response = $this->actingAsKeycloakUser($this->user, $payload)
-    //         ->json(
-    //             'GET',
-    //             self::TEST_URL . '/test'
-    //         );
+        $response = $this->actingAsKeycloakUser($this->user, $payload)
+            ->json(
+                'GET',
+                self::TEST_URL . '/test'
+            );
 
-    //     $response->assertStatus(200);
-    // }
+        $response->assertStatus(200);
+    }
 
-    // public function test_the_application_responds_correctly_to_not_allowed_permissions(): void
-    // {
-    //     $payload = $this->getMockedKeycloakPayload();
-    //     $payload['realm_access'] = [
-    //         'roles' => [
-    //             'users',
-    //         ],
-    //     ];
+    public function test_the_application_responds_correctly_to_not_allowed_permissions(): void
+    {
+        $payload = $this->getMockedKeycloakPayload();
+        $payload['realm_access'] = [
+            'roles' => [
+                'users',
+            ],
+        ];
 
-    //     $response = $this->actingAsKeycloakUser($this->user, $payload)
-    //         ->json(
-    //             'GET',
-    //             self::TEST_URL . '/test'
-    //         );
+        $response = $this->actingAsKeycloakUser($this->user, $payload)
+            ->json(
+                'GET',
+                self::TEST_URL . '/test'
+            );
 
-    //     $response->assertStatus(401);
-    // }
+        $response->assertStatus(401);
+    }
 
-    // public function test_the_application_can_list_users(): void
-    // {
-    //     $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-    //     ->json(
-    //         'GET',
-    //         self::TEST_URL
-    //     );
+    public function test_the_application_can_list_users(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL
+        );
 
-    //     $response->assertStatus(200);
-    //     $response->assertJsonStructure([
-    //         'message',
-    //         'data' => [
-    //             'current_page',
-    //             'data' => [
-    //                 '*' => [
-    //                     'id',
-    //                     'created_at',
-    //                     'updated_at',
-    //                     'first_name',
-    //                     'last_name',
-    //                     'email',
-    //                     'registry_id',
-    //                     'user_group',
-    //                     'consent_scrape',
-    //                     'profile_steps_completed',
-    //                     'profile_completed_at',
-    //                     'orc_id',
-    //                     'unclaimed',
-    //                     'feed_source',
-    //                     'permissions',
-    //                     'registry',
-    //                     'pending_invites',
-    //                     'organisation_id',
-    //                     'departments',
-    //                 ],
-    //             ]
-    //         ],
-    //     ]);
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'message',
+            'data' => [
+                'current_page',
+                'data' => [
+                    '*' => [
+                        'id',
+                        'created_at',
+                        'updated_at',
+                        'first_name',
+                        'last_name',
+                        'email',
+                        'registry_id',
+                        'user_group',
+                        'consent_scrape',
+                        'profile_steps_completed',
+                        'profile_completed_at',
+                        'orc_id',
+                        'unclaimed',
+                        'feed_source',
+                        'permissions',
+                        'registry',
+                        'pending_invites',
+                        'organisation_id',
+                        'departments',
+                    ],
+                ]
+            ],
+        ]);
 
-    //     $content = $response->decodeResponseJson();
-    //     $this->assertTrue(count($content['data']['data']) > 1);
-    //     $this->assertTrue($content['data']['data'][0]['email'] == 'organisation.owner@healthdataorganisation.com');
-    // }
+        $content = $response->decodeResponseJson();
+        $this->assertTrue(count($content['data']['data']) > 1);
+        $this->assertTrue($content['data']['data'][0]['email'] == 'organisation.owner@healthdataorganisation.com');
+    }
 
-    // public function test_the_application_can_show_users(): void
-    // {
-    //     $fakeUrl = env('RULES_ENGINE_SERVICE', 'https://rules-engine.test') .
-    //     env('RULES_ENGINE_PROJECT_ID', '298357293857') . '/evaluate/' .
-    //     env('RULES_ENGINE_EVAL_MODEL', 'something.json');
+    public function test_the_application_can_show_users(): void
+    {
+        $fakeUrl = env('RULES_ENGINE_SERVICE', 'https://rules-engine.test') .
+        env('RULES_ENGINE_PROJECT_ID', '298357293857') . '/evaluate/' .
+        env('RULES_ENGINE_EVAL_MODEL', 'something.json');
 
-    //     Http::fake([
-    //         $fakeUrl => Http::response($this->rulesStr, 200),
-    //     ]);
+        Http::fake([
+            $fakeUrl => Http::response($this->rulesStr, 200),
+        ]);
 
-    //     $user = User::where('user_group', RMC::KC_GROUP_USERS)->first();
-    //     $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-    //     ->json(
-    //         'GET',
-    //         self::TEST_URL . '/' . $user->id // One of the researchers
-    //     );
+        $user = User::where('user_group', RMC::KC_GROUP_USERS)->first();
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . '/' . $user->id // One of the researchers
+        );
 
-    //     $response->assertStatus(200);
-    //     $content = $response->decodeResponseJson();
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson();
 
-    //     $this->assertArrayHasKey('data', $response);
-    //     $this->assertArrayHasKey('rules', $response);
+        $this->assertArrayHasKey('data', $response);
+        $this->assertArrayHasKey('rules', $response);
 
-    //     if (env('RULES_ENGINE_ACTIVE', true)) {
-    //         $this->assertTrue($content['rules']['result']['rule_alert'] === 'ok');
-    //         $this->assertArrayHasKey('result', $content['rules']);
-    //         $this->assertArrayHasKey('trace', $content['rules']);
-    //     }
-    // }
+        if (env('RULES_ENGINE_ACTIVE', true)) {
+            $this->assertTrue($content['rules']['result']['rule_alert'] === 'ok');
+            $this->assertArrayHasKey('result', $content['rules']);
+            $this->assertArrayHasKey('trace', $content['rules']);
+        }
+    }
 
-    // public function test_the_application_can_create_users(): void
-    // {
-    //     $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-    //         ->json(
-    //             'POST',
-    //             self::TEST_URL,
-    //             [
-    //             'first_name' => fake()->firstname(),
-    //             'last_name' => fake()->lastname(),
-    //             'email' => fake()->email(),
-    //             'provider' => fake()->word(),
-    //             'provider_sub' => Str::random(10),
-    //             'public_opt_in' => fake()->randomElement([0, 1]),
-    //             'declaration_signed' => fake()->randomElement([0, 1]),
-    //         ]
-    //         );
+    public function test_the_application_can_create_users(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
+                'first_name' => fake()->firstname(),
+                'last_name' => fake()->lastname(),
+                'email' => fake()->email(),
+                'provider' => fake()->word(),
+                'provider_sub' => Str::random(10),
+                'public_opt_in' => fake()->randomElement([0, 1]),
+                'declaration_signed' => fake()->randomElement([0, 1]),
+            ]
+            );
 
-    //     $response->assertStatus(201);
-    //     $this->assertArrayHasKey('data', $response);
-    // }
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
+    }
 
-    // public function test_the_application_fails_when_unable_to_create_users(): void
-    // {
-    //     $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-    //         ->json(
-    //             'POST',
-    //             self::TEST_URL,
-    //             [
-    //                 'first_name' => fake()->firstname(),
-    //                 'last_name' => fake()->lastname(),
-    //                 'email' => '',
-    //                 'provider' => fake()->word(),
-    //                 'provider_sub' => Str::random(10),
-    //                 'public_opt_in' => fake()->randomElement([0, 1]),
-    //                 'declaration_signed' => fake()->randomElement([0, 1]),
-    //             ]
-    //         );
+    public function test_the_application_fails_when_unable_to_create_users(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
+                    'first_name' => fake()->firstname(),
+                    'last_name' => fake()->lastname(),
+                    'email' => '',
+                    'provider' => fake()->word(),
+                    'provider_sub' => Str::random(10),
+                    'public_opt_in' => fake()->randomElement([0, 1]),
+                    'declaration_signed' => fake()->randomElement([0, 1]),
+                ]
+            );
 
-    //     // Assert bad request, knowing that we've not sent an email address
-    //     $response->assertStatus(400);
+        // Assert bad request, knowing that we've not sent an email address
+        $response->assertStatus(400);
 
-    //     $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-    //     ->json(
-    //         'POST',
-    //         self::TEST_URL,
-    //         [
-    //             'first_name' => fake()->firstname(),
-    //             'last_name' => fake()->lastname(),
-    //             'email' => 'myemail.com',
-    //             'provider' => fake()->word(),
-    //             'provider_sub' => Str::random(10),
-    //             'public_opt_in' => fake()->randomElement([0, 1]),
-    //             'declaration_signed' => fake()->randomElement([0, 1]),
-    //         ]
-    //     );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'POST',
+            self::TEST_URL,
+            [
+                'first_name' => fake()->firstname(),
+                'last_name' => fake()->lastname(),
+                'email' => 'myemail.com',
+                'provider' => fake()->word(),
+                'provider_sub' => Str::random(10),
+                'public_opt_in' => fake()->randomElement([0, 1]),
+                'declaration_signed' => fake()->randomElement([0, 1]),
+            ]
+        );
 
-    //     // Assert bad request, knowing that we've not sent an invalid email address
-    //     $response->assertStatus(400);
-    // }
+        // Assert bad request, knowing that we've not sent an invalid email address
+        $response->assertStatus(400);
+    }
 
-    // public function test_the_application_can_update_users(): void
-    // {
-    //     $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-    //         ->json(
-    //             'POST',
-    //             self::TEST_URL,
-    //             [
-    //             'first_name' => fake()->firstname(),
-    //             'last_name' => fake()->lastname(),
-    //             'email' => fake()->email(),
-    //             'provider' => fake()->word(),
-    //             'provider_sub' => Str::random(10),
-    //             'consent_scrape' => true,
-    //             'public_opt_in' => false,
-    //             'declaration_signed' => false,
-    //             'organisation_id' => 1,
-    //             'orc_id' => fake()->numerify('####-####-####-####'),
-    //         ]
-    //         );
+    public function test_the_application_can_update_users(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
+                'first_name' => fake()->firstname(),
+                'last_name' => fake()->lastname(),
+                'email' => fake()->email(),
+                'provider' => fake()->word(),
+                'provider_sub' => Str::random(10),
+                'consent_scrape' => true,
+                'public_opt_in' => false,
+                'declaration_signed' => false,
+                'organisation_id' => 1,
+                'orc_id' => fake()->numerify('####-####-####-####'),
+            ]
+            );
 
-    //     $response->assertStatus(201);
-    //     $this->assertArrayHasKey('data', $response);
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
 
-    //     $content = $response->decodeResponseJson()['data'];
-    //     $this->assertGreaterThan(0, $content);
+        $content = $response->decodeResponseJson()['data'];
+        $this->assertGreaterThan(0, $content);
 
-    //     $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-    //         ->json(
-    //             'PUT',
-    //             self::TEST_URL . '/' . $content,
-    //             [
-    //             'first_name' => 'Updated',
-    //             'last_name' => 'Name',
-    //             'email' => fake()->email(),
-    //             'declaration_signed' => true,
-    //             'organisation_id' => 2,
-    //         ]
-    //         );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . '/' . $content,
+                [
+                'first_name' => 'Updated',
+                'last_name' => 'Name',
+                'email' => fake()->email(),
+                'declaration_signed' => true,
+                'organisation_id' => 2,
+            ]
+            );
 
-    //     $response->assertStatus(200);
-    //     $content = $response->decodeResponseJson()['data'];
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson()['data'];
 
-    //     $this->assertEquals($content['first_name'], 'Updated');
-    //     $this->assertEquals($content['last_name'], 'Name');
-    //     $this->assertEquals($content['consent_scrape'], true);
-    //     $this->assertEquals($content['declaration_signed'], true);
-    //     $this->assertEquals($content['organisation_id'], 2);
-    // }
+        $this->assertEquals($content['first_name'], 'Updated');
+        $this->assertEquals($content['last_name'], 'Name');
+        $this->assertEquals($content['consent_scrape'], true);
+        $this->assertEquals($content['declaration_signed'], true);
+        $this->assertEquals($content['organisation_id'], 2);
+    }
 
-    // public function test_the_application_can_delete_users(): void
-    // {
-    //     $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-    //         ->json(
-    //             'POST',
-    //             self::TEST_URL,
-    //             [
-    //             'first_name' => fake()->firstname(),
-    //             'last_name' => fake()->lastname(),
-    //             'email' => fake()->email(),
-    //             'provider' => fake()->word(),
-    //             'provider_sub' => Str::random(10),
-    //             'public_opt_in' => fake()->randomElement([0, 1]),
-    //             'declaration_signed' => fake()->randomElement([0, 1]),
-    //         ]
-    //         );
+    public function test_the_application_can_delete_users(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
+                'first_name' => fake()->firstname(),
+                'last_name' => fake()->lastname(),
+                'email' => fake()->email(),
+                'provider' => fake()->word(),
+                'provider_sub' => Str::random(10),
+                'public_opt_in' => fake()->randomElement([0, 1]),
+                'declaration_signed' => fake()->randomElement([0, 1]),
+            ]
+            );
 
-    //     $response->assertStatus(201);
-    //     $this->assertArrayHasKey('data', $response);
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
 
-    //     $content = $response->decodeResponseJson()['data'];
-    //     $this->assertGreaterThan(0, $content);
+        $content = $response->decodeResponseJson()['data'];
+        $this->assertGreaterThan(0, $content);
 
-    //     $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-    //         ->json(
-    //             'DELETE',
-    //             self::TEST_URL . '/' . $content
-    //         );
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'DELETE',
+                self::TEST_URL . '/' . $content
+            );
 
-    //     $response->assertStatus(200);
-    // }
+        $response->assertStatus(200);
+    }
 
     public function test_the_application_can_validate_a_user_by_email_address(): void
     {
@@ -446,7 +446,7 @@ class UserTest extends TestCase
 
         $content = $response->decodeResponseJson()['data'];
 
-        $this->assertEquals($content['identity_source'], 'employment');
+        $this->assertEquals($content['identity_source'], 'employments');
         $this->assertEquals($content['email'], $emp->email);
         $this->assertEquals($content['digital_identifier'], $registry->digi_ident);
     }

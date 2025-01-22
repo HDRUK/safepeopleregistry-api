@@ -156,7 +156,7 @@ class User extends Authenticatable
 
             UNION ALL
             
-            SELECT \'employment\' as source, registry_id
+            SELECT \'employments\' as source, registry_id
             FROM employments
             WHERE email = ?
             ',
