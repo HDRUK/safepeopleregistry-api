@@ -272,6 +272,41 @@ class EmailTemplatesSeeder extends Seeder
         ]);
 
         EmailTemplate::create([
+          'identifier' => 'delegate_invite',
+          'subject' => 'You\'ve been invited to join the Researcher Registry',
+          'body' => '
+            <mjml>
+              '. $this->mjmlHead . '
+              <mj-body background-color="#efeeea" width="600px" >
+                <mj-body background-color="#efeeea" width="600px" >
+                  ' . $this->titleBar . '
+                  <mj-wrapper border="none" direction="ltr" text-align="center" padding="20px 0px 20px 0px" >
+                    <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
+                      <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
+                        <mj-text align="left" padding="10px 25px 10px 25px" >
+                          [[users.first_name]] [[users.last_name]]<br><br>You\'ve been invited to sign-up as a delegate user within the Researcher Registry (SPEEDI-AS) system, by [[organisations.organisation_name]]. To begin your sign-up process, please 
+                          click the button below.
+                          <div><br></div>
+                          ' . $this->supportFooter . '
+                          <div><br></div>
+                          <div><br></div>
+                          </div>
+                        </mj-text>
+                      </mj-column>
+                    </mj-section>
+                    <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
+                      <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
+                        <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="http://localhost:3000/user/invited/[[users.id]]/[[organisations.id]]" padding="10px 25px 10px 25px" >Sign me up!</mj-button>
+                      </mj-column>
+                    </mj-section>
+                  </mj-wrapper>
+                </mj-body>
+              </mjml > 
+            ',
+            'buttons' => '',
+        ]);
+
+        EmailTemplate::create([
             'identifier' => 'delegate_sponsor',
             'subject' => 'You\'re asked to verify a researcher you employ!',
             'body' => '

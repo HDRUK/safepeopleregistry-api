@@ -42,6 +42,7 @@ class User extends Authenticatable
         'orcid_scanning_completed_at',
         'is_delegate',
         'is_org_admin',
+        'role',
     ];
 
     protected static array $searchableColumns = [
