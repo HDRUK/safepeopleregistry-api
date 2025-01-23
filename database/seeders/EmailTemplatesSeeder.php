@@ -284,7 +284,7 @@ class EmailTemplatesSeeder extends Seeder
                     <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
                       <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
                         <mj-text align="left" padding="10px 25px 10px 25px" >
-                          [[users.first_name]] [[users.last_name]]<br><br>You\'ve been invited to sign-up as a delegate user within the Researcher Registry (SPEEDI-AS) system, by [[organisations.organisation_name]]. To begin your sign-up process, please 
+                          [[users.first_name]] [[users.last_name]]<br><br>You\'ve been invited to sign-up as a delegate user within the [[env(APP_NAME)]] Registry system, by [[organisations.organisation_name]]. To begin your sign-up process, please 
                           click the button below.
                           <div><br></div>
                           ' . $this->supportFooter . '
@@ -296,7 +296,7 @@ class EmailTemplatesSeeder extends Seeder
                     </mj-section>
                     <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
                       <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
-                        <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="http://localhost:3000/user/invited/[[users.id]]/[[organisations.id]]" padding="10px 25px 10px 25px" >Sign me up!</mj-button>
+                        <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/user/invited/[[users.id]]/[[organisations.id]]" padding="10px 25px 10px 25px" >Sign me up!</mj-button>
                       </mj-column>
                     </mj-section>
                   </mj-wrapper>

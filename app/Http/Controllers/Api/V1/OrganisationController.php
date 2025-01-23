@@ -1107,17 +1107,17 @@ class OrganisationController extends Controller
                 'lastname' => $request['last_name'],
                 'email' => $request['email'],
                 'organisation_id' => (isset($request['user_group']) && $request['user_group'] === 'ORGANISATION') ? $id : 0,
-                'is_delegate' => isset($request['is_delegate'])? $request['is_delegate'] : 0,
-                'user_group' => isset($request['user_group'])? $request['user_group'] : 'USERS',
-                'role' => isset($request['role'])? $request['role'] : null,
+                'is_delegate' => isset($request['is_delegate']) ? $request['is_delegate'] : 0,
+                'user_group' => isset($request['user_group']) ? $request['user_group'] : 'USERS',
+                'role' => isset($request['role']) ? $request['role'] : null,
             ]);
 
-            if($request['department_id'] !== 0) {
+            if ($request['department_id'] !== 0 && $request['department_id'] !== null) {
                 UserHasDepartments::create([
                     'user_id' => $unclaimedUser->id,
                     'department_id' => $request['department_id'],
                 ]);
-             }   
+            };
 
             $input = [
                 'type' => 'USER',
