@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AccreditationController;
+use App\Http\Controllers\Api\V1\AffiliationController;
 use App\Http\Controllers\Api\V1\ApprovalController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\EndorsementController;
@@ -156,6 +157,12 @@ Route::middleware('api')->post('v1/accreditations/{registryId}', [AccreditationC
 Route::middleware('api')->put('v1/accreditations/{id}/{registryId}', [AccreditationController::class, 'updateByRegistryId']);
 Route::middleware('api')->patch('v1/accreditations/{id}/{registryId}', [AccreditationController::class, 'editByRegistryId']);
 Route::middleware('api')->delete('v1/accreditations/{id}/{registryId}', [AccreditationController::class, 'destroyByRegistryId']);
+
+Route::middleware('api')->get('v1/affiliations/{registryId}', [AffiliationController::class, 'indexByRegistryId']);
+Route::middleware('api')->post('v1/affiliations/{registryId}', [AffiliationController::class, 'storeByRegistryId']);
+Route::middleware('api')->put('v1/affiliations/{id}', [AffiliationController::class, 'update']);
+Route::middleware('api')->patch('v1/affiliations/{id}', [AffiliationController::class, 'edit']);
+Route::middleware('api')->delete('v1/affiliations/{id}', [AffiliationController::class, 'destroy']);
 
 Route::middleware('api')->get('v1/educations/{registryId}', [EducationController::class, 'indexByRegistryId']);
 Route::middleware('api')->get('v1/educations/{id}/{registryId}', [EducationController::class, 'showByRegistryId']);
