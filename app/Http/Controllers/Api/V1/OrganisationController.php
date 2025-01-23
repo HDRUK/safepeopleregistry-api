@@ -1112,7 +1112,7 @@ class OrganisationController extends Controller
                 'role' => isset($request['role'])? $request['role'] : null,
             ]);
 
-            if(isset($request['department_id'])) {
+            if($request['department_id'] !== 0) {
                 UserHasDepartments::create([
                     'user_id' => $unclaimedUser->id,
                     'department_id' => $request['department_id'],
