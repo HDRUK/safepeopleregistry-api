@@ -61,8 +61,9 @@ class AffiliationController extends Controller
             ->get()
             ->select('affiliation_id');
 
-        $affiliations = Affiliation::with(['organisation' => function($query) { $query->select('id', 'organisation_name'); }] )->whereIn('id', $rha)
-            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+            $affiliations = Affiliation::with(['organisation' => function($query) { $query->select('id', 'organisation_name'); }] )->whereHas('registryHasAffiliations', function ($query) use ($registryId) {
+                $query->where('registry_id', $registryId);
+            })->paginate((int) $this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',
@@ -299,15 +300,11 @@ class AffiliationController extends Controller
     public function edit(Request $request, int $id): JsonResponse
     {
         try {
-            $input = $request->all();
+
             $affiliation = Affiliation::where('id', $id)->first();
 
-            $affiliation->member_id = isset($input['member_id']) ? $input['member_id'] : $affiliation['member_id'];
-            $affiliation->organisation_id = isset($input['organisation_id']) ? $input['organisation_id'] : $affiliation['organisation_id'];
-            $affiliation->current_employer = isset($input['current_employer']) ? $input['current_employer'] : $affiliation['current_employer'];
-            $affiliation->relationship = isset($input['relationship']) ? $input['relationship'] : $affiliation['relationship'];
-
-            $affiliation->save();
+            $input = $request->only(app(Affiliation::class)->getFillable());
+            $affiliation->update($input);
 
             return response()->json([
                 'message' => 'success',

@@ -21,7 +21,7 @@ class Affiliation extends Model
     ];
 
     /**
-     * Get the permissions associated with the custodian user.
+     * Get the organisation related to the affiliation.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -29,4 +29,15 @@ class Affiliation extends Model
     {
         return $this->belongsTo(Organisation::class, 'organisation_id', 'id');
     }
+
+    /**
+     * Get the organisation related to the affiliation.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function registryHasAffiliations()
+    {
+        return $this->hasMany(RegistryHasAffiliation::class, 'affiliation_id');
+    }
+
 }
