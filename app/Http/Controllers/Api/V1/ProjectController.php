@@ -134,7 +134,7 @@ class ProjectController extends Controller
 
     /**
     * @OA\Get(
-    *      path="/api/v1/projects/{id/users",
+    *      path="/api/v1/projects/{id}/users",
     *      summary="Return project users by project ID",
     *      description="Return project users by project ID",
     *      tags={"Project"},
