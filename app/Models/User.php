@@ -146,7 +146,7 @@ class User extends Authenticatable
         );
     }
 
-    public static function searchByEmail(string $email): \stdClass
+    public static function searchByEmail(string $email): \stdClass|null
     {
         $results = DB::select(
             '
@@ -164,6 +164,10 @@ class User extends Authenticatable
         );
 
         $records = collect($results)->toArray();
-        return $records[0];
+        if (count($records)) {
+            return $records[0];
+        }
+
+        return null;
     }
 }
