@@ -418,7 +418,7 @@ class OrganisationController extends Controller
             }
 
             // Run automated IDVT
-            if (env('APP_ENV') !== 'testing') {
+            if (!in_array(env('APP_ENV'), ['testing', 'ci'])) {
                 OrganisationIDVT::dispatchSync($organisation);
             }
 
