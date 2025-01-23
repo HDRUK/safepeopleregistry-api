@@ -16,6 +16,7 @@ use App\Models\OrganisationHasDepartment;
 use App\Models\OrganisationHasSubsidiary;
 use App\Models\Subsidiary;
 use App\Models\User;
+use App\Models\UserHasDepartments;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -1071,6 +1072,10 @@ class OrganisationController extends Controller
      *              @OA\Property(property="last_name", type="string", example="Smith"),
      *              @OA\Property(property="first_name", type="string", example="John"),
      *              @OA\Property(property="email", type="string", example="someone@somewhere.com"),
+     *              @OA\Property(property="is_delegate", type="integer", example="1"),
+     *              @OA\Property(property="department_id", type="integer", example="1"),
+     *              @OA\Property(property="role", type="string", example="admin"),
+     *              @OA\Property(property="user_group", type="string", example="USERS"),
      *          ),
      *      ),
      *
@@ -1100,8 +1105,19 @@ class OrganisationController extends Controller
             $unclaimedUser = RMC::createUnclaimedUser([
                 'firstname' => $request['first_name'],
                 'lastname' => $request['last_name'],
-                'email' => $request['email']
+                'email' => $request['email'],
+                'organisation_id' => (isset($request['user_group']) && $request['user_group'] === 'ORGANISATION') ? $id : 0,
+                'is_delegate' => isset($request['is_delegate']) ? $request['is_delegate'] : 0,
+                'user_group' => isset($request['user_group']) ? $request['user_group'] : 'USERS',
+                'role' => isset($request['role']) ? $request['role'] : null,
             ]);
+
+            if ($request['department_id'] !== 0 && $request['department_id'] !== null) {
+                UserHasDepartments::create([
+                    'user_id' => $unclaimedUser->id,
+                    'department_id' => $request['department_id'],
+                ]);
+            };
 
             $input = [
                 'type' => 'USER',
