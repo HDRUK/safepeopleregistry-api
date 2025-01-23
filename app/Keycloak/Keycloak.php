@@ -146,7 +146,7 @@ class Keycloak
                         ]);
                     }
 
-                    if (env('APP_ENV') !== 'testing') {
+                    if (!in_array(env('APP_ENV'), ['testing', 'ci'])) {
                         Keycloak::updateSoursdDigitalIdentifier($user);
                     }
                 }
@@ -283,7 +283,6 @@ class Keycloak
             $responseData = $response->json();
 
             return $responseData['access_token'];
-
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }

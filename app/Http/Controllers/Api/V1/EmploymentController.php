@@ -69,7 +69,7 @@ class EmploymentController extends Controller
 
             // upon registering a new employment with a professional email, we
             // need to send an email verification to this professional email address
-            if (env('APP_ENV') !== 'testing') {
+            if (!in_array(env('APP_ENV'), ['testing', 'ci'])) {
                 $input = [
                     'type' => 'EMPLOYMENT',
                     'to' => User::where('registry_id', $registry->id)->select('id')->first()['id'],
