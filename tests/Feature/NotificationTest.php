@@ -12,7 +12,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 use Illuminate\Support\Facades\Notification;
-use App\Notifications\AdminUserChangedOrganisation;
+use App\Notifications\AdminUserChanged;
 
 class NotificationTest extends TestCase
 {
@@ -42,17 +42,17 @@ class NotificationTest extends TestCase
     public function test_admin_user_changed_organisation()
     {
         Notification::fake();
-        Notification::sendNow($this->user, new AdminUserChangedOrganisation("A user has changed their details"));
+        Notification::sendNow($this->user, new AdminUserChanged($this->user, ['test' => ['old' => 'Old','new' => 'New']]));
 
         Notification::assertSentTo(
             [$this->user],
-            AdminUserChangedOrganisation::class
+            AdminUserChanged::class
         );
     }
 
     public function test_user_can_retrieve_notifications()
     {
-        Notification::sendNow($this->user, new AdminUserChangedOrganisation("A user has changed their details"));
+        Notification::sendNow($this->user, new AdminUserChanged($this->user, ['test' => ['old' => 'Old','new' => 'New']]));
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
@@ -67,8 +67,8 @@ class NotificationTest extends TestCase
 
     public function test_user_can_read_notifications()
     {
-        Notification::sendNow($this->user, new AdminUserChangedOrganisation("Notificiation 1"));
-        Notification::sendNow($this->user, new AdminUserChangedOrganisation("Notificiation 1"));
+        Notification::sendNow($this->user, new AdminUserChanged($this->user, ['test' => ['old' => 'Old','new' => 'New']]));
+        Notification::sendNow($this->user, new AdminUserChanged($this->user, ['test' => ['old' => 'New','new' => 'New2']]));
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
@@ -77,12 +77,39 @@ class NotificationTest extends TestCase
             );
 
         $response->assertStatus(200)
-                 ->assertJson(['message' => 'success'])
-                 ->assertJsonStructure(['data' => [['id', 'type', 'notifiable_type', 'notifiable_id', 'data', 'read_at', 'created_at', 'updated_at']]])
-                 ->assertJsonCount(2, 'data');
+        ->assertJson(['message' => 'success'])
+        ->assertJsonStructure([
+            'data' => [
+                'current_page',
+                'data' => [
+                    '*' => [
+                        'id',
+                        'type',
+                        'notifiable_type',
+                        'notifiable_id',
+                        'data',
+                        'read_at',
+                        'created_at',
+                        'updated_at'
+                    ]
+                ],
+                'first_page_url',
+                'from',
+                'last_page',
+                'last_page_url',
+                'links',
+                'next_page_url',
+                'path',
+                'per_page',
+                'prev_page_url',
+                'to',
+                'total'
+            ]
+        ])
+        ->assertJsonCount(2, 'data.data');
 
-        $not1 = $response['data'][0]['id'];
-        $not2 = $response['data'][1]['id'];
+        $not1 = $response['data']['data'][0]['id'];
+        $not2 = $response['data']['data'][1]['id'];
 
         # mark it as read
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
@@ -101,7 +128,7 @@ class NotificationTest extends TestCase
         );
 
         $response->assertStatus(200)
-                 ->assertJsonCount(1, 'data')
+                 ->assertJsonCount(1, 'data.data')
                  ->assertJsonFragment(['id' => $not1]);
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
@@ -111,7 +138,7 @@ class NotificationTest extends TestCase
         );
 
         $response->assertStatus(200)
-                 ->assertJsonCount(1, 'data')
+                 ->assertJsonCount(1, 'data.data')
                  ->assertJsonFragment(['id' => $not2]);
 
         # mark it as unread again
@@ -128,7 +155,7 @@ class NotificationTest extends TestCase
         );
 
         $response->assertStatus(200)
-                 ->assertJsonCount(2, 'data');
+                 ->assertJsonCount(2, 'data.data');
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
@@ -137,7 +164,7 @@ class NotificationTest extends TestCase
         );
 
         $response->assertStatus(200)
-                 ->assertJsonCount(0, 'data');
+                 ->assertJsonCount(0, 'data.data');
 
     }
 

@@ -86,7 +86,7 @@ class NotificationController extends Controller
             $notificationsQuery->whereNull('read_at');
         }
 
-        $perPage = $request->query('perPage', (int)$this->getSystemConfig('PER_PAGE'));
+        $perPage = $request->integer('per_page', (int)$this->getSystemConfig('PER_PAGE'));
 
         $notifications = $notificationsQuery
                             ->orderBy('created_at', 'desc')
