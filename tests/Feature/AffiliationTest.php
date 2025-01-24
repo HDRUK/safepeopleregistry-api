@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
-use Carbon\Carbon;
 use App\Models\User;
 use Database\Seeders\AffiliationSeeder;
 use Database\Seeders\UserSeeder;
