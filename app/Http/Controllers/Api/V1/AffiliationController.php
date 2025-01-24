@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Exception;
-use Carbon\Carbon;
 use App\Models\Affiliation;
 use App\Models\RegistryHasAffiliation;
 use App\Http\Controllers\Controller;
@@ -61,9 +60,9 @@ class AffiliationController extends Controller
             ->get()
             ->select('affiliation_id');
 
-            $affiliations = Affiliation::with(['organisation' => function($query) { $query->select('id', 'organisation_name'); }] )->whereHas('registryHasAffiliations', function ($query) use ($registryId) {
-                $query->where('registry_id', $registryId);
-            })->paginate((int) $this->getSystemConfig('PER_PAGE'));
+        $affiliations = Affiliation::with(['organisation' => function ($query) { $query->select('id', 'organisation_name'); }])->whereHas('registryHasAffiliations', function ($query) use ($registryId) {
+            $query->where('registry_id', $registryId);
+        })->paginate((int) $this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',
@@ -363,7 +362,8 @@ class AffiliationController extends Controller
             Affiliation::where('id', $id)->first()->delete();
 
             RegistryHasAffiliation::where(
-                'affiliation_id', $id
+                'affiliation_id',
+                $id
             )->delete();
 
             return response()->json([

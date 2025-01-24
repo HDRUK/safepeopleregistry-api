@@ -98,7 +98,7 @@ class OrganisationController extends Controller
                     'registries.user',
                     'registries.user.permissions',
                     'registries.user.approvals',
-                ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
+                ])->where('unclaimed', 0)->paginate((int)$this->getSystemConfig('PER_PAGE'));
         }
 
         return response()->json([
@@ -437,7 +437,7 @@ class OrganisationController extends Controller
         try {
             $input = $request->all();
             $organisation = Organisation::create([
-                'organisation_name' => '',
+                'organisation_name' => $input['organisation_name'],
                 'address_1' => '',
                 'address_2' => '',
                 'town' => '',

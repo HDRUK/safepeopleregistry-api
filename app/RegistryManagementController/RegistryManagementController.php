@@ -45,7 +45,7 @@ class RegistryManagementController
     {
         $unclaimedUser = User::where('email', $input['email'])->whereNull('keycloak_id')->first();
 
-        if($unclaimedUser) {
+        if ($unclaimedUser) {
             $unclaimedUser->first_name = $input['given_name'];
             $unclaimedUser->last_name = $input['family_name'];
             $unclaimedUser->email = $input['email'];

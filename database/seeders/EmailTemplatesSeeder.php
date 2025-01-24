@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 
 class EmailTemplatesSeeder extends Seeder
 {
-  private $mjmlHead = '
+    private $mjmlHead = '
     <mj-head>
       <mj-html-attributes>
         <mj-html-attribute class="easy-email" multiple-attributes="false" attribute-name="text-color" text-color="#000000"></mj-html-attribute>
@@ -31,7 +31,7 @@ class EmailTemplatesSeeder extends Seeder
     </mj-head>
   ';
 
-  private $titleBar = '
+    private $titleBar = '
     <mj-wrapper padding="20px 0px 20px 0px" border="none" direction="ltr" text-align="center" >
       <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
         <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
@@ -46,7 +46,7 @@ class EmailTemplatesSeeder extends Seeder
     </mj-section>
   ';
 
-  private $supportFooter = '
+    private $supportFooter = '
     <div>
         Please note, if you encounter any issue whilst registering you can request help by emailing [[env(SUPPORT_EMAIL)]].<br/><br/>Thanks!<br/>SPEEDI-AS Team.<br/>                         
     </div>
@@ -150,7 +150,7 @@ class EmailTemplatesSeeder extends Seeder
                     </mj-section>
                     <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
                       <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
-                        <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="http://localhost:3000/custodian/invited/[[custodians.unique_identifier]]" padding="10px 25px 10px 25px" >
+                        <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="http://localhost:3000/data-custodian/invite" padding="10px 25px 10px 25px" >
                           Sign me up!
                         </mj-button>
                       </mj-column>
@@ -173,7 +173,7 @@ class EmailTemplatesSeeder extends Seeder
                   <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
                     <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
                       <mj-text align="left" padding="10px 25px 10px 25px" >
-                        [[organisation.name]]<br><br>You\'ve been invited to sign-up as a trusted Organisation, for the Researcher Registry (SPEEDI-AS) system. To begin your sign-up process, please 
+                        [[organisation.organisation_name]]<br><br>You\'ve been invited to sign-up as a trusted Organisation, for the Researcher Registry (SPEEDI-AS) system. To begin your sign-up process, please 
                         click the button below.
                         <div><br></div>
                         ' . $this->supportFooter . '
@@ -182,7 +182,7 @@ class EmailTemplatesSeeder extends Seeder
                   </mj-section>
                   <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
                     <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
-                      <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="http://localhost:3000/organisations/invite" padding="10px 25px 10px 25px" >
+                      <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="http://localhost:3000/organisation/invite" padding="10px 25px 10px 25px" >
                         Sign me up!
                       </mj-button>
                     </mj-column>
@@ -213,7 +213,7 @@ class EmailTemplatesSeeder extends Seeder
                     </mj-section>
                     <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
                       <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
-                        <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="http://localhost:3000/custodian/invited/[[user.id]]/[[custodian.id]]" padding="10px 25px 10px 25px" >
+                        <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="http://localhost:3000/data-custodian/invite" padding="10px 25px 10px 25px" >
                           Sign me up!
                         </mj-button>
                       </mj-column>

@@ -385,8 +385,8 @@ class CustodianController extends Controller
 
             $custodian = Custodian::where('id', $id)->first();
 
-            $custodian->invite_accepted_at = isset($input['invite_accepted_at'])  ? $input['invite_accepted_at'] : $custodian->invite_accepted_at;
-            $custodian->name = isset($input['name'])  ? $input['name'] : $custodian->name;
+            $custodian->invite_accepted_at = isset($input['invite_accepted_at']) ? $input['invite_accepted_at'] : $custodian->invite_accepted_at;
+            $custodian->name = isset($input['name']) ? $input['name'] : $custodian->name;
             $custodian->contact_email = isset($input['contact_email']) ? $input['contact_email'] : $custodian->contact_email;
             $custodian->enabled = isset($input['enabled']) ? $input['enabled'] : $custodian->enabled;
             $custodian->idvt_required = isset($input['idvt_required']) ? $input['idvt_required'] : $custodian->idvt_required;
@@ -489,8 +489,8 @@ class CustodianController extends Controller
 
             $custodian = Custodian::where('id', $id)->first();
 
-            $custodian->invite_accepted_at = isset($input['invite_accepted_at'])  ? $input['invite_accepted_at'] : $custodian->invite_accepted_at;
-            $custodian->name = isset($input['name'])  ? $input['name'] : $custodian->name;
+            $custodian->invite_accepted_at = isset($input['invite_accepted_at']) ? $input['invite_accepted_at'] : $custodian->invite_accepted_at;
+            $custodian->name = isset($input['name']) ? $input['name'] : $custodian->name;
             $custodian->contact_email = isset($input['contact_email']) ? $input['contact_email'] : $custodian->contact_email;
             $custodian->enabled = isset($input['enabled']) ? $input['enabled'] : $custodian->enabled;
             $custodian->idvt_required = isset($input['idvt_required']) ? $input['idvt_required'] : $custodian->idvt_required;
