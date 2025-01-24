@@ -60,7 +60,8 @@ Route::middleware('api')->post('v1/users/permissions', [PermissionController::cl
 Route::middleware('api')->post('v1/users/change-password/{userId}', [AuthController::class, 'changePassword']);
 
 Route::middleware('api')->get('v1/users/{id}/notifications', [NotificationController::class, 'getUserNotifications']);
-Route::middleware('api')->patch('v1/users/{id}/notifications/read', [NotificationController::class, 'markUserNotficationsAsRead']);
+Route::middleware('api')->get('v1/users/{id}/notifications/count', [NotificationController::class, 'getNotificationCounts']);
+Route::middleware('api')->patch('v1/users/{id}/notifications/read', [NotificationController::class, 'markUserNotificationsAsRead']);
 Route::middleware('api')->patch('v1/users/{userId}/notifications/{notificationId}/read', [NotificationController::class, 'markUserNotificationAsRead']);
 Route::middleware('api')->patch('v1/users/{userId}/notifications/{notificationId}/unread', [NotificationController::class, 'markUserNotificationAsUnread']);
 

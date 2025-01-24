@@ -91,7 +91,6 @@ class NotificationTest extends TestCase
             self::TEST_URL . '/' . $not1 . '/read'
         );
 
-
         $response->assertStatus(200)
         ->assertJson(['message' => 'Notification marked as read']);
 
@@ -114,8 +113,6 @@ class NotificationTest extends TestCase
         $response->assertStatus(200)
                  ->assertJsonCount(1, 'data')
                  ->assertJsonFragment(['id' => $not2]);
-
-
 
         # mark it as unread again
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
@@ -141,8 +138,6 @@ class NotificationTest extends TestCase
 
         $response->assertStatus(200)
                  ->assertJsonCount(0, 'data');
-
-
 
     }
 

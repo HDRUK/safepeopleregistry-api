@@ -9,6 +9,7 @@ use RulesEngineManagementController as REMC;
 use App\Models\User;
 use App\Models\UserHasCustodianApproval;
 use App\Models\UserHasCustodianPermission;
+use App\Models\Organisation;
 use App\Http\Requests\Users\CreateUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ use App\Http\Controllers\Controller;
 use App\Traits\CommonFunctions;
 use App\Traits\CheckPermissions;
 use Illuminate\Support\Facades\Notification;
-use App\Notifications\AdminUserChangedOrganisation;
+use App\Notifications\AdminUserChanged;
 
 class UserController extends Controller
 {
@@ -491,8 +492,7 @@ class UserController extends Controller
         try {
             $input = $request->all();
             $user = User::find($id);
-
-            $original_org_id = $user->organisation_id;
+            $originalUser = clone $user;
 
             if (!$user) {
                 return response()->json([
@@ -506,11 +506,37 @@ class UserController extends Controller
                 $input['password'] = Hash::make($input['password']);
             }
 
-            $updated = $user->update($input);
-            if ($updated) {
+            $changes = [];
+            foreach ($input as $key => $value) {
+                if ($originalUser->$key != $value) {
+                    if ($key === 'organisation_id') {
+                        $oldOrganisationName = $originalUser->organisation?->organisation_name ?? 'N/A';
+                        $newOrganisation = Organisation::find($value);
+                        $newOrganisationName = $newOrganisation ? $newOrganisation->organisation_name : 'N/A';
 
-                $usersToNotify = User::all();//where("organisation_id", $original_org_id)->get();
-                Notification::send($usersToNotify, new AdminUserChangedOrganisation("A user has changed their details"));
+                        $changes['organisation'] = [
+                            'old' => $oldOrganisationName,
+                            'new' => $newOrganisationName,
+                        ];
+                    } else {
+                        $changes[$key] = [
+                            'old' => $originalUser->$key,
+                            'new' => $value,
+                        ];
+                    }
+                }
+            }
+
+            $updated = $user->update($input);
+
+            if ($updated) {
+                if (!empty($changes)) {
+                    $usersToNotify = User::all();//where("organisation_id", $user->organisation_id)->get();
+                    Notification::send(
+                        $usersToNotify,
+                        new AdminUserChanged($originalUser, $changes)
+                    );
+                }
 
                 return response()->json([
                     'message' => 'success',

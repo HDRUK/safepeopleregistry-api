@@ -10,6 +10,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Traits\SearchManager;
 
+/**
+ * App\Models\User
+ *
+ * @property mixed $unreadNotifications
+ */
 class User extends Authenticatable
 {
     use HasFactory;

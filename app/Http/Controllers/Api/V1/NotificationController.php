@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Api\V1;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Traits\CommonFunctions;
 use App\Models\User;
 
 class NotificationController extends Controller
 {
+    use CommonFunctions;
     /**
      * @OA\Get(
      *      path="/api/v1/users/{id}/notifications",
@@ -84,11 +86,36 @@ class NotificationController extends Controller
             $notificationsQuery->whereNull('read_at');
         }
 
-        $notifications = $notificationsQuery->orderBy('created_at', 'desc')->get();
+        $perPage = $request->query('perPage', (int)$this->getSystemConfig('PER_PAGE'));
+
+        $notifications = $notificationsQuery
+                            ->orderBy('created_at', 'desc')
+                            ->paginate($perPage);
 
         return response()->json([
             'message' => 'success',
             'data' => $notifications
+        ]);
+    }
+
+    public function getNotificationCounts($userId)
+    {
+        $user = User::find($userId);
+
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+
+        $readCount = $user->notifications()->whereNotNull('read_at')->count();
+        $unreadCount = $user->notifications()->whereNull('read_at')->count();
+
+        return response()->json([
+            'message' => 'success',
+            'data' => [
+                'total' => $readCount + $unreadCount,
+                'read' => $readCount,
+                'unread' => $unreadCount
+            ]
         ]);
     }
 
@@ -117,7 +144,7 @@ class NotificationController extends Controller
      *      ))
      * )
      */
-    public function markUserNotficationsAsRead($userId)
+    public function markUserNotificationsAsRead($userId)
     {
         $user = User::find($userId);
 
