@@ -469,59 +469,7 @@ class TrainingController extends Controller
         }
     }
 
-    /**
-     * @OA\Delete(
-     *      path="/api/v1/training/{id}",
-     *      summary="Delete a training entry from the system by ID",
-     *      description="Delete a training entry from the system",
-     *      tags={"Training"},
-     *      summary="Training@destroy",
-     *      security={{"bearerAuth":{}}},
-     *
-     *      @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="Training entry ID",
-     *         required=true,
-     *         example="1",
-     *
-     *         @OA\Schema(
-     *            type="integer",
-     *            description="Training entry ID",
-     *         ),
-     *      ),
-     *
-     *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *
-     *          @OA\JsonContent(
-     *
-     *              @OA\Property(property="message", type="string", example="not found")
-     *           ),
-     *      ),
-     *
-     *      @OA\Response(
-     *          response=200,
-     *          description="Success",
-     *
-     *          @OA\JsonContent(
-     *
-     *              @OA\Property(property="message", type="string", example="success")
-     *          ),
-     *      ),
-     *
-     *      @OA\Response(
-     *          response=500,
-     *          description="Error",
-     *
-     *          @OA\JsonContent(
-     *
-     *              @OA\Property(property="message", type="string", example="error")
-     *          )
-     *      )
-     * )
-     */
+    //Hide from swagger
     public function destroy(Request $request, int $id): JsonResponse
     {
         try {

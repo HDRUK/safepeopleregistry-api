@@ -4,9 +4,11 @@ namespace App\Providers;
 
 use App\Models\File;
 use App\Models\ONSFile;
+use App\Models\Registry;
 use App\Models\ProjectHasUser;
 use App\Observers\FileObserver;
 use App\Observers\ONSFileObserver;
+use App\Observers\RegistryObserver;
 use App\Observers\ProjectHasUserObserver;
 use Illuminate\Support\ServiceProvider;
 
@@ -27,6 +29,7 @@ class AppServiceProvider extends ServiceProvider
     {
         File::observe(FileObserver::class);
         ONSFile::observe(ONSFileObserver::class);
+        Registry::observe(RegistryObserver::class);
         ProjectHasUser::observe(ProjectHasUserObserver::class);
     }
 }

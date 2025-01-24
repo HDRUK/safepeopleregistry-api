@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Str;
+use Keycloak;
 use RegistryManagementController as RMC;
 use Carbon\Carbon;
 use App\Models\User;
@@ -10,6 +11,7 @@ use App\Models\Identity;
 use App\Models\Project;
 use App\Models\Registry;
 use App\Models\Education;
+use App\Models\Employment;
 use App\Models\Training;
 use App\Models\Organisation;
 use App\Models\Custodian;
@@ -31,6 +33,7 @@ class BaseDemoSeeder extends Seeder
         $this->call([
             SectorSeeder::class,
             PermissionSeeder::class,
+            RulesSeeder::class,
             CustodianSeeder::class,
             SystemConfigSeeder::class,
             ProjectRoleSeeder::class,
@@ -349,7 +352,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'email' => 'delegate.sponsor@tandyenergyltd.com',
                 'is_delegate' => 1,
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
-                'organisation_id' => $org1->id, // Needed because this is an org admin
+                'organisation_id' => $org2->id, // Needed because this is an org admin
                 'keycloak_id' => '6a09ff56-b655-4e28-805e-50de8789bd66', // Dragons ahead - needs to map 1:1 with KC users
             ],
         ];
@@ -427,6 +430,28 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                     'idvt_result_perc' => 100.0,
                     'idvt_errors' => null,
                     'idvt_completed_at' => Carbon::now(),
+                ],
+                'employments' => [
+                    [
+                        'employer_name' => 'Health Pathways UK Ltd',
+                        'from' => Carbon::now()->subYears(6)->toDateString(),
+                        'to' => '',
+                        'is_current' => 1,
+                        'department' => 'Research',
+                        'role' => 'Principal Investigator (PI)',
+                        'employer_address' => '235 Fake Road, Fake Town, Fake County, USA, 87659',
+                        'ror' => '1234567',
+                    ],
+                    [
+                        'employer_name' => 'Generic Research Institute',
+                        'from' => Carbon::now()->subYears(10)->toDateString(),
+                        'to' => Carbon::now()->subYears(6)->toDateString(),
+                        'is_current' => 0,
+                        'department' => 'Research',
+                        'role' => 'Data Analyst',
+                        'employer_address' => '456 Fake Road, Fake Town, Fake County, USA, 87659',
+                        'ror' => '9876543',
+                    ],
                 ],
             ],
             [
@@ -705,6 +730,11 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         $this->createIdentities($org3Researchers);
 
         // --------------------------------------------------------------------------------
+        // Create Employments for the above users
+        // --------------------------------------------------------------------------------
+        $this->createEmployments($org1Researchers);
+
+        // --------------------------------------------------------------------------------
         // Above users having affiliations between orgs
         // --------------------------------------------------------------------------------
         $this->createRegistryAffiliations($org1Researchers);
@@ -743,6 +773,32 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'idvt_errors' =>            $u['identity']['idvt_errors'],
                 'idvt_completed_at' =>      $u['identity']['idvt_completed_at'],
             ]);
+        }
+    }
+
+    private function createEmployments(array $input): void
+    {
+        foreach ($input as $u) {
+            $user = User::where('email', $u['email'])->first();
+
+            if (!isset($u['employments'])) {
+                continue;
+            }
+
+            foreach ($u['employments'] as $e) {
+                Employment::create([
+                    'employer_name' => $e['employer_name'],
+                    'from' => $e['from'],
+                    'to' => $e['to'],
+                    'is_current' => $e['is_current'],
+                    'department' => $e['department'],
+                    'role' => $e['role'],
+                    'employer_address' => $e['employer_address'],
+                    'ror' => $e['ror'],
+                    'registry_id' => $user->registry_id,
+                    'email' => strtolower($user->first_name . '.' . $user->last_name . '@' . str_replace(' ', '', $e['employer_name']) . '.com'),
+                ]);
+            }
         }
     }
 
@@ -806,6 +862,10 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             $user->update([
                 'registry_id' => $reg->id,
             ]);
+
+            if (!in_array(env('APP_ENV'), ['testing', 'ci'])) {
+                Keycloak::updateSoursdDigitalIdentifier($user);
+            }
 
             if ($user->user_group !== RMC::KC_GROUP_USERS) {
                 continue;

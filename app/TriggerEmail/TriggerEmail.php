@@ -30,6 +30,20 @@ class TriggerEmail
         $identifier = $input['identifier'];
 
         switch (strtoupper($type)) {
+            case 'EMPLOYMENT':
+                if ($input['pro_email'] === '') {
+                    // Log and return
+                    return;
+                }
+
+                $user = User::where('id', $to)->first();
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+
+                $newRecipients = [
+                    'id' => $user->id,
+                    'email' => $input['pro_email'],
+                ];
+                break;
             case 'USER':
                 $user = User::where('id', $to)->first();
                 $organisation = Organisation::where('id', $by)->first();

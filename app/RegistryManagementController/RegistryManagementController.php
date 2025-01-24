@@ -169,9 +169,11 @@ class RegistryManagementController
             'registry_id' => $registry->id,
             'orc_id' => '',
             'user_group' => isset($user['user_group']) ? $user['user_group'] : '',
-            'organisation_id' => isset($user['organisation_id']) ? $user['organisation_id'] : '',
+            'organisation_id' => isset($user['organisation_id']) ? $user['organisation_id'] : null,
             'custodian_id' => isset($user['custodian_id']) ? $user['custodian_id'] : null,
-            'custodian_user_id' => isset($user['custodian_user_id']) ? $user['custodian_user_id'] : null
+            'custodian_user_id' => isset($user['custodian_user_id']) ? $user['custodian_user_id'] : null,
+            'is_delegate' => isset($user['is_delegate']) ? $user['is_delegate'] : 0,
+            'role' => isset($user['role']) ? $user['role'] : null,
         ]);
     }
 }

@@ -6,6 +6,8 @@ use Http;
 use RegistryManagementController as RMC;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\User;
+use App\Models\Registry;
+use App\Models\Employment;
 use Database\Seeders\EmailTemplatesSeeder;
 use Database\Seeders\CustodianSeeder;
 use Database\Seeders\PermissionSeeder;
@@ -399,5 +401,53 @@ class UserTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_the_application_can_validate_a_user_by_email_address(): void
+    {
+        // First get a user account for an email
+        $user = User::where('registry_id', 1)->first(); // Should be Dan Ackroyd
+        $registry = Registry::where('id', $user->registry_id)->first();
 
+        $response = $this->actingAskeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL . '/validate',
+                [
+                    'email' => $user->email,
+                ],
+            );
+
+        $response->assertStatus(200);
+        $this->assertArrayHasKey('data', $response);
+
+        $content = $response->decodeResponseJson()['data'];
+        $this->assertGreaterThan(0, $content);
+
+        $this->assertEquals($content['identity_source'], 'users');
+        $this->assertEquals($content['email'], $user->email);
+        $this->assertEquals($content['digital_identifier'], $registry->digi_ident);
+
+        // Now get an email via employments which will relate to the same user
+        $emp = Employment::where([
+            'registry_id' => 1,
+            'ror' => '1234567',
+        ])->first();
+
+        $response = $this->actingAskeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'POST',
+            self::TEST_URL . '/validate',
+            [
+                'email' => $emp->email,
+            ],
+        );
+
+        $response->assertStatus(200);
+        $this->assertArrayHasKey('data', $response);
+
+        $content = $response->decodeResponseJson()['data'];
+
+        $this->assertEquals($content['identity_source'], 'employments');
+        $this->assertEquals($content['email'], $emp->email);
+        $this->assertEquals($content['digital_identifier'], $registry->digi_ident);
+    }
 }

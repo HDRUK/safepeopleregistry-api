@@ -35,7 +35,7 @@ class EmailTemplatesSeeder extends Seeder
     <mj-wrapper padding="20px 0px 20px 0px" border="none" direction="ltr" text-align="center" >
       <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
         <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
-          <mj-image align="center" height="120px" src="https://fakeimg.pl/800x120?text=Speedi-As-Registry" width="800px" padding="0px 0px 0px 0px" ></mj-image>
+          <mj-image align="center" height="120px" src="https://fakeimg.pl/800x120?text=[[env(APP_NAME)]]-Registry" width="800px" padding="0px 0px 0px 0px" ></mj-image>
         </mj-column>
       </mj-section>
     </mj-wrapper>
@@ -48,7 +48,7 @@ class EmailTemplatesSeeder extends Seeder
 
     private $supportFooter = '
     <div>
-        Please note, if you encounter any issue whilst registering you can request help by emailing [[env(SUPPORT_EMAIL)]].<br/><br/>Thanks!<br/>SPEEDI-AS Team.<br/>                         
+        Please note, if you encounter any issue whilst registering you can request help by emailing [[env(SUPPORT_EMAIL)]].<br/><br/>Thanks!<br/>[[env(APP_NAME)]] Team.<br/>                         
     </div>
   ';
 
@@ -141,7 +141,7 @@ class EmailTemplatesSeeder extends Seeder
                     <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
                       <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
                         <mj-text align="left" padding="10px 25px 10px 25px" >
-                          [[custodian.name]]<br><br>You\'ve been invited to sign-up as a trusted Data Custodian, for the Researcher Registry (SPEEDI-AS) system. To begin your sign-up process, please 
+                          [[custodian.name]]<br><br>You\'ve been invited to sign-up as a trusted Data Custodian, for the [[env(APP_NAME)]] Registry system. To begin your sign-up process, please 
                           click the button below.
                           <div><br></div>
                           ' . $this->supportFooter . '
@@ -150,7 +150,7 @@ class EmailTemplatesSeeder extends Seeder
                     </mj-section>
                     <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
                       <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
-                        <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="http://localhost:3000/custodian/invited/[[custodians.unique_identifier]]" padding="10px 25px 10px 25px" >
+                        <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/custodian/invited/[[custodians.unique_identifier]]" padding="10px 25px 10px 25px" >
                           Sign me up!
                         </mj-button>
                       </mj-column>
@@ -173,7 +173,7 @@ class EmailTemplatesSeeder extends Seeder
                   <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
                     <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
                       <mj-text align="left" padding="10px 25px 10px 25px" >
-                        [[organisation.name]]<br><br>You\'ve been invited to sign-up as a trusted Organisation, for the Researcher Registry (SPEEDI-AS) system. To begin your sign-up process, please 
+                        [[organisation.name]]<br><br>You\'ve been invited to sign-up as a trusted Organisation, for the [[env(APP_NAME)]] Registry system. To begin your sign-up process, please 
                         click the button below.
                         <div><br></div>
                         ' . $this->supportFooter . '
@@ -182,7 +182,7 @@ class EmailTemplatesSeeder extends Seeder
                   </mj-section>
                   <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
                     <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
-                      <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="http://localhost:3000/organisations/invite" padding="10px 25px 10px 25px" >
+                      <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/organisations/invite" padding="10px 25px 10px 25px" >
                         Sign me up!
                       </mj-button>
                     </mj-column>
@@ -213,7 +213,7 @@ class EmailTemplatesSeeder extends Seeder
                     </mj-section>
                     <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
                       <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
-                        <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="http://localhost:3000/custodian/invited/[[user.id]]/[[custodian.id]]" padding="10px 25px 10px 25px" >
+                        <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/custodian/invited/[[user.id]]/[[custodian.id]]" padding="10px 25px 10px 25px" >
                           Sign me up!
                         </mj-button>
                       </mj-column>
@@ -231,7 +231,7 @@ class EmailTemplatesSeeder extends Seeder
             'body' => '
           <mjml>
           '. $this->mjmlHead . '
-          <mj-body background-color="#efeeea" width="600px" ><mj-wrapper padding="20px 0px 20px 0px" border="none" direction="ltr" text-align="center" ><mj-section padding="0px" text-align="left" ><mj-column ><mj-image align="center" height="auto" padding="0px 0px 0px 0px" src="https://fakeimg.pl/800x200?text=SPEEDI-AS+Registry+OTP" ></mj-image></mj-column></mj-section></mj-wrapper><mj-section padding="0px" text-align="left" ><mj-column ><mj-spacer height="20px" padding="   " ></mj-spacer></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-text padding="10px 25px 10px 25px" align="left" font-size="16px" font-weight="bold" >Confirm your email address</mj-text></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-spacer height="20px" padding="   " ></mj-spacer></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-text padding="10px 25px 10px 25px" align="left" >To verify your email address, please enter the code below into your web browser.</mj-text></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-spacer height="20px" padding="   " ></mj-spacer></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-text padding="10px 25px 10px 25px" align="center" font-size="24px" font-style="normal" container-background-color="#000000" color="#FFFFFF" >[[users.otp]]</mj-text></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-text padding="10px 25px 10px 25px" align="left" >The above code is only valid for [[env(OTP_VALIDITY_MINUTES)]] minute(s). <br><br>If you didn\'t request this email, worry not, you can safely ignore it.</mj-text></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-spacer height="20px" padding="   " ></mj-spacer></mj-column></mj-section><mj-section padding="0px   " text-align="left" ><mj-column ><mj-text padding="10px 25px 10px 25px" align="left" >SPEEDI-AS Registry Support Team<div>[[env(SUPPORT_EMAIL)]]</div></mj-text></mj-column></mj-section></mj-body></mjml > 
+          <mj-body background-color="#efeeea" width="600px" ><mj-wrapper padding="20px 0px 20px 0px" border="none" direction="ltr" text-align="center" ><mj-section padding="0px" text-align="left" ><mj-column ><mj-image align="center" height="auto" padding="0px 0px 0px 0px" src="https://fakeimg.pl/800x200?text=[[env(APP_NAME)]]+OTP" ></mj-image></mj-column></mj-section></mj-wrapper><mj-section padding="0px" text-align="left" ><mj-column ><mj-spacer height="20px" padding="   " ></mj-spacer></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-text padding="10px 25px 10px 25px" align="left" font-size="16px" font-weight="bold" >Confirm your email address</mj-text></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-spacer height="20px" padding="   " ></mj-spacer></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-text padding="10px 25px 10px 25px" align="left" >To verify your email address, please enter the code below into your web browser.</mj-text></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-spacer height="20px" padding="   " ></mj-spacer></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-text padding="10px 25px 10px 25px" align="center" font-size="24px" font-style="normal" container-background-color="#000000" color="#FFFFFF" >[[users.otp]]</mj-text></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-text padding="10px 25px 10px 25px" align="left" >The above code is only valid for [[env(OTP_VALIDITY_MINUTES)]] minute(s). <br><br>If you didn\'t request this email, worry not, you can safely ignore it.</mj-text></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-spacer height="20px" padding="   " ></mj-spacer></mj-column></mj-section><mj-section padding="0px   " text-align="left" ><mj-column ><mj-text padding="10px 25px 10px 25px" align="left" >[[env(APP_NAME)]] Support Team<div>[[env(SUPPORT_EMAIL)]]</div></mj-text></mj-column></mj-section></mj-body></mjml > 
           ',
             'buttons' => '',
         ]);
@@ -249,7 +249,7 @@ class EmailTemplatesSeeder extends Seeder
                     <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
                       <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
                         <mj-text align="left" padding="10px 25px 10px 25px" >
-                          [[users.first_name]] [[users.last_name]]<br><br>You\'ve been invited to sign-up as a Researcher within the Researcher Registry (SPEEDI-AS) system, by [[organisations.organisation_name]]. To begin your sign-up process, please 
+                          [[users.first_name]] [[users.last_name]]<br><br>You\'ve been invited to sign-up as a Researcher within the [[env(APP_NAME)]] Registry system, by [[organisations.organisation_name]]. To begin your sign-up process, please 
                           click the button below.
                           <div><br></div>
                           ' . $this->supportFooter . '
@@ -261,7 +261,42 @@ class EmailTemplatesSeeder extends Seeder
                     </mj-section>
                     <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
                       <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
-                        <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="http://localhost:3000/user/invited/[[users.id]]/[[organisations.id]]" padding="10px 25px 10px 25px" >Sign me up!</mj-button>
+                        <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/user/invited/[[users.id]]/[[organisations.id]]" padding="10px 25px 10px 25px" >Sign me up!</mj-button>
+                      </mj-column>
+                    </mj-section>
+                  </mj-wrapper>
+                </mj-body>
+              </mjml > 
+            ',
+            'buttons' => '',
+        ]);
+
+        EmailTemplate::create([
+          'identifier' => 'delegate_invite',
+          'subject' => 'You\'ve been invited to join the Researcher Registry',
+          'body' => '
+            <mjml>
+              '. $this->mjmlHead . '
+              <mj-body background-color="#efeeea" width="600px" >
+                <mj-body background-color="#efeeea" width="600px" >
+                  ' . $this->titleBar . '
+                  <mj-wrapper border="none" direction="ltr" text-align="center" padding="20px 0px 20px 0px" >
+                    <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
+                      <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
+                        <mj-text align="left" padding="10px 25px 10px 25px" >
+                          [[users.first_name]] [[users.last_name]]<br><br>You\'ve been invited to sign-up as a delegate user within the [[env(APP_NAME)]] Registry system, by [[organisations.organisation_name]]. To begin your sign-up process, please 
+                          click the button below.
+                          <div><br></div>
+                          ' . $this->supportFooter . '
+                          <div><br></div>
+                          <div><br></div>
+                          </div>
+                        </mj-text>
+                      </mj-column>
+                    </mj-section>
+                    <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
+                      <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
+                        <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/user/invited/[[users.id]]/[[organisations.id]]" padding="10px 25px 10px 25px" >Sign me up!</mj-button>
                       </mj-column>
                     </mj-section>
                   </mj-wrapper>
@@ -282,7 +317,7 @@ class EmailTemplatesSeeder extends Seeder
               <mj-wrapper border="none" direction="ltr" text-align="center" padding="20px 0px 20px 0px">
                 <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px">
                   <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
-                    <mj-text align="left" padding="10px 25px 10px 25px">[[organisation_delegates.first_name]] [[organisation_delegates.last_name]]<br/><br/>You\'ve been selected as a delegate sponsor contact for the Researcher Registry (SPEEDI-AS) system, on behalf of [[organisations.organisation_name]], and by [[organisations.lead_application_organisation_name]].
+                    <mj-text align="left" padding="10px 25px 10px 25px">[[organisation_delegates.first_name]] [[organisation_delegates.last_name]]<br/><br/>You\'ve been selected as a delegate sponsor contact for the [[env(APP_NAME)]] Registry system, on behalf of [[organisations.organisation_name]], and by [[organisations.lead_application_organisation_name]].
                     <div><br/></div>
                     Your role means you\'re ideally suited to verify
                     a recent researcher registration as someone who is currently employed by [[organisations.organisation_name]]. We ask that you please confirm this to be true, by clicking the button below. That\'s all. The rest is automatic!
@@ -300,7 +335,7 @@ class EmailTemplatesSeeder extends Seeder
                 </mj-section>
                 <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px">
                   <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
-                    <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="http://localhost:3000/organisations/delegate_verify/[[users.id]]/[[organisations.id]]/[[organisation_delegates.id]]" padding="10px 25px 10px 25px">I confirm that the named Researcher above is employed by [[organisations.organisation_name]]!</mj-button>
+                    <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/organisations/delegate_verify/[[users.id]]/[[organisations.id]]/[[organisation_delegates.id]]" padding="10px 25px 10px 25px">I confirm that the named Researcher above is employed by [[organisations.organisation_name]]!</mj-button>
                   </mj-column>
                 </mj-section>
               </mj-wrapper>
@@ -309,5 +344,61 @@ class EmailTemplatesSeeder extends Seeder
         ',
             'buttons' => '',
         ]);
+
+        EmailTemplate::create([
+          'identifier' => 'pro_email_verify',
+          'subject' => 'Confirm your professional email address',
+          'body' => '
+          <mjml>
+            '. $this->mjmlHead . '
+              <mj-body background-color="#efeeea" width="600px" >
+              <mj-wrapper padding="20px 0px 20px 0px" border="none" direction="ltr" text-align="center" >
+                  <mj-section padding="0px" text-align="left" >
+                      <mj-column >
+                          <mj-image align="center" height="auto" padding="0px 0px 0px 0px" src="https://fakeimg.pl/800x200?text=[[env(APP_NAME)]]+Pro+Email" ></mj-image>
+                      </mj-column>
+                  </mj-section>
+              </mj-wrapper>
+              <mj-section padding="0px" text-align="left" >
+                  <mj-column >
+                      <mj-spacer height="20px" padding="5px" ></mj-spacer>
+                  </mj-column>
+              </mj-section>
+              <mj-section padding="0px" text-align="left" >
+                  <mj-column >
+                      <mj-text padding="10px 25px 10px 25px" align="left" font-size="16px" font-weight="bold" >Confirm your email address</mj-text>
+                  </mj-column>
+              </mj-section>
+              <mj-section padding="0px" text-align="left" >
+              <mj-column >
+                  <mj-spacer height="20px" padding="5px" ></mj-spacer>
+              </mj-column>
+          </mj-section>
+          <mj-section padding="0px" text-align="left" >
+          <mj-column >
+              <mj-text padding="10px 25px 10px 25px" align="left" >Hi [[users.first_name]]<br/>To verify your recently added professional email address, please click the button below.</mj-text>
+          </mj-column>
+          </mj-section>
+          <mj-section padding="0px" text-align="left" ><mj-column >
+          <mj-spacer height="20px" padding="10px" ></mj-spacer></mj-column></mj-section>
+          <mj-section padding="0px" text-align="left" >
+              <mj-column >
+              <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]" padding="10px 25px 10px 25px">Verify Email</mj-button>
+              </mj-column>
+          </mj-section>
+          <mj-section padding="0px" text-align="left" >
+              <mj-column >
+                  <mj-spacer height="20px" padding="5px" ></mj-spacer>
+              </mj-column>
+          </mj-section>
+          <mj-section padding="0px" text-align="left" >
+              <mj-column >
+                  <mj-text padding="10px 25px 10px 25px" align="left" >[[env(APP_NAME)]] Support Team<div>[[env(SUPPORT_EMAIL)]]</div></mj-text>
+              </mj-column>
+          </mj-section>
+      </mj-body></mjml >
+        ',
+          'buttons' => '',
+      ]);
     }
 }
