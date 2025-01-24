@@ -531,11 +531,23 @@ class UserController extends Controller
 
             if ($updated) {
                 if (!empty($changes)) {
-                    $usersToNotify = User::all();//where("organisation_id", $user->organisation_id)->get();
+                    $usersToNotify = User::where("organisation_id", $originalUser->organisation_id)->get();
                     Notification::send(
                         $usersToNotify,
                         new AdminUserChanged($originalUser, $changes)
                     );
+
+                    if ($user->organisation_id !== $originalUser->organisation_id) {
+                        $usersToNotify = User::where("organisation_id", $user->organisation_id)->get();
+
+                        // Send notification to users of the new organisation
+                        // to-do: be scoped first and added
+                        //Notification::send(
+                        //    $usersToNotify,
+                        //    new AdminUserAdded($user, $organisation)
+                        //);
+                    }
+
                 }
 
                 return response()->json([

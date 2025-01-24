@@ -62,7 +62,22 @@ class NotificationTest extends TestCase
 
         $response->assertStatus(200)
                  ->assertJson(['message' => 'success'])
-                 ->assertJsonStructure(['data' => [['id', 'type', 'notifiable_type', 'notifiable_id', 'data', 'read_at', 'created_at', 'updated_at']]]);
+                 ->assertJsonStructure([
+                    'data' => [
+                        'current_page',
+                        'data' => [
+                            '*' => [
+                                'id',
+                                'type',
+                                'notifiable_type',
+                                'notifiable_id',
+                                'data',
+                                'read_at',
+                                'created_at',
+                                'updated_at'
+                            ]
+                        ],
+                    ]]);
     }
 
     public function test_user_can_read_notifications()
