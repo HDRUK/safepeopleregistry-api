@@ -33,7 +33,7 @@ class FileUploadController extends Controller
      *          description="File definition",
      *
      *          @OA\JsonContent(
-     *
+     *              @OA\Property(property="registry_id", type="integer", example="1"),
      *              @OA\Property(property="file", type="file", example=""),
      *              @OA\Property(property="file_type", type="string", example="CV"),
      *              @OA\Property(property="entity_type", type="string", example="researcher"),
@@ -104,7 +104,7 @@ class FileUploadController extends Controller
 
             if (strtoupper($input['entity_type']) === 'RESEARCHER') {
 
-                $user = User::where('id', $request->user()->id)->first();
+                $user = User::where('registry_id', intval($input['registry_id']))->first();
                 $registry = Registry::where('id', $user->registry_id)->first();
 
                 RegistryHasFile::create([
@@ -124,7 +124,7 @@ class FileUploadController extends Controller
 
             return response()->json([
                 'message' => 'success',
-                'data' => $fileIn->id,
+                'data' => File::where('id', $fileIn->id)->first(),
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
