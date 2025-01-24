@@ -44,7 +44,7 @@ class NotificationController extends Controller
      *                  @OA\Items(
      *                      type="object",
      *                      @OA\Property(property="id", type="string", example="abc95e84-0ebd-45d2-8129-9bf7ed043433"),
-     *                      @OA\Property(property="type", type="string", example="AdminUserChangedOrganisation"),
+     *                      @OA\Property(property="type", type="string", example="AdminUserChanged"),
      *                      @OA\Property(property="notifiable_type", type="string", example="App\Models\User"),
      *                      @OA\Property(property="notifiable_id", type="integer", example=1),
      *                      @OA\Property(property="data", type="object",
@@ -98,6 +98,43 @@ class NotificationController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Get(
+     *      path="/api/v1/users/{id}/notifications/count",
+     *      summary="Get notification counts for a specific user",
+     *      description="Retrieve the total, read, and unread notification counts for a given user.",
+     *      tags={"Notifications"},
+     *      security={{"bearerAuth": {}}},
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          required=true,
+     *          description="User ID",
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful response",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="object",
+     *                  @OA\Property(property="total", type="integer", example=0),
+     *                  @OA\Property(property="read", type="integer", example=0),
+     *                  @OA\Property(property="unread", type="integer", example=0)
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="User not found"
+     *      )
+     * )
+     */
     public function getNotificationCounts($userId)
     {
         $user = User::find($userId);
