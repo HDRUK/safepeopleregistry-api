@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Jobs\SendEmailJob;
 use Illuminate\Support\Facades\Queue;
 use App\Models\CustodianUserHasPermission;
-use App\Models\CustodianUser;
 use App\Models\PendingInvite;
 use Database\Seeders\CustodianSeeder;
 use Database\Seeders\PermissionSeeder;
