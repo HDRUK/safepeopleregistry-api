@@ -315,7 +315,12 @@ class UserController extends Controller
     {
         try {
             $input = $request->all();
-            $unclaimedUser = RMC::createUnclaimedUser($input);
+            $unclaimedUser = RMC::createUnclaimedUser([
+                'firstname' => $input['first_name'],
+                'lastname' => $input['last_name'],
+                'email' => $input['email'],
+                'user_group' => 'USERS',
+            ]);
 
             return response()->json([
                 'message' => 'success',

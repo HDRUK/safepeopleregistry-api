@@ -160,6 +160,8 @@ class RegistryManagementController
           'verified' => 0,
         ]);
 
+        dd($registry);
+
         return User::create([
             'first_name' => $user['firstname'],
             'last_name' => $user['lastname'],
