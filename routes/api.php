@@ -28,6 +28,7 @@ use App\Http\Controllers\Api\V1\EmploymentController;
 use App\Http\Controllers\Api\V1\EducationController;
 use App\Http\Controllers\Api\V1\EmailTemplateController;
 use App\Http\Controllers\Api\V1\SectorController;
+use App\Http\Controllers\Api\V1\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -56,9 +57,18 @@ Route::middleware('api')->post('v1/users', [UserController::class, 'store']);
 Route::middleware('api')->put('v1/users/{id}', [UserController::class, 'update']);
 Route::middleware('api')->patch('v1/users/{id}', [UserController::class, 'edit']);
 Route::middleware('api')->delete('v1/users/{id}', [UserController::class, 'destroy']);
+Route::middleware('api')->post('v1/users/unclaimed', [UserController::class, 'storeUnclaimed']);
+Route::middleware('api')->post('v1/users/{id}/invite', [UserController::class, 'invite']);
 Route::middleware('api')->post('v1/users/permissions', [PermissionController::class, 'assignUserPermissionsToFrom']);
 Route::middleware('api')->post('v1/users/change-password/{userId}', [AuthController::class, 'changePassword']);
 Route::middleware('api')->post('v1/users/validate', [UserController::class, 'validateUserRequest']);
+
+Route::middleware('api')->get('v1/users/{id}/notifications', [NotificationController::class, 'getUserNotifications']);
+Route::middleware('api')->get('v1/users/{id}/notifications/count', [NotificationController::class, 'getNotificationCounts']);
+Route::middleware('api')->patch('v1/users/{id}/notifications/read', [NotificationController::class, 'markUserNotificationsAsRead']);
+Route::middleware('api')->patch('v1/users/{userId}/notifications/{notificationId}/read', [NotificationController::class, 'markUserNotificationAsRead']);
+Route::middleware('api')->patch('v1/users/{userId}/notifications/{notificationId}/unread', [NotificationController::class, 'markUserNotificationAsUnread']);
+
 
 Route::middleware('api')->get('v1/training', [TrainingController::class, 'index']);
 Route::middleware('api')->get('v1/training/registry/{registryId}', [TrainingController::class, 'indexByRegistryId']);
@@ -71,7 +81,7 @@ Route::middleware('api')->delete('v1/training/{id}', [TrainingController::class,
 Route::middleware('api')->get('v1/custodians', [CustodianController::class, 'index']);
 Route::middleware('api')->get('v1/custodians/{id}', [CustodianController::class, 'show']);
 Route::middleware('api')->get('v1/custodians/identifier/{id}', [CustodianController::class, 'showByUniqueIdentifier']);
-Route::middleware('api')->post('v1/custodians/{id}/invite', [CustodianController::class, 'invite']);
+Route::middleware('api')->post('v1/custodians/invite/{id}', [CustodianController::class, 'invite']);
 Route::middleware('api')->get('v1/custodians/{id}/projects', [CustodianController::class, 'getProjects']);
 Route::middleware('api')->post('v1/custodians', [CustodianController::class, 'store']);
 Route::middleware('api')->put('v1/custodians/{id}', [CustodianController::class, 'update']);

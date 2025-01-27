@@ -6,6 +6,7 @@ use Hash;
 use Keycloak;
 use Exception;
 use RulesEngineManagementController as REMC;
+use RegistryManagementController as RMC;
 use App\Models\User;
 use App\Models\Registry;
 use App\Models\UserHasCustodianApproval;
@@ -304,6 +305,22 @@ class UserController extends Controller
                 'data' => $user->id,
             ], 201);
 
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    //Hide from swagger
+    public function storeUnclaimed(Request $request): JsonResponse
+    {
+        try {
+            $input = $request->all();
+            $unclaimedUser = RMC::createUnclaimedUser($input);
+
+            return response()->json([
+                'message' => 'success',
+                'data' => $unclaimedUser->id,
+            ], 201);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
