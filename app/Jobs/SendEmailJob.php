@@ -29,12 +29,12 @@ class SendEmailJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(array $to, EmailTemplate $template, array $replacements, ?array $by = null)
+    public function __construct(array $to, EmailTemplate $template, array $replacements)
     {
         $this->to = $to;
-        $this->by = ($by !== null ? $by : null);
         $this->template = $template;
         $this->replacements = $replacements;
+
     }
 
     /**
@@ -42,9 +42,7 @@ class SendEmailJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $by = ! empty($this->by) ? $this->by['id'] : null;
-
         Mail::to($this->to['email'])
-            ->send(new Email($this->to['id'], $this->template, $this->replacements, $by));
+            ->send(new Email($this->to['id'], $this->template, $this->replacements));
     }
 }
