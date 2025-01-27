@@ -297,12 +297,14 @@ class OrganisationTest extends TestCase
     public function test_the_application_can_create_unclaimed_organisations(): void
     {
         $email = fake()->email();
+        $organisationName = fake()->company();
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'POST',
                 self::TEST_URL . '/unclaimed',
                 [
+                    'organisation_name' => $organisationName,
                     'lead_applicant_email' => $email
                 ]
             );
