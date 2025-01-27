@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -13,6 +14,16 @@ class User extends Authenticatable
 {
     use HasFactory;
     use SearchManager;
+
+    public const GROUP_USERS = 'USERS';
+    public const GROUP_ORGANISATIONS = 'ORGANISATIONS';
+    public const GROUP_ADMINS = 'ADMINS';
+    public const GROUP_CUSTODIANS = 'CUSTODIANS';
+
+    public const GROUP_KC_USERS = '\Researchers';
+    public const GROUP_KC_ORGANISATIONS = '\Organisations';
+    public const GROUP_KC_CUSTODIANS = '\Custodians';
+    public const GROUP_KC_ADMINS = '\Admins';
 
     /**
      * The attributes that are mass assignable.
@@ -42,6 +53,7 @@ class User extends Authenticatable
         'orcid_scanning_completed_at',
         'is_delegate',
         'is_org_admin',
+        'role',
     ];
 
     protected static array $searchableColumns = [
@@ -133,5 +145,30 @@ class User extends Authenticatable
             Department::class,
             'user_has_departments'
         );
+    }
+
+    public static function searchByEmail(string $email): \stdClass|null
+    {
+        $results = DB::select(
+            '
+            SELECT \'users\' as source, registry_id
+            FROM users
+            where email = ?
+
+            UNION ALL
+            
+            SELECT \'employments\' as source, registry_id
+            FROM employments
+            WHERE email = ?
+            ',
+            [$email, $email]
+        );
+
+        $records = collect($results)->toArray();
+        if (count($records)) {
+            return $records[0];
+        }
+
+        return null;
     }
 }

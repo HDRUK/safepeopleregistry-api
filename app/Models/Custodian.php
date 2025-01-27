@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\SearchManager;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Custodian extends Model
 {
@@ -45,4 +46,9 @@ class Custodian extends Model
         'name',
         'contact_email',
     ];
+
+    public function rules(): BelongsToMany
+    {
+        return $this->belongsToMany(Rules::class, 'custodian_has_rules', 'custodian_id', 'rule_id');
+    }
 }

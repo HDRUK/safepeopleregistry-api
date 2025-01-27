@@ -581,6 +581,10 @@ class OrganisationTest extends TestCase
             'first_name' => $firstName,
             'last_name' => $lastName,
             'email' => $email,
+            'organisation_id' => 0,
+            'is_delegate' => 0,
+            'user_group' => 'USERS',
+            'role' => null,
         ]);
 
         Queue::assertPushed(SendEmailJob::class);
@@ -710,9 +714,7 @@ class OrganisationTest extends TestCase
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
-
-        $this->assertCount(5, $response['data']['data']);
-
+        $this->assertCount(4, $response['data']['data']);
 
         $responseWithEmailFilter = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(

@@ -58,6 +58,7 @@ Route::middleware('api')->patch('v1/users/{id}', [UserController::class, 'edit']
 Route::middleware('api')->delete('v1/users/{id}', [UserController::class, 'destroy']);
 Route::middleware('api')->post('v1/users/permissions', [PermissionController::class, 'assignUserPermissionsToFrom']);
 Route::middleware('api')->post('v1/users/change-password/{userId}', [AuthController::class, 'changePassword']);
+Route::middleware('api')->post('v1/users/validate', [UserController::class, 'validateUserRequest']);
 
 Route::middleware('api')->get('v1/training', [TrainingController::class, 'index']);
 Route::middleware('api')->get('v1/training/registry/{registryId}', [TrainingController::class, 'indexByRegistryId']);
@@ -77,6 +78,8 @@ Route::middleware('api')->put('v1/custodians/{id}', [CustodianController::class,
 Route::middleware('api')->patch('v1/custodians/{id}', [CustodianController::class, 'edit']);
 Route::middleware('api')->delete('v1/custodians/{id}', [CustodianController::class, 'destroy']);
 Route::middleware(['api', 'check.custodian.access'])->post('v1/custodians/push', [CustodianController::class, 'push']);
+Route::middleware('api')->get('v1/custodians/{id}/rules', [CustodianController::class, 'getRules']);
+Route::middleware('api')->patch('v1/custodians/{id}/rules', [CustodianController::class, 'updateCustodianRules']);
 
 Route::middleware('api')->get('v1/custodian_users', [CustodianUserController::class, 'index']);
 Route::middleware('api')->get('v1/custodian_users/{id}', [CustodianUserController::class, 'show']);
@@ -174,6 +177,7 @@ Route::middleware('api')->get('v1/employments/{id}/{registryId}', [EmploymentCon
 Route::middleware('api')->post('v1/employments/{registryId}', [EmploymentController::class, 'storeByRegistryId']);
 Route::middleware('api')->put('v1/employments/{id}/{registryId}', [EmploymentController::class, 'updateByRegistryId']);
 Route::middleware('api')->patch('v1/employments/{id}/{registryId}', [EmploymentController::class, 'editByRegistryId']);
+Route::middleware('api')->patch('v1/employments/{id}/{registryId}/verify_email', [EmploymentController::class, 'verifyEmailForEmployment']);
 Route::middleware('api')->delete('v1/employments/{id}/{registryId}', [EmploymentController::class, 'destroyByRegistryId']);
 
 Route::middleware('api')->get('v1/sectors', [SectorController::class, 'index']);

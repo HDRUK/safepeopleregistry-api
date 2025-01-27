@@ -23,5 +23,6 @@ class Employment extends Model
         'employer_address',
         'ror',
         'registry_id',
+        'email',
     ];
 }

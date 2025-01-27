@@ -34,6 +34,7 @@ class UserFactory extends Factory
             'public_opt_in' => fake()->randomElement([0, 1]),
             'declaration_signed' => fake()->randomElement([0, 1]),
             'organisation_id' => null,
+            'role' => null,
         ];
     }
 }

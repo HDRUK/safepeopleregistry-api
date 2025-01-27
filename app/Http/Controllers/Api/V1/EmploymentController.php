@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use TriggerEmail;
 use Exception;
+use App\Models\User;
 use App\Models\Employment;
 use App\Models\Registry;
 use Illuminate\Http\JsonResponse;
@@ -62,7 +64,21 @@ class EmploymentController extends Controller
                 'employer_address' => $input['employer_address'],
                 'ror' => $input['ror'],
                 'registry_id' => $registry->id,
+                'email' => $input['email'],
             ]);
+
+            // upon registering a new employment with a professional email, we
+            // need to send an email verification to this professional email address
+            if (!in_array(env('APP_ENV'), ['testing', 'ci'])) {
+                $input = [
+                    'type' => 'EMPLOYMENT',
+                    'to' => User::where('registry_id', $registry->id)->select('id')->first()['id'],
+                    'identifier' => 'pro_email_verify',
+                    'pro_email' => $input['email'],
+                ];
+
+                TriggerEmail::spawnEmail($input);
+            }
 
             return response()->json([
                 'message' => 'success',
@@ -91,6 +107,7 @@ class EmploymentController extends Controller
             $employment->role = $input['role'];
             $employment->employer_address = $input['employer_address'];
             $employment->ror = $input['ror'];
+            $employment->email = $input['email'];
 
             if (!$employment->save()) {
                 return response()->json([
@@ -135,6 +152,8 @@ class EmploymentController extends Controller
                 $input['employer_address'] : $employment->employer_address;
             $employment->ror = isset($input['ror']) ?
                 $input['ror'] : $employment->ror;
+            $employment->email = isset($input['email']) ?
+                $input['email'] : $employment->email;
 
             if (!$employment->save()) {
                 return response()->json([
@@ -148,6 +167,32 @@ class EmploymentController extends Controller
                 'message' => 'success',
                 'data' => $employment,
             ], 200);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    public function verifyEmailForEmployment(Request $request, int $id, int $registryId): JsonResponse
+    {
+        try {
+            $em = Employment::where([
+                'id' => $id,
+                'registry_id' => $registryId,
+            ])->first();
+
+            $em->email_verified = 1;
+
+            if ($em->save()) {
+                return response()->json([
+                    'message' => 'success',
+                    'data' => null,
+                ], 200);
+            }
+
+            return response()->json([
+                'message' => 'failed',
+                'data' => null,
+            ], 500);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
