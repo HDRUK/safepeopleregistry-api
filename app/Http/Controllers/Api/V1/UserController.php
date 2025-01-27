@@ -18,6 +18,7 @@ use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use App\Traits\CommonFunctions;
 use App\Traits\CheckPermissions;
+use TriggerEmail;
 
 class UserController extends Controller
 {
@@ -310,21 +311,32 @@ class UserController extends Controller
         }
     }
 
-    //Hide from swagger
-    public function storeUnclaimed(Request $request): JsonResponse
+
+    //Hide from swagger docs
+    public function invite(Request $request): JsonResponse
     {
         try {
             $input = $request->all();
+
             $unclaimedUser = RMC::createUnclaimedUser([
                 'firstname' => $input['first_name'],
                 'lastname' => $input['last_name'],
                 'email' => $input['email'],
-                'user_group' => 'USERS',
+                'user_group' => 'USERS'
             ]);
+
+            $input = [
+                'type' => 'USER_WITHOUT_ORGANISATION',
+                'to' => $unclaimedUser->id,
+                'unclaimed_user_id' => $unclaimedUser->id,
+                'identifier' => 'researcher_without_organisation_invite'
+            ];
+
+            TriggerEmail::spawnEmail($input);
 
             return response()->json([
                 'message' => 'success',
-                'data' => $unclaimedUser->id,
+                'data' => $unclaimedUser,
             ], 201);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());

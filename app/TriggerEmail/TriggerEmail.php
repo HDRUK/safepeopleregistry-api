@@ -43,6 +43,28 @@ class TriggerEmail
                     'email' => $input['pro_email'],
                 ];
                 break;
+            case 'USER_WITHOUT_ORGANISATION':
+                $user = User::where('id', $to)->first();
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+
+                $newRecipients = [
+                    'id' => $user->id,
+                    'email' => $user->email,
+                ];
+
+                $replacements = [
+                    '[[users.first_name]]' => $user->first_name,
+                    '[[users.last_name]]' => $user->last_name,
+                    '[[users.created_at]]' => $user->created_at,
+                    '[[users.id]]' => $user->id,
+                ];
+
+                PendingInvite::create([
+                    'user_id' => $user->id,
+                    'invite_sent_at' => Carbon::now(),
+                    'status' => config('speedi.invite_status.PENDING'),
+                ]);
+                break;
             case 'USER':
                 $user = User::where('id', $to)->first();
                 $organisation = Organisation::where('id', $by)->first();
