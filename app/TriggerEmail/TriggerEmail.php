@@ -115,12 +115,12 @@ class TriggerEmail
                 break;
             case 'CUSTODIAN_USER':
                 $custodianUser = CustodianUser::with('userPermissions.permission')->where('id', $to)->first();
-                $custodian = Custodian::where('id', $user->custodian_id)->first();
+                $custodian = Custodian::where('id', $custodianUser->custodian_id)->first();
 
                 $role_description = '';
 
-                if (count($user->userPermissions) > 0) {
-                    $permission = Permission::where('id', $user->userPermissions[0]->permission_id)->first();
+                if (count($custodianUser->userPermissions) > 0) {
+                    $permission = Permission::where('id', $custodianUser->userPermissions[0]->permission_id)->first();
 
                     $role_description = "as an $permission->description";
                 }
@@ -174,6 +174,6 @@ class TriggerEmail
                 break;
         }
 
-        SendEmailJob::dispatch($newRecipients, $template, $replacements, $invitedBy);
+        SendEmailJob::dispatch($newRecipients, $template, $replacements);
     }
 }
