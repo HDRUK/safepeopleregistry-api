@@ -102,22 +102,38 @@ class FileUploadController extends Controller
                 'status' => 'PENDING',
             ]);
 
-            if (strtoupper($input['entity_type']) === 'RESEARCHER') {
+            if (strtoupper($input['entity_type'] ?? '') === 'RESEARCHER' && isset($input['registry_id']) && $input['registry_id'] !== null) {
+                $registryId = intval($input['registry_id']);
+                $user = User::where('registry_id', $registryId)->first();
 
-                $user = User::where('registry_id', intval($input['registry_id']))->first();
-                $registry = Registry::where('id', $user->registry_id)->first();
+                if (!$user) {
+                    throw new Exception('User not found for the given registry ID');
+                }
+
+                $registry = Registry::find($user->registry_id);
+
+                if (!$registry) {
+                    throw new Exception('Registry not found for the user');
+                }
 
                 RegistryHasFile::create([
                     'registry_id' => $registry->id,
                     'file_id' => $fileIn->id,
                 ]);
-            } else {
-                $organisation = Organisation::where('id', $input['organisation_id'])->first();
-                // Organisation
+            } elseif (isset($input['organisation_id']) && $input['organisation_id'] !== null) {
+                $organisationId = intval($input['organisation_id']);
+                $organisation = Organisation::find($organisationId);
+
+                if (!$organisation) {
+                    throw new Exception('Organisation not found');
+                }
+
                 OrganisationHasFile::create([
                     'organisation_id' => $organisation->id,
                     'file_id' => $fileIn->id,
                 ]);
+            } else {
+                throw new Exception('Invalid or missing registry ID or organisation ID');
             }
 
             ScanFileUpload::dispatch((int) $fileIn->id, $fileSystem);
