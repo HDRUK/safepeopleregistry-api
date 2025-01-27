@@ -81,7 +81,7 @@ class CustodianTest extends TestCase
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'POST',
-                self::TEST_URL . '/invite/1',
+                self::TEST_URL . '/1/invite/',
             );
 
         $response->assertStatus(201);
