@@ -23,6 +23,7 @@ class TrainingFactory extends Factory
             'expires_at' => fake()->dateTime(),
             'expires_in_years' => fake()->numberBetween(1, 5),
             'training_name' => fake()->name(),
+            'certification_uploaded' => fake()->boolean(),
         ];
     }
 }

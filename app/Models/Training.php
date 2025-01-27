@@ -22,6 +22,7 @@ class Training extends Model
         'expires_at',
         'expires_in_years',
         'training_name',
+        'certification_uploaded',
     ];
 
     protected static array $searchableColumns = [
