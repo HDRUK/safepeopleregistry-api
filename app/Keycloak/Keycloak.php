@@ -146,9 +146,9 @@ class Keycloak
                         ]);
                     }
 
-                    if (!in_array(env('APP_ENV'), ['testing', 'ci'])) {
-                        Keycloak::updateSoursdDigitalIdentifier($user);
-                    }
+                    // if (!in_array(env('APP_ENV'), ['testing', 'ci'])) {
+                    //     Keycloak::updateSoursdDigitalIdentifier($user);
+                    // }
                 }
 
                 return [
