@@ -14,6 +14,56 @@ use Illuminate\Http\JsonResponse;
 
 class RegistryReadRequestController extends Controller
 {
+    /**
+     * @OA\Post(
+     *      path="/api/v1/request_access",
+     *      summary="Create a RegistryReadRequest entry",
+     *      description="Create a RegistryReadRequest entry",
+     *      tags={"Registry"},
+     *      summary="RegistryReadRequest@request",
+     *      security={{"bearerAuth":{}}},
+     *
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="RegistryReadRequest definition",
+     *
+     *          @OA\JsonContent(
+     *
+     *              @OA\Property(property="custodian_identifier", type="string", example="AJKHDFEUHE329482kds"),
+     *              @OA\Property(property="digital_identifier", type="string", example="HSJFY785615630X99123")
+     *          ),
+     *      ),
+     *
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",*
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *          ),
+     *      ),
+     *
+     *      @OA\Response(
+     *          response=201,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="object",
+     *                  @OA\Property(property="id", type="integer", example="123"),
+     *              )
+     *          ),
+     *      ),
+     *
+     *      @OA\Response(
+     *          response=500,
+     *          description="Error",
+     *
+     *          @OA\JsonContent(
+     *
+     *              @OA\Property(property="message", type="string", example="error")
+     *          )
+     *      )
+     * )
+     */
     public function request(CRRR $request): JsonResponse
     {
         $custodian = Custodian::where('calculated_hash', $request->only(['custodian_identifier']))->first();
@@ -55,6 +105,50 @@ class RegistryReadRequestController extends Controller
         ], 500);
     }
 
+    /**
+     * @OA\Patch(
+     *      path="/api/v1/request_access/{id}",
+     *      summary="Edit a RegistryReadRequest entry",
+     *      description="Edit a RegistryReadRequest entry",
+     *      tags={"Registry"},
+     *      summary="RegistryReadRequest@acceptOrReject",
+     *      security={{"bearerAuth":{}}},
+     *
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="RegistryReadRequest definition",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="status", type="integer", example="123"),
+     *              @OA\Property(property="user_id", type="integer", example="123")
+     *          ),
+     *      ),
+     *
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",*
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *          ),
+     *      ),
+     *
+     *      @OA\Response(
+     *          response=201,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="boolean", example="true")
+     *          ),
+     *      ),
+     *
+     *      @OA\Response(
+     *          response=500,
+     *          description="Error",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="error")
+     *          )
+     *      )
+     * )
+     */
     public function acceptOrReject(ERRR $request, int $id): JsonResponse
     {
         $input = $request->only([
