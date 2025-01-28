@@ -18,6 +18,7 @@ class RegistryReadRequest extends Model
         'registry_id',
         'status',
         'approved_at',
+        'rejected_at',
     ];
 
     public const READ_REQUEST_STATUS_OPEN = 0;
