@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\V1\PermissionController;
 use App\Http\Controllers\Api\V1\ProjectController;
 use App\Http\Controllers\Api\V1\QueryController;
 use App\Http\Controllers\Api\V1\RegistryController;
+use App\Http\Controllers\Api\V1\RegistryReadRequestController;
 use App\Http\Controllers\Api\V1\SystemConfigController;
 use App\Http\Controllers\Api\V1\TrainingController;
 use App\Http\Controllers\Api\V1\TriggerEmailController;
@@ -217,6 +218,9 @@ Route::middleware('api')->post('v1/files', [FileUploadController::class, 'store'
 Route::middleware('api')->post('v1/approvals/{entity_type}', [ApprovalController::class, 'store']);
 Route::middleware('api')->get('v1/approvals/{entity_type}/{id}/custodian/{custodian_id}', [ApprovalController::class, 'getEntityHasCustodianApproval']);
 Route::middleware('api')->delete('v1/approvals/{entity_type}/{id}/custodian/{custodian_id}', [ApprovalController::class, 'delete']);
+
+Route::middleware('api')->post('v1/request_access', [RegistryReadRequestController::class, 'request']);
+Route::middleware('api')->patch('v1/request_access/{id}', [RegistryReadRequestController::class, 'acceptOrReject']);
 
 Route::get('v1/system_config', [SystemConfigController::class, 'index']);
 Route::post('v1/system_config', [SystemConfigController::class, 'store']);
