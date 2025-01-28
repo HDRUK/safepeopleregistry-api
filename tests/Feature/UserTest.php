@@ -9,7 +9,6 @@ use App\Models\User;
 use App\Models\Registry;
 use App\Models\Employment;
 use Database\Seeders\EmailTemplatesSeeder;
-use Database\Seeders\CustodianSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\BaseDemoSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -34,7 +33,6 @@ class UserTest extends TestCase
         parent::setUp();
         $this->seed([
             PermissionSeeder::class,
-            CustodianSeeder::class,
             EmailTemplatesSeeder::class,
             BaseDemoSeeder::class,
         ]);
