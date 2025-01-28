@@ -26,7 +26,6 @@ class Keycloak
 
     public function updateSoursdDigitalIdentifier(User $user)
     {
-        dd($user);
         $userUrl = env('KEYCLOAK_BASE_URL') . '/admin/realms/' . env('KEYCLOAK_REALM') . '/users/' . $user->keycloak_id;
 
         return Http::withHeaders([
