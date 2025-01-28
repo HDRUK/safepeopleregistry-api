@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\User;
 use Database\Seeders\EmailTemplatesSeeder;
-use Database\Seeders\CustodianSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\BaseDemoSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -30,7 +29,6 @@ class NotificationTest extends TestCase
         parent::setUp();
         $this->seed([
             PermissionSeeder::class,
-            CustodianSeeder::class,
             EmailTemplatesSeeder::class,
             BaseDemoSeeder::class,
         ]);
