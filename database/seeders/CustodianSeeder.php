@@ -11,7 +11,6 @@ use App\Models\Permission;
 use Hash;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Schema;
-use RegistryManagementController as RMC;
 
 class CustodianSeeder extends Seeder
 {
@@ -58,14 +57,6 @@ class CustodianSeeder extends Seeder
                 CustodianUserHasPermission::create([
                     'custodian_user_id' => $iu->id,
                     'permission_id' => $perm->id,
-                ]);
-
-                RMC::createUnclaimedUser([
-                    'firstname' => $iu['first_name'],
-                    'lastname' => $iu['last_name'],
-                    'email' => $iu['email'],
-                    'user_group' => 'CUSTODIANS',
-                    'custodian_user_id' => $iu->id
                 ]);
 
             }
