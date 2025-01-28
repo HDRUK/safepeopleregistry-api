@@ -11,7 +11,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::table('trainings', function (Blueprint $table) {
-            $table->tinyInteger('certification_uploaded')->default(0);
+            $table->tinyInteger('certification_id')->nullable()->default(null);
         });
     }
 
@@ -21,7 +21,7 @@ return new class () extends Migration {
     public function down(): void
     {
         Schema::table('trainings', function (Blueprint $table) {
-            $table->dropColumn('certification_uploaded');
+            $table->dropColumn('certification_id');
         });
     }
 };
