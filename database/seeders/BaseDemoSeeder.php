@@ -864,7 +864,9 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             ]);
 
             if (!in_array(env('APP_ENV'), ['testing', 'ci'])) {
-                Keycloak::updateSoursdDigitalIdentifier($user);
+                if ($user) {
+                    Keycloak::updateSoursdDigitalIdentifier($user);
+                }
             }
 
             if ($user->user_group !== RMC::KC_GROUP_USERS) {
