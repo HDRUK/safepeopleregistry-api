@@ -1102,29 +1102,40 @@ class OrganisationController extends Controller
     public function inviteUser(Request $request, int $id): JsonResponse
     {
         try {
+            $input = $request->all();
+
             $unclaimedUser = RMC::createUnclaimedUser([
-                'firstname' => $request['first_name'],
-                'lastname' => $request['last_name'],
-                'email' => $request['email'],
-                'organisation_id' => (isset($request['user_group']) && $request['user_group'] === 'ORGANISATION') ? $id : 0,
-                'is_delegate' => isset($request['is_delegate']) ? $request['is_delegate'] : 0,
-                'user_group' => isset($request['user_group']) ? $request['user_group'] : 'USERS',
-                'role' => isset($request['role']) ? $request['role'] : null,
+                'firstname' => $input['first_name'],
+                'lastname' => $input['last_name'],
+                'email' => $input['email'],
+                'organisation_id' => (isset($input['user_group']) && $input['user_group'] === 'ORGANISATION') ? $id : 0,
+                'is_delegate' => isset($input['is_delegate']) ? $input['is_delegate'] : 0,
+                'user_group' => isset($input['user_group']) ? $input['user_group'] : 'USERS',
+                'role' => isset($input['role']) ? $input['role'] : null,
             ]);
 
-            if ($request['department_id'] !== 0 && $request['department_id'] !== null) {
+            if (isset($input['department_id']) && $input['department_id'] !== 0 && $input['department_id'] !== null) {
                 UserHasDepartments::create([
                     'user_id' => $unclaimedUser->id,
                     'department_id' => $request['department_id'],
                 ]);
             };
 
-            $input = [
-                'type' => 'USER',
-                'to' => $unclaimedUser->id,
-                'by' => $id,
-                'identifier' => $request['identifier'],
-            ];
+            if (isset($input['is_delegate'])) {
+                $input = [
+                    'type' => 'USER_DELEGATE',
+                    'to' => $unclaimedUser->id,
+                    'by' => $id,
+                    'identifier' => 'delegate_sponsor'
+                ];
+            } else {
+                $input = [
+                    'type' => 'USER',
+                    'to' => $unclaimedUser->id,
+                    'by' => $id,
+                    'identifier' => 'researcher_invite'
+                ];
+            }
 
             TriggerEmail::spawnEmail($input);
 

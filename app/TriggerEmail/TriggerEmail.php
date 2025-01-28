@@ -56,7 +56,6 @@ class TriggerEmail
                     '[[users.first_name]]' => $user->first_name,
                     '[[users.last_name]]' => $user->last_name,
                     '[[users.created_at]]' => $user->created_at,
-                    '[[users.id]]' => $user->id,
                 ];
 
                 PendingInvite::create([
@@ -66,6 +65,31 @@ class TriggerEmail
                 ]);
                 break;
             case 'USER':
+                $user = User::where('id', $to)->first();
+                $organisation = Organisation::where('id', $by)->first();
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+
+                $newRecipients = [
+                    'id' => $user->id,
+                    'email' => $user->email,
+                ];
+
+                $replacements = [
+                    '[[organisations.organisation_name]]' => $organisation->organisation_name,
+                    '[[users.first_name]]' => $user->first_name,
+                    '[[users.last_name]]' => $user->last_name,
+                    '[[users.created_at]]' => $user->created_at,
+                    '[[env(SUPPORT_EMAIL)]]' => env('SUPPORT_EMAIL'),
+                ];
+
+                PendingInvite::create([
+                    'user_id' => $user->id,
+                    'organisation_id' => $organisation->id,
+                    'invite_sent_at' => Carbon::now(),
+                    'status' => config('speedi.invite_status.PENDING'),
+                ]);
+                break;
+            case 'USER_DELEGATE':
                 $user = User::where('id', $to)->first();
                 $organisation = Organisation::where('id', $by)->first();
                 $template = EmailTemplate::where('identifier', $identifier)->first();

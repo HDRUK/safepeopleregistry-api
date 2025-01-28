@@ -46,7 +46,7 @@ class CustodianSeeder extends Seeder
                 $iu = CustodianUser::factory()->create([
                     'first_name' => 'Custodian',
                     'last_name' => 'Admin',
-                    'email' => 'custodian' . ($x + 1) . '@' . $custodian['name'] . '.notreal',
+                    'email' => 'custodian' . ($x + 1) . '@' . strtolower(str_replace(' ', '.', $custodian['name'])) . '.notreal',
                     'password' => Hash::make('t3mpP4ssword!'),
                     'provider' => '',
                     'keycloak_id' => '',
@@ -58,6 +58,7 @@ class CustodianSeeder extends Seeder
                     'custodian_user_id' => $iu->id,
                     'permission_id' => $perm->id,
                 ]);
+
             }
 
             CustodianWebhookReceiver::create([

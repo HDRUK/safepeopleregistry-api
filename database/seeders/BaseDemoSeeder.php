@@ -15,6 +15,7 @@ use App\Models\Employment;
 use App\Models\Training;
 use App\Models\Organisation;
 use App\Models\Custodian;
+use App\Models\CustodianUser;
 use App\Models\ProjectHasOrganisation;
 use App\Models\ProjectHasUser;
 use App\Models\ProjectRole;
@@ -746,6 +747,12 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         // --------------------------------------------------------------------------------
         $this->linkUsersToProjects($org1Researchers);
 
+
+        // --------------------------------------------------------------------------------
+        // Create unclaimed users from custodian_admins that have been created
+        // --------------------------------------------------------------------------------
+        $this->createUnclaimedUsers();
+
         // --------------------------------------------------------------------------------
         // End
         // --------------------------------------------------------------------------------
@@ -863,9 +870,11 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'registry_id' => $reg->id,
             ]);
 
-            // if (!in_array(env('APP_ENV'), ['testing', 'ci'])) {
-            //     Keycloak::updateSoursdDigitalIdentifier($user);
-            // }
+            if (!in_array(env('APP_ENV'), ['testing', 'ci'])) {
+                if ($user) {
+                    Keycloak::updateSoursdDigitalIdentifier($user);
+                }
+            }
 
             if ($user->user_group !== RMC::KC_GROUP_USERS) {
                 continue;
@@ -971,6 +980,21 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 ]);
             }
         }
+    }
+
+    private function createUnclaimedUsers(): void
+    {
+        $custodianAdmin = CustodianUser::all();
+        foreach ($custodianAdmin as $ca) {
+            RMC::createUnclaimedUser([
+                'firstname' => $ca['first_name'],
+                'lastname' => $ca['last_name'],
+                'email' => $ca['email'],
+                'user_group' => 'CUSTODIANS',
+                'custodian_user_id' => $ca->id
+            ]);
+        }
+
     }
 
     private function addRandomUsersToProject(int $projectId, int $nUsers = null): void
