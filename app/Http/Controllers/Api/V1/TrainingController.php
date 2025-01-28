@@ -100,7 +100,8 @@ class TrainingController extends Controller
      *                  @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
      *                  @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
      *                  @OA\Property(property="expires_in_years", type="integer", example="2"),
-     *                  @OA\Property(property="training_name", type="string", example="Safe Researcher Training")
+     *                  @OA\Property(property="training_name", type="string", example="Safe Researcher Training"),
+     *                  @OA\Property(property="certification_id", type="integer", example="3")
      *              )
      *          ),
      *      ),
@@ -194,7 +195,8 @@ class TrainingController extends Controller
      *              @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
      *              @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
      *              @OA\Property(property="expires_in_years", type="integer", example="2"),
-     *              @OA\Property(property="training_name", type="string", example="Safe Researcher Training")
+     *              @OA\Property(property="training_name", type="string", example="Safe Researcher Training"),
+     *              @OA\Property(property="certification_id", type="integer", example="1")
      *          ),
      *      ),
      *      @OA\Response(
@@ -221,7 +223,8 @@ class TrainingController extends Controller
      *                  @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
      *                  @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
      *                  @OA\Property(property="expires_in_years", type="integer", example="2"),
-     *                  @OA\Property(property="training_name", type="string", example="Safe Researcher Training")
+     *                  @OA\Property(property="training_name", type="string", example="Safe Researcher Training"),
+     *                  @OA\Property(property="certification_id", type="integer", example="1")
      *              )
      *          ),
      *      ),
@@ -248,6 +251,7 @@ class TrainingController extends Controller
                 'expires_at' => $input['expires_at'],
                 'expires_in_years' => $input['expires_in_years'],
                 'training_name' => $input['training_name'],
+                'certification_id' => isset($input['certification_id']) ? $input['certification_id'] : null,
             ]);
 
             return response()->json([
