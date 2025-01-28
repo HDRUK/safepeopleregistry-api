@@ -50,6 +50,7 @@ class Organisation extends Model
         'ror_id',
         'website',
         'smb_status',
+        'unclaimed'
     ];
 
     protected $casts = [

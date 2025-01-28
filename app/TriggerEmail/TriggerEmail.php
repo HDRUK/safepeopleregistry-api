@@ -11,7 +11,6 @@ use App\Models\PendingInvite;
 use App\Models\Permission;
 use App\Models\User;
 use Carbon\Carbon;
-use Exception;
 use Hdruk\LaravelMjml\Models\EmailTemplate;
 
 class TriggerEmail
@@ -95,24 +94,17 @@ class TriggerEmail
                 break;
             case 'CUSTODIAN':
                 $custodian = Custodian::where('id', $to)->first();
+                $template = EmailTemplate::where('identifier', $identifier)->first();
 
-                if ($custodian->invite_accepted_at === null) {
-                    $template = EmailTemplate::where('identifier', $identifier)->first();
+                $newRecipients = [
+                    'id' => $custodian->id,
+                    'email' => $custodian->contact_email,
+                ];
 
-                    $newRecipients = [
-                        'id' => $custodian->id,
-                        'email' => $custodian->contact_email,
-                    ];
-
-                    $replacements = [
-                        '[[custodian.name]]' => $custodian->name,
-                        '[[env(SUPPORT_EMAIL)]]' => env('SUPPORT_EMAIL'),
-                    ];
-
-                    $ivitedBy = [];
-                } else {
-                    throw new Exception('custodian '.$custodian->id.' already accepted invite at '.$custodian->invite_accepted_at);
-                }
+                $replacements = [
+                    '[[custodian.name]]' => $custodian->name,
+                    '[[env(SUPPORT_EMAIL)]]' => env('SUPPORT_EMAIL'),
+                ];
 
                 PendingInvite::create([
                     'user_id' => $unclaimedUserId,
@@ -122,13 +114,13 @@ class TriggerEmail
 
                 break;
             case 'CUSTODIAN_USER':
-                $user = CustodianUser::with('userPermissions.permission')->where('id', $to)->first();
-                $custodian = Custodian::where('id', $user->custodian_id)->first();
+                $custodianUser = CustodianUser::with('userPermissions.permission')->where('id', $to)->first();
+                $custodian = Custodian::where('id', $custodianUser->custodian_id)->first();
 
                 $role_description = '';
 
-                if (count($user->userPermissions) > 0) {
-                    $permission = Permission::where('id', $user->userPermissions[0]->permission_id)->first();
+                if (count($custodianUser->userPermissions) > 0) {
+                    $permission = Permission::where('id', $custodianUser->userPermissions[0]->permission_id)->first();
 
                     $role_description = "as an $permission->description";
                 }
@@ -136,14 +128,14 @@ class TriggerEmail
                 $template = EmailTemplate::where('identifier', $identifier)->first();
 
                 $newRecipients = [
-                    'id' => $user->id,
-                    'email' => $user->email,
+                    'id' => $custodianUser->id,
+                    'email' => $custodianUser->email,
                 ];
 
                 $replacements = [
-                    '[[user.id]]' => $user->id,
-                    '[[user.first_name]]' => $user->first_name,
-                    '[[user.last_name]]' => $user->last_name,
+                    '[[custodian_user.id]]' => $custodianUser->id,
+                    '[[custodian_user.first_name]]' => $custodianUser->first_name,
+                    '[[custodian_user.last_name]]' => $custodianUser->last_name,
                     '[[custodian.name]]' => $custodian->name,
                     '[[custodian.id]]' => $custodian->id,
                     '[[role.description]]' => $role_description,
@@ -167,7 +159,7 @@ class TriggerEmail
                 ];
 
                 $replacements = [
-                    '[[organisation.name]]' => $organisation->organisation_name,
+                    '[[organisation.organisation_name]]' => $organisation->organisation_name,
                     '[[env(SUPPORT_EMAIL)]]' => env('SUPPORT_EMAIL'),
                 ];
 
@@ -182,6 +174,6 @@ class TriggerEmail
                 break;
         }
 
-        SendEmailJob::dispatch($newRecipients, $template, $replacements, $invitedBy);
+        SendEmailJob::dispatch($newRecipients, $template, $replacements);
     }
 }
