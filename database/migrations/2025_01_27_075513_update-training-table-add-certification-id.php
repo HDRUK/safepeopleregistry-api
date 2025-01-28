@@ -11,7 +11,9 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::table('trainings', function (Blueprint $table) {
-            $table->tinyInteger('certification_id')->nullable()->default(null);
+            $table->bigInteger('certification_id')->nullable()->default(null);
+
+            $table->index('certification_id');
         });
     }
 
