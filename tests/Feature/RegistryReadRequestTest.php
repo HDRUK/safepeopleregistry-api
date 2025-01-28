@@ -78,7 +78,7 @@ class RegistryReadRequestTest extends TestCase
         $req = RegistryReadRequest::where('status', RegistryReadRequest::READ_REQUEST_STATUS_OPEN)->first();
         // Note the swap to an actual researcher for this test (this->user won't work in this instance)
         $response = $this->actingAsKeycloakUser($user, $this->getMockedKeycloakPayload())
-            ->json('POST', self::TEST_URL . '/' . $req->id, [
+            ->json('PATCH', self::TEST_URL . '/' . $req->id, [
                 'user_id' => $user->id,
                 'status' => RegistryReadRequest::READ_REQUEST_STATUS_APPROVED,
             ]);
@@ -107,7 +107,7 @@ class RegistryReadRequestTest extends TestCase
         $req = RegistryReadRequest::where('status', RegistryReadRequest::READ_REQUEST_STATUS_OPEN)->first();
         // Note the swap to an actual researcher for this test (this->user won't work in this instance)
         $response = $this->actingAsKeycloakUser($user, $this->getMockedKeycloakPayload())
-            ->json('POST', self::TEST_URL . '/' . $req->id, [
+            ->json('PATCH', self::TEST_URL . '/' . $req->id, [
                 'user_id' => $user->id,
                 'status' => RegistryReadRequest::READ_REQUEST_STATUS_REJECTED,
             ]);
@@ -159,7 +159,7 @@ class RegistryReadRequestTest extends TestCase
 
         // Note the swap to an actual researcher for this test (this->user won't work in this instance)
         $response = $this->actingAsKeycloakUser($user2, $this->getMockedKeycloakPayload())
-            ->json('POST', self::TEST_URL . '/' . $req->id, [
+            ->json('PATCH', self::TEST_URL . '/' . $req->id, [
                 'user_id' => $user2->id,
                 'status' => RegistryReadRequest::READ_REQUEST_STATUS_REJECTED,
             ]);

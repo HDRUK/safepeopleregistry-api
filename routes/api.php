@@ -212,7 +212,7 @@ Route::middleware('api')->get('v1/approvals/{entity_type}/{id}/custodian/{custod
 Route::middleware('api')->delete('v1/approvals/{entity_type}/{id}/custodian/{custodian_id}', [ApprovalController::class, 'delete']);
 
 Route::middleware('api')->post('v1/request_access', [RegistryReadRequestController::class, 'request']);
-Route::middleware('api')->post('v1/request_access/{id}', [RegistryReadRequestController::class, 'acceptOrReject']);
+Route::middleware('api')->patch('v1/request_access/{id}', [RegistryReadRequestController::class, 'acceptOrReject']);
 
 Route::get('v1/system_config', [SystemConfigController::class, 'index']);
 Route::post('v1/system_config', [SystemConfigController::class, 'store']);
