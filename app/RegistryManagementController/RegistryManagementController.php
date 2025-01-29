@@ -55,7 +55,7 @@ class RegistryManagementController
             $unclaimedUser->save();
 
             return [
-                "unclaimed_user_id" => $unclaimedUser->id
+                'unclaimed_user_id' => $unclaimedUser->id
             ];
         }
 
@@ -69,12 +69,18 @@ class RegistryManagementController
                         'last_name' => $input['family_name'],
                         'email' => $input['email'],
                         'keycloak_id' => $input['sub'],
-                        'registry_id' => RegistryManagementController::createRegistryLedger()->id,
+                        'registry_id' => 0,
                         'user_group' => RegistryManagementController::KC_GROUP_USERS,
                     ]);
 
+                    if ($user) {
+                        $user->registry_id = RegistryManagementController::createRegistryLedger()->id;
+                        $user->save();
+                        Keycloak::updateSoursdDigitalIdentifier($user);
+                    }
+
                     return [
-                        "user_id" => $user->id
+                        'user_id' => $user->id
                     ];
                 }
 
@@ -93,7 +99,7 @@ class RegistryManagementController
                     ]);
 
                     return [
-                        "user_id" => $user->id
+                        'user_id' => $user->id
                     ];
                 }
 
@@ -111,7 +117,7 @@ class RegistryManagementController
                     ]);
 
                     return [
-                        "user_id" => $user->id
+                        'user_id' => $user->id
                     ];
                 }
 
