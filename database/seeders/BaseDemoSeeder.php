@@ -1018,7 +1018,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         foreach ($users as $researcher) {
             $ident = Registry::where("id", $researcher->registry_id)->first()->digi_ident;
             $roleId = ProjectRole::inRandomOrder()->first()->id;
-            $phu = ProjectHasUser::create(
+            ProjectHasUser::create(
                 [
                     'project_id' => $projectId,
                     'user_digital_ident' => $ident,
