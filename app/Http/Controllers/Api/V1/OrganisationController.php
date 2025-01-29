@@ -467,7 +467,7 @@ class OrganisationController extends Controller
                 'ror_id' => '',
                 'website' => '',
                 'smb_status' => 0,
-                'unclaimed' => 1
+                'unclaimed' => isset($input['unclaimed']) ? $input['unclaimed'] : 1
             ]);
 
             return response()->json([
