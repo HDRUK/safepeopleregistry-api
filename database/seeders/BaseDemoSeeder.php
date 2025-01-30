@@ -22,6 +22,7 @@ use App\Models\ProjectRole;
 use App\Models\ProjectHasCustodian;
 use App\Models\RegistryHasOrganisation;
 use App\Models\OrganisationHasDepartment;
+use App\Models\OrganisationHasCustodianApproval;
 use Illuminate\Database\Seeder;
 
 class BaseDemoSeeder extends Seeder
@@ -73,6 +74,11 @@ class BaseDemoSeeder extends Seeder
             'ror_id' => '02wnqcb97',
             'smb_status' => true,
             'website' => 'https://www.website1.com/',
+        ]);
+
+        OrganisationHasCustodianApproval::create([
+            'organisation_id' => $org1->id,
+            'custodian_id' => Custodian::first()->id,
         ]);
 
         $org1Depts = [
