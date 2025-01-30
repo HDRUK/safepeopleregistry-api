@@ -150,7 +150,7 @@ class EmailTemplatesSeeder extends Seeder
                     </mj-section>
                     <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
                       <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
-                        <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_CUSTODIAN_INVITE_PATH)]]" padding="10px 25px 10px 25px" >
+                        <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 25px 10px 25px" >
                           Sign me up!
                         </mj-button>
                       </mj-column>
@@ -182,7 +182,7 @@ class EmailTemplatesSeeder extends Seeder
                   </mj-section>
                   <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
                     <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
-                      <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_ORGANISATION_INVITE_PATH)]]" padding="10px 25px 10px 25px" >
+                      <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 25px 10px 25px" >
                         Sign me up!
                       </mj-button>
                     </mj-column>
@@ -213,7 +213,7 @@ class EmailTemplatesSeeder extends Seeder
                     </mj-section>
                     <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
                       <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
-                        <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_CUSTODIAN_INVITE_PATH)]]" padding="10px 25px 10px 25px" >
+                        <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 25px 10px 25px" >
                           Sign me up!
                         </mj-button>
                       </mj-column>
@@ -261,7 +261,42 @@ class EmailTemplatesSeeder extends Seeder
                     </mj-section>
                     <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
                       <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
-                        <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/user/invited/[[users.id]]/[[organisations.id]]" padding="10px 25px 10px 25px" >Sign me up!</mj-button>
+                        <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 25px 10px 25px" >Sign me up!</mj-button>
+                      </mj-column>
+                    </mj-section>
+                  </mj-wrapper>
+                </mj-body>
+              </mjml > 
+            ',
+            'buttons' => '',
+        ]);
+
+        EmailTemplate::create([
+          'identifier' => 'researcher_without_organisation_invite',
+          'subject' => 'You\'ve been invited to join the Researcher Registry',
+          'body' => '
+            <mjml>
+              '. $this->mjmlHead . '
+              <mj-body background-color="#efeeea" width="600px" >
+                <mj-body background-color="#efeeea" width="600px" >
+                  ' . $this->titleBar . '
+                  <mj-wrapper border="none" direction="ltr" text-align="center" padding="20px 0px 20px 0px" >
+                    <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
+                      <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
+                        <mj-text align="left" padding="10px 25px 10px 25px" >
+                          [[users.first_name]] [[users.last_name]]<br><br>You\'ve been invited to sign-up as a Researcher within the [[env(APP_NAME)]] Registry system. To begin your sign-up process, please 
+                          click the button below.
+                          <div><br></div>
+                          ' . $this->supportFooter . '
+                          <div><br></div>
+                          <div><br></div>
+                          </div>
+                        </mj-text>
+                      </mj-column>
+                    </mj-section>
+                    <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
+                      <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
+                        <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 25px 10px 25px" >Sign me up!</mj-button>
                       </mj-column>
                     </mj-section>
                   </mj-wrapper>
