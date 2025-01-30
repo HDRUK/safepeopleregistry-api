@@ -186,7 +186,7 @@ National Public Health Ethics Committee for authorization to analyze population 
             ]);
         }
 
-        $proj = Project::create([
+        $org2Proj1 = Project::create([
             'unique_id' => Str::random(20),
             'title' => 'Social Media Influence on Mental Health Trends Among Teenagers',
             'lay_summary' => 'This study aims to understand the influence of social media usage patterns on the mental health of teenagers. We will gather and analyze data directly from various social media platforms, alongside survey responses from teenagers, to identify correlations between time spent online and mental health indicators like stress, anxiety, and depression.',
@@ -202,23 +202,22 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         ]);
 
         ProjectHasCustodian::create([
-            'project_id' => $proj->id,
+            'project_id' => $org2Proj1->id,
             'custodian_id' => Custodian::first()->id,
             'approved' => true
         ]);
 
         ProjectHasOrganisation::create([
-            'project_id' => $proj->id,
+            'project_id' => $org2Proj1->id,
             'organisation_id' => $org2->id,
         ]);
 
         // Add parallel collaborator of org1 to org2's project
         ProjectHasOrganisation::create([
-            'project_id' => $proj->id,
+            'project_id' => $org2Proj1->id,
             'organisation_id' => $org1->id,
         ]);
 
-        $this->addRandomUsersToProject($proj->id);
 
         // --------------------------------------------------------------------------------
         // End
@@ -289,7 +288,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'organisation_id' => $org3->id,
         ]);
 
-        $this->addRandomUsersToProject($proj->id);
 
         // --------------------------------------------------------------------------------
         // End
@@ -554,6 +552,11 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'affiliations' => [
                     2, 1,
                 ],
+                'projects' => [
+                    $org2Proj1->id,
+                    $org1Proj1->id,
+                    $org1Proj2->id,
+                ],
                 'identity' => [
                     'selfie_path' => '/path/to/non/existent/selfie/',
                     'passport_path' => '/path/to/non/existent/passport/',
@@ -591,6 +594,9 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'keycloak_id' => 'f770c1cc-9935-4d52-ad76-19e33ca526b1',
                 'affiliations' => [
                     2,
+                ],
+                'projects' => [
+                    $org2Proj1->id,
                 ],
                 'identity' => [
                     'selfie_path' => '/path/to/non/existent/selfie/',
@@ -633,6 +639,9 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'affiliations' => [
                     3,
                 ],
+                'projects' => [
+                    $org2Proj1->id,
+                ],
                 'identity' => [
                     'selfie_path' => '/path/to/non/existent/selfie/',
                     'passport_path' => '/path/to/non/existent/passport/',
@@ -670,6 +679,9 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'keycloak_id' => 'de17935a-a79e-4b47-8d92-8041901dec15',
                 'affiliations' => [
                     3, 1,
+                ],
+                'projects' => [
+                    $org1Proj1->id,
                 ],
                 'identity' => [
                     'selfie_path' => '/path/to/non/existent/selfie/',
@@ -746,6 +758,8 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         // Link Researchers to projects
         // --------------------------------------------------------------------------------
         $this->linkUsersToProjects($org1Researchers);
+        $this->linkUsersToProjects($org2Researchers);
+        $this->linkUsersToProjects($org3Researchers);
 
 
         // --------------------------------------------------------------------------------

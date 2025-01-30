@@ -237,7 +237,7 @@ class ProjectTest extends TestCase
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
         $this->assertArrayHasKey('data', $response['data']);
-        $this->assertCount(3, $response['data']['data']);
+        $this->assertCount(5, $response['data']['data']);
         $this->assertArrayHasKey('registry', $response['data']['data'][0]);
     }
 
