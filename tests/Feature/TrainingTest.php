@@ -69,6 +69,7 @@ class TrainingTest extends TestCase
                 'expires_at' => Carbon::now()->addYears(5),
                 'expires_in_years' => 5,
                 'training_name' => 'Completely made up Researcher Training',
+                'certification_id' => null,
             ]
             );
 
@@ -90,6 +91,7 @@ class TrainingTest extends TestCase
                 'expires_at' => Carbon::now()->addYears(5),
                 'expires_in_years' => 5,
                 'training_name' => 'Completely made up Researcher Training',
+                'certification_id' => 1,
             ]
         );
 
@@ -110,6 +112,7 @@ class TrainingTest extends TestCase
                 'expires_at' => Carbon::now()->addYears(8),
                 'expires_in_years' => 8,
                 'training_name' => 'Completely made up Researcher Training v2',
+                'certification_id' => 1,
             ]
             );
 
@@ -136,6 +139,7 @@ class TrainingTest extends TestCase
                 'expires_at' => Carbon::now()->addYears(5),
                 'expires_in_years' => 5,
                 'training_name' => 'Pointless Training that will be Deleted',
+                'certification_id' => null,
             ]
             );
 

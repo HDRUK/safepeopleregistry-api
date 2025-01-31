@@ -162,6 +162,23 @@ class CustodianUserTest extends TestCase
         Queue::assertNothingPushed();
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'POST',
+            self::TEST_URL,
+            [
+                'first_name' => fake()->firstname(),
+                'last_name' => fake()->lastname(),
+                'email' => fake()->email(),
+                'password' => Str::random(12),
+                'provider' => fake()->word(),
+                'keycloak_id' => '',
+                'custodian_id' => 1,
+            ]
+        );
+
+        $response->assertStatus(201);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'POST',
                 self::TEST_URL . '/invite/1'

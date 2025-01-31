@@ -13,7 +13,6 @@ use App\Jobs\SendEmailJob;
 use App\Models\PendingInvite;
 use App\Models\ProjectHasOrganisation;
 use App\Models\OrganisationHasDepartment;
-use Database\Seeders\CustodianSeeder;
 use Database\Seeders\UserSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\BaseDemoSeeder;
@@ -41,7 +40,6 @@ class OrganisationTest extends TestCase
         parent::setUp();
         $this->seed([
             PermissionSeeder::class,
-            CustodianSeeder::class,
             UserSeeder::class,
             EmailTemplatesSeeder::class,
             BaseDemoSeeder::class,
@@ -503,7 +501,7 @@ class OrganisationTest extends TestCase
 
         $response->assertStatus(200);
         $content = $response->decodeResponseJson();
-        // dd($content);
+
         $this->assertTrue(count($content['data']['data']) > 0);
         $this->assertTrue($content['data']['data'][0]['organisation_name'] === 'ZYX Org');
 

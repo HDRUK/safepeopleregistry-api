@@ -12,7 +12,6 @@ use App\Models\ProjectHasUser;
 use App\Models\ProjectHasCustodian;
 use Database\Seeders\UserSeeder;
 use Database\Seeders\PermissionSeeder;
-use Database\Seeders\CustodianSeeder;
 use Database\Seeders\BaseDemoSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
@@ -37,7 +36,6 @@ class ProjectTest extends TestCase
         $this->seed([
             UserSeeder::class,
             PermissionSeeder::class,
-            CustodianSeeder::class,
             BaseDemoSeeder::class,
         ]);
 
@@ -239,7 +237,7 @@ class ProjectTest extends TestCase
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
         $this->assertArrayHasKey('data', $response['data']);
-        $this->assertCount(3, $response['data']['data']);
+        $this->assertCount(5, $response['data']['data']);
         $this->assertArrayHasKey('registry', $response['data']['data'][0]);
     }
 
