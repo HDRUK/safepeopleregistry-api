@@ -410,7 +410,7 @@ class UserController extends Controller
             $user->registry_id = isset($input['registry_id']) ? $input['registry_id'] : $user->registry_id;
             $user->consent_scrape = isset($input['consent_scrape']) ? $input['consent_scrape'] : $user->consent_scrape;
             $user->profile_steps_completed = isset($input['profile_steps_completed']) ? $input['profile_steps_completed'] : $user->profile_steps_completed;
-            $user->profile_completed_at = isset($input['profile_completed_at']) ? $input['profile_completed_at'] : $user->profile_completed_at;
+            $user->profile_completed_at = array_key_exists('profile_completed_at', $input) ? $input['profile_completed_at'] : $user->profile_completed_at;
             $user->public_opt_in = isset($input['public_opt_in']) ? $input['public_opt_in'] : $user->public_opt_in;
             $user->declaration_signed = isset($input['declaration_signed']) ? $input['declaration_signed'] : $user->declaration_signed;
             $user->organisation_id = isset($input['organisation_id']) ? $input['organisation_id'] : $user->organisation_id;
