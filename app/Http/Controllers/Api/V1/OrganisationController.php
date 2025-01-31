@@ -467,7 +467,7 @@ class OrganisationController extends Controller
                 'ror_id' => '',
                 'website' => '',
                 'smb_status' => 0,
-                'unclaimed' => 1
+                'unclaimed' => isset($input['unclaimed']) ? $input['unclaimed'] : 1
             ]);
 
             return response()->json([
@@ -1114,19 +1114,28 @@ class OrganisationController extends Controller
                 'role' => isset($input['role']) ? $input['role'] : null,
             ]);
 
-            if ($input['department_id'] !== 0 && $input['department_id'] !== null) {
+            if (isset($input['department_id']) && $input['department_id'] !== 0 && $input['department_id'] !== null) {
                 UserHasDepartments::create([
                     'user_id' => $unclaimedUser->id,
                     'department_id' => $request['department_id'],
                 ]);
             };
 
-            $input = [
-                'type' => 'USER',
-                'to' => $unclaimedUser->id,
-                'by' => $id,
-                'identifier' => $input['identifier'],
-            ];
+            if (isset($input['is_delegate'])) {
+                $input = [
+                    'type' => 'USER_DELEGATE',
+                    'to' => $unclaimedUser->id,
+                    'by' => $id,
+                    'identifier' => 'delegate_sponsor'
+                ];
+            } else {
+                $input = [
+                    'type' => 'USER',
+                    'to' => $unclaimedUser->id,
+                    'by' => $id,
+                    'identifier' => 'researcher_invite'
+                ];
+            }
 
             TriggerEmail::spawnEmail($input);
 

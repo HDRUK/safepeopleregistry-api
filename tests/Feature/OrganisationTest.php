@@ -501,7 +501,7 @@ class OrganisationTest extends TestCase
 
         $response->assertStatus(200);
         $content = $response->decodeResponseJson();
-        // dd($content);
+
         $this->assertTrue(count($content['data']['data']) > 0);
         $this->assertTrue($content['data']['data'][0]['organisation_name'] === 'ZYX Org');
 

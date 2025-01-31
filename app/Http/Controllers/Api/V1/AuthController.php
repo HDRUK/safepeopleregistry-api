@@ -46,6 +46,11 @@ class AuthController extends Controller
                     $pendingInvite->status = config('speedi.invite_status.COMPLETE');
                     $pendingInvite->save();
                 }
+
+                return response()->json([
+                    'message' => 'success',
+                    'data' => $user['unclaimed_user_id'],
+                ], 201);
             }
 
             return response()->json([
@@ -56,7 +61,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'failed',
-            'data' => 'user already exists',
+            'data' => null,
         ], 400);
     }
 
