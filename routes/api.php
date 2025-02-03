@@ -163,6 +163,8 @@ Route::middleware('api')->get('v1/organisations/{id}/projects/present', [Organis
 Route::middleware('api')->get('v1/organisations/{id}/projects/past', [OrganisationController::class, 'pastProjects']);
 Route::middleware('api')->get('v1/organisations/{id}/projects/future', [OrganisationController::class, 'futureProjects']);
 
+Route::middleware('api')->get('v1/organisations/ror/{ror}', [OrganisationController::class, 'validateRor']);
+
 Route::middleware('api')->get('v1/accreditations/{registryId}', [AccreditationController::class, 'indexByRegistryId']);
 Route::middleware('api')->post('v1/accreditations/{registryId}', [AccreditationController::class, 'storeByRegistryId']);
 Route::middleware('api')->put('v1/accreditations/{id}/{registryId}', [AccreditationController::class, 'updateByRegistryId']);
