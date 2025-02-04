@@ -18,6 +18,7 @@ use App\Models\OrganisationHasSubsidiary;
 use App\Models\Subsidiary;
 use App\Models\User;
 use App\Models\UserHasDepartments;
+use App\Models\RegistryHasOrganisation;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -1273,5 +1274,83 @@ class OrganisationController extends Controller
             'message' => 'failed',
             'data' => 'not found',
         ], 404);
+    }
+
+    /**
+     * @OA\Get(
+     *      path="/api/v1/organisations/{id}/registries",
+     *      summary="Get all registries for an organisation",
+     *      description="Returns all registries associated with the specified organisation",
+     *      tags={"organisations"},
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="Organisation ID",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="integer",
+     *              format="int64"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="object",
+     *                  @OA\Property(property="current_page", type="integer"),
+     *                  @OA\Property(
+     *                      property="data",
+     *                      type="array",
+     *                      @OA\Items(
+     *                          @OA\Property(property="registry_id", type="integer"),
+     *                          @OA\Property(property="organisation_id", type="integer")
+     *                      )
+     *                  ),
+     *                  @OA\Property(property="first_page_url", type="string"),
+     *                  @OA\Property(property="from", type="integer"),
+     *                  @OA\Property(property="last_page", type="integer"),
+     *                  @OA\Property(property="last_page_url", type="string"),
+     *                  @OA\Property(property="next_page_url", type="string"),
+     *                  @OA\Property(property="path", type="string"),
+     *                  @OA\Property(property="per_page", type="integer"),
+     *                  @OA\Property(property="prev_page_url", type="string"),
+     *                  @OA\Property(property="to", type="integer"),
+     *                  @OA\Property(property="total", type="integer")
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="No registries found for this organisation",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="No registries found for this organisation")
+     *          )
+     *      )
+     * )
+     */
+    public function getRegistries(Request $request, int $id): JsonResponse
+    {
+        try {
+
+            $registryIds = RegistryHasOrganisation::where('organisation_id', $id)
+            ->get()
+            ->select('registry_id');
+
+            $users = User::searchViaRequest()
+            ->applySorting()
+            ->whereIn('registry_id', $registryIds)
+            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+
+            return response()->json([
+                'message' => 'success',
+                'data' => $users,
+            ], 200);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
     }
 }
