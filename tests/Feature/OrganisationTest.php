@@ -728,4 +728,31 @@ class OrganisationTest extends TestCase
             'organisation.owner@healthdataorganisation.com'
         );
     }
+
+    // LS - Removed as doesn't run in GH - possibly blocked by ROR
+    // needs investigation
+    //
+    // public function test_the_application_can_validate_a_real_ror_id(): void
+    // {
+    //     $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+    //         ->json(
+    //             'GET',
+    //             self::TEST_URL . '/ror/015w2mp89',
+    //         );
+    //     $response->assertStatus(200);
+    //     $this->assertArrayHasKey('data', $response);
+    //     $this->assertEquals($response['data']['name'], 'National Physical Laboratory');
+    // }
+
+    // public function test_the_application_can_validate_a_fake_ror_id(): void
+    // {
+    //     $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+    //         ->json(
+    //             'GET',
+    //             self::TEST_URL . '/ror/123445',
+    //         );
+    //     $response->assertStatus(404);
+    //     $this->assertArrayHasKey('data', $response);
+    //     $this->assertEquals($response['data'], 'not found');
+    // }
 }

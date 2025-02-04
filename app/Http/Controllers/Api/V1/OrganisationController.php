@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use DB;
 use Hash;
+use Http;
 use Exception;
 use RegistryManagementController as RMC;
 use Carbon\Carbon;
@@ -1257,6 +1258,22 @@ class OrganisationController extends Controller
                 'subsidiary_id' => $subsidiary->id
             ]
         );
+    }
+
+    public function validateRor(Request $request, string $ror): JsonResponse
+    {
+        $response = Http::get(env('ROR_API_URL') . '/' . $ror);
+        if ($response->status() === 200) {
+            return response()->json([
+                'message' => 'success',
+                'data' => $response->json(),
+            ], 200);
+        }
+
+        return response()->json([
+            'message' => 'failed',
+            'data' => 'not found',
+        ], 404);
     }
 
     /**
