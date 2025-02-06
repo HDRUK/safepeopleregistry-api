@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 
 return new class () extends Migration {
     /**
@@ -30,10 +31,16 @@ return new class () extends Migration {
 
 
         DB::table('organisations')->whereNotNull('charity_registration_id')->get()->each(function ($organisation) {
-            $charityId = DB::table('charities')->insertGetId([
-                'registration_id' => $organisation->charity_registration_id,
-                'name' => 'Unknown',
-            ]);
+            $charity = DB::table('charities')->where('registration_id', $organisation->charity_registration_id)->first();
+
+            if (!$charity) {
+                $charityId = DB::table('charities')->insertGetId([
+                    'registration_id' => $organisation->charity_registration_id,
+                    'name' => 'Unknown',
+                ]);
+            } else {
+                $charityId = $charity->id;
+            }
 
             DB::table('organisation_has_charity')->insert([
                 'organisation_id' => $organisation->id,

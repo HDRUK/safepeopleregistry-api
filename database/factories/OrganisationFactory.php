@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Organisation;
+use App\Models\Charity;
 use App\Models\Sector;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -39,17 +41,6 @@ class OrganisationFactory extends Factory
             'companies_house_no' => '10887014',
             'iso_27001_certification_num' => Str::random(12),
             'sector_id' => fake()->randomElement([0, count(Sector::SECTORS)]),
-            'charities' => [
-                'registration_id' => fake()->unique()->numerify('########'),
-                'name' => fake()->company(),
-                'website' => fake()->url(),
-                'address_1' => fake()->streetAddress(),
-                'address_2' => fake()->optional()->secondaryAddress(),
-                'town' => fake()->city(),
-                'county' => fake()->state(),
-                'country' => fake()->country(),
-                'postcode' => fake()->postcode(),
-            ],
             'ror_id' => '02wnqcb97',
             'smb_status' => false,
             'website' => 'https://www.website.com/',

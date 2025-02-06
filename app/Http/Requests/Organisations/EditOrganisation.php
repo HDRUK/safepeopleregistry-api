@@ -39,7 +39,6 @@ class EditOrganisation extends FormRequest
             'ce_certification_num' => 'nullable|string|max:255',
             'ce_plus_certified' => 'sometimes|boolean',
             'ce_plus_certification_num' => 'nullable|string|max:255',
-            'charity_registration_id' => 'nullable|string|max:255',
             'ror_id' => 'nullable|string|max:255',
             'website' => 'nullable|url',
             'smb_status' => 'sometimes|boolean',
