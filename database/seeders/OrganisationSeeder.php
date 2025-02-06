@@ -18,7 +18,7 @@ class OrganisationSeeder extends Seeder
     {
         Organisation::truncate();
 
-        Organisation::factory(1)->create();
+        Organisation::factory(1)->withCharity()->create();
 
         $org = Organisation::all()[0];
 

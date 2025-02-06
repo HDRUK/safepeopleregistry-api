@@ -39,10 +39,29 @@ class OrganisationFactory extends Factory
             'companies_house_no' => '10887014',
             'iso_27001_certification_num' => Str::random(12),
             'sector_id' => fake()->randomElement([0, count(Sector::SECTORS)]),
-            'charity_registration_id' => '1186569',
+            'charities' => [
+                'registration_id' => fake()->unique()->numerify('########'),
+                'name' => fake()->company(),
+                'website' => fake()->url(),
+                'address_1' => fake()->streetAddress(),
+                'address_2' => fake()->optional()->secondaryAddress(),
+                'town' => fake()->city(),
+                'county' => fake()->state(),
+                'country' => fake()->country(),
+                'postcode' => fake()->postcode(),
+            ],
             'ror_id' => '02wnqcb97',
             'smb_status' => false,
             'website' => 'https://www.website.com/',
         ];
     }
+
+    public function withCharity()
+    {
+        return $this->afterCreating(function (Organisation $organisation) {
+            $charity = Charity::factory()->create();
+            $organisation->charities()->attach($charity->id);
+        });
+    }
+
 }
