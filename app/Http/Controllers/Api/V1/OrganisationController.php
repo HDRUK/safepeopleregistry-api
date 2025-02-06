@@ -13,6 +13,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\OrganisationIDVT;
 use App\Models\Project;
 use App\Models\Organisation;
+use App\Models\Charity;
 use App\Models\OrganisationHasDepartment;
 use App\Models\OrganisationHasSubsidiary;
 use App\Models\Subsidiary;
