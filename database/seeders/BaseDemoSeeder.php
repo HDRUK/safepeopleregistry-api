@@ -55,7 +55,7 @@ class BaseDemoSeeder extends Seeder
             'address_2' => '138-142 HOLBORN',
             'town' => 'LONDON',
             'county' => 'GREATER LONDON',
-            'country' => 'UNITED KINGDOM',
+            'country' => 'United Kingdom',
             'postcode' => 'EC1N 2SW',
             'lead_applicant_organisation_name' => 'Dr. Organisation Owner',
             'lead_applicant_email' => 'organisation.owner@healthdataorganisation.com',
@@ -84,7 +84,7 @@ class BaseDemoSeeder extends Seeder
             'address_2' => '138-142 HOLBORN',
             'town' => 'LONDON',
             'county' => 'GREATER LONDON',
-            'country' => 'UNITED KINGDOM',
+            'country' => 'United Kingdom',
             'postcode' => 'EC1N 2SW',
         ]);
 

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Charity extends Model
 {
@@ -23,7 +24,7 @@ class Charity extends Model
 
     public $timestamps = false;
 
-    public function organisations()
+    public function organisations(): BelongsToMany
     {
         return $this->belongsToMany(Organisation::class, 'organisation_has_charity');
     }
