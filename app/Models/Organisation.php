@@ -46,7 +46,6 @@ class Organisation extends Model
         'idvt_completed_at',
         'companies_house_no',
         'sector_id',
-        'charity_registration_id',
         'ror_id',
         'website',
         'smb_status',
@@ -117,5 +116,10 @@ class Organisation extends Model
             Subsidiary::class,
             'organisation_has_subsidiaries'
         );
+    }
+
+    public function charities()
+    {
+        return $this->belongsToMany(Charity::class, 'organisation_has_charity');
     }
 }
