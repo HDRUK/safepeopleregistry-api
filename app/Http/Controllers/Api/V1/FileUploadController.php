@@ -19,6 +19,45 @@ class FileUploadController extends Controller
 {
     use CommonFunctions;
 
+    /**
+     * @OA\Get(
+     *      path="/api/v1/files/{id}",
+     *      summary="Gets an uploaded file",
+     *      description="Gets an uploaded file",
+     *      tags={"Files"},
+     *      summary="Files@show",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="File ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="File ID",
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Not found
+     *          @OA\JsonContent(
+     *              @OA\Property(property="id", type="integer", example="1"),
+     *              @OA\Property(property="name", type="string", example="users.csv"),
+     *              @OA\Property(property="path", type="string", example="1739297394_users.csv"),
+     *              @OA\Property(property="type", type="string", example="RESEARCHERS_LIST"),
+     *              @OA\Property(property="status", type="string", example="failed"),
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="file upload failed")
+     *          ),
+     *      ),
+     * )
+     */
     public function show(Request $request, int $id): JsonResponse
     {
         $file = File::findOrFail($id);
@@ -44,11 +83,9 @@ class FileUploadController extends Controller
      *      tags={"Files"},
      *      summary="Files@store",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="File definition",
-     *
      *          @OA\JsonContent(
      *              @OA\Property(property="registry_id", type="integer", example="1"),
      *              @OA\Property(property="file", type="file", example=""),
@@ -56,23 +93,17 @@ class FileUploadController extends Controller
      *              @OA\Property(property="entity_type", type="string", example="researcher"),
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=400,
      *          description="Bad request",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="file upload failed")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=201,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="integer", example="1"),
      *          ),
