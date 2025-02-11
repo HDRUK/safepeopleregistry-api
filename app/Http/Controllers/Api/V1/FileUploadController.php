@@ -19,6 +19,23 @@ class FileUploadController extends Controller
 {
     use CommonFunctions;
 
+    public function show(Request $request, int $id): JsonResponse
+    {
+        $file = File::findOrFail($id);
+
+        if ($file) {
+            return response()->json([
+                'message' => 'success',
+                'data' => $file,
+            ], 200);
+        }
+
+        return response()->json([
+            'message' => 'not found',
+            'data' => null,
+        ], 404);
+    }
+
     /**
      * @OA\Post(
      *      path="/api/v1/files",
