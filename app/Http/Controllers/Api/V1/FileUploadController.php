@@ -40,14 +40,17 @@ class FileUploadController extends Controller
      *      ),
      *      @OA\Response(
      *          response=200,
-     *          description="Not found
+     *          description="Success",
      *          @OA\JsonContent(
-     *              @OA\Property(property="id", type="integer", example="1"),
-     *              @OA\Property(property="name", type="string", example="users.csv"),
-     *              @OA\Property(property="path", type="string", example="1739297394_users.csv"),
-     *              @OA\Property(property="type", type="string", example="RESEARCHERS_LIST"),
-     *              @OA\Property(property="status", type="string", example="failed"),
-     *          ),
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="object",
+     *                  @OA\Property(property="id", type="integer", example=1),
+     *                  @OA\Property(property="name", type="string", example="users.csv"),
+     *                  @OA\Property(property="path", type="string", example="1739297394_users.csv"),
+     *                  @OA\Property(property="type", type="string", example="RESEARCHERS_LIST"),
+     *                  @OA\Property(property="status", type="string", example="failed")
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response=404,
