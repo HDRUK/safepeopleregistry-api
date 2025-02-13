@@ -274,7 +274,9 @@ class CustodianTest extends TestCase
                         'ce_certified' => 1,
                         'ce_certification_num' => 'A1234',
                         'sector_id' => fake()->randomElement([0, count(Sector::SECTORS)]),
-                        'charity_registration_id' => '1186569',
+                        'charities' => [
+                            'registration_id' => '1186569',
+                        ],
                         'ror_id' => '02wnqcb97',
                         'smb_status' => false,
                         'website' => 'https://www.website.com/',
@@ -359,7 +361,9 @@ class CustodianTest extends TestCase
                         'ce_certified' => 1,
                         'ce_certification_num' => 'A1234',
                         'sector_id' => fake()->randomElement([0, count(Sector::SECTORS)]),
-                        'charity_registration_id' => '1186569',
+                        'charities' => [
+                            'registration_id' => '1186569',
+                        ],
                         'ror_id' => '02wnqcb97',
                         'smb_status' => false,
                         'website' => 'https://www.website.com/',
@@ -439,7 +443,9 @@ class CustodianTest extends TestCase
                         'ce_certified' => 1,
                         'ce_certification_num' => 'A1234',
                         'sector_id' => fake()->randomElement([0, count(Sector::SECTORS)]),
-                        'charity_registration_id' => '1186569',
+                        'charities' => [
+                            'registration_id' => '1186569',
+                        ],
                         'ror_id' => '02wnqcb97',
                         'smb_status' => false,
                         'website' => 'https://www.website.com/',

@@ -33,7 +33,6 @@ class Custodian extends Model
     ];
 
     protected $hidden = [
-        'unique_identifier',
         'calculated_hash',
     ];
 

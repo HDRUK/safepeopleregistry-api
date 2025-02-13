@@ -36,7 +36,6 @@ class Registry extends Model
         'user_id',
         'dl_ident',
         'pp_ident',
-        'digi_ident',
     ];
 
     public function user(): HasOne

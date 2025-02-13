@@ -14,6 +14,8 @@ use App\Models\Education;
 use App\Models\Employment;
 use App\Models\Training;
 use App\Models\Organisation;
+use App\Models\OrganisationHasCharity;
+use App\Models\Charity;
 use App\Models\Custodian;
 use App\Models\CustodianUser;
 use App\Models\ProjectHasOrganisation;
@@ -53,7 +55,7 @@ class BaseDemoSeeder extends Seeder
             'address_2' => '138-142 HOLBORN',
             'town' => 'LONDON',
             'county' => 'GREATER LONDON',
-            'country' => 'UNITED KINGDOM',
+            'country' => 'United Kingdom',
             'postcode' => 'EC1N 2SW',
             'lead_applicant_organisation_name' => 'Dr. Organisation Owner',
             'lead_applicant_email' => 'organisation.owner@healthdataorganisation.com',
@@ -69,10 +71,26 @@ class BaseDemoSeeder extends Seeder
             'ce_plus_certified' => true,
             'companies_house_no' => '09349495',
             'sector_id' => 5, // Charity/Non-profit
-            'charity_registration_id' => '1186569',
             'ror_id' => '02wnqcb97',
             'smb_status' => true,
             'website' => 'https://www.website1.com/',
+        ]);
+
+        $charity = Charity::create([
+            'registration_id' => '1186569',
+            'name' => 'Health Pathways UK Charity',
+            'website' => 'https://www.website1.com/',
+            'address_1' => '3 WATERHOUSE SQUARE',
+            'address_2' => '138-142 HOLBORN',
+            'town' => 'LONDON',
+            'county' => 'GREATER LONDON',
+            'country' => 'United Kingdom',
+            'postcode' => 'EC1N 2SW',
+        ]);
+
+        OrganisationHasCharity::create([
+            'organisation_id' => $org1->id,
+            'charity_id' => $charity->id,
         ]);
 
         $org1Depts = [
@@ -169,10 +187,14 @@ National Public Health Ethics Committee for authorization to analyze population 
             'ce_plus_certified' => false,
             'companies_house_no' => '15765271',
             'sector_id' => 4, // Public
-            'charity_registration_id' => '1186569',
             'ror_id' => '02wnqcb97',
             'smb_status' => true,
             'website' => 'https://www.website2.com/',
+        ]);
+
+        OrganisationHasCharity::create([
+            'organisation_id' => $org2->id,
+            'charity_id' => $charity->id,
         ]);
 
         $org2Depts = [
@@ -248,7 +270,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'ce_plus_certified' => true,
             'companies_house_no' => '07563555',
             'sector_id' => 6, // Private/Industry
-            'charity_registration_id' => null,
             'ror_id' => null,
             'smb_status' => null,
             'website' => null,
