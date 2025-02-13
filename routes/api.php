@@ -30,6 +30,7 @@ use App\Http\Controllers\Api\V1\EducationController;
 use App\Http\Controllers\Api\V1\EmailTemplateController;
 use App\Http\Controllers\Api\V1\SectorController;
 use App\Http\Controllers\Api\V1\NotificationController;
+use App\Http\Controllers\Api\V1\ProfessionalRegistrationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -177,6 +178,12 @@ Route::middleware('api')->post('v1/affiliations/{registryId}', [AffiliationContr
 Route::middleware('api')->put('v1/affiliations/{id}', [AffiliationController::class, 'update']);
 Route::middleware('api')->patch('v1/affiliations/{id}', [AffiliationController::class, 'edit']);
 Route::middleware('api')->delete('v1/affiliations/{id}', [AffiliationController::class, 'destroy']);
+
+Route::middleware('api')->get('v1/professional_registrations/{registryId}', [ProfessionalRegistrationController::class, 'indexByRegistryId']);
+Route::middleware('api')->post('v1/professional_registrations/{registryId}', [ProfessionalRegistrationController::class, 'storeByRegistryId']);
+Route::middleware('api')->put('v1/professional_registrations/{id}', [ProfessionalRegistrationController::class, 'update']);
+Route::middleware('api')->patch('v1/professional_registrations/{id}', [ProfessionalRegistrationController::class, 'edit']);
+Route::middleware('api')->delete('v1/professional_registrations/{id}', [ProfessionalRegistrationController::class, 'destroy']);
 
 Route::middleware('api')->get('v1/educations/{registryId}', [EducationController::class, 'indexByRegistryId']);
 Route::middleware('api')->get('v1/educations/{id}/{registryId}', [EducationController::class, 'showByRegistryId']);
