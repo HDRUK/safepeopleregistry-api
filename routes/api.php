@@ -218,6 +218,7 @@ Route::middleware('api')->get('v1/email_templates', [EmailTemplateController::cl
 Route::middleware('api')->post('v1/trigger_email', [TriggerEmailController::class, 'spawnEmail']);
 
 Route::middleware('api')->post('v1/files', [FileUploadController::class, 'store']);
+Route::middleware('api')->get('v1/files/{id}', [FileUploadController::class, 'show']);
 
 Route::middleware('api')->post('v1/approvals/{entity_type}', [ApprovalController::class, 'store']);
 Route::middleware('api')->get('v1/approvals/{entity_type}/{id}/custodian/{custodian_id}', [ApprovalController::class, 'getEntityHasCustodianApproval']);
