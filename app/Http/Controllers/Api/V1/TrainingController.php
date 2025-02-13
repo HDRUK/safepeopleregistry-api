@@ -246,7 +246,7 @@ class TrainingController extends Controller
                 'expires_in_years' => $input['expires_in_years'],
                 'training_name' => $input['training_name'],
                 'certification_id' => isset($input['certification_id']) ? $input['certification_id'] : null,
-                'pro_registration' => isset($input['pro_registration']) ? $input['pro_registration'] : null,
+                'pro_registration' => isset($input['pro_registration']) ? $input['pro_registration'] : 0,
             ]);
 
             return response()->json([
