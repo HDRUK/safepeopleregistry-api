@@ -15,6 +15,6 @@ class RegistryHasProfessionalRegistration extends Model
 
     protected $fillable = [
         'registry_id',
-        'professional_member_id',
+        'professional_registration_id',
     ];
 }

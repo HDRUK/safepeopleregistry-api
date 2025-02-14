@@ -129,7 +129,7 @@ class ProfessionalRegistrationController extends Controller
 
             RegistryHasProfessionalRegistration::create([
                 'registry_id' => $registryId,
-                'professional_member_id' => $professionalRegistration->id,
+                'professional_registration_id' => $professionalRegistration->id,
             ]);
 
             return response()->json([
@@ -303,7 +303,7 @@ class ProfessionalRegistrationController extends Controller
             ProfessionalRegistration::where('id', $id)->first()->delete();
 
             RegistryHasProfessionalRegistration::where([
-                'professional_member_id' => $id,
+                'professional_registration_id' => $id,
             ])->delete();
 
             return response()->json([
