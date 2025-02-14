@@ -17,7 +17,10 @@ class Affiliation extends Model
         'organisation_id',
         'current_employer',
         'member_id',
-        'relationship'
+        'relationship',
+        'start_date',
+        'end_date',
+        'position'
     ];
 
     /**

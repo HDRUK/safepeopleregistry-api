@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Exception;
+use Carbon\Carbon;
 use App\Models\Affiliation;
 use App\Models\RegistryHasAffiliation;
 use App\Http\Controllers\Controller;
@@ -138,7 +139,10 @@ class AffiliationController extends Controller
                 'member_id' => $request['member_id'],
                 'organisation_id' => $input['organisation_id'],
                 'current_employer' => $input['current_employer'],
-                'relationship' => $input['relationship']
+                'relationship' => $input['relationship'],
+                'position' => $input['position'],
+                'start_date' => isset($input['start_date']) ? Carbon::parse($input['start_date'])->toDateString() : null,
+                'end_date' => isset($input['end_date']) ? Carbon::parse($input['end_date'])->toDateString() : null,
             ]);
 
             RegistryHasAffiliation::create([
@@ -224,6 +228,9 @@ class AffiliationController extends Controller
             $affiliation->organisation_id = $input['organisation_id'];
             $affiliation->current_employer = $input['current_employer'];
             $affiliation->relationship = $input['relationship'];
+            $affiliation->position = $input['position'];
+            $affiliation->start_date = Carbon::parse($input['start_date'])->toDateString();
+            $affiliation->end_date = Carbon::parse($input['end_date'])->toDateString();
 
             $affiliation->save();
 
