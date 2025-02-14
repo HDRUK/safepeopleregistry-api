@@ -13,6 +13,7 @@ use App\Http\Controllers\Controller;
 
 class EmploymentController extends Controller
 {
+    //Hide from swagger
     public function indexByRegistryId(Request $request, int $registryId): JsonResponse
     {
         $employments = Employment::where('registry_id', $registryId)->get();
@@ -23,6 +24,7 @@ class EmploymentController extends Controller
         ], 200);
     }
 
+    //Hide from swagger    
     public function showByRegistryId(Request $request, int $id, int $registryId): JsonResponse
     {
         try {
@@ -40,6 +42,7 @@ class EmploymentController extends Controller
         }
     }
 
+    //Hide from swagger    
     public function storeByRegistryId(Request $request, int $registryId): JsonResponse
     {
         try {
@@ -89,6 +92,7 @@ class EmploymentController extends Controller
         }
     }
 
+    //Hide from swagger    
     public function updateByRegistryId(Request $request, int $id, int $registryId): JsonResponse
     {
         try {
@@ -126,6 +130,7 @@ class EmploymentController extends Controller
         }
     }
 
+    //Hide from swagger    
     public function editByRegistryId(Request $request, int $id, int $registryId): JsonResponse
     {
         try {
@@ -198,6 +203,7 @@ class EmploymentController extends Controller
         }
     }
 
+    //Hide from swagger    
     public function destroyByRegistryId(Request $request, int $id, int $registryId): JsonResponse
     {
         try {

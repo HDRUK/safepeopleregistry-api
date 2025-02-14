@@ -14,46 +14,7 @@ class AffiliationController extends Controller
 {
     use CommonFunctions;
 
-    /**
-     * @OA\Get(
-     *      path="/api/v1/affiliations/{registryId}",
-     *      summary="Return a list of affiliations by registry id",
-     *      description="Return a list of affiliations by registry id",
-     *      tags={"Affiliations"},
-     *      summary="Affiliations@show",
-     *      security={{"bearerAuth":{}}},
-     *      @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="Affiliations registry id",
-     *         required=true,
-     *         example="1",
-     *         @OA\Schema(
-     *            type="integer",
-     *            description="Affiliations registry id",
-     *         ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Success",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="member_id", type="string", example="A1234"),
-     *                  @OA\Property(property="organisation_id", type="integer", example="1"),
-     *                  @OA\Property(property="current_employer", type="integer", example="1"),
-     *              )
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found"),
-     *          )
-     *      )
-     * )
-     */
+    //Hide from swagger
     public function indexByRegistryId(Request $request, int $registryId): JsonResponse
     {
         $rha = RegistryHasAffiliation::where('registry_id', $registryId)
@@ -70,65 +31,7 @@ class AffiliationController extends Controller
         ], 200);
     }
 
-    /**
-     * @OA\Post(
-     *      path="/api/v1/affiliations/{registryId}",
-     *      summary="Create an Affiliation entry",
-     *      description="Create an Affiliation entry",
-     *      tags={"Affiliations"},
-     *      summary="Affiliations@store",
-     *      security={{"bearerAuth":{}}},
-     *      @OA\Parameter(
-     *         name="registry_id",
-     *         in="path",
-     *         description="Registry entry ID",
-     *         required=true,
-     *         example="1",
-     *         @OA\Schema(
-     *            type="integer",
-     *            description="Registry entry ID",
-     *         ),
-     *      ),
-     *      @OA\RequestBody(
-     *          required=true,
-     *          description="Affiliation definition",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="member_id", type="string", example="A1234"),
-     *              @OA\Property(property="relationship", type="string", example="employee"),
-     *              @OA\Property(property="organisation_id", type="integer", example="1"),
-     *              @OA\Property(property="current_employer", type="integer", example="1"),
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Success",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="member_id", type="string", example="A1234"),
-     *                  @OA\Property(property="organisation_id", type="integer", example="1"),
-     *                  @OA\Property(property="current_employer", type="integer", example="1"),
-     *                  @OA\Property(property="relationship", type="string", example="employee"),
-     *              )
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=500,
-     *          description="Error",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="error")
-     *          )
-     *      )
-     * )
-     */
+    //Hide from swagger
     public function storeByRegistryId(Request $request, int $registryId): JsonResponse
     {
         try {
