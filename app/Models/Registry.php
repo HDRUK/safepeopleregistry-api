@@ -63,6 +63,11 @@ class Registry extends Model
         return $this->hasMany(Training::class, 'registry_id');
     }
 
+    public function professionalRegistrations(): HasMany
+    {
+        return $this->hasMany(Training::class, 'registry_id');
+    }
+
     public function accreditations(): BelongsToMany
     {
         return $this->belongsToMany(
