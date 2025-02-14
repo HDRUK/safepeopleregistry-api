@@ -60,6 +60,19 @@ class ProfessionalRegistrationTest extends TestCase
         $this->assertArrayHasKey('data', $response);
     }
 
+    public function test_the_application_fails_creating_a_professional_registration_by_registry_id(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL . '/registry/1',
+                [
+                ]
+            );
+
+        $response->assertStatus(400);
+    }
+
     public function test_the_application_can_update_an_professional_registration(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())

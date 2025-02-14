@@ -58,12 +58,8 @@ class ProfessionalRegistrationController extends Controller
      */
     public function indexByRegistryId(Request $request, int $registryId): JsonResponse
     {
-        $rha = RegistryHasProfessionalRegistration::where('registry_id', $registryId)
-            ->get()
-            ->select('professional_member_id');
-
-        $professionalRegistrations = ProfessionalRegistration::whereIn('id', $rha)
-            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+        $professionalRegistrations = ProfessionalRegistration::with('registryHasProfessionalRegistrations')
+            ->paginate((int) $this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',
@@ -122,20 +118,27 @@ class ProfessionalRegistrationController extends Controller
         try {
             $input = $request->all();
 
-            $professionalRegistration = ProfessionalRegistration::create([
-                'name' => $input['name'],
-                'member_id' => $input['member_id'],
-            ]);
+            if (isset($input['name']) && isset($input['member_id'])) {
+                $professionalRegistration = ProfessionalRegistration::create([
+                    'name' => $input['name'],
+                    'member_id' => $input['member_id'],
+                ]);
 
-            RegistryHasProfessionalRegistration::create([
-                'registry_id' => $registryId,
-                'professional_registration_id' => $professionalRegistration->id,
-            ]);
+                RegistryHasProfessionalRegistration::create([
+                    'registry_id' => $registryId,
+                    'professional_registration_id' => $professionalRegistration->id,
+                ]);
+
+                return response()->json([
+                    'message' => 'success',
+                    'data' => $professionalRegistration,
+                ], 201);
+            }
 
             return response()->json([
-                'message' => 'success',
-                'data' => $professionalRegistration,
-            ], 201);
+                'message' => 'failed',
+                'data' => 'all fields were defined'
+            ], 400);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -203,17 +206,24 @@ class ProfessionalRegistrationController extends Controller
         try {
             $input = $request->all();
 
-            $professionalRegistration = ProfessionalRegistration::where('id', $id)->first();
+            if (isset($input['name']) && isset($input['member_id'])) {
+                $professionalRegistration = ProfessionalRegistration::where('id', $id)->first();
 
-            $professionalRegistration->name = $input['name'];
-            $professionalRegistration->member_id = $input['member_id'];
+                $professionalRegistration->name = $input['name'];
+                $professionalRegistration->member_id = $input['member_id'];
 
-            $professionalRegistration->save();
+                $professionalRegistration->save();
+
+                return response()->json([
+                    'message' => 'success',
+                    'data' => $professionalRegistration,
+                ], 200);
+            }
 
             return response()->json([
-                'message' => 'success',
-                'data' => $professionalRegistration,
-            ], 200);
+                'message' => 'failed',
+                'data' => 'not all fields were defined'
+            ], 400);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }

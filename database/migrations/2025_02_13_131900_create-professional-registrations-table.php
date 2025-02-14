@@ -18,6 +18,7 @@ return new class () extends Migration {
         });
 
         Schema::create('registry_has_professional_registrations', function (Blueprint $table) {
+            $table->id();
             $table->bigInteger('professional_registration_id');
             $table->bigInteger('registry_id');
         });

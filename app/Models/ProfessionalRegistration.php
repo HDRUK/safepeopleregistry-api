@@ -17,4 +17,14 @@ class ProfessionalRegistration extends Model
         'member_id',
         'name',
     ];
+
+    /**
+     * Get the organisation related to the affiliation.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function registryHasProfessionalRegistrations()
+    {
+        return $this->hasMany(RegistryHasProfessionalRegistration::class, 'professional_registration_id', 'id');
+    }
 }
