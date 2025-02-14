@@ -179,8 +179,8 @@ Route::middleware('api')->put('v1/affiliations/{id}', [AffiliationController::cl
 Route::middleware('api')->patch('v1/affiliations/{id}', [AffiliationController::class, 'edit']);
 Route::middleware('api')->delete('v1/affiliations/{id}', [AffiliationController::class, 'destroy']);
 
-Route::middleware('api')->get('v1/professional_registrations/{registryId}', [ProfessionalRegistrationController::class, 'indexByRegistryId']);
-Route::middleware('api')->post('v1/professional_registrations/{registryId}', [ProfessionalRegistrationController::class, 'storeByRegistryId']);
+Route::middleware('api')->get('v1/professional_registrations/registry/{registryId}', [ProfessionalRegistrationController::class, 'indexByRegistryId']);
+Route::middleware('api')->post('v1/professional_registrations/registry/{registryId}', [ProfessionalRegistrationController::class, 'storeByRegistryId']);
 Route::middleware('api')->put('v1/professional_registrations/{id}', [ProfessionalRegistrationController::class, 'update']);
 Route::middleware('api')->patch('v1/professional_registrations/{id}', [ProfessionalRegistrationController::class, 'edit']);
 Route::middleware('api')->delete('v1/professional_registrations/{id}', [ProfessionalRegistrationController::class, 'destroy']);

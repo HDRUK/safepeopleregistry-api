@@ -36,7 +36,7 @@ class ProfessionalRegistrationTest extends TestCase
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
             'GET',
-            self::TEST_URL . '/1'
+            self::TEST_URL . '/registry/1'
         );
 
         $response->assertStatus(200);
@@ -48,7 +48,7 @@ class ProfessionalRegistrationTest extends TestCase
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'POST',
-                self::TEST_URL . '/1',
+                self::TEST_URL . '/registry/1',
                 [
                     'member_id' => fake()->uuid(),
                     'name' => fake()->name(),

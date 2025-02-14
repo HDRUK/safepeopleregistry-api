@@ -73,7 +73,7 @@ class ProfessionalRegistrationController extends Controller
 
         /**
      * @OA\Post(
-     *      path="/api/v1/professional_registrations",
+     *      path="/api/v1/professional_registrations/registry/{registryId}",
      *      summary="Create a Professional Registrations entry",
      *      description="Create a Professional Registrations entry",
      *      tags={"Professional Registrations"},
@@ -134,7 +134,7 @@ class ProfessionalRegistrationController extends Controller
 
             return response()->json([
                 'message' => 'success',
-                'data' => $professionalRegistration->id,
+                'data' => $professionalRegistration,
             ], 201);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
