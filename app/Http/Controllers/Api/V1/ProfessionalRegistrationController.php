@@ -14,7 +14,7 @@ class ProfessionalRegistrationController extends Controller
 {
     use CommonFunctions;
 
-        /**
+    /**
      * @OA\Get(
      *      path="/api/v1/professional_registrations/registry/{id}",
      *      summary="Return a list of training by registry id",
@@ -67,7 +67,7 @@ class ProfessionalRegistrationController extends Controller
         ], 200);
     }
 
-        /**
+    /**
      * @OA\Post(
      *      path="/api/v1/professional_registrations/registry/{registryId}",
      *      summary="Create a Professional Registrations entry",

@@ -31,6 +31,7 @@ use App\Http\Controllers\Api\V1\EmailTemplateController;
 use App\Http\Controllers\Api\V1\SectorController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\ProfessionalRegistrationController;
+use App\Http\Controllers\Api\V1\DepartmentController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -99,6 +100,12 @@ Route::middleware('api')->put('v1/custodian_users/{id}', [CustodianUserControlle
 Route::middleware('api')->patch('v1/custodian_users/{id}', [CustodianUserController::class, 'edit']);
 Route::middleware('api')->delete('v1/custodian_users/{id}', [CustodianUserController::class, 'destroy']);
 Route::middleware('api')->post('v1/custodian_users/invite/{id}', [CustodianUserController::class, 'invite']);
+
+Route::middleware('api')->get('v1/departments', [DepartmentController::class, 'index']);
+Route::middleware('api')->get('v1/departments/{id}', [DepartmentController::class, 'show']);
+Route::middleware('api')->post('v1/departments', [DepartmentController::class, 'store']);
+Route::middleware('api')->put('v1/departments/{id}', [DepartmentController::class, 'update']);
+Route::middleware('api')->delete('v1/departments/{id}', [DepartmentController::class, 'destroy']);
 
 Route::middleware('api')->get('v1/endorsements', [EndorsementController::class, 'index']);
 Route::middleware('api')->get('v1/endorsements/{id}', [EndorsementController::class, 'show']);
