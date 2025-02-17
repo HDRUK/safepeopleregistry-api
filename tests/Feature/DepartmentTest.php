@@ -99,7 +99,7 @@ class DepartmentTest extends TestCase
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
-                'PUT',
+                'PATCH',
                 self::TEST_URL . '/' . $content['data'],
                 [
                     'name' => 'Updated Department',

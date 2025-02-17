@@ -104,7 +104,7 @@ Route::middleware('api')->post('v1/custodian_users/invite/{id}', [CustodianUserC
 Route::middleware('api')->get('v1/departments', [DepartmentController::class, 'index']);
 Route::middleware('api')->get('v1/departments/{id}', [DepartmentController::class, 'show']);
 Route::middleware('api')->post('v1/departments', [DepartmentController::class, 'store']);
-Route::middleware('api')->put('v1/departments/{id}', [DepartmentController::class, 'update']);
+Route::middleware('api')->patch('v1/departments/{id}', [DepartmentController::class, 'update']);
 Route::middleware('api')->delete('v1/departments/{id}', [DepartmentController::class, 'destroy']);
 
 Route::middleware('api')->get('v1/endorsements', [EndorsementController::class, 'index']);
