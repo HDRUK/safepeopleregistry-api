@@ -9,6 +9,7 @@ use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
+use Carbon\Carbon;
 
 class AffiliationTest extends TestCase
 {
@@ -53,7 +54,10 @@ class AffiliationTest extends TestCase
                     'member_id' => fake()->uuid(),
                     'organisation_id' => 1,
                     'current_employer' => 1,
-                    'relationship' => 'employee'
+                    'relationship' => 'employee',
+                    'position' => 'Software Engineer',
+                    'start_date' => Carbon::now(),
+                    'end_date' => Carbon::now()->addYears(2),
                 ]
             );
 
@@ -72,7 +76,10 @@ class AffiliationTest extends TestCase
                 'member_id' => 'A1234567',
                 'organisation_id' => 1,
                 'current_employer' => 1,
-                'relationship' => 'employee'
+                'relationship' => 'employee',
+                'position' => 'Software Engineer',
+                'start_date' => Carbon::now(),
+                'end_date' => Carbon::now()->addYears(2),
             ]
         );
 
