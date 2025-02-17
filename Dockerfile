@@ -59,7 +59,7 @@ RUN composer install \
     && chown -R www-data:www-data storage \
     && composer dumpautoload
 
-# Generate Swagger - Removed for now as we don't have
+# Generate Swagger
 RUN php artisan l5-swagger:generate
 
 # Starts both, laravel server and job queue
