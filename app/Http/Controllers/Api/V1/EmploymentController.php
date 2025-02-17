@@ -62,7 +62,7 @@ class EmploymentController extends Controller
                 'department' => $input['department'],
                 'role' => $input['role'],
                 'employer_address' => $input['employer_address'],
-                'ror' => $input['ror'],
+                'ror' => isset($input['ror']) ? $input['ror'] : null,
                 'registry_id' => $registry->id,
                 'email' => $input['email'],
             ]);

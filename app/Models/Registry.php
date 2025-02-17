@@ -36,7 +36,6 @@ class Registry extends Model
         'user_id',
         'dl_ident',
         'pp_ident',
-        'digi_ident',
     ];
 
     public function user(): HasOne
@@ -60,6 +59,11 @@ class Registry extends Model
     }
 
     public function training(): HasMany
+    {
+        return $this->hasMany(Training::class, 'registry_id');
+    }
+
+    public function professionalRegistrations(): HasMany
     {
         return $this->hasMany(Training::class, 'registry_id');
     }

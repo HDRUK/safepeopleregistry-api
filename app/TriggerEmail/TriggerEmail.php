@@ -42,6 +42,11 @@ class TriggerEmail
                     'id' => $user->id,
                     'email' => $input['pro_email'],
                 ];
+
+                $replacements = [
+                    '[[users.first_name]]' => $user->first_name,
+                    '[[env(SUPPORT_EMAIL)]]' => env('SUPPORT_EMAIL'),
+                ];
                 break;
             case 'USER_WITHOUT_ORGANISATION':
                 $user = User::where('id', $to)->first();
