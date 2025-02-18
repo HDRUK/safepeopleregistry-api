@@ -40,7 +40,7 @@ class HistoryTest extends TestCase
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json('POST', self::TEST_URL, [
-                'employment_id' => 1,
+                'affiliation_id' => 1,
                 'endorsement_id' => 1,
                 'infringement_id' => 1,
                 'project_id' => 1,
@@ -67,13 +67,13 @@ class HistoryTest extends TestCase
                 'POST',
                 self::TEST_URL,
                 [
-                'employment_id' => 1,
-                'endorsement_id' => 1,
-                'infringement_id' => 1,
-                'project_id' => 1,
-                'access_key_id' => 1,
-                'custodian_identifier' => '20895720385sodhfsjkdhfksjfh20935209538',
-            ]
+                    'affiliation_id' => 1,
+                    'endorsement_id' => 1,
+                    'infringement_id' => 1,
+                    'project_id' => 1,
+                    'access_key_id' => 1,
+                    'custodian_identifier' => '20895720385sodhfsjkdhfksjfh20935209538',
+                ]
             );
 
         $response->assertStatus(201);

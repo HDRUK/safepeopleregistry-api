@@ -19,7 +19,7 @@ class HistoryFactory extends Factory
     public function definition(): array
     {
         $data = [
-            'employment_id' => 1,
+            'affiliation_id' => 1,
             'endorsement_id' => 1,
             'infringement_id' => 1,
             'project_id' => 1,
@@ -31,7 +31,7 @@ class HistoryFactory extends Factory
         $ledgerHash = Hash::make(json_encode($data));
 
         return [
-            'employment_id' => 1,
+            'affiliation_id' => 1,
             'endorsement_id' => 1,
             'infringement_id' => 1,
             'project_id' => 1,

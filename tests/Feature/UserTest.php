@@ -7,7 +7,7 @@ use RegistryManagementController as RMC;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\User;
 use App\Models\Registry;
-use App\Models\Employment;
+use App\Models\Affiliation;
 use Database\Seeders\EmailTemplatesSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\BaseDemoSeeder;
@@ -424,10 +424,10 @@ class UserTest extends TestCase
         $this->assertEquals($content['email'], $user->email);
         $this->assertEquals($content['digital_identifier'], $registry->digi_ident);
 
-        // Now get an email via employments which will relate to the same user
-        $emp = Employment::where([
+        // Now get an email via affiliations which will relate to the same user
+        $aff = Affiliation::where([
             'registry_id' => 1,
-            'ror' => '1234567',
+            //'ror' => '1234567',
         ])->first();
 
         $response = $this->actingAskeycloakUser($this->user, $this->getMockedKeycloakPayload())
@@ -435,7 +435,7 @@ class UserTest extends TestCase
             'POST',
             self::TEST_URL . '/validate',
             [
-                'email' => $emp->email,
+                'email' => $aff->email,
             ],
         );
 
@@ -444,8 +444,8 @@ class UserTest extends TestCase
 
         $content = $response->decodeResponseJson()['data'];
 
-        $this->assertEquals($content['identity_source'], 'employments');
-        $this->assertEquals($content['email'], $emp->email);
+        $this->assertEquals($content['identity_source'], 'affiliations');
+        $this->assertEquals($content['email'], $aff->email);
         $this->assertEquals($content['digital_identifier'], $registry->digi_ident);
     }
 }

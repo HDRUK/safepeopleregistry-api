@@ -15,7 +15,7 @@ class History extends Model
     public $timestamps = true;
 
     protected $fillable = [
-        'employment_id',
+        'affiliation_id',
         'endorsement_id',
         'infringement_id',
         'project_id',

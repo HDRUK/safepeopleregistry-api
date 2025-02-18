@@ -25,7 +25,6 @@ use App\Http\Controllers\Api\V1\TrainingController;
 use App\Http\Controllers\Api\V1\TriggerEmailController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\ResolutionController;
-use App\Http\Controllers\Api\V1\EmploymentController;
 use App\Http\Controllers\Api\V1\EducationController;
 use App\Http\Controllers\Api\V1\EmailTemplateController;
 use App\Http\Controllers\Api\V1\SectorController;
@@ -191,14 +190,6 @@ Route::middleware('api')->post('v1/educations/{registryId}', [EducationControlle
 Route::middleware('api')->put('v1/educations/{id}/{registryId}', [EducationController::class, 'updateByRegistryId']);
 Route::middleware('api')->patch('v1/educations/{id}/{registryId}', [EducationController::class, 'editByRegistryId']);
 Route::middleware('api')->delete('v1/educations/{id}/{registryId}', [EducationController::class, 'destroyByRegistryId']);
-
-Route::middleware('api')->get('v1/employments/{registryId}', [EmploymentController::class, 'indexByRegistryId']);
-Route::middleware('api')->get('v1/employments/{id}/{registryId}', [EmploymentController::class, 'showByRegistryId']);
-Route::middleware('api')->post('v1/employments/{registryId}', [EmploymentController::class, 'storeByRegistryId']);
-Route::middleware('api')->put('v1/employments/{id}/{registryId}', [EmploymentController::class, 'updateByRegistryId']);
-Route::middleware('api')->patch('v1/employments/{id}/{registryId}', [EmploymentController::class, 'editByRegistryId']);
-Route::middleware('api')->patch('v1/employments/{id}/{registryId}/verify_email', [EmploymentController::class, 'verifyEmailForEmployment']);
-Route::middleware('api')->delete('v1/employments/{id}/{registryId}', [EmploymentController::class, 'destroyByRegistryId']);
 
 Route::middleware('api')->get('v1/sectors', [SectorController::class, 'index']);
 Route::middleware('api')->get('v1/sectors/{id}', [SectorController::class, 'show']);
