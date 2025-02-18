@@ -352,7 +352,7 @@ class EmailTemplatesSeeder extends Seeder
               <mj-wrapper border="none" direction="ltr" text-align="center" padding="20px 0px 20px 0px">
                 <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px">
                   <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
-                    <mj-text align="left" padding="10px 25px 10px 25px">[[organisation_delegates.first_name]] [[organisation_delegates.last_name]]<br/><br/>You\'ve been selected as a delegate sponsor contact for the [[env(APP_NAME)]] Registry system, on behalf of [[organisations.organisation_name]], and by [[organisations.lead_application_organisation_name]].
+                    <mj-text align="left" padding="10px 25px 10px 25px">[[users.first_name]] [[users.last_name]]<br/><br/>You\'ve been selected as a delegate sponsor contact for the [[env(APP_NAME)]] Registry system, on behalf of [[organisations.organisation_name]], and by [[organisations.lead_application_organisation_name]].
                     <div><br/></div>
                     Your role means you\'re ideally suited to verify
                     a recent researcher registration as someone who is currently employed by [[organisations.organisation_name]]. We ask that you please confirm this to be true, by clicking the button below. That\'s all. The rest is automatic!

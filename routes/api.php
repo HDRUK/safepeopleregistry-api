@@ -150,6 +150,7 @@ Route::middleware('api')->post('v1/organisations/{id}/invite_user', [Organisatio
 Route::middleware('api')->post('v1/organisations/permissions', [PermissionController::class, 'assignOrganisationPermissionsToFrom']);
 Route::middleware('api')->get('v1/organisations/{id}/projects', [OrganisationController::class, 'getProjects']);
 Route::middleware('api')->get('v1/organisations/{id}/users', [OrganisationController::class, 'getUsers']);
+Route::middleware('api')->get('v1/organisations/{id}/delegates', [OrganisationController::class, 'getDelegates']);
 Route::middleware('api')->get('v1/organisations/{id}/registries', [OrganisationController::class, 'getRegistries']);
 
 Route::middleware('api')->get('v1/organisation_delegates', [OrganisationDelegatesController::class, 'index']);

@@ -6,7 +6,6 @@ use App\Jobs\SendEmailJob;
 use App\Models\Custodian;
 use App\Models\CustodianUser;
 use App\Models\Organisation;
-use App\Models\OrganisationDelegate;
 use App\Models\PendingInvite;
 use App\Models\Permission;
 use App\Models\User;
@@ -90,27 +89,15 @@ class TriggerEmail
                 ]);
                 break;
             case 'USER_DELEGATE':
-                $user = User::where('id', $to)->first();
+                $delegate = User::where('id', $to)->first();
                 $organisation = Organisation::where('id', $by)->first();
                 $template = EmailTemplate::where('identifier', $identifier)->first();
 
-                // used??
-                $delegate = OrganisationDelegate::where([
-                    'organisation_id' => $by,
-                    'priority_order' => 0,
-                ])->first();
 
-                if ($identifier === 'delegate_sponsor') {
-                    $newRecipients = [
-                        'id' => $delegate->id,
-                        'email' => $delegate->email,
-                    ];
-                } else {
-                    $newRecipients = [
-                        'id' => $user->id,
-                        'email' => $user->email,
-                    ];
-                }
+                $newRecipients = [
+                    'id' => $delegate->id,
+                    'email' => $delegate->email,
+                ];
 
                 $invitedBy = [
                     'id' => $organisation->id,
@@ -118,22 +105,19 @@ class TriggerEmail
                 ];
 
                 $replacements = [
-                    '[[organisation_delegates.first_name]]' => $delegate->first_name,
-                    '[[organisation_delegates.last_name]]' => $delegate->last_name,
                     '[[organisations.organisation_name]]' => $organisation->organisation_name,
                     '[[organisations.lead_application_organisation_name]]' => $organisation->lead_applicant_organisation_name,
-                    '[[users.first_name]]' => $user->first_name,
-                    '[[users.last_name]]' => $user->last_name,
-                    '[[users.created_at]]' => $user->created_at,
+                    '[[users.first_name]]' => $delegate->first_name,
+                    '[[users.last_name]]' => $delegate->last_name,
+                    '[[users.created_at]]' => $delegate->created_at,
                     '[[env(INVITE_TIME_HOURS)]]' => env('INVITE_TIME_HOURS'),
                     '[[env(SUPPORT_EMAIL)]]' => env('SUPPORT_EMAIL'),
-                    '[[users.id]]' => $user->id,
+                    '[[users.id]]' => $delegate->id,
                     '[[organisations.id]]' => $organisation->id,
-                    '[[organisation_delegates.id]]' => $delegate->id,
                 ];
 
                 PendingInvite::create([
-                    'user_id' => $user->id,
+                    'user_id' => $delegate->id,
                     'organisation_id' => $organisation->id,
                     'invite_sent_at' => Carbon::now(),
                     'status' => config('speedi.invite_status.PENDING'),
