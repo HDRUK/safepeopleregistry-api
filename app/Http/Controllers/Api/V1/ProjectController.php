@@ -24,13 +24,10 @@ class ProjectController extends Controller
      *      tags={"Project"},
      *      summary="Project@index",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -43,13 +40,10 @@ class ProjectController extends Controller
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -75,26 +69,21 @@ class ProjectController extends Controller
      *      tags={"Project"},
      *      summary="Project@show",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Project entry ID",
      *         required=true,
      *         example="1",
-     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Project entry ID",
      *         ),
      *      ),
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -107,13 +96,10 @@ class ProjectController extends Controller
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -140,7 +126,6 @@ class ProjectController extends Controller
     *      tags={"Project"},
     *      summary="Project@getProjectUsers",
     *      security={{"bearerAuth":{}}},
-    *
     *      @OA\Parameter(
     *         name="id",
     *         in="path",
@@ -151,7 +136,6 @@ class ProjectController extends Controller
     *            type="integer",
     *         ),
     *      ),
-    *
     *      @OA\Response(
     *          response=200,
     *          description="Success",
@@ -192,19 +176,18 @@ class ProjectController extends Controller
     *                                  @OA\Property(property="organisation_name", type="string", example="TANDY ENERGY LIMITED")
     *                              )
     *                          ),
-    *                          @OA\Property(
-    *                              property="employment",
-    *                              type="object",
-    *                              nullable=true,
-    *                              @OA\Property(property="id", type="integer", example=1),
-    *                              @OA\Property(property="employer_name", type="string", example="Demo Employer Name"),
-    *                              @OA\Property(property="from", type="string", format="date", example="1977-06-08"),
-    *                              @OA\Property(property="to", type="string", format="date", example="2004-01-05"),
-    *                              @OA\Property(property="department", type="string", example="Rerum animi."),
-    *                              @OA\Property(property="role", type="string", example="Dolorem sit ratione."),
-    *                              @OA\Property(property="employer_address", type="string", example="8164 Krajcik Harbors Apt. 117\nSouth Rosemarie, IA 97953"),
-    *                              @OA\Property(property="ror", type="string", example="https://emmerich.com/aperiam-esse-quia-qui-dolorum-architecto-earum-aspernatur.html")
-    *                          )
+    *                           @OA\Property(
+    *                               property="affiliation",
+    *                               type="object",
+    *                               nullable=true,
+    *                               @OA\Property(property="relationship", type="string", example="employee"),
+    *                               @OA\Property(property="from", type="string", example="25/01/1999"),
+    *                               @OA\Property(property="to", type="string", example="01/12/2010"),
+    *                               @OA\Property(property="department", type="string", example="Research & Development"),
+    *                               @OA\Property(property="role", type="string", example="Principal Investigator (PI)"),
+    *                               @OA\Property(property="email", type="string", example="professional.email@email.com"),
+    *                               @OA\Property(property="ror", type="string", example="0hgyje84")
+    *                           )
     *                      ),
     *                      @OA\Property(
     *                          property="role",
@@ -216,13 +199,10 @@ class ProjectController extends Controller
     *              )
     *          )
     *      ),
-    *
     *      @OA\Response(
     *          response=404,
     *          description="Not found response",
-    *
     *          @OA\JsonContent(
-    *
     *              @OA\Property(property="message", type="string", example="not found"),
     *          )
     *      )
@@ -236,7 +216,7 @@ class ProjectController extends Controller
             'registry.organisations' => function ($query) {
                 $query->select(['id','organisation_name']);
             },
-            'registry.employment',
+            'registry.affiliations',
             'registry.education',
             'registry.training',
             'registry.accreditations',
@@ -258,48 +238,36 @@ class ProjectController extends Controller
      *      tags={"Project"},
      *      summary="Project@store",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Project definition",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="registry_id", type="integer", example="1"),
      *              @OA\Property(property="name", type="string", example="My First Research Project"),
      *              @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
      *              @OA\Property(property="runs_to", type="string", example="2026-02-04")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *                  @OA\Property(property="message", type="string", example="success"),
      *                  @OA\Property(property="data", type="integer", example="1")
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -338,26 +306,21 @@ class ProjectController extends Controller
      *      tags={"Project"},
      *      summary="Project@update",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Project entry ID",
      *         required=true,
      *         example="1",
-     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Project entry ID",
      *         ),
      *      ),
-     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Project definition",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="id", type="integer", example="123"),
      *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *              @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
@@ -367,23 +330,17 @@ class ProjectController extends Controller
      *              @OA\Property(property="runs_to", type="string", example="2026-02-04")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *                  @OA\Property(property="message", type="string", example="success"),
      *                  @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -396,13 +353,10 @@ class ProjectController extends Controller
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -441,71 +395,55 @@ class ProjectController extends Controller
      *      tags={"Project"},
      *      summary="Project@edit",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Project entry ID",
      *         required=true,
      *         example="1",
-     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Project entry ID",
      *         ),
      *      ),
-     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Project definition",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="id", type="integer", example="123"),
      *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *              @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *              @OA\Property(property="registry_id", type="integer", example="1"),
      *              @OA\Property(property="name", type="string", example="My First Research Project"),
      *              @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
      *              @OA\Property(property="runs_to", type="string", example="2026-02-04")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *                  @OA\Property(property="message", type="string", example="success"),
      *                  @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="registry_id", type="integer", example="1"),
      *                  @OA\Property(property="name", type="string", example="My First Research Project"),
      *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
      *                  @OA\Property(property="runs_to", type="string", example="2026-02-04")
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -544,46 +482,35 @@ class ProjectController extends Controller
      *      tags={"Project"},
      *      summary="Project@destroy",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Project entry ID",
      *         required=true,
      *         example="1",
-     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Project entry ID",
      *         ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found")
      *           ),
      *      ),
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="success")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -604,57 +531,50 @@ class ProjectController extends Controller
 
 
     /**
-        * @OA\Get(
-        *      path="/api/v1/projects/user/{registryId}/approved",
-        *      summary="Return (approved) projects for a registry (user)",
-        *      description="Return (approved) projects for a registry (user)",
-        *      tags={"Projects"},
-        *      summary="Project@getApprovedProjects",
-        *      security={{"bearerAuth":{}}},
-        *
-        *      @OA\Parameter(
-        *         name="id",
-        *         in="path",
-        *         description="Registry ID",
-        *         required=true,
-        *         example="1",
-        *
-        *         @OA\Schema(
-        *            type="integer",
-        *            description="Registry ID",
-        *         ),
-        *      ),
-        *
-        *      @OA\Response(
-        *          response=200,
-        *          description="Success",
-        *
-        *          @OA\JsonContent(
-        *
-        *              @OA\Property(property="message", type="string"),
-        *              @OA\Property(property="data", type="object",
-        *                  @OA\Property(property="id", type="integer", example="123"),
-        *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-        *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-        *                  @OA\Property(property="registry_id", type="integer", example="1"),
-        *                  @OA\Property(property="name", type="string", example="My First Research Project"),
-        *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
-        *                  @OA\Property(property="runs_to", type="string", example="2026-02-04"),
-        *                  @OA\Property(property="affiliate_id", type="integer", example="2")
-        *              )
-        *          ),
-        *      ),
-        *      @OA\Response(
-        *          response=404,
-        *          description="Not found response",
-        *
-        *          @OA\JsonContent(
-        *
-        *              @OA\Property(property="message", type="string", example="not found"),
-        *          )
-        *      )
-        * )
-        */
+     * @OA\Get(
+     *      path="/api/v1/projects/user/{registryId}/approved",
+     *      summary="Return (approved) projects for a registry (user)",
+     *      description="Return (approved) projects for a registry (user)",
+     *      tags={"Projects"},
+     *      summary="Project@getApprovedProjects",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Registry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Registry ID",
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string"),
+     *              @OA\Property(property="data", type="object",
+     *                  @OA\Property(property="id", type="integer", example="123"),
+     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
+     *                  @OA\Property(property="registry_id", type="integer", example="1"),
+     *                  @OA\Property(property="name", type="string", example="My First Research Project"),
+     *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
+     *                  @OA\Property(property="runs_to", type="string", example="2026-02-04"),
+     *                  @OA\Property(property="affiliate_id", type="integer", example="2")
+     *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found"),
+     *          )
+     *      )
+     * )
+     */
     public function getApprovedProjects(Request $request, int $registryId): JsonResponse
     {
         $digi_ident = optional(Registry::where('id', $registryId)->first())->digi_ident;
@@ -680,7 +600,4 @@ class ProjectController extends Controller
             'data' => $projects,
         ], 200);
     }
-
-
-
 }

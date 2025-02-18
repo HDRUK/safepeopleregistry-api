@@ -48,9 +48,14 @@ class Registry extends Model
         return $this->hasOne(Identity::class, 'registry_id');
     }
 
-    public function employment(): HasOne
+    public function affiliations(): BelongsToMany
     {
-        return $this->hasOne(Employment::class, 'registry_id');
+        return $this->belongsToMany(
+            Affiliation::class,
+            'registry_has_affiliations',
+            'registry_id',
+            'affiliation_id',
+        );
     }
 
     public function education(): HasMany

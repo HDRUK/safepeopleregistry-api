@@ -164,8 +164,8 @@ class User extends Authenticatable
 
             UNION ALL
             
-            SELECT \'employments\' as source, registry_id
-            FROM employments
+            SELECT \'affiliations\' as source, registry_id
+            FROM affiliations
             WHERE email = ?
             ',
             [$email, $email]
