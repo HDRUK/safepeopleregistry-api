@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api\V1;
 use Exception;
 use Hash;
 use RegistryManagementController as RMC;
+use Search;
 use TriggerEmail;
+use Carbon\Carbon;
 use App\Http\Controllers\Controller;
 use App\Models\Custodian;
 use App\Models\Organisation;
@@ -737,8 +739,8 @@ class CustodianController extends Controller
      */
     public function getProjects(Request $request, int $custodianId): JsonResponse
     {
-        $approved = $request->query('approved', null);
-        $approved = is_null($approved) ? null : filter_var($approved, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        $active = Search::sanitiseFilters($request, 'active');
+        $approved = Search::sanitiseFilters($request, 'approved');
 
         $projects = Project::searchViaRequest()
           ->applySorting()
@@ -749,6 +751,15 @@ class CustodianController extends Controller
               } else {
                   $query->whereDoesntHave('approvals');
               }
+          })
+          ->when(!is_null($active), function ($query) use ($active) {
+            $currentDate = Carbon::now()->toDateString();
+            
+            if ($active) {
+                $query->where('start_date', '>=', $currentDate)->where('end_date', '>=', $currentDate);
+            } else {
+                $query->where('start_date', '<', $currentDate)->where('end_date', '>', $currentDate);               
+            }
           })
           ->whereHas('custodians', function ($query) use ($custodianId) {
               $query->where('custodians.id', $custodianId);

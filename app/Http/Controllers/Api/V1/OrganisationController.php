@@ -7,6 +7,7 @@ use Hash;
 use Http;
 use Exception;
 use RegistryManagementController as RMC;
+use Search;
 use Carbon\Carbon;
 use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
@@ -102,7 +103,11 @@ class OrganisationController extends Controller
         $organisations = [];
 
         $custodianId = $request->get('custodian_id');
-        if (! $custodianId) {
+
+        $hasDelegates = Search::sanitiseFilters($request, 'has_delegates');
+        $hasSoursdId = Search::sanitiseFilters($request, 'has_soursd_id');
+
+        if (!$custodianId) {
             $organisations = Organisation::searchViaRequest()
                 ->applySorting()
                 ->with([
@@ -116,7 +121,23 @@ class OrganisationController extends Controller
                     'registries.user',
                     'registries.user.permissions',
                     'registries.user.approvals',
-                ])->where('unclaimed', 0)->paginate((int)$this->getSystemConfig('PER_PAGE'));
+                    'delegates'
+                ])
+                ->when(!is_null($hasDelegates), function ($query) use ($hasDelegates) {
+                    if ($hasDelegates) {
+                        $query->whereHas('delegates');
+                    } else {
+                        $query->whereDoesntHave('delegates');
+                    }
+                })
+                ->when(!is_null($hasSoursdId), function ($query) use ($hasSoursdId) {
+                    if ($hasSoursdId) {
+                        $query->whereNot('organisation_unique_id', '')->whereNotNull('organisation_unique_id');
+                    } else {
+                        $query->where('organisation_unique_id', '')->orWhereNull('organisation_unique_id');
+                    }
+                })
+                ->paginate((int)$this->getSystemConfig('PER_PAGE'));
         }
 
         return response()->json([
@@ -993,12 +1014,11 @@ class OrganisationController extends Controller
     */
     public function getProjects(Request $request, int $organisationId): JsonResponse
     {
-        $approved = $request->query('approved', null);
-        $approved = is_null($approved) ? null : filter_var($approved, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        $approved = Search::sanitiseFilters($request, 'approved');
 
         $projects = Project::searchViaRequest()
           ->applySorting()
-          ->with('approvals')
+          ->with(['approvals'])
           ->when(!is_null($approved), function ($query) use ($approved) {
               if ($approved) {
                   $query->whereHas('approvals');
