@@ -752,12 +752,16 @@ class CustodianController extends Controller
           ->when(!is_null($approved), function ($query) use ($approved) {
               if ($approved) {
                   $query->whereHas('approvals');
+              } else {
+                  $query->whereDoesntHave('approvals');
               }
           })
           ->when(!is_null($pending), function ($query) use ($pending) {
-            if ($pending) {
-                $query->whereDoesntHave('approvals');
-            }
+              if ($pending) {
+                  $query->whereDoesntHave('approvals');
+              } else {
+                  $query->whereHas('approvals');
+              }
           })
           ->when(!is_null($active), function ($query) use ($active, $currentDate) {            
               if ($active) {
@@ -767,7 +771,11 @@ class CustodianController extends Controller
               }
           })
           ->when(!is_null($completed), function ($query) use ($completed, $currentDate) {
-              $query->where('end_date', '>=', $currentDate);
+              if ($completed) {
+                  $query->where('end_date', '>=', $currentDate);
+              } else {
+                  $query->where('end_date', '<', $currentDate);
+              }
           })
           ->whereHas('custodians', function ($query) use ($custodianId) {
               $query->where('custodians.id', $custodianId);
