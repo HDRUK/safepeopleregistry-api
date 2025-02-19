@@ -12,7 +12,6 @@ use App\Http\Controllers\Controller;
 
 class EducationController extends Controller
 {
-    //Hide from swagger
     public function indexByRegistryId(Request $request, int $registryId): JsonResponse
     {
         $educations = Education::where('registry_id', $registryId)->get();
@@ -23,7 +22,6 @@ class EducationController extends Controller
         ], 200);
     }
 
-    //Hide from swagger
     public function showByRegistryId(Request $request, int $id, int $registryId): JsonResponse
     {
         try {
@@ -41,7 +39,6 @@ class EducationController extends Controller
         }
     }
 
-    //Hide from swagger    
     public function storeByRegistryId(Request $request, int $registryId): JsonResponse
     {
         try {
@@ -76,7 +73,6 @@ class EducationController extends Controller
         }
     }
 
-    //Hide from swagger
     public function updateByRegistryId(Request $request, int $id, int $registryId): JsonResponse
     {
         try {
@@ -113,7 +109,6 @@ class EducationController extends Controller
         }
     }
 
-    //Hide from swagger    
     public function editByRegistryId(Request $request, int $id, int $registryId): JsonResponse
     {
         try {
@@ -145,7 +140,7 @@ class EducationController extends Controller
                 return response()->json([
                     'message' => 'failed',
                     'data' => null,
-                    'error' => 'unable to save employment',
+                    'error' => 'unable to save education',
                 ], 400);
             }
 
@@ -158,7 +153,6 @@ class EducationController extends Controller
         }
     }
 
-    //Hide from swagger
     public function destroyByRegistryId(Request $request, int $id, int $registryId): JsonResponse
     {
         try {
