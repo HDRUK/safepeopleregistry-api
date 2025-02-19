@@ -741,6 +741,10 @@ class CustodianController extends Controller
     {
         $active = Search::sanitiseFilters($request, 'active');
         $approved = Search::sanitiseFilters($request, 'approved');
+        $pending = Search::sanitiseFilters($request, 'pending');
+        $completed = Search::sanitiseFilters($request, 'completed');
+
+        $currentDate = Carbon::now()->toDateString();
 
         $projects = Project::searchViaRequest()
           ->applySorting()
@@ -748,18 +752,22 @@ class CustodianController extends Controller
           ->when(!is_null($approved), function ($query) use ($approved) {
               if ($approved) {
                   $query->whereHas('approvals');
-              } else {
-                  $query->whereDoesntHave('approvals');
               }
           })
-          ->when(!is_null($active), function ($query) use ($active) {
-            $currentDate = Carbon::now()->toDateString();
-            
-            if ($active) {
-                $query->where('start_date', '>=', $currentDate)->where('end_date', '>=', $currentDate);
-            } else {
-                $query->where('start_date', '<', $currentDate)->where('end_date', '>', $currentDate);               
+          ->when(!is_null($pending), function ($query) use ($pending) {
+            if ($pending) {
+                $query->whereDoesntHave('approvals');
             }
+          })
+          ->when(!is_null($active), function ($query) use ($active, $currentDate) {            
+              if ($active) {
+                  $query->where('start_date', '>=', $currentDate)->where('end_date', '>=', $currentDate);
+              } else {
+                  $query->where('start_date', '<', $currentDate)->where('end_date', '>', $currentDate);               
+              }
+          })
+          ->when(!is_null($completed), function ($query) use ($completed, $currentDate) {
+              $query->where('end_date', '>=', $currentDate);
           })
           ->whereHas('custodians', function ($query) use ($custodianId) {
               $query->where('custodians.id', $custodianId);
