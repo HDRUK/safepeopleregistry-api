@@ -28,8 +28,8 @@ class TriggerEmail
         $identifier = $input['identifier'];
 
         switch (strtoupper($type)) {
-            case 'EMPLOYMENT':
-                if ($input['pro_email'] === '') {
+            case 'AFFILIATION':
+                if ($input['email'] === '') {
                     // Log and return
                     return;
                 }
@@ -40,6 +40,11 @@ class TriggerEmail
                 $newRecipients = [
                     'id' => $user->id,
                     'email' => $input['pro_email'],
+                ];
+
+                $replacements = [
+                    '[[users.first_name]]' => $user->first_name,
+                    '[[env(SUPPORT_EMAIL)]]' => env('SUPPORT_EMAIL'),
                 ];
                 break;
             case 'USER_WITHOUT_ORGANISATION':

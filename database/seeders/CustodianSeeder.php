@@ -2,13 +2,14 @@
 
 namespace Database\Seeders;
 
+use DB;
+use Hash;
 use App\Models\Custodian;
 use App\Models\Rules;
 use App\Models\CustodianUser;
 use App\Models\CustodianWebhookReceiver;
 use App\Models\CustodianUserHasPermission;
 use App\Models\Permission;
-use Hash;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Schema;
 
@@ -23,6 +24,8 @@ class CustodianSeeder extends Seeder
 
         Custodian::truncate();
         CustodianUser::truncate();
+
+        DB::table('custodian_has_rules')->truncate();
 
         Schema::enableForeignKeyConstraints();
 

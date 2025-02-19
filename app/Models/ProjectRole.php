@@ -26,4 +26,15 @@ class ProjectRole extends Model
     protected static array $sortableColumns = [
         'name',
     ];
+
+    public const PROJECT_ROLES = [
+        'Principal Investigator (PI)',
+        'Co-Investigator (Co-I) / Sub-Investigator (Sub-I)',
+        'Data Analyst',
+        'Data Engineer',
+        'Postdoc',
+        'Research Fellow',
+        'Researcher',
+        'Student',
+    ];
 }

@@ -11,9 +11,9 @@ use App\Models\Identity;
 use App\Models\Project;
 use App\Models\Registry;
 use App\Models\Education;
-use App\Models\Employment;
 use App\Models\Training;
 use App\Models\Organisation;
+use App\Models\Affiliation;
 use App\Models\OrganisationHasCharity;
 use App\Models\Charity;
 use App\Models\Custodian;
@@ -24,10 +24,14 @@ use App\Models\ProjectRole;
 use App\Models\ProjectHasCustodian;
 use App\Models\RegistryHasOrganisation;
 use App\Models\OrganisationHasDepartment;
+use App\Models\OrganisationHasCustodianApproval;
+use App\Traits\CommonFunctions;
 use Illuminate\Database\Seeder;
 
 class BaseDemoSeeder extends Seeder
 {
+    use CommonFunctions;
+
     /**
      * Run the database seeds.
      */
@@ -74,6 +78,12 @@ class BaseDemoSeeder extends Seeder
             'ror_id' => '02wnqcb97',
             'smb_status' => true,
             'website' => 'https://www.website1.com/',
+        ]);
+
+
+        OrganisationHasCustodianApproval::create([
+            'organisation_id' => $org1->id,
+            'custodian_id' => Custodian::first()->id,
         ]);
 
         $charity = Charity::create([
@@ -428,9 +438,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'email' => 'dan.ackroyd@ghostbusters.com',
                 'user_group' => RMC::KC_GROUP_USERS,
                 'keycloak_id' => 'aad586a6-724a-44f0-a270-8e558c5bdf7f',
-                'affiliations' => [
-                    1, 2,
-                ],
                 'projects' => [
                     $org1Proj1->id,
                     $org1Proj2->id,
@@ -451,26 +458,30 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                     'idvt_errors' => null,
                     'idvt_completed_at' => Carbon::now(),
                 ],
-                'employments' => [
+                'affiliations' => [
                     [
-                        'employer_name' => 'Health Pathways UK Ltd',
+                        'organisation_id' => $org1->id,
+                        'member_id' => Str::uuid(),
+                        'relationship' => 'employee',
                         'from' => Carbon::now()->subYears(6)->toDateString(),
                         'to' => '',
-                        'is_current' => 1,
-                        'department' => 'Research',
+                        'department' => 'Research & Development',
                         'role' => 'Principal Investigator (PI)',
-                        'employer_address' => '235 Fake Road, Fake Town, Fake County, USA, 87659',
-                        'ror' => '1234567',
+                        'email' => fake()->email(),
+                        'ror' => $this->generateRorID(),
+                        'registry_id' => -1,
                     ],
                     [
-                        'employer_name' => 'Generic Research Institute',
+                        'organisation_id' => $org2->id,
+                        'member_id' => Str::uuid(),
+                        'relationship' => 'employee',
                         'from' => Carbon::now()->subYears(10)->toDateString(),
                         'to' => Carbon::now()->subYears(6)->toDateString(),
-                        'is_current' => 0,
                         'department' => 'Research',
                         'role' => 'Data Analyst',
-                        'employer_address' => '456 Fake Road, Fake Town, Fake County, USA, 87659',
-                        'ror' => '9876543',
+                        'email' => fake()->email(),
+                        'ror' => $this->generateRorID(),
+                        'registry_id' => -1,
                     ],
                 ],
             ],
@@ -480,9 +491,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'email' => 'sigourney.weaver@ghostbusters.com',
                 'user_group' => RMC::KC_GROUP_USERS,
                 'keycloak_id' => '303d179a-ccdb-49fa-9bda-276840b07cfa',
-                'affiliations' => [
-                    1,
-                ],
                 'projects' => [
                     $org1Proj1->id,
                 ],
@@ -509,9 +517,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'email' => 'bill.murray@ghostbusters.com',
                 'user_group' => RMC::KC_GROUP_USERS,
                 'keycloak_id' => '06dbad18-3356-4181-8dad-1ddcf4718b5a',
-                'affiliations' => [
-                    1,
-                ],
                 'projects' => [
                     $org1Proj2->id,
                 ],
@@ -538,9 +543,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'email' => 'annie.potts@ghostbusters.com',
                 'user_group' => RMC::KC_GROUP_USERS,
                 'keycloak_id' => '6b9af72e-9d05-4df2-ad38-25ba082d9cfc',
-                'affiliations' => [
-                    1,
-                ],
                 'projects' => [
                     $org1Proj2->id,
                 ],
@@ -570,9 +572,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'email' => 'harold.ramis@ghostbusters.com',
                 'user_group' => RMC::KC_GROUP_USERS,
                 'keycloak_id' => '760da050-5b3f-47b3-976c-0d42ea533f94',
-                'affiliations' => [
-                    2, 1,
-                ],
                 'projects' => [
                     $org2Proj1->id,
                     $org1Proj1->id,
@@ -594,16 +593,18 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                     'idvt_errors' => null,
                     'idvt_completed_at' => Carbon::now(),
                 ],
-                'employments' => [
+                'affiliations' => [
                     [
-                        'employer_name' => 'TANDY ENERGY LIMITED',
-                        'from' => '1998-02-13',
+                        'organisation_id' => $org2->id,
+                        'member_id' => Str::uuid(),
+                        'relationship' => 'employee',
+                        'from' => Carbon::now()->subYears(20)->toDateString(),
                         'to' => '',
-                        'is_current' => 1,
-                        'department' => 'Research',
-                        'role' => '',
-                        'employer_address' => '235 Fake Road, Fake Town, Fake County, USA, 87659',
-                        'ror' => '1234567',
+                        'department' => 'Research & Development',
+                        'role' => 'Principal Investigator (PI)',
+                        'email' => fake()->email(),
+                        'ror' => $this->generateRorID(),
+                        'registry_id' => -1,
                     ],
                 ],
             ],
@@ -613,9 +614,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'email' => 'jennifer.runyon@ghostbusters.com',
                 'user_group' => RMC::KC_GROUP_USERS,
                 'keycloak_id' => 'f770c1cc-9935-4d52-ad76-19e33ca526b1',
-                'affiliations' => [
-                    2,
-                ],
                 'projects' => [
                     $org2Proj1->id,
                 ],
@@ -635,16 +633,18 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                     'idvt_errors' => null,
                     'idvt_completed_at' => Carbon::now(),
                 ],
-                'employments' => [
+                'affiliations' => [
                     [
-                        'employer_name' => 'TANDY ENERGY LIMITED',
-                        'from' => '1998-02-13',
+                        'organisation_id' => $org2->id,
+                        'member_id' => Str::uuid(),
+                        'relationship' => 'employee',
+                        'from' => Carbon::now()->subYears(10)->toDateString(),
                         'to' => '',
-                        'is_current' => 1,
-                        'department' => 'Research',
-                        'role' => 'Research Assistant',
-                        'employer_address' => '235 Fake Road, Fake Town, Fake County, USA, 87659',
-                        'ror' => '1234567',
+                        'department' => 'Research & Development',
+                        'role' => 'Research Fellow',
+                        'email' => fake()->email(),
+                        'ror' => $this->generateRorID(),
+                        'registry_id' => -1,
                     ],
                 ],
             ],
@@ -657,9 +657,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'email' => 'tobacco.john@dodgydomain.com',
                 'user_group' => RMC::KC_GROUP_USERS,
                 'keycloak_id' => '5fc28eb7-71fc-495c-9d53-1ec7fa9954bd',
-                'affiliations' => [
-                    3,
-                ],
                 'projects' => [
                     $org2Proj1->id,
                 ],
@@ -679,16 +676,18 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                     'idvt_errors' => null,
                     'idvt_completed_at' => Carbon::now(),
                 ],
-                'employments' => [
+                'affiliations' => [
                     [
-                        'employer_name' => 'Big Tabacco Ltd',
-                        'from' => '2001-02-13',
+                        'organisation_id' => $org3->id,
+                        'member_id' => Str::uuid(),
+                        'relationship' => 'employee',
+                        'from' => Carbon::now()->subYears(6)->toDateString(),
                         'to' => '',
-                        'is_current' => 1,
-                        'department' => 'Lobbying',
+                        'department' => 'Research & Development',
                         'role' => 'Lobbyist',
-                        'employer_address' => '235 Fake Road, Fake Town, Fake County, USA, 87659',
-                        'ror' => '1234567',
+                        'email' => fake()->email(),
+                        'ror' => $this->generateRorID(),
+                        'registry_id' => -1,
                     ],
                 ],
             ],
@@ -698,9 +697,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'email' => 'tobacco.dave@dodgydomain.com',
                 'user_group' => RMC::KC_GROUP_USERS,
                 'keycloak_id' => 'de17935a-a79e-4b47-8d92-8041901dec15',
-                'affiliations' => [
-                    3, 1,
-                ],
                 'projects' => [
                     $org1Proj1->id,
                 ],
@@ -720,26 +716,30 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                     'idvt_errors' => null,
                     'idvt_completed_at' => null,
                 ],
-                'employments' => [
+                'affiliations' => [
                     [
-                        'employer_name' => 'Big Tabacco Ltd',
-                        'from' => '1998-02-13',
-                        'to' => '2004-08-20',
-                        'is_current' => 0,
+                        'organisation_id' => $org3->id,
+                        'member_id' => Str::uuid(),
+                        'relationship' => 'employee',
+                        'from' => Carbon::now()->subYears(6)->toDateString(),
+                        'to' => '',
                         'department' => 'Lobbying',
                         'role' => 'Lobbyist',
-                        'employer_address' => '235 Fake Road, Fake Town, Fake County, USA, 87659',
-                        'ror' => '1234567',
+                        'email' => fake()->email(),
+                        'ror' => $this->generateRorID(),
+                        'registry_id' => -1,
                     ],
                     [
-                        'employer_name' => 'TOBACCO EUROPE, LTD',
-                        'from' => '2004-12-01',
+                        'organisation_id' => $org3->id,
+                        'member_id' => Str::uuid(),
+                        'relationship' => 'employee',
+                        'from' => Carbon::now()->subYears(6)->toDateString(),
                         'to' => '',
-                        'is_current' => 1,
                         'department' => 'Research & Development',
                         'role' => 'Research Scientist',
-                        'employer_address' => 'Enterprise House, 2 Pass Street, Oldham, Manchester, United Kingdom, OL9 6HZ',
-                        'ror' => '030d08e08',
+                        'email' => fake()->email(),
+                        'ror' => $this->generateRorID(),
+                        'registry_id' => -1,
                     ],
                 ],
             ],
@@ -764,16 +764,16 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         $this->createIdentities($org3Researchers);
 
         // --------------------------------------------------------------------------------
-        // Create Employments for the above users
+        // Create Affiliations for the above users
         // --------------------------------------------------------------------------------
-        $this->createEmployments($org1Researchers);
+        $this->createAffiliations($org1Researchers);
 
         // --------------------------------------------------------------------------------
         // Above users having affiliations between orgs
         // --------------------------------------------------------------------------------
-        $this->createRegistryAffiliations($org1Researchers);
-        $this->createRegistryAffiliations($org2Researchers);
-        $this->createRegistryAffiliations($org3Researchers);
+        // $this->createRegistryAffiliations($org1Researchers);
+        // $this->createRegistryAffiliations($org2Researchers);
+        // $this->createRegistryAffiliations($org3Researchers);
 
         // --------------------------------------------------------------------------------
         // Link Researchers to projects
@@ -818,41 +818,32 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         }
     }
 
-    private function createEmployments(array $input): void
+    private function createAffiliations(array $input): void
     {
         foreach ($input as $u) {
             $user = User::where('email', $u['email'])->first();
 
-            if (!isset($u['employments'])) {
+            if (!isset($u['affiliations'])) {
                 continue;
             }
 
-            foreach ($u['employments'] as $e) {
-                Employment::create([
-                    'employer_name' => $e['employer_name'],
+            foreach ($u['affiliations'] as $e) {
+                Affiliation::create([
+                    'organisation_id' => $e['organisation_id'],
+                    'member_id' => $e['member_id'],
+                    'relationship' => $e['relationship'],
                     'from' => $e['from'],
                     'to' => $e['to'],
-                    'is_current' => $e['is_current'],
                     'department' => $e['department'],
                     'role' => $e['role'],
-                    'employer_address' => $e['employer_address'],
+                    'email' => $e['email'],
                     'ror' => $e['ror'],
                     'registry_id' => $user->registry_id,
-                    'email' => strtolower($user->first_name . '.' . $user->last_name . '@' . str_replace(' ', '', $e['employer_name']) . '.com'),
                 ]);
-            }
-        }
-    }
 
-    private function createRegistryAffiliations(array $input): void
-    {
-        foreach ($input as $u) {
-            $user = User::where('email', $u['email'])->first();
-
-            foreach ($u['affiliations'] as $aff) {
                 RegistryHasOrganisation::create([
-                    'registry_id' =>        $user->registry_id,
-                    'organisation_id' =>    $aff,
+                    'registry_id' => $user->registry_id,
+                    'organisation_id' => $e['organisation_id'],
                 ]);
             }
         }
