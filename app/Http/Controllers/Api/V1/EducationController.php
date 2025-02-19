@@ -140,7 +140,7 @@ class EducationController extends Controller
                 return response()->json([
                     'message' => 'failed',
                     'data' => null,
-                    'error' => 'unable to save employment',
+                    'error' => 'unable to save education',
                 ], 400);
             }
 

@@ -27,7 +27,7 @@ class SystemConfigSeeder extends Seeder
             ],
             [
                 'name' => 'SUPPORTED_FILETYPES',
-                'value' => 'pdf,doc,docx,png,jpeg,jpg,tsv,csv',
+                'value' => 'pdf,doc,docx,png,jpeg,jpg,tsv,csv,txt',
                 'description' => 'Pre-defined list of accepted file types accepted for uploads',
             ],
             [

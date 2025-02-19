@@ -25,11 +25,12 @@ use App\Http\Controllers\Api\V1\TrainingController;
 use App\Http\Controllers\Api\V1\TriggerEmailController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\ResolutionController;
-use App\Http\Controllers\Api\V1\EmploymentController;
 use App\Http\Controllers\Api\V1\EducationController;
 use App\Http\Controllers\Api\V1\EmailTemplateController;
 use App\Http\Controllers\Api\V1\SectorController;
 use App\Http\Controllers\Api\V1\NotificationController;
+use App\Http\Controllers\Api\V1\ProfessionalRegistrationController;
+use App\Http\Controllers\Api\V1\DepartmentController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -99,6 +100,12 @@ Route::middleware('api')->patch('v1/custodian_users/{id}', [CustodianUserControl
 Route::middleware('api')->delete('v1/custodian_users/{id}', [CustodianUserController::class, 'destroy']);
 Route::middleware('api')->post('v1/custodian_users/invite/{id}', [CustodianUserController::class, 'invite']);
 
+Route::middleware('api')->get('v1/departments', [DepartmentController::class, 'index']);
+Route::middleware('api')->get('v1/departments/{id}', [DepartmentController::class, 'show']);
+Route::middleware('api')->post('v1/departments', [DepartmentController::class, 'store']);
+Route::middleware('api')->patch('v1/departments/{id}', [DepartmentController::class, 'update']);
+Route::middleware('api')->delete('v1/departments/{id}', [DepartmentController::class, 'destroy']);
+
 Route::middleware('api')->get('v1/endorsements', [EndorsementController::class, 'index']);
 Route::middleware('api')->get('v1/endorsements/{id}', [EndorsementController::class, 'show']);
 Route::middleware('api')->post('v1/endorsements', [EndorsementController::class, 'store']);
@@ -150,6 +157,7 @@ Route::middleware('api')->post('v1/organisations/{id}/invite_user', [Organisatio
 Route::middleware('api')->post('v1/organisations/permissions', [PermissionController::class, 'assignOrganisationPermissionsToFrom']);
 Route::middleware('api')->get('v1/organisations/{id}/projects', [OrganisationController::class, 'getProjects']);
 Route::middleware('api')->get('v1/organisations/{id}/users', [OrganisationController::class, 'getUsers']);
+Route::middleware('api')->get('v1/organisations/{id}/registries', [OrganisationController::class, 'getRegistries']);
 
 Route::middleware('api')->get('v1/organisation_delegates', [OrganisationDelegatesController::class, 'index']);
 Route::middleware('api')->get('v1/organisation_delegates/{id}', [OrganisationDelegatesController::class, 'show']);
@@ -177,20 +185,18 @@ Route::middleware('api')->put('v1/affiliations/{id}', [AffiliationController::cl
 Route::middleware('api')->patch('v1/affiliations/{id}', [AffiliationController::class, 'edit']);
 Route::middleware('api')->delete('v1/affiliations/{id}', [AffiliationController::class, 'destroy']);
 
+Route::middleware('api')->get('v1/professional_registrations/registry/{registryId}', [ProfessionalRegistrationController::class, 'indexByRegistryId']);
+Route::middleware('api')->post('v1/professional_registrations/registry/{registryId}', [ProfessionalRegistrationController::class, 'storeByRegistryId']);
+Route::middleware('api')->put('v1/professional_registrations/{id}', [ProfessionalRegistrationController::class, 'update']);
+Route::middleware('api')->patch('v1/professional_registrations/{id}', [ProfessionalRegistrationController::class, 'edit']);
+Route::middleware('api')->delete('v1/professional_registrations/{id}', [ProfessionalRegistrationController::class, 'destroy']);
+
 Route::middleware('api')->get('v1/educations/{registryId}', [EducationController::class, 'indexByRegistryId']);
 Route::middleware('api')->get('v1/educations/{id}/{registryId}', [EducationController::class, 'showByRegistryId']);
 Route::middleware('api')->post('v1/educations/{registryId}', [EducationController::class, 'storeByRegistryId']);
 Route::middleware('api')->put('v1/educations/{id}/{registryId}', [EducationController::class, 'updateByRegistryId']);
 Route::middleware('api')->patch('v1/educations/{id}/{registryId}', [EducationController::class, 'editByRegistryId']);
 Route::middleware('api')->delete('v1/educations/{id}/{registryId}', [EducationController::class, 'destroyByRegistryId']);
-
-Route::middleware('api')->get('v1/employments/{registryId}', [EmploymentController::class, 'indexByRegistryId']);
-Route::middleware('api')->get('v1/employments/{id}/{registryId}', [EmploymentController::class, 'showByRegistryId']);
-Route::middleware('api')->post('v1/employments/{registryId}', [EmploymentController::class, 'storeByRegistryId']);
-Route::middleware('api')->put('v1/employments/{id}/{registryId}', [EmploymentController::class, 'updateByRegistryId']);
-Route::middleware('api')->patch('v1/employments/{id}/{registryId}', [EmploymentController::class, 'editByRegistryId']);
-Route::middleware('api')->patch('v1/employments/{id}/{registryId}/verify_email', [EmploymentController::class, 'verifyEmailForEmployment']);
-Route::middleware('api')->delete('v1/employments/{id}/{registryId}', [EmploymentController::class, 'destroyByRegistryId']);
 
 Route::middleware('api')->get('v1/sectors', [SectorController::class, 'index']);
 Route::middleware('api')->get('v1/sectors/{id}', [SectorController::class, 'show']);
@@ -217,6 +223,7 @@ Route::middleware('api')->get('v1/email_templates', [EmailTemplateController::cl
 Route::middleware('api')->post('v1/trigger_email', [TriggerEmailController::class, 'spawnEmail']);
 
 Route::middleware('api')->post('v1/files', [FileUploadController::class, 'store']);
+Route::middleware('api')->get('v1/files/{id}', [FileUploadController::class, 'show']);
 
 Route::middleware('api')->post('v1/approvals/{entity_type}', [ApprovalController::class, 'store']);
 Route::middleware('api')->get('v1/approvals/{entity_type}/{id}/custodian/{custodian_id}', [ApprovalController::class, 'getEntityHasCustodianApproval']);

@@ -63,14 +63,15 @@ class TrainingTest extends TestCase
                 'POST',
                 self::TEST_URL,
                 [
-                'registry_id' => 1,
-                'provider' => 'Fake Training Provider',
-                'awarded_at' => Carbon::now(),
-                'expires_at' => Carbon::now()->addYears(5),
-                'expires_in_years' => 5,
-                'training_name' => 'Completely made up Researcher Training',
-                'certification_id' => null,
-            ]
+                    'registry_id' => 1,
+                    'provider' => 'Fake Training Provider',
+                    'awarded_at' => Carbon::now(),
+                    'expires_at' => Carbon::now()->addYears(5),
+                    'expires_in_years' => 5,
+                    'training_name' => 'Completely made up Researcher Training',
+                    'certification_id' => null,
+                    'pro_registration' => fake()->randomElement([0, 1]),
+                ]
             );
 
         $response->assertStatus(201);
@@ -92,6 +93,7 @@ class TrainingTest extends TestCase
                 'expires_in_years' => 5,
                 'training_name' => 'Completely made up Researcher Training',
                 'certification_id' => 1,
+                'pro_registration' => 0,
             ]
         );
 
@@ -106,14 +108,15 @@ class TrainingTest extends TestCase
                 'PATCH',
                 self::TEST_URL . '/' . $content,
                 [
-                'registry_id' => 1,
-                'provider' => 'Fake Training Provider 2',
-                'awarded_at' => Carbon::now(),
-                'expires_at' => Carbon::now()->addYears(8),
-                'expires_in_years' => 8,
-                'training_name' => 'Completely made up Researcher Training v2',
-                'certification_id' => 1,
-            ]
+                    'registry_id' => 1,
+                    'provider' => 'Fake Training Provider 2',
+                    'awarded_at' => Carbon::now(),
+                    'expires_at' => Carbon::now()->addYears(8),
+                    'expires_in_years' => 8,
+                    'training_name' => 'Completely made up Researcher Training v2',
+                    'certification_id' => 1,
+                    'pro_registration' => 1,
+                ]
             );
 
         $response->assertStatus(200);
@@ -124,6 +127,7 @@ class TrainingTest extends TestCase
         $this->assertEquals($content['provider'], 'Fake Training Provider 2');
         $this->assertEquals($content['expires_in_years'], 8);
         $this->assertEquals($content['training_name'], 'Completely made up Researcher Training v2');
+        $this->assertEquals($content['pro_registration'], 1);
     }
 
     public function test_the_application_can_delete_training(): void
@@ -133,14 +137,15 @@ class TrainingTest extends TestCase
                 'POST',
                 self::TEST_URL,
                 [
-                'registry_id' => 1,
-                'provider' => 'Fake Training Provider',
-                'awarded_at' => Carbon::now(),
-                'expires_at' => Carbon::now()->addYears(5),
-                'expires_in_years' => 5,
-                'training_name' => 'Pointless Training that will be Deleted',
-                'certification_id' => null,
-            ]
+                    'registry_id' => 1,
+                    'provider' => 'Fake Training Provider',
+                    'awarded_at' => Carbon::now(),
+                    'expires_at' => Carbon::now()->addYears(5),
+                    'expires_in_years' => 5,
+                    'training_name' => 'Pointless Training that will be Deleted',
+                    'certification_id' => null,
+                    'pro_registration' => 0,
+                ]
             );
 
         $response->assertStatus(201);

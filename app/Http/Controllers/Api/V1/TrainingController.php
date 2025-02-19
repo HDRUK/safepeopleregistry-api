@@ -21,13 +21,10 @@ class TrainingController extends Controller
      *      tags={"Training"},
      *      summary="Training@index",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -38,7 +35,8 @@ class TrainingController extends Controller
      *                  @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
      *                  @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
      *                  @OA\Property(property="expires_in_years", type="integer", example="2"),
-     *                  @OA\Property(property="training_name", type="string", example="Safe Researcher Training")
+     *                  @OA\Property(property="training_name", type="string", example="Safe Researcher Training"),
+     *                  @OA\Property(property="pro_registration", type="integer", example="1")
      *              )
      *          ),
      *      ),
@@ -46,9 +44,7 @@ class TrainingController extends Controller
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -101,7 +97,8 @@ class TrainingController extends Controller
      *                  @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
      *                  @OA\Property(property="expires_in_years", type="integer", example="2"),
      *                  @OA\Property(property="training_name", type="string", example="Safe Researcher Training"),
-     *                  @OA\Property(property="certification_id", type="integer", example="3")
+     *                  @OA\Property(property="certification_id", type="integer", example="3"),
+     *                  @OA\Property(property="pro_registration", type="integer", example="1")
      *              )
      *          ),
      *      ),
@@ -157,7 +154,8 @@ class TrainingController extends Controller
      *                  @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
      *                  @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
      *                  @OA\Property(property="expires_in_years", type="integer", example="2"),
-     *                  @OA\Property(property="training_name", type="string", example="Safe Researcher Training")
+     *                  @OA\Property(property="training_name", type="string", example="Safe Researcher Training"),
+     *                  @OA\Property(property="pro_registration", type="integer", example="1")
      *              )
      *          ),
      *      ),
@@ -196,7 +194,8 @@ class TrainingController extends Controller
      *              @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
      *              @OA\Property(property="expires_in_years", type="integer", example="2"),
      *              @OA\Property(property="training_name", type="string", example="Safe Researcher Training"),
-     *              @OA\Property(property="certification_id", type="integer", example="1")
+     *              @OA\Property(property="certification_id", type="integer", example="1"),
+     *              @OA\Property(property="pro_registration", type="integer", example="1")
      *          ),
      *      ),
      *      @OA\Response(
@@ -206,13 +205,10 @@ class TrainingController extends Controller
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=201,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -224,17 +220,15 @@ class TrainingController extends Controller
      *                  @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
      *                  @OA\Property(property="expires_in_years", type="integer", example="2"),
      *                  @OA\Property(property="training_name", type="string", example="Safe Researcher Training"),
-     *                  @OA\Property(property="certification_id", type="integer", example="1")
+     *                  @OA\Property(property="certification_id", type="integer", example="1"),
+     *                  @OA\Property(property="pro_registration", type="integer", example="1")
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -252,6 +246,7 @@ class TrainingController extends Controller
                 'expires_in_years' => $input['expires_in_years'],
                 'training_name' => $input['training_name'],
                 'certification_id' => isset($input['certification_id']) ? $input['certification_id'] : null,
+                'pro_registration' => isset($input['pro_registration']) ? $input['pro_registration'] : 0,
             ]);
 
             return response()->json([
@@ -278,19 +273,15 @@ class TrainingController extends Controller
      *         description="Training entry ID",
      *         required=true,
      *         example="1",
-     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Training entry ID",
      *         ),
      *      ),
-     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Training definition",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="id", type="integer", example="123"),
      *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *              @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
@@ -299,26 +290,21 @@ class TrainingController extends Controller
      *              @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
      *              @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
      *              @OA\Property(property="expires_in_years", type="integer", example="2"),
-     *              @OA\Property(property="training_name", type="string", example="Safe Researcher Training")
+     *              @OA\Property(property="training_name", type="string", example="Safe Researcher Training"),
+     *              @OA\Property(property="pro_registration", type="integer", example="1")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -329,17 +315,15 @@ class TrainingController extends Controller
      *                  @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
      *                  @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
      *                  @OA\Property(property="expires_in_years", type="integer", example="2"),
-     *                  @OA\Property(property="training_name", type="string", example="Safe Researcher Training")
+     *                  @OA\Property(property="training_name", type="string", example="Safe Researcher Training"),
+     *                  @OA\Property(property="pro_registration", type="integer", example="1")
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -357,6 +341,7 @@ class TrainingController extends Controller
                 'expires_at' => $input['expires_at'],
                 'expires_in_years' => $input['expires_in_years'],
                 'training_name' => $input['training_name'],
+                'pro_registration' => $input['pro_registration'],
             ]);
 
             return response()->json([
@@ -376,26 +361,21 @@ class TrainingController extends Controller
      *      tags={"Training"},
      *      summary="Training@edit",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Training entry ID",
      *         required=true,
      *         example="1",
-     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Training entry ID",
      *         ),
      *      ),
-     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Training definition",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="id", type="integer", example="123"),
      *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *              @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
@@ -404,26 +384,21 @@ class TrainingController extends Controller
      *              @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
      *              @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
      *              @OA\Property(property="expires_in_years", type="integer", example="2"),
-     *              @OA\Property(property="training_name", type="string", example="Safe Researcher Training")
+     *              @OA\Property(property="training_name", type="string", example="Safe Researcher Training"),
+     *              @OA\Property(property="pro_registration", type="integer", example="1")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -434,17 +409,15 @@ class TrainingController extends Controller
      *                  @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
      *                  @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
      *                  @OA\Property(property="expires_in_years", type="integer", example="2"),
-     *                  @OA\Property(property="training_name", type="string", example="Safe Researcher Training")
+     *                  @OA\Property(property="training_name", type="string", example="Safe Researcher Training"),
+     *                  @OA\Property(property="pro_registration", type="integer", example="1")
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -462,6 +435,7 @@ class TrainingController extends Controller
                 'expires_at' => $input['expires_at'],
                 'expires_in_years' => $input['expires_in_years'],
                 'training_name' => $input['training_name'],
+                'pro_registration' => $input['pro_registration'],
             ]);
 
             return response()->json([

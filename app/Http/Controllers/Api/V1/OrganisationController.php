@@ -13,11 +13,13 @@ use App\Http\Controllers\Controller;
 use App\Jobs\OrganisationIDVT;
 use App\Models\Project;
 use App\Models\Organisation;
+use App\Models\Charity;
 use App\Models\OrganisationHasDepartment;
 use App\Models\OrganisationHasSubsidiary;
 use App\Models\Subsidiary;
 use App\Models\User;
 use App\Models\UserHasDepartments;
+use App\Models\RegistryHasOrganisation;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -63,10 +65,23 @@ class OrganisationController extends Controller
      *                  @OA\Property(property="ce_certified", type="boolean", example="false"),
      *                  @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
      *                  @OA\Property(property="companies_house_no", type="string", example="12345678"),
-     *                  @OA\Property(property="charity_registration_id", type="string", example="12345678"),
      *                  @OA\Property(property="ror_id", type="string", example="05xs36f43"),
      *                  @OA\Property(property="website", type="string", example="http://www.hdruk.ac.uk"),
      *                  @OA\Property(property="smb_status", type="string", example="true"),
+     *                  @OA\Property(property="charities", type="array",
+     *                      @OA\Items(
+     *                          @OA\Property(property="id", type="integer", example="1"),
+     *                          @OA\Property(property="registration_id", type="string", example="1186569"),
+     *                          @OA\Property(property="name", type="string", example="Health Pathways UK Charity"),
+     *                          @OA\Property(property="website", type="string", example="https://www.website1.com/"),
+     *                          @OA\Property(property="address_1", type="string", example="3 WATERHOUSE SQUARE"),
+     *                          @OA\Property(property="address_2", type="string", example="138-142 HOLBORN"),
+     *                          @OA\Property(property="town", type="string", example="LONDON"),
+     *                          @OA\Property(property="county", type="string", example="GREATER LONDON"),
+     *                          @OA\Property(property="country", type="string", example="UNITED KINGDOM"),
+     *                          @OA\Property(property="postcode", type="string", example="EC1N 2SW"),
+     *                      ),
+     *                  ),
      *              )
      *          ),
      *      ),
@@ -96,6 +111,7 @@ class OrganisationController extends Controller
                     'approvals',
                     'permissions',
                     'files',
+                    'charities',
                     'registries',
                     'registries.user',
                     'registries.user.permissions',
@@ -157,10 +173,23 @@ class OrganisationController extends Controller
      *                  @OA\Property(property="ce_certified", type="boolean", example="false"),
      *                  @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
      *                  @OA\Property(property="companies_house_no", type="string", example="12345678"),
-     *                  @OA\Property(property="charity_registration_id", type="string", example="12345678"),
      *                  @OA\Property(property="ror_id", type="string", example="05xs36f43"),
      *                  @OA\Property(property="website", type="string", example="http://www.hdruk.ac.uk"),
      *                  @OA\Property(property="smb_status", type="string", example="true"),
+     *                  @OA\Property(property="charities", type="array",
+     *                      @OA\Items(
+     *                          @OA\Property(property="id", type="integer", example="1"),
+     *                          @OA\Property(property="registration_id", type="string", example="1186569"),
+     *                          @OA\Property(property="name", type="string", example="Health Pathways UK Charity"),
+     *                          @OA\Property(property="website", type="string", example="https://www.website1.com/"),
+     *                          @OA\Property(property="address_1", type="string", example="3 WATERHOUSE SQUARE"),
+     *                          @OA\Property(property="address_2", type="string", example="138-142 HOLBORN"),
+     *                          @OA\Property(property="town", type="string", example="LONDON"),
+     *                          @OA\Property(property="county", type="string", example="GREATER LONDON"),
+     *                          @OA\Property(property="country", type="string", example="UNITED KINGDOM"),
+     *                          @OA\Property(property="postcode", type="string", example="EC1N 2SW"),
+     *                      ),
+     *                  ),
      *              )
      *          ),
      *      ),
@@ -184,6 +213,7 @@ class OrganisationController extends Controller
             'permissions',
             'approvals',
             'files',
+            'charities',
             'registries',
             'registries.user',
             'registries.user.permissions',
@@ -332,13 +362,26 @@ class OrganisationController extends Controller
      *              @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
      *              @OA\Property(property="companies_house_no", type="string", example="12345678"),
      *              @OA\Property(property="sector_id", type="number", example="1"),
-     *              @OA\Property(property="charity_registration_id", type="string", example="12345678"),
      *              @OA\Property(property="ror_id", type="string", example="05xs36f43"),
      *              @OA\Property(property="website", type="string", example="http://www.hdruk.ac.uk"),
      *              @OA\Property(property="size", type="string", example="10 to 49"),
      *              @OA\Property(property="departments", type="array",
      *                  @OA\Items(type="integer"),
-     *              )
+     *              ),
+     *              @OA\Property(property="charities", type="array",
+     *                  @OA\Items(
+     *                      @OA\Property(property="id", type="integer", example="1"),
+     *                      @OA\Property(property="registration_id", type="string", example="1186569"),
+     *                      @OA\Property(property="name", type="string", example="Health Pathways UK Charity"),
+     *                      @OA\Property(property="website", type="string", example="https://www.website1.com/"),
+     *                      @OA\Property(property="address_1", type="string", example="3 WATERHOUSE SQUARE"),
+     *                      @OA\Property(property="address_2", type="string", example="138-142 HOLBORN"),
+     *                      @OA\Property(property="town", type="string", example="LONDON"),
+     *                      @OA\Property(property="county", type="string", example="GREATER LONDON"),
+     *                      @OA\Property(property="country", type="string", example="UNITED KINGDOM"),
+     *                      @OA\Property(property="postcode", type="string", example="EC1N 2SW"),
+     *                  ),
+     *              ),
      *          ),
      *      ),
      *
@@ -404,7 +447,6 @@ class OrganisationController extends Controller
                 'iso_27001_certification_num' => $input['iso_27001_certification_num'],
                 'ce_certified' => $input['ce_certified'],
                 'ce_certification_num' => $input['ce_certification_num'],
-                'charity_registration_id' => $input['charity_registration_id'],
                 'ror_id' => $input['ror_id'],
                 'website' => $input['website'],
                 'smb_status' => $input['smb_status'],
@@ -418,6 +460,31 @@ class OrganisationController extends Controller
                     ]);
                 }
             }
+
+            if (isset($input['charities']) && is_array($input['charities'])) {
+                foreach ($input['charities'] as $charityData) {
+                    if (!isset($charityData['registration_id'])) {
+                        continue;
+                    }
+
+                    $charity = Charity::firstOrCreate(
+                        ['registration_id' => $charityData['registration_id']],
+                        [
+                            'name' => $charityData['name'] ?? 'Unknown Charity',
+                            'website' => $charityData['website'] ?? null,
+                            'address_1' => $charityData['address_1'] ?? null,
+                            'address_2' => $charityData['address_2'] ?? null,
+                            'town' => $charityData['town'] ?? null,
+                            'county' => $charityData['county'] ?? null,
+                            'country' => $charityData['country'] ?? null,
+                            'postcode' => $charityData['postcode'] ?? null,
+                        ]
+                    );
+
+                    $organisation->charities()->attach($charity->id);
+                }
+            }
+
 
             // Run automated IDVT
             if (!in_array(env('APP_ENV'), ['testing', 'ci'])) {
@@ -464,7 +531,6 @@ class OrganisationController extends Controller
                 'ce_certification_num' => '',
                 'ce_plus_certified' => 0,
                 'ce_plus_certification_num' => '',
-                'charity_registration_id' => '',
                 'ror_id' => '',
                 'website' => '',
                 'smb_status' => 0,
@@ -527,7 +593,6 @@ class OrganisationController extends Controller
      *              @OA\Property(property="ce_certified", type="boolean", example="false"),
      *              @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
      *              @OA\Property(property="companies_house_no", type="string", example="12345678"),
-     *              @OA\Property(property="charity_registration_id", type="string", example="12345678"),
      *              @OA\Property(property="ror_id", type="string", example="05xs36f43"),
      *              @OA\Property(property="website", type="string", example="http://www.hdruk.ac.uk"),
      *              @OA\Property(property="smb_status", type="string", example="true"),
@@ -571,10 +636,23 @@ class OrganisationController extends Controller
      *                  @OA\Property(property="ce_certified", type="boolean", example="false"),
      *                  @OA\Property(property="ce_certification_num", type="string", example="fghj63-kdhgke-736jfks-0000"),
      *                  @OA\Property(property="companies_house_no", type="string", example="12345678"),
-     *                  @OA\Property(property="charity_registration_id", type="string", example="12345678"),
      *                  @OA\Property(property="ror_id", type="string", example="05xs36f43"),
      *                  @OA\Property(property="website", type="string", example="http://www.hdruk.ac.uk"),
      *                  @OA\Property(property="smb_status", type="string", example="true"),
+     *                  @OA\Property(property="charities", type="array",
+     *                      @OA\Items(
+     *                          @OA\Property(property="id", type="integer", example="1"),
+     *                          @OA\Property(property="registration_id", type="string", example="1186569"),
+     *                          @OA\Property(property="name", type="string", example="Health Pathways UK Charity"),
+     *                          @OA\Property(property="website", type="string", example="https://www.website1.com/"),
+     *                          @OA\Property(property="address_1", type="string", example="3 WATERHOUSE SQUARE"),
+     *                          @OA\Property(property="address_2", type="string", example="138-142 HOLBORN"),
+     *                          @OA\Property(property="town", type="string", example="LONDON"),
+     *                          @OA\Property(property="county", type="string", example="GREATER LONDON"),
+     *                          @OA\Property(property="country", type="string", example="UNITED KINGDOM"),
+     *                          @OA\Property(property="postcode", type="string", example="EC1N 2SW"),
+     *                      ),
+     *                 )
      *              )
      *          ),
      *      ),
@@ -611,7 +689,6 @@ class OrganisationController extends Controller
                 'verified' => $input['verified'],
                 'companies_house_no' => $input['companies_house_no'],
                 'sector_id' => $input['sector_id'],
-                'charity_registration_id' => $input['charity_registration_id'],
                 'ror_id' => $input['ror_id'],
                 'website' => $input['website'],
                 'smb_status' => $input['smb_status'],
@@ -622,6 +699,10 @@ class OrganisationController extends Controller
                 foreach ($request->input('subsidiaries') as $subsidiary) {
                     $this->addSubsidiary($id, $subsidiary);
                 }
+            }
+
+            if ($request->has('charities')) {
+                $this->updateOrganisationCharities($id, $request->input('charities'));
             }
 
             return response()->json([
@@ -680,10 +761,23 @@ class OrganisationController extends Controller
      *              @OA\Property(property="iso_27001_certification_num", type="string", example="ISO123"),
      *              @OA\Property(property="ce_certified", type="boolean", example=false),
      *              @OA\Property(property="ce_certification_num", type="string", example="CE123"),
-     *              @OA\Property(property="charity_registration_id", type="string", example="CHARITY123"),
      *              @OA\Property(property="ror_id", type="string", example="ROR123"),
      *              @OA\Property(property="website", type="string", example="http://www.example.com"),
      *              @OA\Property(property="smb_status", type="boolean", example=true),
+     *              @OA\Property(property="charities", type="array",
+     *                  @OA\Items(
+     *                      @OA\Property(property="id", type="integer", example="1"),
+     *                      @OA\Property(property="registration_id", type="string", example="1186569"),
+     *                      @OA\Property(property="name", type="string", example="Health Pathways UK Charity"),
+     *                      @OA\Property(property="website", type="string", example="https://www.website1.com/"),
+     *                      @OA\Property(property="address_1", type="string", example="3 WATERHOUSE SQUARE"),
+     *                      @OA\Property(property="address_2", type="string", example="138-142 HOLBORN"),
+     *                      @OA\Property(property="town", type="string", example="LONDON"),
+     *                      @OA\Property(property="county", type="string", example="GREATER LONDON"),
+     *                      @OA\Property(property="country", type="string", example="UNITED KINGDOM"),
+     *                      @OA\Property(property="postcode", type="string", example="EC1N 2SW"),
+     *                  ),
+     *             )
      *          ),
      *      ),
      *
@@ -725,6 +819,11 @@ class OrganisationController extends Controller
             $updated = $organisation->update($request->validated());
 
             if ($updated) {
+
+                if ($request->has('charities')) {
+                    $this->updateOrganisationCharities($id, $request->input('charities'));
+                }
+
                 if ($request->has('subsidiaries')) {
                     $this->cleanSubsidiaries($id);
                     foreach ($request->input('subsidiaries') as $subsidiary) {
@@ -1239,17 +1338,18 @@ class OrganisationController extends Controller
         }
         $subsidiaryData = [
             'name' => $subsidiary['name'],
+        ];
+
+        $subsidiaryValues = [
             'address_1' => $subsidiary['address']['address_1'] ?? null,
-            'address_2' => $subsidiary['address']['address_1'] ?? null,
+            'address_2' => $subsidiary['address']['address_2'] ?? null,
             'town' => $subsidiary['address']['town'] ?? null,
             'county' => $subsidiary['address']['county'] ?? null,
             'country' => $subsidiary['address']['country'] ?? null,
             'postcode' => $subsidiary['address']['postcode'] ?? null,
         ];
 
-        $subsidiary = Subsidiary::updateOrCreate(
-            $subsidiaryData
-        );
+        $subsidiary = Subsidiary::updateOrCreate($subsidiaryData, $subsidiaryValues);
 
         OrganisationHasSubsidiary::updateOrCreate(
             [
@@ -1257,6 +1357,36 @@ class OrganisationController extends Controller
                 'subsidiary_id' => $subsidiary->id
             ]
         );
+    }
+
+
+    private function updateOrganisationCharities(int $organisationId, array $charities)
+    {
+        $organisation = Organisation::findOrFail($organisationId);
+
+        $organisation->charities()->detach();
+
+        foreach ($charities as $charityData) {
+            if (empty($charityData['registration_id'])) {
+                continue;
+            }
+
+            $charityCriteria = ['registration_id' => $charityData['registration_id']];
+            $charityValues = [
+                'name' => $charityData['name'] ?? 'Unknown Charity',
+                'website' => $charityData['website'] ?? null,
+                'address_1' => $charityData['address_1'] ?? null,
+                'address_2' => $charityData['address_2'] ?? null,
+                'town' => $charityData['town'] ?? null,
+                'county' => $charityData['county'] ?? null,
+                'country' => $charityData['country'] ?? null,
+                'postcode' => $charityData['postcode'] ?? null,
+            ];
+
+            $charity = Charity::updateOrCreate($charityCriteria, $charityValues);
+
+            $organisation->charities()->attach($charity->id);
+        }
     }
 
     public function validateRor(Request $request, string $ror): JsonResponse
@@ -1273,5 +1403,83 @@ class OrganisationController extends Controller
             'message' => 'failed',
             'data' => 'not found',
         ], 404);
+    }
+
+    /**
+     * @OA\Get(
+     *      path="/api/v1/organisations/{id}/registries",
+     *      summary="Get all registries for an organisation",
+     *      description="Returns all registries associated with the specified organisation",
+     *      tags={"organisations"},
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="Organisation ID",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="integer",
+     *              format="int64"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="object",
+     *                  @OA\Property(property="current_page", type="integer"),
+     *                  @OA\Property(
+     *                      property="data",
+     *                      type="array",
+     *                      @OA\Items(
+     *                          @OA\Property(property="registry_id", type="integer"),
+     *                          @OA\Property(property="organisation_id", type="integer")
+     *                      )
+     *                  ),
+     *                  @OA\Property(property="first_page_url", type="string"),
+     *                  @OA\Property(property="from", type="integer"),
+     *                  @OA\Property(property="last_page", type="integer"),
+     *                  @OA\Property(property="last_page_url", type="string"),
+     *                  @OA\Property(property="next_page_url", type="string"),
+     *                  @OA\Property(property="path", type="string"),
+     *                  @OA\Property(property="per_page", type="integer"),
+     *                  @OA\Property(property="prev_page_url", type="string"),
+     *                  @OA\Property(property="to", type="integer"),
+     *                  @OA\Property(property="total", type="integer")
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="No registries found for this organisation",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="No registries found for this organisation")
+     *          )
+     *      )
+     * )
+     */
+    public function getRegistries(Request $request, int $id): JsonResponse
+    {
+        try {
+
+            $registryIds = RegistryHasOrganisation::where('organisation_id', $id)
+            ->get()
+            ->select('registry_id');
+
+            $users = User::searchViaRequest()
+            ->applySorting()
+            ->whereIn('registry_id', $registryIds)
+            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+
+            return response()->json([
+                'message' => 'success',
+                'data' => $users,
+            ], 200);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
     }
 }

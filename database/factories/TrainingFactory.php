@@ -24,6 +24,7 @@ class TrainingFactory extends Factory
             'expires_in_years' => fake()->numberBetween(1, 5),
             'training_name' => fake()->name(),
             'certification_id' => null,
+            'pro_registration' => fake()->randomElement([0, 1]),
         ];
     }
 }

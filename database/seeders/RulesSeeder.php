@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Seeder;
 use App\Models\Rules;
 
@@ -9,6 +10,12 @@ class RulesSeeder extends Seeder
 {
     public function run()
     {
+        Schema::disableForeignKeyConstraints();
+
+        Rules::truncate();
+
+        Schema::enableForeignKeyConstraints();
+
         $rules = [
             [
                 'name' => 'countrySanctions',

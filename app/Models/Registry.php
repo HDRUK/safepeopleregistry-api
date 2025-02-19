@@ -36,7 +36,6 @@ class Registry extends Model
         'user_id',
         'dl_ident',
         'pp_ident',
-        'digi_ident',
     ];
 
     public function user(): HasOne
@@ -49,9 +48,14 @@ class Registry extends Model
         return $this->hasOne(Identity::class, 'registry_id');
     }
 
-    public function employment(): HasOne
+    public function affiliations(): BelongsToMany
     {
-        return $this->hasOne(Employment::class, 'registry_id');
+        return $this->belongsToMany(
+            Affiliation::class,
+            'registry_has_affiliations',
+            'registry_id',
+            'affiliation_id',
+        );
     }
 
     public function education(): HasMany
@@ -60,6 +64,11 @@ class Registry extends Model
     }
 
     public function training(): HasMany
+    {
+        return $this->hasMany(Training::class, 'registry_id');
+    }
+
+    public function professionalRegistrations(): HasMany
     {
         return $this->hasMany(Training::class, 'registry_id');
     }
