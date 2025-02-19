@@ -16,7 +16,7 @@ return new class () extends Migration {
             // all.
             $table->id();
             $table->timestamps();
-            $table->bigInteger('employment_id')->nullable();
+            $table->bigInteger('affiliation_id')->nullable();
             $table->bigInteger('endorsement_id')->nullable();
             $table->bigInteger('infringement_id')->nullable();
             $table->bigInteger('project_id')->nullable();

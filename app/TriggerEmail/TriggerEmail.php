@@ -29,8 +29,8 @@ class TriggerEmail
         $identifier = $input['identifier'];
 
         switch (strtoupper($type)) {
-            case 'EMPLOYMENT':
-                if ($input['pro_email'] === '') {
+            case 'AFFILIATION':
+                if ($input['email'] === '') {
                     // Log and return
                     return;
                 }
