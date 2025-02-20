@@ -38,6 +38,8 @@ class BaseDemoSeeder extends Seeder
     {
         $this->call([
             SectorSeeder::class,
+            EntityModelTypeSeeder::class,
+            EntityModelSeeder::class,
             PermissionSeeder::class,
             RulesSeeder::class,
             CustodianSeeder::class,
