@@ -102,7 +102,8 @@ class OrganisationController extends Controller
         $organisations = [];
 
         $custodianId = $request->get('custodian_id');
-        if (! $custodianId) {
+
+        if (!$custodianId) {
             $organisations = Organisation::searchViaRequest()
                 ->applySorting()
                 ->with([
@@ -116,7 +117,23 @@ class OrganisationController extends Controller
                     'registries.user',
                     'registries.user.permissions',
                     'registries.user.approvals',
-                ])->where('unclaimed', 0)->paginate((int)$this->getSystemConfig('PER_PAGE'));
+                    'delegates'
+                ])
+                ->filterWhen('has_delegates', function($query, $hasDelegates) {
+                    if ($hasDelegates) {
+                        $query->whereHas('delegates');
+                    } else {
+                        $query->whereDoesntHave('delegates');
+                    }
+                })
+                ->filterWhen('has_soursd_id', function($query, $hasSoursdId) {
+                    if ($hasSoursdId) {
+                        $query->whereNot('organisation_unique_id', '')->whereNotNull('organisation_unique_id');
+                    } else {
+                        $query->where('organisation_unique_id', '')->orWhereNull('organisation_unique_id');
+                    }
+                })
+                ->paginate((int)$this->getSystemConfig('PER_PAGE'));
         }
 
         return response()->json([
@@ -993,13 +1010,10 @@ class OrganisationController extends Controller
     */
     public function getProjects(Request $request, int $organisationId): JsonResponse
     {
-        $approved = $request->query('approved', null);
-        $approved = is_null($approved) ? null : filter_var($approved, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-
         $projects = Project::searchViaRequest()
           ->applySorting()
-          ->with('approvals')
-          ->when(!is_null($approved), function ($query) use ($approved) {
+          ->with(['approvals'])
+          ->filterWhen('approved', function($query, $approved) {
               if ($approved) {
                   $query->whereHas('approvals');
               } else {
