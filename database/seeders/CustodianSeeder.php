@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use DB;
 use Hash;
+use App\Models\EntityModel;
+use App\Models\CustodianModelConfig;
 use App\Models\Custodian;
 use App\Models\Rules;
 use App\Models\CustodianUser;
@@ -39,6 +41,16 @@ class CustodianSeeder extends Seeder
                 'enabled' => 1,
                 'idvt_required' => fake()->randomElement([0, 1]),
             ]);
+
+            $entityModels = EntityModel::all();
+
+            foreach ($entityModels as $e) {
+                CustodianModelConfig::create([
+                    'entity_model_id' => $e->id,
+                    'active' => 1,
+                    'custodian_id' => $i->id,
+                ]);
+            }
 
             if ($nRules > 0) {
                 $randomRules = collect($ruleIds)->random(rand(2, $nRules))->toArray();

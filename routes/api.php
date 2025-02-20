@@ -31,6 +31,7 @@ use App\Http\Controllers\Api\V1\SectorController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\ProfessionalRegistrationController;
 use App\Http\Controllers\Api\V1\DepartmentController;
+use App\Http\Controllers\Api\V1\CustodianModelConfigController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -231,6 +232,11 @@ Route::middleware('api')->delete('v1/approvals/{entity_type}/{id}/custodian/{cus
 
 Route::middleware('api')->post('v1/request_access', [RegistryReadRequestController::class, 'request']);
 Route::middleware('api')->patch('v1/request_access/{id}', [RegistryReadRequestController::class, 'acceptOrReject']);
+
+Route::middleware('api')->get('v1/custodian_config/{id}', [CustodianModelConfigController::class, 'getByCustodianID']);
+Route::middleware('api')->post('v1/custodian_config', [CustodianModelConfigController::class, 'store']);
+Route::middleware('api')->put('v1/custodian_config/{id}', [CustodianModelConfigController::class, 'update']);
+Route::middleware('api')->delete('v1/custodian_config/{id}', [CustodianModelConfigController::class, 'destroy']);
 
 Route::get('v1/system_config', [SystemConfigController::class, 'index']);
 Route::post('v1/system_config', [SystemConfigController::class, 'store']);
