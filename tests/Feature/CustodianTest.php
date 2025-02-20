@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
+use App\Models\EntityModel;
+use App\Models\CustodianModelConfig;
 use App\Models\User;
 use App\Models\Custodian;
 use App\Models\Sector;
@@ -107,6 +109,34 @@ class CustodianTest extends TestCase
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
+    }
+
+    public function test_the_application_adds_entity_models_to_newly_created_custodians(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
+                    'name' => 'Test Custodian',
+                    'contact_email' => 'test@test.com',
+                    'enabled' => true,
+                    'idvt_required' => false,
+                ]
+            );
+
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
+
+        $content = $response->decodeResponseJson();
+
+        $entities = EntityModel::all();
+
+        $conf = CustodianModelConfig::where([
+            'custodian_id' => $content['data'],
+        ])->get()->toArray();
+
+        $this->assertTrue(count($conf) === count($entities));
     }
 
     public function test_the_application_can_update_custodians(): void
