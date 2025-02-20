@@ -25,10 +25,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Requests\Organisations\EditOrganisation;
 use TriggerEmail;
+use App\Http\Traits\Responses;
 
 class OrganisationController extends Controller
 {
     use CommonFunctions;
+    use Responses;
 
     /**
      * @OA\Get(
@@ -119,10 +121,7 @@ class OrganisationController extends Controller
                 ])->where('unclaimed', 0)->paginate((int)$this->getSystemConfig('PER_PAGE'));
         }
 
-        return response()->json([
-            'message' => 'success',
-            'data' => $organisations,
-        ], 200);
+        return $this->OKResponse($organisations);
     }
 
     /**
@@ -220,10 +219,7 @@ class OrganisationController extends Controller
             'registries.user.approvals',
         ])->findOrFail($id);
         if ($organisation) {
-            return response()->json([
-                'message' => 'success',
-                'data' => $organisation,
-            ], 200);
+            return $this->OKResponse($organisation);
         }
 
         throw new NotFoundException();
@@ -237,10 +233,7 @@ class OrganisationController extends Controller
             ->where('end_date', '<', Carbon::now())
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
-        return response()->json(
-            $projects,
-            200
-        );
+        return $this->OKResponse($projects);
     }
 
     // No swagger, internal call
@@ -251,10 +244,7 @@ class OrganisationController extends Controller
             ->where('end_date', '>=', Carbon::now())
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
-        return response()->json(
-            $projects,
-            200
-        );
+        return $this->OKResponse($projects);
     }
 
     // No swagger, internal call
@@ -265,10 +255,7 @@ class OrganisationController extends Controller
             ->where('end_date', '>', Carbon::now())
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
-        return response()->json(
-            $projects,
-            200
-        );
+        return $this->OKResponse($projects);
     }
 
     /**
@@ -318,19 +305,18 @@ class OrganisationController extends Controller
         $organisation = Organisation::findOrFail($id);
 
         if ($organisation) {
-            return response()->json([
-                'message' => 'success',
-                'data' => [
+            return $this->OKResponse(
+                [
                     'id' => $organisation->id,
                     'idvt_result' => $organisation->idvt_result,
                     'idvt_errors' => $organisation->idvt_errors,
                     'idvt_completed_at' => $organisation->idvt_completed_at,
                     'idvt_result_perc' => $organisation->idvt_result_perc
-                ],
-            ], 200);
+                ]
+            );
         }
 
-        throw new NotFoundException();
+        return $this->NotFoundResponse();
     }
 
     /**
@@ -422,7 +408,7 @@ class OrganisationController extends Controller
     public function store(Request $request): JsonResponse
     {
         try {
-            $input = $request->all();
+            $input = $request->only(app(Organisation::class)->getFillable());
             $organisation = Organisation::create([
                 'organisation_name' => $input['organisation_name'],
                 'address_1' => $input['address_1'],
@@ -443,10 +429,16 @@ class OrganisationController extends Controller
                 'sector_id' => $input['sector_id'],
                 'dsptk_certified' => $input['dsptk_certified'],
                 'dsptk_certification_num' => $input['dsptk_certification_num'],
+                'dsptk_expiry_date' => $input['dsptk_expiry_date'],
                 'iso_27001_certified' => $input['iso_27001_certified'],
                 'iso_27001_certification_num' => $input['iso_27001_certification_num'],
+                'iso_expiry_date' => $input['iso_expiry_date'],
                 'ce_certified' => $input['ce_certified'],
                 'ce_certification_num' => $input['ce_certification_num'],
+                'ce_expiry_date' => $input['ce_expiry_date'],
+                'ce_plus_certified' => $input['ce_plus_certified'],
+                'ce_plus_certification_num' => $input['ce_plus_certification_num'],
+                'ce_plus_expiry_date' => $input['ce_plus_expiry_date'],
                 'ror_id' => $input['ror_id'],
                 'website' => $input['website'],
                 'smb_status' => $input['smb_status'],
@@ -491,10 +483,7 @@ class OrganisationController extends Controller
                 OrganisationIDVT::dispatchSync($organisation);
             }
 
-            return response()->json([
-                'message' => 'success',
-                'data' => $organisation->id,
-            ], 201);
+            return $this->CreatedResponse($organisation->id);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -525,22 +514,23 @@ class OrganisationController extends Controller
                 'sector_id' => 0,
                 'dsptk_certified' => 0,
                 'dsptk_certification_num' => '',
+                'dsptk_expiry_date' => '',
                 'iso_27001_certified' => 0,
                 'iso_27001_certification_num' => '',
+                'iso_expiry_date' => '',
                 'ce_certified' => 0,
                 'ce_certification_num' => '',
+                'ce_expiry_date' => '',
                 'ce_plus_certified' => 0,
                 'ce_plus_certification_num' => '',
+                'ce_plus_expiry_date' => '',
                 'ror_id' => '',
                 'website' => '',
                 'smb_status' => 0,
                 'unclaimed' => isset($input['unclaimed']) ? $input['unclaimed'] : 1
             ]);
 
-            return response()->json([
-                'message' => 'success',
-                'data' => $organisation->id,
-            ], 201);
+            return $this->CreatedResponse($organisation->id);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -671,28 +661,8 @@ class OrganisationController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         try {
-            $input = $request->all();
-            Organisation::where('id', $id)->update([
-                'organisation_name' => $input['organisation_name'],
-                'address_1' => $input['address_1'],
-                'address_2' => $input['address_2'],
-                'town' => $input['town'],
-                'county' => $input['county'],
-                'country' => $input['country'],
-                'postcode' => $input['postcode'],
-                'lead_applicant_organisation_name' => $input['lead_applicant_organisation_name'],
-                'lead_applicant_email' => $input['lead_applicant_email'],
-                'organisation_unique_id' => $input['organisation_unique_id'],
-                'applicant_names' => $input['applicant_names'],
-                'funders_and_sponsors' => $input['funders_and_sponsors'],
-                'sub_license_arrangements' => $input['sub_license_arrangements'],
-                'verified' => $input['verified'],
-                'companies_house_no' => $input['companies_house_no'],
-                'sector_id' => $input['sector_id'],
-                'ror_id' => $input['ror_id'],
-                'website' => $input['website'],
-                'smb_status' => $input['smb_status'],
-            ]);
+            $input = $request->only(app(Organisation::class)->getFillable());
+            $org = tap(Organisation::where('id', $id)->update($input))->first();
 
             if ($request->has('subsidiaries')) {
                 $this->cleanSubsidiaries($id);
@@ -705,10 +675,7 @@ class OrganisationController extends Controller
                 $this->updateOrganisationCharities($id, $request->input('charities'));
             }
 
-            return response()->json([
-                'message' => 'success',
-                'data' => Organisation::where('id', $id)->first(),
-            ], 200);
+            return $this->OKResponse($org);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -813,7 +780,7 @@ class OrganisationController extends Controller
             $organisation = Organisation::find($id);
 
             if (!$organisation) {
-                return response()->json(['message' => 'not found'], 404);
+                return $this->NotFoundResponse();
             }
 
             $updated = $organisation->update($request->validated());
@@ -830,15 +797,12 @@ class OrganisationController extends Controller
                         $this->addSubsidiary($id, $subsidiary);
                     }
                 }
-                return response()->json(['message' => 'success', 'data' => $updated], 200);
+                return $this->OKResponse($updated);
             } else {
-                return response()->json(['message' => 'Failed to update organisation'], 500);
+                return $this->ErrorResponse();
             }
         } catch (Exception $e) {
-            return response()->json([
-                'message' => 'error',
-                'error' => $e->getMessage()
-            ], 500);
+            return $this->ErrorResponse();
         }
     }
 
