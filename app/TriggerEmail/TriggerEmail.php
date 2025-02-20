@@ -27,7 +27,6 @@ class TriggerEmail
         $to = $input['to'];
         $by = isset($input['by']) ? $input['by'] : null;
         $identifier = $input['identifier'];
-
         switch (strtoupper($type)) {
             case 'EMPLOYMENT':
                 if ($input['pro_email'] === '') {
