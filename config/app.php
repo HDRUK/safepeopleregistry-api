@@ -202,7 +202,6 @@ return [
         'Keycloak' => App\Keycloak\KeycloakFacade::class,
         'OrcID' => App\OrcID\OrcIDFacade::class,
         'TriggerEmail' => App\TriggerEmail\TriggerEmailFacade::class,
-        'Search' => App\Search\Search::class,
         'RegistryManagementController' => App\RegistryManagementController\RegistryManagementController::class,
         'RulesEngineManagementController' => App\RulesEngineManagementController\RulesEngineManagementController::class,
     ])->toArray(),

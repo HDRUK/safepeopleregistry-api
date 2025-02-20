@@ -7,7 +7,6 @@ use Hash;
 use Http;
 use Exception;
 use RegistryManagementController as RMC;
-use Search;
 use Carbon\Carbon;
 use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;

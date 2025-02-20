@@ -50,4 +50,14 @@ trait SearchManager
 
         return $query->orderBy($field, $direction);
     }
+
+    public function scopeFilterWhen($query, string $filter, $callback): mixed
+    {
+        $value = \request()->query($filter, null);
+        $value = is_null($value) ? null : filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+
+        return $query->when(!is_null($value), function ($query) use ($value, $callback) {
+            $callback($query, $value);
+        });
+    }
 }

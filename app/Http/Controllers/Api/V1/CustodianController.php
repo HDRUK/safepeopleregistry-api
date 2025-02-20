@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\V1;
 use Exception;
 use Hash;
 use RegistryManagementController as RMC;
-use Search;
 use TriggerEmail;
 use Carbon\Carbon;
 use App\Http\Controllers\Controller;
@@ -739,38 +738,33 @@ class CustodianController extends Controller
      */
     public function getProjects(Request $request, int $custodianId): JsonResponse
     {
-        $active = Search::sanitiseFilters($request, 'active');
-        $approved = Search::sanitiseFilters($request, 'approved');
-        $pending = Search::sanitiseFilters($request, 'pending');
-        $completed = Search::sanitiseFilters($request, 'completed');
-
         $currentDate = Carbon::now()->toDateString();
 
         $projects = Project::searchViaRequest()
           ->applySorting()
           ->with('approvals')
-          ->when(!is_null($approved), function ($query) use ($approved) {
-              if ($approved) {
+          ->filterWhen('approved', function($query, $value) {
+              if ($value) {
                   $query->whereHas('approvals');
               } else {
                   $query->whereDoesntHave('approvals');
               }
           })
-          ->when(!is_null($pending), function ($query) use ($pending) {
+          ->filterWhen('pending', function($query, $pending) {
               if ($pending) {
                   $query->whereDoesntHave('approvals');
               } else {
                   $query->whereHas('approvals');
               }
           })
-          ->when(!is_null($active), function ($query) use ($active, $currentDate) {            
+          ->filterWhen('active', function($query, $active) use ($currentDate) {            
               if ($active) {
                   $query->where('start_date', '>=', $currentDate)->where('end_date', '>=', $currentDate);
               } else {
                   $query->where('start_date', '<', $currentDate)->where('end_date', '>', $currentDate);               
               }
           })
-          ->when(!is_null($completed), function ($query) use ($completed, $currentDate) {
+          ->filterWhen('completed', function($query, $completed) use ($currentDate) {     
               if ($completed) {
                   $query->where('end_date', '>=', $currentDate);
               } else {
