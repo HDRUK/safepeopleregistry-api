@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\Registry;
 use App\Models\UserHasCustodianApproval;
 use App\Models\UserHasCustodianPermission;
+use App\Models\UserHasDepartments;
 use App\Models\Organisation;
 use App\Http\Requests\Users\CreateUser;
 use Illuminate\Http\JsonResponse;
@@ -564,6 +565,14 @@ class UserController extends Controller
                     'message' => 'User not found'
                 ], 404);
             }
+
+            if (isset($input['department_id']) && $input['department_id'] !== 0 && $input['department_id'] !== null) {
+                UserHasDepartments::where('user_id', $user->id)->delete();
+                UserHasDepartments::create([
+                    'user_id' => $user->id,
+                    'department_id' => $request['department_id'],
+                ]);
+            };
 
             $input = $request->only(app(User::class)->getFillable());
 

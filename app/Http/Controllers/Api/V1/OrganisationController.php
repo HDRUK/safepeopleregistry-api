@@ -1114,6 +1114,70 @@ class OrganisationController extends Controller
     }
 
     /**
+     * @OA\Get(
+     *      path="/api/v1/organisations/{id}/delegates",
+     *      summary="Return all delegates associated with an organisation",
+     *      description="Return all delegates associated with an organisation",
+     *      tags={"organisation"},
+     *      security={{"bearerAuth":{}}},
+     *
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Organisation ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Organisation ID"
+     *         ),
+     *      ),
+     *
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="array",
+     *                  @OA\Items(
+     *                      @OA\Property(property="id", type="integer", example=1),
+     *                      @OA\Property(property="first_name", type="string", example="John"),
+     *                      @OA\Property(property="last_name", type="string", example="Doe"),
+     *                      @OA\Property(property="email", type="string", example="john.doe@example.com"),
+     *                      @OA\Property(property="created_at", type="string", format="date-time", example="2023-06-01T12:00:00Z"),
+     *                      @OA\Property(property="updated_at", type="string", format="date-time", example="2023-06-01T12:00:00Z")
+     *                  )
+     *              )
+     *          )
+     *      ),
+     *
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *          )
+     *      )
+     * )
+     */
+    public function getDelegates(Request $request, int $organisationId): JsonResponse
+    {
+        try {
+            $delegates = User::with(["departments"])
+              ->where('organisation_id', $organisationId)
+              ->where('is_delegate', 1)
+              ->get();
+
+            return response()->json([
+              'message' => 'success',
+              'data' => $delegates,
+            ], 200);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    /**
      * No swagger, internal call
      */
     public function countUsers(Request $request, int $id): JsonResponse
