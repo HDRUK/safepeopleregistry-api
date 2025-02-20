@@ -122,14 +122,14 @@ class OrganisationController extends Controller
                     'registries.user.approvals',
                     'delegates'
                 ])
-                ->when(!is_null($hasDelegates), function ($query) use ($hasDelegates) {
+                ->filterWhen('has_delegates', function($query, $hasDelegates) {
                     if ($hasDelegates) {
                         $query->whereHas('delegates');
                     } else {
                         $query->whereDoesntHave('delegates');
                     }
                 })
-                ->when(!is_null($hasSoursdId), function ($query) use ($hasSoursdId) {
+                ->filterWhen('has_soursd_id', function($query, $hasSoursdId) {
                     if ($hasSoursdId) {
                         $query->whereNot('organisation_unique_id', '')->whereNotNull('organisation_unique_id');
                     } else {
