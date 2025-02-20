@@ -103,9 +103,6 @@ class OrganisationController extends Controller
 
         $custodianId = $request->get('custodian_id');
 
-        $hasDelegates = Search::sanitiseFilters($request, 'has_delegates');
-        $hasSoursdId = Search::sanitiseFilters($request, 'has_soursd_id');
-
         if (!$custodianId) {
             $organisations = Organisation::searchViaRequest()
                 ->applySorting()
