@@ -1010,12 +1010,10 @@ class OrganisationController extends Controller
     */
     public function getProjects(Request $request, int $organisationId): JsonResponse
     {
-        $approved = Search::sanitiseFilters($request, 'approved');
-
         $projects = Project::searchViaRequest()
           ->applySorting()
           ->with(['approvals'])
-          ->when(!is_null($approved), function ($query) use ($approved) {
+          ->filterWhen('approved', function($query, $approved) {
               if ($approved) {
                   $query->whereHas('approvals');
               } else {
