@@ -58,7 +58,6 @@ class OrganisationTest extends TestCase
             'postcode' => 'NW1 2BE',
             'lead_applicant_organisation_name' => 'Some One',
             'lead_applicant_email' => fake()->email(),
-            'password' => 'tempP4ssword',
             'organisation_unique_id' => Str::random(40),
             'applicant_names' => 'Some One, Some Two, Some Three',
             'funders_and_sponsors' => 'UKRI, MRC',
@@ -66,13 +65,17 @@ class OrganisationTest extends TestCase
             'verified' => false,
             'companies_house_no' => '10887014',
             'dsptk_certified' => 1,
-            'dsptk_certification_num' => '12345Z',
+            'dsptk_ods_code' => '12345Z',
+            'dsptk_expiry_date' => '',
             'iso_27001_certified' => 0,
             'iso_27001_certification_num' => '',
+            'iso_expiry_date' => '',
             'ce_certified' => 1,
             'ce_certification_num' => 'A1234',
+            'ce_expiry_date' => '',
             'ce_plus_certified' => 1,
-            'ce_plus_certified_num' => 'B5678',
+            'ce_plus_certification_num' => 'B5678',
+            'ce_plus_expiry_date' => '',
             'sector_id' => fake()->randomElement([0, count(Sector::SECTORS)]),
             'charities' => [
                 'registration_id' => '1186569',
@@ -118,7 +121,7 @@ class OrganisationTest extends TestCase
             );
 
         $response->assertStatus(200);
-        $content = $response->decodeResponseJson();
+        $content = $response->decodeResponseJson()['data'];
 
         $this->assertTrue($content['data'][0]['start_date'] <= Carbon::now());
         $this->assertTrue($content['data'][0]['end_date'] >= Carbon::now());
@@ -137,7 +140,7 @@ class OrganisationTest extends TestCase
             );
 
         $response->assertStatus(200);
-        $content = $response->decodeResponseJson();
+        $content = $response->decodeResponseJson()['data'];
 
         $this->assertTrue($content['data'][0]['start_date'] < Carbon::now());
         $this->assertTrue($content['data'][0]['end_date'] < Carbon::now());
@@ -157,7 +160,7 @@ class OrganisationTest extends TestCase
             );
 
         $response->assertStatus(200);
-        $content = $response->decodeResponseJson();
+        $content = $response->decodeResponseJson()['data'];
 
         $this->assertTrue($content['data'][0]['start_date'] > Carbon::now());
         $this->assertTrue($content['data'][0]['end_date'] > Carbon::now());
@@ -399,7 +402,6 @@ class OrganisationTest extends TestCase
                     'postcode' => 'BLA4 4HH',
                     'lead_applicant_organisation_name' => 'Some One',
                     'lead_applicant_email' => fake()->email(),
-                    'password' => 'tempP4ssword',
                     'organisation_unique_id' => Str::random(40),
                     'applicant_names' => 'Some One, Some Two, Some Three',
                     'funders_and_sponsors' => 'UKRI, MRC',

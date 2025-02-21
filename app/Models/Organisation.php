@@ -7,6 +7,173 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Traits\SearchManager;
 
+/**
+ * @OA\Schema(
+ *      schema="Organisation",
+ *      title="Organisation",
+ *      description="Organisation model",
+ *      @OA\Property(property="id",
+ *          type="integer",
+ *          example=1,
+ *          description="Model primary key"
+ *      ),
+ *      @OA\Property(property="created_at",
+ *          type="string",
+ *          example="2023-10-10T15:03:00Z"
+ *      ),
+ *      @OA\Property(property="updated_at",
+ *          type="string",
+ *          example="2023-10-10T16:03:00Z"
+ *      ),
+ *      @OA\Property(property="organisation_name",
+ *          type="string",
+ *          example="An Organisation Ltd"
+ *      ),
+ *      @OA\Property(property="address_1",
+ *          type="string",
+ *          example="123 Organisation Road"
+ *      ),
+ *      @OA\Property(property="address_2",
+ *          type="string",
+ *          example="Other address line"
+ *      ),
+ *      @OA\Property(property="town",
+ *          type="string",
+ *          example="Town"
+ *      ),
+ *      @OA\Property(property="county",
+ *          type="string",
+ *          example="County"
+ *      ),
+ *      @OA\Property(property="country",
+ *          type="string",
+ *          example="Country"
+ *      ),
+ *      @OA\Property(property="postcode",
+ *          type="string",
+ *          example="Po5t c0de"
+ *      ),
+ *      @OA\Property(property="lead_applicant_organisation_name",
+ *          type="string",
+ *          example="Lead Applicant Organisation"
+ *      ),
+ *      @OA\Property(property="lead_applicant_email",
+ *          type="string",
+ *          example="lead.applicant@email.com"
+ *      ),
+ *      @OA\Property(property="organisation_unique_id",
+ *          type="string",
+ *          example="ghyt843lgfk-akdgfskjh"
+ *      ),
+ *      @OA\Property(property="applicant_names",
+ *          type="string",
+ *          example="Applicant One, Applicant Two"
+ *      ),
+ *      @OA\Property(property="funders_and_sponsors",
+ *          type="string",
+ *          example="Funder Org. Sponsor Org"
+ *      ),
+ *      @OA\Property(property="sub_license_arrangements",
+ *          type="string",
+ *          example="Sub-license arrangements..."
+ *      ),
+ *      @OA\Property(property="verified",
+ *          type="boolean",
+ *          example="true"
+ *      ),
+ *      @OA\Property(property="dsptk_ods_code",
+ *          type="string",
+ *          example="8HQ90"
+ *      ),
+ *      @OA\Property(property="dsptk_certified",
+ *          type="boolean",
+ *          example="true"
+ *      ),
+ *      @OA\Property(property="dsptk_expiry_date",
+ *          type="string",
+ *          example="2026-12-01"
+ *      ),
+ *      @OA\Property(property="iso_27001_certified",
+ *          type="boolean",
+ *          example="true"
+ *      ),
+ *      @OA\Property(property="iso_27001_certification_num",
+ *          type="string",
+ *          example="NUM1234"
+ *      ),
+ *      @OA\Property(property="iso_expiry_date",
+ *          type="string",
+ *          example="2026-12-01"
+ *      ),
+ *      @OA\Property(property="ce_certified",
+ *          type="boolean",
+ *          example="true"
+ *      ),
+ *      @OA\Property(property="ce_certification_num",
+ *          type="string",
+ *          example="NUM1234"
+ *      ),
+ *      @OA\Property(property="ce_expiry_date",
+ *          type="string",
+ *          example="2026-12-01"
+ *      ),
+ *      @OA\Property(property="ce_plus_certified",
+ *          type="boolean",
+ *          example="true"
+ *      ),
+ *      @OA\Property(property="ce_plus_certification_num",
+ *          type="string",
+ *          example="NUM1234"
+ *      ),
+ *      @OA\Property(property="ce_plus_expiry_date",
+ *          type="string",
+ *          example="2026-12-01"
+ *      ),
+ *      @OA\Property(property="idvt_result",
+ *          type="integer",
+ *          example=1
+ *      ),
+ *      @OA\Property(property="idvt_result_perc",
+ *          type="integer",
+ *          example=100
+ *      ),
+ *      @OA\Property(property="idvt_errors",
+ *          type="string",
+ *          example="Verification failed for XYZ reason"
+ *      ),
+ *      @OA\Property(property="idvt_completed_at",
+ *          type="string",
+ *          example="2023-10-10T16:03:00Z"
+ *      ),
+ *      @OA\Property(property="companies_house_no",
+ *          type="string",
+ *          example="10887014"
+ *      ),
+ *      @OA\Property(property="sector_id",
+ *          type="integer",
+ *          example=1
+ *      ),
+ *      @OA\Property(property="ror_id",
+ *          type="string",
+ *          example="02wnqcb97",
+ *          description="ROR.org identification for Research Organisations"
+ *      ),
+ *      @OA\Property(property="website",
+ *          type="string",
+ *          example="https://yourdomain.com"
+ *      ),
+ *      @OA\Property(property="smb_status",
+ *          type="boolean",
+ *          example="false",
+ *          description="Declaration of small/medium business"
+ *      ),
+ *      @OA\Property(property="unclaimed",
+ *          type="boolean",
+ *          example="false",
+ *          description="Declaration of small/medium business"
+ *      ),
+ * )
+ */
 class Organisation extends Model
 {
     use HasFactory;
@@ -26,7 +193,6 @@ class Organisation extends Model
         'postcode',
         'lead_applicant_organisation_name',
         'lead_applicant_email',
-        'password',
         'organisation_unique_id',
         'applicant_names',
         'funders_and_sponsors',
@@ -61,6 +227,7 @@ class Organisation extends Model
         'iso_27001_certified' => 'boolean',
         'ce_certified' => 'boolean',
         'idvt_result' => 'boolean',
+        'unclaimed' => 'boolean',
     ];
 
     protected static array $searchableColumns = [
