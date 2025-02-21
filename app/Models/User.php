@@ -61,6 +61,7 @@ class User extends Authenticatable
         'is_delegate',
         'is_org_admin',
         'role',
+        'location'
     ];
 
     protected static array $searchableColumns = [

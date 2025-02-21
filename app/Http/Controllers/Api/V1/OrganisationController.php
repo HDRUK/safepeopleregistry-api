@@ -1281,7 +1281,6 @@ class OrganisationController extends Controller
     {
         try {
             $input = $request->all();
-
             $unclaimedUser = RMC::createUnclaimedUser([
                 'firstname' => $input['first_name'],
                 'lastname' => $input['last_name'],
@@ -1298,7 +1297,6 @@ class OrganisationController extends Controller
                     'department_id' => $request['department_id'],
                 ]);
             };
-
             if (isset($input['is_delegate'])) {
                 $input = [
                     'type' => 'USER_DELEGATE',
