@@ -14,48 +14,7 @@ class ProfessionalRegistrationController extends Controller
 {
     use CommonFunctions;
 
-    /**
-     * @OA\Get(
-     *      path="/api/v1/professional_registrations/registry/{id}",
-     *      summary="Return a list of training by registry id",
-     *      description="Return a list of training by registry id",
-     *      tags={"Professional Registrations"},
-     *      summary="Professional Registrations@show",
-     *      security={{"bearerAuth":{}}},
-     *      @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="Professional Registrations registry id",
-     *         required=true,
-     *         example="1",
-     *         @OA\Schema(
-     *            type="integer",
-     *            description="Professional Registrations registry id",
-     *         ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Success",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="member_id", type="string", example="ABC1234"),
-     *                  @OA\Property(property="name", type="string", example="ONS"),
-     *              )
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found"),
-     *          )
-     *      )
-     * )
-     */
+    //Hide from swagger
     public function indexByRegistryId(Request $request, int $registryId): JsonResponse
     {
         $professionalRegistrations = ProfessionalRegistration::with('registryHasProfessionalRegistrations')
@@ -67,52 +26,7 @@ class ProfessionalRegistrationController extends Controller
         ], 200);
     }
 
-    /**
-     * @OA\Post(
-     *      path="/api/v1/professional_registrations/registry/{registryId}",
-     *      summary="Create a Professional Registrations entry",
-     *      description="Create a Professional Registrations entry",
-     *      tags={"Professional Registrations"},
-     *      summary="Professional Registrations@store",
-     *      security={{"bearerAuth":{}}},
-     *      @OA\RequestBody(
-     *          required=true,
-     *          description="Professional Registrations definition",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="name", type="string", example="ONS"),
-     *              @OA\Property(property="member_id", type="string", example="ABC1234"),
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=201,
-     *          description="Success",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="member_id", type="string", example="ABC1234"),
-     *                  @OA\Property(property="name", type="string", example="ONS"),
-     *              )
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=500,
-     *          description="Error",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="error")
-     *          )
-     *      )
-     * )
-     */
+    //Hide from swagger
     public function storeByRegistryId(Request $request, int $registryId): JsonResponse
     {
         try {

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
-use App\Models\Employment;
+use App\Models\Affiliation;
 use App\Models\Endorsement;
 use App\Models\History;
 use App\Models\Identity;
@@ -27,47 +27,34 @@ class QueryController extends Controller
      *      tags={"Query"},
      *      summary="Query@query",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Query definition",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="ident", type="string", example="$2y$12$V6SSFQLyQDQRZxvz.Tswa.HA.ixJIXofs7.omitted")
      *          )
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          )
      *      ),
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *                  @OA\Property(property="message", type="string", example="success"),
      *                  @OA\Property(property="data", type="array",
-     *
      *                      @OA\Items(
-     *
      *                          @OA\Property(property="id", type="integer", example="1"),
      *                          @OA\Property(property="created_at", type="string", example="2024-03-12T13:11:55.000000Z"),
      *                          @OA\Property(property="updated_at", type="string", example="2024-03-12T13:11:55.000000Z"),
      *                          @OA\Property(property="deleted_at", type="string", example="2024-03-12T13:11:55.000000Z"),
      *                          @OA\Property(property="verified", type="boolean", example="true"),
      *                          @OA\Property(property="user", type="array",
-     *
      *                              @OA\Items(
-     *
      *                                  @OA\Property(property="user_id", type="integer", example="1"),
      *                                  @OA\Property(property="name", type="string", example="Some One"),
      *                                  @OA\Property(property="email", type="string", example="someone@somewhere.com"),
@@ -78,9 +65,7 @@ class QueryController extends Controller
      *                              )
      *                          ),
      *                          @OA\Property(property="identity", type="array",
-     *
      *                              @OA\Items(
-     *
      *                                  @OA\Property(property="id", type="integer", example="1"),
      *                                  @OA\Property(property="created_at", type="string", example="2024-03-12T13:11:55.000000Z"),
      *                                  @OA\Property(property="updated_at", type="string", example="2024-03-12T13:11:55.000000Z"),
@@ -89,24 +74,17 @@ class QueryController extends Controller
      *                              )
      *                          ),
      *                          @OA\Property(property="history", type="array",
-     *
      *                              @OA\Items(
-     *
      *                                  @OA\Property(property="id", type="integer", example="1"),
      *                                  @OA\Property(property="created_at", type="string", example="2024-03-12T13:11:55.000000Z"),
      *                                  @OA\Property(property="updated_at", type="string", example="2024-03-12T13:11:55.000000Z"),
-     *                                  @OA\Property(property="employment_id", type="integer", example="1"),
-     *                                  @OA\Property(property="endorsement_id", type="integer", example="234"),
-     *                                  @OA\Property(property="infringement_id", type="integer", example="456"),
      *                                  @OA\Property(property="project_id", type="integer", example="1"),
      *                                  @OA\Property(property="access_key_id", type="integer", example="876"),
      *                                  @OA\Property(property="custodian_identifier", type="string", example="ABC1234DEF-56789-0")
      *                              )
      *                          ),
      *                          @OA\Property(property="training", type="array",
-     *
      *                              @OA\Items(
-     *
      *                                  @OA\Property(property="id", type="integer", example="1"),
      *                                  @OA\Property(property="created_at", type="string", example="2024-03-12T13:11:55.000000Z"),
      *                                  @OA\Property(property="updated_at", type="string", example="2024-03-12T13:11:55.000000Z"),
@@ -119,14 +97,11 @@ class QueryController extends Controller
      *                              )
      *                          ),
      *                          @OA\Property(property="projects", type="array",
-     *
      *                              @OA\Items(
-     *
      *                                  @OA\Property(property="id", type="integer", example="1"),
      *                                  @OA\Property(property="created_at", type="string", example="2024-03-12T13:11:55.000000Z"),
      *                                  @OA\Property(property="updated_at", type="string", example="2024-03-12T13:11:55.000000Z"),
      *                                  @OA\Property(property="deleted_at", type="string", example="2024-03-12T13:11:55.000000Z"),
-     *                                  @OA\Property(property="registry_id", type="integer", example="1"),
      *                                  @OA\Property(property="name", type="string", example="Project Name"),
      *                                  @OA\Property(property="public_benefit", type="string", example="Public Benefit statement"),
      *                                  @OA\Property(property="runs_to", type="string", example="2024-09-12T13:11:55.000000Z"),
@@ -134,14 +109,15 @@ class QueryController extends Controller
      *                              )
      *                          ),
      *                          @OA\Property(property="organisations", type="array",
-     *
      *                              @OA\Items(
-     *
      *                                  @OA\Property(property="id", type="integer", example="1"),
      *                                  @OA\Property(property="created_at", type="string", example="2024-03-12T13:11:55.000000Z"),
      *                                  @OA\Property(property="updated_at", type="string", example="2024-03-12T13:11:55.000000Z"),
      *                                  @OA\Property(property="name", type="string", example="Institute Name")
      *                              )
+     *                          ),
+     *                          @OA\Property(property="affiliations", type="array",
+     *                              @OA\Items(ref="#/components/schemas/Affiliation")
      *                          )
      *                      )
      *                  )
@@ -183,14 +159,15 @@ class QueryController extends Controller
         foreach ($rhh as $item) {
             $history = History::where('id', $item->history_id)->first()->toArray();
 
-            $employment = Employment::where('id', $history['employment_id'])->first();
-            $history['employment'] = $employment;
+            $affiliation = Affiliation::where('id', $history['affiliation_id'])->first();
+            $history['affiliation'] = $affiliation;
 
-            $endorsement = Endorsement::where('id', $history['endorsement_id'])->first();
-            $history['endorsement'] = $endorsement;
+            // LS 18/02/25 - Removed for now as in talks by IG team - and not MVP
+            // $endorsement = Endorsement::where('id', $history['endorsement_id'])->first();
+            // $history['endorsement'] = $endorsement;
 
-            $infringement = Infringement::where('id', $history['infringement_id'])->first();
-            $history['infringement'] = $infringement;
+            // $infringement = Infringement::where('id', $history['infringement_id'])->first();
+            // $history['infringement'] = $infringement;
 
             $project = Project::where('id', $history['project_id'])->first();
             $history['project'] = $project;

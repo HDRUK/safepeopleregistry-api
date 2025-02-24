@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use Carbon\Carbon;
 use App\Models\Organisation;
 use App\Models\Charity;
 use App\Models\Sector;
@@ -30,20 +31,29 @@ class OrganisationFactory extends Factory
             'postcode' => 'NW1 2BE',
             'lead_applicant_organisation_name' => fake()->name(),
             'lead_applicant_email' => fake()->email(),
-            'password' => '$2y$12$pceM5s5kiqPGN.Xpbv/dtu2Mfs37JDjVOGyTpZAyux8brdH8XrAHa',
             'organisation_unique_id' => Str::random(40),
             'applicant_names' => fake()->name(),
             'funders_and_sponsors' => fake()->company(),
             'sub_license_arrangements' => fake()->sentence(5),
             'verified' => true,
-            'dsptk_ods_code' => Str::random(fake()->randomElement([3, 4, 5])),
-            'dsptk_certified' => fake()->randomElement([0, 1]),
             'companies_house_no' => '10887014',
-            'iso_27001_certification_num' => Str::random(12),
             'sector_id' => fake()->randomElement([0, count(Sector::SECTORS)]),
+            'dsptk_certified' => fake()->randomElement([0, 1]),
+            'dsptk_ods_code' => '012345',
+            'dsptk_expiry_date' => Carbon::now()->addYears(1),
+            'iso_27001_certified' => fake()->randomElement([0, 1]),
+            'iso_27001_certification_num' => Str::random(12),
+            'iso_expiry_date' => Carbon::now()->addYears(1),
+            'ce_certified' => fake()->randomElement([0, 1]),
+            'ce_certification_num' => '012345',
+            'ce_expiry_date' => Carbon::now()->addYears(1),
+            'ce_plus_certified' => fake()->randomElement([0, 1]),
+            'ce_plus_certification_num' => '012345',
+            'ce_plus_expiry_date' => Carbon::now()->addYears(1),
             'ror_id' => '02wnqcb97',
-            'smb_status' => false,
             'website' => 'https://www.website.com/',
+            'smb_status' => false,
+            'unclaimed' => false,
         ];
     }
 

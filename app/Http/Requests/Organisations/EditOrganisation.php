@@ -32,7 +32,7 @@ class EditOrganisation extends FormRequest
             'companies_house_no' => 'sometimes|string|max:8',
             'sector_id' => 'sometimes|integer',
             'dsptk_certified' => 'sometimes|boolean',
-            'dsptk_certification_num' => 'nullable|string|max:255',
+            'dsptk_ods_code' => 'nullable|string|max:255',
             'iso_27001_certified' => 'sometimes|boolean',
             'iso_27001_certification_num' => 'nullable|string|max:255',
             'ce_certified' => 'sometimes|boolean',

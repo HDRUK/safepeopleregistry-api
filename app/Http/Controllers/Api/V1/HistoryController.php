@@ -29,19 +29,15 @@ class HistoryController extends Controller
      *      tags={"History"},
      *      summary="History@index",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="employment_id", type="integer", example="1"),
      *                  @OA\Property(property="endorsement_id", type="integer", example="213"),
      *                  @OA\Property(property="infringement_id", type="integer", example="12"),
      *                  @OA\Property(property="project_id", type="integer", example="2"),
@@ -50,13 +46,10 @@ class HistoryController extends Controller
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -80,32 +73,26 @@ class HistoryController extends Controller
      *      tags={"History"},
      *      summary="History@show",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="History entry ID",
      *         required=true,
      *         example="1",
-     *
      *         @OA\Schema(
      *            type="integer",
      *            description="History entry ID",
      *         ),
      *      ),
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="employment_id", type="integer", example="1"),
      *                  @OA\Property(property="endorsement_id", type="integer", example="213"),
      *                  @OA\Property(property="infringement_id", type="integer", example="12"),
      *                  @OA\Property(property="project_id", type="integer", example="2"),
@@ -114,13 +101,10 @@ class HistoryController extends Controller
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -147,14 +131,10 @@ class HistoryController extends Controller
      *      tags={"History"},
      *      summary="History@store",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="History definition",
-     *
      *          @OA\JsonContent(
-     *
-     *              @OA\Property(property="employment_id", type="integer", example="1"),
      *              @OA\Property(property="endorsement_id", type="integer", example="213"),
      *              @OA\Property(property="infringement_id", type="integer", example="12"),
      *              @OA\Property(property="project_id", type="integer", example="2"),
@@ -162,29 +142,22 @@ class HistoryController extends Controller
      *              @OA\Property(property="custodian_identifier", type="string", example="ABCD1234FGHI56789")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=201,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
      *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="employment_id", type="integer", example="1"),
      *                  @OA\Property(property="endorsement_id", type="integer", example="213"),
      *                  @OA\Property(property="infringement_id", type="integer", example="12"),
      *                  @OA\Property(property="project_id", type="integer", example="2"),
@@ -193,13 +166,10 @@ class HistoryController extends Controller
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -211,7 +181,6 @@ class HistoryController extends Controller
             $input = $request->all();
 
             $ledger = [
-                'employment_id' => $input['employment_id'],
                 'endorsement_id' => $input['endorsement_id'],
                 'infringement_id' => $input['infringement_id'],
                 'project_id' => $input['project_id'],
@@ -223,7 +192,6 @@ class HistoryController extends Controller
             $ledgerHash = Hash::make(json_encode($ledger));
 
             $history = History::create([
-                'employment_id' => $input['employment_id'],
                 'endorsement_id' => $input['endorsement_id'],
                 'infringement_id' => $input['infringement_id'],
                 'project_id' => $input['project_id'],

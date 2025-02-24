@@ -11,7 +11,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::table('organisations', function (Blueprint $table) {
-            $table->bigInteger('unclaimed')->default(0);
+            $table->tinyInteger('unclaimed')->default(0);
             $table->string('organisation_name', 255)->nullable()->change();
         });
     }
@@ -22,7 +22,7 @@ return new class () extends Migration {
     public function down(): void
     {
         Schema::table('organisations', function (Blueprint $table) {
-            $table->dropIfExists('unclaimed');
+            $table->dropColumn('unclaimed');
             $table->string('organisation_name', 255)->nullable(false)->change();
         });
     }

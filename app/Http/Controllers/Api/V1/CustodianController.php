@@ -6,6 +6,7 @@ use Exception;
 use Hash;
 use RegistryManagementController as RMC;
 use TriggerEmail;
+use Carbon\Carbon;
 use App\Http\Controllers\Controller;
 use App\Models\Custodian;
 use App\Models\Organisation;
@@ -737,17 +738,37 @@ class CustodianController extends Controller
      */
     public function getProjects(Request $request, int $custodianId): JsonResponse
     {
-        $approved = $request->query('approved', null);
-        $approved = is_null($approved) ? null : filter_var($approved, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        $currentDate = Carbon::now()->toDateString();
 
         $projects = Project::searchViaRequest()
           ->applySorting()
           ->with('approvals')
-          ->when(!is_null($approved), function ($query) use ($approved) {
-              if ($approved) {
+          ->filterWhen('approved', function($query, $value) {
+              if ($value) {
                   $query->whereHas('approvals');
               } else {
                   $query->whereDoesntHave('approvals');
+              }
+          })
+          ->filterWhen('pending', function($query, $pending) {
+              if ($pending) {
+                  $query->whereDoesntHave('approvals');
+              } else {
+                  $query->whereHas('approvals');
+              }
+          })
+          ->filterWhen('active', function($query, $active) use ($currentDate) {            
+              if ($active) {
+                  $query->where('start_date', '>=', $currentDate)->where('end_date', '>=', $currentDate);
+              } else {
+                  $query->where('start_date', '<', $currentDate)->where('end_date', '>', $currentDate);               
+              }
+          })
+          ->filterWhen('completed', function($query, $completed) use ($currentDate) {     
+              if ($completed) {
+                  $query->where('end_date', '>=', $currentDate);
+              } else {
+                  $query->where('end_date', '<', $currentDate);
               }
           })
           ->whereHas('custodians', function ($query) use ($custodianId) {
