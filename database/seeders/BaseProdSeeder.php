@@ -16,6 +16,7 @@ class BaseProdSeeder extends Seeder
 
         $this->call([
             SectorSeeder::class,
+            EntityModelTypeSeeder::class,
             PermissionSeeder::class,
             // CustodianSeeder::class,
             SystemConfigSeeder::class,

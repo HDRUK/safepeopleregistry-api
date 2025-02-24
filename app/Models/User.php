@@ -61,6 +61,7 @@ class User extends Authenticatable
         'is_delegate',
         'is_org_admin',
         'role',
+        'location'
     ];
 
     protected static array $searchableColumns = [
@@ -164,8 +165,8 @@ class User extends Authenticatable
 
             UNION ALL
             
-            SELECT \'employments\' as source, registry_id
-            FROM employments
+            SELECT \'affiliations\' as source, registry_id
+            FROM affiliations
             WHERE email = ?
             ',
             [$email, $email]

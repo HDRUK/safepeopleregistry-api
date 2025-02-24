@@ -38,10 +38,8 @@ class AffiliationController extends Controller
      *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="member_id", type="string", example="A1234"),
-     *                  @OA\Property(property="organisation_id", type="integer", example="1"),
-     *                  @OA\Property(property="current_employer", type="integer", example="1"),
+     *              @OA\Property(property="data", type="array",
+     *                  @OA\Items(ref="#/components/schemas/Affiliation")
      *              )
      *          ),
      *      ),
@@ -93,10 +91,7 @@ class AffiliationController extends Controller
      *          required=true,
      *          description="Affiliation definition",
      *          @OA\JsonContent(
-     *              @OA\Property(property="member_id", type="string", example="A1234"),
-     *              @OA\Property(property="relationship", type="string", example="employee"),
-     *              @OA\Property(property="organisation_id", type="integer", example="1"),
-     *              @OA\Property(property="current_employer", type="integer", example="1"),
+     *              ref="#/components/schemas/Affiliation"
      *          ),
      *      ),
      *      @OA\Response(
@@ -111,12 +106,8 @@ class AffiliationController extends Controller
      *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="member_id", type="string", example="A1234"),
-     *                  @OA\Property(property="organisation_id", type="integer", example="1"),
-     *                  @OA\Property(property="current_employer", type="integer", example="1"),
-     *                  @OA\Property(property="relationship", type="string", example="employee"),
+     *              @OA\Property(property="data",
+     *                  ref="#/components/schemas/Affiliation"
      *              )
      *          ),
      *      ),
@@ -135,10 +126,16 @@ class AffiliationController extends Controller
             $input = $request->all();
 
             $affiliation = Affiliation::create([
-                'member_id' => $request['member_id'],
                 'organisation_id' => $input['organisation_id'],
-                'current_employer' => $input['current_employer'],
-                'relationship' => $input['relationship']
+                'member_id' => $request['member_id'],
+                'relationship' => $input['relationship'],
+                'from' => $input['from'],
+                'to' => $input['to'],
+                'department' => $input['department'],
+                'role' => $input['role'],
+                'email' => $input['email'],
+                'ror' => $input['ror'],
+                'registry_id' => $registryId,
             ]);
 
             RegistryHasAffiliation::create([
@@ -178,10 +175,7 @@ class AffiliationController extends Controller
      *          required=true,
      *          description="Affiliation definition",
      *          @OA\JsonContent(
-     *              @OA\Property(property="member_id", type="string", example="A1234"),
-     *              @OA\Property(property="relationship", type="string", example="employee"),
-     *              @OA\Property(property="organisation_id", type="integer", example="1"),
-     *              @OA\Property(property="current_employer", type="integer", example="1"),
+     *              ref="#/components/schemas/Affiliation"
      *          ),
      *      ),
      *      @OA\Response(
@@ -196,12 +190,8 @@ class AffiliationController extends Controller
      *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="member_id", type="string", example="A1234"),
-     *                  @OA\Property(property="relationship", type="string", example="employee"),
-     *                  @OA\Property(property="organisation_id", type="integer", example="1"),
-     *                  @OA\Property(property="current_employer", type="integer", example="1"),
+     *              @OA\Property(property="data",
+     *                  ref="#/components/schemas/Affiliation"
      *              )
      *          ),
      *      ),
@@ -217,15 +207,8 @@ class AffiliationController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         try {
-            $input = $request->all();
-            $affiliation = Affiliation::where('id', $id)->first();
-
-            $affiliation->member_id = $input['member_id'];
-            $affiliation->organisation_id = $input['organisation_id'];
-            $affiliation->current_employer = $input['current_employer'];
-            $affiliation->relationship = $input['relationship'];
-
-            $affiliation->save();
+            $input = $request->only(app(Affiliation::class)->getFillable());
+            $affiliation = tap(Affiliation::where('id', $id))->update($input)->first();
 
             return response()->json([
                 'message' => 'success',
@@ -260,10 +243,7 @@ class AffiliationController extends Controller
      *          required=true,
      *          description="Affiliation definition",
      *          @OA\JsonContent(
-     *              @OA\Property(property="member_id", type="string", example="A1234"),
-     *              @OA\Property(property="relationship", type="string", example="employee"),
-     *              @OA\Property(property="organisation_id", type="integer", example="1"),
-     *              @OA\Property(property="current_employer", type="integer", example="1"),
+     *              ref="#/components/schemas/Affiliation"
      *          ),
      *      ),
      *      @OA\Response(
@@ -278,12 +258,8 @@ class AffiliationController extends Controller
      *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="member_id", type="string", example="A1234"),
-     *                  @OA\Property(property="relationship", type="string", example="employee"),
-     *                  @OA\Property(property="organisation_id", type="integer", example="1"),
-     *                  @OA\Property(property="current_employer", type="integer", example="1"),
+     *              @OA\Property(property="data",
+     *                  ref="#/components/schemas/Affiliation"
      *              )
      *          ),
      *      ),

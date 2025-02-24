@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Carbon\Carbon;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\User;
 use Database\Seeders\AffiliationSeeder;
@@ -9,12 +10,14 @@ use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
+use App\Traits\CommonFunctions;
 
 class AffiliationTest extends TestCase
 {
     use Authorisation;
     use RefreshDatabase;
     use ActingAsKeycloakUser;
+    use CommonFunctions;
 
     public const TEST_URL = '/api/v1/affiliations';
 
@@ -50,10 +53,16 @@ class AffiliationTest extends TestCase
                 'POST',
                 self::TEST_URL . '/1',
                 [
-                    'member_id' => fake()->uuid(),
                     'organisation_id' => 1,
-                    'current_employer' => 1,
-                    'relationship' => 'employee'
+                    'member_id' => fake()->uuid(),
+                    'relationship' => 'employee',
+                    'from' => Carbon::now()->subYears(5)->toDateString(),
+                    'to' => '',
+                    'department' => 'Research',
+                    'role' => 'Researcher',
+                    'email' => fake()->email(),
+                    'ror' => $this->generateRorID(),
+                    'registry_id' => 1,
                 ]
             );
 
@@ -97,7 +106,6 @@ class AffiliationTest extends TestCase
         $content = $response->decodeResponseJson()['data'];
 
         $this->assertEquals($content['member_id'], 'A1234567');
-        $this->assertEquals($content['current_employer'], 0);
     }
 
     public function test_the_application_can_delete_an_affiliation(): void

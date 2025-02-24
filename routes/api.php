@@ -25,7 +25,6 @@ use App\Http\Controllers\Api\V1\TrainingController;
 use App\Http\Controllers\Api\V1\TriggerEmailController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\ResolutionController;
-use App\Http\Controllers\Api\V1\EmploymentController;
 use App\Http\Controllers\Api\V1\EducationController;
 use App\Http\Controllers\Api\V1\EmailTemplateController;
 use App\Http\Controllers\Api\V1\SectorController;
@@ -33,6 +32,7 @@ use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\ProfessionalRegistrationController;
 use App\Http\Controllers\Api\V1\DepartmentController;
 use App\Http\Controllers\Api\V1\WebhookController;
+use App\Http\Controllers\Api\V1\CustodianModelConfigController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -159,6 +159,7 @@ Route::middleware('api')->post('v1/organisations/{id}/invite_user', [Organisatio
 Route::middleware('api')->post('v1/organisations/permissions', [PermissionController::class, 'assignOrganisationPermissionsToFrom']);
 Route::middleware('api')->get('v1/organisations/{id}/projects', [OrganisationController::class, 'getProjects']);
 Route::middleware('api')->get('v1/organisations/{id}/users', [OrganisationController::class, 'getUsers']);
+Route::middleware('api')->get('v1/organisations/{id}/delegates', [OrganisationController::class, 'getDelegates']);
 Route::middleware('api')->get('v1/organisations/{id}/registries', [OrganisationController::class, 'getRegistries']);
 
 Route::middleware('api')->get('v1/organisation_delegates', [OrganisationDelegatesController::class, 'index']);
@@ -200,14 +201,6 @@ Route::middleware('api')->put('v1/educations/{id}/{registryId}', [EducationContr
 Route::middleware('api')->patch('v1/educations/{id}/{registryId}', [EducationController::class, 'editByRegistryId']);
 Route::middleware('api')->delete('v1/educations/{id}/{registryId}', [EducationController::class, 'destroyByRegistryId']);
 
-Route::middleware('api')->get('v1/employments/{registryId}', [EmploymentController::class, 'indexByRegistryId']);
-Route::middleware('api')->get('v1/employments/{id}/{registryId}', [EmploymentController::class, 'showByRegistryId']);
-Route::middleware('api')->post('v1/employments/{registryId}', [EmploymentController::class, 'storeByRegistryId']);
-Route::middleware('api')->put('v1/employments/{id}/{registryId}', [EmploymentController::class, 'updateByRegistryId']);
-Route::middleware('api')->patch('v1/employments/{id}/{registryId}', [EmploymentController::class, 'editByRegistryId']);
-Route::middleware('api')->patch('v1/employments/{id}/{registryId}/verify_email', [EmploymentController::class, 'verifyEmailForEmployment']);
-Route::middleware('api')->delete('v1/employments/{id}/{registryId}', [EmploymentController::class, 'destroyByRegistryId']);
-
 Route::middleware('api')->get('v1/sectors', [SectorController::class, 'index']);
 Route::middleware('api')->get('v1/sectors/{id}', [SectorController::class, 'show']);
 Route::middleware('api')->post('v1/sectors', [SectorController::class, 'store']);
@@ -248,6 +241,11 @@ Route::middleware('api')->post('v1/webhooks/receivers', [WebhookController::clas
 Route::middleware('api')->put('v1/webhooks/receivers/{custodianId}/{id}', [WebhookController::class, 'updateReceiver']);
 Route::middleware('api')->delete('v1/webhooks/receivers/{custodianId}/{id}', [WebhookController::class, 'deleteReceiver']);
 Route::middleware('api')->get('v1/webhooks/event-triggers', [WebhookController::class, 'getAllEventTriggers']);
+
+Route::middleware('api')->get('v1/custodian_config/{id}', [CustodianModelConfigController::class, 'getByCustodianID']);
+Route::middleware('api')->post('v1/custodian_config', [CustodianModelConfigController::class, 'store']);
+Route::middleware('api')->put('v1/custodian_config/{id}', [CustodianModelConfigController::class, 'update']);
+Route::middleware('api')->delete('v1/custodian_config/{id}', [CustodianModelConfigController::class, 'destroy']);
 
 Route::get('v1/system_config', [SystemConfigController::class, 'index']);
 Route::post('v1/system_config', [SystemConfigController::class, 'store']);

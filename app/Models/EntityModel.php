@@ -6,17 +6,33 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\SearchManager;
 
-class ProjectRole extends Model
+class EntityModel extends Model
 {
     use HasFactory;
     use SearchManager;
 
-    protected $table = 'project_roles';
+    protected $table = 'entity_models';
 
     public $timestamps = true;
 
     protected $fillable = [
         'name',
+        'description',
+        'entity_model_type_id',
+        'calls_file',
+        'file_path',
+        'calls_operation',
+        'operation',
+    ];
+
+    protected $casts = [
+        'calls_file' => 'boolean',
+        'calls_operation' => 'boolean',
+    ];
+
+    protected $hidden = [
+        'file_path',
+        'operation',
     ];
 
     protected static array $searchableColumns = [
@@ -25,16 +41,5 @@ class ProjectRole extends Model
 
     protected static array $sortableColumns = [
         'name',
-    ];
-
-    public const PROJECT_ROLES = [
-        'Principal Investigator (PI)',
-        'Co-Investigator (Co-I) / Sub-Investigator (Sub-I)',
-        'Data Analyst',
-        'Data Engineer',
-        'Postdoc',
-        'Research Fellow',
-        'Researcher',
-        'Student',
     ];
 }
