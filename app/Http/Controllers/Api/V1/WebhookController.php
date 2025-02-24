@@ -115,6 +115,64 @@ class WebhookController extends Controller
     }
 
     /**
+     * Create a new webhook receiver.
+     *
+     * @OA\Post(
+     *     path="/api/v1/webhooks/receivers",
+     *     tags={"Webhooks"},
+     *     summary="Create a new webhook receiver",
+     *     description="Creates a new webhook receiver for a custodian",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="custodian_id", type="integer", example=1),
+     *             @OA\Property(property="url", type="string", example="https://example.com/webhook"),
+     *             @OA\Property(property="webhook_event_id", type="integer", example=1)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="success"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="custodian_id", type="integer", example=1),
+     *                 @OA\Property(property="url", type="string", example="https://example.com/webhook"),
+     *                 @OA\Property(property="webhook_event", type="integer", example=1),
+     *                 @OA\Property(property="created_at", type="string", format="date-time", example="2023-06-07T12:00:00Z"),
+     *                 @OA\Property(property="updated_at", type="string", format="date-time", example="2023-06-07T12:00:00Z")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error"
+     *     )
+     * )
+     */
+    public function createReceiver(Request $request): JsonResponse
+    {
+        $request->validate([
+            'custodian_id' => 'required|exists:custodians,id',
+            'url' => 'required|url',
+            'webhook_event_id' => 'required|exists:webhook_event_triggers,id',
+        ]);
+
+        $receiver = CustodianWebhookReceiver::create([
+            'custodian_id' => $request->custodian_id,
+            'url' => $request->url,
+            'webhook_event' => $request->webhook_event_id,
+        ]);
+
+        return response()->json([
+            'message' => 'success',
+            'data' => $receiver
+        ], 201);
+    }
+    /**
      * Update a specific webhook receiver.
      *
      * @OA\Put(

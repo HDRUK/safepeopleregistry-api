@@ -242,11 +242,12 @@ Route::middleware('api')->delete('v1/approvals/{entity_type}/{id}/custodian/{cus
 Route::middleware('api')->post('v1/request_access', [RegistryReadRequestController::class, 'request']);
 Route::middleware('api')->patch('v1/request_access/{id}', [RegistryReadRequestController::class, 'acceptOrReject']);
 
-Route::middleware('api')->get('v1/receivers', [WebhookController::class, 'getAllReceivers']);
-Route::middleware('api')->get('v1/receivers/{custodianId}', [WebhookController::class, 'getReceiversByCustodian']);
-Route::middleware('api')->put('v1/receivers/{custodianId}/{id}', [WebhookController::class, 'updateReceiver']);
-Route::middleware('api')->delete('v1/receivers/{custodianId}/{id}', [WebhookController::class, 'deleteReceiver']);
-Route::middleware('api')->get('v1/event-triggers', [WebhookController::class, 'getAllEventTriggers']);
+Route::middleware('api')->get('v1/webhooks/receivers', [WebhookController::class, 'getAllReceivers']);
+Route::middleware('api')->get('v1/webhooks/receivers/{custodianId}', [WebhookController::class, 'getReceiversByCustodian']);
+Route::middleware('api')->post('v1/webhooks/receivers', [WebhookController::class, 'createReceiver']);
+Route::middleware('api')->put('v1/webhooks/receivers/{custodianId}/{id}', [WebhookController::class, 'updateReceiver']);
+Route::middleware('api')->delete('v1/webhooks/receivers/{custodianId}/{id}', [WebhookController::class, 'deleteReceiver']);
+Route::middleware('api')->get('v1/webhooks/event-triggers', [WebhookController::class, 'getAllEventTriggers']);
 
 Route::get('v1/system_config', [SystemConfigController::class, 'index']);
 Route::post('v1/system_config', [SystemConfigController::class, 'store']);
