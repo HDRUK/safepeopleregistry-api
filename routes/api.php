@@ -32,6 +32,7 @@ use App\Http\Controllers\Api\V1\SectorController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\ProfessionalRegistrationController;
 use App\Http\Controllers\Api\V1\DepartmentController;
+use App\Http\Controllers\Api\V1\WebhookController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -240,6 +241,12 @@ Route::middleware('api')->delete('v1/approvals/{entity_type}/{id}/custodian/{cus
 
 Route::middleware('api')->post('v1/request_access', [RegistryReadRequestController::class, 'request']);
 Route::middleware('api')->patch('v1/request_access/{id}', [RegistryReadRequestController::class, 'acceptOrReject']);
+
+Route::middleware('api')->get('v1/receivers', [WebhookController::class, 'getAllReceivers']);
+Route::middleware('api')->get('v1/receivers/{custodianId}', [WebhookController::class, 'getReceiversByCustodian']);
+Route::middleware('api')->put('v1/receivers/{custodianId}/{id}', [WebhookController::class, 'updateReceiver']);
+Route::middleware('api')->delete('v1/receivers/{custodianId}/{id}', [WebhookController::class, 'deleteReceiver']);
+Route::middleware('api')->get('v1/event-triggers', [WebhookController::class, 'getAllEventTriggers']);
 
 Route::get('v1/system_config', [SystemConfigController::class, 'index']);
 Route::post('v1/system_config', [SystemConfigController::class, 'store']);

@@ -19,4 +19,9 @@ class WebhookEventTrigger extends Model
         'trigger_signature',
         'enabled',
     ];
+
+    public function receivers()
+    {
+        return $this->hasMany(CustodianWebhookReceiver::class, 'webhook_event', 'id');
+    }
 }
