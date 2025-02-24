@@ -20,7 +20,7 @@ class WebhookEventTrigger extends Model
         'enabled',
     ];
 
-    public function receivers()
+    public function receivers(): HasMany
     {
         return $this->hasMany(CustodianWebhookReceiver::class, 'webhook_event', 'id');
     }

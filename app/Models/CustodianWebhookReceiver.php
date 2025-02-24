@@ -19,7 +19,7 @@ class CustodianWebhookReceiver extends Model
         'webhook_event',
     ];
 
-    public function eventTrigger()
+    public function eventTrigger(): BelongsTo
     {
         return $this->belongsTo(WebhookEventTrigger::class, 'webhook_event', 'id');
     }
