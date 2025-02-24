@@ -26,7 +26,6 @@ class TriggerEmail
         $to = $input['to'];
         $by = isset($input['by']) ? $input['by'] : null;
         $identifier = $input['identifier'];
-
         switch (strtoupper($type)) {
             case 'AFFILIATION':
                 if ($input['email'] === '') {

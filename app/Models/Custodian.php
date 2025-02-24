@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Observers\CustodianObserver;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\SearchManager;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
+#[ObservedBy([CustodianObserver::class])]
 class Custodian extends Model
 {
     use HasFactory;
