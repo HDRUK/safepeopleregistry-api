@@ -120,12 +120,13 @@ class WebhookTest extends TestCase
         $newEventTrigger = WebhookEventTrigger::factory()->create();
 
         $updateData = [
+            'id' => $receiver->id,
             'url' => 'https://example.com/new-webhook',
             'webhook_event_id' => $newEventTrigger->id,
         ];
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-            ->putJson(self::TEST_URL . "/receivers/{$this->custodian->id}/{$receiver->id}", $updateData);
+            ->putJson(self::TEST_URL . "/receivers/{$this->custodian->id}", $updateData);
 
         $response->assertStatus(200);
         $response->assertJson([
@@ -145,8 +146,11 @@ class WebhookTest extends TestCase
     {
         $receiver = CustodianWebhookReceiver::factory()->create(['custodian_id' => $this->custodian->id]);
 
+        $deleteData = [
+            'id' => $receiver->id,
+        ];
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-            ->deleteJson(self::TEST_URL . "/receivers/{$this->custodian->id}/{$receiver->id}");
+            ->deleteJson(self::TEST_URL . "/receivers/{$this->custodian->id}", $deleteData);
         $response->assertStatus(200);
         $response->assertJson([
             'message' => 'success',

@@ -176,7 +176,7 @@ class WebhookController extends Controller
      * Update a specific webhook receiver.
      *
      * @OA\Put(
-     *     path="/api/v1/webhooks/receivers/{custodianId}/{id}",
+     *     path="/api/v1/webhooks/receivers/{custodianId}",
      *     tags={"Webhooks"},
      *     summary="Update a webhook receiver",
      *     description="Updates a specific webhook receiver for a custodian",
@@ -186,15 +186,10 @@ class WebhookController extends Controller
      *         required=true,
      *         @OA\Schema(type="integer")
      *     ),
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
+     *             @OA\Property(property="id", type="integer", example=1),
      *             @OA\Property(property="url", type="string", example="https://example.com/new-webhook"),
      *             @OA\Property(property="webhook_event_id", type="integer", example=2)
      *         )
@@ -217,15 +212,16 @@ class WebhookController extends Controller
      *     )
      * )
      */
-    public function updateReceiver(Request $request, int $custodianId, int $id): JsonResponse
+    public function updateReceiver(Request $request, int $custodianId): JsonResponse
     {
         $request->validate([
+            'id' => 'required|exists:custodian_webhook_receivers,id',
             'url' => 'required|url',
             'webhook_event_id' => 'required|exists:webhook_event_triggers,id',
         ]);
 
         $receiver = CustodianWebhookReceiver::where('custodian_id', $custodianId)
-            ->where('id', $id)
+            ->where('id', $request->id)
             ->firstOrFail();
 
         $receiver->update([
@@ -243,7 +239,7 @@ class WebhookController extends Controller
      * Delete a specific webhook receiver.
      *
      * @OA\Delete(
-     *     path="/api/v1/webhooks/receivers/{custodianId}/{id}",
+     *     path="/api/v1/webhooks/receivers/{custodianId}",
      *     tags={"Webhooks"},
      *     summary="Delete a webhook receiver",
      *     description="Deletes a specific webhook receiver for a custodian",
@@ -253,11 +249,11 @@ class WebhookController extends Controller
      *         required=true,
      *         @OA\Schema(type="integer")
      *     ),
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
+     *     @OA\RequestBody(
      *         required=true,
-     *         @OA\Schema(type="integer")
+     *         @OA\JsonContent(
+     *             @OA\Property(property="id", type="integer", example=1)
+     *         )
      *     ),
      *     @OA\Response(
      *         response=200,
@@ -273,10 +269,13 @@ class WebhookController extends Controller
      *     )
      * )
      */
-    public function deleteReceiver(int $custodianId, int $id): JsonResponse
+    public function deleteReceiver(Request $request, int $custodianId): JsonResponse
     {
+        $request->validate([
+            'id' => 'required|exists:custodian_webhook_receivers,id',
+        ]);
         $receiver = CustodianWebhookReceiver::where('custodian_id', $custodianId)
-            ->where('id', $id)
+            ->where('id', $request->id)
             ->firstOrFail();
 
         $receiver->delete();
@@ -315,6 +314,7 @@ class WebhookController extends Controller
      *     )
      * )
      */
+
     public function getAllEventTriggers(): JsonResponse
     {
         $eventTriggers = WebhookEventTrigger::all();

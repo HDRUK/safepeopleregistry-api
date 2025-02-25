@@ -238,8 +238,8 @@ Route::middleware('api')->patch('v1/request_access/{id}', [RegistryReadRequestCo
 Route::middleware('api')->get('v1/webhooks/receivers', [WebhookController::class, 'getAllReceivers']);
 Route::middleware('api')->get('v1/webhooks/receivers/{custodianId}', [WebhookController::class, 'getReceiversByCustodian']);
 Route::middleware('api')->post('v1/webhooks/receivers', [WebhookController::class, 'createReceiver']);
-Route::middleware('api')->put('v1/webhooks/receivers/{custodianId}/{id}', [WebhookController::class, 'updateReceiver']);
-Route::middleware('api')->delete('v1/webhooks/receivers/{custodianId}/{id}', [WebhookController::class, 'deleteReceiver']);
+Route::middleware('api')->put('v1/webhooks/receivers/{custodianId}', [WebhookController::class, 'updateReceiver']);
+Route::middleware('api')->delete('v1/webhooks/receivers/{custodianId}', [WebhookController::class, 'deleteReceiver']);
 Route::middleware('api')->get('v1/webhooks/event-triggers', [WebhookController::class, 'getAllEventTriggers']);
 
 Route::middleware('api')->get('v1/custodian_config/{id}', [CustodianModelConfigController::class, 'getByCustodianID']);
