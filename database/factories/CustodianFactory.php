@@ -26,11 +26,14 @@ class CustodianFactory extends Factory
         );
 
         return [
-            'name' => fake()->name(),
+            'name' => $this->faker->company(),
             'unique_identifier' => $signature,
             'calculated_hash' => $calculatedHash,
-            'enabled' => fake()->randomElement([0, 1]),
-            'idvt_required' => fake()->randomElement([0, 1]),
+            'contact_email' => $this->faker->safeEmail(),
+            'enabled' => $this->faker->boolean(),
+            'invite_accepted_at' => $this->faker->optional()->dateTimeThisYear(),
+            'invite_sent_at' => $this->faker->dateTimeThisYear(),
+            'idvt_required' => $this->faker->boolean(),
         ];
     }
 }
