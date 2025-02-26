@@ -138,12 +138,13 @@ class CustodianModelConfigTest extends TestCase
         $this->assertEquals($content['message'], 'success');
     }
 
-    public function test_the_application_can_get_entity_models(): void
+    public function test_the_application_can_get_entity_models_for_specific_custodian(): void
     {
+        $custodianId = 1;
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'GET',
-                '/api/v1/entity_models?entity_model_type=decision_models'
+                "/api/v1/custodian_config/{$custodianId}/entity_models?entity_model_type=decision_models"
             );
 
         $response->assertStatus(200);
@@ -159,15 +160,17 @@ class CustodianModelConfigTest extends TestCase
             $this->assertArrayHasKey('description', $content['data'][0]);
             $this->assertArrayHasKey('created_at', $content['data'][0]);
             $this->assertArrayHasKey('updated_at', $content['data'][0]);
+            $this->assertArrayHasKey('active', $content['data'][0]);
         }
     }
 
     public function test_the_application_returns_error_for_invalid_entity_model_type(): void
     {
+        $custodianId = 1;
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'GET',
-                '/api/v1/entity_models?entity_model_type=invalid_type'
+                "/api/v1/custodian_config/{$custodianId}/entity_models?entity_model_type=invalid_type"
             );
 
         $response->assertStatus(400);
@@ -178,15 +181,31 @@ class CustodianModelConfigTest extends TestCase
 
     public function test_the_application_requires_entity_model_type_parameter(): void
     {
+        $custodianId = 1;
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'GET',
-                '/api/v1/entity_models'
+                "/api/v1/custodian_config/{$custodianId}/entity_models"
             );
 
         $response->assertStatus(400);
         $content = $response->decodeResponseJson();
         $this->assertEquals('Invalid argument(s)', $content['message']);
         $this->assertEquals('The entity model type field is required.', $content['errors'][0]['message']);
+    }
+
+    public function test_the_application_returns_not_found_for_invalid_custodian_id(): void
+    {
+        $invalidCustodianId = 9999;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                "/api/v1/custodian_config/{$invalidCustodianId}/entity_models?entity_model_type=decision_models"
+            );
+
+        $response->assertStatus(404);
+        $content = $response->decodeResponseJson();
+        $this->assertNull($content['data']);
     }
 }
