@@ -304,7 +304,7 @@ class CustodianModelConfigController extends Controller
         $entityModelTypeId = EntityModelType::where('name', $entityModelType)->value('id');
 
         if (!$entityModelTypeId) {
-            return $this->NotFoundResponse('Invalid entity model type');
+            return $this->NotFoundResponse();
         }
 
         $entityModels = EntityModel::with('custodianModelConfig')
@@ -312,7 +312,7 @@ class CustodianModelConfigController extends Controller
             ->get();
 
         if ($entityModels->isEmpty()) {
-            return $this->NotFoundResponse('No entity models found for the specified type');
+            return $this->NotFoundResponse();
         }
 
         $entityModels = $entityModels->map(function ($model) {
@@ -409,8 +409,8 @@ class CustodianModelConfigController extends Controller
         }
 
         if (count($updatedConfigs) !== count($configs)) {
-            return $this->NotFoundResponse('Custodian or one or more entity models not found');
+            return $this->NotFoundResponse();
         }
-        return $this->OKResponse($updatedConfigs, 'Custodian model configs updated successfully');
+        return $this->OKResponse($updatedConfigs);
     }
 }
