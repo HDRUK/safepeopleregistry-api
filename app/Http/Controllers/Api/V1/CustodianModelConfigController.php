@@ -4,10 +4,14 @@ namespace App\Http\Controllers\Api\V1;
 
 use Exception;
 use App\Models\CustodianModelConfig;
+use App\Models\Custodian;
+use App\Models\EntityModelType;
+use App\Models\EntityModel;
 use App\Traits\CommonFunctions;
 use App\Http\Traits\Responses;
 use App\Http\Requests\CustodianModelConfig\CreateCustodianModelConfigRequest;
 use App\Http\Requests\CustodianModelConfig\UpdateCustodianModelConfigRequest;
+use App\Http\Requests\CustodianModelConfig\GetEntityModelsRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -246,5 +250,73 @@ class CustodianModelConfigController extends Controller
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
+    }
+    /**
+     * @OA\Get(
+     *      path="/api/v1/entity_models",
+     *      summary="Get entity models for custodian config",
+     *      description="Retrieve entity models associated with custodian config based on the specified entity_model_type",
+     *      tags={"CustodianModelConfig"},
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *          name="entity_model_type",
+     *          in="query",
+     *          required=true,
+     *          description="Type of entity model to retrieve",
+     *          @OA\Schema(
+     *              type="string",
+     *              enum={"decision_model", "user_validation_rules", "org_validation_rules"}
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="array",
+     *                  @OA\Items(
+     *                      type="object",
+     *                      @OA\Property(property="id", type="integer", example=1),
+     *                      @OA\Property(property="name", type="string", example="Decision Model A"),
+     *                      @OA\Property(property="entity_model_type_id", type="integer", example=1),
+     *                      @OA\Property(property="description", type="string", nullable=true, example="This is a decision model for process A"),
+     *                      @OA\Property(property="model_data", type="object", nullable=true),
+     *                      @OA\Property(property="created_at", type="string", format="date-time"),
+     *                      @OA\Property(property="updated_at", type="string", format="date-time"),
+     *                      @OA\Property(property="deleted_at", type="string", format="date-time", nullable=true)
+     *                  )
+     *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="No entity models found")
+     *          )
+     *      )
+     * )
+     */
+    public function getEntityModels(GetEntityModelsRequest $request): JsonResponse
+    {
+        $entityModelType = $request->input('entity_model_type');
+
+        $entityModelTypeId = EntityModelType::where('name', $entityModelType)->value('id');
+
+        if (!$entityModelTypeId) {
+            return $this->NotFoundResponse('Invalid entity model type');
+        }
+
+        $entityModelIds = CustodianModelConfig::pluck('entity_model_id')->unique();
+
+        $entityModels = EntityModel::whereIn('id', $entityModelIds)
+            ->where('entity_model_type_id', $entityModelTypeId)
+            ->get();
+
+        if ($entityModels->isEmpty()) {
+            return $this->NotFoundResponse('No entity models found for the specified type');
+        }
+
+        return $this->OKResponse($entityModels);
     }
 }

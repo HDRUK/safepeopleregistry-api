@@ -246,6 +246,7 @@ Route::middleware('api')->get('v1/custodian_config/{id}', [CustodianModelConfigC
 Route::middleware('api')->post('v1/custodian_config', [CustodianModelConfigController::class, 'store']);
 Route::middleware('api')->put('v1/custodian_config/{id}', [CustodianModelConfigController::class, 'update']);
 Route::middleware('api')->delete('v1/custodian_config/{id}', [CustodianModelConfigController::class, 'destroy']);
+Route::middleware('api')->get('v1/entity_models', [CustodianModelConfigController::class, 'getEntityModels']);
 
 Route::get('v1/system_config', [SystemConfigController::class, 'index']);
 Route::post('v1/system_config', [SystemConfigController::class, 'store']);
