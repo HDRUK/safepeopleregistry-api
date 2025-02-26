@@ -94,14 +94,14 @@ class OrganisationController extends Controller
                     'registries.user.approvals',
                     'delegates'
                 ])
-                ->filterWhen('has_delegates', function($query, $hasDelegates) {
+                ->filterWhen('has_delegates', function ($query, $hasDelegates) {
                     if ($hasDelegates) {
                         $query->whereHas('delegates');
                     } else {
                         $query->whereDoesntHave('delegates');
                     }
                 })
-                ->filterWhen('has_soursd_id', function($query, $hasSoursdId) {
+                ->filterWhen('has_soursd_id', function ($query, $hasSoursdId) {
                     if ($hasSoursdId) {
                         $query->whereNot('organisation_unique_id', '')->whereNotNull('organisation_unique_id');
                     } else {
@@ -651,6 +651,7 @@ class OrganisationController extends Controller
                 return $this->ErrorResponse();
             }
         } catch (Exception $e) {
+            return response()->json(['error' => $e]);
             return $this->ErrorResponse();
         }
     }
@@ -798,7 +799,7 @@ class OrganisationController extends Controller
         $projects = Project::searchViaRequest()
           ->applySorting()
           ->with(['approvals'])
-          ->filterWhen('approved', function($query, $approved) {
+          ->filterWhen('approved', function ($query, $approved) {
               if ($approved) {
                   $query->whereHas('approvals');
               } else {
