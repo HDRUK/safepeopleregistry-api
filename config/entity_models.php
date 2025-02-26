@@ -140,7 +140,7 @@ return [
                 'operation' => '',
             ],
         ],
-        'organisation_validation_rules' => [
+        'org_validation_rules' => [
             [
                 'name' => 'Sanctions',
                 'description' => 'An Organisation is not on the UK sanctions list.',
