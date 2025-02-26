@@ -84,7 +84,7 @@ class AuthController extends Controller
             ], Response::HTTP_NOT_FOUND);
         }
 
-        $user = User::where('keycloak_id', $arr['sub'])->first();
+        $user = User::where('keycloak_id', $arr['sub'])->with(['registry.identity'])->first();
 
         //If unclaimed user and account type and just logged in
 
