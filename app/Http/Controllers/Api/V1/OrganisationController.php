@@ -651,7 +651,6 @@ class OrganisationController extends Controller
                 return $this->ErrorResponse();
             }
         } catch (Exception $e) {
-            return response()->json(['error' => $e]);
             return $this->ErrorResponse();
         }
     }
