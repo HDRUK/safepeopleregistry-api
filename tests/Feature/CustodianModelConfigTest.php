@@ -137,4 +137,56 @@ class CustodianModelConfigTest extends TestCase
         $this->assertNull($content['data']);
         $this->assertEquals($content['message'], 'success');
     }
+
+    public function test_the_application_can_get_entity_models(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                '/api/v1/entity_models?entity_model_type=decision_models'
+            );
+
+        $response->assertStatus(200);
+        $this->assertArrayHasKey('data', $response);
+        $content = $response->decodeResponseJson();
+        $this->assertNotNull($content['data']);
+        $this->assertIsArray($content['data']);
+
+        if (count($content['data']) > 0) {
+            $this->assertArrayHasKey('id', $content['data'][0]);
+            $this->assertArrayHasKey('name', $content['data'][0]);
+            $this->assertArrayHasKey('entity_model_type_id', $content['data'][0]);
+            $this->assertArrayHasKey('description', $content['data'][0]);
+            $this->assertArrayHasKey('created_at', $content['data'][0]);
+            $this->assertArrayHasKey('updated_at', $content['data'][0]);
+        }
+    }
+
+    public function test_the_application_returns_error_for_invalid_entity_model_type(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                '/api/v1/entity_models?entity_model_type=invalid_type'
+            );
+
+        $response->assertStatus(400);
+        $content = $response->decodeResponseJson();
+        $this->assertEquals('Invalid argument(s)', $content['message']);
+        $this->assertEquals('The selected entity model type is invalid.', $content['errors'][0]['message']);
+    }
+
+    public function test_the_application_requires_entity_model_type_parameter(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                '/api/v1/entity_models'
+            );
+
+        $response->assertStatus(400);
+        $content = $response->decodeResponseJson();
+        $this->assertEquals('Invalid argument(s)', $content['message']);
+        $this->assertEquals('The entity model type field is required.', $content['errors'][0]['message']);
+    }
 }
