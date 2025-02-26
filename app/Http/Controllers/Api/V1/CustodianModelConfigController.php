@@ -280,7 +280,6 @@ class CustodianModelConfigController extends Controller
      *                      @OA\Property(property="name", type="string", example="Decision Model A"),
      *                      @OA\Property(property="entity_model_type_id", type="integer", example=1),
      *                      @OA\Property(property="description", type="string", nullable=true, example="This is a decision model for process A"),
-     *                      @OA\Property(property="model_data", type="object", nullable=true),
      *                      @OA\Property(property="created_at", type="string", format="date-time"),
      *                      @OA\Property(property="updated_at", type="string", format="date-time"),
      *                      @OA\Property(property="deleted_at", type="string", format="date-time", nullable=true)
