@@ -29,6 +29,7 @@ use App\Http\Controllers\Api\V1\EducationController;
 use App\Http\Controllers\Api\V1\EmailTemplateController;
 use App\Http\Controllers\Api\V1\SectorController;
 use App\Http\Controllers\Api\V1\NotificationController;
+use App\Http\Controllers\Api\V1\ActionLogController;
 use App\Http\Controllers\Api\V1\ProfessionalRegistrationController;
 use App\Http\Controllers\Api\V1\DepartmentController;
 use App\Http\Controllers\Api\V1\WebhookController;
@@ -72,6 +73,7 @@ Route::middleware('api')->patch('v1/users/{id}/notifications/read', [Notificatio
 Route::middleware('api')->patch('v1/users/{userId}/notifications/{notificationId}/read', [NotificationController::class, 'markUserNotificationAsRead']);
 Route::middleware('api')->patch('v1/users/{userId}/notifications/{notificationId}/unread', [NotificationController::class, 'markUserNotificationAsUnread']);
 
+Route::middleware('api')->get('v1/users/{id}/action_log', [ActionLogController::class, 'getUserActionLog']);
 
 Route::middleware('api')->get('v1/training', [TrainingController::class, 'index']);
 Route::middleware('api')->get('v1/training/registry/{registryId}', [TrainingController::class, 'indexByRegistryId']);

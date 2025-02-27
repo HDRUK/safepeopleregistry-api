@@ -27,10 +27,7 @@ class ActionPendingNotification extends Notification
     {
         return [
             'message' => 'You have incomplete profile actions',
-            'actions' => [
-                'profile_completed' => !ActionLog::where('user_id', $notifiable->id)->where('action', 'profile_completed')->exists(),
-                'affiliations_updated' => !ActionLog::where('user_id', $notifiable->id)->where('action', 'affiliations_updated')->exists(),
-            ]
+            'actions' => ActionLog::where('user_id', $notifiable->id)->get()
         ];
     }
 

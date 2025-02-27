@@ -12,10 +12,9 @@ return new class () extends Migration {
     {
         Schema::create('action_logs', function (Blueprint $table) {
             $table->id();
-            //            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->bigInteger('user_id');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('action');
-            $table->timestamps();
+            $table->timestamp('completed_at')->nullable();
         });
     }
 

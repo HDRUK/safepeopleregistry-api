@@ -3,7 +3,10 @@
 namespace App\Observers;
 
 use App\Models\User;
+use App\Models\Organisation;
 use App\Models\ActionLog;
+use App\Notifications\AdminUserChanged;
+use Illuminate\Support\Facades\Notification;
 
 class UserObserver
 {
@@ -12,7 +15,20 @@ class UserObserver
      */
     public function created(User $user): void
     {
-        //
+        $actions = [
+            'profile_completed',
+            'affiliations_complete',
+            'training_complete',
+            'projects_review'
+        ];
+
+        foreach ($actions as $action) {
+            ActionLog::create([
+                'user_id' => $user->id,
+                'action' => $action,
+                'completed_at' => null,
+            ]);
+        }
     }
 
     /**
@@ -20,11 +36,52 @@ class UserObserver
      */
     public function updated(User $user): void
     {
+        $originalUser = $user->getOriginal();
+        $changes = [];
+
+        $fieldsToTrack = ['first_name', 'last_name', 'email'];
+
+        foreach ($fieldsToTrack as $field) {
+            if ($user->isDirty($field)) {
+                $changes[$field] = [
+                    'old' => $user->getOriginal($field),
+                    'new' => $user->$field,
+                ];
+            }
+        }
+
+        if ($user->isDirty('organisation_id')) {
+            $oldOrganisation = $user->getOriginal('organisation_id')
+                ? Organisation::find($user->getOriginal('organisation_id'))
+                : null;
+            $newOrganisation = $user->organisation;
+
+            $changes['organisation'] = [
+                'old' => $oldOrganisation?->organisation_name ?? 'N/A',
+                'new' => $newOrganisation?->organisation_name ?? 'N/A',
+            ];
+        }
+
+
+        if (!empty($changes)) {
+            $usersToNotify = $this->getOrganisationAdminUsers(
+                [
+                    $user->organisation_id,
+                    $user->getOriginal('organisation_id')
+                ]
+            );
+            Notification::send($usersToNotify, new AdminUserChanged($user, $changes));
+        }
+
+
         if ($user->isDirty(['first_name', 'last_name', 'email'])) {
 
             ActionLog::updateOrCreate(
-                ['user_id' => $user->id, 'action' => 'profile_completed'],
-                ['updated_at' => now()]
+                [
+                    'user_id' => $user->id,
+                    'action' => 'profile_completed'
+                ],
+                ['completed_at' => Carbon::now()]
             );
         }
     }
@@ -51,5 +108,15 @@ class UserObserver
     public function forceDeleted(User $user): void
     {
         //
+    }
+
+    private function getOrganisationAdminUsers(array|int $orgId)
+    {
+        if (!is_array($orgId)) {
+            $orgId = [$orgId];
+        }
+        return User::where('is_org_admin', 1)
+                    ->whereIn("organisation_id", $orgId)
+                    ->get();
     }
 }

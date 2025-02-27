@@ -20,8 +20,6 @@ use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use App\Traits\CommonFunctions;
 use App\Traits\CheckPermissions;
-use Illuminate\Support\Facades\Notification;
-use App\Notifications\AdminUserChanged;
 use TriggerEmail;
 
 class UserController extends Controller
@@ -585,49 +583,9 @@ class UserController extends Controller
                 $input['password'] = Hash::make($input['password']);
             }
 
-            $changes = [];
-            foreach ($input as $key => $value) {
-                if ($originalUser->$key != $value) {
-                    if ($key === 'organisation_id') {
-                        $oldOrganisationName = $originalUser->organisation?->organisation_name ?? 'N/A';
-                        $newOrganisation = Organisation::find($value);
-                        $newOrganisationName = $newOrganisation ? $newOrganisation->organisation_name : 'N/A';
-
-                        $changes['organisation'] = [
-                            'old' => $oldOrganisationName,
-                            'new' => $newOrganisationName,
-                        ];
-                    } else {
-                        $changes[$key] = [
-                            'old' => $originalUser->$key,
-                            'new' => $value,
-                        ];
-                    }
-                }
-            }
-
             $updated = $user->update($input);
 
             if ($updated) {
-                if (!empty($changes)) {
-                    $usersToNotify = User::where("organisation_id", $originalUser->organisation_id)->get();
-                    Notification::send(
-                        $usersToNotify,
-                        new AdminUserChanged($originalUser, $changes)
-                    );
-
-                    if ($user->organisation_id !== $originalUser->organisation_id) {
-                        $usersToNotify = User::where("organisation_id", $user->organisation_id)->get();
-
-                        // Send notification to users of the new organisation
-                        // to-do: be scoped first and added
-                        //Notification::send(
-                        //    $usersToNotify,
-                        //    new AdminUserAdded($user, $organisation)
-                        //);
-                    }
-
-                }
 
                 return response()->json([
                     'message' => 'success',
