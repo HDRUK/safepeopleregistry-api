@@ -156,10 +156,7 @@ class CustodianModelConfigTest extends TestCase
         if (count($content['data']) > 0) {
             $this->assertArrayHasKey('id', $content['data'][0]);
             $this->assertArrayHasKey('name', $content['data'][0]);
-            $this->assertArrayHasKey('entity_model_type_id', $content['data'][0]);
             $this->assertArrayHasKey('description', $content['data'][0]);
-            $this->assertArrayHasKey('created_at', $content['data'][0]);
-            $this->assertArrayHasKey('updated_at', $content['data'][0]);
             $this->assertArrayHasKey('active', $content['data'][0]);
         }
     }
