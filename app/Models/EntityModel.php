@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\SearchManager;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class EntityModel extends Model
 {
@@ -42,4 +43,9 @@ class EntityModel extends Model
     protected static array $sortableColumns = [
         'name',
     ];
+
+    public function custodianModelConfig(): HasOne
+    {
+        return $this->hasOne(CustodianModelConfig::class);
+    }
 }
