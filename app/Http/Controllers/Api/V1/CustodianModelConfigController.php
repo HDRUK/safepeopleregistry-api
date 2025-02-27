@@ -321,10 +321,12 @@ class CustodianModelConfigController extends Controller
         }
 
         $entityModels = $entityModels->map(function ($model) {
-            $modelArray = $model->toArray();
-            $modelArray['active'] = $model->custodianModelConfig->active ?? null;
-            unset($modelArray['custodian_model_config']);
-            return $modelArray;
+            return [
+                'id' => $model->id,
+                'name' => $model->name,
+                'description' => $model->description,
+                'active' => optional($model->custodianModelConfig)->active,
+            ];
         });
 
         return $this->OKResponse($entityModels);
