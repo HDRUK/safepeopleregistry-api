@@ -29,34 +29,20 @@ class CustodianController extends Controller
      *      tags={"Custodian"},
      *      summary="Custodian@index",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="name", type="string", example="A Custodian"),
-     *                  @OA\Property(property="contact_email", type="string", example="person@somewhere.com"),
-     *                  @OA\Property(property="enabled", type="boolean", example="true"),
-     *                  @OA\Property(property="invite_accepted_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="invite_sent_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="idvt_required", type="boolean", example="true")
+     *              @OA\Property(property="data",
+     *                  ref="#/components/schemas/Custodian"
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -82,47 +68,31 @@ class CustodianController extends Controller
      *      tags={"Custodian"},
      *      summary="Custodian@show",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Custodian ID",
      *         required=true,
      *         example="1",
-     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Custodian ID",
      *         ),
      *      ),
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="name", type="string", example="A Custodian"),
-     *                  @OA\Property(property="contact_email", type="string", example="person@somewhere.com"),
-     *                  @OA\Property(property="enabled", type="boolean", example="true"),
-     *                  @OA\Property(property="invite_accepted_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="invite_sent_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="idvt_required", type="boolean", example="true")
+     *              @OA\Property(property="data",
+     *                  ref="#/components/schemas/Custodian"
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -152,47 +122,31 @@ class CustodianController extends Controller
      *      tags={"Custodian"},
      *      summary="Custodian@showByUniqueIdentifier",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Custodian Unique Identifier",
      *         required=true,
      *         example="c3eddb33-db74-4ea7-961a-778740f17e25",
-     *
      *         @OA\Schema(
      *            type="string",
      *            description="Custodian Unique Identifier",
      *         ),
      *      ),
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="name", type="string", example="A Custodian"),
-     *                  @OA\Property(property="contact_email", type="string", example="person@somewhere.com"),
-     *                  @OA\Property(property="enabled", type="boolean", example="true"),
-     *                  @OA\Property(property="invite_accepted_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="invite_sent_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="idvt_required", type="boolean", example="true")
+     *              @OA\Property(property="data",
+     *                  ref="#/components/schemas/Custodian"
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -222,55 +176,35 @@ class CustodianController extends Controller
      *      tags={"Custodian"},
      *      summary="Custodian@store",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Custodian definition",
-     *
      *          @OA\JsonContent(
-     *
      *                  @OA\Property(property="name", type="string", example="A Custodian"),
      *                  @OA\Property(property="enabled", type="boolean", example="true")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=201,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="name", type="string", example="A Custodian"),
-     *                  @OA\Property(property="contact_email", type="string", example="person@somewhere.com"),
-     *                  @OA\Property(property="enabled", type="boolean", example="true"),
-     *                  @OA\Property(property="invite_accepted_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="invite_sent_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="idvt_required", type="boolean", example="true")
+     *              @OA\Property(property="data",
+     *                  ref="#/components/schemas/Custodian"
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -314,67 +248,46 @@ class CustodianController extends Controller
      *      tags={"Custodian"},
      *      summary="Custodian@update",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Custodian ID",
      *         required=true,
      *         example="1",
-     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Custodian ID",
      *         ),
      *      ),
-     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Custodian definition",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="name", type="string", example="A Custodian"),
      *              @OA\Property(property="enabled", type="boolean", example="true")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="name", type="string", example="A Custodian"),
-     *                  @OA\Property(property="contact_email", type="string", example="person@somewhere.com"),
-     *                  @OA\Property(property="enabled", type="boolean", example="true"),
-     *                  @OA\Property(property="invite_accepted_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="invite_sent_at", type="string", example="2024-02-04 12:00:00"),
+     *              @OA\Property(property="data",
+     *                  ref="#/components/schemas/Custodian"
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -383,17 +296,10 @@ class CustodianController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         try {
-            $input = $request->all();
+            $input = $request->only(app(Custodian::class)->getFillable());
+            $custodian = tap(Custodian::where('id', $id))->update($input)->first();
 
-            $custodian = Custodian::where('id', $id)->first();
-
-            $custodian->invite_accepted_at = isset($input['invite_accepted_at']) ? $input['invite_accepted_at'] : $custodian->invite_accepted_at;
-            $custodian->name = isset($input['name']) ? $input['name'] : $custodian->name;
-            $custodian->contact_email = isset($input['contact_email']) ? $input['contact_email'] : $custodian->contact_email;
-            $custodian->enabled = isset($input['enabled']) ? $input['enabled'] : $custodian->enabled;
-            $custodian->idvt_required = isset($input['idvt_required']) ? $input['idvt_required'] : $custodian->idvt_required;
-
-            if ($custodian->save()) {
+            if ($custodian) {
                 return response()->json([
                     'message' => 'success',
                     'data' => $custodian,
@@ -418,67 +324,46 @@ class CustodianController extends Controller
      *      tags={"Custodian"},
      *      summary="Custodian@edit",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Custodian ID",
      *         required=true,
      *         example="1",
-     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Custodian ID",
      *         ),
      *      ),
-     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Custodian definition",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="name", type="string", example="A Custodian"),
      *              @OA\Property(property="enabled", type="boolean", example="true")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="name", type="string", example="A Custodian"),
-     *                  @OA\Property(property="contact_email", type="string", example="person@somewhere.com"),
-     *                  @OA\Property(property="enabled", type="boolean", example="true"),
-     *                  @OA\Property(property="invite_accepted_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="invite_sent_at", type="string", example="2024-02-04 12:00:00"),
+     *              @OA\Property(property="data",
+     *                  ref="#/components/schemas/Custodian"
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -522,46 +407,35 @@ class CustodianController extends Controller
      *      tags={"Custodian"},
      *      summary="Custodian@destroy",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Custodian entry ID",
      *         required=true,
      *         example="1",
-     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Custodian entry ID",
      *         ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found")
      *           ),
      *      ),
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="success")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -675,7 +549,6 @@ class CustodianController extends Controller
      *      description="Fetch a list of projects along with pagination details for a specified custodian.",
      *      tags={"custodian"},
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Parameter(
      *          name="custodianId",
      *          in="path",
@@ -686,7 +559,6 @@ class CustodianController extends Controller
      *              type="integer"
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
@@ -698,17 +570,7 @@ class CustodianController extends Controller
      *                  @OA\Property(property="total", type="integer", example=24),
      *                  @OA\Property(property="data", type="array",
      *                      @OA\Items(
-     *                          @OA\Property(property="id", type="integer", example=24),
-     *                          @OA\Property(property="created_at", type="string", example="2025-01-07T13:16:28.000000Z"),
-     *                          @OA\Property(property="updated_at", type="string", example="2025-01-07T13:16:28.000000Z"),
-     *                          @OA\Property(property="unique_id", type="string", example="mMebnR5FySYtPA7UgRoU"),
-     *                          @OA\Property(property="title", type="string", example="Analyzing Health Data to Identify Resilient Smokers"),
-     *                          @OA\Property(property="lay_summary", type="string", example="This study aims to explore..."),
-     *                          @OA\Property(property="public_benefit", type="string", example="The research findings could benefit society..."),
-     *                          @OA\Property(property="request_category_type", type="string", example="Commercial Health Data Analysis"),
-     *                          @OA\Property(property="technical_summary", type="string", example="This study will collect detailed..."),
-     *                          @OA\Property(property="start_date", type="string", example="2024-06-01 00:00:00"),
-     *                          @OA\Property(property="end_date", type="string", example="2025-12-31 00:00:00"),
+     *                          ref="#/components/schemas/Custodian",
      *                          @OA\Property(property="approvals", type="array",
      *                              @OA\Items(
      *                                  @OA\Property(property="id", type="integer", example=1),
@@ -726,7 +588,6 @@ class CustodianController extends Controller
      *              )
      *          )
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Custodian not found",
@@ -743,28 +604,28 @@ class CustodianController extends Controller
         $projects = Project::searchViaRequest()
           ->applySorting()
           ->with('approvals')
-          ->filterWhen('approved', function($query, $value) {
+          ->filterWhen('approved', function ($query, $value) {
               if ($value) {
                   $query->whereHas('approvals');
               } else {
                   $query->whereDoesntHave('approvals');
               }
           })
-          ->filterWhen('pending', function($query, $pending) {
+          ->filterWhen('pending', function ($query, $pending) {
               if ($pending) {
                   $query->whereDoesntHave('approvals');
               } else {
                   $query->whereHas('approvals');
               }
           })
-          ->filterWhen('active', function($query, $active) use ($currentDate) {            
+          ->filterWhen('active', function ($query, $active) use ($currentDate) {
               if ($active) {
                   $query->where('start_date', '>=', $currentDate)->where('end_date', '>=', $currentDate);
               } else {
-                  $query->where('start_date', '<', $currentDate)->where('end_date', '>', $currentDate);               
+                  $query->where('start_date', '<', $currentDate)->where('end_date', '>', $currentDate);
               }
           })
-          ->filterWhen('completed', function($query, $completed) use ($currentDate) {     
+          ->filterWhen('completed', function ($query, $completed) use ($currentDate) {
               if ($completed) {
                   $query->where('end_date', '>=', $currentDate);
               } else {

@@ -45,4 +45,14 @@ class SendEmailJob implements ShouldQueue
         Mail::to($this->to['email'])
             ->send(new Email($this->to['id'], $this->template, $this->replacements));
     }
+
+    public function tags(): array
+    {
+        return [
+            'name' => 'send_email',
+            'to' => json_encode($this->to),
+            'template' => json_encode($this->template),
+            'replacements' => json_encode($this->replacements),
+        ];
+    }
 }
