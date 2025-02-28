@@ -1,0 +1,38 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class () extends Migration {
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('identities', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
+            $table->softDeletes();
+            $table->integer('registry_id');
+            $table->string('selfie_path', 255)->nullable();
+            $table->string('passport_path', 255)->nullable();
+            $table->string('drivers_license_path', 255)->nullable();
+            $table->string('address_1', 255)->nullable();
+            $table->string('address_2', 255)->nullable();
+            $table->string('town', 255)->nullable();
+            $table->string('county', 255)->nullable();
+            $table->string('country', 255)->nullable();
+            $table->string('postcode', 8)->nullable();
+            $table->string('dob', 10)->nullable();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('identities');
+    }
+};

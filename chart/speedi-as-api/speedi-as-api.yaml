@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: speedi-as-api
+spec:
+  selector:
+    matchLabels:
+      app: speedi-as-api
+  template:
+    metadata:
+      labels:
+        app: speedi-as-api
+  containers:
+    - name: speedi-as-api
+      image: hdruk/speedi-as-api:latest
+      ports:
+        - containerPort: 8100

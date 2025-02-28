@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: speedi-as-api
+spec:
+  selector:
+    matchLabels:
+      app: speedi-as-api
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: speedi-as-api
+    spec:
+      containers:
+        - name: speedi-as-api
+          image: hdruk/speedi-as-api:latest
+          ports:
+            - containerPort: 8100
+              name: speedi-as-api
+      dnsPolicy: ClusterFirst

@@ -126,6 +126,8 @@ return [
 
     'cipher' => 'AES-256-CBC',
 
+    'rate_limit' => env('RATE_LIMIT', 10000),
+
     /*
     |--------------------------------------------------------------------------
     | Maintenance Mode Driver
@@ -157,6 +159,11 @@ return [
 
     'providers' => ServiceProvider::defaultProviders()->merge([
         /*
+         * Laravel Framework Service Providers...
+         */
+        Illuminate\Redis\RedisServiceProvider::class,
+
+        /*
          * Package Service Providers...
          */
 
@@ -167,7 +174,17 @@ return [
         App\Providers\AuthServiceProvider::class,
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
+        App\Providers\HorizonServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        Laravel\Socialite\SocialiteServiceProvider::class,
+        \SocialiteProviders\Manager\ServiceProvider::class,
+        Hdruk\LaravelMjml\Providers\LaravelMjmlServiceProvider::class,
+        App\Providers\KeycloakServiceProvider::class,
+        App\Providers\OrcIDServiceProvider::class,
+        SwooleTW\Http\LaravelServiceProvider::class,
+        App\Providers\TriggerEmailServiceProvider::class,
+        App\Providers\RegistryManagementControllerServiceProvider::class,
+        App\Providers\RulesEngineManagementControllerServiceProvider::class,
     ])->toArray(),
 
     /*
@@ -182,7 +199,11 @@ return [
     */
 
     'aliases' => Facade::defaultAliases()->merge([
-        // 'Example' => App\Facades\Example::class,
+        'Keycloak' => App\Keycloak\KeycloakFacade::class,
+        'OrcID' => App\OrcID\OrcIDFacade::class,
+        'TriggerEmail' => App\TriggerEmail\TriggerEmailFacade::class,
+        'RegistryManagementController' => App\RegistryManagementController\RegistryManagementController::class,
+        'RulesEngineManagementController' => App\RulesEngineManagementController\RulesEngineManagementController::class,
     ])->toArray(),
 
 ];

@@ -1,0 +1,6 @@
+{
+    "name": "speedi-as-api",
+
+    "speediWebRoot": "/Users/lokisinclair/Development/HDRUK/speedi-as-web",
+    "clamAVRoot": "/Users/lokisinclair/Development/HDRUK/clamav-scanner"
+}
