@@ -31,6 +31,7 @@ use App\Http\Controllers\Api\V1\SectorController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\ProfessionalRegistrationController;
 use App\Http\Controllers\Api\V1\DepartmentController;
+use App\Http\Controllers\Api\V1\WebhookController;
 use App\Http\Controllers\Api\V1\CustodianModelConfigController;
 use App\Http\Controllers\Api\V1\ProjectDetailController;
 use Illuminate\Support\Facades\Route;
@@ -235,10 +236,19 @@ Route::middleware('api')->delete('v1/approvals/{entity_type}/{id}/custodian/{cus
 Route::middleware('api')->post('v1/request_access', [RegistryReadRequestController::class, 'request']);
 Route::middleware('api')->patch('v1/request_access/{id}', [RegistryReadRequestController::class, 'acceptOrReject']);
 
-Route::middleware('api')->get('v1/custodian_config/{id}', [CustodianModelConfigController::class, 'getByCustodianID']);
+Route::middleware('api')->get('v1/webhooks/receivers', [WebhookController::class, 'getAllReceivers']);
+Route::middleware('api')->get('v1/webhooks/receivers/{custodianId}', [WebhookController::class, 'getReceiversByCustodian']);
+Route::middleware('api')->post('v1/webhooks/receivers', [WebhookController::class, 'createReceiver']);
+Route::middleware('api')->put('v1/webhooks/receivers/{custodianId}', [WebhookController::class, 'updateReceiver']);
+Route::middleware('api')->delete('v1/webhooks/receivers/{custodianId}', [WebhookController::class, 'deleteReceiver']);
+Route::middleware('api')->get('v1/webhooks/event-triggers', [WebhookController::class, 'getAllEventTriggers']);
+
+Route::middleware('api')->put('v1/custodian_config/update-active/{id}', [CustodianModelConfigController::class, 'updateCustodianModelConfigsActive']);
 Route::middleware('api')->post('v1/custodian_config', [CustodianModelConfigController::class, 'store']);
+Route::middleware('api')->get('v1/custodian_config/{id}', [CustodianModelConfigController::class, 'getByCustodianID']);
 Route::middleware('api')->put('v1/custodian_config/{id}', [CustodianModelConfigController::class, 'update']);
 Route::middleware('api')->delete('v1/custodian_config/{id}', [CustodianModelConfigController::class, 'destroy']);
+Route::middleware('api')->get('v1/custodian_config/{id}/entity_models', [CustodianModelConfigController::class, 'getEntityModels']);
 
 Route::middleware('api')->get('v1/project_details', [ProjectDetailController::class, 'index']);
 Route::middleware('api')->get('v1/project_details/{id}', [ProjectDetailController::class, 'show']);

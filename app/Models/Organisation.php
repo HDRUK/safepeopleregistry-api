@@ -229,6 +229,10 @@ class Organisation extends Model
         'ce_certified' => 'boolean',
         'idvt_result' => 'boolean',
         'unclaimed' => 'boolean',
+        'ce_expiry_date' => 'date:Y-m-d',
+        'ce_plus_expiry_date' => 'date:Y-m-d',
+        'iso_expiry_date' => 'date:Y-m-d',
+        'dsptk_expiry_date' => 'date:Y-m-d'
     ];
 
     protected static array $searchableColumns = [
