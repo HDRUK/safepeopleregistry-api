@@ -10,6 +10,7 @@ use Illuminate\Queue\SerializesModels;
 use App\Models\ActionLog;
 use App\Models\User;
 use App\Notifications\ActionPendingNotification;
+use App\Enums\ActionLogType;
 
 class UpdateActionNotifications implements ShouldQueue
 {
@@ -31,23 +32,44 @@ class UpdateActionNotifications implements ShouldQueue
      */
     public function handle(): void
     {
-        $users = User::all();
+        User::chunk(100, function ($users) {
+            foreach ($users as $user) {
+                $query = ActionLog::where('entity_type', ActionLogType::USER)
+                                  ->where('entity_id', $user->id);
 
-        foreach ($users as $user) {
-            $pendingActions = [
-                'profile_completed' => !ActionLog::where('user_id', $user->id)->where('action', 'profile_completed')->exists(),
-                'affiliations_updated' => !ActionLog::where('user_id', $user->id)->where('action', 'affiliations_updated')->exists(),
-            ];
+                // Check if actions are missing
+                $pendingActions = [
+                    'profile_completed' => !$query->clone()
+                                   ->where('action', 'profile_completed')
+                                   ->exists(),
+                    'affiliations_updated' => !$query->clone()
+                                   ->where('action', 'affiliations_updated')
+                                   ->exists(),
+                ];
 
-            $hasPending = in_array(true, $pendingActions);
+                $hasPending = in_array(true, $pendingActions, true);
 
-            if ($hasPending) {
-                $user->notify(new ActionPendingNotification());
-            } else {
-                $user->unreadNotifications()
-                     ->where('type', ActionPendingNotification::class)
-                     ->markAsRead();
+                $existingNotification = $user->notifications()
+                                         ->where('type', ActionPendingNotification::class)
+                                         ->first();
+
+                if ($hasPending) {
+                    if ($existingNotification) {
+                        $existingNotification->update([
+                            'read_at' => null,
+                            'updated_at' => now(),
+                        ]);
+                    } else {
+                        $user->notify(new ActionPendingNotification());
+                    }
+                } else {
+                    if ($existingNotification) {
+                        $existingNotification->update([
+                            'read_at' => now(),
+                        ]);
+                    }
+                }
             }
-        }
+        });
     }
 }

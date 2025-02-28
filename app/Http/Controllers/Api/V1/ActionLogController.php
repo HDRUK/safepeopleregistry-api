@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\ActionLog;
+use App\Enums\ActionLogType;
 
 class ActionLogController extends Controller
 {
-    public function getUserActionLog($id)
+    public function getUserActionLog($userId)
     {
-        $logs = ActionLog::where('user_id', $id)->latest()->paginate(10);
+        $logs = ActionLog::where('entity_type', ActionLogType::USER)
+                ->where('entity_id', $userId)
+                ->get();
 
         if ($logs->isEmpty()) {
             return response()->json(['message' => 'No action logs found for this user'], 404);

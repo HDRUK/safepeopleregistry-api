@@ -12,11 +12,13 @@ return new class () extends Migration {
     {
         Schema::create('action_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->morphs('entity');
             $table->string('action');
+            $table->enum('type', ['USER', 'ORGANISATION', 'CUSTODIAN']);
             $table->timestamp('completed_at')->nullable();
         });
     }
+
 
     /**
      * Reverse the migrations.

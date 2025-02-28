@@ -179,4 +179,10 @@ class User extends Authenticatable
 
         return null;
     }
+
+    public function actionLogs()
+    {
+        return $this->morphMany(ActionLog::class, 'entity');
+    }
+
 }

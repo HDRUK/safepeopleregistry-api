@@ -7,6 +7,7 @@ use App\Models\Organisation;
 use App\Models\ActionLog;
 use App\Notifications\AdminUserChanged;
 use Illuminate\Support\Facades\Notification;
+use App\Enums\ActionLogType;
 
 class UserObserver
 {
@@ -24,7 +25,8 @@ class UserObserver
 
         foreach ($actions as $action) {
             ActionLog::create([
-                'user_id' => $user->id,
+                'entity_id' => $user->id,
+                'entity_type' => ActionLogType::USER,
                 'action' => $action,
                 'completed_at' => null,
             ]);
@@ -78,7 +80,8 @@ class UserObserver
 
             ActionLog::updateOrCreate(
                 [
-                    'user_id' => $user->id,
+                    'entity_id' => $user->id,
+                    'type' => ActionLog::USER,
                     'action' => 'profile_completed'
                 ],
                 ['completed_at' => Carbon::now()]

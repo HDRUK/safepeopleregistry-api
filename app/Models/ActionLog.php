@@ -4,19 +4,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+use App\Enums\ActionLogType;
 
 class ActionLog extends Model
 {
     use HasFactory;
 
-    public $table = 'action_logs';
+    protected $fillable = ['entity_id', 'entity_type', 'action', 'type', 'completed_at'];
 
-    public $timestamps = true;
+    public $timestamps = false;
 
-    protected $fillable = ['user_id', 'action'];
+    protected $casts = [
+        'type' => ActionLogType::class,
+    ];
 
-    public function user()
+    public function entity(): MorphTo
     {
-        return $this->belongsTo(User::class);
+        return $this->morphTo();
     }
 }
