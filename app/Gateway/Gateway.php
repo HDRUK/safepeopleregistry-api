@@ -9,26 +9,6 @@ use App\Models\Project;
 
 class Gateway
 {
-    public function getDataUses(int $custodianId): array
-    {
-        try {
-            $custodian = Custodian::where('id', $custodianId)->first();
-
-            if (!$custodian) {
-                return [];
-            }
-
-            $durs = Http::withHeaders([
-                'x-application-id' => $custodian->gateway_app_id,
-                'x-client-id' => $custodian->gateway_client_id,
-            ])->get(
-                $durUrl
-            );
-        } catch (Exception $e) {
-            throw new Exception($e);
-        }
-    }
-
     public function getDataUsesByProjectID(int $custodianId, int $projectId): array
     {
         try {
@@ -45,7 +25,7 @@ class Gateway
                 'x-application-id' => $custodian->gateway_app_id,
                 'x-client-id' => $custodian->gateway_client_id,
             ])->get(
-                $durUrl . 'DARS-NIC-474218-V7G7L-v0.3'//$project->unique_id
+                $durUrl . $project->unique_id
             );
 
             return $dur->json()['data'];
