@@ -331,6 +331,11 @@ class ProjectDetailTest extends TestCase
 
     public function test_the_application_can_query_gateway_via_api(): void
     {
+        Gateway::shouldReceive('getDataUsesByProjectID')
+        ->once()
+        ->with(1, 1)
+        ->andReturn($this->mockedGatewayResponse);
+
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'POST',
@@ -342,6 +347,6 @@ class ProjectDetailTest extends TestCase
             );
         $response->assertStatus(200);
         $content = $response->decodeResponseJson();
-        $this->assertEquals($content['data'][0]['project_id_text'], $this->mockedGatewayResponse['project_id_text']);
+        $this->assertEquals($content['data']['project_id_text'], $this->mockedGatewayResponse['project_id_text']);
     }
 }
