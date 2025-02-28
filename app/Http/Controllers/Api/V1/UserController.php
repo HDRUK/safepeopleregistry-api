@@ -461,7 +461,9 @@ class UserController extends Controller
             $user->organisation_id = isset($input['organisation_id']) ? $input['organisation_id'] : $user->organisation_id;
             $user->orc_id = isset($input['orc_id']) ? $input['orc_id'] : $user->orc_id;
             $user->location = isset($input['location']) ? $input['location'] : $user->location;
-            $user->t_and_c_agreed = isset($input['t_and_c_agreed']) ? $input['t_and_c_agreed'] : $user->t_and_c_agreed;
+            $user->t_and_c_agreed = isset($input['t_and_c_agreed']) 
+                ? filter_var($input['t_and_c_agreed'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) 
+                : $user->t_and_c_agreed;
             $user->t_and_c_agreement_date = isset($input['lt_and_c_agreement_date']) ? $input['t_and_c_agreement_date'] : $user->t_and_c_agreement_date;
 
             if ($user->save()) {
