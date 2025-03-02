@@ -23,7 +23,7 @@ return new class () extends Migration {
     {
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('t_and_c_agreed');
-            $table->dropIfExists('t_and_c_agreement_date');
+            $table->dropColumn('t_and_c_agreement_date');
         });
     }
 };
