@@ -185,6 +185,7 @@ return [
         App\Providers\TriggerEmailServiceProvider::class,
         App\Providers\RegistryManagementControllerServiceProvider::class,
         App\Providers\RulesEngineManagementControllerServiceProvider::class,
+        App\Providers\GatewayServiceProvider::class,
     ])->toArray(),
 
     /*
@@ -204,6 +205,7 @@ return [
         'TriggerEmail' => App\TriggerEmail\TriggerEmailFacade::class,
         'RegistryManagementController' => App\RegistryManagementController\RegistryManagementController::class,
         'RulesEngineManagementController' => App\RulesEngineManagementController\RulesEngineManagementController::class,
+        'Gateway' => App\Gateway\GatewayFacade::class,
     ])->toArray(),
 
 ];
