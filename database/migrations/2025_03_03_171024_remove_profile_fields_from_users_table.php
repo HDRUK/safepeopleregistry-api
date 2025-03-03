@@ -11,8 +11,10 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('profile_steps_completed');
-            $table->dropColumn('profile_completed_at');
+            $table->dropColumn([
+                'profile_steps_completed',
+                'profile_completed_at'
+            ]);
         });
     }
 
