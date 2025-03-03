@@ -72,7 +72,7 @@ module.exports = {
 
         {
 
-          prepareCmd: "node updateVersions.js ${nextRelease.version} && git add chart/speedi-api/Chart.yaml package.json"
+          prepareCmd: "node updateVersions.js ${nextRelease.version} && git add chart/speedi-as-api/Chart.yaml package.json"
 
         }
 
@@ -92,7 +92,7 @@ module.exports = {
 
             "CHANGELOG.md",
 
-            "chart/speedi-api/Chart.yaml"
+            "chart/speedi-as-api/Chart.yaml"
 
           ],
           message: "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}",
