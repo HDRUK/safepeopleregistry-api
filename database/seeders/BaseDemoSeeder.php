@@ -321,6 +321,33 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'organisation_id' => $org3->id,
         ]);
 
+        $orgHDR = Organisation::create([
+            'organisation_name' => 'Health Data Research UK',
+            'address_1' => '215 Euston Road',
+            'address_2' => '',
+            'town' => 'London',
+            'county' => '',
+            'country' => 'United Kingdom',
+            'postcode' => 'NW1 2BE',
+            'lead_applicant_organisation_name' => 'Dr Junaid Azmat Bajwa',
+            'lead_applicant_email' => 'organisation.owner@hdruk.ac.uk',
+            'password' => '$2y$12$g.LfOEaJZqjcDyZ51PwGxuKT9ceoAcHE8h6YmQXc5ZKY1a5wyGjPW', // Ask LS "Flood********"
+            'organisation_unique_id' => Str::random(40),
+            'applicant_names' => 'Dr Junaid Azmat Bajwa',
+            'funders_and_sponsors' => 'UKRI, NIHR, BHF, CRUK, ESRC',
+            'sub_license_arrangements' => '...',
+            'verified' => true,
+            'dsptk_ods_code' => '',
+            'iso_27001_certified' => true,
+            'ce_certified' => true,
+            'ce_plus_certified' => false,
+            'companies_house_no' => '10887014',
+            'sector_id' => 5, // Charity/Non-profit
+            'ror_id' => '04rtjaj74',
+            'smb_status' => true,
+            'website' => 'https://www.hdruk.ac.uk/',
+        ]);
+
 
         // --------------------------------------------------------------------------------
         // End
