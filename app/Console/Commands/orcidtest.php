@@ -27,6 +27,6 @@ class orcidtest extends Command
      */
     public function handle()
     {
-        OrcIDScanner::dispatch(User::where('id', 1)->first());
+        OrcIDScanner::dispatch(User::where('id', 10)->first());
     }
 }
