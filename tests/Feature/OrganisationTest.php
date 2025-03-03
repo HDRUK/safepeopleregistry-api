@@ -91,7 +91,7 @@ class OrganisationTest extends TestCase
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'GET',
-                self::TEST_URL . '?organisation_name[]=health'
+                self::TEST_URL . '?organisation_name[]=health%20pathways'
             );
 
         $response->assertStatus(200);
