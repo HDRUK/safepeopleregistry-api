@@ -34,6 +34,7 @@ use App\Http\Controllers\Api\V1\ProfessionalRegistrationController;
 use App\Http\Controllers\Api\V1\DepartmentController;
 use App\Http\Controllers\Api\V1\WebhookController;
 use App\Http\Controllers\Api\V1\CustodianModelConfigController;
+use App\Http\Controllers\Api\V1\ProjectDetailController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -244,10 +245,19 @@ Route::middleware('api')->put('v1/webhooks/receivers/{custodianId}', [WebhookCon
 Route::middleware('api')->delete('v1/webhooks/receivers/{custodianId}', [WebhookController::class, 'deleteReceiver']);
 Route::middleware('api')->get('v1/webhooks/event-triggers', [WebhookController::class, 'getAllEventTriggers']);
 
-Route::middleware('api')->get('v1/custodian_config/{id}', [CustodianModelConfigController::class, 'getByCustodianID']);
+Route::middleware('api')->put('v1/custodian_config/update-active/{id}', [CustodianModelConfigController::class, 'updateCustodianModelConfigsActive']);
 Route::middleware('api')->post('v1/custodian_config', [CustodianModelConfigController::class, 'store']);
+Route::middleware('api')->get('v1/custodian_config/{id}', [CustodianModelConfigController::class, 'getByCustodianID']);
 Route::middleware('api')->put('v1/custodian_config/{id}', [CustodianModelConfigController::class, 'update']);
 Route::middleware('api')->delete('v1/custodian_config/{id}', [CustodianModelConfigController::class, 'destroy']);
+Route::middleware('api')->get('v1/custodian_config/{id}/entity_models', [CustodianModelConfigController::class, 'getEntityModels']);
+
+Route::middleware('api')->get('v1/project_details', [ProjectDetailController::class, 'index']);
+Route::middleware('api')->get('v1/project_details/{id}', [ProjectDetailController::class, 'show']);
+Route::middleware('api')->post('v1/project_details', [ProjectDetailController::class, 'store']);
+Route::middleware('api')->put('v1/project_details/{id}', [ProjectDetailController::class, 'update']);
+Route::middleware('api')->delete('v1/project_details/{id}', [ProjectDetailController::class, 'destroy']);
+Route::middleware('api')->post('v1/project_details/query_gateway_dur', [ProjectDetailController::class, 'queryGatewayDurByProjectID']);
 
 Route::get('v1/system_config', [SystemConfigController::class, 'index']);
 Route::post('v1/system_config', [SystemConfigController::class, 'store']);

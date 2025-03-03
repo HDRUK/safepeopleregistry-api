@@ -18,6 +18,7 @@ class EntityModelType extends Model
 
     public const ENTITY_TYPES = [
         'decision_models',
-        'validation_rules',
+        'user_validation_rules',
+        'org_validation_rules',
     ];
 }

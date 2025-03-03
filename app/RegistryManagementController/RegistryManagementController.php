@@ -51,6 +51,8 @@ class RegistryManagementController
             $unclaimedUser->email = $input['email'];
             $unclaimedUser->keycloak_id = $input['sub'];
             $unclaimedUser->unclaimed = 0;
+            $unclaimedUser->t_and_c_agreed = 1;
+            $unclaimedUser->t_and_c_agreement_date = now();
 
             $unclaimedUser->save();
 
@@ -71,6 +73,8 @@ class RegistryManagementController
                         'keycloak_id' => $input['sub'],
                         'registry_id' => 0,
                         'user_group' => RegistryManagementController::KC_GROUP_USERS,
+                        't_and_c_agreed' => 1,
+                        't_and_c_agreement_date' => now(),
                     ]);
 
                     if ($user) {
@@ -96,6 +100,8 @@ class RegistryManagementController
                         'registry_id' => null,
                         'organisation_id' => $request['organisation_id'],
                         'user_group' => RegistryManagementController::KC_GROUP_ORGANISATIONS,
+                        't_and_c_agreed' => 1,
+                        't_and_c_agreement_date' => now(),
                     ]);
 
                     return [
@@ -114,6 +120,8 @@ class RegistryManagementController
                         'keycloak_id' => $input['sub'],
                         'registry_id' => null,
                         'user_group' => RegistryManagementController::KC_GROUP_CUSTODIANS,
+                        't_and_c_agreed' => 1,
+                        't_and_c_agreement_date' => now(),
                     ]);
 
                     return [
