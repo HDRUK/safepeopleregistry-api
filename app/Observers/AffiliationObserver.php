@@ -3,7 +3,6 @@
 namespace App\Observers;
 
 use App\Models\Affiliation;
-use App\Models\ActionLog;
 
 class AffiliationObserver
 {
@@ -12,10 +11,7 @@ class AffiliationObserver
      */
     public function created(Affiliation $affiliation): void
     {
-        /*ActionLog::updateOrCreate(
-            ['user_id' => $affiliation->user_id, 'action' => 'affiliations_updated'],
-            ['updated_at' => now()]
-        );*/
+        //
     }
 
     /**

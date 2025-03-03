@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Traits\SearchManager;
+use App\Traits\ActionManager;
 
 /**
  * App\Models\User
@@ -21,6 +22,7 @@ class User extends Authenticatable
     use HasFactory;
     use Notifiable;
     use SearchManager;
+    use ActionManager;
 
     public const GROUP_USERS = 'USERS';
     public const GROUP_ORGANISATIONS = 'ORGANISATIONS';
@@ -46,8 +48,6 @@ class User extends Authenticatable
         'keycloak_id',
         'user_group',
         'consent_scrape',
-        'profile_steps_completed',
-        'profile_completed_at',
         'unclaimed',
         'feed_source',
         'public_opt_in',
@@ -76,6 +76,18 @@ class User extends Authenticatable
         'first_name',
         'last_name',
         'email',
+    ];
+
+    public const ACTION_PROFILE_COMPLETED = 'profile_completed';
+    public const ACTION_AFFILIATIONS_COMPLETE = 'affiliations_complete';
+    public const ACTION_TRAINING_COMPLETE = 'training_complete';
+    public const ACTION_PROJECTS_REVIEW = 'projects_review';
+
+    protected static array $defaultActions = [
+        self::ACTION_PROFILE_COMPLETED,
+        self::ACTION_AFFILIATIONS_COMPLETE,
+        self::ACTION_TRAINING_COMPLETE,
+        self::ACTION_PROJECTS_REVIEW
     ];
 
     /**
@@ -182,9 +194,5 @@ class User extends Authenticatable
         return null;
     }
 
-    public function actionLogs()
-    {
-        return $this->morphMany(ActionLog::class, 'entity');
-    }
 
 }

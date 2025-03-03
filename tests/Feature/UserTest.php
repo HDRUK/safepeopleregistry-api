@@ -208,8 +208,6 @@ class UserTest extends TestCase
                         'registry_id',
                         'user_group',
                         'consent_scrape',
-                        'profile_steps_completed',
-                        'profile_completed_at',
                         'orc_id',
                         'unclaimed',
                         'feed_source',

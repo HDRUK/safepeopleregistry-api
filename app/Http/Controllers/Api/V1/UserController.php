@@ -167,8 +167,6 @@ class UserController extends Controller
      *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
-     *                  @OA\Property(property="profile_steps_completed", type="string", example="{}"),
-     *                  @OA\Property(property="profile_completed_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
      *                  @OA\Property(property="declaration_signed", type="boolean", example="true"),
      *                  @OA\Property(property="organisation_id", type="integer", example="123"),
@@ -265,8 +263,6 @@ class UserController extends Controller
      *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
-     *                  @OA\Property(property="profile_steps_completed", type="string", example="{}"),
-     *                  @OA\Property(property="profile_completed_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
      *                  @OA\Property(property="declaration_signed", type="boolean", example="true"),
      *                  @OA\Property(property="organisation_id", type="integer", example="123"),
@@ -301,8 +297,6 @@ class UserController extends Controller
                 'keycloak_id' => null,
                 'user_group' => Keycloak::determineUserGroup($input),
                 'consent_scrape' => isset($input['consent_scrape']) ? $input['consent_scrape'] : 0,
-                'profile_steps_completed' => isset($input['profile_steps_completed']) ? $input['profile_steps_completed'] : null,
-                'profile_completed_at' => isset($input['profile_completed_at']) ? $input['profile_completed_at'] : null,
                 'public_opt_in' => isset($input['public_opt_in']) ? $input['public_opt_in'] : false,
                 'declaration_signed' => isset($input['declaration_signed']) ? $input['declaration_signed'] : false,
                 'organisation_id' => isset($input['organisation_id']) ? $input['organisation_id'] : null,
@@ -415,8 +409,6 @@ class UserController extends Controller
      *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
-     *                  @OA\Property(property="profile_steps_completed", type="string", example="{}"),
-     *                  @OA\Property(property="profile_completed_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
      *                  @OA\Property(property="declaration_signed", type="boolean", example="true"),
      *                  @OA\Property(property="organisation_id", type="integer", example="123"),
@@ -453,7 +445,6 @@ class UserController extends Controller
             $user->registry_id = isset($input['registry_id']) ? $input['registry_id'] : $user->registry_id;
             $user->consent_scrape = isset($input['consent_scrape']) ? $input['consent_scrape'] : $user->consent_scrape;
             $user->profile_steps_completed = isset($input['profile_steps_completed']) ? $input['profile_steps_completed'] : $user->profile_steps_completed;
-            $user->profile_completed_at = array_key_exists('profile_completed_at', $input) ? $input['profile_completed_at'] : $user->profile_completed_at;
             $user->public_opt_in = isset($input['public_opt_in']) ? $input['public_opt_in'] : $user->public_opt_in;
             $user->declaration_signed = isset($input['declaration_signed']) ? $input['declaration_signed'] : $user->declaration_signed;
             $user->organisation_id = isset($input['organisation_id']) ? $input['organisation_id'] : $user->organisation_id;
@@ -543,8 +534,6 @@ class UserController extends Controller
      *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
-     *                  @OA\Property(property="profile_steps_completed", type="string", example="{}"),
-     *                  @OA\Property(property="profile_completed_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
      *                  @OA\Property(property="declaration_signed", type="boolean", example="true"),
      *                  @OA\Property(property="organisation_id", type="integer", example="123"),

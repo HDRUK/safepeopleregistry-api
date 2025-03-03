@@ -18,20 +18,12 @@ class UserObserver
         'location'
     ];
 
-
     /**
      * Handle the User "created" event.
      */
     public function created(User $user): void
     {
-        $actions = [
-            'profile_completed',
-            'affiliations_complete',
-            'training_complete',
-            'projects_review'
-        ];
-
-        foreach ($actions as $action) {
+        foreach (User::getDefaultActions() as $action) {
             ActionLog::create([
                 'entity_id' => $user->id,
                 'entity_type' => User::class,
@@ -93,7 +85,7 @@ class UserObserver
                     [
                         'entity_id' => $user->id,
                         'entity_type' => User::class,
-                        'action' => 'profile_completed'
+                        'action' => User::ACTION_PROFILE_COMPLETED
                     ],
                     ['completed_at' => Carbon::now()]
                 );
