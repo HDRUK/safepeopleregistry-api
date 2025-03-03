@@ -10,7 +10,6 @@ use Illuminate\Queue\SerializesModels;
 use App\Models\ActionLog;
 use App\Models\User;
 use App\Notifications\ActionPendingNotification;
-use App\Enums\ActionLogType;
 
 class UpdateActionNotifications implements ShouldQueue
 {
@@ -34,7 +33,7 @@ class UpdateActionNotifications implements ShouldQueue
     {
         User::chunk(100, function ($users) {
             foreach ($users as $user) {
-                $query = ActionLog::where('entity_type', ActionLogType::USER)
+                $query = ActionLog::where('entity_type', User::class)
                                   ->where('entity_id', $user->id);
 
                 // Check if actions are missing

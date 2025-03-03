@@ -7,10 +7,18 @@ use App\Models\Organisation;
 use App\Models\ActionLog;
 use App\Notifications\AdminUserChanged;
 use Illuminate\Support\Facades\Notification;
-use App\Enums\ActionLogType;
+use Carbon\Carbon;
 
 class UserObserver
 {
+    protected array $profileCompleteFields = [
+        'first_name',
+        'last_name',
+        'email',
+        'location'
+    ];
+
+
     /**
      * Handle the User "created" event.
      */
@@ -26,7 +34,7 @@ class UserObserver
         foreach ($actions as $action) {
             ActionLog::create([
                 'entity_id' => $user->id,
-                'entity_type' => ActionLogType::USER,
+                'entity_type' => User::class,
                 'action' => $action,
                 'completed_at' => null,
             ]);
@@ -76,16 +84,20 @@ class UserObserver
         }
 
 
-        if ($user->isDirty(['first_name', 'last_name', 'email'])) {
+        if ($user->isDirty($this->profileCompleteFields)) {
+            $isProfileComplete = collect($this->profileCompleteFields)
+                ->every(fn ($field) => !empty($user->$field));
 
-            ActionLog::updateOrCreate(
-                [
-                    'entity_id' => $user->id,
-                    'type' => ActionLog::USER,
-                    'action' => 'profile_completed'
-                ],
-                ['completed_at' => Carbon::now()]
-            );
+            if ($isProfileComplete) {
+                ActionLog::updateOrCreate(
+                    [
+                        'entity_id' => $user->id,
+                        'entity_type' => User::class,
+                        'action' => 'profile_completed'
+                    ],
+                    ['completed_at' => Carbon::now()]
+                );
+            }
         }
     }
 

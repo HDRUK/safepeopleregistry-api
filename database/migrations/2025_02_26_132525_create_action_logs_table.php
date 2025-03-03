@@ -14,7 +14,6 @@ return new class () extends Migration {
             $table->id();
             $table->morphs('entity');
             $table->string('action');
-            $table->enum('type', ['USER', 'ORGANISATION', 'CUSTODIAN']);
             $table->timestamp('completed_at')->nullable();
         });
     }

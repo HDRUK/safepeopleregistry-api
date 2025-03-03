@@ -4,9 +4,9 @@ namespace App\Enums;
 
 enum ActionLogType: string
 {
-    case USER = 'USER';
-    case ORGANISATION = 'ORGANISATION';
-    case CUSTODIAN = 'CUSTODIAN';
+    case USER = \App\Models\User::class;
+    case ORGANISATION = \App\Models\Organisation::class;
+    case CUSTODIAN =  \App\Models\Custodian::class;
 
     public static function values(): array
     {

@@ -4,13 +4,13 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\ActionLog;
-use App\Enums\ActionLogType;
+use App\Models\User;
 
 class ActionLogController extends Controller
 {
     public function getUserActionLog($userId)
     {
-        $logs = ActionLog::where('entity_type', ActionLogType::USER)
+        $logs = ActionLog::where('entity_type', User::class)
                 ->where('entity_id', $userId)
                 ->get();
 
