@@ -61,7 +61,6 @@ class RegistryHasAffiliationObserver
         }
         $hasAffiliations = RegistryHasAffiliation::where('registry_id', $registryId)->exists();
 
-
         ActionLog::updateOrCreate(
             [
                 'entity_id' => $user->id,
