@@ -18,7 +18,7 @@ class ActionLogController extends Controller
             return response()->json(['message' => 'No action logs found for this user'], 404);
         }
 
-        return response()->json($logs);
+        return response()->json(['data' => $logs]);
     }
 
 }

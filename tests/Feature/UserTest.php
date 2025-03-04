@@ -15,6 +15,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
+use Carbon\Carbon;
 
 class UserTest extends TestCase
 {
@@ -364,6 +365,85 @@ class UserTest extends TestCase
         $this->assertEquals($content['declaration_signed'], true);
         $this->assertEquals($content['organisation_id'], 2);
     }
+
+
+    public function test_the_application_can_complete_action_log_for_profile(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
+                'first_name' => fake()->firstname(),
+                'last_name' => fake()->lastname(),
+                'email' => fake()->email(),
+                'provider' => fake()->word(),
+                'provider_sub' => Str::random(10),
+                'consent_scrape' => true,
+                'public_opt_in' => false,
+                'declaration_signed' => false,
+                'organisation_id' => 1,
+                'orc_id' => fake()->numerify('####-####-####-####'),
+            ]
+            );
+
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
+
+        $id = $response->decodeResponseJson()['data'];
+
+        $this->assertDatabaseHas('action_logs', [
+            'entity_id' => $id,
+            'entity_type' => User::class,
+            'action' => User::ACTION_PROFILE_COMPLETED,
+            'completed_at' => null,
+        ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . '/' . $id,
+                [
+                'first_name' => 'Updated',
+                'last_name' => 'Name',
+                'email' => fake()->email(),
+                ]
+            );
+
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson()['data'];
+
+        $this->assertDatabaseHas('action_logs', [
+            'entity_id' => $id,
+            'entity_type' => User::class,
+            'action' => User::ACTION_PROFILE_COMPLETED,
+            'completed_at' => null,
+        ]);
+
+        Carbon::setTestNow(Carbon::now());
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'PUT',
+            self::TEST_URL . '/' . $id,
+            [
+            'location' => fake()->country(),
+            ]
+        );
+
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson()['data'];
+
+        $this->assertDatabaseHas('action_logs', [
+            'entity_id' => $id,
+            'entity_type' => User::class,
+            'action' => User::ACTION_PROFILE_COMPLETED,
+            'completed_at' => Carbon::now(),
+        ]);
+
+
+    }
+
 
     public function test_the_application_can_delete_users(): void
     {
