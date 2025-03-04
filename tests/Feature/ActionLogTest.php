@@ -56,7 +56,7 @@ class ActionLogTest extends TestCase
             ];
         }, User::getDefaultActions());
 
-        $response->assertJson($expectedResponse);
+        $response->assertJson(['data' => $expectedResponse]);
 
     }
 
