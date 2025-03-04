@@ -15,9 +15,9 @@ trait ActionManager
     }
 
     /**
-         * Get the default actions for the model.
-         * This reads from the `$defaultActions` property defined in each model.
-         */
+     * Get the default actions for the model.
+     * This reads from the `$defaultActions` property defined in each model.
+     */
     public static function getDefaultActions(): array
     {
         return property_exists(static::class, 'defaultActions') ? static::$defaultActions : [];
