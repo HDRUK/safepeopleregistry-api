@@ -127,6 +127,13 @@ class ActionLogTest extends TestCase
         );
     }
 
+    /*
+    - waiting for RegistryHasTraining to be implemented in another task
+    public function test_it_can_log_user_training_complete(){
+
+    }
+    */
+
     public function test_it_can_log_user_project_review_complete()
     {
         Carbon::setTestNow(Carbon::now());
