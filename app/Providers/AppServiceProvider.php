@@ -41,6 +41,7 @@ class AppServiceProvider extends ServiceProvider
         Custodian::observe(CustodianObserver::class);
         User::observe(UserObserver::class);
         RegistryHasAffiliation::observe(RegistryHasAffiliationObserver::class);
-        RegistryHasTraining::observe(RegistryHasTrainingObserver::class);
+        // currently Training but is to be moved to RegistryHasTraining...
+        //RegistryHasTraining::observe(RegistryHasTrainingObserver::class);
     }
 }
