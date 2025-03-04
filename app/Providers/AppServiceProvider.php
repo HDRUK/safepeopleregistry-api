@@ -8,14 +8,15 @@ use App\Models\Registry;
 use App\Models\Custodian;
 use App\Models\ProjectHasUser;
 use App\Models\User;
-use App\Models\Affiliation;
+use App\Models\RegistryHasAffiliation;
 use App\Observers\FileObserver;
 use App\Observers\ONSFileObserver;
 use App\Observers\RegistryObserver;
 use App\Observers\CustodianObserver;
 use App\Observers\ProjectHasUserObserver;
 use App\Observers\UserObserver;
-use App\Observers\AffiliationObserver;
+use App\Observers\RegistryHasAffiliationObserver;
+use App\Observers\RegistryHasTrainingObserver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -39,6 +40,7 @@ class AppServiceProvider extends ServiceProvider
         ProjectHasUser::observe(ProjectHasUserObserver::class);
         Custodian::observe(CustodianObserver::class);
         User::observe(UserObserver::class);
-        Affiliation::observe(AffiliationObserver::class);
+        RegistryHasAffiliation::observe(RegistryHasAffiliationObserver::class);
+        RegistryHasTraining::observe(RegistryHasTrainingObserver::class);
     }
 }

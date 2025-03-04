@@ -207,8 +207,13 @@ class AffiliationController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         try {
+
             $input = $request->only(app(Affiliation::class)->getFillable());
-            $affiliation = tap(Affiliation::where('id', $id))->update($input)->first();
+
+            $affiliation = Affiliation::find($id);
+            $affiliation->update($input);
+            $affiliation->refresh();
+
 
             return response()->json([
                 'message' => 'success',
