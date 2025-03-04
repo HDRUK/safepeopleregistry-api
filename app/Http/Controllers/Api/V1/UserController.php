@@ -20,8 +20,6 @@ use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use App\Traits\CommonFunctions;
 use App\Traits\CheckPermissions;
-use Illuminate\Support\Facades\Notification;
-use App\Notifications\AdminUserChanged;
 use TriggerEmail;
 
 class UserController extends Controller
@@ -169,8 +167,6 @@ class UserController extends Controller
      *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
-     *                  @OA\Property(property="profile_steps_completed", type="string", example="{}"),
-     *                  @OA\Property(property="profile_completed_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
      *                  @OA\Property(property="declaration_signed", type="boolean", example="true"),
      *                  @OA\Property(property="organisation_id", type="integer", example="123"),
@@ -267,8 +263,6 @@ class UserController extends Controller
      *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
-     *                  @OA\Property(property="profile_steps_completed", type="string", example="{}"),
-     *                  @OA\Property(property="profile_completed_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
      *                  @OA\Property(property="declaration_signed", type="boolean", example="true"),
      *                  @OA\Property(property="organisation_id", type="integer", example="123"),
@@ -303,8 +297,6 @@ class UserController extends Controller
                 'keycloak_id' => null,
                 'user_group' => Keycloak::determineUserGroup($input),
                 'consent_scrape' => isset($input['consent_scrape']) ? $input['consent_scrape'] : 0,
-                'profile_steps_completed' => isset($input['profile_steps_completed']) ? $input['profile_steps_completed'] : null,
-                'profile_completed_at' => isset($input['profile_completed_at']) ? $input['profile_completed_at'] : null,
                 'public_opt_in' => isset($input['public_opt_in']) ? $input['public_opt_in'] : false,
                 'declaration_signed' => isset($input['declaration_signed']) ? $input['declaration_signed'] : false,
                 'organisation_id' => isset($input['organisation_id']) ? $input['organisation_id'] : null,
@@ -417,8 +409,6 @@ class UserController extends Controller
      *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
-     *                  @OA\Property(property="profile_steps_completed", type="string", example="{}"),
-     *                  @OA\Property(property="profile_completed_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
      *                  @OA\Property(property="declaration_signed", type="boolean", example="true"),
      *                  @OA\Property(property="organisation_id", type="integer", example="123"),
@@ -454,8 +444,6 @@ class UserController extends Controller
             $user->password = isset($input['password']) ? Hash::make($input['password']) : $user->password;
             $user->registry_id = isset($input['registry_id']) ? $input['registry_id'] : $user->registry_id;
             $user->consent_scrape = isset($input['consent_scrape']) ? $input['consent_scrape'] : $user->consent_scrape;
-            $user->profile_steps_completed = isset($input['profile_steps_completed']) ? $input['profile_steps_completed'] : $user->profile_steps_completed;
-            $user->profile_completed_at = array_key_exists('profile_completed_at', $input) ? $input['profile_completed_at'] : $user->profile_completed_at;
             $user->public_opt_in = isset($input['public_opt_in']) ? $input['public_opt_in'] : $user->public_opt_in;
             $user->declaration_signed = isset($input['declaration_signed']) ? $input['declaration_signed'] : $user->declaration_signed;
             $user->organisation_id = isset($input['organisation_id']) ? $input['organisation_id'] : $user->organisation_id;
@@ -545,8 +533,6 @@ class UserController extends Controller
      *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
-     *                  @OA\Property(property="profile_steps_completed", type="string", example="{}"),
-     *                  @OA\Property(property="profile_completed_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
      *                  @OA\Property(property="declaration_signed", type="boolean", example="true"),
      *                  @OA\Property(property="organisation_id", type="integer", example="123"),
@@ -598,49 +584,9 @@ class UserController extends Controller
                 $input['password'] = Hash::make($input['password']);
             }
 
-            $changes = [];
-            foreach ($input as $key => $value) {
-                if ($originalUser->$key != $value) {
-                    if ($key === 'organisation_id') {
-                        $oldOrganisationName = $originalUser->organisation?->organisation_name ?? 'N/A';
-                        $newOrganisation = Organisation::find($value);
-                        $newOrganisationName = $newOrganisation ? $newOrganisation->organisation_name : 'N/A';
-
-                        $changes['organisation'] = [
-                            'old' => $oldOrganisationName,
-                            'new' => $newOrganisationName,
-                        ];
-                    } else {
-                        $changes[$key] = [
-                            'old' => $originalUser->$key,
-                            'new' => $value,
-                        ];
-                    }
-                }
-            }
-
             $updated = $user->update($input);
 
             if ($updated) {
-                if (!empty($changes)) {
-                    $usersToNotify = User::where("organisation_id", $originalUser->organisation_id)->get();
-                    Notification::send(
-                        $usersToNotify,
-                        new AdminUserChanged($originalUser, $changes)
-                    );
-
-                    if ($user->organisation_id !== $originalUser->organisation_id) {
-                        $usersToNotify = User::where("organisation_id", $user->organisation_id)->get();
-
-                        // Send notification to users of the new organisation
-                        // to-do: be scoped first and added
-                        //Notification::send(
-                        //    $usersToNotify,
-                        //    new AdminUserAdded($user, $organisation)
-                        //);
-                    }
-
-                }
 
                 return response()->json([
                     'message' => 'success',
