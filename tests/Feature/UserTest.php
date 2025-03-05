@@ -324,17 +324,17 @@ class UserTest extends TestCase
                 'POST',
                 self::TEST_URL,
                 [
-                'first_name' => fake()->firstname(),
-                'last_name' => fake()->lastname(),
-                'email' => fake()->email(),
-                'provider' => fake()->word(),
-                'provider_sub' => Str::random(10),
-                'consent_scrape' => true,
-                'public_opt_in' => false,
-                'declaration_signed' => false,
-                'organisation_id' => 1,
-                'orc_id' => fake()->numerify('####-####-####-####'),
-            ]
+                    'first_name' => fake()->firstname(),
+                    'last_name' => fake()->lastname(),
+                    'email' => fake()->email(),
+                    'provider' => fake()->word(),
+                    'provider_sub' => Str::random(10),
+                    'consent_scrape' => true,
+                    'public_opt_in' => false,
+                    'declaration_signed' => false,
+                    'organisation_id' => 1,
+                    'orc_id' => fake()->numerify('####-####-####-####'),
+                ]
             );
 
         $response->assertStatus(201);
@@ -348,12 +348,12 @@ class UserTest extends TestCase
                 'PUT',
                 self::TEST_URL . '/' . $content,
                 [
-                'first_name' => 'Updated',
-                'last_name' => 'Name',
-                'email' => fake()->email(),
-                'declaration_signed' => true,
-                'organisation_id' => 2,
-            ]
+                    'first_name' => 'Updated',
+                    'last_name' => 'Name',
+                    'email' => fake()->email(),
+                    'declaration_signed' => true,
+                    'organisation_id' => 2,
+                ]
             );
 
         $response->assertStatus(200);
@@ -374,17 +374,17 @@ class UserTest extends TestCase
                 'POST',
                 self::TEST_URL,
                 [
-                'first_name' => fake()->firstname(),
-                'last_name' => fake()->lastname(),
-                'email' => fake()->email(),
-                'provider' => fake()->word(),
-                'provider_sub' => Str::random(10),
-                'consent_scrape' => true,
-                'public_opt_in' => false,
-                'declaration_signed' => false,
-                'organisation_id' => 1,
-                'orc_id' => fake()->numerify('####-####-####-####'),
-            ]
+                    'first_name' => fake()->firstname(),
+                    'last_name' => fake()->lastname(),
+                    'email' => fake()->email(),
+                    'provider' => fake()->word(),
+                    'provider_sub' => Str::random(10),
+                    'consent_scrape' => true,
+                    'public_opt_in' => false,
+                    'declaration_signed' => false,
+                    'organisation_id' => 1,
+                    'orc_id' => fake()->numerify('####-####-####-####'),
+                ]
             );
 
         $response->assertStatus(201);
@@ -404,9 +404,9 @@ class UserTest extends TestCase
                 'PUT',
                 self::TEST_URL . '/' . $id,
                 [
-                'first_name' => 'Updated',
-                'last_name' => 'Name',
-                'email' => fake()->email(),
+                    'first_name' => 'Updated',
+                    'last_name' => 'Name',
+                    'email' => fake()->email(),
                 ]
             );
 
@@ -420,14 +420,16 @@ class UserTest extends TestCase
             'completed_at' => null,
         ]);
 
-        Carbon::setTestNow(Carbon::now());
+        // Changed to save this, to avoid race condition of ms/s moving on before assertion runs
+        $testTime = Carbon::now();
+        Carbon::setTestNow($testTime);
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
             'PUT',
             self::TEST_URL . '/' . $id,
             [
-            'location' => fake()->country(),
+                'location' => fake()->country(),
             ]
         );
 
@@ -438,10 +440,8 @@ class UserTest extends TestCase
             'entity_id' => $id,
             'entity_type' => User::class,
             'action' => User::ACTION_PROFILE_COMPLETED,
-            'completed_at' => Carbon::now(),
+            'completed_at' => $testTime,
         ]);
-
-
     }
 
 
@@ -452,14 +452,14 @@ class UserTest extends TestCase
                 'POST',
                 self::TEST_URL,
                 [
-                'first_name' => fake()->firstname(),
-                'last_name' => fake()->lastname(),
-                'email' => fake()->email(),
-                'provider' => fake()->word(),
-                'provider_sub' => Str::random(10),
-                'public_opt_in' => fake()->randomElement([0, 1]),
-                'declaration_signed' => fake()->randomElement([0, 1]),
-            ]
+                    'first_name' => fake()->firstname(),
+                    'last_name' => fake()->lastname(),
+                    'email' => fake()->email(),
+                    'provider' => fake()->word(),
+                    'provider_sub' => Str::random(10),
+                    'public_opt_in' => fake()->randomElement([0, 1]),
+                    'declaration_signed' => fake()->randomElement([0, 1]),
+                ]
             );
 
         $response->assertStatus(201);
