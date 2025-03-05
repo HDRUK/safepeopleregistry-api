@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Traits\SearchManager;
+use App\Traits\ActionManager;
 
 /**
  * @OA\Schema(
@@ -179,6 +180,7 @@ class Organisation extends Model
 {
     use HasFactory;
     use SearchManager;
+    use ActionManager;
 
     protected $table = 'organisations';
 
@@ -245,6 +247,25 @@ class Organisation extends Model
 
     protected $hidden = [
     ];
+
+    public const ACTION_NAME_ADDRESS_COMPLETED = 'name_address_completed';
+    public const ACTION_DIGITAL_ID_COMPLETED = 'digital_identifiers_completed';
+    public const ACTION_SECTOR_SIZE_COMPLETED = 'sector_size_completed';
+    public const ACTION_ADD_SUBSIDIARY_COMPLETED = 'add_subsidiary_completed';
+    public const ACTION_DATA_SECURITY_COMPLETED = 'data_security_completed';
+    public const ACTION_ADD_SRO_COMPLETED = 'add_sro_completed';
+    public const ACTION_AFFILIATE_EMPLOYEES_COMPLETED = 'affiliate_employees_completed';
+
+    protected static array $defaultActions = [
+        self::ACTION_NAME_ADDRESS_COMPLETED,
+        self::ACTION_DIGITAL_ID_COMPLETED,
+        self::ACTION_SECTOR_SIZE_COMPLETED,
+        self::ACTION_ADD_SUBSIDIARY_COMPLETED,
+        self::ACTION_DATA_SECURITY_COMPLETED,
+        self::ACTION_ADD_SRO_COMPLETED,
+        self::ACTION_AFFILIATE_EMPLOYEES_COMPLETED,
+    ];
+
 
     public function permissions(): BelongsToMany
     {
