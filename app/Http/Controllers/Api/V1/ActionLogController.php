@@ -6,18 +6,89 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\ActionLog;
 use App\Models\User;
+use App\Models\Organisation;
 use Carbon\Carbon;
 
 class ActionLogController extends Controller
 {
-    public function getUserActionLog($userId)
+    /**
+     * @OA\Get(
+     *     path="/api/v1/{entity}/{id}/action_log",
+     *     summary="Get Action Logs for an Entity",
+     *     description="Retrieve action logs for a given entity type (users, organisations) by ID.",
+     *     tags={"Action Logs"},
+     *
+     *     @OA\Parameter(
+     *         name="entity",
+     *         in="path",
+     *         required=true,
+     *         description="The entity type (e.g., users, organisations)",
+     *         @OA\Schema(type="string")
+     *     ),
+     *
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="The ID of the entity",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response with action logs",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/ActionLog")
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=404,
+     *         description="No action logs found for this entity",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *                 example="No action logs found for this entity"
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid entity type",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *                 example="Invalid entity type"
+     *             )
+     *         )
+     *     )
+     * )
+     */
+    public function getEntityActionLog($entity, $id)
     {
-        $logs = ActionLog::where('entity_type', User::class)
-                ->where('entity_id', $userId)
+        $entityClassMap = [
+            'users' => User::class,
+            'organisations' => Organisation::class,
+        ];
+
+        if (!isset($entityClassMap[$entity])) {
+            return response()->json(['message' => 'Invalid entity type'], 400);
+        }
+
+        $logs = ActionLog::where('entity_type', $entityClassMap[$entity])
+                ->where('entity_id', $id)
                 ->get();
 
         if ($logs->isEmpty()) {
-            return response()->json(['message' => 'No action logs found for this user'], 404);
+            return response()->json(['message' => 'No action logs found for this entity'], 404);
         }
 
         return response()->json(['data' => $logs]);

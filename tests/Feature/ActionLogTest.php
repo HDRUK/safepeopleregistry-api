@@ -4,9 +4,15 @@ namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\User;
+use App\Models\Organisation;
+use App\Models\Department;
+use App\Models\UserHasDepartments;
+use App\Models\Subsidiary;
+use App\Models\OrganisationHasSubsidiary;
 use App\Models\Affiliation;
 use App\Models\Registry;
 use App\Models\RegistryHasAffiliation;
+use App\Models\RegistryHasOrganisation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
@@ -20,19 +26,33 @@ class ActionLogTest extends TestCase
 
     public const TEST_URL = '/api/v1/';
 
+    protected User $user;
 
     public function setUp(): void
     {
         parent::setUp();
+        $this->user = User::factory()->create();
     }
 
     public function test_it_creates_action_logs_when_a_user_is_created()
     {
-        $user = User::factory()->create();
         foreach (User::getDefaultActions() as $action) {
             $this->assertDatabaseHas('action_logs', [
-                'entity_id' => $user->id,
+                'entity_id' => $this->user->id,
                 'entity_type' => User::class,
+                'action' => $action,
+                'completed_at' => null,
+            ]);
+        }
+    }
+
+    public function test_it_creates_action_logs_when_an_organisation_is_created()
+    {
+        $org = Organisation::factory()->create();
+        foreach (Organisation::getDefaultActions() as $action) {
+            $this->assertDatabaseHas('action_logs', [
+                'entity_id' => $org->id,
+                'entity_type' => Organisation::class,
                 'action' => $action,
                 'completed_at' => null,
             ]);
@@ -41,19 +61,17 @@ class ActionLogTest extends TestCase
 
     public function test_it_returns_user_action_logs_via_api()
     {
-        $user = User::factory()->create();
-
-        $response = $this->actingAsKeycloakUser($user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
             'GET',
-            self::TEST_URL . "users/{$user->id}/action_log",
+            self::TEST_URL . "users/{$this->user->id}/action_log",
         );
 
         $response->assertStatus(200);
 
-        $expectedResponse = array_map(function ($action) use ($user) {
+        $expectedResponse = array_map(function ($action) {
             return [
-                'entity_id' => $user->id,
+                'entity_id' => $this->user->id,
                 'action' => $action,
                 'completed_at' => null,
             ];
@@ -63,22 +81,46 @@ class ActionLogTest extends TestCase
 
     }
 
+
+    public function test_it_returns_organisation_action_logs_via_api()
+    {
+        $org = Organisation::factory()->create();
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "organisations/{$org->id}/action_log",
+        );
+
+        $response->assertStatus(200);
+
+        $expectedResponse = array_map(function ($action) use ($org) {
+            return [
+                'entity_id' => $org->id,
+                'action' => $action,
+                'completed_at' => null,
+            ];
+        }, Organisation::getDefaultActions());
+
+        $response->assertJson(['data' => $expectedResponse]);
+
+    }
+
     public function test_it_can_log_user_profile_complete()
     {
         Carbon::setTestNow(Carbon::now());
-        $user = User::factory()->create();
 
-        $user->update([
+        $this->user->update([
             'first_name' => fake()->firstname(),
             'last_name' => fake()->lastname(),
             'email' => fake()->email(),
             'location' => fake()->country()
         ]);
 
-        $response = $this->actingAsKeycloakUser($user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
             'GET',
-            self::TEST_URL . "users/{$user->id}/action_log",
+            self::TEST_URL . "users/{$this->user->id}/action_log",
         );
 
         $response->assertStatus(200);
@@ -96,23 +138,38 @@ class ActionLogTest extends TestCase
     public function test_it_can_log_user_affiliations_complete()
     {
         Carbon::setTestNow(Carbon::now());
-        $user = User::factory()->create();
         $registry = Registry::factory()->create();
-        $user->update([
+        $this->user->update([
             'registry_id' => $registry->id,
         ]);
-        $user->refresh();
+        $this->user->refresh();
+
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "users/{$this->user->id}/action_log",
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+
+        $actionLog = collect($responseData)
+            ->firstWhere('action', User::ACTION_AFFILIATIONS_COMPLETE);
+
+        $this->assertNull($actionLog['completed_at']);
+
 
         $affiliation = Affiliation::factory()->create();
         RegistryHasAffiliation::create([
-            'registry_id' => $user->registry_id,
+            'registry_id' => $this->user->registry_id,
             'affiliation_id' => $affiliation->id,
         ]);
 
-        $response = $this->actingAsKeycloakUser($user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
             'GET',
-            self::TEST_URL . "users/{$user->id}/action_log",
+            self::TEST_URL . "users/{$this->user->id}/action_log",
         );
 
         $response->assertStatus(200);
@@ -137,13 +194,11 @@ class ActionLogTest extends TestCase
     public function test_it_can_log_user_project_review_complete()
     {
         Carbon::setTestNow(Carbon::now());
-        $user = User::factory()->create();
 
-
-        $response = $this->actingAsKeycloakUser($user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
             'GET',
-            self::TEST_URL . "users/{$user->id}/action_log",
+            self::TEST_URL . "users/{$this->user->id}/action_log",
         );
 
         $response->assertStatus(200);
@@ -154,7 +209,7 @@ class ActionLogTest extends TestCase
 
         $actionLogId = $actionLog['id'];
 
-        $response = $this->actingAsKeycloakUser($user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
             'PUT',
             self::TEST_URL . "action_log/{$actionLogId}?complete",
@@ -162,10 +217,10 @@ class ActionLogTest extends TestCase
         $response->assertStatus(200);
 
 
-        $response = $this->actingAsKeycloakUser($user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
             'GET',
-            self::TEST_URL . "users/{$user->id}/action_log",
+            self::TEST_URL . "users/{$this->user->id}/action_log",
         );
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -180,7 +235,7 @@ class ActionLogTest extends TestCase
             $actionLog['completed_at']
         );
 
-        $response = $this->actingAsKeycloakUser($user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
             'PUT',
             self::TEST_URL . "action_log/{$actionLogId}?incomplete",
@@ -188,10 +243,10 @@ class ActionLogTest extends TestCase
         $response->assertStatus(200);
 
 
-        $response = $this->actingAsKeycloakUser($user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
             'GET',
-            self::TEST_URL . "users/{$user->id}/action_log",
+            self::TEST_URL . "users/{$this->user->id}/action_log",
         );
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -206,6 +261,353 @@ class ActionLogTest extends TestCase
     }
 
 
+    public function test_it_can_log_organisation_name_addess_complete()
+    {
+        Carbon::setTestNow(Carbon::now());
+        $org = Organisation::factory()->create();
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "organisations/{$org->id}/action_log",
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Organisation::ACTION_NAME_ADDRESS_COMPLETED);
+
+        $this->assertNull($actionLog['completed_at']);
+
+        $org->update([
+            'organisation_name' => fake()->company(),
+            'address_1' => fake()->address(),
+            'town' => fake()->city(),
+            'country' => fake()->country(),
+            'postcode' => fake()->postcode(),
+        ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "organisations/{$org->id}/action_log",
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Organisation::ACTION_NAME_ADDRESS_COMPLETED);
+
+
+        $this->assertEquals(
+            Carbon::now()->format('Y-m-d H:i:s'),
+            $actionLog['completed_at']
+        );
+
+    }
+
+    public function test_it_can_log_organisation_digitial_identifiers_complete()
+    {
+        Carbon::setTestNow(Carbon::now());
+        $org = Organisation::factory()->create();
+
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "organisations/{$org->id}/action_log",
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Organisation::ACTION_DIGITAL_ID_COMPLETED);
+
+        $this->assertNull($actionLog['completed_at']);
+
+        $org->update([
+            'companies_house_no' => fake()->numberBetween(0, 1000),
+            'ror_id' => fake()->numberBetween(1000, 2000),
+        ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "organisations/{$org->id}/action_log",
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Organisation::ACTION_DIGITAL_ID_COMPLETED);
+
+
+        $this->assertEquals(
+            Carbon::now()->format('Y-m-d H:i:s'),
+            $actionLog['completed_at']
+        );
+
+    }
+
+
+    public function test_it_can_log_organisation_sector_size_complete()
+    {
+        Carbon::setTestNow(Carbon::now());
+        $org = Organisation::factory()->create();
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "organisations/{$org->id}/action_log",
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Organisation::ACTION_SECTOR_SIZE_COMPLETED);
+
+
+        $this->assertNull($actionLog['completed_at']);
+
+        $org->update([
+            'sector_id' => fake()->numberBetween(1, 100),
+            'website' => fake()->url()
+        ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "organisations/{$org->id}/action_log",
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Organisation::ACTION_SECTOR_SIZE_COMPLETED);
+
+
+        $this->assertEquals(
+            Carbon::now()->format('Y-m-d H:i:s'),
+            $actionLog['completed_at']
+        );
+
+    }
+
+    public function test_it_can_log_organisation_data_security_complete()
+    {
+        Carbon::setTestNow(Carbon::now());
+        $org = Organisation::factory()->create();
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "organisations/{$org->id}/action_log",
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Organisation::ACTION_DATA_SECURITY_COMPLETED);
+
+
+        $this->assertNull($actionLog['completed_at']);
+
+        $org->update([
+            'dsptk_ods_code' => fake()->numberBetween(1000, 2000),
+            'dsptk_expiry_date' => fake()->date(),
+            'iso_27001_certification_num' => fake()->numberBetween(1000, 2000),
+            'iso_expiry_date' => fake()->date(),
+            'ce_certification_num' => fake()->numberBetween(1000, 2000),
+            'ce_expiry_date' => fake()->date(),
+            'ce_plus_certification_num' => fake()->numberBetween(1000, 2000),
+            'ce_plus_expiry_date' => fake()->date(),
+        ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "organisations/{$org->id}/action_log",
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Organisation::ACTION_DATA_SECURITY_COMPLETED);
+
+
+        $this->assertEquals(
+            Carbon::now()->format('Y-m-d H:i:s'),
+            $actionLog['completed_at']
+        );
+
+    }
+
+
+    public function test_it_can_log_organisation_add_subsidiary_complete()
+    {
+        Carbon::setTestNow(Carbon::now());
+        $org = Organisation::factory()->create();
+        $sub = Subsidiary::factory()->create();
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "organisations/{$org->id}/action_log",
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Organisation::ACTION_ADD_SUBSIDIARY_COMPLETED);
+
+        $this->assertNull($actionLog['completed_at']);
+
+        OrganisationHasSubsidiary::updateOrCreate(
+            [
+                'organisation_id' => $org->id,
+                'subsidiary_id' => $sub->id,
+            ]
+        );
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "organisations/{$org->id}/action_log",
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Organisation::ACTION_ADD_SUBSIDIARY_COMPLETED);
+
+
+        $this->assertEquals(
+            Carbon::now()->format('Y-m-d H:i:s'),
+            $actionLog['completed_at']
+        );
+
+        $ohs = OrganisationHasSubsidiary::where(
+            ['organisation_id' => $org->id]
+        )->first();
+        $ohs->delete();
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "organisations/{$org->id}/action_log",
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Organisation::ACTION_ADD_SUBSIDIARY_COMPLETED);
+
+        $this->assertNull($actionLog['completed_at']);
+
+    }
+
+
+    public function test_it_can_log_organisation_add_sro_complete()
+    {
+        Carbon::setTestNow(Carbon::now());
+        $org = Organisation::factory()->create();
+        $dep = Department::create(['name' => fake()->company()]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "organisations/{$org->id}/action_log",
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Organisation::ACTION_ADD_SRO_COMPLETED);
+
+        $this->assertNull($actionLog['completed_at']);
+
+        $this->user->update([
+            'organisation_id' => $org->id,
+            'user_group' => 'ORGANISATIONS',
+            'is_org_admin' => 1,
+        ]);
+
+        UserHasDepartments::create([
+            'user_id' => $this->user->id,
+            'department_id' => $dep->id,
+        ]);
+
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "organisations/{$org->id}/action_log",
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Organisation::ACTION_ADD_SRO_COMPLETED);
+
+
+        $this->assertEquals(
+            Carbon::now()->format('Y-m-d H:i:s'),
+            $actionLog['completed_at']
+        );
+    }
+
+    public function test_it_can_log_organisation_adding_users_complete()
+    {
+        Carbon::setTestNow(Carbon::now());
+        $registry = Registry::factory()->create();
+        $this->user->update([
+            'registry_id' => $registry->id,
+        ]);
+        $this->user->refresh();
+
+        $org = Organisation::factory()->create();
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "organisations/{$org->id}/action_log",
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Organisation::ACTION_AFFILIATE_EMPLOYEES_COMPLETED);
+
+        $this->assertNull($actionLog['completed_at']);
+
+
+        $newUser = User::factory()->create();
+        $newRegistry = Registry::factory()->create();
+        $newUser->update([
+            'registry_id' => $newRegistry->id,
+        ]);
+        RegistryHasOrganisation::create([
+            'registry_id' => $newUser->registry_id,
+            'organisation_id' => $org->id,
+        ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "organisations/{$org->id}/action_log",
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Organisation::ACTION_AFFILIATE_EMPLOYEES_COMPLETED);
+
+
+        $this->assertEquals(
+            Carbon::now()->format('Y-m-d H:i:s'),
+            $actionLog['completed_at']
+        );
+    }
 
 
 }

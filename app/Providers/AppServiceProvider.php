@@ -8,14 +8,22 @@ use App\Models\Registry;
 use App\Models\Custodian;
 use App\Models\ProjectHasUser;
 use App\Models\User;
+use App\Models\UserHasDepartments;
+use App\Models\Organisation;
+use App\Models\OrganisationHasSubsidiary;
 use App\Models\RegistryHasAffiliation;
+use App\Models\RegistryHasOrganisation;
 use App\Observers\FileObserver;
 use App\Observers\ONSFileObserver;
 use App\Observers\RegistryObserver;
 use App\Observers\CustodianObserver;
 use App\Observers\ProjectHasUserObserver;
 use App\Observers\UserObserver;
+use App\Observers\UserHasDepartmentsObserver;
+use App\Observers\OrganisationObserver;
+use App\Observers\OrganisationHasSubsidiaryObserver;
 use App\Observers\RegistryHasAffiliationObserver;
+use App\Observers\RegistryHasOrganisationObserver;
 use App\Observers\RegistryHasTrainingObserver;
 use Illuminate\Support\ServiceProvider;
 
@@ -40,7 +48,11 @@ class AppServiceProvider extends ServiceProvider
         ProjectHasUser::observe(ProjectHasUserObserver::class);
         Custodian::observe(CustodianObserver::class);
         User::observe(UserObserver::class);
+        UserHasDepartments::observe(UserHasDepartmentsObserver::class);
+        Organisation::observe(OrganisationObserver::class);
+        OrganisationHasSubsidiary::observe(OrganisationHasSubsidiaryObserver::class);
         RegistryHasAffiliation::observe(RegistryHasAffiliationObserver::class);
+        RegistryHasOrganisation::observe(RegistryHasOrganisationObserver::class);
         // currently Training but is to be moved to RegistryHasTraining...
         //RegistryHasTraining::observe(RegistryHasTrainingObserver::class);
     }
