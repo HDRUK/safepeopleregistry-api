@@ -23,6 +23,7 @@ use App\Models\ProjectHasUser;
 use App\Models\ProjectRole;
 use App\Models\ProjectHasCustodian;
 use App\Models\RegistryHasOrganisation;
+use App\Models\RegistryHasTraining;
 use App\Models\OrganisationHasDepartment;
 use App\Models\OrganisationHasCustodianApproval;
 use App\Traits\CommonFunctions;
@@ -49,7 +50,6 @@ class BaseDemoSeeder extends Seeder
             EmailTemplatesSeeder::class,
             DepartmentSeeder::class,
             WebhookEventTriggerSeeder::class,
-            // UserSeeder::class,
         ]);
 
         // --------------------------------------------------------------------------------
@@ -798,13 +798,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         $this->createAffiliations($org1Researchers);
 
         // --------------------------------------------------------------------------------
-        // Above users having affiliations between orgs
-        // --------------------------------------------------------------------------------
-        // $this->createRegistryAffiliations($org1Researchers);
-        // $this->createRegistryAffiliations($org2Researchers);
-        // $this->createRegistryAffiliations($org3Researchers);
-
-        // --------------------------------------------------------------------------------
         // Link Researchers to projects
         // --------------------------------------------------------------------------------
         $this->linkUsersToProjects($org1Researchers);
@@ -995,7 +988,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 // Make up some training entries for these users
                 $trainings = [
                     [
-                        'registry_id' => $reg->id,
                         'provider' => 'UK Data Service',
                         'awarded_at' => Carbon::now()->subYears(2)->toDateString(),
                         'expires_at' => Carbon::now()->addYears(3)->toDateString(),
@@ -1003,7 +995,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                         'training_name' => 'Safe Researcher Training',
                     ],
                     [
-                        'registry_id' => $reg->id,
                         'provider' => 'Medical Research Council (MRC)',
                         'awarded_at' => Carbon::now()->subYears(2)->toDateString(),
                         'expires_at' => Carbon::now()->addYears(3)->toDateString(),
@@ -1014,7 +1005,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             } else {
                 $trainings = [
                     [
-                        'registry_id' => $reg->id,
                         'provider' => 'Office of National Statistics (ONS)',
                         'awarded_at' => Carbon::now()->subYears(10)->toDateString(),
                         'expires_at' => Carbon::now()->subYears(5)->toDateString(),
@@ -1026,12 +1016,16 @@ Social Media Platform’s Data Access Committee to allow access to platform data
 
             foreach ($trainings as $tr) {
                 $training = Training::create([
-                    'registry_id' => $tr['registry_id'],
                     'provider' => $tr['provider'],
                     'awarded_at' => $tr['awarded_at'],
                     'expires_at' => $tr['expires_at'],
                     'expires_in_years' => $tr['expires_in_years'],
                     'training_name' => $tr['training_name'],
+                ]);
+
+                RegistryHasTraining::create([
+                    'registry_id' => $reg->id,
+                    'training_id' => $training->id,
                 ]);
             }
         }

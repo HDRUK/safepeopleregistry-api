@@ -13,6 +13,7 @@ use App\Models\Project;
 use App\Models\Registry;
 use App\Models\Training;
 use App\Models\User;
+use App\Models\RegistryHasTraining;
 use DB;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -149,7 +150,8 @@ class QueryController extends Controller
         $user = User::where('registry_id', $registry->id)->first();
         $payload['user'] = $user;
 
-        $training = Training::where('registry_id', $registry->id)->first();
+        $linkedTraining = RegistryHasTraining::where('registry_id')->select('training_id')->get()->toArray();
+        $training = Training::whereIn('id', $linkedTraining);
         $payload['registry']['training'] = $training;
 
         $identity = Identity::where('registry_id', $registry->id)->first();
