@@ -75,6 +75,7 @@ Route::middleware('api')->patch('v1/users/{userId}/notifications/{notificationId
 Route::middleware('api')->patch('v1/users/{userId}/notifications/{notificationId}/unread', [NotificationController::class, 'markUserNotificationAsUnread']);
 
 Route::middleware('api')->get('v1/users/{id}/action_log', [ActionLogController::class, 'getUserActionLog']);
+Route::middleware('api')->put('v1/action_log/{id}', [ActionLogController::class, 'update']);
 
 Route::middleware('api')->get('v1/training', [TrainingController::class, 'index']);
 Route::middleware('api')->get('v1/training/registry/{registryId}', [TrainingController::class, 'indexByRegistryId']);
