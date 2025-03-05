@@ -1180,8 +1180,10 @@ class OrganisationController extends Controller
 
     public function cleanSubsidiaries(int $organisationId)
     {
-        OrganisationHasSubsidiary::where('organisation_id', $organisationId)->delete();
-
+        // done like this to for the observer class to see the delete
+        OrganisationHasSubsidiary::where('organisation_id', $organisationId)
+            ->get()
+            ->each(fn ($ohs) => $ohs->delete());
     }
 
     public function addSubsidiary(int $organisationId, array $subsidiary)

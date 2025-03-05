@@ -4,6 +4,8 @@ namespace App\Observers;
 
 use App\Models\UserHasDepartments;
 use App\Models\User;
+use App\Models\Organisation;
+use App\Models\ActionLog;
 use Carbon\Carbon;
 
 class UserHasDepartmentsObserver

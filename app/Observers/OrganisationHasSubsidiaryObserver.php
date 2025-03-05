@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Models\OrganisationHasSubsidiary;
 use App\Models\Organisation;
+use App\Models\ActionLog;
 use Carbon\Carbon;
 
 class OrganisationHasSubsidiaryObserver
@@ -13,7 +14,7 @@ class OrganisationHasSubsidiaryObserver
      */
     public function created(OrganisationHasSubsidiary $organisationHasSubsidiary): void
     {
-        $this->updateActionLog($organisationHasSubsidiary->organisation);
+        $this->updateActionLog($organisationHasSubsidiary);
     }
 
     /**
@@ -21,7 +22,7 @@ class OrganisationHasSubsidiaryObserver
      */
     public function updated(OrganisationHasSubsidiary $organisationHasSubsidiary): void
     {
-        $this->updateActionLog($organisationHasSubsidiary->organisation);
+        $this->updateActionLog($organisationHasSubsidiary);
     }
 
     /**
@@ -29,7 +30,7 @@ class OrganisationHasSubsidiaryObserver
      */
     public function deleted(OrganisationHasSubsidiary $organisationHasSubsidiary): void
     {
-        $this->updateActionLog($organisationHasSubsidiary->organisation);
+        $this->updateActionLog($organisationHasSubsidiary, true);
     }
 
     /**
@@ -37,7 +38,7 @@ class OrganisationHasSubsidiaryObserver
      */
     public function restored(OrganisationHasSubsidiary $organisationHasSubsidiary): void
     {
-        $this->updateActionLog($organisationHasSubsidiary->organisation);
+        $this->updateActionLog($organisationHasSubsidiary);
     }
 
     /**
@@ -45,28 +46,30 @@ class OrganisationHasSubsidiaryObserver
      */
     public function forceDeleted(OrganisationHasSubsidiary $organisationHasSubsidiary): void
     {
-        $this->updateActionLog($organisationHasSubsidiary->organisation);
+        $this->updateActionLog($organisationHasSubsidiary, true);
     }
 
-    private function updateActionLog(Organisation $organisation): void
+    private function updateActionLog(OrganisationHasSubsidiary $organisationHasSubsidiary, bool $isDeleting = false): void
     {
-        $hasSubsidiaries = $organisation->subsidiaries()->exists();
+        $organisation = $organisationHasSubsidiary->organisation;
+        $hasSubsidiaries = $organisation->subsidiaries()
+            ->when($isDeleting, function ($query) use ($organisationHasSubsidiary) {
+                return $query->where(
+                    'subsidiary_id',
+                    '!=',
+                    $organisationHasSubsidiary->subsidiary_id
+                );
+            })
+            ->exists();
 
-        if ($hasSubsidiaries) {
-            ActionLog::updateOrCreate(
-                [
-                    'entity_id' => $organisation->id,
-                    'entity_type' => Organisation::class,
-                    'action' => Organisation::ACTION_ADD_SUBSIDIARY_COMPLETED,
-                ],
-                ['completed_at' => Carbon::now()]
-            );
-        } else {
-            ActionLog::where([
+        ActionLog::updateOrCreate(
+            [
                 'entity_id' => $organisation->id,
                 'entity_type' => Organisation::class,
                 'action' => Organisation::ACTION_ADD_SUBSIDIARY_COMPLETED,
-            ])->update(['completed_at' => null]);
-        }
+            ],
+            ['completed_at' => $hasSubsidiaries ? Carbon::now() : null]
+        );
+
     }
 }

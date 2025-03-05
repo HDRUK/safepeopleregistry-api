@@ -27,6 +27,17 @@ class OrganisationObserver
         // 'organisation_size'
     ];
 
+    protected array $securityCompliance = [
+        'dsptk_ods_code',
+        'dsptk_expiry_date',
+        'iso_27001_certification_num',
+        'iso_expiry_date',
+        'ce_certification_num',
+        'ce_expiry_date',
+        'ce_plus_certification_num',
+        'ce_plus_expiry_date',
+    ];
+
     /**
      * Handle the Organisation "created" event.
      */
@@ -64,6 +75,13 @@ class OrganisationObserver
             $organisation,
             $this->sectorSize,
             Organisation::ACTION_SECTOR_SIZE_COMPLETED
+        );
+
+        // note - future improvement to also check the date is not expired
+        $this->checkIsComplete(
+            $organisation,
+            $this->securityCompliance,
+            Organisation::ACTION_DATA_SECURITY_COMPLETED
         );
 
 
