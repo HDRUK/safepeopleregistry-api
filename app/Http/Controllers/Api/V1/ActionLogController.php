@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ActionLog;
 use App\Models\User;
 use App\Models\Organisation;
+use App\Models\Custodian;
 use Carbon\Carbon;
 
 class ActionLogController extends Controller
@@ -77,6 +78,7 @@ class ActionLogController extends Controller
         $entityClassMap = [
             'users' => User::class,
             'organisations' => Organisation::class,
+            'custodians' => Custodian::class,
         ];
 
         if (!isset($entityClassMap[$entity])) {
