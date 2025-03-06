@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 class ProjectController extends Controller
 {
     use CommonFunctions;
+    use Responses;
 
     /**
      * @OA\Get(
@@ -648,7 +649,7 @@ class ProjectController extends Controller
     {
         try {
             $digi_ident = optional(Registry::where('id', $registryId)->first())->digi_ident;
-            $data = ProjectHasUser::where('project_id', $projectId)->where('user_digital_ident', $digi_ident)->first();
+            $data = ProjectHasUser::where('project_id', $projectId)->where('user_digital_ident', $digi_ident);
 
             if(isset($data)) {
                 $data->delete();
@@ -658,7 +659,7 @@ class ProjectController extends Controller
 
             return $this->NotFoundResponse();
         } catch (Exception $e) {
-            return $this->ErrorResponse();
+            throw new Exception($e->getMessage());
         }
     }
 }
