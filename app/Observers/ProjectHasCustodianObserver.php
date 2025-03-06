@@ -44,7 +44,7 @@ class ProjectHasCustodianObserver
     public function deleted(ProjectHasCustodian $projectHasCustodian): void
     {
         $this->updateActionLog($projectHasCustodian, true);
-        $this->deleteCustoidanProjectUserValidation(
+        $this->deleteCustodianProjectUserValidation(
             $projectHasCustodian->project_id,
             null,
             $projectHasCustodian->custodian_id
