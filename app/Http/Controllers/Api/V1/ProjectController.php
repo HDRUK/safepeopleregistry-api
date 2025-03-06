@@ -603,7 +603,7 @@ class ProjectController extends Controller
     }
 
     /**
-     * @OA\Get(
+     * @OA\Delete(
      *      path="/api/v1/projects/{projectId}/users/{registryId}",
      *      summary="Delete a user from a project",
      *      description="Delete a user from a project",
