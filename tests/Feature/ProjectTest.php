@@ -342,12 +342,12 @@ class ProjectTest extends TestCase
 
     public function test_the_application_fails_deleting_users_from_projects(): void
     {
-        $registries = Registry::get();
+        $registry = Registry::first();
         $project = Project::first();
 
         ProjectHasUser::create([
             'project_id' => $project->id,
-            'user_digital_ident' => $registries[0]->digi_ident,
+            'user_digital_ident' => $registry->digi_ident,
             'project_role_id' => 7,
         ]);
 

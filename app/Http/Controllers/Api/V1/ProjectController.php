@@ -651,7 +651,7 @@ class ProjectController extends Controller
             $digi_ident = optional(Registry::where('id', $registryId)->first())->digi_ident;
             $data = ProjectHasUser::where('project_id', $projectId)->where('user_digital_ident', $digi_ident);
 
-            if(isset($data)) {
+            if($data->first() !== null) {
                 $data->delete();
 
                 return $this->OKResponse(null);
