@@ -35,6 +35,7 @@ use App\Http\Controllers\Api\V1\DepartmentController;
 use App\Http\Controllers\Api\V1\WebhookController;
 use App\Http\Controllers\Api\V1\CustodianModelConfigController;
 use App\Http\Controllers\Api\V1\ProjectDetailController;
+use App\Http\Controllers\Api\V1\ProjectRoleController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -258,6 +259,11 @@ Route::middleware('api')->post('v1/project_details', [ProjectDetailController::c
 Route::middleware('api')->put('v1/project_details/{id}', [ProjectDetailController::class, 'update']);
 Route::middleware('api')->delete('v1/project_details/{id}', [ProjectDetailController::class, 'destroy']);
 Route::middleware('api')->post('v1/project_details/query_gateway_dur', [ProjectDetailController::class, 'queryGatewayDurByProjectID']);
+
+Route::middleware('api')->get('v1/project_roles', [ProjectRoleController::class, 'index']);
+Route::middleware('api')->get('v1/project_roles/{id}', [ProjectRoleController::class, 'show']);
+Route::middleware('api')->post('v1/project_roles', [ProjectRoleController::class, 'store']);
+Route::middleware('api')->put('v1/project_roles/{id}', [ProjectRoleController::class, 'update']);
 
 Route::get('v1/system_config', [SystemConfigController::class, 'index']);
 Route::post('v1/system_config', [SystemConfigController::class, 'store']);
