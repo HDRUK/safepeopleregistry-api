@@ -319,4 +319,44 @@ class ProjectTest extends TestCase
         // job for the webhook was created
         Queue::assertPushed(CallWebhookJob::class);
     }
+
+    public function test_the_application_can_delete_users_from_projects(): void
+    {
+        $registry = Registry::first();
+        $project = Project::first();
+
+        ProjectHasUser::create([
+            'project_id' => $project->id,
+            'user_digital_ident' => $registry->digi_ident,
+            'project_role_id' => 7,
+        ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'DELETE',
+                self::TEST_URL . '/' . $project->id . '/users/' . $registry->id
+            );
+
+        $response->assertStatus(200);
+    }
+
+    public function test_the_application_fails_deleting_users_from_projects(): void
+    {
+        $registries = Registry::get();
+        $project = Project::first();
+
+        ProjectHasUser::create([
+            'project_id' => $project->id,
+            'user_digital_ident' => $registries[0]->digi_ident,
+            'project_role_id' => 7,
+        ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'DELETE',
+                self::TEST_URL . '/' . $project->id . '/users/99999999'
+            );
+
+        $response->assertStatus(404);
+    }
 }

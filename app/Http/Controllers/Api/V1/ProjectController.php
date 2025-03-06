@@ -10,6 +10,7 @@ use App\Models\ProjectHasUser;
 use App\Traits\CommonFunctions;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller
@@ -599,5 +600,67 @@ class ProjectController extends Controller
             'message' => 'success',
             'data' => $projects,
         ], 200);
+    }
+
+    /**
+     * @OA\Get(
+     *      path="/api/v1/projects/{projectId}/users/{registryId}",
+     *      summary="Delete a user from a project",
+     *      description="Delete a user from a project",
+     *      tags={"Projects"},
+     *      summary="Project@deleteUserFromProject",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="projectId",
+     *         in="path",
+     *         description="Project ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Project ID",
+     *         ),
+     *      ), 
+     *      @OA\Parameter(
+     *         name="registryId",
+     *         in="path",
+     *         description="Registry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Registry ID",
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="success",
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="failed",
+     *      )
+     * )
+     */
+    public function deleteUserFromProject(Request $request, int $projectId, int $registryId): JsonResponse
+    {
+        try {
+            $digi_ident = optional(Registry::where('id', $registryId)->first())->digi_ident;
+            $data = ProjectHasUser::where('project_id', $projectId)->where('user_digital_ident', $digi_ident)->first();
+
+            if(isset($data)) {
+                $data->delete();
+
+                return response()->json([
+                    'message' => 'success',
+                ], Response::HTTP_OK);
+            }
+
+            return response()->json([
+                'message' => 'failed',
+            ], Response::HTTP_NOT_FOUND); 
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
     }
 }
