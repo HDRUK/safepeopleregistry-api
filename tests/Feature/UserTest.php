@@ -526,4 +526,31 @@ class UserTest extends TestCase
         $this->assertEquals($content['email'], $aff->email);
         $this->assertEquals($content['digital_identifier'], $registry->digi_ident);
     }
+
+    public function test_the_application_can_search_across_affiliations_by_name_and_email(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'POST',
+            self::TEST_URL . '/search_affiliations',
+            [
+                'first_name' => 'dan',
+                'last_name' => 'spencer',
+                'email' => 'dan.ackroyd@healthpathwaysukltd.com',
+            ]
+        );
+
+        $response->assertStatus(200);
+        $this->assertArrayHasKey('data', $response);
+
+        $content = $response->decodeResponseJson()['data'];
+
+        $this->assertNotNull($content);
+        $this->assertTrue(count($content) > 0);
+        $this->assertEquals($content[0]['first_name'], 'Dan');
+        $this->assertEquals($content[0]['last_name'], 'Ackroyd');
+        $this->assertNotNull($content[0]['email']);
+        $this->assertNotNull($content[0]['organisation_id']);
+        $this->assertTrue($content[0]['organisation_id'] !== null && $content[0]['organisation_id'] > 0);
+    }
 }
