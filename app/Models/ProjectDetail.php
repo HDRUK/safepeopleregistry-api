@@ -78,6 +78,25 @@ use Illuminate\Database\Eloquent\Model;
  *      @OA\Property(property="access_date",
  *          type="string",
  *          example="2023-10-10T15:03:00Z"
+ *      ),
+ *      @OA\Property(property="access_type",
+ *          type="integer",
+ *          example=0
+ *      ),
+ *      @OA\Property(property="data_privacy",
+ *          type="string",
+ *          example="Our data privacy methods are..."
+ *      ),
+ *      @OA\Property(property="research_outputs",
+ *          type="object",
+ *          example={
+*               "https://yourdomain.com/research_output_1",
+*               "https://yourdomain.com/research_output_2"
+ *          }
+ *      ),
+ *      @OA\Property(property="data_assets",
+ *          type="string",
+ *          example="Our data assets are..."
  *      )
  * )
  */
@@ -102,5 +121,9 @@ class ProjectDetail extends Model
         'data_minimisation',
         'data_use_description',
         'access_date',
+        'access_type',
+        'data_privacy',
+        'research_outputs',
+        'data_assets',
     ];
 }

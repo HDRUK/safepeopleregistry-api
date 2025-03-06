@@ -899,7 +899,7 @@ class OrganisationController extends Controller
                 'organisation',
                 'departments',
                 'registry.education',
-                'registry.training',
+                'registry.trainings',
             ])->where('organisation_id', $organisationId)
               ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 

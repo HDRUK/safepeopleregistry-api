@@ -87,7 +87,7 @@ class UserController extends Controller
             'organisation',
             'departments',
             'registry.education',
-            'registry.training',
+            'registry.trainings',
         ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return response()->json(
@@ -202,7 +202,7 @@ class UserController extends Controller
                 'departments',
                 'registry.identity',
                 'registry.education',
-                'registry.training',
+                'registry.trainings',
             ])->where('id', $id)->first();
 
             return response()->json([

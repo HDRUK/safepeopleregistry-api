@@ -218,7 +218,7 @@ class ProjectController extends Controller
             },
             'registry.affiliations',
             'registry.education',
-            'registry.training',
+            'registry.trainings',
             'registry.accreditations',
             'role'
         ])->paginate((int)$this->getSystemConfig('PER_PAGE'));

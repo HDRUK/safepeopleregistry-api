@@ -82,7 +82,6 @@ Route::middleware('api')->get('v1/training/registry/{registryId}', [TrainingCont
 Route::middleware('api')->get('v1/training/{id}', [TrainingController::class, 'show']);
 Route::middleware('api')->post('v1/training', [TrainingController::class, 'store']);
 Route::middleware('api')->put('v1/training/{id}', [TrainingController::class, 'update']);
-Route::middleware('api')->patch('v1/training/{id}', [TrainingController::class, 'edit']);
 Route::middleware('api')->delete('v1/training/{id}', [TrainingController::class, 'destroy']);
 
 Route::middleware('api')->get('v1/custodians', [CustodianController::class, 'index']);

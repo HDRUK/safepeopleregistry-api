@@ -264,14 +264,14 @@ class UserTest extends TestCase
                 'POST',
                 self::TEST_URL,
                 [
-                'first_name' => fake()->firstname(),
-                'last_name' => fake()->lastname(),
-                'email' => fake()->email(),
-                'provider' => fake()->word(),
-                'provider_sub' => Str::random(10),
-                'public_opt_in' => fake()->randomElement([0, 1]),
-                'declaration_signed' => fake()->randomElement([0, 1]),
-            ]
+                    'first_name' => fake()->firstname(),
+                    'last_name' => fake()->lastname(),
+                    'email' => fake()->email(),
+                    'provider' => fake()->word(),
+                    'provider_sub' => Str::random(10),
+                    'public_opt_in' => fake()->randomElement([0, 1]),
+                    'declaration_signed' => fake()->randomElement([0, 1]),
+                ]
             );
 
         $response->assertStatus(201);

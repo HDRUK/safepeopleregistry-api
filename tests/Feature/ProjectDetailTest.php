@@ -188,6 +188,10 @@ class ProjectDetailTest extends TestCase
             'data_minimisation' => 'Our approach to data minimisation is...',
             'data_use_description' => 'Our description of the data being used is...',
             'access_date' => '2025-12-02',
+            'access_type' => 1,
+            'data_privacy' => 'Our data privacy methods are...',
+            'research_outputs' => '{"research_outputs": [ "https://mydomain.com/research1", "https://mydomain.com/research2"] }',
+            'data_assets' => 'Our data assets are...',
         ];
     }
 
@@ -301,6 +305,7 @@ class ProjectDetailTest extends TestCase
             'duty_of_confidentiality' => 0,
             'national_data_optout' => 1,
             'request_frequency' => 'RECURRING',
+            'access_type' => 0,
         ];
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
@@ -313,6 +318,7 @@ class ProjectDetailTest extends TestCase
         $response->assertStatus(200);
         $content = $response->decodeResponseJson()['data'];
 
+        $this->assertTrue($content['access_type'] === 0);
         $this->assertTrue($content['duty_of_confidentiality'] === 0);
         $this->assertTrue($content['national_data_optout'] === 1);
         $this->assertTrue($content['request_frequency'] === 'RECURRING');
