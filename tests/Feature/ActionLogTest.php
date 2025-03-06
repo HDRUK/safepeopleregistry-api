@@ -5,14 +5,21 @@ namespace Tests\Feature;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\User;
 use App\Models\Organisation;
+use App\Models\Custodian;
+use App\Models\CustodianUser;
 use App\Models\Department;
 use App\Models\UserHasDepartments;
 use App\Models\Subsidiary;
 use App\Models\OrganisationHasSubsidiary;
+use App\Models\OrganisationHasCustodianApproval;
 use App\Models\Affiliation;
 use App\Models\Registry;
 use App\Models\RegistryHasAffiliation;
 use App\Models\RegistryHasOrganisation;
+use App\Models\Rules;
+use App\Models\CustodianHasRule;
+use App\Models\Project;
+use App\Models\ProjectHasCustodian;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
@@ -36,7 +43,11 @@ class ActionLogTest extends TestCase
 
     public function test_it_creates_action_logs_when_a_user_is_created()
     {
-        foreach (User::getDefaultActions() as $action) {
+        $defaultActions = User::getDefaultActions();
+
+        $this->assertNotEmpty($defaultActions, 'Expected getDefaultActions to return at least one action.');
+
+        foreach ($defaultActions as $action) {
             $this->assertDatabaseHas('action_logs', [
                 'entity_id' => $this->user->id,
                 'entity_type' => User::class,
@@ -49,7 +60,11 @@ class ActionLogTest extends TestCase
     public function test_it_creates_action_logs_when_an_organisation_is_created()
     {
         $org = Organisation::factory()->create();
-        foreach (Organisation::getDefaultActions() as $action) {
+        $defaultActions = Organisation::getDefaultActions();
+
+        $this->assertNotEmpty($defaultActions, 'Expected getDefaultActions to return at least one action.');
+
+        foreach ($defaultActions as $action) {
             $this->assertDatabaseHas('action_logs', [
                 'entity_id' => $org->id,
                 'entity_type' => Organisation::class,
@@ -58,6 +73,24 @@ class ActionLogTest extends TestCase
             ]);
         }
     }
+
+    public function test_it_creates_action_logs_when_a_custodian_is_created()
+    {
+        $org = Custodian::factory()->create();
+        $defaultActions = Custodian::getDefaultActions();
+
+        $this->assertNotEmpty($defaultActions, 'Expected getDefaultActions to return at least one action.');
+
+        foreach ($defaultActions as $action) {
+            $this->assertDatabaseHas('action_logs', [
+                'entity_id' => $org->id,
+                'entity_type' => Custodian::class,
+                'action' => $action,
+                'completed_at' => null,
+            ]);
+        }
+    }
+
 
     public function test_it_returns_user_action_logs_via_api()
     {
@@ -104,6 +137,41 @@ class ActionLogTest extends TestCase
 
         $response->assertJson(['data' => $expectedResponse]);
 
+    }
+
+
+    public function test_it_returns_custodian_action_logs_via_api()
+    {
+        $custodian = Custodian::factory()->create();
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "custodians/{$custodian->id}/action_log",
+        );
+
+        $response->assertStatus(200);
+
+        $expectedResponse = array_map(function ($action) use ($custodian) {
+            return [
+                'entity_id' => $custodian->id,
+                'action' => $action,
+                'completed_at' => null,
+            ];
+        }, Custodian::getDefaultActions());
+
+        $response->assertJson(['data' => $expectedResponse]);
+
+    }
+
+    public function test_it_fails_to_return_action_logs_via_api_for_unsupported()
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "test/1/action_log",
+        );
+        $response->assertStatus(400);
     }
 
     public function test_it_can_log_user_profile_complete()
@@ -607,6 +675,233 @@ class ActionLogTest extends TestCase
             Carbon::now()->format('Y-m-d H:i:s'),
             $actionLog['completed_at']
         );
+    }
+
+    public function test_it_can_log_custodian_profile_complete()
+    {
+        Carbon::setTestNow(Carbon::now());
+
+        $custodian = Custodian::factory()->create();
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "custodians/{$custodian->id}/action_log",
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Custodian::ACTION_COMPLETE_CONFIGURATION);
+
+        $this->assertNull($actionLog['completed_at']);
+
+        $rule = Rules::create([
+            'name' => fake()->name(),
+            'title' => fake()->sentence(),
+            'description' => fake()->sentence()
+        ]);
+        CustodianHasRule::create([
+            'rule_id' => $rule->id,
+            'custodian_id' => $custodian->id
+        ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "custodians/{$custodian->id}/action_log",
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Custodian::ACTION_COMPLETE_CONFIGURATION);
+
+        $this->assertEquals(
+            Carbon::now()->format('Y-m-d H:i:s'),
+            $actionLog['completed_at']
+        );
+
+    }
+
+    /* Not implemented yet
+    public function test_it_can_log_custodian_add_contacts_complete()
+    {
+
+    }*/
+
+
+    public function test_it_can_log_custodian_add_users_complete()
+    {
+        Carbon::setTestNow(Carbon::now());
+
+        $custodian = Custodian::factory()->create();
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "custodians/{$custodian->id}/action_log",
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Custodian::ACTION_ADD_USERS);
+
+        $this->assertNull($actionLog['completed_at']);
+
+        $cu = CustodianUser::factory()->create(['custodian_id' => $custodian->id]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "custodians/{$custodian->id}/action_log",
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Custodian::ACTION_ADD_USERS);
+
+        $this->assertEquals(
+            Carbon::now()->format('Y-m-d H:i:s'),
+            $actionLog['completed_at']
+        );
+
+        $cu->delete();
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "custodians/{$custodian->id}/action_log",
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Custodian::ACTION_ADD_USERS);
+
+        $this->assertNull($actionLog['completed_at']);
+
+    }
+
+    public function test_it_can_log_custodian_add_project_complete()
+    {
+        Carbon::setTestNow(Carbon::now());
+
+        $custodian = Custodian::factory()->create();
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "custodians/{$custodian->id}/action_log",
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Custodian::ACTION_ADD_PROJECTS);
+
+        $this->assertNull($actionLog['completed_at']);
+
+        $project = Project::factory()->create();
+        $phc = ProjectHasCustodian::create(
+            [
+                'project_id' => $project->id,
+                'custodian_id' => $custodian->id
+            ]
+        );
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "custodians/{$custodian->id}/action_log",
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Custodian::ACTION_ADD_PROJECTS);
+
+        $this->assertEquals(
+            Carbon::now()->format('Y-m-d H:i:s'),
+            $actionLog['completed_at']
+        );
+
+        $phc->delete();
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "custodians/{$custodian->id}/action_log",
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Custodian::ACTION_ADD_PROJECTS);
+
+        $this->assertNull($actionLog['completed_at']);
+    }
+
+
+    public function test_it_can_log_custodian_approved_organisations_complete()
+    {
+        Carbon::setTestNow(Carbon::now());
+        $custodian = Custodian::factory()->create();
+        $organisation = Organisation::factory()->create();
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "custodians/{$custodian->id}/action_log",
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Custodian::ACTION_ADD_ORGANISATIONS);
+
+        $this->assertNull($actionLog['completed_at']);
+
+
+        $ohca = OrganisationHasCustodianApproval::create([
+            'organisation_id' => $organisation->id,
+            'custodian_id' => $custodian->id
+        ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "custodians/{$custodian->id}/action_log",
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Custodian::ACTION_ADD_ORGANISATIONS);
+
+        $this->assertEquals(
+            Carbon::now()->format('Y-m-d H:i:s'),
+            $actionLog['completed_at']
+        );
+
+        $ohca->delete();
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "custodians/{$custodian->id}/action_log",
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Custodian::ACTION_ADD_ORGANISATIONS);
+
+        $this->assertNull($actionLog['completed_at']);
+
+
     }
 
 
