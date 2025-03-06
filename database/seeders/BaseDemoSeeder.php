@@ -85,7 +85,7 @@ class BaseDemoSeeder extends Seeder
         OrganisationHasCustodianApproval::create([
             'organisation_id' => $org1->id,
             'custodian_id' => Custodian::first()->id,
-        ]);        
+        ]);
 
         $charity = Charity::create([
             'registration_id' => '1186569',
