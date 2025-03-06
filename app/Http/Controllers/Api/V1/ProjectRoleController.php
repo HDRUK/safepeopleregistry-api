@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Exception;
 use App\Models\ProjectRole;
 use App\Traits\CommonFunctions;
 use App\Http\Traits\Responses;
@@ -144,6 +145,7 @@ class ProjectRoleController extends Controller
             if ($role) {
                 return $this->CreatedResponse($role->id);
             }
+            return $this->BadRequestResponse();
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
