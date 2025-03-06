@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Observers\OrganisationObserver;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use App\Traits\SearchManager;
 use App\Traits\ActionManager;
 
@@ -176,6 +178,7 @@ use App\Traits\ActionManager;
  *      ),
  * )
  */
+#[ObservedBy([OrganisationObserver::class])]
 class Organisation extends Model
 {
     use HasFactory;
