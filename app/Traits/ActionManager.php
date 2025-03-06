@@ -15,6 +15,23 @@ trait ActionManager
     }
 
     /**
+     * Define the morphMany relationship for secondary entity action logs.
+     */
+    public function secondaryActionLogs()
+    {
+        return $this->morphMany(ActionLog::class, 'secondaryEntity');
+    }
+
+    /**
+     * Define the morphMany relationship for tertiary entity action logs.
+     */
+    public function tertiaryActionLogs()
+    {
+        return $this->morphMany(ActionLog::class, 'tertiaryEntity');
+    }
+
+
+    /**
      * Get the default actions for the model.
      * This reads from the `$defaultActions` property defined in each model.
      */

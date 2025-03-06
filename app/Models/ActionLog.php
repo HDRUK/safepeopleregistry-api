@@ -42,13 +42,6 @@ use App\Enums\ActionLogType;
  *     ),
  *
  *     @OA\Property(
- *         property="type",
- *         type="string",
- *         example="MODIFICATION",
- *         description="Type of action log event"
- *     ),
- *
- *     @OA\Property(
  *         property="completed_at",
  *         type="string",
  *         format="date-time",
@@ -61,12 +54,19 @@ class ActionLog extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['entity_id', 'entity_type', 'action', 'type', 'completed_at'];
+    protected $table = 'action_logs';
+
+    protected $fillable = [
+        'entity_id',
+        'entity_type',
+        'action',
+        'completed_at'
+    ];
 
     public $timestamps = false;
 
     protected $casts = [
-        'type' => ActionLogType::class,
+        'entity_type' => ActionLogType::class,
     ];
 
     public function entity(): MorphTo
