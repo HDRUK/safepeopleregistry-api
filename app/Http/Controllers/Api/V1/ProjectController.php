@@ -651,16 +651,12 @@ class ProjectController extends Controller
             if(isset($data)) {
                 $data->delete();
 
-                return response()->json([
-                    'message' => 'success',
-                ], Response::HTTP_OK);
+                return $this->OKResponse(null);
             }
 
-            return response()->json([
-                'message' => 'failed',
-            ], Response::HTTP_NOT_FOUND); 
+            return $this->NotFoundResponse();
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+            return $this->ErrorResponse();
         }
     }
 }

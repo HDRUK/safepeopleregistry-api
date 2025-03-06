@@ -51,7 +51,7 @@ trait Responses
     public function NotFoundResponse(): JsonResponse
     {
         return response()->json([
-            'message' => 'success',
+            'message' => 'not found',
             'data' => null,
         ], Response::HTTP_NOT_FOUND);
     }
