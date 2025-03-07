@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use RuntimeException;
 use InvalidArgumentException;
 use App\Models\ValidationLog;
 use App\Models\Custodian;
@@ -75,7 +76,7 @@ trait ValidationManager
             ->when($userDigitalIdent, function ($query, $udi) {
                 $registry = Registry::where('digi_ident', $udi)->first();
                 if (! $registry) {
-                    throw new \RuntimeException(
+                    throw new RuntimeException(
                         "Registry not found for digi_ident: {$udi}"
                     );
                 }
