@@ -50,7 +50,6 @@ class Project extends Model
         return $this->hasMany(ProjectHasUser::class);
     }
 
-
     public function organisations(): BelongsToMany
     {
         return $this->belongsToMany(

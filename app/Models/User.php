@@ -127,6 +127,9 @@ class User extends Authenticatable
     public const GROUP_KC_CUSTODIANS = '\Custodians';
     public const GROUP_KC_ADMINS = '\Admins';
 
+    public const STATUS_INVITED = 'invited';
+    public const STATUS_REGISTERED = 'registered';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -204,6 +207,14 @@ class User extends Authenticatable
         'consent_scrape' => 'boolean',
         'orcid_scanning' => 'boolean',
     ];
+
+    protected $appends = ['status'];
+
+    public function getStatusAttribute()
+    {
+        //Placeholder to add a status field into response
+        return $this->attributes['status'] = $this->unclaimed === 1 ? self::STATUS_INVITED : self::STATUS_REGISTERED;
+    }
 
     public function permissions(): BelongsToMany
     {
