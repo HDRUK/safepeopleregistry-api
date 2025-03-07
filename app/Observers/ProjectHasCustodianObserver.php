@@ -6,15 +6,23 @@ use App\Models\ProjectHasCustodian;
 use App\Models\Custodian;
 use App\Models\ActionLog;
 use Carbon\Carbon;
+use App\Traits\ValidationManager;
 
 class ProjectHasCustodianObserver
 {
+    use ValidationManager;
     /**
      * Handle the ProjectHasCustodian "created" event.
      */
     public function created(ProjectHasCustodian $projectHasCustodian): void
     {
         $this->updateActionLog($projectHasCustodian);
+
+        $this->updateCustodianProjectUserValidation(
+            $projectHasCustodian->project_id,
+            null,
+            $projectHasCustodian->custodian_id
+        );
     }
 
     /**
@@ -23,6 +31,11 @@ class ProjectHasCustodianObserver
     public function updated(ProjectHasCustodian $projectHasCustodian): void
     {
         $this->updateActionLog($projectHasCustodian);
+        $this->updateCustodianProjectUserValidation(
+            $projectHasCustodian->project_id,
+            null,
+            $projectHasCustodian->custodian_id
+        );
     }
 
     /**
@@ -31,6 +44,11 @@ class ProjectHasCustodianObserver
     public function deleted(ProjectHasCustodian $projectHasCustodian): void
     {
         $this->updateActionLog($projectHasCustodian, true);
+        $this->deleteCustodianProjectUserValidation(
+            $projectHasCustodian->project_id,
+            null,
+            $projectHasCustodian->custodian_id
+        );
     }
 
     /**

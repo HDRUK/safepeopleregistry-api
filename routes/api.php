@@ -30,6 +30,8 @@ use App\Http\Controllers\Api\V1\EmailTemplateController;
 use App\Http\Controllers\Api\V1\SectorController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\ActionLogController;
+use App\Http\Controllers\Api\V1\ValidationLogController;
+use App\Http\Controllers\Api\V1\ValidationLogCommentController;
 use App\Http\Controllers\Api\V1\ProfessionalRegistrationController;
 use App\Http\Controllers\Api\V1\DepartmentController;
 use App\Http\Controllers\Api\V1\WebhookController;
@@ -78,6 +80,23 @@ Route::middleware('api')->patch('v1/users/{userId}/notifications/{notificationId
 
 Route::middleware('api')->get('v1/{entity}/{id}/action_log', [ActionLogController::class, 'getEntityActionLog']);
 Route::middleware('api')->put('v1/action_log/{id}', [ActionLogController::class, 'update']);
+
+Route::middleware('api')->get(
+    'v1/custodians/{custodianId}/projects/{projectId}/registries/{registryId}/validation_logs',
+    [ValidationLogController::class, 'getCustodianProjectUserValidationLogs']
+);
+
+Route::middleware('api')->get('v1/validation_logs/{id}', [ValidationLogController::class, 'index']);
+Route::middleware('api')->get('v1/validation_logs/{id}/commments', [ValidationLogController::class, 'comments']);
+Route::middleware('api')->put('v1/validation_logs/{id}', [ValidationLogController::class, 'update']);
+
+
+Route::middleware('api')->get('v1/validation_log_comments/{id}', [ValidationLogCommentController::class, 'show']);
+Route::middleware('api')->post('v1/validation_log_comments', [ValidationLogCommentController::class, 'store']);
+Route::middleware('api')->put('v1/validation_log_comments/{id}', [ValidationLogCommentController::class, 'update']);
+Route::middleware('api')->delete('v1/validation_log_comments/{id}', [ValidationLogCommentController::class, 'destroy']);
+
+
 
 Route::middleware('api')->get('v1/training', [TrainingController::class, 'index']);
 Route::middleware('api')->get('v1/training/registry/{registryId}', [TrainingController::class, 'indexByRegistryId']);
