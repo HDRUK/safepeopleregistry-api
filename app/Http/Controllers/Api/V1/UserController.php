@@ -178,7 +178,7 @@ class UserController extends Controller
      *                  @OA\Property(property="location", type="string", example="United Kingdom"),
      *                  @OA\Property(property="t_and_c_agreed", type="boolean", example="true"),
      *                  @OA\Property(property="t_and_c_agreement_date", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="status", type="string", example="registered"),
+     *                  @OA\Property(property="status", type="string", example="registered")
      *              )
      *          ),
      *      ),
@@ -271,8 +271,8 @@ class UserController extends Controller
      *                  @OA\Property(property="declaration_signed", type="boolean", example="true"),
      *                  @OA\Property(property="organisation_id", type="integer", example="123"),
      *                  @OA\Property(property="orcid_scanning", type="integer", example="1"),
-     *                  @OA\Property(property="orcid_scanning_completed_at", type="string", example="2024-02-04 12:01:00")
-     *                  @OA\Property(property="status", type="string", example="registered"),
+     *                  @OA\Property(property="orcid_scanning_completed_at", type="string", example="2024-02-04 12:01:00"),
+     *                  @OA\Property(property="status", type="string", example="registered")
      *              )
      *          ),
      *      ),
@@ -422,7 +422,7 @@ class UserController extends Controller
      *                  @OA\Property(property="orcid_scanning_completed_at", type="string", example="2024-02-04 12:01:00"),
      *                  @OA\Property(property="t_and_c_agreed", type="boolean", example="true"),
      *                  @OA\Property(property="t_and_c_agreement_date", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="status", type="string", example="registered"),
+     *                  @OA\Property(property="status", type="string", example="registered")
      *              )
      *          ),
      *      ),
@@ -548,7 +548,7 @@ class UserController extends Controller
      *                  @OA\Property(property="location", type="string", example="United Kingdom"),
      *                  @OA\Property(property="t_and_c_agreed", type="boolean", example="true"),
      *                  @OA\Property(property="t_and_c_agreement_date", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="status", type="string", example="registered"),
+     *                  @OA\Property(property="status", type="string", example="registered")
      *              )
      *          ),
      *      ),

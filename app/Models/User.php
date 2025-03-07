@@ -160,7 +160,7 @@ class User extends Authenticatable
         'role',
         'location',
         't_and_c_agreed',
-        't_and_c_agreement_date',
+        't_and_c_agreement_date'
     ];
 
     protected static array $searchableColumns = [
