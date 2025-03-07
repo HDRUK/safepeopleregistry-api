@@ -93,8 +93,6 @@ class UserController extends Controller
             'registry.trainings',
         ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
-        
-
         return response()->json(
             [
                 'message' => 'success',
