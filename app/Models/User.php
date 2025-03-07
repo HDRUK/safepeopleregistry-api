@@ -17,7 +17,97 @@ use App\Traits\ActionManager;
 /**
  * App\Models\User
  *
- * @property mixed $unreadNotifications
+ * @property \Illuminate\Database\Eloquent\Collection|\Illuminate\Notifications\DatabaseNotification[] $unreadNotifications
+ * @method \Illuminate\Notifications\DatabaseNotification[] unreadNotifications()
+ */
+/**
+ * @OA\Components(
+ * @OA\Schema(
+ *      schema="User",
+ *      title="User",
+ *      description="User model",
+ *      @OA\Property(
+ *          property="id",
+ *          type="integer",
+ *          example="123"
+ *      ),
+ *      @OA\Property(
+ *          property="created_at",
+ *          type="string",
+ *          example="2024-02-04 12:00:00"
+ *      ),
+ *      @OA\Property(
+ *          property="updated_at",
+ *          type="string",
+ *          example="2024-02-04 12:01:00"
+ *      ),
+ *      @OA\Property(
+ *          property="first_name",
+ *          type="string",
+ *          example="A"
+ *      ),
+ *      @OA\Property(
+ *          property="last_name",
+ *          type="string",
+ *          example="Researcher"
+ *      ),
+ *      @OA\Property(
+ *          property="email",
+ *          type="string",
+ *          example="person@somewhere.com"
+ *      ),
+ *      @OA\Property(
+ *          property="email_verified_at",
+ *          type="string",
+ *          example="2024-02-04 12:00:00"
+ *      ),
+ *      @OA\Property(
+ *          property="consent_scrape",
+ *          type="boolean",
+ *          example="true"
+ *      ),
+ *      @OA\Property(
+ *          property="public_opt_in",
+ *          type="boolean",
+ *          example="true"
+ *      ),
+ *      @OA\Property(
+ *          property="declaration_signed",
+ *          type="boolean",
+ *          example="true"
+ *      ),
+ *      @OA\Property(
+ *          property="organisation_id",
+ *          type="integer",
+ *          example="123"
+ *      ),
+ *      @OA\Property(
+ *          property="orcid_scanning",
+ *          type="integer",
+ *          example="1"
+ *      ),
+ *      @OA\Property(
+ *          property="orcid_scanning_completed_at",
+ *          type="string",
+ *          example="2024-02-04 12:01:00"
+ *      ),
+ *      @OA\Property(
+ *          property="location",
+ *          type="string",
+ *          example="United Kingdom"
+ *      ),
+ *      @OA\Property(
+ *          property="t_and_c_agreed",
+ *          type="boolean",
+ *          example="true"
+ *      ),
+ *      @OA\Property(
+ *          property="t_and_c_agreement_date",
+ *          type="string",
+ *          example="2024-02-04 12:00:00"
+ *     )
+ * )
+ * )
  */
 #[ObservedBy([UserObserver::class])]
 class User extends Authenticatable
@@ -196,6 +286,4 @@ class User extends Authenticatable
 
         return null;
     }
-
-
 }

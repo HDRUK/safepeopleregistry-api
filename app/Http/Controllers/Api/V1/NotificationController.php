@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Traits\CommonFunctions;
@@ -69,7 +70,7 @@ class NotificationController extends Controller
      *      )
      * )
      */
-    public function getUserNotifications(Request $request, $userId)
+    public function getUserNotifications(Request $request, int $userId): JsonResponse
     {
         $user = User::find($userId);
 
@@ -135,7 +136,7 @@ class NotificationController extends Controller
      *      )
      * )
      */
-    public function getNotificationCounts($userId)
+    public function getNotificationCounts($userId): JsonResponse
     {
         $user = User::find($userId);
 
@@ -181,15 +182,18 @@ class NotificationController extends Controller
      *      ))
      * )
      */
-    public function markUserNotificationsAsRead($userId)
+    public function markUserNotificationsAsRead(int $userId): JsonResponse
     {
+        /** @var User|null $user */
         $user = User::find($userId);
 
         if (!$user) {
             return response()->json(['error' => 'User not found'], 404);
         }
 
-        $user->unreadNotifications->markAsRead();
+        foreach ($user->unreadNotifications as $notification) {
+            $notification->markAsRead();
+        }
 
         return response()->json(['message' => 'Notifications marked as read']);
     }
@@ -227,8 +231,9 @@ class NotificationController extends Controller
      *      ))
      * )
      */
-    public function markUserNotificationAsRead($userId, $notificationId)
+    public function markUserNotificationAsRead(int $userId, string $notificationId): JsonResponse
     {
+        /** @var User|null $user */
         $user = User::find($userId);
 
         if (!$user) {
@@ -272,8 +277,9 @@ class NotificationController extends Controller
      *      @OA\Response(response=200, description="Notification marked as unread")
      * )
      */
-    public function markUserNotificationAsUnread($userId, $notificationId)
+    public function markUserNotificationAsUnread(int $userId, string $notificationId): JsonResponse
     {
+        /** @var User|null $user */
         $user = User::find($userId);
 
         if (!$user) {

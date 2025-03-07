@@ -24,6 +24,7 @@ use App\Models\ProjectRole;
 use App\Models\ProjectHasCustodian;
 use App\Models\RegistryHasOrganisation;
 use App\Models\RegistryHasTraining;
+use App\Models\RegistryHasAffiliation;
 use App\Models\OrganisationHasDepartment;
 use App\Models\OrganisationHasCustodianApproval;
 use App\Traits\CommonFunctions;
@@ -850,7 +851,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             }
 
             foreach ($u['affiliations'] as $e) {
-                Affiliation::create([
+                $aff = Affiliation::create([
                     'organisation_id' => $e['organisation_id'],
                     'member_id' => $e['member_id'],
                     'relationship' => $e['relationship'],
@@ -860,6 +861,11 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                     'role' => $e['role'],
                     'email' => $e['email'],
                     'ror' => $e['ror'],
+                    'registry_id' => $user->registry_id,
+                ]);
+
+                RegistryHasAffiliation::create([
+                    'affiliation_id' => $aff->id,
                     'registry_id' => $user->registry_id,
                 ]);
 
