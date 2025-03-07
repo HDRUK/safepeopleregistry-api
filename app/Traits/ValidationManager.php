@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use InvalidArgumentException;
 use App\Models\ValidationLog;
 use App\Models\Custodian;
 use App\Models\Project;
@@ -65,7 +66,7 @@ trait ValidationManager
     ): void {
 
         if (is_null($userDigitalIdent) && is_null($custodianId)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 "You must provide at least userDigitalIdent or custodianId."
             );
         }
