@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\ValidationLog;
 use App\Models\Custodian;
@@ -66,7 +67,7 @@ class ValidationLogController extends Controller
         int $custodianId,
         int $projectId,
         int $registryId
-    ) {
+    ): JsonResponse {
         try {
             $registry = Registry::findOrFail($registryId);
             $phu = ProjectHasUser::where(
@@ -97,6 +98,7 @@ class ValidationLogController extends Controller
                 ->where('secondary_entity_id', $projectId)
                 ->where('tertiary_entity_type', Registry::class)
                 ->where('tertiary_entity_id', $registryId)
+                ->with("comments")
                 ->get();
 
             return $this->OKResponse($logs);
@@ -105,6 +107,84 @@ class ValidationLogController extends Controller
             return $this->ErrorMessage();
         }
 
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/validation_logs/{id}",
+     *     summary="Get  a Validation Log",
+     *     description="Retrieve a specific entry for a validation log .",
+     *     tags={"Validation Log with comments"},
+     *     security={{"bearerAuth":{}}},
+     *
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="The ID of the validation log",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Validation log with comments",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/ValidationLog"))
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=404,
+     *         description="Validation log not found",
+     *         @OA\JsonContent(@OA\Property(property="message", type="string", example="Validation log not found"))
+     *     )
+     * )
+     */
+    public function index($validationLogId): JsonResponse
+    {
+        $validationLog = ValidationLog::with("comments")->find($validationLogId);
+        if (!$validationLog) {
+            return $this->NotFoundResponse();
+        }
+
+        return $this->OKResponse($validationLog);
+    }
+
+    /**
+    * @OA\Get(
+    *     path="/api/v1/validation_logs/{id}/comments",
+    *     summary="Get all comments for a Validation Log",
+    *     description="Retrieve all comments associated with a specific validation log entry.",
+    *     tags={"Validation Log Comments"},
+    *     security={{"bearerAuth":{}}},
+    *
+    *     @OA\Parameter(
+    *         name="id",
+    *         in="path",
+    *         required=true,
+    *         description="The ID of the validation log",
+    *         @OA\Schema(type="integer")
+    *     ),
+    *
+    *     @OA\Response(
+    *         response=200,
+    *         description="Validation log with comments",
+    *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/ValidationLog"))
+    *     ),
+    *
+    *     @OA\Response(
+    *         response=404,
+    *         description="Validation log not found",
+    *         @OA\JsonContent(@OA\Property(property="message", type="string", example="Validation log not found"))
+    *     )
+    * )
+    */
+    public function comments($validationLogId): JsonResponse
+    {
+        $validationLog = ValidationLog::find($validationLogId);
+        if (!$validationLog) {
+            return $this->NotFoundResponse();
+        }
+
+        return $this->OKResponse($validationLog->comments);
     }
 
     /**
@@ -152,7 +232,7 @@ class ValidationLogController extends Controller
      *     )
      * )
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id): JsonResponse
     {
         $log = ValidationLog::find($id);
         if (!$log) {

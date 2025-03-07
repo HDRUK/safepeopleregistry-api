@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @OA\Schema(
@@ -108,5 +109,10 @@ class ValidationLog extends Model
     public function entity(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(ValidationLogComment::class);
     }
 }
