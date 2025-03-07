@@ -173,7 +173,7 @@ class OrganisationController extends Controller
             'subsidiaries',
             'permissions',
             'approvals',
-            'files',
+            'latestEvidence',
             'charities',
             'registries',
             'registries.user',

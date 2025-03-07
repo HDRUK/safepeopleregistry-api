@@ -207,15 +207,19 @@ class Organisation extends Model
         'dsptk_ods_code',
         'dsptk_certified',
         'dsptk_expiry_date',
+        'dsptk_expiry_evidence',
         'iso_27001_certified',
         'iso_27001_certification_num',
         'iso_expiry_date',
+        'iso_expiry_evidence',
         'ce_certified',
         'ce_certification_num',
         'ce_expiry_date',
+        'ce_expiry_evidence',
         'ce_plus_certified',
         'ce_plus_certification_num',
         'ce_plus_expiry_date',
+        'ce_plus_expiry_evidence',
         'idvt_result',
         'idvt_result_perc',
         'idvt_errors',
@@ -294,6 +298,13 @@ class Organisation extends Model
         );
     }
 
+    public function latestEvidence(): BelongsToMany
+    {
+        return $this->belongsToMany(File::class, 'organisation_has_files')
+            ->where('status', 'PROCESSED')
+            ->whereRaw('updated_at = (SELECT MAX(updated_at) FROM files f WHERE f.type = files.type)');
+    }
+
     public function registries(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -329,4 +340,5 @@ class Organisation extends Model
     {
         return $this->belongsToMany(Charity::class, 'organisation_has_charity');
     }
+
 }
