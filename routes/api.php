@@ -91,7 +91,7 @@ Route::middleware('api')->put('v1/validation_logs/{id}', [ValidationLogControlle
 
 
 Route::middleware('api')->get('v1/validation_log_comments/{id}', [ValidationLogCommentController::class, 'show']);
-Route::middleware('api')->post('v1/validation_log_comments/{id}', [ValidationLogCommentController::class, 'store']);
+Route::middleware('api')->post('v1/validation_log_comments', [ValidationLogCommentController::class, 'store']);
 Route::middleware('api')->put('v1/validation_log_comments/{id}', [ValidationLogCommentController::class, 'update']);
 Route::middleware('api')->delete('v1/validation_log_comments/{id}', [ValidationLogCommentController::class, 'destroy']);
 

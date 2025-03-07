@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
@@ -104,7 +105,7 @@ class ValidationLogController extends Controller
             return $this->OKResponse($logs);
 
         } catch (Exception $e) {
-            return $this->ErrorMessage();
+            return $this->ErrorResponse();
         }
 
     }

@@ -188,6 +188,6 @@ class ValidationLogCommentController extends Controller
 
         $comment->delete();
 
-        return $this->OKResponse();
+        return $this->OKResponse(null);
     }
 }
