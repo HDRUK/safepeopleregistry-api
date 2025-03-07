@@ -125,6 +125,7 @@ Route::middleware('api')->post('v1/projects', [ProjectController::class, 'store'
 Route::middleware('api')->put('v1/projects/{id}', [ProjectController::class, 'update']);
 Route::middleware('api')->patch('v1/projects/{id}', [ProjectController::class, 'edit']);
 Route::middleware('api')->delete('v1/projects/{id}', [ProjectController::class, 'destroy']);
+Route::middleware('api')->delete('v1/projects/{projectId}/users/{registryId}', [ProjectController::class, 'deleteUserFromProject']);
 
 Route::middleware('api')->get('v1/registries', [RegistryController::class, 'index']);
 Route::middleware('api')->get('v1/registries/{id}', [RegistryController::class, 'show']);

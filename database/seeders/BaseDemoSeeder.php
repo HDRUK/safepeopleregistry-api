@@ -83,7 +83,6 @@ class BaseDemoSeeder extends Seeder
             'website' => 'https://www.website1.com/',
         ]);
 
-
         OrganisationHasCustodianApproval::create([
             'organisation_id' => $org1->id,
             'custodian_id' => Custodian::first()->id,
@@ -540,6 +539,20 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                     'idvt_errors' => null,
                     'idvt_completed_at' => null,
                 ],
+                'affiliations' => [
+                    [
+                        'organisation_id' => $org1->id,
+                        'member_id' => Str::uuid(),
+                        'relationship' => 'employee',
+                        'from' => Carbon::now()->subYears(6)->toDateString(),
+                        'to' => '',
+                        'department' => 'Research & Development',
+                        'role' => 'Postdoc',
+                        'email' => fake()->email(),
+                        'ror' => $this->generateRorID(),
+                        'registry_id' => -1,
+                    ]
+                ],
             ],
             [
                 'first_name' => 'Bill',
@@ -566,6 +579,20 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                     'idvt_errors' => null,
                     'idvt_completed_at' => Carbon::now(),
                 ],
+                'affiliations' => [
+                    [
+                        'organisation_id' => $org1->id,
+                        'member_id' => Str::uuid(),
+                        'relationship' => 'employee',
+                        'from' => Carbon::now()->subYears(6)->toDateString(),
+                        'to' => '',
+                        'department' => 'Market Research and Analysis',
+                        'role' => 'Data Engineer',
+                        'email' => fake()->email(),
+                        'ror' => $this->generateRorID(),
+                        'registry_id' => -1,
+                    ]
+                ],
             ],
             [
                 'first_name' => 'Annie',
@@ -591,6 +618,20 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                     'idvt_result_perc' => 78.0,
                     'idvt_errors' => null,
                     'idvt_completed_at' => Carbon::now(),
+                ],
+                'affiliations' => [
+                    [
+                        'organisation_id' => $org1->id,
+                        'member_id' => Str::uuid(),
+                        'relationship' => 'employee',
+                        'from' => Carbon::now()->subYears(6)->toDateString(),
+                        'to' => '',
+                        'department' => 'Supply Chain and Logistics',
+                        'role' => 'Student',
+                        'email' => fake()->email(),
+                        'ror' => $this->generateRorID(),
+                        'registry_id' => -1,
+                    ]
                 ],
             ],
         ];
@@ -797,6 +838,8 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         // Create Affiliations for the above users
         // --------------------------------------------------------------------------------
         $this->createAffiliations($org1Researchers);
+        $this->createAffiliations($org2Researchers);
+        $this->createAffiliations($org3Researchers);
 
         // --------------------------------------------------------------------------------
         // Link Researchers to projects

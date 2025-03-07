@@ -4,17 +4,21 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
+use App\Http\Traits\Responses;
 use App\Models\Project;
 use App\Models\Registry;
 use App\Models\ProjectHasUser;
 use App\Traits\CommonFunctions;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Http\Request;
+
 
 class ProjectController extends Controller
 {
     use CommonFunctions;
+    use Responses;
 
     /**
      * @OA\Get(
@@ -599,5 +603,63 @@ class ProjectController extends Controller
             'message' => 'success',
             'data' => $projects,
         ], 200);
+    }
+
+    /**
+     * @OA\Delete(
+     *      path="/api/v1/projects/{projectId}/users/{registryId}",
+     *      summary="Delete a user from a project",
+     *      description="Delete a user from a project",
+     *      tags={"Projects"},
+     *      summary="Project@deleteUserFromProject",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="projectId",
+     *         in="path",
+     *         description="Project ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Project ID",
+     *         ),
+     *      ), 
+     *      @OA\Parameter(
+     *         name="registryId",
+     *         in="path",
+     *         description="Registry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Registry ID",
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="success",
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="failed",
+     *      )
+     * )
+     */
+    public function deleteUserFromProject(Request $request, int $projectId, int $registryId): JsonResponse
+    {
+        try {
+            $digi_ident = optional(Registry::where('id', $registryId)->first())->digi_ident;
+            $data = ProjectHasUser::where('project_id', $projectId)->where('user_digital_ident', $digi_ident);
+
+            if($data->first() !== null) {
+                $data->delete();
+
+                return $this->OKResponse(null);
+            }
+
+            return $this->NotFoundResponse();
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
     }
 }
