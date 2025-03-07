@@ -7,11 +7,15 @@ use App\Http\Controllers\Controller;
 use App\Models\ValidationLog;
 use App\Models\Custodian;
 use App\Models\Project;
+use App\Models\ProjectHasUser;
+use App\Models\ProjectHasCustodian;
 use App\Models\Registry;
 use Carbon\Carbon;
+use App\Http\Traits\Responses;
 
 class ValidationLogController extends Controller
 {
+    use Responses;
     /**
      * @OA\Get(
      *     path="/api/v1/validation_logs/{custodianId}/{projectId}/{registryId}",
@@ -63,15 +67,43 @@ class ValidationLogController extends Controller
         int $projectId,
         int $registryId
     ) {
-        $logs = ValidationLog::where('entity_type', Custodian::class)
-            ->where('entity_id', $custodianId)
-            ->where('secondary_entity_type', Project::class)
-            ->where('secondary_entity_id', $projectId)
-            ->where('tertiary_entity_type', Registry::class)
-            ->where('tertiary_entity_id', $registryId)
-            ->get();
+        try {
+            $registry = Registry::findOrFail($registryId);
+            $phu = ProjectHasUser::where(
+                [
+                    'project_id' => $projectId,
+                    'user_digital_ident' => $registry->digi_ident
+                ]
+            )->first();
 
-        return response()->json(['data' => $logs]);
+            if (is_null($phu)) {
+                return $this->NotFoundResponse();
+            }
+
+            $phc = ProjectHasCustodian::where(
+                [
+                    'project_id' => $projectId,
+                    'custodian_id' => $custodianId
+                ]
+            )->first();
+
+            if (is_null($phc)) {
+                return $this->NotFoundResponse();
+            }
+
+            $logs = ValidationLog::where('entity_type', Custodian::class)
+                ->where('entity_id', $custodianId)
+                ->where('secondary_entity_type', Project::class)
+                ->where('secondary_entity_id', $projectId)
+                ->where('tertiary_entity_type', Registry::class)
+                ->where('tertiary_entity_id', $registryId)
+                ->get();
+
+            return $this->OKResponse($logs);
+
+        } catch (Exception $e) {
+            return $this->ErrorMessage();
+        }
 
     }
 
@@ -124,7 +156,7 @@ class ValidationLogController extends Controller
     {
         $log = ValidationLog::find($id);
         if (!$log) {
-            return response()->json(['message' => 'Validation log not found'], 404);
+            return $this->NotFoundResponse();
         }
 
         if ($request->has('complete')) {
@@ -145,10 +177,8 @@ class ValidationLogController extends Controller
         $log->save();
         $log->refresh();
 
-        return response()->json([
-            'message' => 'Action status updated successfully',
-            'data' => $log
-        ]);
+        return $this->OKResponse($log);
+
     }
 
 
