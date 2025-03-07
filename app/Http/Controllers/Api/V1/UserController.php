@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use DB;
 use Hash;
 use Keycloak;
 use Exception;
@@ -14,6 +15,7 @@ use App\Models\UserHasCustodianPermission;
 use App\Models\UserHasDepartments;
 use App\Models\Organisation;
 use App\Http\Requests\Users\CreateUser;
+use App\Http\Traits\Responses;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -26,6 +28,7 @@ class UserController extends Controller
 {
     use CommonFunctions;
     use CheckPermissions;
+    use Responses;
 
     /**
      * @OA\Get(
@@ -664,6 +667,62 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'success',
             ], 200);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    public function searchUsersByNameAndProfessionalEmail(Request $request): JsonResponse
+    {
+        try {
+            $input = $request->only([
+                'first_name',
+                'last_name',
+                'email',
+            ]);
+
+            $results = DB::select(
+                "
+                SELECT
+                    u.id AS id,
+                    u.first_name AS first_name,
+                    u.last_name AS last_name,
+                    u.registry_id AS registry_id,
+                    a.email AS email,
+                    a.id AS affiliation_id,
+                    o.id AS organisation_id,
+                    o.organisation_name AS organisation_name
+                FROM users u
+                JOIN registry_has_affiliations rha
+                    ON rha.registry_id = u.registry_id
+                LEFT JOIN affiliations a
+                    ON a.id = rha.affiliation_id
+                JOIN organisations o
+                    ON o.id = a.organisation_id
+                WHERE
+                    user_group='USERS'
+                AND 
+                (
+                    u.first_name LIKE ?
+                )
+                OR
+                (
+                    u.last_name LIKE ?
+                )
+                OR
+                (
+                    a.email LIKE ?
+                )
+                ",
+                [
+                    $input['first_name'],
+                    $input['last_name'],
+                    $input['email']
+                ]
+            );
+
+            $records = collect($results)->toArray();
+            return $this->OKResponse($records);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }

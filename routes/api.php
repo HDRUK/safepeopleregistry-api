@@ -70,6 +70,7 @@ Route::middleware('api')->post('v1/users/invite', [UserController::class, 'invit
 Route::middleware('api')->post('v1/users/permissions', [PermissionController::class, 'assignUserPermissionsToFrom']);
 Route::middleware('api')->post('v1/users/change-password/{userId}', [AuthController::class, 'changePassword']);
 Route::middleware('api')->post('v1/users/validate', [UserController::class, 'validateUserRequest']);
+Route::middleware('api')->post('v1/users/search_affiliations', [UserController::class, 'searchUsersByNameAndProfessionalEmail']);
 
 Route::middleware('api')->get('v1/users/{id}/notifications', [NotificationController::class, 'getUserNotifications']);
 Route::middleware('api')->get('v1/users/{id}/notifications/count', [NotificationController::class, 'getNotificationCounts']);
@@ -185,12 +186,12 @@ Route::middleware('api')->get('v1/organisations/{id}/users', [OrganisationContro
 Route::middleware('api')->get('v1/organisations/{id}/delegates', [OrganisationController::class, 'getDelegates']);
 Route::middleware('api')->get('v1/organisations/{id}/registries', [OrganisationController::class, 'getRegistries']);
 
-Route::middleware('api')->get('v1/organisation_delegates', [OrganisationDelegatesController::class, 'index']);
-Route::middleware('api')->get('v1/organisation_delegates/{id}', [OrganisationDelegatesController::class, 'show']);
-Route::middleware('api')->post('v1/organisation_delegates', [OrganisationDelegatesController::class, 'store']);
-Route::middleware('api')->put('v1/organisation_delegates/{id}', [OrganisationDelegatesController::class, 'update']);
-Route::middleware('api')->patch('v1/organisation_delegates/{id}', [OrganisationDelegatesController::class, 'edit']);
-Route::middleware('api')->delete('v1/organisation_delegates/{id}', [OrganisationDelegatesController::class, 'destroy']);
+// Route::middleware('api')->get('v1/organisation_delegates', [OrganisationDelegatesController::class, 'index']);
+// Route::middleware('api')->get('v1/organisation_delegates/{id}', [OrganisationDelegatesController::class, 'show']);
+// Route::middleware('api')->post('v1/organisation_delegates', [OrganisationDelegatesController::class, 'store']);
+// Route::middleware('api')->put('v1/organisation_delegates/{id}', [OrganisationDelegatesController::class, 'update']);
+// Route::middleware('api')->patch('v1/organisation_delegates/{id}', [OrganisationDelegatesController::class, 'edit']);
+// Route::middleware('api')->delete('v1/organisation_delegates/{id}', [OrganisationDelegatesController::class, 'destroy']);
 
 
 Route::middleware('api')->get('v1/organisations/{id}/projects/present', [OrganisationController::class, 'presentProjects']);

@@ -15,6 +15,15 @@ trait Responses
         ], Response::HTTP_OK);
     }
 
+    public function OKResponseExtended(mixed $data, string $extendedName, mixed $extendedData): JsonResponse
+    {
+        return response()->json([
+            'message' => 'success',
+            'data' => $data,
+            $extendedName => $extendedData,
+        ], Response::HTTP_OK);
+    }
+
     public function CreatedResponse(mixed $data): JsonResponse
     {
         return response()->json([
