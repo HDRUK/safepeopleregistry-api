@@ -217,7 +217,6 @@ class ProjectController extends Controller
         $project = Project::findOrFail($id);
         $projectUsers = $project->projectUsers()->with([
             'registry.user',
-            'registry.user.status',
             'registry.organisations' => function ($query) {
                 $query->select(['id','organisation_name']);
             },
@@ -225,7 +224,7 @@ class ProjectController extends Controller
             'registry.education',
             'registry.trainings',
             'registry.accreditations',
-            'role'
+            'role',
         ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
