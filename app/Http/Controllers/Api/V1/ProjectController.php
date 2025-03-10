@@ -576,9 +576,9 @@ class ProjectController extends Controller
             $digi_ident = optional(Registry::where('id', $registryId)->first())->digi_ident;
 
             if(isset($digi_ident)) {
-                $projectHasUser = ProjectHasUser::where('project_id', $projectId)->where('user_digital_ident', $digi_ident)->first();
+                $projectHasUser = ProjectHasUser::where('project_id', $projectId)->where('user_digital_ident', $digi_ident);
 
-                if(isset($projectHasUser)) {
+                if($projectHasUser->first() !== null) {
                     $projectHasUser->update([
                         'primary_contact' => $input['primary_contact']
                     ]);
