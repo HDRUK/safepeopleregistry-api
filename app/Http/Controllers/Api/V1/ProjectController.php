@@ -479,6 +479,130 @@ class ProjectController extends Controller
     }
 
     /**
+     * @OA\Put(
+     *      path="/api/v1/projects/{id}/users/{registryId}/primary_contact",
+     *      summary="Make user a primary contact",
+     *      description="Make user a primary contact",
+     *      tags={"Project"},
+     *      summary="Project@edit",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Project entry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Project entry ID",
+     *         ),
+     *      ),
+    *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Registry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Registry ID",
+     *         ),
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="Project definition",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="primary_contact", type="integer", example="1"),
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @OA\Items(
+     *                      @OA\Property(property="project_id", type="integer", example=1),
+     *                      @OA\Property(property="user_digital_ident", type="string", example="$2y$12$IJ2LFUartH4N9xKSfxyL5ee5wdJC59aqKx180/72J3oonpw0JFiD2"),
+     *                      @OA\Property(
+     *                          property="registry",
+     *                          type="object",
+     *                          @OA\Property(property="id", type="integer", example=9),
+     *                          @OA\Property(property="created_at", type="string", format="date-time", example="2024-12-03T10:17:08.000000Z"),
+     *                          @OA\Property(property="updated_at", type="string", format="date-time", example="2024-12-03T10:17:08.000000Z"),
+     *                          @OA\Property(property="verified", type="boolean", example=false),
+     *                          @OA\Property(
+     *                              property="user",
+     *                              type="object",
+     *                              @OA\Property(property="id", type="integer", example=18),
+     *                              @OA\Property(property="first_name", type="string", example="Tobacco"),
+     *                              @OA\Property(property="last_name", type="string", example="Dave"),
+     *                              @OA\Property(property="email", type="string", example="tobacco.dave@dodgydomain.com"),
+     *                              @OA\Property(property="registry_id", type="integer", example=9),
+     *                              @OA\Property(property="created_at", type="string", format="date-time", example="2024-12-03T10:17:06.000000Z"),
+     *                              @OA\Property(property="updated_at", type="string", format="date-time", example="2024-12-03T10:17:08.000000Z"),
+     *                              @OA\Property(property="user_group", type="string", example="USERS"),
+     *                              @OA\Property(property="consent_scrape", type="boolean", example=false),
+     *                              @OA\Property(property="public_opt_in", type="boolean", example=0)
+     *                          ),
+     *                      ),
+     *                  )
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=500,
+     *          description="Error",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="error")
+     *          )
+     *      )
+     * )
+     */
+    public function makePrimaryContact(Request $request, int $projectId, int $registryId): JsonResponse
+    {
+        try {
+            $input = $request->all();
+
+            $digi_ident = optional(Registry::where('id', $registryId)->first())->digi_ident;
+
+            if(isset($digi_ident)) {
+                $projectHasUser = ProjectHasUser::where('project_id', $projectId)->where('user_digital_ident', $digi_ident);
+
+                if($projectHasUser->first() !== null) {
+                    $projectHasUser->update([
+                        'primary_contact' => $input['primary_contact']
+                    ]);
+    
+    
+                    $project = Project::findOrFail($projectId);
+                    $projectUsers = $project->projectUsers()->with([
+                        'registry.user',
+                        'role'
+                    ])->whereHas('registry.user', function ($query) use ($digi_ident) {
+                        $query->where('digi_ident', $digi_ident);
+                    })->first();
+        
+                    return $this->OKResponse($projectUsers);
+                }
+            }
+
+            return $this->NotFoundResponse();
+        } catch (Exception $e) {
+            return $this->ErrorResponse();
+        }
+    }
+
+    /**
      * @OA\Delete(
      *      path="/api/v1/projects/{id}",
      *      summary="Delete a Project entry from the system by ID",
