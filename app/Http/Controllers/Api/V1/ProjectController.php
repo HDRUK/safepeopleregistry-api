@@ -55,6 +55,7 @@ class ProjectController extends Controller
     public function index(Request $request): JsonResponse
     {
         $projects = Project::searchViaRequest()
+            ->filterByState()
             ->applySorting()
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 

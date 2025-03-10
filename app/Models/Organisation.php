@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 use App\Traits\SearchManager;
 use App\Traits\ActionManager;
 use App\Traits\StateWorkflow;
+use App\Traits\FilterManager;
 
 /**
  * @OA\Schema(
@@ -188,6 +189,7 @@ class Organisation extends Model
     use SearchManager;
     use ActionManager;
     use StateWorkflow;
+    use FilterManager;
 
     protected $table = 'organisations';
 

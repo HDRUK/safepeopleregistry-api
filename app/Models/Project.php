@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use App\Traits\SearchManager;
 use App\Traits\StateWorkflow;
+use App\Traits\FilterManager;
 
 class Project extends Model
 {
@@ -17,6 +18,7 @@ class Project extends Model
     use SoftDeletes;
     use SearchManager;
     use StateWorkflow;
+    use FilterManager;
 
     protected $table = 'projects';
 

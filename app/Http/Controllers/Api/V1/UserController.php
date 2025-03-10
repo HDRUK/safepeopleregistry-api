@@ -9,6 +9,7 @@ use Exception;
 use RulesEngineManagementController as REMC;
 use RegistryManagementController as RMC;
 use App\Models\User;
+use App\Models\State;
 use App\Models\Registry;
 use App\Models\UserHasCustodianApproval;
 use App\Models\UserHasCustodianPermission;
@@ -81,17 +82,22 @@ class UserController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        $user = User::where('user_group', 'USERS')->first();
+        $user->setState(State::STATE_PENDING);
+
         $users = User::searchViaRequest()
+            ->filterByState()
             ->with([
-            'permissions',
-            'registry',
-            'registry.files',
-            'pendingInvites',
-            'organisation',
-            'departments',
-            'registry.education',
-            'registry.trainings',
-        ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
+                'permissions',
+                'registry',
+                'registry.files',
+                'pendingInvites',
+                'organisation',
+                'departments',
+                'registry.education',
+                'registry.trainings',
+                'modelState'
+            ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return response()->json(
             [

@@ -80,6 +80,7 @@ class OrganisationController extends Controller
 
         if (!$custodianId) {
             $organisations = Organisation::searchViaRequest()
+                ->filterByState()
                 ->applySorting()
                 ->with([
                     'departments',

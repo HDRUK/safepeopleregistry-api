@@ -16,6 +16,7 @@ use Illuminate\Notifications\Notifiable;
 use App\Traits\SearchManager;
 use App\Traits\ActionManager;
 use App\Traits\StateWorkflow;
+use App\Traits\FilterManager;
 
 /**
  * App\Models\User
@@ -120,6 +121,7 @@ class User extends Authenticatable
     use SearchManager;
     use ActionManager;
     use StateWorkflow;
+    use FilterManager;
 
     public const GROUP_USERS = 'USERS';
     public const GROUP_ORGANISATIONS = 'ORGANISATIONS';
