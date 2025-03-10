@@ -480,7 +480,7 @@ class ProjectController extends Controller
 
     /**
      * @OA\Put(
-     *      path="/api/v1/projects/{id}/users/{registryId}",
+     *      path="/api/v1/projects/{id}/users/{registryId}/primary_contact",
      *      summary="Make user a primary contact",
      *      description="Make user a primary contact",
      *      tags={"Project"},
