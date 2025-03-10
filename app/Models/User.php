@@ -5,6 +5,7 @@ namespace App\Models;
 use DB;
 use App\Observers\UserObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -127,6 +128,9 @@ class User extends Authenticatable
     public const GROUP_KC_CUSTODIANS = '\Custodians';
     public const GROUP_KC_ADMINS = '\Admins';
 
+    public const STATUS_INVITED = 'invited';
+    public const STATUS_REGISTERED = 'registered';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -204,6 +208,15 @@ class User extends Authenticatable
         'consent_scrape' => 'boolean',
         'orcid_scanning' => 'boolean',
     ];
+
+    protected $appends = ['status'];
+
+    public function status(): Attribute
+    {
+        return new Attribute(
+            get: fn () => $this->unclaimed === 1 ? self::STATUS_INVITED : self::STATUS_REGISTERED
+        );
+    }
 
     public function permissions(): BelongsToMany
     {
