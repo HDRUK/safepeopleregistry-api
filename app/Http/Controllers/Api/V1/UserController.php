@@ -82,9 +82,6 @@ class UserController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $user = User::where('user_group', 'USERS')->first();
-        $user->setState(State::STATE_PENDING);
-
         $users = User::searchViaRequest()
             ->filterByState()
             ->with([
