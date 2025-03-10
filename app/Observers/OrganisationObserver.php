@@ -30,12 +30,16 @@ class OrganisationObserver
     protected array $securityCompliance = [
         'dsptk_ods_code',
         'dsptk_expiry_date',
+        'dsptk_expiry_evidence',
         'iso_27001_certification_num',
         'iso_expiry_date',
+        'iso_expiry_evidence',
         'ce_certification_num',
         'ce_expiry_date',
+        'ce_expiry_evidence',
         'ce_plus_certification_num',
         'ce_plus_expiry_date',
+        'ce_plus_expiry_evidence',
     ];
 
     /**
@@ -115,19 +119,43 @@ class OrganisationObserver
     {
         if ($organisation->isDirty($fields)) {
             $isProfileComplete = collect($fields)
-                ->every(fn ($field) => !empty($organisation->$field));
+            ->every(function ($field) use ($organisation) {
+                if ($this->isDateField($field)) {
+                    return $this->isDateValid($organisation->$field);
+                }
+                return !empty($organisation->$field);
+            });
 
-            if ($isProfileComplete) {
-                ActionLog::updateOrCreate(
-                    [
-                        'entity_id' => $organisation->id,
-                        'entity_type' => Organisation::class,
-                        'action' => $action
-                    ],
-                    ['completed_at' => Carbon::now()]
-                );
-            }
+            ActionLog::updateOrCreate(
+                [
+                    'entity_id' => $organisation->id,
+                    'entity_type' => Organisation::class,
+                    'action' => $action
+                ],
+                ['completed_at' => $isProfileComplete ? Carbon::now() : null]
+            );
         }
+    }
+
+    /**
+     * Helper function to check if a field is an expiry date.
+     */
+    private function isDateField(string $field): bool
+    {
+        return str_contains($field, '_expiry_date');
+    }
+
+    /**
+     * Helper function to check if a date is valid (not expired).
+     */
+    private function isDateValid(?string $date): bool
+    {
+        if (!$date) {
+            return false;
+        }
+
+        $expiryDate = Carbon::parse($date);
+        return $expiryDate->isFuture();
     }
 
 }

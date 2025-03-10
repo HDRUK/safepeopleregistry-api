@@ -20,6 +20,7 @@ use App\Models\Rules;
 use App\Models\CustodianHasRule;
 use App\Models\Project;
 use App\Models\ProjectHasCustodian;
+use App\Models\File;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
@@ -39,6 +40,13 @@ class ActionLogTest extends TestCase
     {
         parent::setUp();
         $this->user = User::factory()->create();
+        $this->file = File::create([
+            'name' => 'temp',
+            'type' => 'CERTIFICATION',
+            'path' => '/nowhere',
+            'status' => 'PROCESSED',
+        ]);
+
     }
 
     public function test_it_creates_action_logs_when_a_user_is_created()
@@ -482,14 +490,39 @@ class ActionLogTest extends TestCase
 
         $org->update([
             'dsptk_ods_code' => fake()->numberBetween(1000, 2000),
-            'dsptk_expiry_date' => fake()->date(),
+            'dsptk_expiry_date' => fake()->dateTimeBetween('+1 year', '+5 years')->format('Y-m-d'),
+            'dsptk_expiry_evidence' => $this->file->id,
             'iso_27001_certification_num' => fake()->numberBetween(1000, 2000),
-            'iso_expiry_date' => fake()->date(),
+            'iso_expiry_date' => fake()->dateTimeBetween('+1 year', '+5 years')->format('Y-m-d'),
+            'iso_expiry_evidence' => $this->file->id,
             'ce_certification_num' => fake()->numberBetween(1000, 2000),
-            'ce_expiry_date' => fake()->date(),
+            'ce_expiry_date' => fake()->dateTimeBetween('+1 year', '+5 years')->format('Y-m-d'),
+            'ce_expiry_evidence' => $this->file->id,
             'ce_plus_certification_num' => fake()->numberBetween(1000, 2000),
-            'ce_plus_expiry_date' => fake()->date(),
+            'ce_plus_expiry_date' => fake()->dateTimeBetween('+1 year', '+5 years')->format('Y-m-d'),
+            'ce_plus_expiry_evidence' => $this->file->id,
         ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . "organisations/{$org->id}/action_log",
+            );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Organisation::ACTION_DATA_SECURITY_COMPLETED);
+
+        $this->assertEquals(
+            Carbon::now()->format('Y-m-d H:i:s'),
+            $actionLog['completed_at']
+        );
+
+        $org->update([
+            'dsptk_expiry_date' => fake()->dateTimeBetween('-5 year', '-1 years')->format('Y-m-d'),
+        ]);
+
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
@@ -503,10 +536,7 @@ class ActionLogTest extends TestCase
             ->firstWhere('action', Organisation::ACTION_DATA_SECURITY_COMPLETED);
 
 
-        $this->assertEquals(
-            Carbon::now()->format('Y-m-d H:i:s'),
-            $actionLog['completed_at']
-        );
+        $this->assertNull($actionLog['completed_at']);
 
     }
 
