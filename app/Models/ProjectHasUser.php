@@ -22,6 +22,7 @@ class ProjectHasUser extends Model
         'project_id',
         'user_digital_ident',
         'project_role_id',
+        'primary_contact',
     ];
 
     public function role(): BelongsTo
