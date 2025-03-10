@@ -6,6 +6,7 @@ use App\Observers\OrganisationObserver;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use App\Traits\SearchManager;
@@ -303,6 +304,27 @@ class Organisation extends Model
         return $this->belongsToMany(File::class, 'organisation_has_files')
             ->where('status', 'PROCESSED')
             ->whereRaw('updated_at = (SELECT MAX(updated_at) FROM files f WHERE f.type = files.type)');
+    }
+
+
+    public function ceExpiryEvidence(): BelongsTo
+    {
+        return $this->belongsTo(File::class, 'ce_expiry_evidence');
+    }
+
+    public function cePlusExpiryEvidence(): BelongsTo
+    {
+        return $this->belongsTo(File::class, 'ce_plus_expiry_evidence');
+    }
+
+    public function isoExpiryEvidence(): BelongsTo
+    {
+        return $this->belongsTo(File::class, 'iso_expiry_evidence');
+    }
+
+    public function dsptkExpiryEvidence(): BelongsTo
+    {
+        return $this->belongsTo(File::class, 'dsptk_expiry_evidence');
     }
 
     public function registries(): BelongsToMany
