@@ -574,23 +574,26 @@ class ProjectController extends Controller
             $input = $request->all();
 
             $digi_ident = optional(Registry::where('id', $registryId)->first())->digi_ident;
-            $projectHasUser = ProjectHasUser::where('project_id', $projectId)->where('user_digital_ident', $digi_ident);
 
-            if(isset($projectHasUser)) {
-                $projectHasUser->update([
-                    'primary_contact' => $input['primary_contact']
-                ]);
+            if(isset($digi_ident)) {
+                $projectHasUser = ProjectHasUser::where('project_id', $projectId)->where('user_digital_ident', $digi_ident)->first();
 
-
-                $project = Project::findOrFail($projectId);
-                $projectUsers = $project->projectUsers()->with([
-                    'registry.user',
-                    'role'
-                ])->whereHas('registry.user', function ($query) use ($digi_ident) {
-                    $query->where('digi_ident', $digi_ident);
-                })->first();
+                if(isset($projectHasUser)) {
+                    $projectHasUser->update([
+                        'primary_contact' => $input['primary_contact']
+                    ]);
     
-                return $this->OKResponse($projectUsers);
+    
+                    $project = Project::findOrFail($projectId);
+                    $projectUsers = $project->projectUsers()->with([
+                        'registry.user',
+                        'role'
+                    ])->whereHas('registry.user', function ($query) use ($digi_ident) {
+                        $query->where('digi_ident', $digi_ident);
+                    })->first();
+        
+                    return $this->OKResponse($projectUsers);
+                }
             }
 
             return $this->NotFoundResponse();
