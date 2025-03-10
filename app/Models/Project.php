@@ -7,13 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use App\Traits\SearchManager;
+use App\Traits\StateWorkflow;
 
 class Project extends Model
 {
     use HasFactory;
     use SoftDeletes;
     use SearchManager;
+    use StateWorkflow;
 
     protected $table = 'projects';
 
@@ -76,5 +79,10 @@ class Project extends Model
             'project_id',
             'custodian_id'
         )->wherePivot('approved', true);
+    }
+
+    public function modelState(): MorphOne
+    {
+        return $this->morphOne(ModelState::class, 'stateable');
     }
 }

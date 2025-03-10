@@ -9,8 +9,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use App\Traits\SearchManager;
 use App\Traits\ActionManager;
+use App\Traits\StateWorkflow;
 
 /**
  * @OA\Schema(
@@ -185,6 +187,7 @@ class Organisation extends Model
     use HasFactory;
     use SearchManager;
     use ActionManager;
+    use StateWorkflow;
 
     protected $table = 'organisations';
 
@@ -363,4 +366,8 @@ class Organisation extends Model
         return $this->belongsToMany(Charity::class, 'organisation_has_charity');
     }
 
+    public function modelState(): MorphOne
+    {
+        return $this->morphOne(ModelState::class, 'stateable');
+    }
 }

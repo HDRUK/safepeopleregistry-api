@@ -10,10 +10,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Traits\SearchManager;
 use App\Traits\ActionManager;
+use App\Traits\StateWorkflow;
 
 /**
  * App\Models\User
@@ -117,6 +119,7 @@ class User extends Authenticatable
     use Notifiable;
     use SearchManager;
     use ActionManager;
+    use StateWorkflow;
 
     public const GROUP_USERS = 'USERS';
     public const GROUP_ORGANISATIONS = 'ORGANISATIONS';
@@ -273,6 +276,11 @@ class User extends Authenticatable
             Department::class,
             'user_has_departments'
         );
+    }
+
+    public function modelState(): MorphOne
+    {
+        return $this->morphOne(ModelState::class, 'stateable');
     }
 
     public static function searchByEmail(string $email): \stdClass|null
