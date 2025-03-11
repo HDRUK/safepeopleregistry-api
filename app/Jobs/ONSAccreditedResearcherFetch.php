@@ -1,0 +1,137 @@
+<?php
+
+namespace App\Jobs;
+
+use Carbon\Carbon;
+use App\Models\UksaLiveFeed;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+
+class ONSAccreditedResearcherFetch implements ShouldQueue
+{
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+
+    private $baseUrlTemplate = '';
+    private $onsAccreditedResearcherListUrl = '';
+
+    public function __construct()
+    {
+        $this->baseUrlTemplate = env('ONS_ACCREDITED_RESEARCHER_LIST_URL');
+        $this->onsAccreditedResearcherListUrl = env('ONS_ACCREDITED_RESEARCHER_LIST_PAGE_URL');
+    }
+
+    public function handle(): void
+    {
+        $response = Http::get($this->onsAccreditedResearcherListUrl);
+        if ($response->status() >= 200 && $response->status() < 300) {
+            $htmlContent = $response->body();
+
+            $this->processPageContent($htmlContent);
+        }
+
+        // non-200 response returned. Ignore.
+        return;
+    }
+
+    private function processPageContent(string $page): void
+    {
+        if (preg_match('/The list of accredited researchers is correct as of (\d{2} \w+ \d{4})/', $page, $matches)) {
+            $dateString = $matches[1];
+            $date = Carbon::createFromFormat('d F Y', $dateString);
+            $year = $date->format('Y');
+            $month = $date->format('m');
+            $day = $date->format('d');
+
+            $url = sprintf(
+                $this->baseUrlTemplate,
+                $year,
+                $month,
+                $day,
+                $month,
+                $year
+            );
+
+            $filePath = storage_path('app/temp.xlsx');
+            $response = Http::withOptions(['sink' => $filePath])->get($url);
+
+            if (!$response->successful()) {
+                echo 'unable to download ' . $url . ' file!';
+                return;
+            }
+
+            $data = $this->parseONSFile($filePath);
+            echo(count($data) . ' found in file...' . "\n");
+
+            $this->writeResearchers($data);
+        }
+    }
+
+    private function parseONSFile(string $path): array
+    {
+        $researchers = [];
+
+        $dataTemplate = [
+            'last_name' => '',
+            'first_name' => '',
+            'organisation_name' => '',
+            'accreditation_number' => '',
+            'accreditation_type' => '',
+            'expiry_date' => '',
+            'public_record' => '',
+            'stage' => '',
+        ];
+
+        $reader = IOFactory::createReader('Xlsx');
+        $reader->setReadDataOnly(true);
+
+        $spreadsheet = $reader->load($path);
+        $spreadsheet->setActiveSheetIndexByName('Report'); // to nudge the active sheet away from intro page
+
+        $worksheet = $spreadsheet->getActiveSheet();
+
+        $maxRow = $worksheet->getHighestRow();
+        $maxCol = $worksheet->getHighestColumn();
+
+        $highestColumnIndex = Coordinate::columnIndexFromString($maxCol);
+
+        // Get header row
+        $headers = [];
+        $colStartIndex = env('ONS_COLUMN_START_INDEX', 1);
+        $rowStartIndex = env('ONS_ROW_START_INDEX', 6);
+
+        for ($col = $colStartIndex; $col <= $highestColumnIndex; $col++) {
+            $columnLetter = Coordinate::stringFromColumnIndex($col);
+            $headers[$col] = strtolower(str_replace(' ', '_', trim((string) $worksheet->getCell($columnLetter . $rowStartIndex)->getValue())));
+        }
+
+        for ($row = $rowStartIndex + 1; $row <= $maxRow; $row++) {
+            $rowData = [];
+
+            for ($col = $colStartIndex; $col <= $highestColumnIndex; $col++) {
+                $columnLetter = Coordinate::stringFromColumnIndex($col);
+                $header = $headers[$col] ?? "Column$col";
+                $rowData[$header] = trim($worksheet->getCell($columnLetter . $row)->getValue());
+            }
+
+            $researchers[] = $rowData;
+        }
+
+        return $researchers;
+    }
+
+    private function writeResearchers(array $data): void
+    {
+        foreach ($data as $d) {
+            UksaLiveFeed::updateOrCreate($d);
+        }
+    }
+}
