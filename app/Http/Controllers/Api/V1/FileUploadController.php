@@ -128,7 +128,7 @@ class FileUploadController extends Controller
                 return $this->NotFoundResponse();
             }
 
-            if ($file->status != 'PROCESSED') {
+            if ($file->status !== 'PROCESSED') {
                 return $this->NotFoundResponse();
             }
 
