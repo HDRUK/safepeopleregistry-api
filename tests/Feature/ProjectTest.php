@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
 use Carbon\Carbon;
+use App\Models\State;
 use App\Models\User;
 use App\Models\Registry;
 use App\Models\Custodian;
@@ -421,5 +422,24 @@ class ProjectTest extends TestCase
             );
 
         $response->assertStatus(404);
+    }
+
+    public function test_the_application_can_show_project_users_with_filtering(): void
+    {
+        $user = User::where('user_group', 'USERS')->first();
+        $user->setState(State::STATE_PENDING);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/users/filter?filter=pending',
+            );
+
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson()['data']['data'];
+
+        $this->assertNotNull($content);
+        $this->assertEquals($content[0]['id'], $user->id);
+        $this->assertEquals($content[0]['email'], $user->email);
     }
 }
