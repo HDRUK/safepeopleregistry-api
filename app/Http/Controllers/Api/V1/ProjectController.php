@@ -14,7 +14,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 
-
 class ProjectController extends Controller
 {
     use CommonFunctions;
@@ -56,6 +55,7 @@ class ProjectController extends Controller
     public function index(Request $request): JsonResponse
     {
         $projects = Project::searchViaRequest()
+            ->filterByState()
             ->applySorting()
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
@@ -747,7 +747,7 @@ class ProjectController extends Controller
      *            type="integer",
      *            description="Project ID",
      *         ),
-     *      ), 
+     *      ),
      *      @OA\Parameter(
      *         name="registryId",
      *         in="path",
@@ -775,7 +775,7 @@ class ProjectController extends Controller
             $digi_ident = optional(Registry::where('id', $registryId)->first())->digi_ident;
             $data = ProjectHasUser::where('project_id', $projectId)->where('user_digital_ident', $digi_ident);
 
-            if($data->first() !== null) {
+            if ($data->first() !== null) {
                 $data->delete();
 
                 return $this->OKResponse(null);
