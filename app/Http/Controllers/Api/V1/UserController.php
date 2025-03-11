@@ -11,6 +11,8 @@ use RegistryManagementController as RMC;
 use App\Models\User;
 use App\Models\State;
 use App\Models\Registry;
+use App\Models\Project;
+use App\Models\ProjectHasUser;
 use App\Models\UserHasCustodianApproval;
 use App\Models\UserHasCustodianPermission;
 use App\Models\UserHasDepartments;
@@ -733,6 +735,18 @@ class UserController extends Controller
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
+    }
+
+    public function userProjects(Request $request, int $id): JsonResponse
+    {
+        $user = User::with('registry')->findOrFail($id);
+
+        $projectIds = ProjectHasUser::where('user_digital_ident', $user->registry->digi_ident)
+            ->pluck('project_id')
+            ->toArray();
+
+        $projects = Project::whereIn('id', $projectIds)->get();
+        return $this->OKResponse($projects);
     }
 
     public function fakeEndpointForTesting(Request $request): JsonResponse
