@@ -65,7 +65,7 @@ trait Responses
         ], Response::HTTP_NOT_FOUND);
     }
 
-    public function ErrorResponse(mixed $error): JsonResponse
+    public function ErrorResponse(mixed $error = null): JsonResponse
     {
         return response()->json([
             'message' => 'unexpected error',
