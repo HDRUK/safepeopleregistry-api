@@ -65,11 +65,20 @@ trait Responses
         ], Response::HTTP_NOT_FOUND);
     }
 
-    public function ErrorResponse(): JsonResponse
+    public function ErrorResponse(mixed $error = null): JsonResponse
     {
         return response()->json([
             'message' => 'unexpected error',
-            'data' => null,
+            'data' => $error,
         ], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
+
+    public function NotImplementedResponse(): JsonResponse
+    {
+        return response()->json([
+            'message' => 'not implemented',
+            'data' => null,
+        ], Response::HTTP_NOT_IMPLEMENTED);
+    }
+
 }
