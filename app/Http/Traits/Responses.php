@@ -72,4 +72,13 @@ trait Responses
             'data' => null,
         ], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
+
+    public function NotImplementedResponse(): JsonResponse
+    {
+        return response()->json([
+            'message' => 'not implemented',
+            'data' => null,
+        ], Response::HTTP_NOT_IMPLEMENTED);
+    }
+
 }
