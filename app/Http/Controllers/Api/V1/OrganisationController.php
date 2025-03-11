@@ -801,7 +801,7 @@ class OrganisationController extends Controller
     {
         $projects = Project::searchViaRequest()
           ->applySorting()
-          ->with(['approvals'])
+          ->with(['approvals', 'organisations'])
           ->filterWhen('approved', function ($query, $approved) {
               if ($approved) {
                   $query->whereHas('approvals');
@@ -812,6 +812,7 @@ class OrganisationController extends Controller
           ->whereHas('organisations', function ($query) use ($organisationId) {
               $query->where('organisations.id', $organisationId);
           })
+          ->withCount('projectUsers')
           ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         if ($projects) {

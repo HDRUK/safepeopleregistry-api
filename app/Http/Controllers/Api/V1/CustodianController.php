@@ -603,7 +603,7 @@ class CustodianController extends Controller
 
         $projects = Project::searchViaRequest()
           ->applySorting()
-          ->with('approvals')
+          ->with(['approvals', 'organisations'])
           ->filterWhen('approved', function ($query, $value) {
               if ($value) {
                   $query->whereHas('approvals');
@@ -635,6 +635,7 @@ class CustodianController extends Controller
           ->whereHas('custodians', function ($query) use ($custodianId) {
               $query->where('custodians.id', $custodianId);
           })
+          ->withCount('projectUsers')
           ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         if ($projects) {

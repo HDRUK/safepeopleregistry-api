@@ -745,7 +745,10 @@ class UserController extends Controller
             ->pluck('project_id')
             ->toArray();
 
-        $projects = Project::whereIn('id', $projectIds)->get();
+        $projects = Project::whereIn('id', $projectIds)
+            ->withCount('projectUsers')
+            ->with('organisations')
+            ->paginate((int)$this->getSystemConfig('PER_PAGE'));;
         return $this->OKResponse($projects);
     }
 
