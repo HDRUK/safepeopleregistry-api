@@ -6,6 +6,7 @@ use Http;
 use RegistryManagementController as RMC;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\User;
+use App\Models\State;
 use App\Models\Registry;
 use App\Models\Affiliation;
 use Database\Seeders\EmailTemplatesSeeder;
@@ -217,6 +218,7 @@ class UserTest extends TestCase
                         'pending_invites',
                         'organisation_id',
                         'departments',
+                        'model_state',
                     ],
                 ]
             ],
@@ -552,5 +554,52 @@ class UserTest extends TestCase
         $this->assertNotNull($content[0]['email']);
         $this->assertNotNull($content[0]['organisation_id']);
         $this->assertTrue($content[0]['organisation_id'] !== null && $content[0]['organisation_id'] > 0);
+    }
+
+    public function test_the_application_can_filter_users_based_on_state(): void
+    {
+        // First set a user to a pending state
+        $user = User::where('user_group', 'USERS')->first();
+        $user->setState(State::STATE_PENDING);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . '?filter=pending'
+        );
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'message',
+            'data' => [
+                'current_page',
+                'data' => [
+                    '*' => [
+                        'id',
+                        'created_at',
+                        'updated_at',
+                        'first_name',
+                        'last_name',
+                        'email',
+                        'registry_id',
+                        'user_group',
+                        'consent_scrape',
+                        'orc_id',
+                        'unclaimed',
+                        'feed_source',
+                        'permissions',
+                        'registry',
+                        'pending_invites',
+                        'organisation_id',
+                        'departments',
+                        'model_state',
+                    ],
+                ]
+            ],
+        ]);
+
+        $content = $response->decodeResponseJson();
+        $this->assertTrue($content['data']['data'][0]['email'] === $user->email);
+        $this->assertTrue($user->getState() === State::STATE_PENDING);
     }
 }

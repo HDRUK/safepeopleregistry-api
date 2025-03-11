@@ -9,7 +9,10 @@ use Exception;
 use RulesEngineManagementController as REMC;
 use RegistryManagementController as RMC;
 use App\Models\User;
+use App\Models\State;
 use App\Models\Registry;
+use App\Models\Project;
+use App\Models\ProjectHasUser;
 use App\Models\UserHasCustodianApproval;
 use App\Models\UserHasCustodianPermission;
 use App\Models\UserHasDepartments;
@@ -82,16 +85,18 @@ class UserController extends Controller
     public function index(Request $request): JsonResponse
     {
         $users = User::searchViaRequest()
+            ->filterByState()
             ->with([
-            'permissions',
-            'registry',
-            'registry.files',
-            'pendingInvites',
-            'organisation',
-            'departments',
-            'registry.education',
-            'registry.trainings',
-        ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
+                'permissions',
+                'registry',
+                'registry.files',
+                'pendingInvites',
+                'organisation',
+                'departments',
+                'registry.education',
+                'registry.trainings',
+                'modelState'
+            ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return response()->json(
             [
@@ -178,6 +183,7 @@ class UserController extends Controller
      *                  @OA\Property(property="location", type="string", example="United Kingdom"),
      *                  @OA\Property(property="t_and_c_agreed", type="boolean", example="true"),
      *                  @OA\Property(property="t_and_c_agreement_date", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="status", type="string", example="registered")
      *              )
      *          ),
      *      ),
@@ -271,6 +277,7 @@ class UserController extends Controller
      *                  @OA\Property(property="organisation_id", type="integer", example="123"),
      *                  @OA\Property(property="orcid_scanning", type="integer", example="1"),
      *                  @OA\Property(property="orcid_scanning_completed_at", type="string", example="2024-02-04 12:01:00"),
+     *                  @OA\Property(property="status", type="string", example="registered")
      *              )
      *          ),
      *      ),
@@ -420,6 +427,7 @@ class UserController extends Controller
      *                  @OA\Property(property="orcid_scanning_completed_at", type="string", example="2024-02-04 12:01:00"),
      *                  @OA\Property(property="t_and_c_agreed", type="boolean", example="true"),
      *                  @OA\Property(property="t_and_c_agreement_date", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="status", type="string", example="registered")
      *              )
      *          ),
      *      ),
@@ -545,6 +553,7 @@ class UserController extends Controller
      *                  @OA\Property(property="location", type="string", example="United Kingdom"),
      *                  @OA\Property(property="t_and_c_agreed", type="boolean", example="true"),
      *                  @OA\Property(property="t_and_c_agreement_date", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="status", type="string", example="registered")
      *              )
      *          ),
      *      ),
@@ -726,6 +735,18 @@ class UserController extends Controller
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
+    }
+
+    public function userProjects(Request $request, int $id): JsonResponse
+    {
+        $user = User::with('registry')->findOrFail($id);
+
+        $projectIds = ProjectHasUser::where('user_digital_ident', $user->registry->digi_ident)
+            ->pluck('project_id')
+            ->toArray();
+
+        $projects = Project::whereIn('id', $projectIds)->get();
+        return $this->OKResponse($projects);
     }
 
     public function fakeEndpointForTesting(Request $request): JsonResponse

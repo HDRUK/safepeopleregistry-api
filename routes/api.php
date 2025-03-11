@@ -71,6 +71,7 @@ Route::middleware('api')->post('v1/users/permissions', [PermissionController::cl
 Route::middleware('api')->post('v1/users/change-password/{userId}', [AuthController::class, 'changePassword']);
 Route::middleware('api')->post('v1/users/validate', [UserController::class, 'validateUserRequest']);
 Route::middleware('api')->post('v1/users/search_affiliations', [UserController::class, 'searchUsersByNameAndProfessionalEmail']);
+Route::middleware('api')->get('v1/users/{id}/projects', [UserController::class, 'userProjects']);
 
 Route::middleware('api')->get('v1/users/{id}/notifications', [NotificationController::class, 'getUserNotifications']);
 Route::middleware('api')->get('v1/users/{id}/notifications/count', [NotificationController::class, 'getNotificationCounts']);
@@ -144,6 +145,8 @@ Route::middleware('api')->post('v1/projects', [ProjectController::class, 'store'
 Route::middleware('api')->put('v1/projects/{id}', [ProjectController::class, 'update']);
 Route::middleware('api')->patch('v1/projects/{id}', [ProjectController::class, 'edit']);
 Route::middleware('api')->delete('v1/projects/{id}', [ProjectController::class, 'destroy']);
+Route::middleware('api')->put('v1/projects/{projectId}/users/{registryId}/primary_contact', [ProjectController::class, 'makePrimaryContact']);
+Route::middleware('api')->delete('v1/projects/{projectId}/users/{registryId}', [ProjectController::class, 'deleteUserFromProject']);
 
 Route::middleware('api')->get('v1/registries', [RegistryController::class, 'index']);
 Route::middleware('api')->get('v1/registries/{id}', [RegistryController::class, 'show']);

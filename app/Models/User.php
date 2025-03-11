@@ -5,14 +5,18 @@ namespace App\Models;
 use DB;
 use App\Observers\UserObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Traits\SearchManager;
 use App\Traits\ActionManager;
+use App\Traits\StateWorkflow;
+use App\Traits\FilterManager;
 
 /**
  * App\Models\User
@@ -116,6 +120,8 @@ class User extends Authenticatable
     use Notifiable;
     use SearchManager;
     use ActionManager;
+    use StateWorkflow;
+    use FilterManager;
 
     public const GROUP_USERS = 'USERS';
     public const GROUP_ORGANISATIONS = 'ORGANISATIONS';
@@ -126,6 +132,9 @@ class User extends Authenticatable
     public const GROUP_KC_ORGANISATIONS = '\Organisations';
     public const GROUP_KC_CUSTODIANS = '\Custodians';
     public const GROUP_KC_ADMINS = '\Admins';
+
+    public const STATUS_INVITED = 'invited';
+    public const STATUS_REGISTERED = 'registered';
 
     /**
      * The attributes that are mass assignable.
@@ -205,6 +214,15 @@ class User extends Authenticatable
         'orcid_scanning' => 'boolean',
     ];
 
+    protected $appends = ['status'];
+
+    public function status(): Attribute
+    {
+        return new Attribute(
+            get: fn () => $this->unclaimed === 1 ? self::STATUS_INVITED : self::STATUS_REGISTERED
+        );
+    }
+
     public function permissions(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -260,6 +278,11 @@ class User extends Authenticatable
             Department::class,
             'user_has_departments'
         );
+    }
+
+    public function modelState(): MorphOne
+    {
+        return $this->morphOne(ModelState::class, 'stateable');
     }
 
     public static function searchByEmail(string $email): \stdClass|null
