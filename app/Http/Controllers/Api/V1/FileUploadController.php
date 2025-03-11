@@ -15,6 +15,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
+use Illuminate\Support\Facades\Storage;
 
 class FileUploadController extends Controller
 {
@@ -134,23 +135,24 @@ class FileUploadController extends Controller
             $filePath = $file->path;
             $fileSystem = env('SCANNING_FILESYSTEM_DISK', 'local_scan');
 
-            if (!$fileSystem == 'local_scan') {
+            if ($fileSystem !== 'local_scan') {
                 return $this->NotImplementedResponse();
             }
-            $fullPath = storage_path("app/public/scanned/{$filePath}");
 
-            if (!file_exists($fullPath)) {
+            $scannedFileSystem = 'local_scan.scanned';
+
+            if (!Storage::disk($scannedFileSystem)->exists($filePath)) {
                 return $this->NotFoundResponse();
             }
 
             $headers = [
                'Access-Control-Expose-Headers' => 'Content-Disposition'
             ];
-            return response()->download($fullPath, $file->name, $headers);
+            return Storage::disk($scannedFileSystem)->download($filePath, $file->name, $headers);
 
 
         } catch (Exception $e) {
-            return $this->ErrorResponse();
+            return $this->ErrorResponse($e->getMessage());
 
         }
     }
