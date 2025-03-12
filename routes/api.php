@@ -141,6 +141,7 @@ Route::middleware('api')->get('v1/projects', [ProjectController::class, 'index']
 Route::middleware('api')->get('v1/projects/{id}', [ProjectController::class, 'show']);
 Route::middleware('api')->get('v1/projects/user/{registryId}/approved', [ProjectController::class, 'getApprovedProjects']);
 Route::middleware('api')->get('v1/projects/{id}/users', [ProjectController::class, 'getProjectUsers']);
+Route::middleware('api')->get('v1/projects/{id}/users/filter', [ProjectController::class, 'getProjectUsersWithFiltering']);
 Route::middleware('api')->post('v1/projects', [ProjectController::class, 'store']);
 Route::middleware('api')->put('v1/projects/{id}', [ProjectController::class, 'update']);
 Route::middleware('api')->patch('v1/projects/{id}', [ProjectController::class, 'edit']);

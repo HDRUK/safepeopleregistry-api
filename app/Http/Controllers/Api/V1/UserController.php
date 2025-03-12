@@ -9,7 +9,6 @@ use Exception;
 use RulesEngineManagementController as REMC;
 use RegistryManagementController as RMC;
 use App\Models\User;
-use App\Models\State;
 use App\Models\Registry;
 use App\Models\Project;
 use App\Models\ProjectHasUser;
