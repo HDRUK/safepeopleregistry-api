@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1f42fd6ea31e5a5a95ccbbbff1505a3c",
+    "content-hash": "4c56516310b416f974266a525723867b",
     "packages": [
         {
             "name": "brick/math",
@@ -5218,16 +5218,16 @@
         },
         {
             "name": "swagger-api/swagger-ui",
-            "version": "v5.20.0",
+            "version": "v5.20.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/swagger-api/swagger-ui.git",
-                "reference": "d9887d6320c73a534edc4bc26242ec33d5f2657d"
+                "reference": "e3043f9380a62022e7249890ea918096578c4d78"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/swagger-api/swagger-ui/zipball/d9887d6320c73a534edc4bc26242ec33d5f2657d",
-                "reference": "d9887d6320c73a534edc4bc26242ec33d5f2657d",
+                "url": "https://api.github.com/repos/swagger-api/swagger-ui/zipball/e3043f9380a62022e7249890ea918096578c4d78",
+                "reference": "e3043f9380a62022e7249890ea918096578c4d78",
                 "shasum": ""
             },
             "type": "library",
@@ -5273,93 +5273,9 @@
             ],
             "support": {
                 "issues": "https://github.com/swagger-api/swagger-ui/issues",
-                "source": "https://github.com/swagger-api/swagger-ui/tree/v5.20.0"
+                "source": "https://github.com/swagger-api/swagger-ui/tree/v5.20.1"
             },
-            "time": "2025-02-27T10:36:24+00:00"
-        },
-        {
-            "name": "swooletw/laravel-swoole",
-            "version": "v2.13.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/swooletw/laravel-swoole.git",
-                "reference": "55ff29fd68b404e4820851e0998443364c18f0f1"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/swooletw/laravel-swoole/zipball/55ff29fd68b404e4820851e0998443364c18f0f1",
-                "reference": "55ff29fd68b404e4820851e0998443364c18f0f1",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/console": "~5.4|~6.0|~7.0|~8.0|~9.0|~10.0",
-                "illuminate/contracts": "~5.4|~6.0|~7.0|~8.0|~9.0|~10.0",
-                "illuminate/http": "~5.4|~6.0|~7.0|~8.0|~9.0|~10.0",
-                "illuminate/support": "~5.4|~6.0|~7.0|~8.0|~9.0|~10.0",
-                "php": "^7.2|^8.0|^8.1",
-                "predis/predis": "^1.1"
-            },
-            "require-dev": {
-                "codedungeon/phpunit-result-printer": "^0.31.0",
-                "laravel/lumen-framework": "~5.4|~6.0|~7.0|~8.0|~9.0|~10.0",
-                "mockery/mockery": "~1.5",
-                "php-coveralls/php-coveralls": "^2.1",
-                "php-mock/php-mock": "^2.3",
-                "phpunit/php-code-coverage": "^10",
-                "phpunit/phpunit": "^10",
-                "swoole/ide-helper": "@dev"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "SwooleTW\\Http\\LaravelServiceProvider"
-                    ],
-                    "aliases": {
-                        "Server": "SwooleTW\\Http\\Server\\Facades\\Server",
-                        "Table": "SwooleTW\\Http\\Server\\Facades\\Table",
-                        "Room": "SwooleTW\\Http\\Websocket\\Facades\\Room",
-                        "Websocket": "SwooleTW\\Http\\Websocket\\Facades\\Websocket"
-                    }
-                }
-            },
-            "autoload": {
-                "files": [
-                    "src/Server/helpers.php"
-                ],
-                "psr-4": {
-                    "SwooleTW\\Http\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Albert Chen",
-                    "email": "albert@unisharp.com"
-                },
-                {
-                    "name": "Huang Yi",
-                    "email": "coodeer@163.com"
-                }
-            ],
-            "description": "High performance HTTP server based on Swoole. Speed up your Laravel and Lumen applications.",
-            "keywords": [
-                "http",
-                "laravel",
-                "lumen",
-                "performance",
-                "server",
-                "swoole"
-            ],
-            "support": {
-                "issues": "https://github.com/swooletw/laravel-swoole/issues",
-                "source": "https://github.com/swooletw/laravel-swoole/tree/v2.13.0"
-            },
-            "abandoned": true,
-            "time": "2023-04-13T18:00:02+00:00"
+            "time": "2025-03-10T10:57:35+00:00"
         },
         {
             "name": "symfony/console",
@@ -8522,16 +8438,16 @@
         },
         {
             "name": "laravel/pint",
-            "version": "v1.21.0",
+            "version": "v1.21.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/pint.git",
-                "reference": "531fa0871fbde719c51b12afa3a443b8f4e4b425"
+                "reference": "c44bffbb2334e90fba560933c45948fa4a3f3e86"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/pint/zipball/531fa0871fbde719c51b12afa3a443b8f4e4b425",
-                "reference": "531fa0871fbde719c51b12afa3a443b8f4e4b425",
+                "url": "https://api.github.com/repos/laravel/pint/zipball/c44bffbb2334e90fba560933c45948fa4a3f3e86",
+                "reference": "c44bffbb2334e90fba560933c45948fa4a3f3e86",
                 "shasum": ""
             },
             "require": {
@@ -8542,9 +8458,9 @@
                 "php": "^8.2.0"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.68.5",
-                "illuminate/view": "^11.42.0",
-                "larastan/larastan": "^3.0.4",
+                "friendsofphp/php-cs-fixer": "^3.70.2",
+                "illuminate/view": "^11.44.1",
+                "larastan/larastan": "^3.1.0",
                 "laravel-zero/framework": "^11.36.1",
                 "mockery/mockery": "^1.6.12",
                 "nunomaduro/termwind": "^2.3",
@@ -8584,7 +8500,7 @@
                 "issues": "https://github.com/laravel/pint/issues",
                 "source": "https://github.com/laravel/pint"
             },
-            "time": "2025-02-18T03:18:57+00:00"
+            "time": "2025-03-11T03:22:21+00:00"
         },
         {
             "name": "laravel/sail",
@@ -9569,16 +9485,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.12.20",
+            "version": "1.12.21",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "3240b1972042c7f73cf1045e879ea5bd5f761bb7"
+                "reference": "14276fdef70575106a3392a4ed553c06a984df28"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/3240b1972042c7f73cf1045e879ea5bd5f761bb7",
-                "reference": "3240b1972042c7f73cf1045e879ea5bd5f761bb7",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/14276fdef70575106a3392a4ed553c06a984df28",
+                "reference": "14276fdef70575106a3392a4ed553c06a984df28",
                 "shasum": ""
             },
             "require": {
@@ -9623,7 +9539,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-03-05T13:37:43+00:00"
+            "time": "2025-03-09T09:24:50+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -11455,7 +11371,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "hdruk/laravel-mjml": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

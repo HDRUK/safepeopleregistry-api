@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Http\Request;
-use SwooleTW\Http\Websocket\Facades\Websocket;
 
 /*
 |--------------------------------------------------------------------------

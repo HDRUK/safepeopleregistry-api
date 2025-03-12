@@ -9,7 +9,7 @@
         "darkaonline/l5-swagger": "^8.5",
         "doctrine/dbal": "^3.8",
         "guzzlehttp/guzzle": "^7.2",
-        "hdruk/laravel-mjml": "*",
+        "hdruk/laravel-mjml": "dev-main",
         "laravel/framework": "^10.44",
         "laravel/horizon": "^5.29",
         "laravel/octane": "^2.5",
@@ -21,8 +21,7 @@
         "seshac/otp-generator": "^0.0.8",
         "socialiteproviders/keycloak": "^5.3",
         "socialiteproviders/manager": "^4.5",
-        "spatie/laravel-webhook-server": "^3.8",
-        "swooletw/laravel-swoole": "^2.13"
+        "spatie/laravel-webhook-server": "^3.8"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
