@@ -9,7 +9,10 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use App\Models\ActionLog;
 use App\Models\User;
+use App\Models\Organisation;
+use App\Models\Custodian;
 use App\Notifications\ActionPendingNotification;
+use Carbon\Carbon;
 
 class UpdateActionNotifications implements ShouldQueue
 {
@@ -17,6 +20,8 @@ class UpdateActionNotifications implements ShouldQueue
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
+
+    protected $chunkSize = 50;
 
     /**
      * Create a new job instance.
@@ -31,16 +36,28 @@ class UpdateActionNotifications implements ShouldQueue
      */
     public function handle(): void
     {
-        User::chunk(100, function ($users) {
-            foreach ($users as $user) {
-                $this->processUserNotifications($user);
-            }
-        });
+        $this->processUsers(User::GROUP_USERS, User::query());
+        $this->processUsers(User::GROUP_ORGANISATIONS, User::where("is_org_admin", 1));
+        $this->processUsers(User::GROUP_CUSTODIANS, User::query());
     }
-    private function processUserNotifications(User $user): void
+
+    private function processUsers(string $group, $query): void
     {
-        $incompleteActions = ActionLog::where('entity_type', User::class)
-            ->where('entity_id', $user->id)
+        $query->where("user_group", $group)
+            ->chunk($this->chunkSize, function ($users) use ($group) {
+                foreach ($users as $user) {
+                    $this->processNotifications($user, $group);
+                }
+            });
+    }
+
+    private function processNotifications(User $user, string $group): void
+    {
+        $entityType = $this->getEntityType($group);
+        $entityId = $this->getEntityId($user, $group);
+
+        $incompleteActions = ActionLog::where('entity_type', $entityType)
+            ->where('entity_id', $entityId)
             ->whereNull('completed_at')
             ->get();
 
@@ -49,12 +66,29 @@ class UpdateActionNotifications implements ShouldQueue
             ->first();
 
         if ($incompleteActions->isNotEmpty()) {
-            if ($existingNotification) {
-                $existingNotification->delete();
-            }
-            $user->notify(new ActionPendingNotification($incompleteActions));
+            $existingNotification?->delete();
+            $user->notify(new ActionPendingNotification($group, $incompleteActions));
         } elseif ($existingNotification) {
-            $existingNotification->update(['read_at' => now()]);
+            $existingNotification->update(['read_at' => Carbon::now()]);
         }
     }
+
+    private function getEntityType(string $group): string
+    {
+        return match ($group) {
+            User::GROUP_USERS => User::class,
+            User::GROUP_ORGANISATIONS => Organisation::class,
+            User::GROUP_CUSTODIANS => Custodian::class,
+        };
+    }
+
+    private function getEntityId(User $user, string $group): int
+    {
+        return match ($group) {
+            User::GROUP_USERS => $user->id,
+            User::GROUP_ORGANISATIONS => $user->organisation_id,
+            User::GROUP_CUSTODIANS => $user->custodian_id ?? $user->custodian_user->custodian_id,
+        };
+    }
+
 }
