@@ -33,42 +33,28 @@ class UpdateActionNotifications implements ShouldQueue
     {
         User::chunk(100, function ($users) {
             foreach ($users as $user) {
-                $query = ActionLog::where('entity_type', User::class)
-                                  ->where('entity_id', $user->id);
-
-                // Check if actions are missing
-                $pendingActions = [
-                    'profile_completed' => !$query->clone()
-                                   ->where('action', 'profile_completed')
-                                   ->exists(),
-                    'affiliations_updated' => !$query->clone()
-                                   ->where('action', 'affiliations_updated')
-                                   ->exists(),
-                ];
-
-                $hasPending = in_array(true, $pendingActions, true);
-
-                $existingNotification = $user->notifications()
-                                         ->where('type', ActionPendingNotification::class)
-                                         ->first();
-
-                if ($hasPending) {
-                    if ($existingNotification) {
-                        $existingNotification->update([
-                            'read_at' => null,
-                            'updated_at' => now(),
-                        ]);
-                    } else {
-                        $user->notify(new ActionPendingNotification());
-                    }
-                } else {
-                    if ($existingNotification) {
-                        $existingNotification->update([
-                            'read_at' => now(),
-                        ]);
-                    }
-                }
+                $this->processUserNotifications($user);
             }
         });
+    }
+    private function processUserNotifications(User $user): void
+    {
+        $incompleteActions = ActionLog::where('entity_type', User::class)
+            ->where('entity_id', $user->id)
+            ->whereNull('completed_at')
+            ->get();
+
+        $existingNotification = $user->notifications()
+            ->where('type', ActionPendingNotification::class)
+            ->first();
+
+        if ($incompleteActions->isNotEmpty()) {
+            if ($existingNotification) {
+                $existingNotification->delete();
+            }
+            $user->notify(new ActionPendingNotification($incompleteActions));
+        } elseif ($existingNotification) {
+            $existingNotification->update(['read_at' => now()]);
+        }
     }
 }

@@ -4,19 +4,19 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
-use App\Models\ActionLog;
-use App\Enums\ActionLogType;
 
 class ActionPendingNotification extends Notification
 {
     use Queueable;
 
+    protected mixed $actions = null;
+
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+    public function __construct($actions)
     {
-        //
+        $this->actions = $actions;
     }
 
     public function via($notifiable)
@@ -28,9 +28,7 @@ class ActionPendingNotification extends Notification
     {
         return [
             'message' => 'You have incomplete profile actions',
-            'actions' => ActionLog::where('entity_type', ActionLogType::USER)
-                            ->where('entity_id', $notifiable->id)
-                            ->get()
+            'actions' => $this->actions
         ];
     }
 
