@@ -575,15 +575,15 @@ class ProjectController extends Controller
 
             $digi_ident = optional(Registry::where('id', $registryId)->first())->digi_ident;
 
-            if(isset($digi_ident)) {
+            if (isset($digi_ident)) {
                 $projectHasUser = ProjectHasUser::where('project_id', $projectId)->where('user_digital_ident', $digi_ident);
 
-                if($projectHasUser->first() !== null) {
+                if ($projectHasUser->first() !== null) {
                     $projectHasUser->update([
                         'primary_contact' => $input['primary_contact']
                     ]);
-    
-    
+
+
                     $project = Project::findOrFail($projectId);
                     $projectUsers = $project->projectUsers()->with([
                         'registry.user',
@@ -591,7 +591,7 @@ class ProjectController extends Controller
                     ])->whereHas('registry.user', function ($query) use ($digi_ident) {
                         $query->where('digi_ident', $digi_ident);
                     })->first();
-        
+
                     return $this->OKResponse($projectUsers);
                 }
             }
