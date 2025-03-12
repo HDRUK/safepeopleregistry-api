@@ -29,11 +29,15 @@ use App\Http\Controllers\Api\V1\EducationController;
 use App\Http\Controllers\Api\V1\EmailTemplateController;
 use App\Http\Controllers\Api\V1\SectorController;
 use App\Http\Controllers\Api\V1\NotificationController;
+use App\Http\Controllers\Api\V1\ActionLogController;
+use App\Http\Controllers\Api\V1\ValidationLogController;
+use App\Http\Controllers\Api\V1\ValidationLogCommentController;
 use App\Http\Controllers\Api\V1\ProfessionalRegistrationController;
 use App\Http\Controllers\Api\V1\DepartmentController;
 use App\Http\Controllers\Api\V1\WebhookController;
 use App\Http\Controllers\Api\V1\CustodianModelConfigController;
 use App\Http\Controllers\Api\V1\ProjectDetailController;
+use App\Http\Controllers\Api\V1\ProjectRoleController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -66,6 +70,8 @@ Route::middleware('api')->post('v1/users/invite', [UserController::class, 'invit
 Route::middleware('api')->post('v1/users/permissions', [PermissionController::class, 'assignUserPermissionsToFrom']);
 Route::middleware('api')->post('v1/users/change-password/{userId}', [AuthController::class, 'changePassword']);
 Route::middleware('api')->post('v1/users/validate', [UserController::class, 'validateUserRequest']);
+Route::middleware('api')->post('v1/users/search_affiliations', [UserController::class, 'searchUsersByNameAndProfessionalEmail']);
+Route::middleware('api')->get('v1/users/{id}/projects', [UserController::class, 'userProjects']);
 
 Route::middleware('api')->get('v1/users/{id}/notifications', [NotificationController::class, 'getUserNotifications']);
 Route::middleware('api')->get('v1/users/{id}/notifications/count', [NotificationController::class, 'getNotificationCounts']);
@@ -73,13 +79,31 @@ Route::middleware('api')->patch('v1/users/{id}/notifications/read', [Notificatio
 Route::middleware('api')->patch('v1/users/{userId}/notifications/{notificationId}/read', [NotificationController::class, 'markUserNotificationAsRead']);
 Route::middleware('api')->patch('v1/users/{userId}/notifications/{notificationId}/unread', [NotificationController::class, 'markUserNotificationAsUnread']);
 
+Route::middleware('api')->get('v1/{entity}/{id}/action_log', [ActionLogController::class, 'getEntityActionLog']);
+Route::middleware('api')->put('v1/action_log/{id}', [ActionLogController::class, 'update']);
+
+Route::middleware('api')->get(
+    'v1/custodians/{custodianId}/projects/{projectId}/registries/{registryId}/validation_logs',
+    [ValidationLogController::class, 'getCustodianProjectUserValidationLogs']
+);
+
+Route::middleware('api')->get('v1/validation_logs/{id}', [ValidationLogController::class, 'index']);
+Route::middleware('api')->get('v1/validation_logs/{id}/commments', [ValidationLogController::class, 'comments']);
+Route::middleware('api')->put('v1/validation_logs/{id}', [ValidationLogController::class, 'update']);
+
+
+Route::middleware('api')->get('v1/validation_log_comments/{id}', [ValidationLogCommentController::class, 'show']);
+Route::middleware('api')->post('v1/validation_log_comments', [ValidationLogCommentController::class, 'store']);
+Route::middleware('api')->put('v1/validation_log_comments/{id}', [ValidationLogCommentController::class, 'update']);
+Route::middleware('api')->delete('v1/validation_log_comments/{id}', [ValidationLogCommentController::class, 'destroy']);
+
+
 
 Route::middleware('api')->get('v1/training', [TrainingController::class, 'index']);
 Route::middleware('api')->get('v1/training/registry/{registryId}', [TrainingController::class, 'indexByRegistryId']);
 Route::middleware('api')->get('v1/training/{id}', [TrainingController::class, 'show']);
 Route::middleware('api')->post('v1/training', [TrainingController::class, 'store']);
 Route::middleware('api')->put('v1/training/{id}', [TrainingController::class, 'update']);
-Route::middleware('api')->patch('v1/training/{id}', [TrainingController::class, 'edit']);
 Route::middleware('api')->delete('v1/training/{id}', [TrainingController::class, 'destroy']);
 
 Route::middleware('api')->get('v1/custodians', [CustodianController::class, 'index']);
@@ -121,6 +145,8 @@ Route::middleware('api')->post('v1/projects', [ProjectController::class, 'store'
 Route::middleware('api')->put('v1/projects/{id}', [ProjectController::class, 'update']);
 Route::middleware('api')->patch('v1/projects/{id}', [ProjectController::class, 'edit']);
 Route::middleware('api')->delete('v1/projects/{id}', [ProjectController::class, 'destroy']);
+Route::middleware('api')->put('v1/projects/{projectId}/users/{registryId}/primary_contact', [ProjectController::class, 'makePrimaryContact']);
+Route::middleware('api')->delete('v1/projects/{projectId}/users/{registryId}', [ProjectController::class, 'deleteUserFromProject']);
 
 Route::middleware('api')->get('v1/registries', [RegistryController::class, 'index']);
 Route::middleware('api')->get('v1/registries/{id}', [RegistryController::class, 'show']);
@@ -163,12 +189,12 @@ Route::middleware('api')->get('v1/organisations/{id}/users', [OrganisationContro
 Route::middleware('api')->get('v1/organisations/{id}/delegates', [OrganisationController::class, 'getDelegates']);
 Route::middleware('api')->get('v1/organisations/{id}/registries', [OrganisationController::class, 'getRegistries']);
 
-Route::middleware('api')->get('v1/organisation_delegates', [OrganisationDelegatesController::class, 'index']);
-Route::middleware('api')->get('v1/organisation_delegates/{id}', [OrganisationDelegatesController::class, 'show']);
-Route::middleware('api')->post('v1/organisation_delegates', [OrganisationDelegatesController::class, 'store']);
-Route::middleware('api')->put('v1/organisation_delegates/{id}', [OrganisationDelegatesController::class, 'update']);
-Route::middleware('api')->patch('v1/organisation_delegates/{id}', [OrganisationDelegatesController::class, 'edit']);
-Route::middleware('api')->delete('v1/organisation_delegates/{id}', [OrganisationDelegatesController::class, 'destroy']);
+// Route::middleware('api')->get('v1/organisation_delegates', [OrganisationDelegatesController::class, 'index']);
+// Route::middleware('api')->get('v1/organisation_delegates/{id}', [OrganisationDelegatesController::class, 'show']);
+// Route::middleware('api')->post('v1/organisation_delegates', [OrganisationDelegatesController::class, 'store']);
+// Route::middleware('api')->put('v1/organisation_delegates/{id}', [OrganisationDelegatesController::class, 'update']);
+// Route::middleware('api')->patch('v1/organisation_delegates/{id}', [OrganisationDelegatesController::class, 'edit']);
+// Route::middleware('api')->delete('v1/organisation_delegates/{id}', [OrganisationDelegatesController::class, 'destroy']);
 
 
 Route::middleware('api')->get('v1/organisations/{id}/projects/present', [OrganisationController::class, 'presentProjects']);
@@ -256,6 +282,11 @@ Route::middleware('api')->post('v1/project_details', [ProjectDetailController::c
 Route::middleware('api')->put('v1/project_details/{id}', [ProjectDetailController::class, 'update']);
 Route::middleware('api')->delete('v1/project_details/{id}', [ProjectDetailController::class, 'destroy']);
 Route::middleware('api')->post('v1/project_details/query_gateway_dur', [ProjectDetailController::class, 'queryGatewayDurByProjectID']);
+
+Route::middleware('api')->get('v1/project_roles', [ProjectRoleController::class, 'index']);
+Route::middleware('api')->get('v1/project_roles/{id}', [ProjectRoleController::class, 'show']);
+Route::middleware('api')->post('v1/project_roles', [ProjectRoleController::class, 'store']);
+Route::middleware('api')->put('v1/project_roles/{id}', [ProjectRoleController::class, 'update']);
 
 Route::get('v1/system_config', [SystemConfigController::class, 'index']);
 Route::post('v1/system_config', [SystemConfigController::class, 'store']);

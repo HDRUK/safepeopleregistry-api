@@ -319,4 +319,107 @@ class ProjectTest extends TestCase
         // job for the webhook was created
         Queue::assertPushed(CallWebhookJob::class);
     }
+
+    public function test_the_application_can_delete_users_from_projects(): void
+    {
+        $registry = Registry::first();
+        $project = Project::first();
+
+        ProjectHasUser::create([
+            'project_id' => $project->id,
+            'user_digital_ident' => $registry->digi_ident,
+            'project_role_id' => 7,
+        ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'DELETE',
+                self::TEST_URL . '/' . $project->id . '/users/' . $registry->id
+            );
+
+        $response->assertStatus(200);
+    }
+
+    public function test_the_application_fails_deleting_users_from_projects(): void
+    {
+        $registry = Registry::first();
+        $project = Project::first();
+
+        ProjectHasUser::create([
+            'project_id' => $project->id,
+            'user_digital_ident' => $registry->digi_ident,
+            'project_role_id' => 7,
+        ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'DELETE',
+                self::TEST_URL . '/' . $project->id . '/users/99999999'
+            );
+
+        $response->assertStatus(404);
+    }
+
+    public function test_the_application_can_make_user_primary_contact(): void
+    {
+        $registry = Registry::first();
+        $project = Project::first();
+
+        ProjectHasUser::create([
+            'project_id' => $project->id,
+            'user_digital_ident' => $registry->digi_ident,
+            'project_role_id' => 7,
+        ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . '/' . $project->id . '/users/' . $registry->id . '/primary_contact',
+                ["primary_contact" => 1]
+            );
+
+        $response->assertStatus(200);
+    }
+
+    public function test_the_application_fails_making_user_primary_contact_when_project_does_not_have_user(): void
+    {
+        $registry = Registry::first();
+        $project = Project::first();
+
+        ProjectHasUser::create([
+            'project_id' => 0,
+            'user_digital_ident' => $registry->digi_ident,
+            'project_role_id' => 7,
+        ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . '/' . $project->id . '/users/' . $registry->id . '/primary_contact',
+                ["primary_contact" => 1]
+            );
+
+        $response->assertStatus(404);
+    }
+
+    public function test_the_application_fails_making_user_primary_contact(): void
+    {
+        $registry = Registry::first();
+        $project = Project::first();
+
+        ProjectHasUser::create([
+            'project_id' => $project->id,
+            'user_digital_ident' => $registry->digi_ident,
+            'project_role_id' => 7,
+        ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . '/' . $project->id . '/users/99999999/primary_contact',
+                ["primary_contact" => 1]
+            );
+
+        $response->assertStatus(404);
+    }
 }

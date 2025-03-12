@@ -2,17 +2,17 @@
 
 namespace App\Console\Commands;
 
-use Gateway;
+use App\Jobs\ONSAccreditedResearcherFetch;
 use Illuminate\Console\Command;
 
-class gatewaytest extends Command
+class onstest extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'app:gateway-test';
+    protected $signature = 'app:ons-test';
 
     /**
      * The console command description.
@@ -26,6 +26,6 @@ class gatewaytest extends Command
      */
     public function handle()
     {
-        dd(Gateway::getDataUsesByProjectID(1, 1));
+        ONSAccreditedResearcherFetch::dispatch();
     }
 }

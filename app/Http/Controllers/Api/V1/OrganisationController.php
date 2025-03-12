@@ -80,6 +80,7 @@ class OrganisationController extends Controller
 
         if (!$custodianId) {
             $organisations = Organisation::searchViaRequest()
+                ->filterByState()
                 ->applySorting()
                 ->with([
                     'departments',
@@ -173,7 +174,10 @@ class OrganisationController extends Controller
             'subsidiaries',
             'permissions',
             'approvals',
-            'files',
+            'ceExpiryEvidence',
+            'cePlusExpiryEvidence',
+            'isoExpiryEvidence',
+            'dsptkExpiryEvidence',
             'charities',
             'registries',
             'registries.user',
@@ -899,7 +903,7 @@ class OrganisationController extends Controller
                 'organisation',
                 'departments',
                 'registry.education',
-                'registry.training',
+                'registry.trainings',
             ])->where('organisation_id', $organisationId)
               ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
@@ -1180,8 +1184,10 @@ class OrganisationController extends Controller
 
     public function cleanSubsidiaries(int $organisationId)
     {
-        OrganisationHasSubsidiary::where('organisation_id', $organisationId)->delete();
-
+        // done like this to for the observer class to see the delete
+        OrganisationHasSubsidiary::where('organisation_id', $organisationId)
+            ->get()
+            ->each(fn ($ohs) => $ohs->delete());
     }
 
     public function addSubsidiary(int $organisationId, array $subsidiary)

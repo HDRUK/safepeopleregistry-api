@@ -6,6 +6,53 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\SearchManager;
 
+/**
+ * @OA\Schema(
+ *      schema="Training",
+ *      title="Training",
+ *      description="Training model",
+ *      @OA\Property(property="id",
+ *          type="integer",
+ *          example="123"
+ *      ),
+ *      @OA\Property(property="created_at",
+ *          type="string",
+ *          example="2024-02-04 12:00:00"
+ *      ),
+ *      @OA\Property(property="updated_at",
+ *          type="string",
+ *          example="2024-02-04 12:01:00"
+ *      ),
+ *      @OA\Property(property="registry_id",
+ *          type="integer",
+ *          example="1"
+ *      ),
+ *      @OA\Property(property="provider",
+ *          type="string",
+ *          example="ONS"
+ *      ),
+ *      @OA\Property(property="awarded_at",
+ *          type="string",
+ *          example="2024-02-04 12:10:00"
+ *      ),
+ *      @OA\Property(property="expires_at",
+ *          type="string",
+ *          example="2026-02-04 12:09:59"
+ *      ),
+ *      @OA\Property(property="expires_in_years",
+ *          type="integer",
+ *          example="2"
+ *      ),
+ *      @OA\Property(property="training_name",
+ *          type="string",
+ *          example="Safe Researcher Training"
+ *      ),
+ *      @OA\Property(property="pro_registration",
+ *          type="integer",
+ *          example="1"
+ *      )
+ * )
+ */
 class Training extends Model
 {
     use HasFactory;
@@ -16,7 +63,6 @@ class Training extends Model
     protected $table = 'trainings';
 
     protected $fillable = [
-        'registry_id',
         'provider',
         'awarded_at',
         'expires_at',

@@ -8,11 +8,13 @@ base_command="php artisan octane:start --host=0.0.0.0 --port=8100"
 
 if [ $APP_ENV = 'local' ] || [ $APP_ENV = 'dev' ]; then
     echo 'running in dev mode - with watch'
-    base_command="$base_command --watch"
+    # base_command="$base_command --watch"
 
-    # Completely clear down the data in local/dev envs
-    php artisan migrate:fresh
-    php artisan db:seed --class=BaseDemoSeeder
+    if [ $REBUILD_DB = 1 ]; then
+        # Completely clear down the data in local/dev envs
+        php artisan migrate:fresh
+        php artisan db:seed --class=BaseDemoSeeder
+    fi
 else
     # Only forward-facing migrations anywhere else
     php artisan migrate

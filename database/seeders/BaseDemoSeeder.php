@@ -23,6 +23,8 @@ use App\Models\ProjectHasUser;
 use App\Models\ProjectRole;
 use App\Models\ProjectHasCustodian;
 use App\Models\RegistryHasOrganisation;
+use App\Models\RegistryHasTraining;
+use App\Models\RegistryHasAffiliation;
 use App\Models\OrganisationHasDepartment;
 use App\Models\OrganisationHasCustodianApproval;
 use App\Traits\CommonFunctions;
@@ -39,6 +41,7 @@ class BaseDemoSeeder extends Seeder
     {
         $this->call([
             SectorSeeder::class,
+            StateSeeder::class,
             EntityModelTypeSeeder::class,
             EntityModelSeeder::class,
             PermissionSeeder::class,
@@ -49,7 +52,6 @@ class BaseDemoSeeder extends Seeder
             EmailTemplatesSeeder::class,
             DepartmentSeeder::class,
             WebhookEventTriggerSeeder::class,
-            // UserSeeder::class,
         ]);
 
         // --------------------------------------------------------------------------------
@@ -81,7 +83,6 @@ class BaseDemoSeeder extends Seeder
             'smb_status' => true,
             'website' => 'https://www.website1.com/',
         ]);
-
 
         OrganisationHasCustodianApproval::create([
             'organisation_id' => $org1->id,
@@ -321,6 +322,33 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'organisation_id' => $org3->id,
         ]);
 
+        $orgHDR = Organisation::create([
+            'organisation_name' => 'Health Data Research UK',
+            'address_1' => '215 Euston Road',
+            'address_2' => '',
+            'town' => 'London',
+            'county' => '',
+            'country' => 'United Kingdom',
+            'postcode' => 'NW1 2BE',
+            'lead_applicant_organisation_name' => 'Dr Junaid Azmat Bajwa',
+            'lead_applicant_email' => 'organisation.owner@hdruk.ac.uk',
+            'password' => '$2y$12$g.LfOEaJZqjcDyZ51PwGxuKT9ceoAcHE8h6YmQXc5ZKY1a5wyGjPW', // Ask LS "Flood********"
+            'organisation_unique_id' => Str::random(40),
+            'applicant_names' => 'Dr Junaid Azmat Bajwa',
+            'funders_and_sponsors' => 'UKRI, NIHR, BHF, CRUK, ESRC',
+            'sub_license_arrangements' => '...',
+            'verified' => true,
+            'dsptk_ods_code' => '',
+            'iso_27001_certified' => true,
+            'ce_certified' => true,
+            'ce_plus_certified' => false,
+            'companies_house_no' => '10887014',
+            'sector_id' => 5, // Charity/Non-profit
+            'ror_id' => '04rtjaj74',
+            'smb_status' => true,
+            'website' => 'https://www.hdruk.ac.uk/',
+        ]);
+
 
         // --------------------------------------------------------------------------------
         // End
@@ -512,6 +540,20 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                     'idvt_errors' => null,
                     'idvt_completed_at' => null,
                 ],
+                'affiliations' => [
+                    [
+                        'organisation_id' => $org1->id,
+                        'member_id' => Str::uuid(),
+                        'relationship' => 'employee',
+                        'from' => Carbon::now()->subYears(6)->toDateString(),
+                        'to' => '',
+                        'department' => 'Research & Development',
+                        'role' => 'Postdoc',
+                        'email' => fake()->email(),
+                        'ror' => $this->generateRorID(),
+                        'registry_id' => -1,
+                    ]
+                ],
             ],
             [
                 'first_name' => 'Bill',
@@ -538,6 +580,20 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                     'idvt_errors' => null,
                     'idvt_completed_at' => Carbon::now(),
                 ],
+                'affiliations' => [
+                    [
+                        'organisation_id' => $org1->id,
+                        'member_id' => Str::uuid(),
+                        'relationship' => 'employee',
+                        'from' => Carbon::now()->subYears(6)->toDateString(),
+                        'to' => '',
+                        'department' => 'Market Research and Analysis',
+                        'role' => 'Data Engineer',
+                        'email' => fake()->email(),
+                        'ror' => $this->generateRorID(),
+                        'registry_id' => -1,
+                    ]
+                ],
             ],
             [
                 'first_name' => 'Annie',
@@ -563,6 +619,20 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                     'idvt_result_perc' => 78.0,
                     'idvt_errors' => null,
                     'idvt_completed_at' => Carbon::now(),
+                ],
+                'affiliations' => [
+                    [
+                        'organisation_id' => $org1->id,
+                        'member_id' => Str::uuid(),
+                        'relationship' => 'employee',
+                        'from' => Carbon::now()->subYears(6)->toDateString(),
+                        'to' => '',
+                        'department' => 'Supply Chain and Logistics',
+                        'role' => 'Student',
+                        'email' => fake()->email(),
+                        'ror' => $this->generateRorID(),
+                        'registry_id' => -1,
+                    ]
                 ],
             ],
         ];
@@ -769,13 +839,8 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         // Create Affiliations for the above users
         // --------------------------------------------------------------------------------
         $this->createAffiliations($org1Researchers);
-
-        // --------------------------------------------------------------------------------
-        // Above users having affiliations between orgs
-        // --------------------------------------------------------------------------------
-        // $this->createRegistryAffiliations($org1Researchers);
-        // $this->createRegistryAffiliations($org2Researchers);
-        // $this->createRegistryAffiliations($org3Researchers);
+        $this->createAffiliations($org2Researchers);
+        $this->createAffiliations($org3Researchers);
 
         // --------------------------------------------------------------------------------
         // Link Researchers to projects
@@ -830,7 +895,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             }
 
             foreach ($u['affiliations'] as $e) {
-                Affiliation::create([
+                $aff = Affiliation::create([
                     'organisation_id' => $e['organisation_id'],
                     'member_id' => $e['member_id'],
                     'relationship' => $e['relationship'],
@@ -840,6 +905,11 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                     'role' => $e['role'],
                     'email' => $e['email'],
                     'ror' => $e['ror'],
+                    'registry_id' => $user->registry_id,
+                ]);
+
+                RegistryHasAffiliation::create([
+                    'affiliation_id' => $aff->id,
                     'registry_id' => $user->registry_id,
                 ]);
 
@@ -968,7 +1038,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 // Make up some training entries for these users
                 $trainings = [
                     [
-                        'registry_id' => $reg->id,
                         'provider' => 'UK Data Service',
                         'awarded_at' => Carbon::now()->subYears(2)->toDateString(),
                         'expires_at' => Carbon::now()->addYears(3)->toDateString(),
@@ -976,7 +1045,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                         'training_name' => 'Safe Researcher Training',
                     ],
                     [
-                        'registry_id' => $reg->id,
                         'provider' => 'Medical Research Council (MRC)',
                         'awarded_at' => Carbon::now()->subYears(2)->toDateString(),
                         'expires_at' => Carbon::now()->addYears(3)->toDateString(),
@@ -987,7 +1055,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             } else {
                 $trainings = [
                     [
-                        'registry_id' => $reg->id,
                         'provider' => 'Office of National Statistics (ONS)',
                         'awarded_at' => Carbon::now()->subYears(10)->toDateString(),
                         'expires_at' => Carbon::now()->subYears(5)->toDateString(),
@@ -999,12 +1066,16 @@ Social Media Platform’s Data Access Committee to allow access to platform data
 
             foreach ($trainings as $tr) {
                 $training = Training::create([
-                    'registry_id' => $tr['registry_id'],
                     'provider' => $tr['provider'],
                     'awarded_at' => $tr['awarded_at'],
                     'expires_at' => $tr['expires_at'],
                     'expires_in_years' => $tr['expires_in_years'],
                     'training_name' => $tr['training_name'],
+                ]);
+
+                RegistryHasTraining::create([
+                    'registry_id' => $reg->id,
+                    'training_id' => $training->id,
                 ]);
             }
         }

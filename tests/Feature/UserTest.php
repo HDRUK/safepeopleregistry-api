@@ -6,6 +6,7 @@ use Http;
 use RegistryManagementController as RMC;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\User;
+use App\Models\State;
 use App\Models\Registry;
 use App\Models\Affiliation;
 use Database\Seeders\EmailTemplatesSeeder;
@@ -15,6 +16,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
+use Carbon\Carbon;
 
 class UserTest extends TestCase
 {
@@ -208,8 +210,6 @@ class UserTest extends TestCase
                         'registry_id',
                         'user_group',
                         'consent_scrape',
-                        'profile_steps_completed',
-                        'profile_completed_at',
                         'orc_id',
                         'unclaimed',
                         'feed_source',
@@ -218,6 +218,7 @@ class UserTest extends TestCase
                         'pending_invites',
                         'organisation_id',
                         'departments',
+                        'model_state',
                     ],
                 ]
             ],
@@ -265,14 +266,14 @@ class UserTest extends TestCase
                 'POST',
                 self::TEST_URL,
                 [
-                'first_name' => fake()->firstname(),
-                'last_name' => fake()->lastname(),
-                'email' => fake()->email(),
-                'provider' => fake()->word(),
-                'provider_sub' => Str::random(10),
-                'public_opt_in' => fake()->randomElement([0, 1]),
-                'declaration_signed' => fake()->randomElement([0, 1]),
-            ]
+                    'first_name' => fake()->firstname(),
+                    'last_name' => fake()->lastname(),
+                    'email' => fake()->email(),
+                    'provider' => fake()->word(),
+                    'provider_sub' => Str::random(10),
+                    'public_opt_in' => fake()->randomElement([0, 1]),
+                    'declaration_signed' => fake()->randomElement([0, 1]),
+                ]
             );
 
         $response->assertStatus(201);
@@ -325,17 +326,17 @@ class UserTest extends TestCase
                 'POST',
                 self::TEST_URL,
                 [
-                'first_name' => fake()->firstname(),
-                'last_name' => fake()->lastname(),
-                'email' => fake()->email(),
-                'provider' => fake()->word(),
-                'provider_sub' => Str::random(10),
-                'consent_scrape' => true,
-                'public_opt_in' => false,
-                'declaration_signed' => false,
-                'organisation_id' => 1,
-                'orc_id' => fake()->numerify('####-####-####-####'),
-            ]
+                    'first_name' => fake()->firstname(),
+                    'last_name' => fake()->lastname(),
+                    'email' => fake()->email(),
+                    'provider' => fake()->word(),
+                    'provider_sub' => Str::random(10),
+                    'consent_scrape' => true,
+                    'public_opt_in' => false,
+                    'declaration_signed' => false,
+                    'organisation_id' => 1,
+                    'orc_id' => fake()->numerify('####-####-####-####'),
+                ]
             );
 
         $response->assertStatus(201);
@@ -349,12 +350,12 @@ class UserTest extends TestCase
                 'PUT',
                 self::TEST_URL . '/' . $content,
                 [
-                'first_name' => 'Updated',
-                'last_name' => 'Name',
-                'email' => fake()->email(),
-                'declaration_signed' => true,
-                'organisation_id' => 2,
-            ]
+                    'first_name' => 'Updated',
+                    'last_name' => 'Name',
+                    'email' => fake()->email(),
+                    'declaration_signed' => true,
+                    'organisation_id' => 2,
+                ]
             );
 
         $response->assertStatus(200);
@@ -367,6 +368,85 @@ class UserTest extends TestCase
         $this->assertEquals($content['organisation_id'], 2);
     }
 
+
+    public function test_the_application_can_complete_action_log_for_profile(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
+                    'first_name' => fake()->firstname(),
+                    'last_name' => fake()->lastname(),
+                    'email' => fake()->email(),
+                    'provider' => fake()->word(),
+                    'provider_sub' => Str::random(10),
+                    'consent_scrape' => true,
+                    'public_opt_in' => false,
+                    'declaration_signed' => false,
+                    'organisation_id' => 1,
+                    'orc_id' => fake()->numerify('####-####-####-####'),
+                ]
+            );
+
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
+
+        $id = $response->decodeResponseJson()['data'];
+
+        $this->assertDatabaseHas('action_logs', [
+            'entity_id' => $id,
+            'entity_type' => User::class,
+            'action' => User::ACTION_PROFILE_COMPLETED,
+            'completed_at' => null,
+        ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . '/' . $id,
+                [
+                    'first_name' => 'Updated',
+                    'last_name' => 'Name',
+                    'email' => fake()->email(),
+                ]
+            );
+
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson()['data'];
+
+        $this->assertDatabaseHas('action_logs', [
+            'entity_id' => $id,
+            'entity_type' => User::class,
+            'action' => User::ACTION_PROFILE_COMPLETED,
+            'completed_at' => null,
+        ]);
+
+        // Changed to save this, to avoid race condition of ms/s moving on before assertion runs
+        $testTime = Carbon::now();
+        Carbon::setTestNow($testTime);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'PUT',
+            self::TEST_URL . '/' . $id,
+            [
+                'location' => fake()->country(),
+            ]
+        );
+
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson()['data'];
+
+        $this->assertDatabaseHas('action_logs', [
+            'entity_id' => $id,
+            'entity_type' => User::class,
+            'action' => User::ACTION_PROFILE_COMPLETED,
+            'completed_at' => $testTime,
+        ]);
+    }
+
+
     public function test_the_application_can_delete_users(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
@@ -374,14 +454,14 @@ class UserTest extends TestCase
                 'POST',
                 self::TEST_URL,
                 [
-                'first_name' => fake()->firstname(),
-                'last_name' => fake()->lastname(),
-                'email' => fake()->email(),
-                'provider' => fake()->word(),
-                'provider_sub' => Str::random(10),
-                'public_opt_in' => fake()->randomElement([0, 1]),
-                'declaration_signed' => fake()->randomElement([0, 1]),
-            ]
+                    'first_name' => fake()->firstname(),
+                    'last_name' => fake()->lastname(),
+                    'email' => fake()->email(),
+                    'provider' => fake()->word(),
+                    'provider_sub' => Str::random(10),
+                    'public_opt_in' => fake()->randomElement([0, 1]),
+                    'declaration_signed' => fake()->randomElement([0, 1]),
+                ]
             );
 
         $response->assertStatus(201);
@@ -447,5 +527,79 @@ class UserTest extends TestCase
         $this->assertEquals($content['identity_source'], 'affiliations');
         $this->assertEquals($content['email'], $aff->email);
         $this->assertEquals($content['digital_identifier'], $registry->digi_ident);
+    }
+
+    public function test_the_application_can_search_across_affiliations_by_name_and_email(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'POST',
+            self::TEST_URL . '/search_affiliations',
+            [
+                'first_name' => 'dan',
+                'last_name' => 'spencer',
+                'email' => 'dan.ackroyd@healthpathwaysukltd.com',
+            ]
+        );
+
+        $response->assertStatus(200);
+        $this->assertArrayHasKey('data', $response);
+
+        $content = $response->decodeResponseJson()['data'];
+
+        $this->assertNotNull($content);
+        $this->assertTrue(count($content) > 0);
+        $this->assertEquals($content[0]['first_name'], 'Dan');
+        $this->assertEquals($content[0]['last_name'], 'Ackroyd');
+        $this->assertNotNull($content[0]['email']);
+        $this->assertNotNull($content[0]['organisation_id']);
+        $this->assertTrue($content[0]['organisation_id'] !== null && $content[0]['organisation_id'] > 0);
+    }
+
+    public function test_the_application_can_filter_users_based_on_state(): void
+    {
+        // First set a user to a pending state
+        $user = User::where('user_group', 'USERS')->first();
+        $user->setState(State::STATE_PENDING);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . '?filter=pending'
+        );
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'message',
+            'data' => [
+                'current_page',
+                'data' => [
+                    '*' => [
+                        'id',
+                        'created_at',
+                        'updated_at',
+                        'first_name',
+                        'last_name',
+                        'email',
+                        'registry_id',
+                        'user_group',
+                        'consent_scrape',
+                        'orc_id',
+                        'unclaimed',
+                        'feed_source',
+                        'permissions',
+                        'registry',
+                        'pending_invites',
+                        'organisation_id',
+                        'departments',
+                        'model_state',
+                    ],
+                ]
+            ],
+        ]);
+
+        $content = $response->decodeResponseJson();
+        $this->assertTrue($content['data']['data'][0]['email'] === $user->email);
+        $this->assertTrue($user->getState() === State::STATE_PENDING);
     }
 }

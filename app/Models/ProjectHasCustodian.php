@@ -18,4 +18,24 @@ class ProjectHasCustodian extends Model
         'custodian_id',
         'approved',
     ];
+
+    /**
+     * Get the project that this relationship belongs to.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function project()
+    {
+        return $this->belongsTo(Project::class, 'project_id', 'id');
+    }
+
+    /**
+     * Get the custodian that this relationship belongs to.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function custodian()
+    {
+        return $this->belongsTo(Custodian::class, 'custodian_id', 'id');
+    }
 }

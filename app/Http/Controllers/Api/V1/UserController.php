@@ -2,32 +2,36 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use DB;
 use Hash;
 use Keycloak;
 use Exception;
 use RulesEngineManagementController as REMC;
 use RegistryManagementController as RMC;
 use App\Models\User;
+use App\Models\State;
 use App\Models\Registry;
+use App\Models\Project;
+use App\Models\ProjectHasUser;
 use App\Models\UserHasCustodianApproval;
 use App\Models\UserHasCustodianPermission;
 use App\Models\UserHasDepartments;
 use App\Models\Organisation;
 use App\Http\Requests\Users\CreateUser;
+use App\Http\Traits\Responses;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use App\Traits\CommonFunctions;
 use App\Traits\CheckPermissions;
-use Illuminate\Support\Facades\Notification;
-use App\Notifications\AdminUserChanged;
 use TriggerEmail;
 
 class UserController extends Controller
 {
     use CommonFunctions;
     use CheckPermissions;
+    use Responses;
 
     /**
      * @OA\Get(
@@ -81,16 +85,18 @@ class UserController extends Controller
     public function index(Request $request): JsonResponse
     {
         $users = User::searchViaRequest()
+            ->filterByState()
             ->with([
-            'permissions',
-            'registry',
-            'registry.files',
-            'pendingInvites',
-            'organisation',
-            'departments',
-            'registry.education',
-            'registry.training',
-        ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
+                'permissions',
+                'registry',
+                'registry.files',
+                'pendingInvites',
+                'organisation',
+                'departments',
+                'registry.education',
+                'registry.trainings',
+                'modelState'
+            ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return response()->json(
             [
@@ -169,8 +175,6 @@ class UserController extends Controller
      *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
-     *                  @OA\Property(property="profile_steps_completed", type="string", example="{}"),
-     *                  @OA\Property(property="profile_completed_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
      *                  @OA\Property(property="declaration_signed", type="boolean", example="true"),
      *                  @OA\Property(property="organisation_id", type="integer", example="123"),
@@ -179,6 +183,7 @@ class UserController extends Controller
      *                  @OA\Property(property="location", type="string", example="United Kingdom"),
      *                  @OA\Property(property="t_and_c_agreed", type="boolean", example="true"),
      *                  @OA\Property(property="t_and_c_agreement_date", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="status", type="string", example="registered")
      *              )
      *          ),
      *      ),
@@ -206,7 +211,7 @@ class UserController extends Controller
                 'departments',
                 'registry.identity',
                 'registry.education',
-                'registry.training',
+                'registry.trainings',
             ])->where('id', $id)->first();
 
             return response()->json([
@@ -267,13 +272,12 @@ class UserController extends Controller
      *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
-     *                  @OA\Property(property="profile_steps_completed", type="string", example="{}"),
-     *                  @OA\Property(property="profile_completed_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
      *                  @OA\Property(property="declaration_signed", type="boolean", example="true"),
      *                  @OA\Property(property="organisation_id", type="integer", example="123"),
      *                  @OA\Property(property="orcid_scanning", type="integer", example="1"),
      *                  @OA\Property(property="orcid_scanning_completed_at", type="string", example="2024-02-04 12:01:00"),
+     *                  @OA\Property(property="status", type="string", example="registered")
      *              )
      *          ),
      *      ),
@@ -303,8 +307,6 @@ class UserController extends Controller
                 'keycloak_id' => null,
                 'user_group' => Keycloak::determineUserGroup($input),
                 'consent_scrape' => isset($input['consent_scrape']) ? $input['consent_scrape'] : 0,
-                'profile_steps_completed' => isset($input['profile_steps_completed']) ? $input['profile_steps_completed'] : null,
-                'profile_completed_at' => isset($input['profile_completed_at']) ? $input['profile_completed_at'] : null,
                 'public_opt_in' => isset($input['public_opt_in']) ? $input['public_opt_in'] : false,
                 'declaration_signed' => isset($input['declaration_signed']) ? $input['declaration_signed'] : false,
                 'organisation_id' => isset($input['organisation_id']) ? $input['organisation_id'] : null,
@@ -417,8 +419,6 @@ class UserController extends Controller
      *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
-     *                  @OA\Property(property="profile_steps_completed", type="string", example="{}"),
-     *                  @OA\Property(property="profile_completed_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
      *                  @OA\Property(property="declaration_signed", type="boolean", example="true"),
      *                  @OA\Property(property="organisation_id", type="integer", example="123"),
@@ -427,6 +427,7 @@ class UserController extends Controller
      *                  @OA\Property(property="orcid_scanning_completed_at", type="string", example="2024-02-04 12:01:00"),
      *                  @OA\Property(property="t_and_c_agreed", type="boolean", example="true"),
      *                  @OA\Property(property="t_and_c_agreement_date", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="status", type="string", example="registered")
      *              )
      *          ),
      *      ),
@@ -454,8 +455,6 @@ class UserController extends Controller
             $user->password = isset($input['password']) ? Hash::make($input['password']) : $user->password;
             $user->registry_id = isset($input['registry_id']) ? $input['registry_id'] : $user->registry_id;
             $user->consent_scrape = isset($input['consent_scrape']) ? $input['consent_scrape'] : $user->consent_scrape;
-            $user->profile_steps_completed = isset($input['profile_steps_completed']) ? $input['profile_steps_completed'] : $user->profile_steps_completed;
-            $user->profile_completed_at = array_key_exists('profile_completed_at', $input) ? $input['profile_completed_at'] : $user->profile_completed_at;
             $user->public_opt_in = isset($input['public_opt_in']) ? $input['public_opt_in'] : $user->public_opt_in;
             $user->declaration_signed = isset($input['declaration_signed']) ? $input['declaration_signed'] : $user->declaration_signed;
             $user->organisation_id = isset($input['organisation_id']) ? $input['organisation_id'] : $user->organisation_id;
@@ -545,8 +544,6 @@ class UserController extends Controller
      *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
-     *                  @OA\Property(property="profile_steps_completed", type="string", example="{}"),
-     *                  @OA\Property(property="profile_completed_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
      *                  @OA\Property(property="declaration_signed", type="boolean", example="true"),
      *                  @OA\Property(property="organisation_id", type="integer", example="123"),
@@ -556,6 +553,7 @@ class UserController extends Controller
      *                  @OA\Property(property="location", type="string", example="United Kingdom"),
      *                  @OA\Property(property="t_and_c_agreed", type="boolean", example="true"),
      *                  @OA\Property(property="t_and_c_agreement_date", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="status", type="string", example="registered")
      *              )
      *          ),
      *      ),
@@ -598,49 +596,9 @@ class UserController extends Controller
                 $input['password'] = Hash::make($input['password']);
             }
 
-            $changes = [];
-            foreach ($input as $key => $value) {
-                if ($originalUser->$key != $value) {
-                    if ($key === 'organisation_id') {
-                        $oldOrganisationName = $originalUser->organisation?->organisation_name ?? 'N/A';
-                        $newOrganisation = Organisation::find($value);
-                        $newOrganisationName = $newOrganisation ? $newOrganisation->organisation_name : 'N/A';
-
-                        $changes['organisation'] = [
-                            'old' => $oldOrganisationName,
-                            'new' => $newOrganisationName,
-                        ];
-                    } else {
-                        $changes[$key] = [
-                            'old' => $originalUser->$key,
-                            'new' => $value,
-                        ];
-                    }
-                }
-            }
-
             $updated = $user->update($input);
 
             if ($updated) {
-                if (!empty($changes)) {
-                    $usersToNotify = User::where("organisation_id", $originalUser->organisation_id)->get();
-                    Notification::send(
-                        $usersToNotify,
-                        new AdminUserChanged($originalUser, $changes)
-                    );
-
-                    if ($user->organisation_id !== $originalUser->organisation_id) {
-                        $usersToNotify = User::where("organisation_id", $user->organisation_id)->get();
-
-                        // Send notification to users of the new organisation
-                        // to-do: be scoped first and added
-                        //Notification::send(
-                        //    $usersToNotify,
-                        //    new AdminUserAdded($user, $organisation)
-                        //);
-                    }
-
-                }
 
                 return response()->json([
                     'message' => 'success',
@@ -721,6 +679,74 @@ class UserController extends Controller
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
+    }
+
+    public function searchUsersByNameAndProfessionalEmail(Request $request): JsonResponse
+    {
+        try {
+            $input = $request->only([
+                'first_name',
+                'last_name',
+                'email',
+            ]);
+
+            $results = DB::select(
+                "
+                SELECT
+                    u.id AS id,
+                    u.first_name AS first_name,
+                    u.last_name AS last_name,
+                    u.registry_id AS registry_id,
+                    a.email AS email,
+                    a.id AS affiliation_id,
+                    o.id AS organisation_id,
+                    o.organisation_name AS organisation_name
+                FROM users u
+                JOIN registry_has_affiliations rha
+                    ON rha.registry_id = u.registry_id
+                LEFT JOIN affiliations a
+                    ON a.id = rha.affiliation_id
+                JOIN organisations o
+                    ON o.id = a.organisation_id
+                WHERE
+                    user_group='USERS'
+                AND 
+                (
+                    u.first_name LIKE ?
+                )
+                OR
+                (
+                    u.last_name LIKE ?
+                )
+                OR
+                (
+                    a.email LIKE ?
+                )
+                ",
+                [
+                    $input['first_name'],
+                    $input['last_name'],
+                    $input['email']
+                ]
+            );
+
+            $records = collect($results)->toArray();
+            return $this->OKResponse($records);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    public function userProjects(Request $request, int $id): JsonResponse
+    {
+        $user = User::with('registry')->findOrFail($id);
+
+        $projectIds = ProjectHasUser::where('user_digital_ident', $user->registry->digi_ident)
+            ->pluck('project_id')
+            ->toArray();
+
+        $projects = Project::whereIn('id', $projectIds)->get();
+        return $this->OKResponse($projects);
     }
 
     public function fakeEndpointForTesting(Request $request): JsonResponse

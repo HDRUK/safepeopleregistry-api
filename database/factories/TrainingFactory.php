@@ -17,7 +17,6 @@ class TrainingFactory extends Factory
     public function definition(): array
     {
         return [
-            'registry_id' => 1,
             'provider' => fake()->name(),
             'awarded_at' => fake()->dateTime(),
             'expires_at' => fake()->dateTime(),
