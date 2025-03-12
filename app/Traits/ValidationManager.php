@@ -2,6 +2,8 @@
 
 namespace App\Traits;
 
+use RuntimeException;
+use InvalidArgumentException;
 use App\Models\ValidationLog;
 use App\Models\Custodian;
 use App\Models\Project;
@@ -65,7 +67,7 @@ trait ValidationManager
     ): void {
 
         if (is_null($userDigitalIdent) && is_null($custodianId)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 "You must provide at least userDigitalIdent or custodianId."
             );
         }
@@ -74,7 +76,7 @@ trait ValidationManager
             ->when($userDigitalIdent, function ($query, $udi) {
                 $registry = Registry::where('digi_ident', $udi)->first();
                 if (! $registry) {
-                    throw new \RuntimeException(
+                    throw new RuntimeException(
                         "Registry not found for digi_ident: {$udi}"
                     );
                 }

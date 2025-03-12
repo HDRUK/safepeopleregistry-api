@@ -332,6 +332,61 @@ class ValidationLogTest extends TestCase
 
     }
 
+    public function test_it_can_handle_custodian_project_user_validation_checks_via_api()
+    {
+        Carbon::setTestNow(Carbon::now());
+        $defaultActions = ProjectHasUser::getDefaultActions();
+        $this->add_user_and_custodian_to_project();
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
+        );
+
+        $response->assertStatus(200);
+
+        $expectedResponse = array_map(function ($action) {
+            return [
+                'entity_id' => $this->custodian->id,
+                'entity_type' => Custodian::class,
+                'secondary_entity_id' => $this->project->id,
+                'secondary_entity_type' => Project::class,
+                'tertiary_entity_id' => $this->registry->id,
+                'tertiary_entity_type' => Registry::class,
+                'name' => $action,
+                'completed_at' => null,
+            ];
+        }, $defaultActions);
+
+        $response->assertJson(['data' => $expectedResponse]);
+        $validationLogs = collect($response['data']);
+
+        foreach ($defaultActions as $action) {
+            $validationLog = $validationLogs->firstWhere('name', $action);
+            $validationLogId = $validationLog['id'];
+
+            $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . "validation_logs/{$validationLogId}?pass",
+            );
+            $response->assertStatus(200);
+
+            $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . "validation_logs/{$validationLogId}",
+            );
+            $response->assertStatus(200);
+            $this->assertEquals(1, $response['data']['manually_confirmed']);
+            $this->assertEquals(
+                Carbon::now()->format('Y-m-d H:i:s'),
+                $response['data']['completed_at']
+            );
+        }
+    }
+
     private function add_user_and_custodian_to_project()
     {
         ProjectHasUser::create([

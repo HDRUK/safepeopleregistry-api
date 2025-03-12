@@ -29,11 +29,15 @@ class ProjectHasUser extends Model
 
     public const VALIDATE_COMPLETE_CONFIGURATION = 'mandatory_training_complete';
     public const NO_MISCONDUCT = 'no_misconduct';
+    public const NO_RELEVANT_CRIMINAL_RECORD = 'no_relevant_criminal_record';
+    public const ORGANISATION_HAS_CONFIRMED_USER = 'organisation_has_confirmed_the_user';
 
 
     protected static array $defaultActions = [
         self::VALIDATE_COMPLETE_CONFIGURATION,
-        self::NO_MISCONDUCT
+        self::NO_MISCONDUCT,
+        self::NO_RELEVANT_CRIMINAL_RECORD,
+        self::ORGANISATION_HAS_CONFIRMED_USER
     ];
 
     public function role(): BelongsTo
