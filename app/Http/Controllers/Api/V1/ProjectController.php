@@ -331,9 +331,11 @@ class ProjectController extends Controller
     {
         $project = Project::findOrFail($id);
         $projectUsers = ProjectHasUser::where('project_id', $project->id)
+            ->select('user_digital_ident')
             ->pluck('user_digital_ident')
             ->toArray();
         $registries = Registry::whereIn('digi_ident', $projectUsers)
+            ->select('id')
             ->pluck('id')
             ->toArray();
         $users = User::with([
