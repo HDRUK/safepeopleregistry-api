@@ -3,8 +3,6 @@ FROM php:8.3.3-fpm
 ENV COMPOSER_PROCESS_TIMEOUT=600
 ENV REBUILD_DB=1
 
-ARG FRANKENPHP_VERSION
-
 WORKDIR /var/www
 
 COPY composer.* /var/www/
@@ -47,9 +45,6 @@ RUN curl https://frankenphp.dev/install.sh | sh \
 
 # Composer & laravel
 RUN composer install \
-    # && php artisan octane:install --server=frankenphp --no-interaction \
-    # && ls -l /usr/local/bin/frankenphp \
-    # && chmod +x /usr/local/bin/frankenphp \
     && php artisan storage:link \
     && php artisan optimize:clear \
     && php artisan optimize \
