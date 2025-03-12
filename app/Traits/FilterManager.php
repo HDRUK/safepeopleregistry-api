@@ -15,7 +15,7 @@ trait FilterManager
         }
 
         if (!in_array($stateSlug['filter'], State::STATES)) {
-            throw new Exception('filter state is \"' . $stateSlug['filter'] . '\" and must be one of: '
+            throw new Exception('filter state \"' . $stateSlug['filter'] . '\" is unknown and must be one of: '
                 . implode(', ', State::STATES));
         }
 
