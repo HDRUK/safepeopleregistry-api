@@ -3,6 +3,8 @@ FROM php:8.3.3-fpm
 ENV COMPOSER_PROCESS_TIMEOUT=600
 ENV REBUILD_DB=1
 
+ARG FRANKENPHP_VERSION
+
 WORKDIR /var/www
 
 COPY composer.* /var/www/
@@ -28,9 +30,6 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure pcntl --enable-pcntl \
     && docker-php-ext-install pcntl
 
-RUN pecl install swoole \
-    && docker-php-ext-enable swoole
-
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- \
     --install-dir=/usr/local/bin --filename=composer
@@ -41,21 +40,20 @@ COPY ./init/php.development.ini /usr/local/etc/php/php.ini
 # Copy the application
 COPY . /var/www
 
-#add a new line to the end of the .env file
-# RUN echo "" >> /var/www/.env
-# #add in these extra variables to the .env file
-# RUN echo "TED_ENABLED=$TED_ENABLED" >> /var/www/.env
-# RUN echo "TRASER_ENABLED=$TRASER_ENABLED" >> /var/www/.env
-# RUN echo "FMA_ENABLED=$TRASER_ENABLED" >> /var/www/.env
+RUN curl https://frankenphp.dev/install.sh | sh \
+    && mv frankenphp /usr/local/bin/frankenphp \
+    && chmod +x /usr/local/bin/frankenphp
 
 
 # Composer & laravel
 RUN composer install \
+    # && php artisan octane:install --server=frankenphp --no-interaction \
+    # && ls -l /usr/local/bin/frankenphp \
+    # && chmod +x /usr/local/bin/frankenphp \
     && php artisan storage:link \
     && php artisan optimize:clear \
     && php artisan optimize \
     && php artisan config:clear \
-    && php artisan octane:install --server=swoole \
     && chmod -R 777 storage bootstrap/cache \
     && chown -R www-data:www-data storage \
     && composer dumpautoload

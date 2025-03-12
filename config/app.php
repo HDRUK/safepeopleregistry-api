@@ -181,7 +181,6 @@ return [
         Hdruk\LaravelMjml\Providers\LaravelMjmlServiceProvider::class,
         App\Providers\KeycloakServiceProvider::class,
         App\Providers\OrcIDServiceProvider::class,
-        SwooleTW\Http\LaravelServiceProvider::class,
         App\Providers\TriggerEmailServiceProvider::class,
         App\Providers\RegistryManagementControllerServiceProvider::class,
         App\Providers\RulesEngineManagementControllerServiceProvider::class,

@@ -23,3 +23,6 @@ composer.lock
 .phpunit.result.cache
 tiltconf.json
 _ide_helper.php
+**/caddy
+frankenphp
+frankenphp-worker.php
