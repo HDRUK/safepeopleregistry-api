@@ -13,6 +13,7 @@ use App\Models\Organisation;
 use App\Models\Custodian;
 use App\Notifications\ActionPendingNotification;
 use Carbon\Carbon;
+use InvalidArgumentException;
 
 class UpdateActionNotifications implements ShouldQueue
 {
@@ -79,6 +80,7 @@ class UpdateActionNotifications implements ShouldQueue
             User::GROUP_USERS => User::class,
             User::GROUP_ORGANISATIONS => Organisation::class,
             User::GROUP_CUSTODIANS => Custodian::class,
+            default => throw new InvalidArgumentException("Invalid user group: {$group}"),
         };
     }
 
@@ -88,6 +90,7 @@ class UpdateActionNotifications implements ShouldQueue
             User::GROUP_USERS => $user->id,
             User::GROUP_ORGANISATIONS => $user->organisation_id,
             User::GROUP_CUSTODIANS => $user->custodian_id ?? $user->custodian_user->custodian_id,
+            default => throw new InvalidArgumentException("Invalid user group: {$group}"),
         };
     }
 
