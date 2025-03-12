@@ -9,7 +9,7 @@ class ActionPendingNotification extends Notification
 {
     use Queueable;
 
-    protected mixed $actions = null;
+    protected ?array $actions = null;
 
     /**
      * Create a new notification instance.
