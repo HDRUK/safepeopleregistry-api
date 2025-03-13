@@ -33,7 +33,11 @@ use App\Observers\RegistryHasOrganisationObserver;
 use App\Observers\RegistryHasTrainingObserver;
 use App\Observers\ProjectHasCustodianObserver;
 use App\Observers\OrganisationHasCustodianApprovalObserver;
+use App\Observers\AuditModelObserver;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Database\Eloquent\Model;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -42,7 +46,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        Event::listen('eloquent.*', function ($eventName, $payload) {
+            $model = $payload[0] ?? null;
+
+            if ($model instanceof Model) {
+                App::make(AuditModelObserver::class)->handle($eventName, $model);
+            }
+        });
     }
 
     /**
@@ -66,6 +76,6 @@ class AppServiceProvider extends ServiceProvider
         ProjectHasCustodian::observe(ProjectHasCustodianObserver::class);
         OrganisationHasCustodianApproval::observe(OrganisationHasCustodianApprovalObserver::class);
         // currently Training but is to be moved to RegistryHasTraining...
-        //RegistryHasTraining::observe(RegistryHasTrainingObserver::class);
+        // RegistryHasTraining::observe(RegistryHasTrainingObserver::class);
     }
 }
