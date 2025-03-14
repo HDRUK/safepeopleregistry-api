@@ -131,7 +131,6 @@ class AffiliationController extends Controller
                 'relationship' => $input['relationship'],
                 'from' => $input['from'],
                 'to' => $input['to'],
-                'department' => $input['department'],
                 'role' => $input['role'],
                 'email' => $input['email'],
                 'ror' => $input['ror'],
