@@ -49,8 +49,8 @@ class ONSFileUploadTest extends TestCase
                 'POST',
                 self::TEST_URL,
                 [
-                'file' => $file,
-            ]
+                    'file' => $file,
+                ]
             );
 
         $response->assertStatus(200);

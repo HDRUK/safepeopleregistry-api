@@ -53,11 +53,11 @@ class AuditingService
 
     public function logException(Throwable $exception): void
     {
-        $this->log('error', [
+        $this->log('error', json_encode([
             'message' => $exception->getMessage(),
             'file' => $exception->getFile(),
             'line' => $exception->getLine(),
             'stack_trace' => $exception->getTraceAsString(),
-        ]);
+        ]));
     }
 }
