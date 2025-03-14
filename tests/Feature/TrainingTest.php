@@ -175,9 +175,6 @@ class TrainingTest extends TestCase
             ->json(
                 'DELETE',
                 self::TEST_URL . '/' . $content,
-                [
-                    'registry_id' => $this->user->registry_id,
-                ]
             );
 
         $response->assertStatus(200);

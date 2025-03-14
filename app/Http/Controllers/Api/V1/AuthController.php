@@ -47,9 +47,11 @@ class AuthController extends Controller
                     $pendingInvite->save();
                 }
 
+                $unclaimedUser = User::where('id', $user['unclaimed_user_id'])->first();
+
                 return response()->json([
                     'message' => 'success',
-                    'data' => $user['unclaimed_user_id'],
+                    'data' => $unclaimedUser,
                 ], 201);
             }
 

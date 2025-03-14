@@ -270,17 +270,25 @@ class TrainingController extends Controller
     }
 
     //Hide from swagger
-    public function destroy(DeleteTraining $request, int $id): JsonResponse
+    public function destroy(Request $request, int $id): JsonResponse
     {
         try {
-            Training::where('id', $id)->delete();
-            RegistryHasTraining::where([
-                'training_id' => $id,
-                'registry_id' => $request->get('registry_id'),
-            ])->delete();
+            $training = Training::where('id', $id);
+            $trainingData = $training->first();
+
+            if(isset($trainingData)) {
+                $training->delete();
+
+                RegistryHasTraining::where([
+                    'training_id' => $trainingData->id,
+                ])->delete();
+            } else {
+                return $this->NotFoundResponse();
+            }
+
             return $this->OKResponse(null);
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+            return $this->ErrorResponse();
         }
     }
 }
