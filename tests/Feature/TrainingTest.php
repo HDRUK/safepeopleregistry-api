@@ -175,11 +175,41 @@ class TrainingTest extends TestCase
             ->json(
                 'DELETE',
                 self::TEST_URL . '/' . $content,
+            );
+
+        $response->assertStatus(200);
+    }
+
+    public function test_the_application_fails_deleting_training(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL,
                 [
+                    'provider' => 'Fake Training Provider',
+                    'awarded_at' => Carbon::now(),
+                    'expires_at' => Carbon::now()->addYears(5),
+                    'expires_in_years' => 5,
+                    'training_name' => 'Pointless Training that will be Deleted',
+                    'certification_id' => null,
+                    'pro_registration' => 0,
                     'registry_id' => $this->user->registry_id,
                 ]
             );
 
-        $response->assertStatus(200);
+        $response->assertStatus(201);
+        $content = $response->decodeResponseJson()['data'];
+
+        $this->assertArrayHasKey('data', $response);
+        $this->assertGreaterThan(0, $content);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'DELETE',
+                self::TEST_URL . '/' . ($content + 1),
+            );
+
+        $response->assertStatus(404);
     }
 }
