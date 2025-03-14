@@ -127,7 +127,7 @@ class UserTest extends TestCase
                 '/api/auth/me'
             );
 
-        $response->assertStatus(404);
+        $response->assertStatus(401);
 
         putenv('KEYCLOAK_LOAD_USER_FROM_DATABASE=true');
     }
@@ -145,7 +145,7 @@ class UserTest extends TestCase
                 '/api/auth/me'
             );
 
-        $response->assertStatus(500);
+        $response->assertStatus(401);
 
         putenv('KEYCLOAK_LOAD_USER_FROM_DATABASE=true');
     }

@@ -94,6 +94,17 @@ return [
             'processors' => [PsrLogMessageProcessor::class],
         ],
 
+        'stdout' => [
+            'driver' => 'stack',
+            'path' => storage_path('logs/laravel.log'),
+            'channels' => ['single'],
+        ],
+
+        'pubsub' => [
+            'driver' => 'custom',
+            'via' => \App\Logging\PubSubLogger::class,
+        ],
+
         'stderr' => [
             'driver' => 'monolog',
             'level' => env('LOG_LEVEL', 'debug'),
