@@ -276,7 +276,7 @@ class TrainingController extends Controller
             $training = Training::where('id', $id);
             $trainingData = $training->first();
 
-            if(isset($trainingData)) {
+            if(!is_null($trainingData)) {
                 $training->delete();
 
                 RegistryHasTraining::where([
