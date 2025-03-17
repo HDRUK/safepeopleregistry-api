@@ -2,24 +2,18 @@
 
 namespace Tests\Feature;
 
-use Database\Seeders\SystemConfigSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class SystemConfigTest extends TestCase
 {
     use Authorisation;
-    use RefreshDatabase;
 
     public const TEST_URL = '/api/v1/system_config';
 
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed([
-            SystemConfigSeeder::class,
-        ]);
     }
 
     public function test_the_application_can_list_config(): void

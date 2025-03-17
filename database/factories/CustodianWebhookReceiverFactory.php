@@ -26,7 +26,7 @@ class CustodianWebhookReceiverFactory extends Factory
     {
         return [
             'custodian_id' => 1,
-            'url' => $this->faker->url,
+            'url' => fake()->url(),
             'webhook_event' => 1,
         ];
     }

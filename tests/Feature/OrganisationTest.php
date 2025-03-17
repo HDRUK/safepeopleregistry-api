@@ -13,12 +13,6 @@ use App\Jobs\SendEmailJob;
 use App\Models\PendingInvite;
 use App\Models\ProjectHasOrganisation;
 use App\Models\OrganisationHasDepartment;
-use Database\Seeders\UserSeeder;
-use Database\Seeders\PermissionSeeder;
-use Database\Seeders\BaseDemoSeeder;
-use Database\Seeders\EmailTemplatesSeeder;
-use Database\Seeders\OrganisationDelegateSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -27,7 +21,6 @@ use Tests\Traits\Authorisation;
 class OrganisationTest extends TestCase
 {
     use Authorisation;
-    use RefreshDatabase;
     use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/organisations';
@@ -38,15 +31,7 @@ class OrganisationTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed([
-            PermissionSeeder::class,
-            UserSeeder::class,
-            EmailTemplatesSeeder::class,
-            BaseDemoSeeder::class,
-            OrganisationDelegateSeeder::class,
-        ]);
-
-        $this->user = User::where('id', 1)->first();
+        $this->user = User::where('user_group', 'USERS')->first();
 
         $this->testOrg = [
             'organisation_name' => 'HEALTH DATA RESEARCH UK',
@@ -760,7 +745,8 @@ class OrganisationTest extends TestCase
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
-        $this->assertCount(4, $response['data']['data']);
+        // Org owner, admin user and delegate
+        $this->assertCount(3, $response['data']['data']);
 
         $responseWithEmailFilter = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(

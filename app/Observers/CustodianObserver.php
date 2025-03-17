@@ -15,7 +15,7 @@ class CustodianObserver
         // as a default installation
         $entityModels = EntityModel::all();
         foreach ($entityModels as $e) {
-            CustodianModelConfig::create([
+            CustodianModelConfig::updateOrCreate([
                 'entity_model_id' => $e->id,
                 'active' => 1,
                 'custodian_id' => $custodian->id,

@@ -39,7 +39,6 @@ class ResolutionController extends Controller
 
             if (isset($input['infringement_id'])) {
                 $infringement = Infringement::where('id', $input['infringement_id'])->first();
-
                 if ($infringement) {
                     InfringementHasResolution::create([
                         'resolution_id' => $resolution->id,

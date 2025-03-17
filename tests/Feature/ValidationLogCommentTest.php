@@ -11,14 +11,12 @@ use App\Models\Project;
 use App\Models\ProjectHasCustodian;
 use App\Models\ValidationLog;
 use App\Models\ValidationLogComment;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class ValidationLogCommentTest extends TestCase
 {
     use Authorisation;
-    use RefreshDatabase;
     use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/validation_log_comments';

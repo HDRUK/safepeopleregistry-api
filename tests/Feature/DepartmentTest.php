@@ -4,20 +4,12 @@ namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\User;
-use Database\Seeders\CustodianSeeder;
-use Database\Seeders\RulesSeeder;
-use Database\Seeders\PermissionSeeder;
-use Database\Seeders\EmailTemplatesSeeder;
-use Database\Seeders\UserSeeder;
-use Database\Seeders\DepartmentSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class DepartmentTest extends TestCase
 {
     use Authorisation;
-    use RefreshDatabase;
     use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/departments';
@@ -27,15 +19,6 @@ class DepartmentTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed([
-            PermissionSeeder::class,
-            UserSeeder::class,
-            RulesSeeder::class,
-            CustodianSeeder::class,
-            EmailTemplatesSeeder::class,
-            DepartmentSeeder::class,
-        ]);
-
         $this->user = User::where('id', 1)->first();
     }
 

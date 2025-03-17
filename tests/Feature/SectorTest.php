@@ -3,24 +3,18 @@
 namespace Tests\Feature;
 
 use App\Models\Sector;
-use Database\Seeders\SectorSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class SectorTest extends TestCase
 {
     use Authorisation;
-    use RefreshDatabase;
 
     public const TEST_URL = '/api/v1/sectors';
 
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed([
-            SectorSeeder::class,
-        ]);
     }
 
     public function test_the_application_can_list_sectors(): void
