@@ -216,11 +216,18 @@ class User extends Authenticatable
 
     protected $appends = ['status'];
 
+<<<<<<< Updated upstream
     public function status(): Attribute
     {
         return new Attribute(
             get: fn () => $this->unclaimed === 1 ? self::STATUS_INVITED : self::STATUS_REGISTERED
         );
+=======
+    public function getStatusAttribute()
+    {
+        //Placeholder to add a status field into response
+        return $this->attributes['status'] = $this->unclaimed === 1 ? self::STATUS_INVITED : self::STATUS_REGISTERED;
+>>>>>>> Stashed changes
     }
 
     public function permissions(): BelongsToMany
