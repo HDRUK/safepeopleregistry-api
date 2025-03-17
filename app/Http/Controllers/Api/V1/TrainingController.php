@@ -11,7 +11,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
 use App\Http\Requests\Training\CreateTraining;
-use App\Http\Requests\Training\DeleteTraining;
 
 class TrainingController extends Controller
 {
@@ -276,7 +275,7 @@ class TrainingController extends Controller
             $training = Training::where('id', $id);
             $trainingData = $training->first();
 
-            if(!is_null($trainingData)) {
+            if (!is_null($trainingData)) {
                 $training->delete();
 
                 RegistryHasTraining::where([
