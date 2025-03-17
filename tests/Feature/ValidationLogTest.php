@@ -9,7 +9,7 @@ use App\Models\Registry;
 use App\Models\ProjectHasUser;
 use App\Models\Project;
 use App\Models\ProjectHasCustodian;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Models\ValidationLog;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 use Carbon\Carbon;
@@ -17,7 +17,6 @@ use Carbon\Carbon;
 class ValidationLogTest extends TestCase
 {
     use Authorisation;
-    use RefreshDatabase;
     use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/';
@@ -27,11 +26,16 @@ class ValidationLogTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
+
         $this->user = User::factory()->create();
         $this->registry = Registry::factory()->create();
         $this->user->update(['registry_id' => $this->registry->id]);
         $this->custodian = Custodian::factory()->create();
         $this->project = Project::factory()->create();
+
+        ValidationLog::truncate();
+
+        $this->enableObservers();
     }
 
     public function test_it_creates_validation_logs_when_a_user_is_added_to_a_project()
@@ -39,7 +43,6 @@ class ValidationLogTest extends TestCase
         $defaultActions = ProjectHasUser::getDefaultActions();
 
         $this->assertNotEmpty($defaultActions, 'Expected getDefaultActions to return at least one action.');
-
         $this->assertDatabaseEmpty('validation_logs');
 
         ProjectHasUser::create([

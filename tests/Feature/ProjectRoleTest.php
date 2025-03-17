@@ -6,13 +6,10 @@ use Tests\TestCase;
 use App\Models\User;
 use Tests\Traits\Authorisation;
 use KeycloakGuard\ActingAsKeycloakUser;
-use Database\Seeders\BaseDemoSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ProjectRoleTest extends TestCase
 {
     use Authorisation;
-    use RefreshDatabase;
     use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/project_roles';
@@ -22,11 +19,7 @@ class ProjectRoleTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed([
-            BaseDemoSeeder::class,
-        ]);
-
-        $this->user = User::where('id', 1)->first();
+        $this->user = User::where('user_group', 'USERS')->first();
     }
 
     public function test_the_application_can_list_project_roles(): void

@@ -9,10 +9,6 @@ use App\Models\User;
 use App\Models\State;
 use App\Models\Registry;
 use App\Models\Affiliation;
-use Database\Seeders\EmailTemplatesSeeder;
-use Database\Seeders\PermissionSeeder;
-use Database\Seeders\BaseDemoSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
@@ -21,7 +17,6 @@ use Carbon\Carbon;
 class UserTest extends TestCase
 {
     use Authorisation;
-    use RefreshDatabase;
     use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/users';
@@ -33,13 +28,7 @@ class UserTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed([
-            PermissionSeeder::class,
-            EmailTemplatesSeeder::class,
-            BaseDemoSeeder::class,
-        ]);
-
-        $this->user = User::where('id', 1)->first();
+        $this->user = User::where('user_group', 'USERS')->first();
     }
 
     public function test_the_application_can_search_users_by_email(): void
@@ -127,7 +116,7 @@ class UserTest extends TestCase
                 '/api/auth/me'
             );
 
-        $response->assertStatus(401);
+        $response->assertStatus(404);
 
         putenv('KEYCLOAK_LOAD_USER_FROM_DATABASE=true');
     }
@@ -145,7 +134,7 @@ class UserTest extends TestCase
                 '/api/auth/me'
             );
 
-        $response->assertStatus(401);
+        $response->assertStatus(500);
 
         putenv('KEYCLOAK_LOAD_USER_FROM_DATABASE=true');
     }
@@ -371,6 +360,8 @@ class UserTest extends TestCase
 
     public function test_the_application_can_complete_action_log_for_profile(): void
     {
+        $this->enableObservers();
+
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'POST',

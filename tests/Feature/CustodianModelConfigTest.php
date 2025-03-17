@@ -5,20 +5,12 @@ namespace Tests\Feature;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\User;
 use App\Traits\CommonFunctions;
-use Database\Seeders\UserSeeder;
-use Database\Seeders\EntityModelTypeSeeder;
-use Database\Seeders\EntityModelSeeder;
-use Database\Seeders\CustodianSeeder;
-use Database\Seeders\PermissionSeeder;
-use Database\Seeders\RulesSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class CustodianModelConfigTest extends TestCase
 {
     use Authorisation;
-    use RefreshDatabase;
     use ActingAsKeycloakUser;
     use CommonFunctions;
 
@@ -29,15 +21,6 @@ class CustodianModelConfigTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed([
-            PermissionSeeder::class,
-            UserSeeder::class,
-            RulesSeeder::class,
-            EntityModelTypeSeeder::class,
-            EntityModelSeeder::class,
-            CustodianSeeder::class,
-        ]);
-
         $this->user = User::where('id', 1)->first();
     }
 

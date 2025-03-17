@@ -6,15 +6,12 @@ use KeycloakGuard\ActingAsKeycloakUser;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Registry;
-use Database\Seeders\UserSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class EducationTest extends TestCase
 {
     use Authorisation;
-    use RefreshDatabase;
     use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/educations';
@@ -25,11 +22,7 @@ class EducationTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed([
-            UserSeeder::class,
-        ]);
-
-        $this->user = User::where('id', 1)->first();
+        $this->user = User::where('user_group', 'USERS')->first();
         $this->registry = Registry::where('id', $this->user->registry_id)->first();
     }
 

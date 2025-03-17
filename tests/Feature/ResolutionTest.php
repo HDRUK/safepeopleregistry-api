@@ -5,18 +5,14 @@ namespace Tests\Feature;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\User;
 use App\Models\Registry;
+use App\Models\Infringement;
 use App\Models\InfringementHasResolution;
-use Database\Seeders\UserSeeder;
-use Database\Seeders\InfringementSeeder;
-use Database\Seeders\ResolutionSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class ResolutionTest extends TestCase
 {
     use Authorisation;
-    use RefreshDatabase;
     use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/resolutions';
@@ -27,13 +23,7 @@ class ResolutionTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed([
-            UserSeeder::class,
-            InfringementSeeder::class,
-            ResolutionSeeder::class,
-        ]);
-
-        $this->user = User::where('id', 1)->first();
+        $this->user = User::where('user_group', 'USERS')->first();
         $this->registry = Registry::where('id', $this->user->registry_id)->first();
 
     }
@@ -71,6 +61,12 @@ class ResolutionTest extends TestCase
 
     public function test_the_application_can_create_resolutions_with_infringement_id_by_registry_id(): void
     {
+        $inf = Infringement::create([
+            'reported_by' => 1,
+            'comment' => fake()->sentence(5),
+            'raised_against' => $this->registry->id,
+        ]);
+
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
             'POST',
@@ -84,11 +80,11 @@ class ResolutionTest extends TestCase
         $this->assertEquals($content['message'], 'success');
 
         $infringement = InfringementHasResolution::where([
-            'infringement_id' => 1,
+            'infringement_id' => $inf->id,
             'resolution_id' => $content['data'],
-        ])->get();
+        ])->count();
 
-        $this->assertTrue(count($infringement) === 1);
+        $this->assertTrue($infringement === 1);
     }
 
     private function prepareResolutionPayload(): array

@@ -6,20 +6,13 @@ use App\Models\User;
 use App\Models\State;
 use App\Models\Project;
 use App\Models\Organisation;
-use Database\Seeders\BaseDemoSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class StateWorkflowTest extends TestCase
 {
-    use RefreshDatabase;
-
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed([
-            BaseDemoSeeder::class,
-        ]);
     }
 
     public function test_the_application_can_track_user_state(): void

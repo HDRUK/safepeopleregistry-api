@@ -5,9 +5,6 @@ namespace Tests\Feature;
 use Carbon\Carbon;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\User;
-use Database\Seeders\AffiliationSeeder;
-use Database\Seeders\UserSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 use App\Traits\CommonFunctions;
@@ -15,7 +12,6 @@ use App\Traits\CommonFunctions;
 class AffiliationTest extends TestCase
 {
     use Authorisation;
-    use RefreshDatabase;
     use ActingAsKeycloakUser;
     use CommonFunctions;
 
@@ -26,11 +22,6 @@ class AffiliationTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed([
-            UserSeeder::class,
-            AffiliationSeeder::class,
-        ]);
-
         $this->user = User::where('id', 1)->first();
     }
 

@@ -8,18 +8,12 @@ use App\Models\Organisation;
 use App\Models\OrganisationHasCustodianApproval;
 use App\Models\User;
 use App\Models\UserHasCustodianApproval;
-use Database\Seeders\CustodianSeeder;
-use Database\Seeders\OrganisationSeeder;
-use Database\Seeders\PermissionSeeder;
-use Database\Seeders\UserSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class ApprovalTest extends TestCase
 {
     use Authorisation;
-    use RefreshDatabase;
     use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/approvals';
@@ -32,14 +26,7 @@ class ApprovalTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed([
-            PermissionSeeder::class,
-            CustodianSeeder::class,
-            OrganisationSeeder::class,
-            UserSeeder::class,
-        ]);
-
-        $this->user = User::where('id', 1)->first();
+        $this->user = User::where('user_group', 'USERS')->first();
 
         $this->custodian = Custodian::where('id', 1)->first();
         $this->organisation = Organisation::where('id', 1)->first();
@@ -139,6 +126,18 @@ class ApprovalTest extends TestCase
 
     public function test_the_application_can_get_user_custodian_approvals(): void
     {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL . '/researcher',
+                [
+                    'user_id' => $this->user->id,
+                    'custodian_id' => $this->custodian->id,
+                ],
+            );
+
+        $response->assertStatus(200);
+
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'GET',

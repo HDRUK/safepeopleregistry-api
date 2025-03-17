@@ -8,17 +8,12 @@ use App\Models\User;
 use App\Models\Registry;
 use App\Models\Project;
 use App\Models\ProjectDetail;
-use Database\Seeders\UserSeeder;
-use Database\Seeders\PermissionSeeder;
-use Database\Seeders\BaseDemoSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class ProjectDetailTest extends TestCase
 {
     use Authorisation;
-    use RefreshDatabase;
     use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/project_details';
@@ -157,13 +152,7 @@ class ProjectDetailTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed([
-            UserSeeder::class,
-            PermissionSeeder::class,
-            BaseDemoSeeder::class,
-        ]);
-
-        $this->user = User::where('id', 1)->first();
+        $this->user = User::where('user_group', 'USERS')->first();
         $this->registry = Registry::where('id', $this->user->registry_id)->first();
         $this->project = Project::where('id', 1)->first();
 

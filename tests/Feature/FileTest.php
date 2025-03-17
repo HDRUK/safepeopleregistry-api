@@ -5,17 +5,14 @@ namespace Tests\Feature;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\File;
 use App\Models\User;
-use Database\Seeders\UserSeeder;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 
 class FileTest extends TestCase
 {
     use Authorisation;
     use ActingAsKeycloakUser;
-    use RefreshDatabase;
 
     public const TEST_URL = '/api/v1/files';
 
@@ -24,9 +21,6 @@ class FileTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed([
-            UserSeeder::class,
-        ]);
         config(['scanning_filesystem_disk' => 'local_scan']);
         Storage::fake('local_scan');
 

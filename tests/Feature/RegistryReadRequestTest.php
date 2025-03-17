@@ -6,19 +6,13 @@ use App\Models\User;
 use App\Models\Custodian;
 use App\Models\Registry;
 use App\Models\RegistryReadRequest;
-use Database\Seeders\EmailTemplatesSeeder;
-use Database\Seeders\CustodianSeeder;
-use Database\Seeders\PermissionSeeder;
-use Database\Seeders\BaseDemoSeeder;
 use KeycloakGuard\ActingAsKeycloakUser;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class RegistryReadRequestTest extends TestCase
 {
     use Authorisation;
-    use RefreshDatabase;
     use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/request_access';
@@ -28,14 +22,7 @@ class RegistryReadRequestTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed([
-            PermissionSeeder::class,
-            CustodianSeeder::class,
-            EmailTemplatesSeeder::class,
-            BaseDemoSeeder::class,
-        ]);
-
-        $this->user = User::where('id', 1)->first();
+        $this->user = User::where('user_group', 'USERS')->first();
     }
 
     public function test_the_application_can_issue_registry_read_requests(): void

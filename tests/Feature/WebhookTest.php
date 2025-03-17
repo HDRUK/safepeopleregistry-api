@@ -5,26 +5,25 @@ namespace Tests\Feature;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\CustodianWebhookReceiver;
 use App\Models\WebhookEventTrigger;
+use App\Models\CustodianUser;
 use App\Models\Custodian;
-use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class WebhookTest extends TestCase
 {
-    use RefreshDatabase;
     use ActingAsKeycloakUser;
     use Authorisation;
 
     protected $user;
+    protected $custodian;
     protected const TEST_URL = '/api/v1/webhooks';
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::factory()->create();
-        $this->custodian = Custodian::factory()->create();
+        $this->user = CustodianUser::where('id', 1)->first();
+        $this->custodian = Custodian::where('id', $this->user->custodian_id)->first();
         $this->eventTrigger = WebhookEventTrigger::factory()->create();
     }
 

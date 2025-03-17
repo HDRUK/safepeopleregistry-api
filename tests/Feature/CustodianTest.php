@@ -9,13 +9,7 @@ use App\Models\User;
 use App\Models\Custodian;
 use App\Models\Sector;
 use Carbon\Carbon;
-use Database\Seeders\CustodianSeeder;
-use Database\Seeders\RulesSeeder;
-use Database\Seeders\PermissionSeeder;
-use Database\Seeders\EmailTemplatesSeeder;
 use App\Models\PendingInvite;
-use Database\Seeders\UserSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
@@ -24,7 +18,6 @@ use Tests\Traits\Authorisation;
 class CustodianTest extends TestCase
 {
     use Authorisation;
-    use RefreshDatabase;
     use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/custodians';
@@ -36,18 +29,12 @@ class CustodianTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed([
-            PermissionSeeder::class,
-            UserSeeder::class,
-            RulesSeeder::class,
-            CustodianSeeder::class,
-            EmailTemplatesSeeder::class
-        ]);
-
         $this->user = User::where('id', 1)->first();
 
         $this->projectUniqueId = Str::random(40);
         $this->organisationUniqueId = Str::random(40);
+
+        // $this->enableObservers();
     }
 
     public function test_the_application_can_list_custodians(): void
@@ -113,6 +100,9 @@ class CustodianTest extends TestCase
 
     public function test_the_application_adds_entity_models_to_newly_created_custodians(): void
     {
+        $this->enableObservers();
+        CustodianModelConfig::truncate();
+
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'POST',
@@ -131,7 +121,6 @@ class CustodianTest extends TestCase
         $content = $response->decodeResponseJson();
 
         $entities = EntityModel::all();
-
         $conf = CustodianModelConfig::where([
             'custodian_id' => $content['data'],
         ])->get()->toArray();
@@ -333,10 +322,10 @@ class CustodianTest extends TestCase
                 'POST',
                 self::TEST_URL,
                 [
-                'name' => 'Test Custodian ABCDEF',
-                'contact_email' => 'test@test.com',
-                'enabled' => true,
-            ]
+                    'name' => 'Test Custodian ABCDEF',
+                    'contact_email' => 'test@test.com',
+                    'enabled' => true,
+                ]
             );
 
         $response->assertStatus(201);
@@ -405,11 +394,13 @@ class CustodianTest extends TestCase
         $response->assertStatus(401);
         $content = $response->decodeResponseJson();
 
-        $this->assertEquals($content['message'], 'you must provide your Custodian key');
+        $this->assertEquals($content['message'], 'you must be a trusted custodian and provide your custodian-key within the request headers');
     }
 
     public function test_the_application_can_refuse_pushes_when_key_is_invalid(): void
     {
+        $this->enableMiddleware();
+
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'POST',
@@ -433,58 +424,58 @@ class CustodianTest extends TestCase
                 'POST',
                 self::TEST_URL.'/push',
                 [
-                'researchers' => [],
-                'projects' => [
-                    [
-                        'unique_id' => $this->projectUniqueId,
-                        'title' => 'This is a Test Project',
-                        'lay_summary' => 'Test Lay Summary',
-                        'public_benefit' => 'No one dies, ever.',
-                        'request_category_type' => 'category type',
-                        'technical_summary' => 'Technical Summary',
-                        'other_approval_committees' => 'Does anyone actually know what this means?',
-                        'start_date' => Carbon::now()->addMonths(6),
-                        'end_date' => Carbon::now()->addYears(2),
-                        'affiliate_id' => 1,
-                    ],
-                ],
-                'organisations' => [
-                    [
-                        'organisation_name' => 'HEALTH DATA RESEARCH UK',
-                        'address_1' => '215 Euston Road',
-                        'address_2' => '',
-                        'town' => 'Blah',
-                        'county' => 'London',
-                        'country' => 'United Kingdom',
-                        'postcode' => 'NW1 2BE',
-                        'lead_applicant_organisation_name' => 'Some One',
-                        'lead_applicant_email' => fake()->email(),
-                        'password' => 'tempP4ssword',
-                        'organisation_unique_id' => Str::random(40),
-                        'applicant_names' => 'Some One, Some Two, Some Three',
-                        'funders_and_sponsors' => 'UKRI, MRC',
-                        'sub_license_arrangements' => 'N/A',
-                        'verified' => false,
-                        'companies_house_no' => '10887014',
-                        'dsptk_certified' => 1,
-                        'dsptk_ods_code' => '12345Z',
-                        'iso_27001_certified' => 0,
-                        'iso_27001_certification_num' => '',
-                        'ce_certified' => 1,
-                        'ce_certification_num' => 'A1234',
-                        'sector_id' => fake()->randomElement([0, count(Sector::SECTORS)]),
-                        'charities' => [
-                            'registration_id' => '1186569',
+                    'researchers' => [],
+                    'projects' => [
+                        [
+                            'unique_id' => $this->projectUniqueId,
+                            'title' => 'This is a Test Project',
+                            'lay_summary' => 'Test Lay Summary',
+                            'public_benefit' => 'No one dies, ever.',
+                            'request_category_type' => 'category type',
+                            'technical_summary' => 'Technical Summary',
+                            'other_approval_committees' => 'Does anyone actually know what this means?',
+                            'start_date' => Carbon::now()->addMonths(6),
+                            'end_date' => Carbon::now()->addYears(2),
+                            'affiliate_id' => 1,
                         ],
-                        'ror_id' => '02wnqcb97',
-                        'smb_status' => false,
-                        'website' => 'https://www.website.com/',
+                    ],
+                    'organisations' => [
+                        [
+                            'organisation_name' => 'HEALTH DATA RESEARCH UK',
+                            'address_1' => '215 Euston Road',
+                            'address_2' => '',
+                            'town' => 'Blah',
+                            'county' => 'London',
+                            'country' => 'United Kingdom',
+                            'postcode' => 'NW1 2BE',
+                            'lead_applicant_organisation_name' => 'Some One',
+                            'lead_applicant_email' => fake()->email(),
+                            'password' => 'tempP4ssword',
+                            'organisation_unique_id' => Str::random(40),
+                            'applicant_names' => 'Some One, Some Two, Some Three',
+                            'funders_and_sponsors' => 'UKRI, MRC',
+                            'sub_license_arrangements' => 'N/A',
+                            'verified' => false,
+                            'companies_house_no' => '10887014',
+                            'dsptk_certified' => 1,
+                            'dsptk_ods_code' => '12345Z',
+                            'iso_27001_certified' => 0,
+                            'iso_27001_certification_num' => '',
+                            'ce_certified' => 1,
+                            'ce_certification_num' => 'A1234',
+                            'sector_id' => fake()->randomElement([0, count(Sector::SECTORS)]),
+                            'charities' => [
+                                'registration_id' => '1186569',
+                            ],
+                            'ror_id' => '02wnqcb97',
+                            'smb_status' => false,
+                            'website' => 'https://www.website.com/',
+                        ],
                     ],
                 ],
-            ],
                 [
-                'x-custodian-key' => $custodian->unique_identifier.'broken_key',
-            ]
+                    'x-custodian-key' => $custodian->unique_identifier . 'broken_key',
+                ],
             );
 
         $response->assertStatus(401);

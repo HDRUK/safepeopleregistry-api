@@ -6,13 +6,6 @@ use KeycloakGuard\ActingAsKeycloakUser;
 use App\Jobs\SendEmailJob;
 use App\Models\User;
 use App\Models\PendingInvite;
-use Database\Seeders\EmailTemplatesSeeder;
-use Database\Seeders\CustodianSeeder;
-use Database\Seeders\OrganisationDelegateSeeder;
-use Database\Seeders\OrganisationSeeder;
-use Database\Seeders\PermissionSeeder;
-use Database\Seeders\UserSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
@@ -20,7 +13,6 @@ use Tests\Traits\Authorisation;
 class EmailSendTest extends TestCase
 {
     use Authorisation;
-    use RefreshDatabase;
     use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/trigger_email';
@@ -30,15 +22,6 @@ class EmailSendTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed([
-            PermissionSeeder::class,
-            CustodianSeeder::class,
-            UserSeeder::class,
-            OrganisationSeeder::class,
-            OrganisationDelegateSeeder::class,
-            EmailTemplatesSeeder::class,
-        ]);
-
         $this->user = User::where('id', 1)->first();
     }
 

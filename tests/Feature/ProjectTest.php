@@ -11,10 +11,6 @@ use App\Models\Custodian;
 use App\Models\Project;
 use App\Models\ProjectHasUser;
 use App\Models\ProjectHasCustodian;
-use Database\Seeders\UserSeeder;
-use Database\Seeders\PermissionSeeder;
-use Database\Seeders\BaseDemoSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
@@ -24,7 +20,6 @@ use Illuminate\Support\Facades\Queue;
 class ProjectTest extends TestCase
 {
     use Authorisation;
-    use RefreshDatabase;
     use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/projects';
@@ -34,13 +29,7 @@ class ProjectTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed([
-            UserSeeder::class,
-            PermissionSeeder::class,
-            BaseDemoSeeder::class,
-        ]);
-
-        $this->user = User::where('id', 1)->first();
+        $this->user = User::where('user_group', 'USERS')->first();
     }
 
     public function test_the_application_can_search_on_project_name(): void
@@ -113,17 +102,17 @@ class ProjectTest extends TestCase
                 'POST',
                 self::TEST_URL,
                 [
-                'unique_id' => Str::random(30),
-                'title' => 'Test Project',
-                'lay_summary' => 'Sample lay summary',
-                'public_benefit' => 'This will benefit the public',
-                'request_category_type' => 'Category type',
-                'technical_summary' => 'Sample technical summary',
-                'other_approval_committees' => 'Bodies on a board panel',
-                'start_date' => Carbon::now(),
-                'end_date' => Carbon::now()->addYears(2),
-                'affiliate_id' => 1,
-            ]
+                    'unique_id' => Str::random(30),
+                    'title' => 'Test Project',
+                    'lay_summary' => 'Sample lay summary',
+                    'public_benefit' => 'This will benefit the public',
+                    'request_category_type' => 'Category type',
+                    'technical_summary' => 'Sample technical summary',
+                    'other_approval_committees' => 'Bodies on a board panel',
+                    'start_date' => Carbon::now(),
+                    'end_date' => Carbon::now()->addYears(2),
+                    'affiliate_id' => 1,
+                ]
             );
 
         $response->assertStatus(201);
@@ -283,6 +272,8 @@ class ProjectTest extends TestCase
 
     public function test_the_application_can_create_webhooks_on_user_leaving_project(): void
     {
+        $this->enableObservers();
+
         Queue::fake();
 
         // Flush and create anew
@@ -387,6 +378,8 @@ class ProjectTest extends TestCase
         $registry = Registry::first();
         $project = Project::first();
 
+        ProjectHasUser::truncate();
+
         ProjectHasUser::create([
             'project_id' => 0,
             'user_digital_ident' => $registry->digi_ident,
@@ -397,7 +390,9 @@ class ProjectTest extends TestCase
             ->json(
                 'PUT',
                 self::TEST_URL . '/' . $project->id . '/users/' . $registry->id . '/primary_contact',
-                ["primary_contact" => 1]
+                [
+                    'primary_contact' => 1,
+                ]
             );
 
         $response->assertStatus(404);
