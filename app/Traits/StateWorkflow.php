@@ -9,6 +9,10 @@ use App\Models\ModelState;
 trait StateWorkflow
 {
     protected array $transitions = [
+        State::STATE_REGISTERED => [
+            State::STATE_PENDING,
+            State::STATE_FORM_RECEIVED,
+        ],
         State::STATE_PENDING => [
             State::STATE_FORM_RECEIVED,
             State::STATE_VALIDATION_IN_PROGRESS,

@@ -17,6 +17,7 @@ class State extends Model
         'slug',
     ];
 
+    public const STATE_REGISTERED = 'registered';
     public const STATE_PENDING = 'pending';
     public const STATE_FORM_RECEIVED = 'form_received';
     public const STATE_VALIDATION_IN_PROGRESS = 'validation_in_progress';
@@ -26,6 +27,7 @@ class State extends Model
     public const STATE_VALIDATED = 'validated';
 
     public const STATES = [
+        self::STATE_REGISTERED,
         self::STATE_PENDING,
         self::STATE_FORM_RECEIVED,
         self::STATE_VALIDATION_IN_PROGRESS,
