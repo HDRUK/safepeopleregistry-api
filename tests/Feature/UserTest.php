@@ -250,6 +250,8 @@ class UserTest extends TestCase
 
     public function test_the_application_can_create_users(): void
     {
+        $this->enableObservers();
+
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'POST',
@@ -267,6 +269,13 @@ class UserTest extends TestCase
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
+
+        // Test that when a user is created, our observer sets the initial
+        // entity status for workflows
+        $user = User::where('id', $response['data'])->first();
+        $this->assertTrue($user->isInState(State::STATE_REGISTERED));
+
+        $this->disableObservers();
     }
 
     public function test_the_application_fails_when_unable_to_create_users(): void
