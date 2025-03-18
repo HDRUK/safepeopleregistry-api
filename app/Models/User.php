@@ -165,7 +165,8 @@ class User extends Authenticatable
         'role',
         'location',
         't_and_c_agreed',
-        't_and_c_agreement_date'
+        't_and_c_agreement_date',
+        'uksa_registered',
     ];
 
     protected static array $searchableColumns = [
@@ -212,6 +213,8 @@ class User extends Authenticatable
     protected $casts = [
         'consent_scrape' => 'boolean',
         'orcid_scanning' => 'boolean',
+        'uksa_registered' => 'boolean',
+        'declaration_signed' => 'boolean',
     ];
 
     protected $appends = ['status'];
