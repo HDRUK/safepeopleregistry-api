@@ -64,7 +64,7 @@
             "@php artisan key:generate --ansi"
         ],
         "pest": [
-            "vendor/bin/pest"
+            "vendor/bin/pest --parallel"
         ],
         "lint": [
             "vendor/bin/pint --preset psr12"
