@@ -35,7 +35,7 @@ class EmailTemplatesSeeder extends Seeder
     <mj-wrapper padding="20px 0px 20px 0px" border="none" direction="ltr" text-align="center" >
       <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
         <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
-          <mj-image align="center" height="120px" src="https://fakeimg.pl/800x120?text=[[env(APP_NAME)]]-Registry" width="800px" padding="0px 0px 0px 0px" ></mj-image>
+          <mj-image align="center" height="100px" src="https://web.registry.dev.hdruk.cloud/images/logos/email_banner.png" width="800px" padding="0px 0px 0px 0px" ></mj-image>
         </mj-column>
       </mj-section>
     </mj-wrapper>
