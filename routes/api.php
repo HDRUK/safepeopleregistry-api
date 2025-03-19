@@ -105,6 +105,7 @@ Route::middleware('auth:api')->get('v1/training/{id}', [TrainingController::clas
 Route::middleware('auth:api')->post('v1/training', [TrainingController::class, 'store']);
 Route::middleware('auth:api')->put('v1/training/{id}', [TrainingController::class, 'update']);
 Route::middleware('auth:api')->delete('v1/training/{id}', [TrainingController::class, 'destroy']);
+Route::middleware('auth:api')->post('v1/training/{trainingId}/link_file/{fileId}', [TrainingController::class, 'linkTrainingFile']);
 
 Route::middleware('auth:api')->get('v1/custodians', [CustodianController::class, 'index']);
 Route::middleware('auth:api')->get('v1/custodians/{id}', [CustodianController::class, 'show']);

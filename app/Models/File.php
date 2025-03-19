@@ -16,6 +16,14 @@ class File extends Model
 
     public $timestamps = true;
 
+    public const FILE_STATUS_PENDING = 'pending';
+    public const FILE_STATUS_PROCESSED = 'processed';
+    public const FILE_STATUS_FAILED = 'failed';
+
+    public const FILE_TYPE_RESEARCHER_LIST = 'researcher_list';
+    public const FILE_TYPE_CV = 'cv';
+    public const FILE_TYPE_TRAINING_EVIDENCE = 'training_evidence';
+
     protected $fillable = [
         'name',
         'type',

@@ -128,7 +128,7 @@ class FileUploadController extends Controller
                 return $this->NotFoundResponse();
             }
 
-            if ($file->status !== 'PROCESSED') {
+            if ($file->status !== FILE::FILE_STATUS_PROCESSED) {
                 return $this->NotFoundResponse();
             }
 
@@ -230,7 +230,7 @@ class FileUploadController extends Controller
                 'name' => $file->getClientOriginalName(),
                 'type' => $input['file_type'],
                 'path' => $path,
-                'status' => 'PENDING',
+                'status' => File::FILE_STATUS_PENDING,
             ]);
 
             if (strtoupper($input['entity_type'] ?? '') === 'RESEARCHER' && isset($input['registry_id']) && $input['registry_id'] !== null) {
