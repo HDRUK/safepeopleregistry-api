@@ -1063,8 +1063,6 @@ class OrganisationController extends Controller
     {
         try {
             $input = $request->all();
-
-
             if (User::where("email", $input['email'])->exists()) {
                 return $this->ConflictResponse();
             }
