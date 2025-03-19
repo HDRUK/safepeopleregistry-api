@@ -60,7 +60,7 @@ class ScanFileUpload implements ShouldQueue
         // Check if the file is infected
         if ($isInfected || $isInfected === null) {
             $file->update([
-                'status' => 'FAILED',
+                'status' => File::FILE_STATUS_FAILED,
             ]);
             Storage::disk($this->fileSystem.'.unscanned')
                 ->delete($file->path);
@@ -72,7 +72,7 @@ class ScanFileUpload implements ShouldQueue
             Storage::disk($this->fileSystem.'.unscanned')->delete($loc);
 
             $file->update([
-                'status' => 'PROCESSED',
+                'status' => File::FILE_STATUS_PROCESSED,
                 'path' => $loc,
             ]);
         }
@@ -84,7 +84,7 @@ class ScanFileUpload implements ShouldQueue
         $file = $model::findOrFail($this->fileId);
 
         $file->update([
-            'status' => 'FAILED',
+            'status' => File::FILE_STATUS_FAILED,
         ]);
     }
 }

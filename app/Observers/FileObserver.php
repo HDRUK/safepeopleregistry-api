@@ -10,8 +10,8 @@ class FileObserver
 {
     public function updated(File $file): void
     {
-        if (strtoupper($file->type) === 'RESEARCHER_LIST' &&
-            strtoupper($file->status) === 'PROCESSED') {
+        if (strtolower($file->type) === File::FILE_TYPE_RESEARCHER_LIST &&
+            strtolower($file->status) === File::FILE_STATUS_PROCESSED) {
             $org = OrganisationHasFile::where([
                 'file_id' => $file->id,
             ])->first()->organisation_id;

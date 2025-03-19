@@ -862,7 +862,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         // --------------------------------------------------------------------------------
     }
 
-    private function createIdentities(array $input): void
+    private function createIdentities(array &$input): void
     {
         foreach ($input as $u) {
             $user = User::where('email', $u['email'])->first();
@@ -885,9 +885,11 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'idvt_completed_at' =>      $u['identity']['idvt_completed_at'],
             ]);
         }
+
+        unset($input);
     }
 
-    private function createAffiliations(array $input): void
+    private function createAffiliations(array &$input): void
     {
         foreach ($input as $u) {
             $user = User::where('email', $u['email'])->first();
@@ -921,9 +923,11 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 ]);
             }
         }
+
+        unset($input);
     }
 
-    private function linkUsersToProjects(array $input): void
+    private function linkUsersToProjects(array &$input): void
     {
         foreach ($input as $u) {
             $user = User::where('email', $u['email'])->first();
@@ -936,9 +940,11 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 ]);
             }
         }
+
+        unset($input);
     }
 
-    private function createUsers(array $input): void
+    private function createUsers(array &$input): void
     {
         foreach ($input as $u) {
             $user = User::create([
@@ -952,9 +958,11 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'keycloak_id' =>        $u['keycloak_id'],
             ]);
         }
+
+        unset($input);
     }
 
-    private function createUserRegistry(array $input, bool $legit = true): void
+    private function createUserRegistry(array &$input, bool $legit = true): void
     {
         foreach ($input as $u) {
             $reg = Registry::create([
@@ -1081,6 +1089,12 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 ]);
             }
         }
+
+        unset($input);
+        unset($trainings);
+        unset($educations);
+        unset($reg);
+        unset($user);
     }
 
     private function createUnclaimedUsers(): void
@@ -1096,6 +1110,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             ]);
         }
 
+        unset($custodianAdmin);
     }
 
     private function addRandomUsersToProject(int $projectId, int $nUsers = null): void
@@ -1113,5 +1128,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 ]
             );
         }
+
+        unset($users);
     }
 }
