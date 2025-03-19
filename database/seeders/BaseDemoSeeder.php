@@ -366,6 +366,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
                 'organisation_id' => $org1->id, // Needed because this is an org admin
                 'keycloak_id' => '0a12bc97-87b3-4f10-bb95-a2d8e65752f8', // Dragons ahead - needs to map 1:1 with KC users
+                'is_sro' => 1,
             ],
             [
                 'first_name' => 'Admin',
@@ -396,6 +397,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
                 'organisation_id' => $org2->id, // Needed because this is an org admin
                 'keycloak_id' => 'dd4eaa64-cea4-4f2d-847c-fba13a04bbb2', // Dragons ahead - needs to map 1:1 with KC users
+                'is_sro' => 1,
             ],
             [
                 'first_name' => 'Admin',
