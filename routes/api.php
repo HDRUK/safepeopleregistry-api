@@ -138,8 +138,6 @@ Route::middleware('auth:api')->get('v1/endorsements', [EndorsementController::cl
 Route::middleware('auth:api')->get('v1/endorsements/{id}', [EndorsementController::class, 'show']);
 Route::middleware('auth:api')->post('v1/endorsements', [EndorsementController::class, 'store']);
 
-Route::middleware('auth:api')->get('v1/states', [States::class, 'index']);
-
 Route::middleware('auth:api')->get('v1/projects', [ProjectController::class, 'index']);
 Route::middleware('auth:api')->get('v1/projects/{id}', [ProjectController::class, 'show']);
 Route::middleware('auth:api')->get('v1/projects/user/{registryId}/approved', [ProjectController::class, 'getApprovedProjects']);

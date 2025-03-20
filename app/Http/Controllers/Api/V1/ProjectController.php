@@ -8,7 +8,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Traits\Responses;
 use App\Models\Project;
 use App\Models\Registry;
-use App\Models\State;
 use App\Models\ProjectHasUser;
 use App\Traits\CommonFunctions;
 use App\Traits\FilterManager;
@@ -115,8 +114,7 @@ class ProjectController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
-        $project = Project::with(['modelState.state'])->findOrFail($id);
-
+        $project = Project::findOrFail($id);
         if ($project) {
             return response()->json([
                 'message' => 'success',
@@ -340,7 +338,7 @@ class ProjectController extends Controller
             ->select('id')
             ->pluck('id')
             ->toArray();
-        $users = User::filterByState()->applySorting()->with([
+        $users = User::with([
             'registry.user',
             'registry.organisations' => function ($query) {
                 $query->select(['id','organisation_name']);
@@ -351,6 +349,8 @@ class ProjectController extends Controller
             'registry.accreditations',
             'modelState',
         ])
+        ->searchViaRequest()
+        ->filterByState()
         ->whereIn('registry_id', $registries)
         ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
@@ -403,12 +403,18 @@ class ProjectController extends Controller
     public function store(Request $request): JsonResponse
     {
         try {
-            $input = $request->only(app(Project::class)->getFillable());
-            $project = Project::create($input);
-
-            if ($project) {
-                $project->setState(State::STATE_PENDING);
-            }
+            $input = $request->all();
+            $project = Project::create([
+                'unique_id' => $input['unique_id'],
+                'title' => $input['title'],
+                'lay_summary' => $input['lay_summary'],
+                'public_benefit' => $input['public_benefit'],
+                'request_category_type' => $input['request_category_type'],
+                'technical_summary' => $input['technical_summary'],
+                'other_approval_committees' => $input['other_approval_committees'],
+                'start_date' => $input['start_date'],
+                'end_date' => $input['end_date'],
+            ]);
 
             return response()->json([
                 'message' => 'success',
@@ -471,7 +477,6 @@ class ProjectController extends Controller
      *                  @OA\Property(property="name", type="string", example="My First Research Project"),
      *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
      *                  @OA\Property(property="runs_to", type="string", example="2026-02-04")
-     *                  @OA\Property(property="status", type="string", example="approved")
      *              )
      *          ),
      *      ),
@@ -487,25 +492,23 @@ class ProjectController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         try {
-            $input = $request->only(app(Project::class)->getFillable());
-            $project = Project::where('id', $id)->first();
+            $input = $request->all();
+            $project = Project::where('id', $id)->update([
+                'unique_id' => $input['unique_id'],
+                'title' => $input['title'],
+                'lay_summary' => $input['lay_summary'],
+                'public_benefit' => $input['public_benefit'],
+                'request_category_type' => $input['request_category_type'],
+                'technical_summary' => $input['technical_summary'],
+                'other_approval_committees' => $input['other_approval_committees'],
+                'start_date' => $input['start_date'],
+                'end_date' => $input['end_date'],
+            ]);
 
-            if(!is_null($project)) {
-                $project->update($input);
-                $status = $request->get('status');
-
-                if(isset($status)) {
-                    if ($project->canTransitionTo($status)) {
-                        $project->transitionTo($status);
-                    } else {
-                        return $this->BadRequestResponse();
-                    }
-                }
-
-                return $this->OKResponse(Project::where('id', $id)->first());
-            }
-
-            return $this->NotFoundResponse();
+            return response()->json([
+                'message' => 'success',
+                'data' => Project::where('id', $id)->first(),
+            ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -561,7 +564,6 @@ class ProjectController extends Controller
      *                  @OA\Property(property="name", type="string", example="My First Research Project"),
      *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
      *                  @OA\Property(property="runs_to", type="string", example="2026-02-04")
-     *                  @OA\Property(property="status", type="string", example="2026-02-04")
      *              )
      *          ),
      *      ),
@@ -577,8 +579,18 @@ class ProjectController extends Controller
     public function edit(Request $request, int $id): JsonResponse
     {
         try {
-            $input = $request->only(app(Project::class)->getFillable());
-            $project = Project::where('id', $id)->update($input);
+            $input = $request->all();
+            $project = Project::where('id', $id)->update([
+                'unique_id' => $input['unique_id'],
+                'title' => $input['title'],
+                'lay_summary' => $input['lay_summary'],
+                'public_benefit' => $input['public_benefit'],
+                'request_category_type' => $input['request_category_type'],
+                'technical_summary' => $input['technical_summary'],
+                'other_approval_committees' => $input['other_approval_committees'],
+                'start_date' => $input['start_date'],
+                'end_date' => $input['end_date'],
+            ]);
 
             return response()->json([
                 'message' => 'success',
