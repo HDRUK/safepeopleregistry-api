@@ -407,7 +407,7 @@ class ProjectController extends Controller
             $project = Project::create($input);
 
             if ($project) {
-                $project->setState(State::STATE_PENDING);
+                $project->setState(State::STATE_PROJECT_PENDING);
             }
 
             return response()->json([
