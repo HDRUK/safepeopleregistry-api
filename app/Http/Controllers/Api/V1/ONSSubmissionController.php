@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Jobs\ScanFileUpload;
 use App\Models\ONSFile;
+use App\Models\File;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -48,7 +49,7 @@ class ONSSubmissionController extends Controller
         $file = ONSFile::create([
             'name' => $file->getClientOriginalName(),
             'path' => $path,
-            'status' => 'PENDING',
+            'status' => File::FILE_STATUS_PENDING,
         ]);
 
         if (!in_array(env('APP_ENV'), ['testing', 'ci'])) {

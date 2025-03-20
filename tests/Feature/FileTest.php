@@ -30,7 +30,7 @@ class FileTest extends TestCase
     public function test_it_should_return_not_download_if_file_status_is_not_processed()
     {
         $file = File::create([
-            'status' => 'PENDING',
+            'status' => File::FILE_STATUS_PENDING,
             'type' => 'TEST',
             'path' => 'testfile.txt',
             'name' => 'testfile.txt',
@@ -48,7 +48,7 @@ class FileTest extends TestCase
     public function test_it_should_download_processed_file()
     {
         $file = File::create([
-            'status' => 'PROCESSED',
+            'status' => File::FILE_STATUS_PROCESSED,
             'type' => 'TEST',
             'path' => 'testfile.txt',
             'name' => 'testfile.txt',

@@ -10,8 +10,12 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        Schema::table('files', function (Blueprint $table) {
-            $table->string('status')->default('pending');
+        Schema::create('training_has_files', function (Blueprint $table) {
+            $table->bigInteger('training_id');
+            $table->bigInteger('file_id');
+
+            $table->index('training_id');
+            $table->index('file_id');
         });
     }
 
@@ -20,8 +24,6 @@ return new class () extends Migration {
      */
     public function down(): void
     {
-        Schema::table('files', function (Blueprint $table) {
-            $table->dropColumn('status');
-        });
+        Schema::dropIfExists('training_has_files');
     }
 };

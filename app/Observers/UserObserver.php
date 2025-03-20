@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\User;
+use App\Models\State;
 use App\Models\Organisation;
 use App\Models\ActionLog;
 use App\Notifications\AdminUserChanged;
@@ -23,6 +24,8 @@ class UserObserver
      */
     public function created(User $user): void
     {
+        $user->setState(State::STATE_REGISTERED);
+
         foreach (User::getDefaultActions() as $action) {
             ActionLog::create([
                 'entity_id' => $user->id,
