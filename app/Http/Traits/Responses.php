@@ -81,4 +81,12 @@ trait Responses
         ], Response::HTTP_NOT_IMPLEMENTED);
     }
 
+    public function ConflictResponse(mixed $data = null): JsonResponse
+    {
+        return response()->json([
+            'message' => 'conflict',
+            'data' => $data,
+        ], Response::HTTP_CONFLICT);
+    }
+
 }

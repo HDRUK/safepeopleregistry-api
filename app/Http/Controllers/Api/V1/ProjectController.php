@@ -351,6 +351,8 @@ class ProjectController extends Controller
             'registry.accreditations',
             'modelState',
         ])
+        ->searchViaRequest()
+        ->filterByState()
         ->whereIn('registry_id', $registries)
         ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 

@@ -65,6 +65,8 @@ class UserController extends Controller
      *                  @OA\Property(property="location", type="string", example="United Kingdom"),
      *                  @OA\Property(property="t_and_c_agreed", type="boolean", example="true"),
      *                  @OA\Property(property="t_and_c_agreement_date", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="uksa_registered", type="boolean", example="true"),
+     *                  @OA\Property(property="is_sro", type="boolean", example="false")
      *
      *              )
      *          ),
@@ -182,7 +184,9 @@ class UserController extends Controller
      *                  @OA\Property(property="location", type="string", example="United Kingdom"),
      *                  @OA\Property(property="t_and_c_agreed", type="boolean", example="true"),
      *                  @OA\Property(property="t_and_c_agreement_date", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="status", type="string", example="registered")
+     *                  @OA\Property(property="status", type="string", example="registered"),
+     *                  @OA\Property(property="uksa_registered", type="boolean", example="true"),
+     *                  @OA\Property(property="is_sro", type="boolean", example="false")
      *              )
      *          ),
      *      ),
@@ -276,7 +280,9 @@ class UserController extends Controller
      *                  @OA\Property(property="organisation_id", type="integer", example="123"),
      *                  @OA\Property(property="orcid_scanning", type="integer", example="1"),
      *                  @OA\Property(property="orcid_scanning_completed_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="status", type="string", example="registered")
+     *                  @OA\Property(property="status", type="string", example="registered"),
+     *                  @OA\Property(property="uksa_registered", type="boolean", example="true"),
+     *                  @OA\Property(property="is_sro", type="boolean", example="false")
      *              )
      *          ),
      *      ),
@@ -309,6 +315,8 @@ class UserController extends Controller
                 'public_opt_in' => isset($input['public_opt_in']) ? $input['public_opt_in'] : false,
                 'declaration_signed' => isset($input['declaration_signed']) ? $input['declaration_signed'] : false,
                 'organisation_id' => isset($input['organisation_id']) ? $input['organisation_id'] : null,
+                'uksa_registered' => isset($input['uksa_registered']) ? $input['uksa_registered'] : 0,
+                'is_sro' => isset($input['is_sro']) ? $input['is_sro'] : 0,
             ]);
 
             // TODO - Close Pending invite when we're sure how org id is handled
@@ -426,7 +434,9 @@ class UserController extends Controller
      *                  @OA\Property(property="orcid_scanning_completed_at", type="string", example="2024-02-04 12:01:00"),
      *                  @OA\Property(property="t_and_c_agreed", type="boolean", example="true"),
      *                  @OA\Property(property="t_and_c_agreement_date", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="status", type="string", example="registered")
+     *                  @OA\Property(property="status", type="string", example="registered"),
+     *                  @OA\Property(property="uksa_registered", type="boolean", example="true"),
+     *                  @OA\Property(property="is_sro", type="boolean", example="false")
      *              )
      *          ),
      *      ),
@@ -463,6 +473,8 @@ class UserController extends Controller
                 ? filter_var($input['t_and_c_agreed'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)
                 : $user->t_and_c_agreed;
             $user->t_and_c_agreement_date = isset($input['lt_and_c_agreement_date']) ? $input['t_and_c_agreement_date'] : $user->t_and_c_agreement_date;
+            $user->uksa_registered = isset($input['uksa_registered']) ? $input['uksa_registered'] : $user->uksa_registered;
+            $user->is_sro = isset($input['is_sro']) ? $input['is_sro'] : $user->is_sro;
 
             if ($user->save()) {
                 return response()->json([
@@ -552,7 +564,9 @@ class UserController extends Controller
      *                  @OA\Property(property="location", type="string", example="United Kingdom"),
      *                  @OA\Property(property="t_and_c_agreed", type="boolean", example="true"),
      *                  @OA\Property(property="t_and_c_agreement_date", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="status", type="string", example="registered")
+     *                  @OA\Property(property="status", type="string", example="registered"),
+     *                  @OA\Property(property="uksa_registered", type="boolean", example="true"),
+     *                  @OA\Property(property="is_sro", type="boolean", example="false")
      *              )
      *          ),
      *      ),

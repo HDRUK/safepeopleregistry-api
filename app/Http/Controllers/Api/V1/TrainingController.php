@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api\V1;
 
 use Exception;
 use App\Http\Controllers\Controller;
+use App\Models\File;
 use App\Models\Training;
+use App\Models\TrainingHasFile;
 use App\Models\RegistryHasTraining;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
@@ -46,7 +48,8 @@ class TrainingController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $trainings = Training::searchViaRequest()
+        $trainings = Training::with('files')
+            ->searchViaRequest()
             ->applySorting()
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
@@ -97,7 +100,8 @@ class TrainingController extends Controller
             'registry_id' => $registryId,
         ])->select('training_id')->get()->toArray();
 
-        $trainings = Training::whereIn('id', $linkedTraining)->get();
+        $trainings = Training::with('files')
+            ->whereIn('id', $linkedTraining)->get();
         return $this->OKResponse($trainings);
     }
 
@@ -141,7 +145,8 @@ class TrainingController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
-        $training = Training::where('id', $id)->first();
+        $training = Training::with('files')
+            ->where('id', $id)->first();
         if ($training) {
             return $this->OKResponse($training);
         }
@@ -272,20 +277,53 @@ class TrainingController extends Controller
     public function destroy(Request $request, int $id): JsonResponse
     {
         try {
-            $training = Training::where('id', $id);
-            $trainingData = $training->first();
+            $training = Training::with('files')
+                ->where('id', $id)->first();
 
-            if (!is_null($trainingData)) {
+            if (!is_null($training)) {
+                // Delete files associated with this training entry
+                foreach ($training->files as $file) {
+                    $file->delete();
+
+                    // Delete logical links between training and files
+                    TrainingHasFile::where([
+                        'training_id' => $training->id,
+                        'file_id' => $file->id,
+                    ])->delete();
+                }
+
+                // Finally delete the training entries
                 $training->delete();
 
                 RegistryHasTraining::where([
-                    'training_id' => $trainingData->id,
+                    'training_id' => $training->id,
                 ])->delete();
             } else {
                 return $this->NotFoundResponse();
             }
 
             return $this->OKResponse(null);
+        } catch (Exception $e) {
+            return $this->ErrorResponse();
+        }
+    }
+
+    public function linkTrainingFile(Request $request, int $trainingId, int $fileId): JsonResponse
+    {
+        try {
+            $training = Training::where('id', $trainingId)->first();
+            $file = File::where('id', $fileId)->first();
+
+            if ($training && $file) {
+                TrainingHasFile::create([
+                    'training_id' => $training->id,
+                    'file_id' => $file->id,
+                ]);
+
+                return $this->OKResponse(null);
+            }
+
+            return $this->NotFoundResponse();
         } catch (Exception $e) {
             return $this->ErrorResponse();
         }

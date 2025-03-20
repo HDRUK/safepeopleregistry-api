@@ -10,8 +10,8 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        Schema::table('files', function (Blueprint $table) {
-            $table->string('status')->default('pending');
+        Schema::table('users', function (Blueprint $table) {
+            $table->tinyInteger('uksa_registered')->default(0);
         });
     }
 
@@ -20,8 +20,8 @@ return new class () extends Migration {
      */
     public function down(): void
     {
-        Schema::table('files', function (Blueprint $table) {
-            $table->dropColumn('status');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('uksa_registered');
         });
     }
 };
