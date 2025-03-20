@@ -35,9 +35,9 @@ trait StateWorkflow
             State::STATE_VALIDATED,
         ],
         State::STATE_VALIDATED => [],
-        State::STATE_PENDING => [
-            State::STATE_APPROVED,
-            State::STATE_COMPLETED
+        State::STATE_PROJECT_PENDING => [
+            State::STATE_PROJECT_APPROVED,
+            State::STATE_PROJECT_COMPLETED
         ],
     ];
 

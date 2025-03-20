@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Project;
+use App\Models\Status;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Schema;
 
@@ -19,5 +20,11 @@ class ProjectSeeder extends Seeder
 
         Schema::enableForeignKeyConstraints();
         Project::factory(5)->create();
+
+        $projects = Project::all();
+
+        foreach ($projects as $project) {
+            $project->setState(Status::PROJECT_PENDING);
+        }
     }
 }

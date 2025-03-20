@@ -27,6 +27,7 @@ use App\Models\RegistryHasTraining;
 use App\Models\RegistryHasAffiliation;
 use App\Models\OrganisationHasDepartment;
 use App\Models\OrganisationHasCustodianApproval;
+use App\Models\Status;
 use App\Traits\CommonFunctions;
 use Illuminate\Database\Seeder;
 
@@ -133,6 +134,8 @@ Health Research Authority (HRA) Approval as it involves health-related research 
             'end_date' => '2026-01-12',
         ]);
 
+        $org1Proj1->setState(Status::PROJECT_APPROVED);
+
         ProjectHasCustodian::create([
             'project_id' => $org1Proj1->id,
             'custodian_id' => Custodian::first()->id,
@@ -159,6 +162,8 @@ National Public Health Ethics Committee for authorization to analyze population 
             'start_date' => '2025-03-01',
             'end_date' => '2025-09-01',
         ]);
+
+        $org1Proj2->setState(Status::PROJECT_PENDING);
 
         ProjectHasCustodian::create([
             'project_id' => $org1Proj2->id,
@@ -236,6 +241,8 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'end_date' => '2026-01-01',
         ]);
 
+        $org2Proj1->setState(Status::PROJECT_PENDING);
+
         ProjectHasCustodian::create([
             'project_id' => $org2Proj1->id,
             'custodian_id' => Custodian::first()->id,
@@ -310,6 +317,8 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'start_date' => '2024-06-01',
             'end_date' => '2025-12-31',
         ]);
+
+        $proj->setState(Status::PROJECT_COMPLETED);
 
         ProjectHasCustodian::create([
             'project_id' => $proj->id,
