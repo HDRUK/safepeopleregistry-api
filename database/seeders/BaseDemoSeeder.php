@@ -27,6 +27,7 @@ use App\Models\RegistryHasTraining;
 use App\Models\RegistryHasAffiliation;
 use App\Models\OrganisationHasDepartment;
 use App\Models\OrganisationHasCustodianApproval;
+use App\Models\UserHasCustodianApproval;
 use App\Traits\CommonFunctions;
 use Illuminate\Database\Seeder;
 
@@ -515,6 +516,9 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                         'ror' => $this->generateRorID(),
                         'registry_id' => -1,
                     ],
+                ],
+                'custodian_approvals' => [
+                    1,
                 ],
             ],
             [
@@ -1087,6 +1091,15 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                     'registry_id' => $reg->id,
                     'training_id' => $training->id,
                 ]);
+            }
+
+            if (isset($u['custodian_approvals'])) {
+                foreach ($u['custodian_approvals'] as $approval) {
+                    $uhca = UserHasCustodianApproval::create([
+                        'user_id' => $user->id,
+                        'custodian_id' => $approval,
+                    ]);
+                }
             }
         }
 

@@ -119,6 +119,7 @@ Route::middleware('auth:api')->delete('v1/custodians/{id}', [CustodianController
 Route::middleware(['auth:api', 'check.custodian.access'])->post('v1/custodians/push', [CustodianController::class, 'push']);
 Route::middleware('auth:api')->get('v1/custodians/{id}/rules', [CustodianController::class, 'getRules']);
 Route::middleware('auth:api')->patch('v1/custodians/{id}/rules', [CustodianController::class, 'updateCustodianRules']);
+Route::middleware('api')->get('v1/custodians/{id}/users', [CustodianController::class, 'usersWithCustodianApprovals']);
 
 Route::middleware('auth:api')->get('v1/custodian_users', [CustodianUserController::class, 'index']);
 Route::middleware('auth:api')->get('v1/custodian_users/{id}', [CustodianUserController::class, 'show']);
