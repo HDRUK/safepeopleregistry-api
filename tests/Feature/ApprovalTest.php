@@ -126,6 +126,8 @@ class ApprovalTest extends TestCase
 
     public function test_the_application_can_get_user_custodian_approvals(): void
     {
+        UserHasCustodianApproval::truncate();
+
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'POST',
