@@ -27,7 +27,7 @@ class State extends Model
     public const STATE_APPROVED = 'approved';
     public const STATE_PROJECT_PENDING = 'project_pending';
     public const STATE_PROJECT_COMPLETED = 'project_completed';
-    public const STATE_PROJECT_APPROVED = 'project_rejected';
+    public const STATE_PROJECT_APPROVED = 'project_approved';
 
     public const STATES = [
         self::STATE_PENDING,
