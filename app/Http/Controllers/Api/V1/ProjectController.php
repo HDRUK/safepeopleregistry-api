@@ -347,7 +347,7 @@ class ProjectController extends Controller
             'registry.education',
             'registry.trainings',
             'registry.accreditations',
-            'modelState',
+            'modelState.state',
         ])
         ->searchViaRequest()
         ->filterByState()
