@@ -135,7 +135,7 @@ class ProjectTest extends TestCase
                 'other_approval_committees' => 'Bodies on a board panel',
                 'start_date' => Carbon::now(),
                 'end_date' => Carbon::now()->addYears(2),
-                'affiliate_id' => 1,
+                'affiliate_id' => 1
             ]
             );
 
@@ -161,6 +161,7 @@ class ProjectTest extends TestCase
                 'start_date' => Carbon::now(),
                 'end_date' => Carbon::now()->addYears(2),
                 'affiliate_id' => 1,
+                'status' => 'approved'
             ]
             );
 

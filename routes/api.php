@@ -38,6 +38,7 @@ use App\Http\Controllers\Api\V1\WebhookController;
 use App\Http\Controllers\Api\V1\CustodianModelConfigController;
 use App\Http\Controllers\Api\V1\ProjectDetailController;
 use App\Http\Controllers\Api\V1\ProjectRoleController;
+use App\Http\Controllers\Api\V1\StateController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -136,6 +137,8 @@ Route::middleware('auth:api')->delete('v1/departments/{id}', [DepartmentControll
 Route::middleware('auth:api')->get('v1/endorsements', [EndorsementController::class, 'index']);
 Route::middleware('auth:api')->get('v1/endorsements/{id}', [EndorsementController::class, 'show']);
 Route::middleware('auth:api')->post('v1/endorsements', [EndorsementController::class, 'store']);
+
+Route::middleware('auth:api')->get('v1/states', [States::class, 'index']);
 
 Route::middleware('auth:api')->get('v1/projects', [ProjectController::class, 'index']);
 Route::middleware('auth:api')->get('v1/projects/{id}', [ProjectController::class, 'show']);

@@ -603,7 +603,7 @@ class CustodianController extends Controller
 
         $projects = Project::searchViaRequest()
           ->applySorting()
-          ->with(['approvals', 'organisations'])
+          ->with(['approvals', 'organisations', 'modelState.state'])
           ->filterWhen('approved', function ($query, $value) {
               if ($value) {
                   $query->whereHas('approvals');

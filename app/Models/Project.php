@@ -33,7 +33,7 @@ class Project extends Model
         'technical_summary',
         'other_approval_committees',
         'start_date',
-        'end_date',
+        'end_date'
     ];
 
     /**
@@ -44,6 +44,7 @@ class Project extends Model
         'start_date',
         'end_date',
         'unique_id',
+        'status'
     ];
 
     protected static array $sortableColumns = [
