@@ -285,8 +285,8 @@ class IdentityController extends Controller
         try {
             $input = $request->all();
 
-            $id = Identity::findOrFail($id);
-            $id->update([
+            $identity = Identity::findOrFail($id);
+            $identity->update([
                 'registry_id' => $input['registry_id'],
                 'selfie_path' => $input['selfie_path'],
                 'passport_path' => $input['passport_path'],
