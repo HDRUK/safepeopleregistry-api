@@ -3,18 +3,17 @@
 namespace App\Observers;
 
 use App\Models\RegistryHasAffiliation;
-use App\Models\ActionLog;
-use App\Models\User;
-use Carbon\Carbon;
+use App\Traits\AffiliationCompletionManager;
 
 class RegistryHasAffiliationObserver
 {
+    use AffiliationCompletionManager;
     /**
      * Handle the RegistryHasAffiliation "created" event.
      */
     public function created(RegistryHasAffiliation $registryHasAffiliation): void
     {
-        $this->updateActionLog($registryHasAffiliation);
+        $this->updateActionLog($registryHasAffiliation->registry_id);
     }
 
     /**
@@ -22,7 +21,7 @@ class RegistryHasAffiliationObserver
      */
     public function updated(RegistryHasAffiliation $registryHasAffiliation): void
     {
-        $this->updateActionLog($registryHasAffiliation);
+        $this->updateActionLog($registryHasAffiliation->registry_id);
     }
 
     /**
@@ -30,7 +29,7 @@ class RegistryHasAffiliationObserver
      */
     public function deleted(RegistryHasAffiliation $registryHasAffiliation): void
     {
-        $this->updateActionLog($registryHasAffiliation);
+        $this->updateActionLog($registryHasAffiliation->registry_id);
     }
 
     /**
@@ -38,7 +37,7 @@ class RegistryHasAffiliationObserver
      */
     public function restored(RegistryHasAffiliation $registryHasAffiliation): void
     {
-        $this->updateActionLog($registryHasAffiliation);
+        $this->updateActionLog($registryHasAffiliation->registry_id);
     }
 
     /**
@@ -46,29 +45,7 @@ class RegistryHasAffiliationObserver
      */
     public function forceDeleted(RegistryHasAffiliation $registryHasAffiliation): void
     {
-        $this->updateActionLog($registryHasAffiliation);
-    }
-
-    /**
-     * Updates the action log based on the user's affiliations.
-     */
-    private function updateActionLog(RegistryHasAffiliation $registryHasAffiliation): void
-    {
-        $registryId = $registryHasAffiliation->registry_id;
-        $user = User::where('registry_id', $registryId)->first();
-        if (!$user) {
-            return;
-        }
-        $hasAffiliations = RegistryHasAffiliation::where('registry_id', $registryId)->exists();
-
-        ActionLog::updateOrCreate(
-            [
-                'entity_id' => $user->id,
-                'entity_type' => User::class,
-                'action' => User::ACTION_AFFILIATIONS_COMPLETE,
-            ],
-            ['completed_at' => $hasAffiliations ? Carbon::now() : null]
-        );
+        $this->updateActionLog($registryHasAffiliation->registry_id);
     }
 
 }

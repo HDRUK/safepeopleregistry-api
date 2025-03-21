@@ -17,4 +17,9 @@ class RegistryHasAffiliation extends Model
         'registry_id',
         'affiliation_id',
     ];
+
+    public function affiliation()
+    {
+        return $this->belongsTo(Affiliation::class, 'affiliation_id');
+    }
 }
