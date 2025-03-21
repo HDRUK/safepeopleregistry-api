@@ -344,6 +344,20 @@ class UserTest extends TestCase
         $this->assertGreaterThan(0, $content);
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . '/' . $content . '/action_log'
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', User::ACTION_PROFILE_COMPLETED);
+
+        $this->assertNull($actionLog['completed_at']);
+
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'PUT',
                 self::TEST_URL . '/' . $content,
@@ -353,6 +367,7 @@ class UserTest extends TestCase
                     'email' => fake()->email(),
                     'declaration_signed' => true,
                     'organisation_id' => 2,
+                    'location' => 1
                 ]
             );
 
@@ -364,6 +379,22 @@ class UserTest extends TestCase
         $this->assertEquals($content['consent_scrape'], true);
         $this->assertEquals($content['declaration_signed'], true);
         $this->assertEquals($content['organisation_id'], 2);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . '/' . $content['id'] . '/action_log'
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', User::ACTION_PROFILE_COMPLETED);
+
+        $this->assertEquals(
+            Carbon::now()->format('Y-m-d H:i:s'),
+            $actionLog['completed_at']
+        );
     }
 
 

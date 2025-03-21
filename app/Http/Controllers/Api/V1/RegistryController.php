@@ -203,7 +203,9 @@ class RegistryController extends Controller
     {
         try {
             $input = $request->only(app(Registry::class)->getFillable());
-            $registry = tap(Registry::where('id', $id))->update($input)->first();
+            $registry = Registry::where('id', $id)->first();
+            $registry->update($input);
+
 
             return $this->OKResponse($registry);
         } catch (Exception $e) {

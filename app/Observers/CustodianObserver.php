@@ -23,12 +23,13 @@ class CustodianObserver
         }
 
         foreach (Custodian::getDefaultActions() as $action) {
-            ActionLog::create([
-                'entity_id' => $custodian->id,
-                'entity_type' => Custodian::class,
-                'action' => $action,
-                'completed_at' => null,
-            ]);
+            ActionLog::firstOrCreate([
+                 'entity_id' => $custodian->id,
+                 'entity_type' => Custodian::class,
+                 'action' => $action,
+            ], [
+                 'completed_at' => null,
+             ]);
         }
     }
 }

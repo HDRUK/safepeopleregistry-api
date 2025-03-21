@@ -370,6 +370,7 @@ class OrganisationTest extends TestCase
 
     public function test_the_application_can_update_organisations(): void
     {
+        Carbon::setTestNow(Carbon::now());
         $isoCertified = fake()->randomElement([1, 0]);
         $ceCertified = fake()->randomElement([1, 0]);
 
@@ -385,8 +386,20 @@ class OrganisationTest extends TestCase
 
         $content = $response->decodeResponseJson();
 
-        $newDate = Carbon::now()->subYears(2);
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . '/' . $content['data'] . '/action_log'
+        );
 
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Organisation::ACTION_NAME_ADDRESS_COMPLETED);
+
+        $this->assertNull($actionLog['completed_at']);
+
+        $newDate = Carbon::now()->subYears(2);
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'PUT',
@@ -448,6 +461,22 @@ class OrganisationTest extends TestCase
             'organisation_id' => $organisationId,
             'subsidiary_id' => $subsidiaryId,
         ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . '/' . $content['data'] . '/action_log'
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Organisation::ACTION_NAME_ADDRESS_COMPLETED);
+
+        $this->assertEquals(
+            Carbon::now()->format('Y-m-d H:i:s'),
+            $actionLog['completed_at']
+        );
 
     }
 

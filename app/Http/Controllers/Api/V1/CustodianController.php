@@ -297,7 +297,8 @@ class CustodianController extends Controller
     {
         try {
             $input = $request->only(app(Custodian::class)->getFillable());
-            $custodian = tap(Custodian::where('id', $id))->update($input)->first();
+            $custodian = Custodian::where('id', $id)->first();
+            $custodian->update($input);
 
             if ($custodian) {
                 return response()->json([

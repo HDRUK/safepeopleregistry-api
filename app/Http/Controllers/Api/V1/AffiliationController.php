@@ -208,7 +208,9 @@ class AffiliationController extends Controller
     {
         try {
             $input = $request->only(app(Affiliation::class)->getFillable());
-            $affiliation = tap(Affiliation::where('id', $id))->update($input)->first();
+            $affiliation = Affiliation::where('id', $id)->first();
+            $affiliation->update($input);
+
 
             return response()->json([
                 'message' => 'success',
