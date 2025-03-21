@@ -236,6 +236,41 @@ class ActionLogTest extends TestCase
         $this->assertNull($actionLog['completed_at']);
 
 
+        //create an incomplete affiliation
+        $affiliation = Affiliation::create([
+            'organisation_id' => 1,
+            'member_id' => '',
+            'relationship' => null,
+            'from' => null,
+            'to' => null,
+            'department' => null,
+            'role' => null,
+            'ror' => null,
+            'registry_id' => $this->user->registry_id,
+        ]);
+
+        RegistryHasAffiliation::create([
+            'registry_id' => $this->user->registry_id,
+            'affiliation_id' => $affiliation->id,
+        ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "users/{$this->user->id}/action_log",
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+
+        $actionLog = collect($responseData)
+            ->firstWhere('action', User::ACTION_AFFILIATIONS_COMPLETE);
+
+        $this->assertNull(
+            $actionLog['completed_at']
+        );
+
+        // add a complete affiliation
         $affiliation = Affiliation::factory()->create();
         RegistryHasAffiliation::create([
             'registry_id' => $this->user->registry_id,
