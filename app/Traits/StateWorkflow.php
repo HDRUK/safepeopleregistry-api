@@ -39,6 +39,12 @@ trait StateWorkflow
             State::STATE_VALIDATED,
         ],
         State::STATE_VALIDATED => [],
+        State::STATE_PROJECT_PENDING => [
+            State::STATE_PROJECT_APPROVED,
+        ],
+        State::STATE_PROJECT_APPROVED => [
+            State::STATE_PROJECT_COMPLETED
+        ],
     ];
 
     public function modelState()
@@ -75,7 +81,7 @@ trait StateWorkflow
     public function canTransitionTo(string $newStateSlug): bool
     {
         $currentState = $this->getState();
-        return isset($this->transitions[$currentState]) && in_array($newStateSlug, $this->transitions[$currentState]);
+        return (isset($this->transitions[$currentState]) && in_array($newStateSlug, $this->transitions[$currentState]));
     }
 
     public function transitionTo(string $newStateSlug)

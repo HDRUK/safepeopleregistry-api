@@ -25,6 +25,10 @@ class State extends Model
     public const STATE_MORE_USER_INFO_REQ = 'more_user_info_req';
     public const STATE_ESCALATE_VALIDATION = 'escalate_validation';
     public const STATE_VALIDATED = 'validated';
+    public const STATE_APPROVED = 'approved';
+    public const STATE_PROJECT_PENDING = 'project_pending';
+    public const STATE_PROJECT_COMPLETED = 'project_completed';
+    public const STATE_PROJECT_APPROVED = 'project_approved';
 
     public const STATES = [
         self::STATE_REGISTERED,
@@ -35,5 +39,8 @@ class State extends Model
         self::STATE_MORE_USER_INFO_REQ,
         self::STATE_ESCALATE_VALIDATION,
         self::STATE_VALIDATED,
+        self::STATE_PROJECT_APPROVED,
+        self::STATE_PROJECT_COMPLETED,
+        self::STATE_PROJECT_PENDING,       
     ];
 }

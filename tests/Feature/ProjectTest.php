@@ -136,6 +136,7 @@ class ProjectTest extends TestCase
                 'start_date' => Carbon::now(),
                 'end_date' => Carbon::now()->addYears(2),
                 'affiliate_id' => 1,
+                'status' => 'project_pending'
             ]
             );
 
@@ -161,6 +162,7 @@ class ProjectTest extends TestCase
                 'start_date' => Carbon::now(),
                 'end_date' => Carbon::now()->addYears(2),
                 'affiliate_id' => 1,
+                'status' => 'project_approved'
             ]
             );
 
