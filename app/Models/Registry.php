@@ -11,6 +11,45 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
+/**
+ * @OA\Schema(
+ *      schema="Registry",
+ *      title="Registry",
+ *      description="Registry model",
+ *      @OA\Property(property="id",
+ *          type="integer",
+ *          example="1"
+ *      ),
+ *      @OA\Property(property="created_at",
+ *          type="string",
+ *          example="2024-02-04 12:01:00"
+ *      ),
+ *      @OA\Property(property="updated_at",
+ *          type="string",
+ *          example="2024-02-04 12:01:00"
+ *      ),
+ *      @OA\Property(property="deleted_at",
+ *          type="string",
+ *          example="2024-02-04 12:01:00"
+ *      ),
+ *      @OA\Property(property="digi_ident",
+ *          type="string",
+ *          example="$2y$12$Ssrz04d0bfw2X9t3juq9K.WPUgPNplXr1FHbdjoTeLajgVGGRxiqG"
+ *      ),
+ *      @OA\Property(property="dl_ident",
+ *          type="string",
+ *          example=""
+ *      ),
+ *      @OA\Property(property="pp_ident",
+ *          type="string",
+ *          example=""
+ *      ),
+  *      @OA\Property(property="verified",
+ *          type="integer",
+ *          example="1"
+ *      ),
+ * )
+ */
 #[ObservedBy([RegistryObserver::class])]
 class Registry extends Model
 {
@@ -63,11 +102,6 @@ class Registry extends Model
         return $this->hasMany(Education::class, 'registry_id');
     }
 
-    public function training(): HasMany
-    {
-        return $this->hasMany(Training::class, 'registry_id');
-    }
-
     public function professionalRegistrations(): HasMany
     {
         return $this->hasMany(Training::class, 'registry_id');
@@ -91,6 +125,11 @@ class Registry extends Model
     // {
     //     return $this->hasMany(Project::class, 'registry_id');
     // }
+
+    public function trainings(): BelongsToMany
+    {
+        return $this->belongsToMany(Training::class, 'registry_has_trainings');
+    }
 
     public function organisations(): BelongsToMany
     {

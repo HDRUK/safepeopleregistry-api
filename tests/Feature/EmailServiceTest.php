@@ -3,10 +3,7 @@
 namespace Tests\Feature;
 
 use App\Jobs\SendEmailJob;
-use Database\Seeders\EmailTemplatesSeeder;
-use Database\Seeders\UserSeeder;
 use Hdruk\LaravelMjml\Models\EmailTemplate;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
@@ -15,23 +12,11 @@ use Tests\TestCase;
 
 class EmailServiceTest extends TestCase
 {
-    use RefreshDatabase;
     use WithFaker;
 
     public function setUp(): void
     {
         parent::setUp();
-
-        $this->seed([
-            UserSeeder::class,
-            EmailTemplatesSeeder::class,
-        ]);
-
-        Bus::fake();
-    }
-
-    public function tearDown(): void
-    {
         Bus::fake();
     }
 

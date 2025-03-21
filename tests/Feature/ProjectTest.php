@@ -4,16 +4,13 @@ namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
 use Carbon\Carbon;
+use App\Models\State;
 use App\Models\User;
 use App\Models\Registry;
 use App\Models\Custodian;
 use App\Models\Project;
 use App\Models\ProjectHasUser;
 use App\Models\ProjectHasCustodian;
-use Database\Seeders\UserSeeder;
-use Database\Seeders\PermissionSeeder;
-use Database\Seeders\BaseDemoSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
@@ -23,7 +20,6 @@ use Illuminate\Support\Facades\Queue;
 class ProjectTest extends TestCase
 {
     use Authorisation;
-    use RefreshDatabase;
     use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/projects';
@@ -33,13 +29,7 @@ class ProjectTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed([
-            UserSeeder::class,
-            PermissionSeeder::class,
-            BaseDemoSeeder::class,
-        ]);
-
-        $this->user = User::where('id', 1)->first();
+        $this->user = User::where('user_group', 'USERS')->first();
     }
 
     public function test_the_application_can_search_on_project_name(): void
@@ -112,17 +102,17 @@ class ProjectTest extends TestCase
                 'POST',
                 self::TEST_URL,
                 [
-                'unique_id' => Str::random(30),
-                'title' => 'Test Project',
-                'lay_summary' => 'Sample lay summary',
-                'public_benefit' => 'This will benefit the public',
-                'request_category_type' => 'Category type',
-                'technical_summary' => 'Sample technical summary',
-                'other_approval_committees' => 'Bodies on a board panel',
-                'start_date' => Carbon::now(),
-                'end_date' => Carbon::now()->addYears(2),
-                'affiliate_id' => 1,
-            ]
+                    'unique_id' => Str::random(30),
+                    'title' => 'Test Project',
+                    'lay_summary' => 'Sample lay summary',
+                    'public_benefit' => 'This will benefit the public',
+                    'request_category_type' => 'Category type',
+                    'technical_summary' => 'Sample technical summary',
+                    'other_approval_committees' => 'Bodies on a board panel',
+                    'start_date' => Carbon::now(),
+                    'end_date' => Carbon::now()->addYears(2),
+                    'affiliate_id' => 1,
+                ]
             );
 
         $response->assertStatus(201);
@@ -146,6 +136,7 @@ class ProjectTest extends TestCase
                 'start_date' => Carbon::now(),
                 'end_date' => Carbon::now()->addYears(2),
                 'affiliate_id' => 1,
+                'status' => 'project_pending'
             ]
             );
 
@@ -171,6 +162,7 @@ class ProjectTest extends TestCase
                 'start_date' => Carbon::now(),
                 'end_date' => Carbon::now()->addYears(2),
                 'affiliate_id' => 1,
+                'status' => 'project_approved'
             ]
             );
 
@@ -282,6 +274,8 @@ class ProjectTest extends TestCase
 
     public function test_the_application_can_create_webhooks_on_user_leaving_project(): void
     {
+        $this->enableObservers();
+
         Queue::fake();
 
         // Flush and create anew
@@ -318,5 +312,131 @@ class ProjectTest extends TestCase
         // Observer should have kicked in, so let's ensure the
         // job for the webhook was created
         Queue::assertPushed(CallWebhookJob::class);
+    }
+
+    public function test_the_application_can_delete_users_from_projects(): void
+    {
+        $registry = Registry::first();
+        $project = Project::first();
+
+        ProjectHasUser::create([
+            'project_id' => $project->id,
+            'user_digital_ident' => $registry->digi_ident,
+            'project_role_id' => 7,
+        ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'DELETE',
+                self::TEST_URL . '/' . $project->id . '/users/' . $registry->id
+            );
+
+        $response->assertStatus(200);
+    }
+
+    public function test_the_application_fails_deleting_users_from_projects(): void
+    {
+        $registry = Registry::first();
+        $project = Project::first();
+
+        ProjectHasUser::create([
+            'project_id' => $project->id,
+            'user_digital_ident' => $registry->digi_ident,
+            'project_role_id' => 7,
+        ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'DELETE',
+                self::TEST_URL . '/' . $project->id . '/users/99999999'
+            );
+
+        $response->assertStatus(404);
+    }
+
+    public function test_the_application_can_make_user_primary_contact(): void
+    {
+        $registry = Registry::first();
+        $project = Project::first();
+
+        ProjectHasUser::create([
+            'project_id' => $project->id,
+            'user_digital_ident' => $registry->digi_ident,
+            'project_role_id' => 7,
+        ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . '/' . $project->id . '/users/' . $registry->id . '/primary_contact',
+                ["primary_contact" => 1]
+            );
+
+        $response->assertStatus(200);
+    }
+
+    public function test_the_application_fails_making_user_primary_contact_when_project_does_not_have_user(): void
+    {
+        $registry = Registry::first();
+        $project = Project::first();
+
+        ProjectHasUser::truncate();
+
+        ProjectHasUser::create([
+            'project_id' => 0,
+            'user_digital_ident' => $registry->digi_ident,
+            'project_role_id' => 7,
+        ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . '/' . $project->id . '/users/' . $registry->id . '/primary_contact',
+                [
+                    'primary_contact' => 1,
+                ]
+            );
+
+        $response->assertStatus(404);
+    }
+
+    public function test_the_application_fails_making_user_primary_contact(): void
+    {
+        $registry = Registry::first();
+        $project = Project::first();
+
+        ProjectHasUser::create([
+            'project_id' => $project->id,
+            'user_digital_ident' => $registry->digi_ident,
+            'project_role_id' => 7,
+        ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . '/' . $project->id . '/users/99999999/primary_contact',
+                ["primary_contact" => 1]
+            );
+
+        $response->assertStatus(404);
+    }
+
+    public function test_the_application_can_show_project_users_with_filtering(): void
+    {
+        $user = User::where('user_group', 'USERS')->first();
+        $user->setState(State::STATE_PENDING);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/users/filter?filter=pending',
+            );
+
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson()['data']['data'];
+
+        $this->assertNotNull($content);
+        $this->assertEquals($content[0]['id'], $user->id);
+        $this->assertEquals($content[0]['email'], $user->email);
     }
 }

@@ -4,16 +4,12 @@ namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\User;
-use Database\Seeders\ProfessionalRegistrationSeeder;
-use Database\Seeders\UserSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class ProfessionalRegistrationTest extends TestCase
 {
     use Authorisation;
-    use RefreshDatabase;
     use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/professional_registrations';
@@ -23,12 +19,7 @@ class ProfessionalRegistrationTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed([
-            UserSeeder::class,
-            ProfessionalRegistrationSeeder::class,
-        ]);
-
-        $this->user = User::where('id', 1)->first();
+        $this->user = User::where('user_group', 'USERS')->first();
     }
 
     public function test_the_application_can_show_professional_registrations_by_registry_id(): void
@@ -77,8 +68,21 @@ class ProfessionalRegistrationTest extends TestCase
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
+            'POST',
+            self::TEST_URL . '/registry/1',
+            [
+                'member_id' => fake()->uuid(),
+                'name' => fake()->name(),
+            ]
+        );
+
+        $response->assertStatus(201);
+        $content = $response->decodeResponseJson()['data'];
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
             'PUT',
-            self::TEST_URL . '/1',
+            self::TEST_URL . '/' . $content['id'],
             [
                 'member_id' => fake()->uuid(),
                 'name' => fake()->name(),
@@ -105,8 +109,21 @@ class ProfessionalRegistrationTest extends TestCase
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
+            'POST',
+            self::TEST_URL . '/registry/1',
+            [
+                'member_id' => fake()->uuid(),
+                'name' => fake()->name(),
+            ]
+        );
+
+        $response->assertStatus(201);
+        $content = $response->decodeResponseJson()['data'];
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
             'PATCH',
-            self::TEST_URL . '/1',
+            self::TEST_URL . '/' . $content['id'],
             [
                 'member_id' =>  'A1234567',
             ]
@@ -123,9 +140,22 @@ class ProfessionalRegistrationTest extends TestCase
     public function test_the_application_can_delete_an_professional_registration(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'POST',
+            self::TEST_URL . '/registry/1',
+            [
+                'member_id' => fake()->uuid(),
+                'name' => fake()->name(),
+            ]
+        );
+
+        $response->assertStatus(201);
+        $content = $response->decodeResponseJson()['data'];
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'DELETE',
-                self::TEST_URL . '/1'
+                self::TEST_URL . '/' . $content['id']
             );
 
         $response->assertStatus(200);

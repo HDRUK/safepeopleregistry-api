@@ -4,14 +4,20 @@ namespace App\Http\Controllers\Api\V1;
 
 use Exception;
 use App\Http\Controllers\Controller;
+use App\Models\File;
 use App\Models\Training;
+use App\Models\TrainingHasFile;
+use App\Models\RegistryHasTraining;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Http\Traits\Responses;
+use App\Http\Requests\Training\CreateTraining;
 
 class TrainingController extends Controller
 {
     use CommonFunctions;
+    use Responses;
 
     /**
      * @OA\Get(
@@ -26,21 +32,11 @@ class TrainingController extends Controller
      *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="registry_id", type="integer", example="1"),
-     *                  @OA\Property(property="provider", type="string", example="ONS"),
-     *                  @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
-     *                  @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
-     *                  @OA\Property(property="expires_in_years", type="integer", example="2"),
-     *                  @OA\Property(property="training_name", type="string", example="Safe Researcher Training"),
-     *                  @OA\Property(property="pro_registration", type="integer", example="1")
+     *              @OA\Property(property="data",
+     *                  ref="#/components/schemas/Training"
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
@@ -52,16 +48,13 @@ class TrainingController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $trainings = Training::searchViaRequest()
+        $trainings = Training::with('files')
+            ->searchViaRequest()
             ->applySorting()
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
-        return response()->json([
-            'message' => 'success',
-            'data' => $trainings,
-        ], 200);
+        return $this->OKResponse($trainings);
     }
-
 
     /**
      * @OA\Get(
@@ -87,18 +80,8 @@ class TrainingController extends Controller
      *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="registry_id", type="integer", example="1"),
-     *                  @OA\Property(property="provider", type="string", example="ONS"),
-     *                  @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
-     *                  @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
-     *                  @OA\Property(property="expires_in_years", type="integer", example="2"),
-     *                  @OA\Property(property="training_name", type="string", example="Safe Researcher Training"),
-     *                  @OA\Property(property="certification_id", type="integer", example="3"),
-     *                  @OA\Property(property="pro_registration", type="integer", example="1")
+     *              @OA\Property(property="data",
+     *                  ref="#/components/schemas/Training"
      *              )
      *          ),
      *      ),
@@ -113,12 +96,13 @@ class TrainingController extends Controller
      */
     public function indexByRegistryId(Request $request, int $registryId): JsonResponse
     {
-        $trainings = Training::where('registry_id', $registryId)->get();
+        $linkedTraining = RegistryHasTraining::where([
+            'registry_id' => $registryId,
+        ])->select('training_id')->get()->toArray();
 
-        return response()->json([
-            'message' => 'success',
-            'data' => $trainings,
-        ], 200);
+        $trainings = Training::with('files')
+            ->whereIn('id', $linkedTraining)->get();
+        return $this->OKResponse($trainings);
     }
 
     /**
@@ -145,17 +129,8 @@ class TrainingController extends Controller
      *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="registry_id", type="integer", example="1"),
-     *                  @OA\Property(property="provider", type="string", example="ONS"),
-     *                  @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
-     *                  @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
-     *                  @OA\Property(property="expires_in_years", type="integer", example="2"),
-     *                  @OA\Property(property="training_name", type="string", example="Safe Researcher Training"),
-     *                  @OA\Property(property="pro_registration", type="integer", example="1")
+     *              @OA\Property(property="data",
+     *                  ref="#/components/schemas/Training"
      *              )
      *          ),
      *      ),
@@ -170,10 +145,13 @@ class TrainingController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
-        return response()->json([
-            'message' => 'success',
-            'data' => Training::where('id', $id)->first(),
-        ], 200);
+        $training = Training::with('files')
+            ->where('id', $id)->first();
+        if ($training) {
+            return $this->OKResponse($training);
+        }
+
+        return $this->NotFoundResponse();
     }
 
     /**
@@ -187,16 +165,7 @@ class TrainingController extends Controller
      *      @OA\RequestBody(
      *          required=true,
      *          description="Training definition",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="registry_id", type="integer", example="1"),
-     *              @OA\Property(property="provider", type="string", example="ONS"),
-     *              @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
-     *              @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
-     *              @OA\Property(property="expires_in_years", type="integer", example="2"),
-     *              @OA\Property(property="training_name", type="string", example="Safe Researcher Training"),
-     *              @OA\Property(property="certification_id", type="integer", example="1"),
-     *              @OA\Property(property="pro_registration", type="integer", example="1")
-     *          ),
+     *          ref="#/components/schemas/Training"
      *      ),
      *      @OA\Response(
      *          response=404,
@@ -210,18 +179,8 @@ class TrainingController extends Controller
      *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="registry_id", type="integer", example="1"),
-     *                  @OA\Property(property="provider", type="string", example="ONS"),
-     *                  @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
-     *                  @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
-     *                  @OA\Property(property="expires_in_years", type="integer", example="2"),
-     *                  @OA\Property(property="training_name", type="string", example="Safe Researcher Training"),
-     *                  @OA\Property(property="certification_id", type="integer", example="1"),
-     *                  @OA\Property(property="pro_registration", type="integer", example="1")
+     *              @OA\Property(property="data",
+     *                  ref="#/components/schemas/Training"
      *              )
      *          ),
      *      ),
@@ -234,25 +193,18 @@ class TrainingController extends Controller
      *      )
      * )
      */
-    public function store(Request $request): JsonResponse
+    public function store(CreateTraining $request): JsonResponse
     {
         try {
-            $input = $request->all();
-            $training = Training::create([
-                'registry_id' => $input['registry_id'],
-                'provider' => $input['provider'],
-                'awarded_at' => $input['awarded_at'],
-                'expires_at' => $input['expires_at'],
-                'expires_in_years' => $input['expires_in_years'],
-                'training_name' => $input['training_name'],
-                'certification_id' => isset($input['certification_id']) ? $input['certification_id'] : null,
-                'pro_registration' => isset($input['pro_registration']) ? $input['pro_registration'] : 0,
+            $input = $request->only(app(Training::class)->getFillable());
+            $training = Training::create($input);
+
+            RegistryHasTraining::create([
+                'training_id' => $training->id,
+                'registry_id' => $request->get('registry_id'),
             ]);
 
-            return response()->json([
-                'message' => 'success',
-                'data' => $training->id,
-            ], 201);
+            return $this->CreatedResponse($training->id);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -281,18 +233,7 @@ class TrainingController extends Controller
      *      @OA\RequestBody(
      *          required=true,
      *          description="Training definition",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="id", type="integer", example="123"),
-     *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *              @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *              @OA\Property(property="registry_id", type="integer", example="1"),
-     *              @OA\Property(property="provider", type="string", example="ONS"),
-     *              @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
-     *              @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
-     *              @OA\Property(property="expires_in_years", type="integer", example="2"),
-     *              @OA\Property(property="training_name", type="string", example="Safe Researcher Training"),
-     *              @OA\Property(property="pro_registration", type="integer", example="1")
-     *          ),
+     *          ref="#/components/schemas/Training"
      *      ),
      *      @OA\Response(
      *          response=404,
@@ -306,17 +247,8 @@ class TrainingController extends Controller
      *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="registry_id", type="integer", example="1"),
-     *                  @OA\Property(property="provider", type="string", example="ONS"),
-     *                  @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
-     *                  @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
-     *                  @OA\Property(property="expires_in_years", type="integer", example="2"),
-     *                  @OA\Property(property="training_name", type="string", example="Safe Researcher Training"),
-     *                  @OA\Property(property="pro_registration", type="integer", example="1")
+     *              @OA\Property(property="data",
+     *                  ref="#/components/schemas/Training"
      *              )
      *          ),
      *      ),
@@ -332,116 +264,11 @@ class TrainingController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         try {
-            $input = $request->all();
+            $input = $request->only(app(Training::class)->getFillable());
+            $training = Training::findOrFail($id);
+            $training->update($input);
 
-            Training::where('id', $id)->update([
-                'registry_id' => $input['registry_id'],
-                'provider' => $input['id'],
-                'awarded_at' => $input['awarded_at'],
-                'expires_at' => $input['expires_at'],
-                'expires_in_years' => $input['expires_in_years'],
-                'training_name' => $input['training_name'],
-                'pro_registration' => $input['pro_registration'],
-            ]);
-
-            return response()->json([
-                'message' => 'success',
-                'data' => Training::where('id', $id)->first(),
-            ], 200);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
-    }
-
-    /**
-     * @OA\Patch(
-     *      path="/api/v1/training/{id}",
-     *      summary="Edit a Training entry",
-     *      description="Edit a Training entry",
-     *      tags={"Training"},
-     *      summary="Training@edit",
-     *      security={{"bearerAuth":{}}},
-     *      @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="Training entry ID",
-     *         required=true,
-     *         example="1",
-     *         @OA\Schema(
-     *            type="integer",
-     *            description="Training entry ID",
-     *         ),
-     *      ),
-     *      @OA\RequestBody(
-     *          required=true,
-     *          description="Training definition",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="id", type="integer", example="123"),
-     *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *              @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *              @OA\Property(property="registry_id", type="integer", example="1"),
-     *              @OA\Property(property="provider", type="string", example="ONS"),
-     *              @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
-     *              @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
-     *              @OA\Property(property="expires_in_years", type="integer", example="2"),
-     *              @OA\Property(property="training_name", type="string", example="Safe Researcher Training"),
-     *              @OA\Property(property="pro_registration", type="integer", example="1")
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Success",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="registry_id", type="integer", example="1"),
-     *                  @OA\Property(property="provider", type="string", example="ONS"),
-     *                  @OA\Property(property="awarded_at", type="string", example="2024-02-04 12:10:00"),
-     *                  @OA\Property(property="expires_at", type="string", example="2026-02-04 12:09:59"),
-     *                  @OA\Property(property="expires_in_years", type="integer", example="2"),
-     *                  @OA\Property(property="training_name", type="string", example="Safe Researcher Training"),
-     *                  @OA\Property(property="pro_registration", type="integer", example="1")
-     *              )
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=500,
-     *          description="Error",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="error")
-     *          )
-     *      )
-     * )
-     */
-    public function edit(Request $request, int $id): JsonResponse
-    {
-        try {
-            $input = $request->all();
-
-            Training::where('id', $id)->update([
-                'registry_id' => $input['registry_id'],
-                'provider' => $input['provider'],
-                'awarded_at' => $input['awarded_at'],
-                'expires_at' => $input['expires_at'],
-                'expires_in_years' => $input['expires_in_years'],
-                'training_name' => $input['training_name'],
-                'pro_registration' => $input['pro_registration'],
-            ]);
-
-            return response()->json([
-                'message' => 'success',
-                'data' => Training::where('id', $id)->first(),
-            ], 200);
+            return $this->OKResponse($training);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -451,13 +278,55 @@ class TrainingController extends Controller
     public function destroy(Request $request, int $id): JsonResponse
     {
         try {
-            Training::where('id', $id)->delete();
+            $training = Training::with('files')
+                ->where('id', $id)->first();
 
-            return response()->json([
-                'message' => 'success',
-            ], 200);
+            if (!is_null($training)) {
+                // Delete files associated with this training entry
+                foreach ($training->files as $file) {
+                    $file->delete();
+
+                    // Delete logical links between training and files
+                    TrainingHasFile::where([
+                        'training_id' => $training->id,
+                        'file_id' => $file->id,
+                    ])->delete();
+                }
+
+                // Finally delete the training entries
+                $training->delete();
+
+                RegistryHasTraining::where([
+                    'training_id' => $training->id,
+                ])->delete();
+            } else {
+                return $this->NotFoundResponse();
+            }
+
+            return $this->OKResponse(null);
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+            return $this->ErrorResponse();
+        }
+    }
+
+    public function linkTrainingFile(Request $request, int $trainingId, int $fileId): JsonResponse
+    {
+        try {
+            $training = Training::where('id', $trainingId)->first();
+            $file = File::where('id', $fileId)->first();
+
+            if ($training && $file) {
+                TrainingHasFile::create([
+                    'training_id' => $training->id,
+                    'file_id' => $file->id,
+                ]);
+
+                return $this->OKResponse(null);
+            }
+
+            return $this->NotFoundResponse();
+        } catch (Exception $e) {
+            return $this->ErrorResponse();
         }
     }
 }

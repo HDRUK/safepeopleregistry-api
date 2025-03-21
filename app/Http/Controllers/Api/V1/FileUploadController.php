@@ -14,11 +14,13 @@ use App\Traits\CommonFunctions;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Http\Traits\Responses;
+use Illuminate\Support\Facades\Storage;
 
 class FileUploadController extends Controller
 {
     use CommonFunctions;
-
+    use Responses;
     /**
      * @OA\Get(
      *      path="/api/v1/files/{id}",
@@ -77,6 +79,84 @@ class FileUploadController extends Controller
             'data' => null,
         ], 404);
     }
+
+    /**
+     * @OA\Get(
+     *      path="/api/v1/files/{id}/download",
+     *      summary="Download an uploaded file",
+     *      description="Downloads the specified file",
+     *      tags={"Files"},
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="File ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="File ID",
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="File downloaded successfully",
+     *          content={
+     *              @OA\MediaType(
+     *                  mediaType="application/octet-stream",
+     *                  @OA\Schema(
+     *                      type="string",
+     *                      format="binary"
+     *                  )
+     *              )
+     *          }
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="File not found",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="File not found"),
+     *          ),
+     *      ),
+     * )
+     */
+    public function download(int $id)
+    {
+        try {
+            $file = File::find($id);
+            if (!$file) {
+                return $this->NotFoundResponse();
+            }
+
+            if ($file->status !== FILE::FILE_STATUS_PROCESSED) {
+                return $this->NotFoundResponse();
+            }
+
+            $filePath = $file->path;
+            $fileSystem = env('SCANNING_FILESYSTEM_DISK', 'local_scan');
+
+            if ($fileSystem !== 'local_scan') {
+                return $this->NotImplementedResponse();
+            }
+
+            $scannedFileSystem = 'local_scan.scanned';
+
+            if (!Storage::disk($scannedFileSystem)->exists($filePath)) {
+                return $this->NotFoundResponse();
+            }
+
+            $headers = [
+               'Access-Control-Expose-Headers' => 'Content-Disposition'
+            ];
+            return Storage::disk($scannedFileSystem)->download($filePath, $file->name, $headers);
+
+
+        } catch (Exception $e) {
+            return $this->ErrorResponse($e->getMessage());
+
+        }
+    }
+
 
     /**
      * @OA\Post(
@@ -150,7 +230,7 @@ class FileUploadController extends Controller
                 'name' => $file->getClientOriginalName(),
                 'type' => $input['file_type'],
                 'path' => $path,
-                'status' => 'PENDING',
+                'status' => File::FILE_STATUS_PENDING,
             ]);
 
             if (strtoupper($input['entity_type'] ?? '') === 'RESEARCHER' && isset($input['registry_id']) && $input['registry_id'] !== null) {

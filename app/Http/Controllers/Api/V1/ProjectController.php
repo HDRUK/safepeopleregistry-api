@@ -2,19 +2,26 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Models\User;
 use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
+use App\Http\Traits\Responses;
 use App\Models\Project;
 use App\Models\Registry;
+use App\Models\State;
 use App\Models\ProjectHasUser;
 use App\Traits\CommonFunctions;
+use App\Traits\FilterManager;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller
 {
     use CommonFunctions;
+    use FilterManager;
+    use Responses;
 
     /**
      * @OA\Get(
@@ -52,6 +59,7 @@ class ProjectController extends Controller
     public function index(Request $request): JsonResponse
     {
         $projects = Project::searchViaRequest()
+            ->filterByState()
             ->applySorting()
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
@@ -107,7 +115,8 @@ class ProjectController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
-        $project = Project::findOrFail($id);
+        $project = Project::with(['modelState.state'])->findOrFail($id);
+
         if ($project) {
             return response()->json([
                 'message' => 'success',
@@ -218,7 +227,7 @@ class ProjectController extends Controller
             },
             'registry.affiliations',
             'registry.education',
-            'registry.training',
+            'registry.trainings',
             'registry.accreditations',
             'role'
         ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
@@ -228,6 +237,124 @@ class ProjectController extends Controller
             'data' => $projectUsers,
         ], 200);
 
+    }
+
+    /**
+     * @OA\Get(
+     *      path="/api/v1/projects/{id}/users/filter",
+     *      summary="Return project users by project ID with filtering",
+     *      description="Return project users by project ID with filtering",
+     *      tags={"Project"},
+     *      summary="Project@getProjectUsersWithFiltering",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Project entry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @OA\Items(
+     *                      @OA\Property(property="project_id", type="integer", example=1),
+     *                      @OA\Property(property="user_digital_ident", type="string", example="$2y$12$IJ2LFUartH4N9xKSfxyL5ee5wdJC59aqKx180/72J3oonpw0JFiD2"),
+     *                      @OA\Property(
+     *                          property="registry",
+     *                          type="object",
+     *                          @OA\Property(property="id", type="integer", example=9),
+     *                          @OA\Property(property="created_at", type="string", format="date-time", example="2024-12-03T10:17:08.000000Z"),
+     *                          @OA\Property(property="updated_at", type="string", format="date-time", example="2024-12-03T10:17:08.000000Z"),
+     *                          @OA\Property(property="verified", type="boolean", example=false),
+     *                          @OA\Property(
+     *                              property="user",
+     *                              type="object",
+     *                              @OA\Property(property="id", type="integer", example=18),
+     *                              @OA\Property(property="first_name", type="string", example="Tobacco"),
+     *                              @OA\Property(property="last_name", type="string", example="Dave"),
+     *                              @OA\Property(property="email", type="string", example="tobacco.dave@dodgydomain.com"),
+     *                              @OA\Property(property="registry_id", type="integer", example=9),
+     *                              @OA\Property(property="created_at", type="string", format="date-time", example="2024-12-03T10:17:06.000000Z"),
+     *                              @OA\Property(property="updated_at", type="string", format="date-time", example="2024-12-03T10:17:08.000000Z"),
+     *                              @OA\Property(property="user_group", type="string", example="USERS"),
+     *                              @OA\Property(property="consent_scrape", type="boolean", example=false),
+     *                              @OA\Property(property="public_opt_in", type="boolean", example=0)
+     *                          ),
+     *                          @OA\Property(
+     *                              property="organisations",
+     *                              type="array",
+     *                              @OA\Items(
+     *                                  @OA\Property(property="id", type="integer", example=3),
+     *                                  @OA\Property(property="organisation_name", type="string", example="TANDY ENERGY LIMITED")
+     *                              )
+     *                          ),
+     *                           @OA\Property(
+     *                               property="affiliation",
+     *                               type="object",
+     *                               nullable=true,
+     *                               @OA\Property(property="relationship", type="string", example="employee"),
+     *                               @OA\Property(property="from", type="string", example="25/01/1999"),
+     *                               @OA\Property(property="to", type="string", example="01/12/2010"),
+     *                               @OA\Property(property="department", type="string", example="Research & Development"),
+     *                               @OA\Property(property="role", type="string", example="Principal Investigator (PI)"),
+     *                               @OA\Property(property="email", type="string", example="professional.email@email.com"),
+     *                               @OA\Property(property="ror", type="string", example="0hgyje84")
+     *                           )
+     *                      ),
+     *                      @OA\Property(
+     *                          property="role",
+     *                          type="object",
+     *                          @OA\Property(property="id", type="integer", example=1),
+     *                          @OA\Property(property="name", type="string", example="Principal Investigator (PI)")
+     *                      )
+     *                  )
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found"),
+     *          )
+     *      )
+     * )
+     */
+    public function getProjectUsersWithFiltering(Request $request, int $id): JsonResponse
+    {
+        $project = Project::findOrFail($id);
+        $projectUsers = ProjectHasUser::where('project_id', $project->id)
+            ->select('user_digital_ident')
+            ->pluck('user_digital_ident')
+            ->toArray();
+        $registries = Registry::whereIn('digi_ident', $projectUsers)
+            ->select('id')
+            ->pluck('id')
+            ->toArray();
+        $users = User::filterByState()->applySorting()->with([
+            'registry.user',
+            'registry.organisations' => function ($query) {
+                $query->select(['id','organisation_name']);
+            },
+            'registry.affiliations',
+            'registry.education',
+            'registry.trainings',
+            'registry.accreditations',
+            'modelState.state',
+        ])
+        ->whereIn('registry_id', $registries)
+        ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+
+        return $this->OKResponse($users);
     }
 
     /**
@@ -276,18 +403,12 @@ class ProjectController extends Controller
     public function store(Request $request): JsonResponse
     {
         try {
-            $input = $request->all();
-            $project = Project::create([
-                'unique_id' => $input['unique_id'],
-                'title' => $input['title'],
-                'lay_summary' => $input['lay_summary'],
-                'public_benefit' => $input['public_benefit'],
-                'request_category_type' => $input['request_category_type'],
-                'technical_summary' => $input['technical_summary'],
-                'other_approval_committees' => $input['other_approval_committees'],
-                'start_date' => $input['start_date'],
-                'end_date' => $input['end_date'],
-            ]);
+            $input = $request->only(app(Project::class)->getFillable());
+            $project = Project::create($input);
+
+            if ($project) {
+                $project->setState(State::STATE_PROJECT_PENDING);
+            }
 
             return response()->json([
                 'message' => 'success',
@@ -299,7 +420,7 @@ class ProjectController extends Controller
     }
 
     /**
-     * @OA\Patch(
+     * @OA\Put(
      *      path="/api/v1/projects/{id}",
      *      summary="Update a Project entry",
      *      description="Update a Project entry",
@@ -349,8 +470,9 @@ class ProjectController extends Controller
      *                  @OA\Property(property="registry_id", type="integer", example="1"),
      *                  @OA\Property(property="name", type="string", example="My First Research Project"),
      *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
-     *                  @OA\Property(property="runs_to", type="string", example="2026-02-04")
-     *              )
+     *                  @OA\Property(property="runs_to", type="string", example="2026-02-04"),
+     *                  @OA\Property(property="status", type="string", example="approved"),
+     *              ),
      *          ),
      *      ),
      *      @OA\Response(
@@ -365,30 +487,32 @@ class ProjectController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         try {
-            $input = $request->all();
-            $project = Project::where('id', $id)->update([
-                'unique_id' => $input['unique_id'],
-                'title' => $input['title'],
-                'lay_summary' => $input['lay_summary'],
-                'public_benefit' => $input['public_benefit'],
-                'request_category_type' => $input['request_category_type'],
-                'technical_summary' => $input['technical_summary'],
-                'other_approval_committees' => $input['other_approval_committees'],
-                'start_date' => $input['start_date'],
-                'end_date' => $input['end_date'],
-            ]);
+            $input = $request->only(app(Project::class)->getFillable());
+            $project = Project::findOrFail($id);
 
-            return response()->json([
-                'message' => 'success',
-                'data' => Project::where('id', $id)->first(),
-            ], 200);
+            if (!is_null($project)) {
+                $project->update($input);
+                $status = $request->get('status');
+
+                if (isset($status)) {
+                    if ($project->canTransitionTo($status)) {
+                        $project->transitionTo($status);
+                    } else {
+                        return $this->BadRequestResponse();
+                    }
+                }
+
+                return $this->OKResponse(Project::where('id', $id)->first());
+            }
+
+            return $this->NotFoundResponse();
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
     }
 
     /**
-     * @OA\Put(
+     * @OA\Patch(
      *      path="/api/v1/projects/{id}",
      *      summary="Update a Project entry",
      *      description="Update a Project entry",
@@ -436,8 +560,9 @@ class ProjectController extends Controller
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
      *                  @OA\Property(property="name", type="string", example="My First Research Project"),
      *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
-     *                  @OA\Property(property="runs_to", type="string", example="2026-02-04")
-     *              )
+     *                  @OA\Property(property="runs_to", type="string", example="2026-02-04"),
+     *                  @OA\Property(property="status", type="string", example="2026-02-04"),
+     *              ),
      *          ),
      *      ),
      *      @OA\Response(
@@ -452,18 +577,9 @@ class ProjectController extends Controller
     public function edit(Request $request, int $id): JsonResponse
     {
         try {
-            $input = $request->all();
-            $project = Project::where('id', $id)->update([
-                'unique_id' => $input['unique_id'],
-                'title' => $input['title'],
-                'lay_summary' => $input['lay_summary'],
-                'public_benefit' => $input['public_benefit'],
-                'request_category_type' => $input['request_category_type'],
-                'technical_summary' => $input['technical_summary'],
-                'other_approval_committees' => $input['other_approval_committees'],
-                'start_date' => $input['start_date'],
-                'end_date' => $input['end_date'],
-            ]);
+            $input = $request->only(app(Project::class)->getFillable());
+            $project = Project::findOrFail($id);
+            $project->update($input);
 
             return response()->json([
                 'message' => 'success',
@@ -471,6 +587,130 @@ class ProjectController extends Controller
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
+        }
+    }
+
+    /**
+     * @OA\Put(
+     *      path="/api/v1/projects/{id}/users/{registryId}/primary_contact",
+     *      summary="Make user a primary contact",
+     *      description="Make user a primary contact",
+     *      tags={"Project"},
+     *      summary="Project@edit",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Project entry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Project entry ID",
+     *         ),
+     *      ),
+    *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Registry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Registry ID",
+     *         ),
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="Project definition",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="primary_contact", type="integer", example="1"),
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @OA\Items(
+     *                      @OA\Property(property="project_id", type="integer", example=1),
+     *                      @OA\Property(property="user_digital_ident", type="string", example="$2y$12$IJ2LFUartH4N9xKSfxyL5ee5wdJC59aqKx180/72J3oonpw0JFiD2"),
+     *                      @OA\Property(
+     *                          property="registry",
+     *                          type="object",
+     *                          @OA\Property(property="id", type="integer", example=9),
+     *                          @OA\Property(property="created_at", type="string", format="date-time", example="2024-12-03T10:17:08.000000Z"),
+     *                          @OA\Property(property="updated_at", type="string", format="date-time", example="2024-12-03T10:17:08.000000Z"),
+     *                          @OA\Property(property="verified", type="boolean", example=false),
+     *                          @OA\Property(
+     *                              property="user",
+     *                              type="object",
+     *                              @OA\Property(property="id", type="integer", example=18),
+     *                              @OA\Property(property="first_name", type="string", example="Tobacco"),
+     *                              @OA\Property(property="last_name", type="string", example="Dave"),
+     *                              @OA\Property(property="email", type="string", example="tobacco.dave@dodgydomain.com"),
+     *                              @OA\Property(property="registry_id", type="integer", example=9),
+     *                              @OA\Property(property="created_at", type="string", format="date-time", example="2024-12-03T10:17:06.000000Z"),
+     *                              @OA\Property(property="updated_at", type="string", format="date-time", example="2024-12-03T10:17:08.000000Z"),
+     *                              @OA\Property(property="user_group", type="string", example="USERS"),
+     *                              @OA\Property(property="consent_scrape", type="boolean", example=false),
+     *                              @OA\Property(property="public_opt_in", type="boolean", example=0)
+     *                          ),
+     *                      ),
+     *                  )
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=500,
+     *          description="Error",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="error")
+     *          )
+     *      )
+     * )
+     */
+    public function makePrimaryContact(Request $request, int $projectId, int $registryId): JsonResponse
+    {
+        try {
+            $input = $request->all();
+
+            $digi_ident = optional(Registry::where('id', $registryId)->first())->digi_ident;
+
+            if (isset($digi_ident)) {
+                $projectHasUser = ProjectHasUser::where('project_id', $projectId)->where('user_digital_ident', $digi_ident);
+
+                if ($projectHasUser->first() !== null) {
+                    $projectHasUser->update([
+                        'primary_contact' => $input['primary_contact']
+                    ]);
+
+
+                    $project = Project::findOrFail($projectId);
+                    $projectUsers = $project->projectUsers()->with([
+                        'registry.user',
+                        'role'
+                    ])->whereHas('registry.user', function ($query) use ($digi_ident) {
+                        $query->where('digi_ident', $digi_ident);
+                    })->first();
+
+                    return $this->OKResponse($projectUsers);
+                }
+            }
+
+            return $this->NotFoundResponse();
+        } catch (Exception $e) {
+            return $this->ErrorResponse();
         }
     }
 
@@ -599,5 +839,63 @@ class ProjectController extends Controller
             'message' => 'success',
             'data' => $projects,
         ], 200);
+    }
+
+    /**
+     * @OA\Delete(
+     *      path="/api/v1/projects/{projectId}/users/{registryId}",
+     *      summary="Delete a user from a project",
+     *      description="Delete a user from a project",
+     *      tags={"Projects"},
+     *      summary="Project@deleteUserFromProject",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="projectId",
+     *         in="path",
+     *         description="Project ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Project ID",
+     *         ),
+     *      ),
+     *      @OA\Parameter(
+     *         name="registryId",
+     *         in="path",
+     *         description="Registry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Registry ID",
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="success",
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="failed",
+     *      )
+     * )
+     */
+    public function deleteUserFromProject(Request $request, int $projectId, int $registryId): JsonResponse
+    {
+        try {
+            $digi_ident = optional(Registry::where('id', $registryId)->first())->digi_ident;
+            $data = ProjectHasUser::where('project_id', $projectId)->where('user_digital_ident', $digi_ident);
+
+            if ($data->first() !== null) {
+                $data->delete();
+
+                return $this->OKResponse(null);
+            }
+
+            return $this->NotFoundResponse();
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
     }
 }

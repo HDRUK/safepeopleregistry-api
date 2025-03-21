@@ -2,7 +2,6 @@
 
 namespace App\Traits;
 
-use Auth;
 use Illuminate\Http\Request;
 
 trait CheckPermissions
@@ -18,8 +17,8 @@ trait CheckPermissions
         }
 
         // @phpstan-ignore-next-line
-        $token = Auth::token();
-        $arr = json_decode($token, true);
+        $token = explode(' ', $request->header('Authorization'));
+        $arr = json_decode(base64_decode(str_replace('_', '/', str_replace('-', '+', explode('.', $token[1])[1]))), true);
 
         foreach ($arr['realm_access']['roles'] as $value) {
             if (in_array($value, $permissionsRequired)) {

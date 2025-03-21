@@ -13,12 +13,6 @@ use App\Jobs\SendEmailJob;
 use App\Models\PendingInvite;
 use App\Models\ProjectHasOrganisation;
 use App\Models\OrganisationHasDepartment;
-use Database\Seeders\UserSeeder;
-use Database\Seeders\PermissionSeeder;
-use Database\Seeders\BaseDemoSeeder;
-use Database\Seeders\EmailTemplatesSeeder;
-use Database\Seeders\OrganisationDelegateSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -27,7 +21,6 @@ use Tests\Traits\Authorisation;
 class OrganisationTest extends TestCase
 {
     use Authorisation;
-    use RefreshDatabase;
     use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/organisations';
@@ -38,15 +31,7 @@ class OrganisationTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed([
-            PermissionSeeder::class,
-            UserSeeder::class,
-            EmailTemplatesSeeder::class,
-            BaseDemoSeeder::class,
-            OrganisationDelegateSeeder::class,
-        ]);
-
-        $this->user = User::where('id', 1)->first();
+        $this->user = User::where('user_group', 'USERS')->first();
 
         $this->testOrg = [
             'organisation_name' => 'HEALTH DATA RESEARCH UK',
@@ -67,15 +52,19 @@ class OrganisationTest extends TestCase
             'dsptk_certified' => 1,
             'dsptk_ods_code' => '12345Z',
             'dsptk_expiry_date' => '',
+            'dsptk_expiry_evidence' => null,
             'iso_27001_certified' => 0,
             'iso_27001_certification_num' => '',
             'iso_expiry_date' => '',
+            'iso_expiry_evidence' => null,
             'ce_certified' => 1,
             'ce_certification_num' => 'A1234',
             'ce_expiry_date' => '',
+            'ce_expiry_evidence' => null,
             'ce_plus_certified' => 1,
             'ce_plus_certification_num' => 'B5678',
             'ce_plus_expiry_date' => '',
+            'ce_plus_expiry_evidence' => null,
             'sector_id' => fake()->randomElement([0, count(Sector::SECTORS)]),
             'charities' => [
                 'registration_id' => '1186569',
@@ -91,7 +80,7 @@ class OrganisationTest extends TestCase
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'GET',
-                self::TEST_URL . '?organisation_name[]=health'
+                self::TEST_URL . '?organisation_name[]=health%20pathways'
             );
 
         $response->assertStatus(200);
@@ -199,14 +188,19 @@ class OrganisationTest extends TestCase
                         'sub_license_arrangements',
                         'verified',
                         'dsptk_ods_code',
-                        'iso_27001_certified',
-                        'ce_certified',
+                        'dsptk_expiry_date',
+                        'dsptk_expiry_evidence',
+                        'iso_27001_certification_num',
+                        'iso_expiry_date',
+                        'iso_expiry_evidence',
                         'ce_certification_num',
-                        'ce_plus_certified',
+                        'ce_expiry_date',
+                        'ce_expiry_evidence',
                         'ce_plus_certification_num',
+                        'ce_plus_expiry_date',
+                        'ce_plus_expiry_evidence',
                         'approvals',
                         'permissions',
-                        'files',
                         'registries',
                         'departments',
                         'sector_id',
@@ -275,14 +269,19 @@ class OrganisationTest extends TestCase
                 'sub_license_arrangements',
                 'verified',
                 'dsptk_ods_code',
-                'iso_27001_certified',
-                'ce_certified',
+                'dsptk_expiry_date',
+                'dsptk_expiry_evidence',
+                'iso_27001_certification_num',
+                'iso_expiry_date',
+                'iso_expiry_evidence',
                 'ce_certification_num',
-                'ce_plus_certified',
+                'ce_expiry_date',
+                'ce_expiry_evidence',
                 'ce_plus_certification_num',
+                'ce_plus_expiry_date',
+                'ce_plus_expiry_evidence',
                 'approvals',
                 'permissions',
-                'files',
                 'registries',
                 'departments',
                 'sector_id',
@@ -371,6 +370,7 @@ class OrganisationTest extends TestCase
 
     public function test_the_application_can_update_organisations(): void
     {
+        Carbon::setTestNow(Carbon::now());
         $isoCertified = fake()->randomElement([1, 0]);
         $ceCertified = fake()->randomElement([1, 0]);
 
@@ -386,8 +386,20 @@ class OrganisationTest extends TestCase
 
         $content = $response->decodeResponseJson();
 
-        $newDate = Carbon::now()->subYears(2);
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . '/' . $content['data'] . '/action_log'
+        );
 
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Organisation::ACTION_NAME_ADDRESS_COMPLETED);
+
+        $this->assertNull($actionLog['completed_at']);
+
+        $newDate = Carbon::now()->subYears(2);
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'PUT',
@@ -449,6 +461,22 @@ class OrganisationTest extends TestCase
             'organisation_id' => $organisationId,
             'subsidiary_id' => $subsidiaryId,
         ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . '/' . $content['data'] . '/action_log'
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Organisation::ACTION_NAME_ADDRESS_COMPLETED);
+
+        $this->assertEquals(
+            Carbon::now()->format('Y-m-d H:i:s'),
+            $actionLog['completed_at']
+        );
 
     }
 
@@ -746,7 +774,8 @@ class OrganisationTest extends TestCase
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
-        $this->assertCount(4, $response['data']['data']);
+        // Org owner, admin user and delegate
+        $this->assertCount(3, $response['data']['data']);
 
         $responseWithEmailFilter = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(

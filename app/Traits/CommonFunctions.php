@@ -2,8 +2,9 @@
 
 namespace App\Traits;
 
-use App\Models\SystemConfig;
 use Str;
+use App\Models\State;
+use App\Models\SystemConfig;
 use InvalidArgumentException;
 
 trait CommonFunctions
@@ -92,5 +93,17 @@ trait CommonFunctions
         }
 
         return $numericValue;
+    }
+
+    public function validateModelStateFilter(array $filter): bool
+    {
+
+        foreach ($filter as $f) {
+            if (!in_array($f, State::STATES)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

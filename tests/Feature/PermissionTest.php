@@ -9,18 +9,12 @@ use App\Models\OrganisationHasCustodianPermission;
 use App\Models\Permission;
 use App\Models\User;
 use App\Models\UserHasCustodianPermission;
-use Database\Seeders\CustodianSeeder;
-use Database\Seeders\OrganisationSeeder;
-use Database\Seeders\PermissionSeeder;
-use Database\Seeders\UserSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class PermissionTest extends TestCase
 {
     use Authorisation;
-    use RefreshDatabase;
     use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/[[PLACEHOLDER]]/permissions';
@@ -30,14 +24,7 @@ class PermissionTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed([
-            PermissionSeeder::class,
-            CustodianSeeder::class,
-            OrganisationSeeder::class,
-            UserSeeder::class,
-        ]);
-
-        $this->user = User::where('id', 1)->first();
+        $this->user = User::where('user_group', 'USERS')->first();
     }
 
     public function test_the_application_can_give_permissions_to_users(): void

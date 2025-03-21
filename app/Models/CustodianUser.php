@@ -37,4 +37,14 @@ class CustodianUser extends Model
     {
         return $this->hasMany(CustodianUserHasPermission::class, 'custodian_user_id', 'id');
     }
+
+    /**
+     * Get the custodian that owns the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function custodian()
+    {
+        return $this->belongsTo(Custodian::class, 'custodian_id', 'id');
+    }
 }

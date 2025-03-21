@@ -3,24 +3,125 @@
 namespace App\Models;
 
 use DB;
+use App\Observers\UserObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Traits\SearchManager;
+use App\Traits\ActionManager;
+use App\Traits\StateWorkflow;
+use App\Traits\FilterManager;
 
 /**
  * App\Models\User
  *
- * @property mixed $unreadNotifications
+ * @property \Illuminate\Database\Eloquent\Collection|\Illuminate\Notifications\DatabaseNotification[] $unreadNotifications
+ * @method \Illuminate\Notifications\DatabaseNotification[] unreadNotifications()
  */
+/**
+ * @OA\Components(
+ * @OA\Schema(
+ *      schema="User",
+ *      title="User",
+ *      description="User model",
+ *      @OA\Property(
+ *          property="id",
+ *          type="integer",
+ *          example="123"
+ *      ),
+ *      @OA\Property(
+ *          property="created_at",
+ *          type="string",
+ *          example="2024-02-04 12:00:00"
+ *      ),
+ *      @OA\Property(
+ *          property="updated_at",
+ *          type="string",
+ *          example="2024-02-04 12:01:00"
+ *      ),
+ *      @OA\Property(
+ *          property="first_name",
+ *          type="string",
+ *          example="A"
+ *      ),
+ *      @OA\Property(
+ *          property="last_name",
+ *          type="string",
+ *          example="Researcher"
+ *      ),
+ *      @OA\Property(
+ *          property="email",
+ *          type="string",
+ *          example="person@somewhere.com"
+ *      ),
+ *      @OA\Property(
+ *          property="email_verified_at",
+ *          type="string",
+ *          example="2024-02-04 12:00:00"
+ *      ),
+ *      @OA\Property(
+ *          property="consent_scrape",
+ *          type="boolean",
+ *          example="true"
+ *      ),
+ *      @OA\Property(
+ *          property="public_opt_in",
+ *          type="boolean",
+ *          example="true"
+ *      ),
+ *      @OA\Property(
+ *          property="declaration_signed",
+ *          type="boolean",
+ *          example="true"
+ *      ),
+ *      @OA\Property(
+ *          property="organisation_id",
+ *          type="integer",
+ *          example="123"
+ *      ),
+ *      @OA\Property(
+ *          property="orcid_scanning",
+ *          type="integer",
+ *          example="1"
+ *      ),
+ *      @OA\Property(
+ *          property="orcid_scanning_completed_at",
+ *          type="string",
+ *          example="2024-02-04 12:01:00"
+ *      ),
+ *      @OA\Property(
+ *          property="location",
+ *          type="string",
+ *          example="United Kingdom"
+ *      ),
+ *      @OA\Property(
+ *          property="t_and_c_agreed",
+ *          type="boolean",
+ *          example="true"
+ *      ),
+ *      @OA\Property(
+ *          property="t_and_c_agreement_date",
+ *          type="string",
+ *          example="2024-02-04 12:00:00"
+ *     )
+ * )
+ * )
+ */
+#[ObservedBy([UserObserver::class])]
 class User extends Authenticatable
 {
     use HasFactory;
     use Notifiable;
     use SearchManager;
+    use ActionManager;
+    use StateWorkflow;
+    use FilterManager;
 
     public const GROUP_USERS = 'USERS';
     public const GROUP_ORGANISATIONS = 'ORGANISATIONS';
@@ -31,6 +132,9 @@ class User extends Authenticatable
     public const GROUP_KC_ORGANISATIONS = '\Organisations';
     public const GROUP_KC_CUSTODIANS = '\Custodians';
     public const GROUP_KC_ADMINS = '\Admins';
+
+    public const STATUS_INVITED = 'invited';
+    public const STATUS_REGISTERED = 'registered';
 
     /**
      * The attributes that are mass assignable.
@@ -46,8 +150,6 @@ class User extends Authenticatable
         'keycloak_id',
         'user_group',
         'consent_scrape',
-        'profile_steps_completed',
-        'profile_completed_at',
         'unclaimed',
         'feed_source',
         'public_opt_in',
@@ -63,7 +165,9 @@ class User extends Authenticatable
         'role',
         'location',
         't_and_c_agreed',
-        't_and_c_agreement_date'
+        't_and_c_agreement_date',
+        'uksa_registered',
+        'is_sro',
     ];
 
     protected static array $searchableColumns = [
@@ -76,6 +180,18 @@ class User extends Authenticatable
         'first_name',
         'last_name',
         'email',
+    ];
+
+    public const ACTION_PROFILE_COMPLETED = 'profile_completed';
+    public const ACTION_AFFILIATIONS_COMPLETE = 'affiliations_complete';
+    public const ACTION_TRAINING_COMPLETE = 'training_complete';
+    public const ACTION_PROJECTS_REVIEW = 'projects_review';
+
+    protected static array $defaultActions = [
+        self::ACTION_PROFILE_COMPLETED,
+        self::ACTION_AFFILIATIONS_COMPLETE,
+        self::ACTION_TRAINING_COMPLETE,
+        self::ACTION_PROJECTS_REVIEW
     ];
 
     /**
@@ -98,7 +214,19 @@ class User extends Authenticatable
     protected $casts = [
         'consent_scrape' => 'boolean',
         'orcid_scanning' => 'boolean',
+        'uksa_registered' => 'boolean',
+        'declaration_signed' => 'boolean',
+        'is_sro' => 'boolean',
     ];
+
+    protected $appends = ['status'];
+
+    public function status(): Attribute
+    {
+        return new Attribute(
+            get: fn () => $this->unclaimed === 1 ? self::STATUS_INVITED : self::STATUS_REGISTERED
+        );
+    }
 
     public function permissions(): BelongsToMany
     {
@@ -155,6 +283,11 @@ class User extends Authenticatable
             Department::class,
             'user_has_departments'
         );
+    }
+
+    public function modelState(): MorphOne
+    {
+        return $this->morphOne(ModelState::class, 'stateable');
     }
 
     public static function searchByEmail(string $email): \stdClass|null

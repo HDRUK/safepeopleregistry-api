@@ -6,12 +6,9 @@ use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\User;
 use App\Jobs\SendEmailJob;
 use Illuminate\Support\Facades\Queue;
+use App\Models\CustodianUser;
 use App\Models\CustodianUserHasPermission;
 use App\Models\PendingInvite;
-use Database\Seeders\CustodianSeeder;
-use Database\Seeders\PermissionSeeder;
-use Database\Seeders\EmailTemplatesSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
@@ -19,7 +16,6 @@ use Tests\Traits\Authorisation;
 class CustodianUserTest extends TestCase
 {
     use Authorisation;
-    use RefreshDatabase;
     use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/custodian_users';
@@ -29,12 +25,6 @@ class CustodianUserTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed([
-            PermissionSeeder::class,
-            CustodianSeeder::class,
-            EmailTemplatesSeeder::class,
-        ]);
-
         $this->user = User::where('id', 1)->first();
     }
 
@@ -90,14 +80,14 @@ class CustodianUserTest extends TestCase
                 'POST',
                 self::TEST_URL,
                 [
-                'first_name' => fake()->firstname(),
-                'last_name' => fake()->lastname(),
-                'email' => fake()->email(),
-                'password' => Str::random(12),
-                'provider' => fake()->word(),
-                'keycloak_id' => '',
-                'custodian_id' => 1,
-            ]
+                    'first_name' => fake()->firstname(),
+                    'last_name' => fake()->lastname(),
+                    'email' => fake()->email(),
+                    'password' => Str::random(12),
+                    'provider' => fake()->word(),
+                    'keycloak_id' => '',
+                    'custodian_id' => 1,
+                ]
             );
 
         $response->assertStatus(201);
@@ -111,10 +101,10 @@ class CustodianUserTest extends TestCase
                 'PUT',
                 self::TEST_URL . '/' . $content['data'],
                 [
-                'first_name' => 'Updated',
-                'last_name' => 'Name',
-                'email' => fake()->email(),
-            ]
+                    'first_name' => 'Updated',
+                    'last_name' => 'Name',
+                    'email' => fake()->email(),
+                ]
             );
 
         $response->assertStatus(200);
@@ -131,14 +121,14 @@ class CustodianUserTest extends TestCase
                 'POST',
                 self::TEST_URL,
                 [
-                'first_name' => fake()->firstname(),
-                'last_name' => fake()->lastname(),
-                'email' => fake()->email(),
-                'password' => Str::random(12),
-                'provider' => fake()->word(),
-                'keycloak_id' => '',
-                'custodian_id' => 1,
-            ]
+                    'first_name' => fake()->firstname(),
+                    'last_name' => fake()->lastname(),
+                    'email' => fake()->email(),
+                    'password' => Str::random(12),
+                    'provider' => fake()->word(),
+                    'keycloak_id' => '',
+                    'custodian_id' => 1,
+                ]
             );
 
         $response->assertStatus(201);
@@ -160,6 +150,8 @@ class CustodianUserTest extends TestCase
     {
         Queue::fake();
         Queue::assertNothingPushed();
+
+        CustodianUser::truncate();
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
@@ -200,17 +192,17 @@ class CustodianUserTest extends TestCase
                 'POST',
                 self::TEST_URL,
                 [
-                'first_name' => fake()->firstname(),
-                'last_name' => fake()->lastname(),
-                'email' => fake()->email(),
-                'password' => Str::random(12),
-                'provider' => fake()->word(),
-                'keycloak_id' => '',
-                'custodian_id' => 1,
-                'permissions' => [
-                    1, 3, 5,
-                ],
-            ]
+                    'first_name' => fake()->firstname(),
+                    'last_name' => fake()->lastname(),
+                    'email' => fake()->email(),
+                    'password' => Str::random(12),
+                    'provider' => fake()->word(),
+                    'keycloak_id' => '',
+                    'custodian_id' => 1,
+                    'permissions' => [
+                        1, 3, 5,
+                    ],
+                ]
             );
 
         $response->assertStatus(201);

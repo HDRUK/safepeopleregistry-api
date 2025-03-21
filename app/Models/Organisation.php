@@ -2,11 +2,18 @@
 
 namespace App\Models;
 
+use App\Observers\OrganisationObserver;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use App\Traits\SearchManager;
+use App\Traits\ActionManager;
+use App\Traits\StateWorkflow;
+use App\Traits\FilterManager;
 
 /**
  * @OA\Schema(
@@ -175,10 +182,14 @@ use App\Traits\SearchManager;
  *      ),
  * )
  */
+#[ObservedBy([OrganisationObserver::class])]
 class Organisation extends Model
 {
     use HasFactory;
     use SearchManager;
+    use ActionManager;
+    use StateWorkflow;
+    use FilterManager;
 
     protected $table = 'organisations';
 
@@ -202,15 +213,19 @@ class Organisation extends Model
         'dsptk_ods_code',
         'dsptk_certified',
         'dsptk_expiry_date',
+        'dsptk_expiry_evidence',
         'iso_27001_certified',
         'iso_27001_certification_num',
         'iso_expiry_date',
+        'iso_expiry_evidence',
         'ce_certified',
         'ce_certification_num',
         'ce_expiry_date',
+        'ce_expiry_evidence',
         'ce_plus_certified',
         'ce_plus_certification_num',
         'ce_plus_expiry_date',
+        'ce_plus_expiry_evidence',
         'idvt_result',
         'idvt_result_perc',
         'idvt_errors',
@@ -246,6 +261,25 @@ class Organisation extends Model
     protected $hidden = [
     ];
 
+    public const ACTION_NAME_ADDRESS_COMPLETED = 'name_address_completed';
+    public const ACTION_DIGITAL_ID_COMPLETED = 'digital_identifiers_completed';
+    public const ACTION_SECTOR_SIZE_COMPLETED = 'sector_size_completed';
+    public const ACTION_ADD_SUBSIDIARY_COMPLETED = 'add_subsidiary_completed';
+    public const ACTION_DATA_SECURITY_COMPLETED = 'data_security_completed';
+    public const ACTION_ADD_SRO_COMPLETED = 'add_sro_completed';
+    public const ACTION_AFFILIATE_EMPLOYEES_COMPLETED = 'affiliate_employees_completed';
+
+    protected static array $defaultActions = [
+        self::ACTION_NAME_ADDRESS_COMPLETED,
+        self::ACTION_DIGITAL_ID_COMPLETED,
+        self::ACTION_SECTOR_SIZE_COMPLETED,
+        self::ACTION_ADD_SUBSIDIARY_COMPLETED,
+        self::ACTION_DATA_SECURITY_COMPLETED,
+        self::ACTION_ADD_SRO_COMPLETED,
+        self::ACTION_AFFILIATE_EMPLOYEES_COMPLETED,
+    ];
+
+
     public function permissions(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -268,6 +302,34 @@ class Organisation extends Model
             File::class,
             'organisation_has_files'
         );
+    }
+
+    public function latestEvidence(): BelongsToMany
+    {
+        return $this->belongsToMany(File::class, 'organisation_has_files')
+            ->where('status', File::FILE_STATUS_PROCESSED)
+            ->whereRaw('updated_at = (SELECT MAX(updated_at) FROM files f WHERE f.type = files.type)');
+    }
+
+
+    public function ceExpiryEvidence(): BelongsTo
+    {
+        return $this->belongsTo(File::class, 'ce_expiry_evidence');
+    }
+
+    public function cePlusExpiryEvidence(): BelongsTo
+    {
+        return $this->belongsTo(File::class, 'ce_plus_expiry_evidence');
+    }
+
+    public function isoExpiryEvidence(): BelongsTo
+    {
+        return $this->belongsTo(File::class, 'iso_expiry_evidence');
+    }
+
+    public function dsptkExpiryEvidence(): BelongsTo
+    {
+        return $this->belongsTo(File::class, 'dsptk_expiry_evidence');
     }
 
     public function registries(): BelongsToMany
@@ -304,5 +366,10 @@ class Organisation extends Model
     public function charities()
     {
         return $this->belongsToMany(Charity::class, 'organisation_has_charity');
+    }
+
+    public function modelState(): MorphOne
+    {
+        return $this->morphOne(ModelState::class, 'stateable');
     }
 }

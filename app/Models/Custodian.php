@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Traits\SearchManager;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use App\Traits\ActionManager;
 
 /**
  * @OA\Schema(
@@ -71,6 +72,7 @@ class Custodian extends Model
 {
     use HasFactory;
     use SearchManager;
+    use ActionManager;
 
     protected $table = 'custodians';
 
@@ -98,6 +100,20 @@ class Custodian extends Model
         'calculated_hash',
     ];
 
+    public const ACTION_COMPLETE_CONFIGURATION = 'complete_configuration';
+    public const ACTION_ADD_CONTACTS = 'add_contacts_completed';
+    public const ACTION_ADD_USERS = 'add_users_completed';
+    public const ACTION_ADD_PROJECTS = 'add_projects_completed';
+    public const ACTION_ADD_ORGANISATIONS = 'add_organisations_completed';
+
+    protected static array $defaultActions = [
+        self::ACTION_COMPLETE_CONFIGURATION,
+        self::ACTION_ADD_CONTACTS,
+        self::ACTION_ADD_USERS,
+        self::ACTION_ADD_PROJECTS,
+        self::ACTION_ADD_ORGANISATIONS,
+    ];
+
     protected static array $searchableColumns = [
         'name',
         'contact_email',
@@ -112,4 +128,41 @@ class Custodian extends Model
     {
         return $this->belongsToMany(Rules::class, 'custodian_has_rules', 'custodian_id', 'rule_id');
     }
+
+    /**
+     * Get all custodian users that belong to this custodian.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function custodianUsers()
+    {
+        return $this->hasMany(CustodianUser::class, 'custodian_id', 'id');
+    }
+
+    /**
+     * Get all custodian users that belong to this custodian.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function projects(): BelongsToMany
+    {
+        return $this->belongsToMany(Project::class, 'project_has_custodians', 'custodian_id', 'project_id');
+    }
+
+    /**
+     * Get all approved organisations for this custodian.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function approvedOrganisations(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Organisation::class,
+            'organisation_has_custodian_approvals',
+            'custodian_id',
+            'organisation_id'
+        );
+    }
+
+
 }

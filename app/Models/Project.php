@@ -7,13 +7,18 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use App\Traits\SearchManager;
+use App\Traits\StateWorkflow;
+use App\Traits\FilterManager;
 
 class Project extends Model
 {
     use HasFactory;
     use SoftDeletes;
     use SearchManager;
+    use StateWorkflow;
+    use FilterManager;
 
     protected $table = 'projects';
 
@@ -39,6 +44,7 @@ class Project extends Model
         'start_date',
         'end_date',
         'unique_id',
+        'status',
     ];
 
     protected static array $sortableColumns = [
@@ -49,7 +55,6 @@ class Project extends Model
     {
         return $this->hasMany(ProjectHasUser::class);
     }
-
 
     public function organisations(): BelongsToMany
     {
@@ -77,5 +82,10 @@ class Project extends Model
             'project_id',
             'custodian_id'
         )->wherePivot('approved', true);
+    }
+
+    public function modelState(): MorphOne
+    {
+        return $this->morphOne(ModelState::class, 'stateable');
     }
 }

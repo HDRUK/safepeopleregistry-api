@@ -6,15 +6,12 @@ use KeycloakGuard\ActingAsKeycloakUser;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Registry;
-use Database\Seeders\UserSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
 class AccreditationTest extends TestCase
 {
     use Authorisation;
-    use RefreshDatabase;
     use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/accreditations';
@@ -25,16 +22,22 @@ class AccreditationTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->seed([
-            UserSeeder::class,
-        ]);
 
-        $this->user = User::where('id', 1)->first();
+        $this->user = User::where('user_group', 'USERS')->first();
         $this->registry = Registry::where('id', $this->user->registry_id)->first();
     }
 
     public function test_the_application_can_list_accreditations_by_registry_id(): void
     {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL . '/' . $this->registry->id,
+                $this->prepareAccreditationPayload()
+            );
+
+        $response->assertStatus(201);
+
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json('GET', self::TEST_URL . '/' . $this->registry->id);
 

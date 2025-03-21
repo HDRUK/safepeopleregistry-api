@@ -80,6 +80,7 @@ class OrganisationController extends Controller
 
         if (!$custodianId) {
             $organisations = Organisation::searchViaRequest()
+                ->filterByState()
                 ->applySorting()
                 ->with([
                     'departments',
@@ -173,7 +174,10 @@ class OrganisationController extends Controller
             'subsidiaries',
             'permissions',
             'approvals',
-            'files',
+            'ceExpiryEvidence',
+            'cePlusExpiryEvidence',
+            'isoExpiryEvidence',
+            'dsptkExpiryEvidence',
             'charities',
             'registries',
             'registries.user',
@@ -446,16 +450,16 @@ class OrganisationController extends Controller
                 'sector_id' => 0,
                 'dsptk_certified' => 0,
                 'dsptk_ods_code' => '',
-                'dsptk_expiry_date' => '',
+                'dsptk_expiry_date' => null,
                 'iso_27001_certified' => 0,
                 'iso_27001_certification_num' => '',
-                'iso_expiry_date' => '',
+                'iso_expiry_date' => null,
                 'ce_certified' => 0,
                 'ce_certification_num' => '',
-                'ce_expiry_date' => '',
+                'ce_expiry_date' => null,
                 'ce_plus_certified' => 0,
                 'ce_plus_certification_num' => '',
-                'ce_plus_expiry_date' => '',
+                'ce_plus_expiry_date' => null,
                 'ror_id' => '',
                 'website' => '',
                 'smb_status' => 0,
@@ -539,7 +543,8 @@ class OrganisationController extends Controller
     {
         try {
             $input = $request->only(app(Organisation::class)->getFillable());
-            $org = tap(Organisation::where('id', $id))->update($input)->first();
+            $org = Organisation::findOrFail($id);
+            $org->update($input);
 
             if ($request->has('subsidiaries')) {
                 $this->cleanSubsidiaries($id);
@@ -797,7 +802,7 @@ class OrganisationController extends Controller
     {
         $projects = Project::searchViaRequest()
           ->applySorting()
-          ->with(['approvals'])
+          ->with(['approvals', 'organisations'])
           ->filterWhen('approved', function ($query, $approved) {
               if ($approved) {
                   $query->whereHas('approvals');
@@ -808,6 +813,7 @@ class OrganisationController extends Controller
           ->whereHas('organisations', function ($query) use ($organisationId) {
               $query->where('organisations.id', $organisationId);
           })
+          ->withCount('projectUsers')
           ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         if ($projects) {
@@ -899,7 +905,7 @@ class OrganisationController extends Controller
                 'organisation',
                 'departments',
                 'registry.education',
-                'registry.training',
+                'registry.trainings',
             ])->where('organisation_id', $organisationId)
               ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
@@ -1058,6 +1064,10 @@ class OrganisationController extends Controller
     {
         try {
             $input = $request->all();
+            if (User::where("email", $input['email'])->exists()) {
+                return $this->ConflictResponse();
+            }
+
             $unclaimedUser = RMC::createUnclaimedUser([
                 'firstname' => $input['first_name'],
                 'lastname' => $input['last_name'],
@@ -1180,8 +1190,10 @@ class OrganisationController extends Controller
 
     public function cleanSubsidiaries(int $organisationId)
     {
-        OrganisationHasSubsidiary::where('organisation_id', $organisationId)->delete();
-
+        // done like this to for the observer class to see the delete
+        OrganisationHasSubsidiary::where('organisation_id', $organisationId)
+            ->get()
+            ->each(fn ($ohs) => $ohs->delete());
     }
 
     public function addSubsidiary(int $organisationId, array $subsidiary)

@@ -8,11 +8,13 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use App\Traits\ActionManager;
 
 #[ObservedBy([ProjectHasUserObserver::class])]
 class ProjectHasUser extends Model
 {
     use HasFactory;
+    use ActionManager;
 
     protected $table = 'project_has_users';
 
@@ -22,6 +24,20 @@ class ProjectHasUser extends Model
         'project_id',
         'user_digital_ident',
         'project_role_id',
+        'primary_contact',
+    ];
+
+    public const VALIDATE_COMPLETE_CONFIGURATION = 'mandatory_training_complete';
+    public const NO_MISCONDUCT = 'no_misconduct';
+    public const NO_RELEVANT_CRIMINAL_RECORD = 'no_relevant_criminal_record';
+    public const ORGANISATION_HAS_CONFIRMED_USER = 'organisation_has_confirmed_the_user';
+
+
+    protected static array $defaultActions = [
+        self::VALIDATE_COMPLETE_CONFIGURATION,
+        self::NO_MISCONDUCT,
+        self::NO_RELEVANT_CRIMINAL_RECORD,
+        self::ORGANISATION_HAS_CONFIRMED_USER
     ];
 
     public function role(): BelongsTo

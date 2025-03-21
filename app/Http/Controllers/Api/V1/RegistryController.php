@@ -6,6 +6,7 @@ use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use App\Models\Registry;
 use App\Traits\CommonFunctions;
+use App\Http\Traits\Responses;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -13,6 +14,7 @@ use Illuminate\Http\Request;
 class RegistryController extends Controller
 {
     use CommonFunctions;
+    use Responses;
 
     /**
      * @OA\Get(
@@ -22,30 +24,20 @@ class RegistryController extends Controller
      *      tags={"Registry"},
      *      summary="Registry@index",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="user_id", type="integer", example="243"),
-     *                  @OA\Property(property="verified", type="boolean", example=true),
+     *              @OA\Property(property="data",
+     *                  ref="#/components/schemas/Registry"
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -53,16 +45,11 @@ class RegistryController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $registries = Registry::with(
-            [
-                'files',
-            ]
-        )->paginate((int)$this->getSystemConfig('PER_PAGE'));
+        $registries = Registry::with([
+            'files',
+        ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
-        return response()->json([
-            'message' => 'success',
-            'data' => $registries,
-        ], 200);
+        return $this->OKResponse($registries);
     }
 
     /**
@@ -73,42 +60,31 @@ class RegistryController extends Controller
      *      tags={"Registry"},
      *      summary="Registry@show",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Registry entry ID",
      *         required=true,
      *         example="1",
-     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Registry entry ID",
      *         ),
      *      ),
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="verified", type="boolean", example=true),
+     *              @OA\Property(property="data",
+     *                  ref="#/components/schemas/Registry"
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -116,16 +92,12 @@ class RegistryController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
-        $registries = Registry::with(
-            [
-                'files',
-            ]
-        )->findOrFail($id);
-        if ($registries) {
-            return response()->json([
-                'message' => 'success',
-                'data' => $registries,
-            ], 200);
+        $registry = Registry::with([
+            'files',
+        ])->findOrFail($id);
+
+        if ($registry) {
+            return $this->OKResponse($registry);
         }
 
         throw new NotFoundException();
@@ -139,53 +111,27 @@ class RegistryController extends Controller
      *      tags={"Registry"},
      *      summary="Registry@store",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Registry definition",
-     *
-     *          @OA\JsonContent(
-     *
-     *              @OA\Property(property="dl_ident", type="string", example="134157839"),
-     *              @OA\Property(property="pp_ident", type="string", example="HSJFY785615630X99 123"),
-     *              @OA\Property(property="verified", type="boolean", example="true")
-     *          ),
+     *          ref="#/components/schemas/Registry"
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=201,
      *          description="Success",
-     *
-     *          @OA\JsonContent(
-     *
-     *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="dl_ident", type="string", example="134157839"),
-     *                  @OA\Property(property="pp_ident", type="string", example="HSJFY785615630X99 123"),
-     *                  @OA\Property(property="verified", type="boolean", example="true")
-     *              )
-     *          ),
+     *          ref="#/components/schemas/Registry"
      *      ),
-     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -194,18 +140,10 @@ class RegistryController extends Controller
     public function store(Request $request): JsonResponse
     {
         try {
-            $input = $request->all();
+            $input = $request->only(app(Registry::class)->getFillable());
+            $registry = Registry::create($input);
 
-            $registry = Registry::create([
-                'dl_ident' => $input['dl_ident'],
-                'pp_ident' => $input['pp_ident'],
-                'verified' => $input['verified'],
-            ]);
-
-            return response()->json([
-                'message' => 'success',
-                'data' => $registry->id,
-            ], 201);
+            return $this->CreatedResponse($registry->id);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -219,68 +157,43 @@ class RegistryController extends Controller
      *      tags={"Registry"},
      *      summary="Registry@update",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Registry entry ID",
      *         required=true,
      *         example="1",
-     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Registry entry ID",
      *         ),
      *      ),
-     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Registry definition",
-     *
-     *          @OA\JsonContent(
-     *
-     *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *              @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *              @OA\Property(property="dl_ident", type="string", example="134157839"),
-     *              @OA\Property(property="pp_ident", type="string", example="HSJFY785615630X99 123"),
-     *              @OA\Property(property="verified", type="boolean", example="true")
-     *          ),
+     *          ref="#/components/schemas/Registry"
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="dl_ident", type="string", example="134157839"),
-     *                  @OA\Property(property="pp_ident", type="string", example="HSJFY785615630X99 123"),
-     *                  @OA\Property(property="verified", type="boolean", example="true")
+     *              @OA\Property(property="data",
+     *                  ref="#/components/schemas/Registry"
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -289,113 +202,12 @@ class RegistryController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         try {
-            $input = $request->all();
+            $input = $request->only(app(Registry::class)->getFillable());
+            $registry = Registry::findOrFail($id);
+            $registry->update($input);
 
-            Registry::where('id', $id)->update([
-                'dl_ident' => $input['dl_ident'],
-                'pp_ident' => $input['pp_ident'],
-                'verified' => $input['verified'],
-            ]);
 
-            return response()->json([
-                'message' => 'success',
-                'data' => Registry::where('id', $id)->first(),
-            ], 200);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
-    }
-
-    /**
-     * @OA\Patch(
-     *      path="/api/v1/registry/{id}",
-     *      summary="Edit a Registry entry",
-     *      description="Edit a Registry entry",
-     *      tags={"Registry"},
-     *      summary="Registry@edit",
-     *      security={{"bearerAuth":{}}},
-     *
-     *      @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="Registry entry ID",
-     *         required=true,
-     *         example="1",
-     *
-     *         @OA\Schema(
-     *            type="integer",
-     *            description="Registry entry ID",
-     *         ),
-     *      ),
-     *
-     *      @OA\RequestBody(
-     *          required=true,
-     *          description="Registry definition",
-     *
-     *          @OA\JsonContent(
-     *
-     *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *              @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *              @OA\Property(property="dl_ident", type="string", example="134157839"),
-     *              @OA\Property(property="pp_ident", type="string", example="HSJFY785615630X99 123"),
-     *              @OA\Property(property="verified", type="boolean", example="true")
-     *          ),
-     *      ),
-     *
-     *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *
-     *          @OA\JsonContent(
-     *
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          ),
-     *      ),
-     *
-     *      @OA\Response(
-     *          response=200,
-     *          description="Success",
-     *
-     *          @OA\JsonContent(
-     *
-     *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="dl_ident", type="string", example="134157839"),
-     *                  @OA\Property(property="pp_ident", type="string", example="HSJFY785615630X99 123"),
-     *                  @OA\Property(property="verified", type="boolean", example="true")
-     *              )
-     *          ),
-     *      ),
-     *
-     *      @OA\Response(
-     *          response=500,
-     *          description="Error",
-     *
-     *          @OA\JsonContent(
-     *
-     *              @OA\Property(property="message", type="string", example="error")
-     *          )
-     *      )
-     * )
-     */
-    public function edit(Request $request, int $id): JsonResponse
-    {
-        try {
-            $input = $request->all();
-
-            Registry::where('id', $id)->update([
-                'dl_ident' => $input['dl_ident'],
-                'pp_ident' => $input['pp_ident'],
-                'verified' => $input['verified'],
-            ]);
-
-            return response()->json([
-                'message' => 'success',
-                'data' => Registry::where('id', $id)->first(),
-            ], 200);
+            return $this->OKResponse($registry);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -409,46 +221,35 @@ class RegistryController extends Controller
      *      tags={"Registry"},
      *      summary="Registry@destroy",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Registry entry ID",
      *         required=true,
      *         example="1",
-     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Registry entry ID",
      *         ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found")
      *           ),
      *      ),
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="success")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -458,10 +259,7 @@ class RegistryController extends Controller
     {
         try {
             Registry::where('id', $id)->delete();
-
-            return response()->json([
-                'message' => 'success',
-            ], 200);
+            return $this->OKResponse(null);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }

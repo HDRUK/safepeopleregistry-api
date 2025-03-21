@@ -11,9 +11,12 @@ use App\Models\ProjectHasCustodian;
 use App\Models\WebhookEventTrigger;
 use App\Models\CustodianWebhookReceiver;
 use Spatie\WebhookServer\WebhookCall;
+use App\Traits\ValidationManager;
 
 class ProjectHasUserObserver
 {
+    use ValidationManager;
+
     public const WEBHOOK_EVENT_TRIGGER_NAME = 'user-left-project';
 
     /**
@@ -21,7 +24,10 @@ class ProjectHasUserObserver
      */
     public function created(ProjectHasUser $projectHasUser): void
     {
-        //
+        $this->updateCustodianProjectUserValidation(
+            $projectHasUser->project_id,
+            $projectHasUser->user_digital_ident
+        );
     }
 
     /**
@@ -29,7 +35,10 @@ class ProjectHasUserObserver
      */
     public function updated(ProjectHasUser $projectHasUser): void
     {
-        //
+        $this->updateCustodianProjectUserValidation(
+            $projectHasUser->project_id,
+            $projectHasUser->user_digital_ident
+        );
     }
 
     /**
@@ -37,6 +46,11 @@ class ProjectHasUserObserver
      */
     public function deleted(ProjectHasUser $projectHasUser): void
     {
+        $this->deleteCustodianProjectUserValidation(
+            $projectHasUser->project_id,
+            $projectHasUser->user_digital_ident
+        );
+
         // In this instance, we're intercepting the delete event of a user
         // being removed from a project. As such, when this happens, and
         // provided this project has custodian approval, we fire a
