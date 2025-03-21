@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use DB;
 use Exception;
 use Hash;
 use RegistryManagementController as RMC;
 use TriggerEmail;
 use Carbon\Carbon;
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Models\Custodian;
 use App\Models\Organisation;
 use App\Models\Rules;
@@ -16,10 +18,12 @@ use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Http\Traits\Responses;
 
 class CustodianController extends Controller
 {
     use CommonFunctions;
+    use Responses;
 
     /**
      * @OA\Get(
@@ -604,7 +608,7 @@ class CustodianController extends Controller
 
         $projects = Project::searchViaRequest()
           ->applySorting()
-          ->with(['approvals', 'organisations'])
+          ->with(['approvals', 'organisations', 'modelState.state'])
           ->filterWhen('approved', function ($query, $value) {
               if ($value) {
                   $query->whereHas('approvals');
@@ -814,6 +818,52 @@ class CustodianController extends Controller
             ], 201);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
+        }
+    }
+
+    public function usersWithCustodianApprovals(Request $request, int $id): JsonResponse
+    {
+        try {
+            $results = DB::select(
+                "
+                SELECT
+                    u.id AS user_id,
+                    GROUP_CONCAT(p.id) AS project_id
+                FROM users u
+                INNER JOIN user_has_custodian_approvals uhca
+                    ON uhca.user_id = u.id
+                    AND uhca.custodian_id = ?
+                INNER JOIN registries r
+                    ON r.id = u.registry_id
+                INNER JOIN project_has_users phu
+                    ON phu.user_digital_ident = r.digi_ident
+                INNER JOIN projects p
+                    ON phu.project_id = p.id
+                INNER JOIN project_has_custodians phc 
+                	ON phc.custodian_id  = uhca.custodian_id 
+                	AND phc.project_id = p.id
+                GROUP BY u.id;
+                ",
+                [
+                    $id,
+                ]
+            );
+
+            $users = [];
+
+            foreach ($results as $u) {
+                $tmpUser = User::where('id', $u->user_id)->first()->toArray();
+                foreach (explode(',', $u->project_id) as $p) {
+                    $tmpUser['projects'][] = Project::where('id', $p)->first();
+                }
+
+                $users[] = $tmpUser;
+                unset($tmpUser);
+            }
+
+            return $this->OKResponse($users);
+        } catch (Exception $e) {
+            return $this->ErrorResponse();
         }
     }
 }

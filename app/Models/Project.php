@@ -44,6 +44,7 @@ class Project extends Model
         'start_date',
         'end_date',
         'unique_id',
+        'status',
     ];
 
     protected static array $sortableColumns = [
