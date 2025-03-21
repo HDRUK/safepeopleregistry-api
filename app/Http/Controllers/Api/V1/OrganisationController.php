@@ -543,7 +543,8 @@ class OrganisationController extends Controller
     {
         try {
             $input = $request->only(app(Organisation::class)->getFillable());
-            $org = tap(Organisation::where('id', $id))->update($input)->first();
+            $org = Organisation::findOrFail($id);
+            $org->update($input);
 
             if ($request->has('subsidiaries')) {
                 $this->cleanSubsidiaries($id);

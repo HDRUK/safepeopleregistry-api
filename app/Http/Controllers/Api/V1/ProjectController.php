@@ -470,9 +470,9 @@ class ProjectController extends Controller
      *                  @OA\Property(property="registry_id", type="integer", example="1"),
      *                  @OA\Property(property="name", type="string", example="My First Research Project"),
      *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
-     *                  @OA\Property(property="runs_to", type="string", example="2026-02-04")
-     *                  @OA\Property(property="status", type="string", example="approved")
-     *              )
+     *                  @OA\Property(property="runs_to", type="string", example="2026-02-04"),
+     *                  @OA\Property(property="status", type="string", example="approved"),
+     *              ),
      *          ),
      *      ),
      *      @OA\Response(
@@ -488,13 +488,13 @@ class ProjectController extends Controller
     {
         try {
             $input = $request->only(app(Project::class)->getFillable());
-            $project = Project::where('id', $id)->first();
+            $project = Project::findOrFail($id);
 
-            if(!is_null($project)) {
+            if (!is_null($project)) {
                 $project->update($input);
                 $status = $request->get('status');
 
-                if(isset($status)) {
+                if (isset($status)) {
                     if ($project->canTransitionTo($status)) {
                         $project->transitionTo($status);
                     } else {
@@ -560,9 +560,9 @@ class ProjectController extends Controller
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
      *                  @OA\Property(property="name", type="string", example="My First Research Project"),
      *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
-     *                  @OA\Property(property="runs_to", type="string", example="2026-02-04")
-     *                  @OA\Property(property="status", type="string", example="2026-02-04")
-     *              )
+     *                  @OA\Property(property="runs_to", type="string", example="2026-02-04"),
+     *                  @OA\Property(property="status", type="string", example="2026-02-04"),
+     *              ),
      *          ),
      *      ),
      *      @OA\Response(
@@ -578,7 +578,8 @@ class ProjectController extends Controller
     {
         try {
             $input = $request->only(app(Project::class)->getFillable());
-            $project = Project::where('id', $id)->update($input);
+            $project = Project::findOrFail($id);
+            $project->update($input);
 
             return response()->json([
                 'message' => 'success',

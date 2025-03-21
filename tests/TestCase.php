@@ -16,7 +16,6 @@ abstract class TestCase extends BaseTestCase
         parent::setUp();
         $this->liteSetUp();
         $this->disableMiddleware();
-        $this->disableObservers();
     }
 
     protected function disableMiddleware(): void

@@ -191,7 +191,9 @@ class CustodianModelConfigController extends Controller
     {
         try {
             $input = $request->only(app(CustodianModelConfig::class)->getFillable());
-            $conf = tap(CustodianModelConfig::where('id', $id))->update($input)->first();
+            $conf = CustodianModelConfig::findOrFail($id);
+            $conf->update($input);
+
 
             return $this->OKResponse($conf);
         } catch (Exception $e) {

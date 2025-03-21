@@ -148,6 +148,20 @@ class CustodianTest extends TestCase
         $content = $response->decodeResponseJson();
         $this->assertGreaterThan(0, $content['data']);
 
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . '/' . $content['data'] . '/action_log'
+        );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Custodian::ACTION_COMPLETE_CONFIGURATION);
+
+        $this->assertNull($actionLog['completed_at']);
+
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'PUT',

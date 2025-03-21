@@ -290,7 +290,8 @@ class ExperienceController extends Controller
         try {
             $input = $request->all();
 
-            Experience::where('id', $id)->update([
+            $exp = Experience::findOrFail($id);
+            $exp->update([
                 'project_id' => $input['project_id'],
                 'from' => $input['from'],
                 'to' => $input['to'],
@@ -389,7 +390,8 @@ class ExperienceController extends Controller
         try {
             $input = $request->all();
 
-            Experience::where('id', $id)->update([
+            $exp = Experience::findOrFail($id);
+            $exp->update([
                 'project_id' => $input['project_id'],
                 'from' => $input['from'],
                 'to' => $input['to'],

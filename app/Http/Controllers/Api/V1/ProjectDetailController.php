@@ -211,7 +211,9 @@ class ProjectDetailController extends Controller
     {
         try {
             $input = $request->only(app(ProjectDetail::class)->getFillable());
-            $projectDetail = tap(ProjectDetail::where('id', $id))->update($input)->first();
+            $projectDetail = ProjectDetail::where('id', $id)->first();
+            $projectDetail->update($input);
+
             return $this->OKResponse($projectDetail);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
