@@ -29,7 +29,7 @@ class Keycloak
         $userUrl = env('KEYCLOAK_BASE_URL') . '/admin/realms/' . env('KEYCLOAK_REALM') . '/users/' . $user->keycloak_id;
 
         return Http::withHeaders([
-            'Authorization' => 'Bearer ' . $this->getServiceToken(),
+            'Authorization' => $this->getServiceToken(),
         ])->put(
             $userUrl,
             [
@@ -75,7 +75,7 @@ class Keycloak
             $userGroup = $this->determineUserGroup($credentials);
 
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer '.$this->getServiceToken(),
+                'Authorization' => $this->getServiceToken(),
             ])->post(
                 $this->makeUrl(self::USERS_URL),
                 $payload
@@ -224,7 +224,7 @@ class Keycloak
             ];
 
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->getServiceToken(),
+                'Authorization' => $this->getServiceToken(),
             ])->put($authUrl, $payload);
 
             return $response;
@@ -283,7 +283,7 @@ class Keycloak
             $response = Http::asForm()->post($authUrl, $credentials);
             $responseData = $response->json();
 
-            return $responseData['access_token'];
+            return 'Bearer ' . $responseData['access_token'];
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -309,5 +309,97 @@ class Keycloak
         }
 
         return '';
+    }
+
+    public function determineUserGroupFromString(string $group): string
+    {
+        switch (strtolower($group)) {
+            case 'users':
+                return RMC::KC_GROUP_USERS;
+            case 'custodians':
+                return RMC::KC_GROUP_CUSTODIANS;
+            case 'organisations':
+                return RMC::KC_GROUP_ORGANISATIONS;
+        }
+    }
+
+    public function checkUserExists(int $userId): bool
+    {
+        try {
+            $email = User::where('id', $userId)->first()->email;
+            $response = Http::withHeaders([
+                'Authorization' => $this->getServiceToken(),
+                'Content-Type' => 'application/json',
+            ])->get(
+                $this->makeUrl(self::USERS_URL),
+                [
+                    'username' => $email,
+                    'exact' => true,
+                ]
+            );
+
+            return count($response->json()) > 0;
+
+        } catch (Exception $e) {
+            throw new Exception($e);
+        }
+    }
+
+    public function createUser(array $credentials): array
+    {
+        try {
+            $payload = [
+                'username' => $credentials['email'],
+                'email' => $credentials['email'],
+                'emailVerified' => false,
+                'enabled' => true,
+                'firstName' => $credentials['first_name'],
+                'lastName' => $credentials['last_name'],
+                'credentials' => [],
+                'requiredActions' => [
+                    'UPDATE_PASSWORD',
+                    'VERIFY_EMAIL'
+                ],
+            ];
+
+            $response = Http::withHeaders([
+                'Authorization' => $this->getServiceToken(),
+                'Content-Type' => 'application/json',
+            ])->post(
+                $this->makeUrl(self::USERS_URL),
+                $payload
+            );
+
+            $content = $response->json();
+
+            if ($response->status() === 201) {
+                $headers = $response->headers();
+
+                $parts = explode('/', $headers['location'][0]);
+                $last = count($parts) - 1;
+                $newUserId = $parts[$last];
+
+                $user = User::where('id', $credentials['id'])->first();
+                $user->keycloak_id = $newUserId;
+                if ($user->save()) {
+                    return [
+                        'success' => true,
+                        'error' => null,
+                    ];
+                }
+
+                return [
+                    'success' => false,
+                    'error' => 'unable to save keycloak_id',
+                ];
+            }
+
+            return [
+                'success' => false,
+                'error' => 'unable to create user in keycloak',
+            ];
+        } catch (Exception $e) {
+            throw new Exception($e);
+        }
     }
 }

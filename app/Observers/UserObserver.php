@@ -2,6 +2,8 @@
 
 namespace App\Observers;
 
+use Exception;
+use Keycloak;
 use App\Models\User;
 use App\Models\State;
 use App\Models\Organisation;
@@ -33,6 +35,23 @@ class UserObserver
                 'action' => $action,
                 'completed_at' => null,
             ]);
+        }
+
+        // Check the existence within keycloak.
+        if (!Keycloak::checkUserExists($user->id)) {
+            // If not found, create and update local copy with keycloak id.
+
+            $retVal = Keycloak::createUser([
+                'email' => $user->email,
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'group' => $user->user_group,
+                'id' => $user->id,
+            ]);
+
+            if (!$retVal['success']) {
+                throw new Exception('unable to clone user ' . json_encode($user) . ' within keycloak ');
+            }
         }
     }
 
