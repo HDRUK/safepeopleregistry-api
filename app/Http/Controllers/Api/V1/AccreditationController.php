@@ -63,7 +63,8 @@ class AccreditationController extends Controller
     {
         try {
             $input = $request->all();
-            $accreditation = Accreditation::where('id', $id)->first();
+            $accreditation = Accreditation::findOrFail($id);
+            ;
 
             $accreditation->awarded_at = Carbon::parse($input['awarded_at'])->toDateString();
             $accreditation->awarding_body_name = $input['awarding_body_name'];

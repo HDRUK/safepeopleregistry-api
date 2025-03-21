@@ -62,7 +62,8 @@ class DepartmentController extends Controller
         try {
             $input = $request->only(app(Department::class)->getFillable());
 
-            Department::where('id', $id)->update($input);
+            $dep = Department::where('id', $id)->first();
+            $dep->update($input);
 
             return response()->json([
                 'message' => 'success',

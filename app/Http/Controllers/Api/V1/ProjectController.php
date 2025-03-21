@@ -492,7 +492,8 @@ class ProjectController extends Controller
     {
         try {
             $input = $request->all();
-            $project = Project::where('id', $id)->update([
+            $project = Project::findOrFail($id);
+            $project->update([
                 'unique_id' => $input['unique_id'],
                 'title' => $input['title'],
                 'lay_summary' => $input['lay_summary'],
@@ -579,7 +580,8 @@ class ProjectController extends Controller
     {
         try {
             $input = $request->all();
-            $project = Project::where('id', $id)->update([
+            $project = Project::findOrFail($id);
+            $project->update([
                 'unique_id' => $input['unique_id'],
                 'title' => $input['title'],
                 'lay_summary' => $input['lay_summary'],
