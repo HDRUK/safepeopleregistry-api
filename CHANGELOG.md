@@ -1,3 +1,41 @@
+## [1.1.0](https://github.com/HDRUK/speedi-as-api/compare/v1.0.0...v1.1.0) (2025-03-21)
+
+### ✨ Features
+
+* **SOURSD-325:** Creates live feed (monthly) from UKSA for accredited researchers ([c6f1662](https://github.com/HDRUK/speedi-as-api/commit/c6f166284925da4f809af4c9b421caf90289062a))
+* **SOURSD-325:** initial commit of ons file fetching ([60bb823](https://github.com/HDRUK/speedi-as-api/commit/60bb8239054a00d050399fc5adbf1490a7107b81))
+* **SOURSD-804:** add project status (#229) ([a18725b](https://github.com/HDRUK/speedi-as-api/commit/a18725b1c6519544b6ef7bef76b120e9bb2b49c5))
+* **SOURSD-832:** Extend user, org and custodian project endpoints for table views ([cd5f0d4](https://github.com/HDRUK/speedi-as-api/commit/cd5f0d496d678c11ee5e8901bd1bc0000190c0eb))
+* **SOURSD-832:** new route for pulling users projects ([80c628a](https://github.com/HDRUK/speedi-as-api/commit/80c628a50859397e95e0ddba8678f0e1002cd247))
+* **SOURSD-850:** Updates Training to make use of lookup table when used with Registry entry ([18c9c3f](https://github.com/HDRUK/speedi-as-api/commit/18c9c3f5831ecd31ae04a4d838e6301e35e112f8))
+* **SOURSD-857:** Adds Project Roles Controller and tests ([df19e5a](https://github.com/HDRUK/speedi-as-api/commit/df19e5aa593f3d10cd7882dcec78954b2251fc4f))
+* **SOURSD-857:** fix phpstan alerts ([c46eef2](https://github.com/HDRUK/speedi-as-api/commit/c46eef2f039e94bbfc0c5c85617bb5f4918a5fa3))
+* **SOURSD-858:** Adds new search endpoint to users controller that can search by name and professional email account tied to affiliations ([9f41e28](https://github.com/HDRUK/speedi-as-api/commit/9f41e28d42a966180597046072bcf7f17d0a64a7))
+* **SOURSD-858:** Fixes a few loose ends ([060dc3d](https://github.com/HDRUK/speedi-as-api/commit/060dc3daddbd70998576b0c0148d4242197b1dbb))
+* **SOURSD-859:** Implements rudimentary generic polymorphic workflow, currently for Users, Organisations and Projects only ([268bfea](https://github.com/HDRUK/speedi-as-api/commit/268bfea9d898c458f81330a83775453aa81f9ab5))
+* **SOURSD-860:** Implement filtering on getProjectUsers function - filtering unable to be added to existing, so wrote a replacement/extra for use when filtering is needed ([9b86efb](https://github.com/HDRUK/speedi-as-api/commit/9b86efb2123d886e0c93d800eb88a4617262618b))
+* **SOURSD-867:** endpoint to make researchers primary contacts (#208) ([b4ff9ca](https://github.com/HDRUK/speedi-as-api/commit/b4ff9ca64d331e0f736d8fb0926b058b459ab3a1))
+* **SOURSD-870:** add temporary status field for registered or invited (#206) ([50d6c00](https://github.com/HDRUK/speedi-as-api/commit/50d6c00bc4514e7277b5c2368676fbf7a0df111d))
+* **SOURSD-880:** Small tweaks to see if redis is causing the slow memory leak ([d1133e9](https://github.com/HDRUK/speedi-as-api/commit/d1133e9306f969ca6ff2d670b19f7c1606c258b0))
+* **SOURSD-907:** creates logical link to training and files. Updates controller to pull files as part of training call. Adds methods of deletion of linked files when training is deleted ([3b40038](https://github.com/HDRUK/speedi-as-api/commit/3b400381330ee0182983f5659524866b2ad38ffd))
+* **SOURSD-908:** Adds new function to retrieve users with custodian approval and their related projects ([c583cae](https://github.com/HDRUK/speedi-as-api/commit/c583cae1b124f65f83ffc20cf0fc4b151dd64eb2))
+* **SOURSD-909:** Adds initial workflow state to user on creation ([74aa078](https://github.com/HDRUK/speedi-as-api/commit/74aa078217ac366f9d350da43188ddc530471c99))
+* **SOURSD-913:** adds is_sro field to user table ([89a645d](https://github.com/HDRUK/speedi-as-api/commit/89a645d69b22e49ebba63599567e494d98737218))
+* **SOURSD-915:** Adds email banner image to templates - will require a migrate:fresh ([dd5edf2](https://github.com/HDRUK/speedi-as-api/commit/dd5edf2e9a999bdce45d503e2b992e4262b059f6))
+* **SOURSD-916:** Adds boolean flag uksa_registered to user table ([243400a](https://github.com/HDRUK/speedi-as-api/commit/243400adc37c8739ed4d2d24df0f53531ac469d6))
+
+### 🐛 Bug Fixes
+
+* 404 test ([d11253a](https://github.com/HDRUK/speedi-as-api/commit/d11253ad5b5bb86eba47395ef63ffc5b92db091c))
+* add model state ([91514d2](https://github.com/HDRUK/speedi-as-api/commit/91514d2b2a3271751bc04d4c1fc2645a70a84033))
+* delete ([96e4560](https://github.com/HDRUK/speedi-as-api/commit/96e45608ba7c7cdd74416d581b57e1352424c6ca))
+* missing code ([390dff7](https://github.com/HDRUK/speedi-as-api/commit/390dff7cf7bf4f0e1800adffbdefe8d628c6fe7b))
+* missing import ([893d298](https://github.com/HDRUK/speedi-as-api/commit/893d2985b11bc0e998f4d6bb4883ff0900b29383))
+* **SOURSD-815:** delete training (#218) ([8b724f1](https://github.com/HDRUK/speedi-as-api/commit/8b724f123047024b751e3ad9def8a3f259d5b2a1))
+* **SOURSD-876:** removes laravel-swoole as now abandoned and replaces with frankenphp ([8f4d9fb](https://github.com/HDRUK/speedi-as-api/commit/8f4d9fbe676874e3437c2ac3ed5ee1b2ae91e963))
+* **SOURSD-879:** Fixes authentication not honouring tokens. Rebuilds test architecture to speed it up, a little ;) ([c20cfe3](https://github.com/HDRUK/speedi-as-api/commit/c20cfe3553551fa42a59645cb151e39f43ab95bf))
+* **SOURSD-908:** applies searching to recently added function ([56fb22e](https://github.com/HDRUK/speedi-as-api/commit/56fb22edcb93a37d00aca4d181c0afe667ba0f0e))
+
 ## 1.0.0 (2025-03-03)
 
 ### ✨ Features
