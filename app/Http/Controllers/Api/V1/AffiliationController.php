@@ -208,7 +208,7 @@ class AffiliationController extends Controller
     {
         try {
             $input = $request->only(app(Affiliation::class)->getFillable());
-            $affiliation = Affiliation::where('id', $id)->first();
+            $affiliation = Affiliation::findOrFail($id);
             $affiliation->update($input);
 
 

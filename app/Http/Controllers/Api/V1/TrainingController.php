@@ -265,7 +265,7 @@ class TrainingController extends Controller
     {
         try {
             $input = $request->only(app(Training::class)->getFillable());
-            $training = Training::where('id', $id)->first();
+            $training = Training::findOrFail($id);
             $training->update($input);
 
             return $this->OKResponse($training);

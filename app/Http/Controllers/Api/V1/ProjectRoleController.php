@@ -207,7 +207,7 @@ class ProjectRoleController extends Controller
     {
         try {
             $input = $request->only(app(ProjectRole::class)->getFillable());
-            $role = ProjectRole::where('id', $id)->first();
+            $role = ProjectRole::findOrFail($id);
             $role->update($input);
 
             return $this->OKResponse($role);

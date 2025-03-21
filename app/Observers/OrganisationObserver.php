@@ -48,7 +48,7 @@ class OrganisationObserver
     public function created(Organisation $organisation): void
     {
         foreach (Organisation::getDefaultActions() as $action) {
-            $test = ActionLog::firstOrCreate([
+            ActionLog::firstOrCreate([
                 'entity_id' => $organisation->id,
                 'entity_type' => Organisation::class,
                 'action' => $action,
@@ -117,22 +117,24 @@ class OrganisationObserver
 
     private function checkIsComplete(Organisation $organisation, array $fields, string $action): void
     {
-        $isProfileComplete = collect($fields)
-        ->every(function ($field) use ($organisation) {
-            if ($this->isDateField($field)) {
-                return $this->isDateValid($organisation->$field);
-            }
-            return !empty($organisation->$field);
-        });
+        if ($organisation->isDirty($fields)) {
+            $isProfileComplete = collect($fields)
+            ->every(function ($field) use ($organisation) {
+                if ($this->isDateField($field)) {
+                    return $this->isDateValid($organisation->$field);
+                }
+                return !empty($organisation->$field);
+            });
 
-        ActionLog::updateOrCreate(
-            [
-                'entity_id' => $organisation->id,
-                'entity_type' => Organisation::class,
-                'action' => $action
-            ],
-            ['completed_at' => $isProfileComplete ? Carbon::now() : null]
-        );
+            ActionLog::updateOrCreate(
+                [
+                    'entity_id' => $organisation->id,
+                    'entity_type' => Organisation::class,
+                    'action' => $action
+                ],
+                ['completed_at' => $isProfileComplete ? Carbon::now() : null]
+            );
+        }
     }
 
 

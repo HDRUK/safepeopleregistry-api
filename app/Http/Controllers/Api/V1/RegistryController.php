@@ -203,7 +203,7 @@ class RegistryController extends Controller
     {
         try {
             $input = $request->only(app(Registry::class)->getFillable());
-            $registry = Registry::where('id', $id)->first();
+            $registry = Registry::findOrFail($id);
             $registry->update($input);
 
 
