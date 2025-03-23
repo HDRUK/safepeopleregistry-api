@@ -26,6 +26,6 @@ class keycloaktest extends Command
      */
     public function handle()
     {
-        dd(Keycloak::checkUserExists(1));
+        dd(Keycloak::sendKeycloakInvite('c19b05be-7716-4b3c-9989-db58c2afb17b'));
     }
 }

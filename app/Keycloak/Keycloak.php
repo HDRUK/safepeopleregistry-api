@@ -382,10 +382,13 @@ class Keycloak
                 $user = User::where('id', $credentials['id'])->first();
                 $user->keycloak_id = $newUserId;
                 if ($user->save()) {
-                    return [
-                        'success' => true,
-                        'error' => null,
-                    ];
+                    // Finally send a password-reset email directly from keycloak
+                    if ($this->sendKeycloakInvite($newUserId)) {
+                        return [
+                            'success' => true,
+                            'error' => null,
+                        ];
+                    }
                 }
 
                 return [
@@ -398,6 +401,39 @@ class Keycloak
                 'success' => false,
                 'error' => 'unable to create user in keycloak',
             ];
+        } catch (Exception $e) {
+            throw new Exception($e);
+        }
+    }
+
+    public function sendKeycloakInvite(string $keycloakId): bool
+    {
+        try {
+            $payload = [
+                'type' => 'password',
+                // Here we set:
+                // 16 - length of password
+                // true - that it contains letters
+                // true - that it contains numbers
+                // true - that it contains symbols
+                // false - that it contains spaces
+                'value' => Str::password(16, true, true, true, false),
+                'temporary' => true
+            ];
+
+            $response = Http::withHeaders([
+                'Authorization' => $this->getServiceToken(),
+                'Content-Type' => 'application/json',
+            ])->put(
+                $this->makeUrl(self::USERS_URL . '/' . $keycloakId . '/reset-password'),
+                $payload
+            );
+
+            if ($response->status() === 204) {
+                return true;
+            }
+
+            return false;
         } catch (Exception $e) {
             throw new Exception($e);
         }
