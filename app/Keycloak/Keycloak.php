@@ -320,6 +320,8 @@ class Keycloak
                 return RMC::KC_GROUP_CUSTODIANS;
             case 'organisations':
                 return RMC::KC_GROUP_ORGANISATIONS;
+            default:
+                return '';
         }
     }
 
@@ -373,7 +375,7 @@ class Keycloak
             $content = $response->json();
 
             if ($response->status() === 201) {
-                $headers = $response->headers();
+                $headers = array_change_key_case($response->headers(), CASE_LOWER);
 
                 $parts = explode('/', $headers['location'][0]);
                 $last = count($parts) - 1;
