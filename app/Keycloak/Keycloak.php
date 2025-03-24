@@ -327,6 +327,11 @@ class Keycloak
 
     public function checkUserExists(int $userId): bool
     {
+        if (env('APP_ENV') === 'testing') {
+            // When testing, ensure we don't create additional users
+            return true;
+        }
+
         try {
             $email = User::where('id', $userId)->first()->email;
             $response = Http::withHeaders([
