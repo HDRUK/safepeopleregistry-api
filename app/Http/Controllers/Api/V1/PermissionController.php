@@ -269,7 +269,8 @@ class PermissionController extends Controller
         try {
             $input = $request->all();
 
-            Permission::where('id', $id)->update([
+            $perm = Permission::findOrFail($id);
+            $perm->update([
                 'name' => $input['name'],
                 'enabled' => $input['enabled'],
             ]);
@@ -359,7 +360,8 @@ class PermissionController extends Controller
         try {
             $input = $request->all();
 
-            Permission::where('id', $id)->update([
+            $perm = Permission::findOrFail($id);
+            $perm->update([
                 'name' => $input['name'],
                 'enabled' => $input['enabled'],
             ]);

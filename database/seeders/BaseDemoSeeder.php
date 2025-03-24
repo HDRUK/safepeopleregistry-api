@@ -1138,9 +1138,9 @@ Social Media Platform’s Data Access Committee to allow access to platform data
     private function addRandomUsersToProject(int $projectId, int $nUsers = null): void
     {
         $nUsers = $nUsers ?? random_int(1, 10);
-        $users = User::whereNotNull("registry_id")->inRandomOrder()->limit($nUsers)->get();
+        $users = User::whereNotNull('registry_id')->inRandomOrder()->limit($nUsers)->get();
         foreach ($users as $researcher) {
-            $ident = Registry::where("id", $researcher->registry_id)->first()->digi_ident;
+            $ident = Registry::where('id', $researcher->registry_id)->first()->digi_ident;
             $roleId = ProjectRole::inRandomOrder()->first()->id;
             ProjectHasUser::create(
                 [

@@ -54,10 +54,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('v1/query', [QueryController::class, 'query']);
 
-Route::middleware('auth:api')->get('/secure-test', [UserController::class, 'index']);
-
-Route::middleware('auth:api')->get('auth/me', [AuthController::class, 'me']);
-Route::middleware('auth:api')->post('auth/register', [AuthController::class, 'registerKeycloakUser']);
+Route::middleware('api')->get('auth/me', [AuthController::class, 'me']);
+Route::middleware('api')->post('auth/register', [AuthController::class, 'registerKeycloakUser']);
 
 Route::middleware('auth:api')->get('v1/users', [UserController::class, 'index']);
 Route::middleware('auth:api')->get('v1/users/test', [UserController::class, 'fakeEndpointForTesting']);
