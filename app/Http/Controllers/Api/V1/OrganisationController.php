@@ -1348,18 +1348,19 @@ class OrganisationController extends Controller
                 })
             ->pluck('registry_id');
 
-
-
             $users = User::searchViaRequest()
             ->applySorting()
-            ->whereIn('registry_id', $registryIds)
-            ->when($showPending, function ($query) use ($id) {
-                $pendingInviteUserIds = PendingInvite::where([
-                    'organisation_id' => $id,
-                    'status' => config('speedi.invite_status.PENDING')
-                    ])
-                    ->pluck('user_id');
-                return $query->orWhere('id', $pendingInviteUserIds);
+            ->where(function ($query) use ($registryIds, $showPending, $id) {
+                $query->whereIn('registry_id', $registryIds);
+
+                if ($showPending) {
+                    $pendingInviteUserIds = PendingInvite::where([
+                        'organisation_id' => $id,
+                        'status' => config('speedi.invite_status.PENDING')
+                    ])->pluck('user_id');
+
+                    $query->orWhereIn('id', $pendingInviteUserIds);
+                }
             })
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
