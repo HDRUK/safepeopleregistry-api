@@ -471,25 +471,16 @@ class CustodianUserController extends Controller
                 'identifier' => 'custodian_user_invite'
             ];
 
-            if (env('APP_ENV') !== 'testing') {
-                $retVal = Keycloak::createUser([
-                    'email' => $unclaimedUser->email,
-                    'first_name' => $unclaimedUser->first_name,
-                    'last_name' => $unclaimedUser->last_name,
-                    'id' => $unclaimedUser->id,
-                ]);
+            $retVal = Keycloak::createUser([
+                'email' => $unclaimedUser->email,
+                'first_name' => $unclaimedUser->first_name,
+                'last_name' => $unclaimedUser->last_name,
+                'id' => $unclaimedUser->id,
+            ]);
 
-                if ($retVal['success']) {
-                    TriggerEmail::spawnEmail($input);
-
-                    return response()->json([
-                        'message' => 'success',
-                        'data' => $user,
-                    ], 201);
-                }
-            } else {
-                // Only for testing
+            if ($retVal['success']) {
                 TriggerEmail::spawnEmail($input);
+
                 return response()->json([
                     'message' => 'success',
                     'data' => $user,

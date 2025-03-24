@@ -349,6 +349,13 @@ class Keycloak
 
     public function createUser(array $credentials): array
     {
+        // if (env('APP_ENV') === 'testing') {
+        //     return [
+        //         'success' => true,
+        //         'error' => null,
+        //     ];
+        // }
+
         try {
             $payload = [
                 'username' => $credentials['email'],
