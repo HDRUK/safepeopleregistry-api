@@ -14,6 +14,7 @@ class RegistryHasAffiliationObserver
     public function created(RegistryHasAffiliation $registryHasAffiliation): void
     {
         $this->updateActionLog($registryHasAffiliation->registry_id);
+        $this->updateOrganisationActionLog($registryHasAffiliation);
     }
 
     /**
@@ -22,6 +23,7 @@ class RegistryHasAffiliationObserver
     public function updated(RegistryHasAffiliation $registryHasAffiliation): void
     {
         $this->updateActionLog($registryHasAffiliation->registry_id);
+        $this->updateOrganisationActionLog($registryHasAffiliation);
     }
 
     /**
@@ -30,6 +32,7 @@ class RegistryHasAffiliationObserver
     public function deleted(RegistryHasAffiliation $registryHasAffiliation): void
     {
         $this->updateActionLog($registryHasAffiliation->registry_id);
+        $this->updateOrganisationActionLog($registryHasAffiliation);
     }
 
     /**
@@ -38,6 +41,7 @@ class RegistryHasAffiliationObserver
     public function restored(RegistryHasAffiliation $registryHasAffiliation): void
     {
         $this->updateActionLog($registryHasAffiliation->registry_id);
+        $this->updateOrganisationActionLog($registryHasAffiliation);
     }
 
     /**
@@ -46,6 +50,7 @@ class RegistryHasAffiliationObserver
     public function forceDeleted(RegistryHasAffiliation $registryHasAffiliation): void
     {
         $this->updateActionLog($registryHasAffiliation->registry_id);
+        $this->updateOrganisationActionLog($registryHasAffiliation);
     }
 
 }

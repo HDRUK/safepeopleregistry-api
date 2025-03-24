@@ -751,7 +751,7 @@ class OrganisationController extends Controller
      *      summary="Return an all projects associated with an organisation",
      *      description="Return an all projects associated with an organisation (i.e. data-custodian)",
      *      tags={"organisation"},
-     *      summary="organisation@getPorjects",
+     *      summary="organisation@getProjects",
      *      security={{"bearerAuth":{}}},
      *
      *      @OA\Parameter(
@@ -1332,11 +1332,11 @@ class OrganisationController extends Controller
         try {
 
             $registryIds = RegistryHasAffiliation::with('affiliation')
-            ->whereHas('affiliation', function ($query) use ($id) {
-                $query->where('organisation_id', $id);
-            })
-            ->select('registy_id')
-            ->pluck('registry_id');
+                ->whereHas('affiliation', function ($query) use ($id) {
+                    $query->where('organisation_id', $id);
+                })
+                ->select('registy_id')
+                ->pluck('registry_id');
 
             // add pending invites
             //$pendingInvite = PendingInvite::where('organisation_id', $id)

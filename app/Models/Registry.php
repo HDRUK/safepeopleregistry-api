@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -130,22 +129,6 @@ class Registry extends Model
     public function trainings(): BelongsToMany
     {
         return $this->belongsToMany(Training::class, 'registry_has_trainings');
-    }
-
-    public function organisations(): HasManyThrough
-    {
-        return $this->hasManyThrough(
-            Organisation::class,
-            Affiliation::class,
-            'id',
-            'id',
-            'id',
-            'organisation_id'
-        )
-        ->distinct()
-        ->whereHas('registryHasAffiliations', function ($query) {
-            $query->whereColumn('registry_has_affiliations.registry_id', 'registries.id');
-        });
     }
 
     public function history(): BelongsToMany
