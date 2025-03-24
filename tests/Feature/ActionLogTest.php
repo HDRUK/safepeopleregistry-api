@@ -16,7 +16,6 @@ use App\Models\OrganisationHasCustodianApproval;
 use App\Models\Affiliation;
 use App\Models\Registry;
 use App\Models\RegistryHasAffiliation;
-use App\Models\RegistryHasOrganisation;
 use App\Models\Rules;
 use App\Models\CustodianHasRule;
 use App\Models\Project;
@@ -719,9 +718,15 @@ class ActionLogTest extends TestCase
         $newUser->update([
             'registry_id' => $newRegistry->id,
         ]);
-        RegistryHasOrganisation::create([
-            'registry_id' => $newUser->registry_id,
+
+        $affiliation = Affiliation::factory()->create([
             'organisation_id' => $org->id,
+            'registry_id' => $newRegistry->id,
+        ]);
+
+        RegistryHasAffiliation::create([
+            'registry_id' => $newUser->registry_id,
+            'affiliation_id' => $affiliation->id,
         ]);
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())

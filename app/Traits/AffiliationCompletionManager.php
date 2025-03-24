@@ -24,7 +24,6 @@ trait AffiliationCompletionManager
         });
 
         $user = User::where("registry_id", $registryId)->first();
-
         ActionLog::updateOrCreate(
             [
                 'entity_id' => $user->id,
