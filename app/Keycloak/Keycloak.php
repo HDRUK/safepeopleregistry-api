@@ -350,13 +350,6 @@ class Keycloak
     public function createUser(array $credentials): array
     {
         try {
-            if (env('APP_ENV') === 'testing') {
-                return [
-                    'success' => true,
-                    'error' => null,
-                ];
-            }
-
             $payload = [
                 'username' => $credentials['email'],
                 'email' => $credentials['email'],
@@ -388,7 +381,7 @@ class Keycloak
                 $last = count($parts) - 1;
                 $newUserId = $parts[$last];
 
-                $user = User::where('id', $credentials['id'])->first();
+                $user = User::findOrFail($credentials['id']);
                 $user->keycloak_id = $newUserId;
                 if ($user->save()) {
                     // Finally send a password-reset email directly from keycloak
