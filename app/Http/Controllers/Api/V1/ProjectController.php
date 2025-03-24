@@ -471,7 +471,7 @@ class ProjectController extends Controller
      *                  @OA\Property(property="name", type="string", example="My First Research Project"),
      *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
      *                  @OA\Property(property="runs_to", type="string", example="2026-02-04")
-     *                  @OA\Property(property="state", type="string", example="approved")
+     *                  @OA\Property(property="status", type="string", example="approved")
      *              )
      *          ),
      *      ),
@@ -490,11 +490,11 @@ class ProjectController extends Controller
             $input = $request->only(app(Project::class)->getFillable());
             $project = Project::where('id', $id)->first();
 
-            if(!is_null($project)) {
+            if (!is_null($project)) {
                 $project->update($input);
                 $status = $request->get('status');
 
-                if(isset($status)) {
+                if (isset($status)) {
                     if ($project->canTransitionTo($status)) {
                         $project->transitionTo($status);
                     } else {
@@ -561,7 +561,7 @@ class ProjectController extends Controller
      *                  @OA\Property(property="name", type="string", example="My First Research Project"),
      *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
      *                  @OA\Property(property="runs_to", type="string", example="2026-02-04")
-     *                  @OA\Property(property="state", type="string", example="approved")
+     *                  @OA\Property(property="status", type="string", example="approved")
      *              )
      *          ),
      *      ),

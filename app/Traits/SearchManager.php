@@ -17,6 +17,7 @@ trait SearchManager
         $input = \request()->all();
 
         return $query->where(function ($query) use ($input) {
+
             foreach ($input as $field => $searchValue) {
                 if (!in_array(strtolower($field), static::$searchableColumns)) {
                     continue;

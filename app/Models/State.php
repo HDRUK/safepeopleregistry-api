@@ -41,6 +41,6 @@ class State extends Model
         self::STATE_VALIDATED,
         self::STATE_PROJECT_APPROVED,
         self::STATE_PROJECT_COMPLETED,
-        self::STATE_PROJECT_PENDING,       
+        self::STATE_PROJECT_PENDING,
     ];
 }
