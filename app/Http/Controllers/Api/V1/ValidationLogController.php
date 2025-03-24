@@ -270,7 +270,9 @@ class ValidationLogController extends Controller
      *             @OA\Property(property="complete", type="boolean", description="Mark the validation log as complete"),
      *             @OA\Property(property="incomplete", type="boolean", description="Mark the validation log as incomplete"),
      *             @OA\Property(property="pass", type="boolean", description="Mark the validation log as passed"),
-     *             @OA\Property(property="fail", type="boolean", description="Mark the validation log as failed")
+     *             @OA\Property(property="fail", type="boolean", description="Mark the validation log as failed"),
+     *             @OA\Property(property="enable", type="boolean", description="Mark the validation log as enabled"),
+     *             @OA\Property(property="disable", type="boolean", description="Mark the validation log as disabled")
      *         )
      *     ),
      *
