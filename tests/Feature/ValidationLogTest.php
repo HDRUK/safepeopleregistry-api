@@ -335,6 +335,84 @@ class ValidationLogTest extends TestCase
 
     }
 
+    public function test_it_can_mark_validation_as_enabled_disabled_via_api()
+    {
+        Carbon::setTestNow(Carbon::now());
+
+        $this->add_user_and_custodian_to_project();
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
+        );
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+
+        $validationLog = collect($responseData)
+            ->firstWhere('name', ProjectHasUser::VALIDATE_COMPLETE_CONFIGURATION);
+
+        $this->assertNull($validationLog['completed_at']);
+        $this->assertEquals(0, $validationLog['manually_confirmed']);
+
+        $validationLogId = $validationLog['id'];
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'PUT',
+            self::TEST_URL . "validation_logs/{$validationLogId}?disable",
+        );
+        $response->assertStatus(200);
+
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
+        );
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+
+        $validationLog = collect($responseData)
+            ->firstWhere('name', ProjectHasUser::VALIDATE_COMPLETE_CONFIGURATION);
+
+        $this->assertNull($validationLog);
+
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs?show_disabled=1",
+        );
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+
+        $validationLog = collect($responseData)
+            ->firstWhere('name', ProjectHasUser::VALIDATE_COMPLETE_CONFIGURATION);
+
+        $this->assertEquals(0, $validationLog['enabled']);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'PUT',
+            self::TEST_URL . "validation_logs/{$validationLogId}?enable",
+        );
+        $response->assertStatus(200);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
+        );
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+
+        $validationLog = collect($responseData)
+            ->firstWhere('name', ProjectHasUser::VALIDATE_COMPLETE_CONFIGURATION);
+
+        $this->assertEquals(1, $validationLog['enabled']);
+
+    }
+
     public function test_it_can_handle_custodian_project_user_validation_checks_via_api()
     {
         Carbon::setTestNow(Carbon::now());
@@ -388,6 +466,78 @@ class ValidationLogTest extends TestCase
                 $response['data']['completed_at']
             );
         }
+    }
+
+    public function test_it_can_toggle_enabled_validation_logs_via_api()
+    {
+        Carbon::setTestNow(Carbon::now());
+        $defaultActions = ProjectHasUser::getDefaultActions();
+        $this->add_user_and_custodian_to_project();
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
+        );
+
+        $response->assertStatus(200);
+
+        $expectedResponse = array_map(function ($action) {
+            return [
+                'entity_id' => $this->custodian->id,
+                'entity_type' => Custodian::class,
+                'secondary_entity_id' => $this->project->id,
+                'secondary_entity_type' => Project::class,
+                'tertiary_entity_id' => $this->registry->id,
+                'tertiary_entity_type' => Registry::class,
+                'name' => $action,
+                'completed_at' => null,
+                'enabled' => 1
+            ];
+        }, $defaultActions);
+
+        $response->assertJson(['data' => $expectedResponse]);
+
+        $actionToDisable = $defaultActions[0];
+        $payload = [
+            'enabled' => 0,
+            'name' => $actionToDisable
+        ];
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'PUT',
+            self::TEST_URL . "custodians/{$this->custodian->id}/validation_logs",
+            $payload
+        );
+        $response->assertStatus(200);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
+        );
+
+        $response->assertStatus(200);
+
+        $actionsWithRemoved = array_values(array_filter($defaultActions, fn ($v) => $v !== $actionToDisable));
+
+        $expectedResponse = array_map(function ($action) {
+            return [
+                'entity_id' => $this->custodian->id,
+                'entity_type' => Custodian::class,
+                'secondary_entity_id' => $this->project->id,
+                'secondary_entity_type' => Project::class,
+                'tertiary_entity_id' => $this->registry->id,
+                'tertiary_entity_type' => Registry::class,
+                'name' => $action,
+                'completed_at' => null,
+                'enabled' => 1
+            ];
+        }, $actionsWithRemoved);
+
+        $response->assertJson(['data' => $expectedResponse]);
+
     }
 
     private function add_user_and_custodian_to_project()

@@ -84,6 +84,11 @@ Route::middleware('auth:api')->get(
     'v1/custodians/{custodianId}/projects/{projectId}/registries/{registryId}/validation_logs',
     [ValidationLogController::class, 'getCustodianProjectUserValidationLogs']
 );
+Route::middleware('auth:api')->put(
+    'v1/custodians/{custodianId}/validation_logs',
+    [ValidationLogController::class, 'updateCustodianValidationLogs']
+);
+
 
 Route::middleware('auth:api')->get('v1/validation_logs/{id}', [ValidationLogController::class, 'index']);
 Route::middleware('auth:api')->get('v1/validation_logs/{id}/commments', [ValidationLogController::class, 'comments']);
