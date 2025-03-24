@@ -136,6 +136,7 @@ class ProjectTest extends TestCase
                 'start_date' => Carbon::now(),
                 'end_date' => Carbon::now()->addYears(2),
                 'affiliate_id' => 1,
+                'status' => 'project_pending'
             ]
             );
 
@@ -161,6 +162,7 @@ class ProjectTest extends TestCase
                 'start_date' => Carbon::now(),
                 'end_date' => Carbon::now()->addYears(2),
                 'affiliate_id' => 1,
+                'status' => 'project_approved'
             ]
             );
 
@@ -216,7 +218,6 @@ class ProjectTest extends TestCase
         $projectId = $project->id;
 
         ProjectHasUser::create(['project_id' => $projectId, 'user_digital_ident' => $digi_ident, 'project_role_id' => 1]);
-
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(

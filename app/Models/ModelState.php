@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ModelState extends Model
 {
@@ -22,7 +23,7 @@ class ModelState extends Model
     /**
      * @property-read \App\Models\State $state
      */
-    public function state()
+    public function state(): BelongsTo
     {
         return $this->belongsTo(State::class);
     }

@@ -48,10 +48,11 @@ class OrganisationObserver
     public function created(Organisation $organisation): void
     {
         foreach (Organisation::getDefaultActions() as $action) {
-            ActionLog::create([
+            ActionLog::firstOrCreate([
                 'entity_id' => $organisation->id,
                 'entity_type' => Organisation::class,
                 'action' => $action,
+            ], [
                 'completed_at' => null,
             ]);
         }
@@ -62,7 +63,6 @@ class OrganisationObserver
      */
     public function updated(Organisation $organisation): void
     {
-
         $this->checkIsComplete(
             $organisation,
             $this->nameAndAddressFields,
@@ -136,6 +136,7 @@ class OrganisationObserver
             );
         }
     }
+
 
     /**
      * Helper function to check if a field is an expiry date.

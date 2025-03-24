@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Traits\Responses;
 use App\Models\Project;
 use App\Models\Registry;
+use App\Models\State;
 use App\Models\ProjectHasUser;
 use App\Traits\CommonFunctions;
 use App\Traits\FilterManager;
@@ -114,7 +115,8 @@ class ProjectController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
-        $project = Project::findOrFail($id);
+        $project = Project::with(['modelState.state'])->findOrFail($id);
+
         if ($project) {
             return response()->json([
                 'message' => 'success',
@@ -220,10 +222,8 @@ class ProjectController extends Controller
         $project = Project::findOrFail($id);
         $projectUsers = $project->projectUsers()->with([
             'registry.user',
-            'registry.organisations' => function ($query) {
-                $query->select(['id','organisation_name']);
-            },
             'registry.affiliations',
+            'registry.affiliations.organisation',
             'registry.education',
             'registry.trainings',
             'registry.accreditations',
@@ -338,19 +338,17 @@ class ProjectController extends Controller
             ->select('id')
             ->pluck('id')
             ->toArray();
-        $users = User::with([
+        $users = User::filterByState()->applySorting()->with([
             'registry.user',
-            'registry.organisations' => function ($query) {
+            'registry.affiliations.organisation' => function ($query) {
                 $query->select(['id','organisation_name']);
             },
             'registry.affiliations',
             'registry.education',
             'registry.trainings',
             'registry.accreditations',
-            'modelState',
+            'modelState.state',
         ])
-        ->searchViaRequest()
-        ->filterByState()
         ->whereIn('registry_id', $registries)
         ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
@@ -403,18 +401,12 @@ class ProjectController extends Controller
     public function store(Request $request): JsonResponse
     {
         try {
-            $input = $request->all();
-            $project = Project::create([
-                'unique_id' => $input['unique_id'],
-                'title' => $input['title'],
-                'lay_summary' => $input['lay_summary'],
-                'public_benefit' => $input['public_benefit'],
-                'request_category_type' => $input['request_category_type'],
-                'technical_summary' => $input['technical_summary'],
-                'other_approval_committees' => $input['other_approval_committees'],
-                'start_date' => $input['start_date'],
-                'end_date' => $input['end_date'],
-            ]);
+            $input = $request->only(app(Project::class)->getFillable());
+            $project = Project::create($input);
+
+            if ($project) {
+                $project->setState(State::STATE_PROJECT_PENDING);
+            }
 
             return response()->json([
                 'message' => 'success',
@@ -426,7 +418,7 @@ class ProjectController extends Controller
     }
 
     /**
-     * @OA\Patch(
+     * @OA\Put(
      *      path="/api/v1/projects/{id}",
      *      summary="Update a Project entry",
      *      description="Update a Project entry",
@@ -476,8 +468,9 @@ class ProjectController extends Controller
      *                  @OA\Property(property="registry_id", type="integer", example="1"),
      *                  @OA\Property(property="name", type="string", example="My First Research Project"),
      *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
-     *                  @OA\Property(property="runs_to", type="string", example="2026-02-04")
-     *              )
+     *                  @OA\Property(property="runs_to", type="string", example="2026-02-04"),
+     *                  @OA\Property(property="status", type="string", example="approved"),
+     *              ),
      *          ),
      *      ),
      *      @OA\Response(
@@ -492,30 +485,32 @@ class ProjectController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         try {
-            $input = $request->all();
-            $project = Project::where('id', $id)->update([
-                'unique_id' => $input['unique_id'],
-                'title' => $input['title'],
-                'lay_summary' => $input['lay_summary'],
-                'public_benefit' => $input['public_benefit'],
-                'request_category_type' => $input['request_category_type'],
-                'technical_summary' => $input['technical_summary'],
-                'other_approval_committees' => $input['other_approval_committees'],
-                'start_date' => $input['start_date'],
-                'end_date' => $input['end_date'],
-            ]);
+            $input = $request->only(app(Project::class)->getFillable());
+            $project = Project::findOrFail($id);
 
-            return response()->json([
-                'message' => 'success',
-                'data' => Project::where('id', $id)->first(),
-            ], 200);
+            if (!is_null($project)) {
+                $project->update($input);
+                $status = $request->get('status');
+
+                if (isset($status)) {
+                    if ($project->canTransitionTo($status)) {
+                        $project->transitionTo($status);
+                    } else {
+                        return $this->BadRequestResponse();
+                    }
+                }
+
+                return $this->OKResponse(Project::where('id', $id)->first());
+            }
+
+            return $this->NotFoundResponse();
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
     }
 
     /**
-     * @OA\Put(
+     * @OA\Patch(
      *      path="/api/v1/projects/{id}",
      *      summary="Update a Project entry",
      *      description="Update a Project entry",
@@ -563,8 +558,9 @@ class ProjectController extends Controller
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
      *                  @OA\Property(property="name", type="string", example="My First Research Project"),
      *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
-     *                  @OA\Property(property="runs_to", type="string", example="2026-02-04")
-     *              )
+     *                  @OA\Property(property="runs_to", type="string", example="2026-02-04"),
+     *                  @OA\Property(property="status", type="string", example="2026-02-04"),
+     *              ),
      *          ),
      *      ),
      *      @OA\Response(
@@ -579,18 +575,9 @@ class ProjectController extends Controller
     public function edit(Request $request, int $id): JsonResponse
     {
         try {
-            $input = $request->all();
-            $project = Project::where('id', $id)->update([
-                'unique_id' => $input['unique_id'],
-                'title' => $input['title'],
-                'lay_summary' => $input['lay_summary'],
-                'public_benefit' => $input['public_benefit'],
-                'request_category_type' => $input['request_category_type'],
-                'technical_summary' => $input['technical_summary'],
-                'other_approval_committees' => $input['other_approval_committees'],
-                'start_date' => $input['start_date'],
-                'end_date' => $input['end_date'],
-            ]);
+            $input = $request->only(app(Project::class)->getFillable());
+            $project = Project::findOrFail($id);
+            $project->update($input);
 
             return response()->json([
                 'message' => 'success',

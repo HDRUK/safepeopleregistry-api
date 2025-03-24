@@ -29,10 +29,11 @@ class UserObserver
         $user->setState(State::STATE_REGISTERED);
 
         foreach (User::getDefaultActions() as $action) {
-            ActionLog::create([
+            ActionLog::firstOrCreate([
                 'entity_id' => $user->id,
                 'entity_type' => User::class,
                 'action' => $action,
+            ], [
                 'completed_at' => null,
             ]);
         }

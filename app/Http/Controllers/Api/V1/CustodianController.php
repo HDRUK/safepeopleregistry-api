@@ -301,7 +301,8 @@ class CustodianController extends Controller
     {
         try {
             $input = $request->only(app(Custodian::class)->getFillable());
-            $custodian = tap(Custodian::where('id', $id))->update($input)->first();
+            $custodian = Custodian::findOrFail($id);
+            $custodian->update($input);
 
             if ($custodian) {
                 return response()->json([
@@ -607,7 +608,7 @@ class CustodianController extends Controller
 
         $projects = Project::searchViaRequest()
           ->applySorting()
-          ->with(['approvals', 'organisations'])
+          ->with(['approvals', 'organisations', 'modelState.state'])
           ->filterWhen('approved', function ($query, $value) {
               if ($value) {
                   $query->whereHas('approvals');

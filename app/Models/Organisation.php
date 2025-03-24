@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use App\Traits\SearchManager;
@@ -332,12 +333,21 @@ class Organisation extends Model
         return $this->belongsTo(File::class, 'dsptk_expiry_evidence');
     }
 
-    public function registries(): BelongsToMany
+    public function affiliations(): HasMany
     {
-        return $this->belongsToMany(
+        return $this->hasMany(Affiliation::class, 'organisation_id');
+    }
+
+    public function registries(): HasManyThrough
+    {
+        return $this->hasManyThrough(
             Registry::class,
-            'registry_has_organisations'
-        );
+            RegistryHasAffiliation::class,
+            'affiliation_id',
+            'id',
+            'id',
+            'registry_id'
+        )->distinct();
     }
 
     public function departments(): BelongsToMany
