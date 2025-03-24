@@ -81,7 +81,7 @@ trait StateWorkflow
     public function canTransitionTo(string $newStateSlug): bool
     {
         $currentState = $this->getState();
-        return isset($this->transitions[$currentState]) && in_array($newStateSlug, $this->transitions[$currentState]);
+        return (isset($this->transitions[$currentState]) && in_array($newStateSlug, $this->transitions[$currentState]));
     }
 
     public function transitionTo(string $newStateSlug)
