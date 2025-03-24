@@ -15,7 +15,6 @@ use App\Models\Organisation;
 use App\Models\OrganisationHasSubsidiary;
 use App\Models\Affiliation;
 use App\Models\RegistryHasAffiliation;
-use App\Models\RegistryHasOrganisation;
 use App\Models\ProjectHasCustodian;
 use App\Models\OrganisationHasCustodianApproval;
 use App\Observers\FileObserver;
@@ -31,7 +30,6 @@ use App\Observers\OrganisationHasSubsidiaryObserver;
 use App\Observers\CustodianUserObserver;
 use App\Observers\AffiliationObserver;
 use App\Observers\RegistryHasAffiliationObserver;
-use App\Observers\RegistryHasOrganisationObserver;
 use App\Observers\RegistryHasTrainingObserver;
 use App\Observers\ProjectHasCustodianObserver;
 use App\Observers\OrganisationHasCustodianApprovalObserver;
@@ -75,7 +73,6 @@ class AppServiceProvider extends ServiceProvider
         OrganisationHasSubsidiary::observe(OrganisationHasSubsidiaryObserver::class);
         Affiliation::observe(AffiliationObserver::class);
         RegistryHasAffiliation::observe(RegistryHasAffiliationObserver::class);
-        RegistryHasOrganisation::observe(RegistryHasOrganisationObserver::class);
         ProjectHasCustodian::observe(ProjectHasCustodianObserver::class);
         OrganisationHasCustodianApproval::observe(OrganisationHasCustodianApprovalObserver::class);
         // currently Training but is to be moved to RegistryHasTraining...
