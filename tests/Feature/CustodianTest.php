@@ -135,11 +135,11 @@ class CustodianTest extends TestCase
                 'POST',
                 self::TEST_URL,
                 [
-                'name' => 'Test Custodian',
-                'contact_email' => 'test@test.com',
-                'enabled' => true,
-                'idvt_required' => false,
-            ]
+                    'name' => 'Test Custodian',
+                    'contact_email' => 'test@test.com',
+                    'enabled' => true,
+                    'idvt_required' => false,
+                ]
             );
 
         $response->assertStatus(201);
@@ -167,11 +167,13 @@ class CustodianTest extends TestCase
                 'PUT',
                 self::TEST_URL . '/' . $content['data'],
                 [
-                'name' => 'Updated Custodian',
-                'enabled' => false,
-                'idvt_required' => true,
-            ]
+                    'name' => 'Updated Custodian',
+                    'enabled' => false,
+                    'idvt_required' => true,
+                ]
             );
+
+        dd(self::TEST_URL . '/' . $content['data']);
 
         $response->assertStatus(200);
         $content = $response->decodeResponseJson()['data'];
