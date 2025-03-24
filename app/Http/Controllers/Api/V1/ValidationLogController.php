@@ -70,6 +70,7 @@ class ValidationLogController extends Controller
         int $registryId
     ): JsonResponse {
         try {
+            $withDisabled = $request->boolean("show_disabled");
             $registry = Registry::findOrFail($registryId);
             $phu = ProjectHasUser::where(
                 [
@@ -100,6 +101,12 @@ class ValidationLogController extends Controller
                 ->where('tertiary_entity_type', Registry::class)
                 ->where('tertiary_entity_id', $registryId)
                 ->with("comments")
+                ->when(
+                    $withDisabled,
+                    function ($query) {
+                        $query->withDisabled();
+                    }
+                )
                 ->get();
 
             return $this->OKResponse($logs);
@@ -200,7 +207,10 @@ class ValidationLogController extends Controller
      */
     public function index($validationLogId): JsonResponse
     {
-        $validationLog = ValidationLog::with("comments")->find($validationLogId);
+        $validationLog = ValidationLog::withDisabled()
+            ->with("comments")
+            ->find($validationLogId);
+
         if (!$validationLog) {
             return $this->NotFoundResponse();
         }
@@ -296,7 +306,7 @@ class ValidationLogController extends Controller
      */
     public function update(Request $request, $id): JsonResponse
     {
-        $log = ValidationLog::find($id);
+        $log = ValidationLog::withDisabled()->find($id);
         if (!$log) {
             return $this->NotFoundResponse();
         }

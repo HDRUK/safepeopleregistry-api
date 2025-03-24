@@ -335,6 +335,84 @@ class ValidationLogTest extends TestCase
 
     }
 
+    public function test_it_can_mark_validation_as_enabled_disabled_via_api()
+    {
+        Carbon::setTestNow(Carbon::now());
+
+        $this->add_user_and_custodian_to_project();
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
+        );
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+
+        $validationLog = collect($responseData)
+            ->firstWhere('name', ProjectHasUser::VALIDATE_COMPLETE_CONFIGURATION);
+
+        $this->assertNull($validationLog['completed_at']);
+        $this->assertEquals(0, $validationLog['manually_confirmed']);
+
+        $validationLogId = $validationLog['id'];
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'PUT',
+            self::TEST_URL . "validation_logs/{$validationLogId}?disable",
+        );
+        $response->assertStatus(200);
+
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
+        );
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+
+        $validationLog = collect($responseData)
+            ->firstWhere('name', ProjectHasUser::VALIDATE_COMPLETE_CONFIGURATION);
+
+        $this->assertNull($validationLog);
+
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs?show_disabled=1",
+        );
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+
+        $validationLog = collect($responseData)
+            ->firstWhere('name', ProjectHasUser::VALIDATE_COMPLETE_CONFIGURATION);
+
+        $this->assertEquals(0, $validationLog['enabled']);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'PUT',
+            self::TEST_URL . "validation_logs/{$validationLogId}?enable",
+        );
+        $response->assertStatus(200);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'GET',
+            self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
+        );
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+
+        $validationLog = collect($responseData)
+            ->firstWhere('name', ProjectHasUser::VALIDATE_COMPLETE_CONFIGURATION);
+
+        $this->assertEquals(1, $validationLog['enabled']);
+
+    }
+
     public function test_it_can_handle_custodian_project_user_validation_checks_via_api()
     {
         Carbon::setTestNow(Carbon::now());
@@ -403,7 +481,6 @@ class ValidationLogTest extends TestCase
         );
 
         $response->assertStatus(200);
-        dump(count($response['data']));
 
         $expectedResponse = array_map(function ($action) {
             return [
