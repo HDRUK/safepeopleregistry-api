@@ -18,7 +18,7 @@ use App\Models\OrganisationHasSubsidiary;
 use App\Models\Subsidiary;
 use App\Models\User;
 use App\Models\UserHasDepartments;
-use App\Models\RegistryHasOrganisation;
+use App\Models\RegistryHasAffiliation;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -988,17 +988,18 @@ class OrganisationController extends Controller
     public function countUsers(Request $request, int $id): JsonResponse
     {
         try {
-            $count = DB::table('registry_has_organisations')
-                ->select(DB::raw(
-                    'COUNT(registry_id) as `count`'
-                ))
-                ->where('organisation_id', $id)
-                ->get();
+            $count = RegistryHasAffiliation::whereHas(
+                'affiliation',
+                function ($query) use ($id) {
+                    $query->where('organisation_id', $id);
+                }
+            )->count();
 
-            if ($count && count($count) > 0) {
+
+            if ($count && $count > 0) {
                 return response()->json([
                     'message' => 'success',
-                    'data' => $count[0]->count,
+                    'data' => $count,
                 ], 200);
             }
 
@@ -1330,9 +1331,15 @@ class OrganisationController extends Controller
     {
         try {
 
-            $registryIds = RegistryHasOrganisation::where('organisation_id', $id)
-            ->get()
-            ->select('registry_id');
+            $registryIds = RegistryHasAffiliation::with('affiliation')
+            ->whereHas('affiliation', function ($query) use ($id) {
+                $query->where('organisation_id', $id);
+            })
+            ->select('registy_id')
+            ->pluck('registry_id');
+
+            // add pending invites
+            //$pendingInvite = PendingInvite::where('organisation_id', $id)
 
             $users = User::searchViaRequest()
             ->applySorting()

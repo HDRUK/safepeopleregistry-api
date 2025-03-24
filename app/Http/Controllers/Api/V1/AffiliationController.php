@@ -211,6 +211,7 @@ class AffiliationController extends Controller
             $affiliation = Affiliation::findOrFail($id);
             $affiliation->update($input);
 
+
             return response()->json([
                 'message' => 'success',
                 'data' => $affiliation,

@@ -44,6 +44,7 @@ class RegistryManagementController
     public static function createNewUser(array $input, Request $request): mixed
     {
         $unclaimedUser = User::where('email', $input['email'])->whereNull('keycloak_id')->first();
+
         if ($unclaimedUser) {
             $unclaimedUser->first_name = $input['given_name'];
             $unclaimedUser->last_name = $input['family_name'];
