@@ -155,6 +155,8 @@ class CustodianTest extends TestCase
             self::TEST_URL . '/' . $content['data'] . '/action_log'
         );
 
+        dd($response['data']);
+
         $response->assertStatus(200);
         $responseData = $response['data'];
         $actionLog = collect($responseData)
@@ -172,8 +174,6 @@ class CustodianTest extends TestCase
                     'idvt_required' => true,
                 ]
             );
-
-        dd(self::TEST_URL . '/' . $content['data']);
 
         $response->assertStatus(200);
         $content = $response->decodeResponseJson()['data'];
