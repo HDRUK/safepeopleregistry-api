@@ -111,6 +111,65 @@ class ValidationLogController extends Controller
     }
 
     /**
+     * @OA\Put(
+     *     path="/api/v1/custodians/{custodianId}/validation_Logs",
+     *     summary="Enable or Disable All Validation Logs for a Custodian Across Projects/Registries",
+     *     description="Bulk update the enabled flag for all validation logs tied to a custodian and any project/registry.",
+     *     tags={"Validation Logs"},
+     *
+     *     @OA\Parameter(
+     *         name="custodianId",
+     *         in="path",
+     *         required=true,
+     *         description="The ID of the custodian entity",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"enabled"},
+     *             @OA\Property(property="enabled", type="boolean", example=true),
+     *             @OA\Property(property="name", type="string", example="PROFILE_COMPLETE")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Validation logs updated successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="updated", type="integer", example=5)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid request"
+     *     )
+     * )
+     */
+    public function updateCustodianValidationLogs(Request $request, int $custodianId): JsonResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'enabled' => 'required|in:0,1',
+        ]);
+
+        try {
+            $updated = ValidationLog::withDisabled()
+                ->where('entity_type', Custodian::class)
+                ->where('entity_id', $custodianId)
+                ->where('name', $validated['name'])
+                ->update(['enabled' => $validated['enabled']]);
+
+            return $this->OKResponse($updated);
+
+        } catch (Exception $e) {
+            return $this->ErrorResponse();
+        }
+    }
+
+
+    /**
      * @OA\Get(
      *     path="/api/v1/validation_logs/{id}",
      *     summary="Get  a Validation Log",
@@ -252,6 +311,12 @@ class ValidationLogController extends Controller
         } elseif ($request->has('fail')) {
             $log->completed_at = Carbon::now();
             $log->manually_confirmed = 0;
+        }
+
+        if ($request->has('enable')) {
+            $log->enabled = 1;
+        } elseif ($request->has('disable')) {
+            $log->enabled = 0;
         }
 
 
