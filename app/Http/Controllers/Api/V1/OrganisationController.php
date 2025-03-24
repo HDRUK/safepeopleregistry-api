@@ -1289,6 +1289,15 @@ class OrganisationController extends Controller
      *              format="int64"
      *          )
      *      ),
+     *      @OA\Parameter(
+     *          name="show_pending",
+     *          in="query",
+     *          description="Include users with pending invitations (true/false)",
+     *          required=false,
+     *          @OA\Schema(
+     *             type="boolean"
+     *          )
+     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
