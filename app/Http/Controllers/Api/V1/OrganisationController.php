@@ -19,6 +19,7 @@ use App\Models\Subsidiary;
 use App\Models\User;
 use App\Models\UserHasDepartments;
 use App\Models\RegistryHasAffiliation;
+use App\Models\PendingInvite;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -1330,20 +1331,27 @@ class OrganisationController extends Controller
     public function getRegistries(Request $request, int $id): JsonResponse
     {
         try {
+            $showPending = $request->boolean("show_pending");
 
             $registryIds = RegistryHasAffiliation::with('affiliation')
                 ->whereHas('affiliation', function ($query) use ($id) {
                     $query->where('organisation_id', $id);
                 })
-                ->select('registy_id')
-                ->pluck('registry_id');
+            ->pluck('registry_id');
 
-            // add pending invites
-            //$pendingInvite = PendingInvite::where('organisation_id', $id)
+
 
             $users = User::searchViaRequest()
             ->applySorting()
             ->whereIn('registry_id', $registryIds)
+            ->when($showPending, function ($query) use ($id) {
+                $pendingInviteUserIds = PendingInvite::where([
+                    'organisation_id' => $id,
+                    'status' => config('speedi.invite_status.PENDING')
+                    ])
+                    ->pluck('user_id');
+                return $query->orWhere('id', $pendingInviteUserIds);
+            })
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
             return response()->json([
