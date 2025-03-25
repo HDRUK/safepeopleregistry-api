@@ -10,6 +10,8 @@ use App\Models\Organisation;
 use App\Models\OrganisationDelegate;
 use App\Models\PendingInvite;
 use App\Models\User;
+use App\Models\Affiliation;
+use App\Models\RegistryHasAffiliation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -39,15 +41,36 @@ class AuthController extends Controller
 
         if ($user) {
             if (isset($user['unclaimed_user_id'])) {
+                $unclaimedUser = User::where('id', $user['unclaimed_user_id'])->first();
                 $pendingInvite = PendingInvite::where('user_id', $user['unclaimed_user_id'])->first();
-
                 if ($pendingInvite) {
+
+                    $registryId = $unclaimedUser->registry_id;
+                    $organisationId = $pendingInvite->organisation_id;
+
+                    $aff = Affiliation::create([
+                        'organisation_id' => $organisationId,
+                        'member_id' => '',
+                        'relationship' => null,
+                        'from' => null,
+                        'to' => null,
+                        'department' => null,
+                        'role' => null,
+                        'email' => $unclaimedUser->email,
+                        'ror' => null,
+                        'registry_id' => $registryId,
+                    ]);
+
+                    RegistryHasAffiliation::create([
+                        'affiliation_id' => $aff->id,
+                        'registry_id' => $registryId,
+                    ]);
+
                     $pendingInvite->invite_accepted_at = Carbon::now();
                     $pendingInvite->status = config('speedi.invite_status.COMPLETE');
                     $pendingInvite->save();
                 }
 
-                $unclaimedUser = User::where('id', $user['unclaimed_user_id'])->first();
 
                 return response()->json([
                     'message' => 'success',

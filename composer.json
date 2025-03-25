@@ -21,7 +21,8 @@
         "seshac/otp-generator": "^0.0.8",
         "socialiteproviders/keycloak": "^5.3",
         "socialiteproviders/manager": "^4.5",
-        "spatie/laravel-webhook-server": "^3.8"
+        "spatie/laravel-webhook-server": "^3.8",
+        "staudenmeir/eloquent-has-many-deep": "^1.7"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

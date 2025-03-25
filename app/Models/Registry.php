@@ -131,11 +131,6 @@ class Registry extends Model
         return $this->belongsToMany(Training::class, 'registry_has_trainings');
     }
 
-    public function organisations(): BelongsToMany
-    {
-        return $this->belongsToMany(Organisation::class, 'registry_has_organisations');
-    }
-
     public function history(): BelongsToMany
     {
         return $this->belongsToMany(History::class, 'registry_has_histories');

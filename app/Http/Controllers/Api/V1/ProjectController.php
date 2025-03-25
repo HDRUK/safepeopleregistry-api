@@ -115,7 +115,7 @@ class ProjectController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
-        $project = Project::with(['modelState.state'])->findOrFail($id);
+        $project = Project::with(['projectDetail', 'modelState.state'])->findOrFail($id);
 
         if ($project) {
             return response()->json([
@@ -222,10 +222,8 @@ class ProjectController extends Controller
         $project = Project::findOrFail($id);
         $projectUsers = $project->projectUsers()->with([
             'registry.user',
-            'registry.organisations' => function ($query) {
-                $query->select(['id','organisation_name']);
-            },
             'registry.affiliations',
+            'registry.affiliations.organisation',
             'registry.education',
             'registry.trainings',
             'registry.accreditations',
@@ -342,7 +340,7 @@ class ProjectController extends Controller
             ->toArray();
         $users = User::filterByState()->applySorting()->with([
             'registry.user',
-            'registry.organisations' => function ($query) {
+            'registry.affiliations.organisation' => function ($query) {
                 $query->select(['id','organisation_name']);
             },
             'registry.affiliations',
@@ -471,7 +469,7 @@ class ProjectController extends Controller
      *                  @OA\Property(property="name", type="string", example="My First Research Project"),
      *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
      *                  @OA\Property(property="runs_to", type="string", example="2026-02-04"),
-     *                  @OA\Property(property="status", type="string", example="approved"),
+     *                  @OA\Property(property="status", type="string", example="approved")
      *              ),
      *          ),
      *      ),
@@ -561,7 +559,7 @@ class ProjectController extends Controller
      *                  @OA\Property(property="name", type="string", example="My First Research Project"),
      *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
      *                  @OA\Property(property="runs_to", type="string", example="2026-02-04"),
-     *                  @OA\Property(property="status", type="string", example="2026-02-04"),
+     *                  @OA\Property(property="status", type="string", example="approved")
      *              ),
      *          ),
      *      ),
