@@ -565,7 +565,7 @@ class UserTest extends TestCase
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
-            'POST',
+            'GET',
             self::TEST_URL . '/search_affiliations',
             [
                 'first_name' => 'dan',

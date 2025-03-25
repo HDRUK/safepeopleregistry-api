@@ -488,7 +488,7 @@ class ProjectController extends Controller
     {
         try {
             $input = $request->only(app(Project::class)->getFillable());
-            $project = Project::where('id', $id)->first();
+            $project = Project::findOrFail($id);
 
             if (!is_null($project)) {
                 $project->update($input);
@@ -504,8 +504,6 @@ class ProjectController extends Controller
 
                 return $this->OKResponse(Project::where('id', $id)->first());
             }
-
-            return $this->NotFoundResponse();
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }

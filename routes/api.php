@@ -68,7 +68,7 @@ Route::middleware('auth:api')->post('v1/users/invite', [UserController::class, '
 Route::middleware('auth:api')->post('v1/users/permissions', [PermissionController::class, 'assignUserPermissionsToFrom']);
 Route::middleware('auth:api')->post('v1/users/change-password/{userId}', [AuthController::class, 'changePassword']);
 Route::middleware('auth:api')->post('v1/users/validate', [UserController::class, 'validateUserRequest']);
-Route::middleware('auth:api')->post('v1/users/search_affiliations', [UserController::class, 'searchUsersByNameAndProfessionalEmail']);
+Route::middleware('auth:api')->get('v1/users/affiliations/search', [UserController::class, 'searchUsersByNameAndProfessionalEmail']);
 Route::middleware('auth:api')->get('v1/users/{id}/projects', [UserController::class, 'userProjects']);
 
 Route::middleware('auth:api')->get('v1/users/{id}/notifications', [NotificationController::class, 'getUserNotifications']);
