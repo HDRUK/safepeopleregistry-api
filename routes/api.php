@@ -287,6 +287,7 @@ Route::middleware('auth:api')->post('v1/project_details', [ProjectDetailControll
 Route::middleware('auth:api')->put('v1/project_details/{id}', [ProjectDetailController::class, 'update']);
 Route::middleware('auth:api')->delete('v1/project_details/{id}', [ProjectDetailController::class, 'destroy']);
 Route::middleware('auth:api')->post('v1/project_details/query_gateway_dur', [ProjectDetailController::class, 'queryGatewayDurByProjectID']);
+Route::middleware('auth:api')->get('v1/project_details/by-project/{project_id}', [ProjectDetailController::class, 'getByProjectId']);
 
 Route::middleware('auth:api')->get('v1/project_roles', [ProjectRoleController::class, 'index']);
 Route::middleware('auth:api')->get('v1/project_roles/{id}', [ProjectRoleController::class, 'show']);

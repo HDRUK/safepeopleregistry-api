@@ -286,4 +286,49 @@ class ProjectDetailController extends Controller
             throw new Exception($e->getMessage());
         }
     }
+    /**
+     * @OA\Get(
+     *      path="/api/v1/project_details/by-project/{project_id}",
+     *      summary="Get ProjectDetails by Project ID",
+     *      description="Retrieve ProjectDetails associated with a specific Project ID",
+     *      tags={"ProjectDetail"},
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="project_id",
+     *         in="path",
+     *         description="ID of the project",
+     *         required=true,
+     *         @OA\Schema(
+     *            type="integer"
+     *         )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string"),
+     *              @OA\Property(property="data",
+     *                  ref="#/components/schemas/ProjectDetail"
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="No project details found for this project")
+     *          )
+     *      )
+     * )
+     */
+    public function getByProjectId(int $project_id): JsonResponse
+    {
+        $projectDetail = ProjectDetail::where('project_id', $project_id)->first();
+
+        if ($projectDetail) {
+            return $this->OKResponse($projectDetail);
+        }
+
+        return $this->NotFoundResponse();
+    }
 }
