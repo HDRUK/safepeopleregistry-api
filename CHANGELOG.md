@@ -1,3 +1,14 @@
+## [1.2.0](https://github.com/HDRUK/speedi-as-api/compare/v1.1.0...v1.2.0) (2025-03-25)
+
+### ✨ Features
+
+* **SOURSD-808:** change access type project detail field (#240) ([2f02f7a](https://github.com/HDRUK/speedi-as-api/commit/2f02f7a6baa4b2d54bed6f05261f7706d61efc2c))
+* **SOURSD-923:** Adds affiliations to user listings, allows searching by user_group to filter by specific entity user types ([e2fca81](https://github.com/HDRUK/speedi-as-api/commit/e2fca81590ef8a14b1a7f6fb3228554b938cb915))
+
+### 🐛 Bug Fixes
+
+* **SOURSD-920:** Removes endpoints from keycloak guard where not necessary ([13bfe44](https://github.com/HDRUK/speedi-as-api/commit/13bfe4473d108fd5a1b0d13413830a8ba6f807a9))
+
 ## [1.1.0](https://github.com/HDRUK/speedi-as-api/compare/v1.0.0...v1.1.0) (2025-03-21)
 
 ### ✨ Features
