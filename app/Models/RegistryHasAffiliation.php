@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class RegistryHasAffiliation extends Model
 {
@@ -17,4 +18,9 @@ class RegistryHasAffiliation extends Model
         'registry_id',
         'affiliation_id',
     ];
+
+    public function affiliation(): BelongsTo
+    {
+        return $this->belongsTo(Affiliation::class, 'affiliation_id');
+    }
 }

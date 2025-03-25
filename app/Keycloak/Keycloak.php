@@ -8,7 +8,6 @@ use Exception;
 use App\Models\User;
 use App\Models\Registry;
 use App\Models\CustodianUser;
-use App\Models\RegistryHasOrganisation;
 use RegistryManagementController as RMC;
 use Illuminate\Support\Str;
 
@@ -139,13 +138,6 @@ class Keycloak
                     $user->update([
                         'registry_id' => $registry->id,
                     ]);
-
-                    if (isset($credentials['organisation_id'])) {
-                        RegistryHasOrganisation::create([
-                            'registry_id' => $registry->id,
-                            'organisation_id' => $credentials['organisation_id'],
-                        ]);
-                    }
 
                     if (!in_array(env('APP_ENV'), ['testing', 'ci'])) {
                         Keycloak::updateSoursdDigitalIdentifier($user);

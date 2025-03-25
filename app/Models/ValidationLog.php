@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -105,6 +106,18 @@ class ValidationLog extends Model
     ];
 
     public $timestamps = false;
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope('enabled', function (Builder $builder) {
+            $builder->where('enabled', 1);
+        });
+    }
+
+    public function scopeWithDisabled(Builder $query): Builder
+    {
+        return $query->withoutGlobalScope('enabled');
+    }
 
     public function entity(): MorphTo
     {

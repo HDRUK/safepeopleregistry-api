@@ -47,6 +47,35 @@ class UserTest extends TestCase
         $this->assertTrue($content['data']['data'][0]['last_name'] === 'Murray');
     }
 
+    public function test_the_application_can_search_by_user_group(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '?user_group[]=USERS',
+            );
+
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson();
+
+        foreach ($content['data']['data'] as $data) {
+            $this->assertTrue($data['user_group'] === 'USERS');
+        }
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '?user_group[]=ORGANISATIONS',
+            );
+
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson();
+
+        foreach ($content['data']['data'] as $data) {
+            $this->assertTrue($data['user_group'] === 'ORGANISATIONS');
+        }
+    }
+
     public function test_the_application_can_search_users_by_first_name(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())

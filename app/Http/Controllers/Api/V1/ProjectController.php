@@ -222,10 +222,8 @@ class ProjectController extends Controller
         $project = Project::findOrFail($id);
         $projectUsers = $project->projectUsers()->with([
             'registry.user',
-            'registry.organisations' => function ($query) {
-                $query->select(['id','organisation_name']);
-            },
             'registry.affiliations',
+            'registry.affiliations.organisation',
             'registry.education',
             'registry.trainings',
             'registry.accreditations',
@@ -342,7 +340,7 @@ class ProjectController extends Controller
             ->toArray();
         $users = User::filterByState()->applySorting()->with([
             'registry.user',
-            'registry.organisations' => function ($query) {
+            'registry.affiliations.organisation' => function ($query) {
                 $query->select(['id','organisation_name']);
             },
             'registry.affiliations',

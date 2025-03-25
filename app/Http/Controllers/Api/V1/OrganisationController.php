@@ -18,7 +18,8 @@ use App\Models\OrganisationHasSubsidiary;
 use App\Models\Subsidiary;
 use App\Models\User;
 use App\Models\UserHasDepartments;
-use App\Models\RegistryHasOrganisation;
+use App\Models\RegistryHasAffiliation;
+use App\Models\PendingInvite;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -751,7 +752,7 @@ class OrganisationController extends Controller
      *      summary="Return an all projects associated with an organisation",
      *      description="Return an all projects associated with an organisation (i.e. data-custodian)",
      *      tags={"organisation"},
-     *      summary="organisation@getPorjects",
+     *      summary="organisation@getProjects",
      *      security={{"bearerAuth":{}}},
      *
      *      @OA\Parameter(
@@ -988,17 +989,18 @@ class OrganisationController extends Controller
     public function countUsers(Request $request, int $id): JsonResponse
     {
         try {
-            $count = DB::table('registry_has_organisations')
-                ->select(DB::raw(
-                    'COUNT(registry_id) as `count`'
-                ))
-                ->where('organisation_id', $id)
-                ->get();
+            $count = RegistryHasAffiliation::whereHas(
+                'affiliation',
+                function ($query) use ($id) {
+                    $query->where('organisation_id', $id);
+                }
+            )->count();
 
-            if ($count && count($count) > 0) {
+
+            if ($count && $count > 0) {
                 return response()->json([
                     'message' => 'success',
-                    'data' => $count[0]->count,
+                    'data' => $count,
                 ], 200);
             }
 
@@ -1287,6 +1289,15 @@ class OrganisationController extends Controller
      *              format="int64"
      *          )
      *      ),
+     *      @OA\Parameter(
+     *          name="show_pending",
+     *          in="query",
+     *          description="Include users with pending invitations (true/false)",
+     *          required=false,
+     *          @OA\Schema(
+     *             type="boolean"
+     *          )
+     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
@@ -1329,14 +1340,28 @@ class OrganisationController extends Controller
     public function getRegistries(Request $request, int $id): JsonResponse
     {
         try {
+            $showPending = $request->boolean("show_pending");
 
-            $registryIds = RegistryHasOrganisation::where('organisation_id', $id)
-            ->get()
-            ->select('registry_id');
+            $registryIds = RegistryHasAffiliation::with('affiliation')
+                ->whereHas('affiliation', function ($query) use ($id) {
+                    $query->where('organisation_id', $id);
+                })
+            ->pluck('registry_id');
 
             $users = User::searchViaRequest()
             ->applySorting()
-            ->whereIn('registry_id', $registryIds)
+            ->where(function ($query) use ($registryIds, $showPending, $id) {
+                $query->whereIn('registry_id', $registryIds);
+
+                if ($showPending) {
+                    $pendingInviteUserIds = PendingInvite::where([
+                        'organisation_id' => $id,
+                        'status' => config('speedi.invite_status.PENDING')
+                    ])->pluck('user_id');
+
+                    $query->orWhereIn('id', $pendingInviteUserIds);
+                }
+            })
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
             return response()->json([

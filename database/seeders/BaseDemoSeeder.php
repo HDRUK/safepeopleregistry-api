@@ -22,7 +22,6 @@ use App\Models\ProjectHasOrganisation;
 use App\Models\ProjectHasUser;
 use App\Models\ProjectRole;
 use App\Models\ProjectHasCustodian;
-use App\Models\RegistryHasOrganisation;
 use App\Models\RegistryHasTraining;
 use App\Models\RegistryHasAffiliation;
 use App\Models\OrganisationHasDepartment;
@@ -930,10 +929,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                     'registry_id' => $user->registry_id,
                 ]);
 
-                RegistryHasOrganisation::create([
-                    'registry_id' => $user->registry_id,
-                    'organisation_id' => $e['organisation_id'],
-                ]);
             }
         }
 
