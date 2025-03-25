@@ -386,6 +386,8 @@ class CustodianController extends Controller
             $custodian->contact_email = isset($input['contact_email']) ? $input['contact_email'] : $custodian->contact_email;
             $custodian->enabled = isset($input['enabled']) ? $input['enabled'] : $custodian->enabled;
             $custodian->idvt_required = isset($input['idvt_required']) ? $input['idvt_required'] : $custodian->idvt_required;
+            $custodian->gateway_app_id = isset($input['gateway_app_id']) ? $input['gateway_app_id'] : $custodian->gateway_app_id;
+            $custodian->gateway_client_id = isset($input['gateway_client_id']) ? $input['gateway_client_id'] : $custodian->gateway_client_id;
 
             if ($custodian->save()) {
                 return response()->json([
