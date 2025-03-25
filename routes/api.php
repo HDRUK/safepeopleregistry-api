@@ -146,6 +146,7 @@ Route::middleware('auth:api')->get('v1/projects', [ProjectController::class, 'in
 Route::middleware('auth:api')->get('v1/projects/{id}', [ProjectController::class, 'show']);
 Route::middleware('auth:api')->get('v1/projects/user/{registryId}/approved', [ProjectController::class, 'getApprovedProjects']);
 Route::middleware('auth:api')->get('v1/projects/{id}/users', [ProjectController::class, 'getProjectUsers']);
+Route::middleware('auth:api')->post('v1/projects/{id}/users', [ProjectController::class, 'addProjectUsers']);
 Route::middleware('auth:api')->get('v1/projects/{id}/users/filter', [ProjectController::class, 'getProjectUsersWithFiltering']);
 Route::middleware('auth:api')->post('v1/projects', [ProjectController::class, 'store']);
 Route::middleware('auth:api')->put('v1/projects/{id}', [ProjectController::class, 'update']);
