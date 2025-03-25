@@ -504,6 +504,8 @@ class ProjectController extends Controller
 
                 return $this->OKResponse(Project::where('id', $id)->first());
             }
+
+            return $this->NotFoundResponse();
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
