@@ -77,8 +77,6 @@ class RegistryManagementController
                         't_and_c_agreement_date' => now(),
                     ]);
 
-                    dd($user->id);
-
                     $user->registry_id = RegistryManagementController::createRegistryLedger()->id;
                     $user->save();
                     Keycloak::updateSoursdDigitalIdentifier($user);
