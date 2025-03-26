@@ -77,11 +77,11 @@ class RegistryManagementController
                         't_and_c_agreement_date' => now(),
                     ]);
 
-                    if ($user) {
-                        $user->registry_id = RegistryManagementController::createRegistryLedger()->id;
-                        $user->save();
-                        Keycloak::updateSoursdDigitalIdentifier($user);
-                    }
+                    dd($user->id);
+
+                    $user->registry_id = RegistryManagementController::createRegistryLedger()->id;
+                    $user->save();
+                    Keycloak::updateSoursdDigitalIdentifier($user);
 
                     return [
                         'user_id' => $user->id
