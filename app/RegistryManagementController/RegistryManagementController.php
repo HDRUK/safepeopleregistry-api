@@ -23,12 +23,14 @@ class RegistryManagementController
      */
     public static function createRegistryLedger(): mixed
     {
-        return Registry::create([
+        $registry = Registry::create([
             'dl_ident' => null,
             'pp_ident' => null,
             'digi_ident' => RegistryManagementController::generateDigitalIdentifierForRegistry(),
             'verified' => 0,
         ]);
+
+        return $registry->id;
     }
 
     /**
@@ -77,7 +79,7 @@ class RegistryManagementController
                         't_and_c_agreement_date' => now(),
                     ]);
 
-                    $user->registry_id = RegistryManagementController::createRegistryLedger()->id;
+                    $user->registry_id = RegistryManagementController::createRegistryLedger();
                     $user->save();
                     Keycloak::updateSoursdDigitalIdentifier($user);
 
