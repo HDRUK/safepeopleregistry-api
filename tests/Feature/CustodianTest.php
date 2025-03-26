@@ -130,16 +130,18 @@ class CustodianTest extends TestCase
 
     public function test_the_application_can_update_custodians(): void
     {
+        $this->enableObservers();
+
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'POST',
                 self::TEST_URL,
                 [
-                'name' => 'Test Custodian',
-                'contact_email' => 'test@test.com',
-                'enabled' => true,
-                'idvt_required' => false,
-            ]
+                    'name' => 'Test Custodian',
+                    'contact_email' => 'test@test.com',
+                    'enabled' => true,
+                    'idvt_required' => false,
+                ]
             );
 
         $response->assertStatus(201);
@@ -167,10 +169,10 @@ class CustodianTest extends TestCase
                 'PUT',
                 self::TEST_URL . '/' . $content['data'],
                 [
-                'name' => 'Updated Custodian',
-                'enabled' => false,
-                'idvt_required' => true,
-            ]
+                    'name' => 'Updated Custodian',
+                    'enabled' => false,
+                    'idvt_required' => true,
+                ]
             );
 
         $response->assertStatus(200);
