@@ -5,6 +5,7 @@ namespace App\RegistryManagementController;
 use Str;
 use Hash;
 use Keycloak;
+use Exception;
 use App\Models\User;
 use App\Models\DebugLog;
 use App\Models\Registry;
