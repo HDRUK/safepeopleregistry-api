@@ -8,6 +8,7 @@ use Keycloak;
 use App\Models\User;
 use App\Models\Registry;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class RegistryManagementController
 {
@@ -30,6 +31,8 @@ class RegistryManagementController
             'verified' => 0,
         ]);
 
+        Log::info('created registry {id}', ['id' => $registry->id]);
+
         return $registry->id;
     }
 
@@ -48,6 +51,8 @@ class RegistryManagementController
         $unclaimedUser = User::where('email', $input['email'])->whereNull('keycloak_id')->first();
 
         if ($unclaimedUser) {
+            Log::info('unclaimed user detected - {id}', ['id' => $unclaimedUser->id]);
+
             $unclaimedUser->first_name = $input['given_name'];
             $unclaimedUser->last_name = $input['family_name'];
             $unclaimedUser->email = $input['email'];
@@ -64,10 +69,12 @@ class RegistryManagementController
         }
 
         $accountType = isset($request['account_type']) ? $request['account_type'] : '';
+        Log::info('account type - {type}', ['type' => $accountType]);
 
         switch (strtolower($accountType)) {
             case 'user':
                 if (!RegistryManagementController::checkDuplicateKeycloakID($input['sub'])) {
+                    Log::info('not duplicate user {sub}', ['sub' => $input['sub']]);
                     $user = User::create([
                         'first_name' => $input['given_name'],
                         'last_name' => $input['family_name'],
@@ -79,7 +86,14 @@ class RegistryManagementController
                         't_and_c_agreement_date' => now(),
                     ]);
 
-                    $user->registry_id = RegistryManagementController::createRegistryLedger();
+                    if ($user) {
+                        Log::info('created user {user}', ['user' => json_encode($user)]);
+                    }
+
+                    $registryId = RegistryManagementController::createRegistryLedger();
+                    Log::info('created ledger as {id}', ['id' => $registryId]);
+
+                    $user->registry_id = $registryId;
                     $user->save();
                     Keycloak::updateSoursdDigitalIdentifier($user);
 
