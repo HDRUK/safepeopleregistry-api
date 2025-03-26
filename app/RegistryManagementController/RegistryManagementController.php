@@ -51,7 +51,7 @@ class RegistryManagementController
         $unclaimedUser = User::where('email', $input['email'])->whereNull('keycloak_id')->first();
 
         if ($unclaimedUser) {
-            Log::info('unclaimed user detected - {id}', ['id' => $unclaimedUser->id]);
+            Log::debug('unclaimed user detected - {id}', ['id' => $unclaimedUser->id]);
 
             $unclaimedUser->first_name = $input['given_name'];
             $unclaimedUser->last_name = $input['family_name'];
@@ -69,12 +69,12 @@ class RegistryManagementController
         }
 
         $accountType = isset($request['account_type']) ? $request['account_type'] : '';
-        Log::info('account type - {type}', ['type' => $accountType]);
+        Log::debug('account type - {type}', ['type' => $accountType]);
 
         switch (strtolower($accountType)) {
             case 'user':
                 if (!RegistryManagementController::checkDuplicateKeycloakID($input['sub'])) {
-                    Log::info('not duplicate user {sub}', ['sub' => $input['sub']]);
+                    Log::debug('not duplicate user {sub}', ['sub' => $input['sub']]);
                     $user = User::create([
                         'first_name' => $input['given_name'],
                         'last_name' => $input['family_name'],
@@ -87,14 +87,20 @@ class RegistryManagementController
                     ]);
 
                     if ($user) {
-                        Log::info('created user {user}', ['user' => json_encode($user)]);
+                        Log::debug('created user {user}', ['user' => json_encode($user)]);
+                    } else {
+                        Log::error('unable to create {user}', ['user' => json_encode($user)]);
                     }
 
                     $registryId = RegistryManagementController::createRegistryLedger();
-                    Log::info('created ledger as {id}', ['id' => $registryId]);
+                    Log::debug('created ledger as {id}', ['id' => $registryId]);
 
                     $user->registry_id = $registryId;
-                    $user->save();
+                    if ($user->save()) {
+                        Log::debug('updated user {user} with registry_id {id}', ['user' => $user->id, 'id' => $registryId]);
+                    } else {
+                        Log::error('unable to update user {user} with registry_id {id}', ['user' => $user->id, 'id' => $registryId]);
+                    }
                     Keycloak::updateSoursdDigitalIdentifier($user);
 
                     return [
