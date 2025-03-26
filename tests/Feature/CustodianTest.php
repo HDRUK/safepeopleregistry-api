@@ -130,6 +130,8 @@ class CustodianTest extends TestCase
 
     public function test_the_application_can_update_custodians(): void
     {
+        $this->enableObservers();
+
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'POST',
@@ -154,8 +156,6 @@ class CustodianTest extends TestCase
             'GET',
             self::TEST_URL . '/' . $content['data'] . '/action_log'
         );
-
-        dd($response['data']);
 
         $response->assertStatus(200);
         $responseData = $response['data'];
