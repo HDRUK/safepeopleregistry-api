@@ -315,4 +315,11 @@ class User extends Authenticatable
 
         return null;
     }
+
+    public function scopeFromProject($query, $projectId)
+    {
+        return $query->whereHas('registry.projectUsers', function ($q) use ($projectId) {
+            $q->where('project_id', $projectId);
+        });
+    }
 }

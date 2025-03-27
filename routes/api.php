@@ -115,6 +115,10 @@ Route::middleware('auth:api')->get('v1/custodians/{id}', [CustodianController::c
 Route::middleware('auth:api')->get('v1/custodians/identifier/{id}', [CustodianController::class, 'showByUniqueIdentifier']);
 Route::middleware('auth:api')->post('v1/custodians/{id}/invite', [CustodianController::class, 'invite']);
 Route::middleware('auth:api')->get('v1/custodians/{id}/projects', [CustodianController::class, 'getProjects']);
+
+Route::middleware('auth:api')->get('v1/custodians/{id}/projects/{projectId}/users', [CustodianController::class, 'getCustodianProjectUser']);
+
+
 Route::middleware('auth:api')->post('v1/custodians', [CustodianController::class, 'store']);
 Route::middleware('auth:api')->put('v1/custodians/{id}', [CustodianController::class, 'update']);
 Route::middleware('auth:api')->patch('v1/custodians/{id}', [CustodianController::class, 'edit']);
