@@ -721,7 +721,11 @@ class CustodianController extends Controller
             $project = Project::whereHas('custodians', function ($query) use ($custodianId) {
                 $query->where('custodians.id', $custodianId);
             })
-            ->findOrFail($projectId);
+            ->find($projectId);
+
+            if (!$project) {
+                return $this->NotFoundResponse();
+            }
 
             $users = User::fromProject($projectId)
             ->searchViaRequest()
