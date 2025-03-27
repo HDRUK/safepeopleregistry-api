@@ -718,6 +718,13 @@ class CustodianController extends Controller
     public function getCustodianProjectUser(Request $request, int $custodianId, int $projectId): JsonResponse
     {
         try {
+
+            // refactor candidate ... this may be duplicate functionality
+            // - this is perhaps the same has projectHasUsers() in ProjectController
+            // - that returns projectHasUsers model rather than Users in a project
+            // - this code also makes sure that the custodian is associated with this project
+            //    otherwise it will fail to find users
+
             $custodianHasProject = Project::where('id', $projectId)
             ->whereHas('custodians', function ($query) use ($custodianId) {
                 $query->where('custodians.id', $custodianId);
