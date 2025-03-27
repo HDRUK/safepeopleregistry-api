@@ -13,6 +13,9 @@ use App\Models\EntityModel;
 use App\Models\CustodianUser;
 use App\Models\CustodianModelConfig;
 
+/**
+ * @method static \Illuminate\Database\Eloquent\Collection|null loadCustodianRules(\Illuminate\Http\Request $request)
+ */
 class RulesEngineManagementController
 {
     public static function getCustodianKeyFromHeaders(): string
@@ -20,7 +23,7 @@ class RulesEngineManagementController
         return json_decode(Auth::token(), true)['sub'];
     }
 
-    public static function determineUserCustodian(): ?int
+    public static function determineUserCustodian(): mixed
     {
         $key = RulesEngineManagementController::getCustodianKeyFromHeaders();
         $user = User::where('keycloak_id', $key)->first();
@@ -31,8 +34,7 @@ class RulesEngineManagementController
 
         $custodianId = CustodianUser::where('id', $user->custodian_user_id)
             ->select('custodian_id')
-            ->pluck('custodian_id')
-            ->first();
+            ->pluck('custodian_id');
 
         if (!$custodianId) {
             return null;
@@ -43,7 +45,7 @@ class RulesEngineManagementController
 
     public static function loadCustodianRules(Request $request): ?Collection
     {
-        $custodianId = RulesEngineManagementController::determineUserCustodian($request);
+        $custodianId = RulesEngineManagementController::determineUserCustodian();
         if (!$custodianId) {
             return null;
         }

@@ -104,10 +104,13 @@ class UserController extends Controller
             [
                 'message' => 'success',
                 'data' => $users,
-                'rules' => env('RULES_ENGINE_ACTIVE', true) ? REMC::evaluateRulesEngine(
-                    $users->toArray(),
-                    REMC::loadCustodianRules($request)
-                ) : [],
+                // Needs looking at, as this is a VERY HEAVY call, taking 20
+                // seconds against current users. May not be able to include
+                // on generic route. Leaving in as aid to memory
+                // 'rules' => env('RULES_ENGINE_ACTIVE', true) ? REMC::evaluateRulesEngine(
+                //     $users->toArray(),
+                //     REMC::loadCustodianRules($request)
+                // ) : [],
             ],
             200
         );
