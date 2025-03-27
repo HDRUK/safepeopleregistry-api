@@ -45,6 +45,12 @@ trait StateWorkflow
         State::STATE_PROJECT_APPROVED => [
             State::STATE_PROJECT_COMPLETED
         ],
+        State::STATE_AFFILIATION_INVITED => [
+            State::STATE_AFFILIATION_PENDING
+        ],
+        State::STATE_AFFILIATION_PENDING => [
+            State::STATE_AFFILIATION_APPROVED
+        ]
     ];
 
     public function modelState()

@@ -58,11 +58,25 @@ class AffiliationController extends Controller
             ->get()
             ->select('affiliation_id');
 
-        $affiliations = Affiliation::with(['organisation' => function ($query) {
-            $query->select('id', 'organisation_name', 'unclaimed', 'lead_applicant_email');
-        }])->whereHas('registryHasAffiliations', function ($query) use ($registryId) {
-            $query->where('registry_id', $registryId);
-        })->paginate((int) $this->getSystemConfig('PER_PAGE'));
+        $affiliations = Affiliation::with(
+            [
+                'organisation' => function ($query) {
+                    $query->select(
+                        'id',
+                        'organisation_name',
+                        'unclaimed',
+                        'lead_applicant_email'
+                    );
+                },
+            ]
+        )
+        ->whereHas(
+            'registryHasAffiliations',
+            function ($query) use ($registryId) {
+                $query->where('registry_id', $registryId);
+            }
+        )
+        ->paginate((int) $this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',

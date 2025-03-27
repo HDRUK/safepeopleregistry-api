@@ -29,6 +29,9 @@ class State extends Model
     public const STATE_PROJECT_PENDING = 'project_pending';
     public const STATE_PROJECT_COMPLETED = 'project_completed';
     public const STATE_PROJECT_APPROVED = 'project_approved';
+    public const STATE_AFFILIATION_INVITED = 'affiliation_invited';
+    public const STATE_AFFILIATION_PENDING = 'affiliation_pending';
+    public const STATE_AFFILIATION_APPROVED = 'affiliation_approved';
 
     public const STATES = [
         self::STATE_REGISTERED,
@@ -42,5 +45,8 @@ class State extends Model
         self::STATE_PROJECT_APPROVED,
         self::STATE_PROJECT_COMPLETED,
         self::STATE_PROJECT_PENDING,
+        self::STATE_AFFILIATION_INVITED,
+        self::STATE_AFFILIATION_PENDING ,
+        self::STATE_AFFILIATION_APPROVED ,
     ];
 }

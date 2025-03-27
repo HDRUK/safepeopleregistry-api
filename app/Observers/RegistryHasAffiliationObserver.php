@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\RegistryHasAffiliation;
+use App\Models\State;
 use App\Traits\AffiliationCompletionManager;
 
 class RegistryHasAffiliationObserver
@@ -13,6 +14,9 @@ class RegistryHasAffiliationObserver
      */
     public function created(RegistryHasAffiliation $registryHasAffiliation): void
     {
+        $unclaimed = $registryHasAffiliation->affiliation->organisation->unclaimed;
+        $initialState = $unclaimed ? State::STATE_AFFILIATION_INVITED : State::STATE_AFFILIATION_PENDING;
+        $registryHasAffiliation->setState($initialState);
         $this->updateActionLog($registryHasAffiliation->registry_id);
         $this->updateOrganisationActionLog($registryHasAffiliation);
     }
