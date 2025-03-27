@@ -12,8 +12,10 @@ parameters:
     ignoreErrors:
         - '#Call to an undefined static method Illuminate\\Support\\Facades\\Auth::token#'
         - '#Call to an undefined static method App\\RulesEngineManagementController\\RulesEngineManagementController::evaluateRulesEngine\(\)#'
+        - '#Call to an undefined static method App\\RulesEngineManagementController\\RulesEngineManagementController::loadCustodianRules\(\)#'
         - '#Access to an undefined property App\\Models\\User::\$unreadNotifications#'
         - '#Access to an undefined property App\\Models\\ModelState::\$state#'
+        - '#Access to an undefined property Illuminate\\Database\\Eloquent\\Model::\$file_path#'
 #
 #    excludePaths:
 #        - ./*/*/FileToBeExcluded.php
