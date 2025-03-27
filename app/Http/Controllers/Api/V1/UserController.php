@@ -92,9 +92,7 @@ class UserController extends Controller
                 'registry',
                 'registry.files',
                 'registry.affiliations',
-                'registry.affiliations.organisation' => function ($query) {
-                    $query->select(['id','organisation_name']);
-                },
+                'registry.affiliations.organisation:id,organisation_name',
                 'pendingInvites',
                 'organisation',
                 'departments',
