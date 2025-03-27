@@ -738,7 +738,13 @@ class CustodianController extends Controller
             $users = User::fromProject($projectId)
             ->searchViaRequest()
             ->filterByState()
-            ->with('registry.affiliations.organisation')
+            ->with([
+                'registry.affiliations.organisation',
+                'registry.projectUsers' => function ($q) use ($projectId) {
+                    $q->where('project_id', $projectId);
+                },
+                'registry.projectUsers.role'
+            ])
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
             return $this->OKResponse($users);
