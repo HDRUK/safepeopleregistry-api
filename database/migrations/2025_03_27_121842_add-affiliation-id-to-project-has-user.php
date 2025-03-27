@@ -11,7 +11,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::table('project_has_users', function (Blueprint $table) {
-            $table->unsignedBigInteger('affiliation_id');
+            $table->unsignedBigInteger('affiliation_id')->nullable();
         });
     }
 

@@ -428,14 +428,15 @@ class ProjectTest extends TestCase
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'GET',
-                self::TEST_URL . '/1/users/filter?filter=pending',
+                self::TEST_URL . '/1/users?filter=pending',
             );
 
         $response->assertStatus(200);
-        $content = $response->decodeResponseJson()['data']['data'];
+        $users = collect($response->decodeResponseJson()['data']['data'])
+        ->map(fn ($item) => $item['registry']['user']);
 
-        $this->assertNotNull($content);
-        $this->assertEquals($content[0]['id'], $user->id);
-        $this->assertEquals($content[0]['email'], $user->email);
+        $this->assertNotNull($users);
+        $this->assertEquals($users[0]['id'], $user->id);
+        $this->assertEquals($users[0]['email'], $user->email);
     }
 }

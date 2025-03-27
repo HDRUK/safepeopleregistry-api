@@ -148,13 +148,13 @@ Route::middleware('auth:api')->get('v1/projects/{id}', [ProjectController::class
 Route::middleware('auth:api')->get('v1/projects/user/{registryId}/approved', [ProjectController::class, 'getApprovedProjects']);
 Route::middleware('auth:api')->get('v1/projects/{id}/users', [ProjectController::class, 'getProjectUsers']);
 Route::middleware('auth:api')->post('v1/projects/{id}/users', [ProjectController::class, 'addProjectUser']);
-Route::middleware('auth:api')->get('v1/projects/{id}/users/filter', [ProjectController::class, 'getProjectUsersWithFiltering']);
+Route::middleware('auth:api')->put('v1/projects/{projectId}/users/{registryId}', [ProjectController::class, 'updateProjectUser']);
+Route::middleware('auth:api')->delete('v1/projects/{projectId}/users/{registryId}', [ProjectController::class, 'deleteUserFromProject']);
+Route::middleware('auth:api')->put('v1/projects/{projectId}/users/{registryId}/primary_contact', [ProjectController::class, 'makePrimaryContact']);
 Route::middleware('auth:api')->post('v1/projects', [ProjectController::class, 'store']);
 Route::middleware('auth:api')->put('v1/projects/{id}', [ProjectController::class, 'update']);
 Route::middleware('auth:api')->patch('v1/projects/{id}', [ProjectController::class, 'edit']);
 Route::middleware('auth:api')->delete('v1/projects/{id}', [ProjectController::class, 'destroy']);
-Route::middleware('auth:api')->put('v1/projects/{projectId}/users/{registryId}/primary_contact', [ProjectController::class, 'makePrimaryContact']);
-Route::middleware('auth:api')->delete('v1/projects/{projectId}/users/{registryId}', [ProjectController::class, 'deleteUserFromProject']);
 
 Route::middleware('auth:api')->get('v1/registries', [RegistryController::class, 'index']);
 Route::middleware('auth:api')->get('v1/registries/{id}', [RegistryController::class, 'show']);
