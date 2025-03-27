@@ -238,6 +238,66 @@ class ProjectController extends Controller
     }
 
     /**
+     * @OA\Post(
+     *      path="/api/v1/projects/{id}/users",
+     *      summary="Create a Project entry",
+     *      description="Create a Project entry",
+     *      tags={"Project"},
+     *      summary="Project@store",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="Project definition",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="registry_id", type="integer", example="1"),
+     *              @OA\Property(property="name", type="string", example="My First Research Project"),
+     *              @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
+     *              @OA\Property(property="runs_to", type="string", example="2026-02-04")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *                  @OA\Property(property="message", type="string", example="success"),
+     *                  @OA\Property(property="data", type="integer", example="1")
+     *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=500,
+     *          description="Error",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="error")
+     *          )
+     *      )
+     * )
+     */
+    public function addProjectUsers(Request $request, int $id): JsonResponse
+    {
+        try {
+            $input = $request->get('users');
+
+            foreach ($input as &$row) {
+                $row['project_id'] = $id;
+            }
+
+            $ids = ProjectHasUser::upsert($input, ['user_digital_ident', 'project_id', 'affiliation_id']);
+
+            return $this->CreatedResponse($ids);
+        } catch (Exception $e) {
+            return $this->ErrorResponse();
+        }
+    }
+
+    /**
      * @OA\Get(
      *      path="/api/v1/projects/{id}/users/filter",
      *      summary="Return project users by project ID with filtering",

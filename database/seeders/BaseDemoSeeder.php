@@ -938,13 +938,14 @@ Social Media Platform’s Data Access Committee to allow access to platform data
     private function linkUsersToProjects(array &$input): void
     {
         foreach ($input as $u) {
-            $user = User::where('email', $u['email'])->first();
+            $user = User::where('email', $u['email'])->with(['registry.affiliations'])->first();
 
             foreach ($u['projects'] as $p) {
                 ProjectHasUser::create([
                     'project_id' => $p,
                     'user_digital_ident' => Registry::where('id', $user->registry_id)->first()->digi_ident,
                     'project_role_id' => 7,
+                    'affiliation_id' => $user->registry->affiliations[0]->id
                 ]);
             }
         }
