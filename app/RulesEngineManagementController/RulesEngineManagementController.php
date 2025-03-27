@@ -2,29 +2,111 @@
 
 namespace App\RulesEngineManagementController;
 
+use Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Database\Eloquent\Collection;
+use App\Models\User;
 use App\Models\Rules;
+use App\Models\EntityModel;
+use App\Models\CustodianUser;
+use App\Models\CustodianModelConfig;
 
 class RulesEngineManagementController
 {
-    public static function evaluateRulesEngine(array $payload): array
+    public static function getCustodianKeyFromHeaders(): string
     {
-        $rulesServiceUrl = env('RULES_ENGINE_SERVICE', 'https://rules-engine.test') .
-            env('RULES_ENGINE_PROJECT_ID', '298357293857') . '/evaluate/' .
-            env('RULES_ENGINE_EVAL_MODEL', 'something.json');
+        return json_decode(Auth::token(), true)['sub'];
+    }
 
-        $response = Http::withHeaders([
-            'X-Access-Token' => env('RULES_ENGINE_PROJECT_TOKEN'),
-        ])
-        ->acceptJson()
-        ->post($rulesServiceUrl, [
-            'context' => $payload,
-            'trace' => true,
-        ]);
+    public static function determineUserCustodian(): ?int
+    {
+        $key = RulesEngineManagementController::getCustodianKeyFromHeaders();
+        $user = User::where('keycloak_id', $key)->first();
 
-        return $response->json();
+        if (!$user) {
+            return null;
+        }
+
+        $custodianId = CustodianUser::where('id', $user->custodian_user_id)
+            ->select('custodian_id')
+            ->pluck('custodian_id')
+            ->first();
+
+        if (!$custodianId) {
+            return null;
+        }
+
+        return $custodianId;
+    }
+
+    public static function loadCustodianRules(Request $request): ?Collection
+    {
+        $custodianId = RulesEngineManagementController::determineUserCustodian($request);
+        if (!$custodianId) {
+            return null;
+        }
+
+        $modelConfig = CustodianModelConfig::where([
+            'custodian_id' => $custodianId,
+            'active' => 1,
+        ])->select('entity_model_id')
+        ->pluck('entity_model_id');
+
+        if (!$modelConfig) {
+            return null;
+        }
+
+        $activeModels = EntityModel::whereIn('id', $modelConfig)->get();
+        if (!$activeModels) {
+            return null;
+        }
+
+        return $activeModels;
+    }
+
+    public static function evaluateRulesEngine(array $payload, Collection $config): array
+    {
+        $responseArray = [];
+
+        foreach ($config as $c) {
+            if (isset($payload['data'])) {
+                foreach ($payload['data'] as $user) {
+                    $rulesServiceUrl = env('RULES_ENGINE_SERVICE', 'https://rules-engine.test') .
+                        env('RULES_ENGINE_PROJECT_ID', '298357293857') . '/evaluate/' .
+                        env('RULES_ENGINE_EVAL_MODEL', $c->file_path);
+
+                    $response = Http::withHeaders([
+                        'X-Access-Token' => env('RULES_ENGINE_PROJECT_TOKEN'),
+                    ])
+                    ->acceptJson()
+                    ->post($rulesServiceUrl, [
+                        'context' => $payload,
+                        'trace' => true,
+                    ]);
+
+                    $responseArray[$user['id']] = $response->json();
+                }
+            } else {
+                $rulesServiceUrl = env('RULES_ENGINE_SERVICE', 'https://rules-engine.test') .
+                env('RULES_ENGINE_PROJECT_ID', '298357293857') . '/evaluate/' .
+                env('RULES_ENGINE_EVAL_MODEL', $c->file_path);
+
+                $response = Http::withHeaders([
+                    'X-Access-Token' => env('RULES_ENGINE_PROJECT_TOKEN'),
+                ])
+                ->acceptJson()
+                ->post($rulesServiceUrl, [
+                    'context' => $payload,
+                    'trace' => true,
+                ]);
+
+                $responseArray[$payload['id']] = $response->json();
+            }
+        }
+
+        return $responseArray;
     }
 
     public function getRules(Request $request): JsonResponse

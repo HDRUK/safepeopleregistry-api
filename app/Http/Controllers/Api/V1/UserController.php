@@ -104,6 +104,10 @@ class UserController extends Controller
             [
                 'message' => 'success',
                 'data' => $users,
+                'rules' => env('RULES_ENGINE_ACTIVE', true) ? REMC::evaluateRulesEngine(
+                    $users->toArray(),
+                    REMC::loadCustodianRules($request)
+                ) : [],
             ],
             200
         );
@@ -222,7 +226,10 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'success',
                 'data' => $user,
-                'rules' => env('RULES_ENGINE_ACTIVE', true) ? REMC::evaluateRulesEngine($user->toArray()) : [],
+                'rules' => env('RULES_ENGINE_ACTIVE', true) ? REMC::evaluateRulesEngine(
+                    $user->toArray(),
+                    REMC::loadCustodianRules($request)
+                ) : [],
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
