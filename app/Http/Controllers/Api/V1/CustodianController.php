@@ -729,9 +729,9 @@ class CustodianController extends Controller
             ->with('registry.affiliations.organisation')
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
-            $this->OKResponse($users);
+            return $this->OKResponse($users);
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+            return $this->ErrorResponse($e->getMessage());
         }
     }
 
