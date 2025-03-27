@@ -609,7 +609,7 @@ class ProjectController extends Controller
 
             $projectHasUser = ProjectHasUser::create([
                 'project_id' => $projectId,
-                'user_digital_ident' => $registry->user->user_digital_ident,
+                'user_digital_ident' => $registry->digi_ident,
                 'project_role_id' => $validated['project_role_id'],
                 'affiliation_id' => $validated['affiliation_id'],
                 'primary_contact' => $validated['primary_contact'] ?? false,
@@ -747,6 +747,34 @@ class ProjectController extends Controller
             'data' => $projects,
         ], 200);
     }
+
+    public function updateProjectUser(Request $request, int $projectId, int $registryId): JsonResponse
+    {
+        $validated = $request->validate([
+            'project_role_id' => 'nullable|integer|exists:project_roles,id',
+            'primary_contact' => 'nullable|boolean',
+            'affiliation_id' => 'nullable|integer|exists:affiliations,id',
+        ]);
+
+        $digiIdent = optional(Registry::find($registryId))->digi_ident;
+
+        if (!$digiIdent) {
+            return $this->NotFoundResponse();
+        }
+
+        $projectUser = ProjectHasUser::where('project_id', $projectId)
+                        ->where('user_digital_ident', $digiIdent)
+                        ->first();
+
+        if (!$projectUser) {
+            return $this->NotFoundResponse();
+        }
+
+        $projectUser->update($validated);
+
+        return $this->OKResponse($projectUser);
+    }
+
 
     /**
      * @OA\Delete(
