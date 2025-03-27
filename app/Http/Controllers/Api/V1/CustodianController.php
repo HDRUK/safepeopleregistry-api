@@ -718,12 +718,13 @@ class CustodianController extends Controller
     public function getCustodianProjectUser(Request $request, int $custodianId, int $projectId): JsonResponse
     {
         try {
-            $project = Project::whereHas('custodians', function ($query) use ($custodianId) {
+            $custodianHasProject = Project::where('id', $projectId)
+            ->whereHas('custodians', function ($query) use ($custodianId) {
                 $query->where('custodians.id', $custodianId);
             })
-            ->find($projectId);
+            ->exists();
 
-            if (!$project) {
+            if (!$custodianHasProject) {
                 return $this->NotFoundResponse();
             }
 
