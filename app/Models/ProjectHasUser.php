@@ -25,6 +25,7 @@ class ProjectHasUser extends Model
         'user_digital_ident',
         'project_role_id',
         'primary_contact',
+        'affiliation_id',
     ];
 
     public const VALIDATE_COMPLETE_CONFIGURATION = 'mandatory_training_complete';
@@ -55,6 +56,10 @@ class ProjectHasUser extends Model
         return $this->belongsTo(Project::class, 'project_id', 'id');
     }
 
+    public function affiliation(): BelongsTo
+    {
+        return $this->belongsTo(Affiliation::class, 'affiliation_id', 'id');
+    }
 
     public function approvals(): HasManyThrough
     {

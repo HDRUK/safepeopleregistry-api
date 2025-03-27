@@ -658,63 +658,6 @@ class CustodianController extends Controller
         ], 404);
     }
 
-    /**
-     * @OA\Get(
-     *      path="/api/v1/custodian/{custodianId}/projects/{projectId}/users",
-     *      summary="Return users associated with a custodian's project",
-     *      description="Fetch a paginated list of users linked to a specific project under a specified custodian.",
-     *      tags={"custodian"},
-     *      security={{"bearerAuth":{}}},
-     *      @OA\Parameter(
-     *          name="custodianId",
-     *          in="path",
-     *          description="The ID of the custodian",
-     *          required=true,
-     *          example="1",
-     *          @OA\Schema(
-     *              type="integer"
-     *          )
-     *      ),
-     *      @OA\Parameter(
-     *          name="projectId",
-     *          in="path",
-     *          description="The ID of the project",
-     *          required=true,
-     *          example="12",
-     *          @OA\Schema(
-     *              type="integer"
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Success",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="current_page", type="integer", example=1),
-     *                  @OA\Property(property="per_page", type="integer", example=25),
-     *                  @OA\Property(property="total", type="integer", example=50),
-     *                  @OA\Property(property="data", type="array",
-     *                      @OA\Items(
-     *                          ref="#/components/schemas/User"
-     *                      )
-     *                  ),
-     *                  @OA\Property(property="first_page_url", type="string", example="http://localhost:8100/api/v1/custodian/1/projects/12/users?page=1"),
-     *                  @OA\Property(property="last_page_url", type="string", example="http://localhost:8100/api/v1/custodian/1/projects/12/users?page=2"),
-     *                  @OA\Property(property="next_page_url", type="string", example="http://localhost:8100/api/v1/custodian/1/projects/12/users?page=2"),
-     *                  @OA\Property(property="prev_page_url", type="string", example=null)
-     *              )
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response=404,
-     *          description="Project not found for the given custodian",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          )
-     *      )
-     * )
-     */
     public function getCustodianProjectUser(Request $request, int $custodianId, int $projectId): JsonResponse
     {
         try {
@@ -735,19 +678,8 @@ class CustodianController extends Controller
                 return $this->NotFoundResponse();
             }
 
-            $users = User::fromProject($projectId)
-            ->searchViaRequest()
-            ->filterByState()
-            ->with([
-                'registry.affiliations.organisation',
-                'registry.projectUsers' => function ($q) use ($projectId) {
-                    $q->where('project_id', $projectId);
-                },
-                'registry.projectUsers.role'
-            ])
-            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
-            return $this->OKResponse($users);
+
         } catch (Exception $e) {
             return $this->ErrorResponse($e->getMessage());
         }
