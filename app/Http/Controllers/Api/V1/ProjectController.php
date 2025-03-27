@@ -288,7 +288,7 @@ class ProjectController extends Controller
                 $row['project_id'] = $id;
             }
 
-            $ids = ProjectHasUser::upsert($input, ['user_digital_ident', 'project_id']);
+            $ids = ProjectHasUser::upsert($input, ['user_digital_ident', 'project_id', 'affiliation_id']);
 
             return $this->CreatedResponse($ids);
         } catch (Exception $e) {
@@ -389,10 +389,14 @@ class ProjectController extends Controller
     public function getProjectUsersWithFiltering(Request $request, int $id): JsonResponse
     {
         $project = Project::findOrFail($id);
-        $projectUsers = ProjectHasUser::where('project_id', $project->id)
+        $a = ProjectHasUser::where('project_id', $project->id);
+        $b = $a->get()->toArray();
+
+            $projectUsers = $a
             ->select('user_digital_ident')
             ->pluck('user_digital_ident')
             ->toArray();
+
         $registries = Registry::whereIn('digi_ident', $projectUsers)
             ->select('id')
             ->pluck('id')

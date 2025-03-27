@@ -945,6 +945,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                     'project_id' => $p,
                     'user_digital_ident' => Registry::where('id', $user->registry_id)->first()->digi_ident,
                     'project_role_id' => 7,
+                    'affiliation_id' => 1
                 ]);
             }
         }
