@@ -141,8 +141,9 @@ class StateWorkflowTest extends TestCase
 
         $org = Organisation::factory()->create(["unclaimed" => 1]);
         $aff = Affiliation::factory()->create(['organisation_id' => $org->id]);
-
-        $rha = RegistryHasAffiliation::create(['registry_id' => $registryId, 'affiliation_id' => $aff->id]);
+        $rha = RegistryHasAffiliation::create([
+            'registry_id' => $registryId, 'affiliation_id' => $aff->id
+        ]);
 
         $this->assertTrue($rha->getState() === State::STATE_AFFILIATION_INVITED);
         $this->assertTrue($rha->canTransitionTo(State::STATE_AFFILIATION_PENDING) === true);
