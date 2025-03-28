@@ -3,15 +3,15 @@
 namespace App\RulesEngineManagementController;
 
 use Auth;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Database\Eloquent\Collection;
 use App\Models\User;
 use App\Models\Rules;
-use App\Models\EntityModel;
 use App\Models\CustodianUser;
+use App\Models\DecisionModel;
 use App\Models\CustodianModelConfig;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * @method static \Illuminate\Database\Eloquent\Collection|null loadCustodianRules(\Illuminate\Http\Request $request)
@@ -60,7 +60,7 @@ class RulesEngineManagementController
             return null;
         }
 
-        $activeModels = EntityModel::whereIn('id', $modelConfig)->get();
+        $activeModels = DecisionModel::whereIn('id', $modelConfig)->get();
         if (!$activeModels) {
             return null;
         }
@@ -68,32 +68,38 @@ class RulesEngineManagementController
         return $activeModels;
     }
 
-    public static function evaluateRulesEngine(array $payload, Collection $config): array
+    public static function evaluateRulesEngine(array $payload, ?Collection $config): array
     {
+        if (!$config) {
+            return [];
+        }
+
         $responseArray = [];
 
         foreach ($config as $c) {
-            if (isset($payload['data'])) {
-                foreach ($payload['data'] as $user) {
-                    $rulesServiceUrl = env('RULES_ENGINE_SERVICE', 'https://rules-engine.test') .
-                        env('RULES_ENGINE_PROJECT_ID', '298357293857') . '/evaluate/' .
-                        env('RULES_ENGINE_EVAL_MODEL', $c->file_path);
+            if ($c->file_path === 'sanctions.json') {
+                // if (isset($payload['data'])) {
+                //     foreach ($payload['data'] as $user) {
+                //         dd($c->file_path);
+                //         $rulesServiceUrl = env('RULES_ENGINE_SERVICE', 'https://rules-engine.test') .
+                //             env('RULES_ENGINE_PROJECT_ID', '298357293857') . '/evaluate/' .
+                //             $c->file_path;
 
-                    $response = Http::withHeaders([
-                        'X-Access-Token' => env('RULES_ENGINE_PROJECT_TOKEN'),
-                    ])
-                    ->acceptJson()
-                    ->post($rulesServiceUrl, [
-                        'context' => $payload,
-                        'trace' => true,
-                    ]);
+                //         $response = Http::withHeaders([
+                //             'X-Access-Token' => env('RULES_ENGINE_PROJECT_TOKEN'),
+                //         ])
+                //         ->acceptJson()
+                //         ->post($rulesServiceUrl, [
+                //             'context' => $payload,
+                //             'trace' => true,
+                //         ]);
 
-                    $responseArray[$user['id']] = $response->json();
-                }
-            } else {
+                //         $responseArray[$user['id']] = $response->json();
+                //     }
+                // } else {
                 $rulesServiceUrl = env('RULES_ENGINE_SERVICE', 'https://rules-engine.test') .
-                env('RULES_ENGINE_PROJECT_ID', '298357293857') . '/evaluate/' .
-                env('RULES_ENGINE_EVAL_MODEL', $c->file_path);
+                    env('RULES_ENGINE_PROJECT_ID', '298357293857') . '/evaluate/' .
+                    $c->file_path;
 
                 $response = Http::withHeaders([
                     'X-Access-Token' => env('RULES_ENGINE_PROJECT_TOKEN'),
@@ -105,6 +111,7 @@ class RulesEngineManagementController
                 ]);
 
                 $responseArray[$payload['id']] = $response->json();
+                // }
             }
         }
 
