@@ -145,6 +145,8 @@ class StateWorkflowTest extends TestCase
         - This test is working locally but failing on the CI
         - For some unexplained reason, on the GitHub CI RegistryHasAffiliation::create(..)
           is not triggereing the observer which is setting the state...
+        - On the CI $aff->getState() is null
+        - Locally it is not...
 
 
         $org = Organisation::factory()->create(["unclaimed" => 1]);
@@ -162,7 +164,7 @@ class StateWorkflowTest extends TestCase
         $org->update(["unclaimed" => 0]);
         $rha->refresh();
         $this->assertTrue($rha->getState() === State::STATE_AFFILIATION_PENDING);
-*/
+        */
 
     }
 }
