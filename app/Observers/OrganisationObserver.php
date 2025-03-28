@@ -58,6 +58,7 @@ class OrganisationObserver
                 'completed_at' => null,
             ]);
         }
+        $this->manageAffiliationStates($organisation);
     }
 
     /**
