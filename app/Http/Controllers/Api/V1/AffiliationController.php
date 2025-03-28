@@ -388,6 +388,9 @@ class AffiliationController extends Controller
                     'affiliation_id' => $affiliationId
                     ]
             )->first();
+            if (!$rha) {
+                return $this->NotFoundResponse();
+            }
 
             $statusSlugMap = [
                 'approved' => State::STATE_AFFILIATION_APPROVED,
