@@ -5,10 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
+use App\Traits\StateWorkflow;
 
 class RegistryHasAffiliation extends Model
 {
     use HasFactory;
+    use StateWorkflow;
 
     public $table = 'registry_has_affiliations';
 
@@ -22,5 +25,10 @@ class RegistryHasAffiliation extends Model
     public function affiliation(): BelongsTo
     {
         return $this->belongsTo(Affiliation::class, 'affiliation_id');
+    }
+
+    public function modelState(): MorphOne
+    {
+        return $this->morphOne(ModelState::class, 'stateable');
     }
 }
