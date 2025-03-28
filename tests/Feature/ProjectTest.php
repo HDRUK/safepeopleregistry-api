@@ -29,6 +29,7 @@ class ProjectTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
+        Carbon::setTestNow(Carbon::now());
         $this->user = User::where('user_group', 'USERS')->first();
     }
 
