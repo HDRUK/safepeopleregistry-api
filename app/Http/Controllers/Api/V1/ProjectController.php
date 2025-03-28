@@ -115,7 +115,7 @@ class ProjectController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
-        $project = Project::with(['projectDetail', 'modelState.state'])->findOrFail($id);
+        $project = Project::with(['projectDetail', 'custodians', 'modelState.state'])->findOrFail($id);
 
         if ($project) {
             return response()->json([
