@@ -410,7 +410,6 @@ class AffiliationController extends Controller
 
             $rha->transitionTo($newStateSlug);
 
-
             return $this->OKResponse($rha->getState());
         } catch (Exception $e) {
             return $this->ErrorResponse($e->getMessage());

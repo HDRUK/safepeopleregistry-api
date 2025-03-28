@@ -50,6 +50,7 @@ trait StateWorkflow
         ],
         State::STATE_AFFILIATION_PENDING => [
             State::STATE_AFFILIATION_APPROVED,
+            State::STATE_AFFILIATION_REJECTED
         ],
         State::STATE_AFFILIATION_APPROVED => [
             State::STATE_AFFILIATION_REJECTED
