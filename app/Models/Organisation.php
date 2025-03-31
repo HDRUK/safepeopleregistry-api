@@ -262,6 +262,8 @@ class Organisation extends Model
     protected $hidden = [
     ];
 
+    protected $appends = [ 'evaluation' ];
+
     public const ACTION_NAME_ADDRESS_COMPLETED = 'name_address_completed';
     public const ACTION_DIGITAL_ID_COMPLETED = 'digital_identifiers_completed';
     public const ACTION_SECTOR_SIZE_COMPLETED = 'sector_size_completed';
@@ -381,5 +383,10 @@ class Organisation extends Model
     public function modelState(): MorphOne
     {
         return $this->morphOne(ModelState::class, 'stateable');
+    }
+
+    public function getEvaluationAttribute()
+    {
+        return $this->attributes['evaluation'] ?? null;
     }
 }

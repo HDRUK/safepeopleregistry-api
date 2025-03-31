@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Rules\Organisations;
+
 use App\Rules\BaseRule;
 use Illuminate\Support\Arr;
 
@@ -16,5 +18,7 @@ class DataSecurityComplianceRule extends BaseRule
         //     $actual = Arr::get($model, $p, null);
         //     dd($actual);
         // }
+
+        return true;
     }
 }
