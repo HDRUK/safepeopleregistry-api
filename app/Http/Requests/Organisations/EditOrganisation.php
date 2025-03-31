@@ -50,6 +50,7 @@ class EditOrganisation extends FormRequest
             'ror_id' => 'nullable|string|max:255',
             'website' => 'nullable|url',
             'smb_status' => 'sometimes|boolean',
+            'organisation_size' => 'sometimes|integer',
         ];
     }
 }
