@@ -495,8 +495,6 @@ class ProjectController extends Controller
                 if (isset($status)) {
                     if ($project->canTransitionTo($status)) {
                         $project->transitionTo($status);
-                    } else if($project->isInState($status)) {
-                        $project->setState($status);
                     } else {
                         return $this->BadRequestResponse();
                     }
