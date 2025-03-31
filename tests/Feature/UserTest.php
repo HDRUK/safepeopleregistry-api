@@ -348,6 +348,8 @@ class UserTest extends TestCase
 
     public function test_the_application_can_update_users(): void
     {
+        $this->enableObservers();
+
         Carbon::setTestNow(Carbon::now());
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(

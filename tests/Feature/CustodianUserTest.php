@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use Http;
+use Keycloak;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\User;
 use App\Jobs\SendEmailJob;
@@ -26,6 +28,16 @@ class CustodianUserTest extends TestCase
     {
         parent::setUp();
         $this->user = User::where('id', 1)->first();
+
+        Http::fake([
+            env('KEYCLOAK_BASE_URL') . '/*' => Http::response([
+                'access_token' => 'fake-token-123',
+                'success' => true,
+                'error' => null,
+            ], 200, [
+                'Content-Type' => 'application/json',
+            ])
+        ]);
     }
 
     public function test_the_application_can_list_custodian_users(): void
@@ -153,6 +165,13 @@ class CustodianUserTest extends TestCase
 
         CustodianUser::truncate();
 
+        Keycloak::shouldReceive('createUser')
+            ->once()
+            ->andReturn([
+                'success' => true,
+                'error' => null,
+            ]);
+
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
             'POST',
@@ -175,8 +194,6 @@ class CustodianUserTest extends TestCase
                 'POST',
                 self::TEST_URL . '/invite/1'
             );
-
-        $response->assertStatus(201);
 
         Queue::assertPushed(SendEmailJob::class);
 

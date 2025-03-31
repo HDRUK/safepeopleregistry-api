@@ -24,6 +24,10 @@ class BaseProdSeeder extends Seeder
             EmailTemplatesSeeder::class,
             DepartmentSeeder::class,
             WebhookEventTriggerSeeder::class,
+            EntityModelTypeSeeder::class,
+            StateSeeder::class,
+            EntityModelSeeder::class,
+            RulesSeeder::class,
         ]);
     }
 }

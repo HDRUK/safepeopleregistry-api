@@ -109,4 +109,44 @@ class AffiliationTest extends TestCase
 
         $response->assertStatus(200);
     }
+
+    public function test_the_application_can_update_registry_affiliations(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . '/1/affiliation/1'
+            );
+        $response->assertStatus(500);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . '/1/affiliation/1?status=approved'
+            );
+        $response->assertStatus(200);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'PUT',
+            self::TEST_URL . '/1/affiliation/1?status=rejected'
+        );
+        $response->assertStatus(200);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'PUT',
+            self::TEST_URL . '/1/affiliation/1?status=rejected'
+        );
+        $response->assertStatus(500);
+
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'PUT',
+            self::TEST_URL . '/1/affiliation/999?status=rejected'
+        );
+        $response->assertStatus(404);
+
+    }
 }

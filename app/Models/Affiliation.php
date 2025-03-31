@@ -96,6 +96,14 @@ class Affiliation extends Model
         'registry_id',
     ];
 
+    protected $appends = ['registryAffiliationState'];
+    protected $hidden = ['registryHasAffiliations'];
+
+    public function getRegistryAffiliationStateAttribute()
+    {
+        return optional($this->registryHasAffiliations->first())->getState();
+    }
+
     /**
      * Get the organisation related to the affiliation.
      *

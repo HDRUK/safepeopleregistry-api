@@ -4,15 +4,18 @@ namespace App\Http\Controllers\Api\V1;
 
 use Exception;
 use App\Models\Affiliation;
+use App\Models\State;
 use App\Models\RegistryHasAffiliation;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Traits\CommonFunctions;
+use App\Http\Traits\Responses;
 
 class AffiliationController extends Controller
 {
     use CommonFunctions;
+    use Responses;
 
     /**
      * @OA\Get(
@@ -58,11 +61,25 @@ class AffiliationController extends Controller
             ->get()
             ->select('affiliation_id');
 
-        $affiliations = Affiliation::with(['organisation' => function ($query) {
-            $query->select('id', 'organisation_name', 'unclaimed', 'lead_applicant_email');
-        }])->whereHas('registryHasAffiliations', function ($query) use ($registryId) {
-            $query->where('registry_id', $registryId);
-        })->paginate((int) $this->getSystemConfig('PER_PAGE'));
+        $affiliations = Affiliation::with(
+            [
+                'organisation' => function ($query) {
+                    $query->select(
+                        'id',
+                        'organisation_name',
+                        'unclaimed',
+                        'lead_applicant_email'
+                    );
+                },
+            ]
+        )
+        ->whereHas(
+            'registryHasAffiliations',
+            function ($query) use ($registryId) {
+                $query->where('registry_id', $registryId);
+            }
+        )
+        ->paginate((int) $this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',
@@ -354,4 +371,53 @@ class AffiliationController extends Controller
             throw new Exception($e->getMessage());
         }
     }
+
+    public function updateRegistryAffiliation(Request $request, int $registryId, int $affiliationId): JsonResponse
+    {
+        try {
+
+            $validated = $request->validate([
+                'status' => 'required|string|in:approved,rejected',
+            ]);
+
+            $status = strtolower($validated['status']);
+
+            $rha = RegistryHasAffiliation::where(
+                [
+                    'registry_id' => $registryId,
+                    'affiliation_id' => $affiliationId
+                    ]
+            )->first();
+            if (!$rha) {
+                return $this->NotFoundResponse();
+            }
+
+            $statusSlugMap = [
+                'approved' => State::STATE_AFFILIATION_APPROVED,
+                'rejected' => State::STATE_AFFILIATION_REJECTED,
+            ];
+
+            if (!array_key_exists($status, $statusSlugMap)) {
+                return $this->ErrorResponse('Unknown status');
+            }
+
+            $newStateSlug = $statusSlugMap[$status];
+
+            if (!$rha->canTransitionTo($newStateSlug)) {
+                return $this->ErrorResponse(
+                    'Invalid state transition. ' .
+                    $rha->getState() .
+                    ' => ' . $newStateSlug
+                );
+            }
+
+            $rha->transitionTo($newStateSlug);
+
+            return $this->OKResponse($rha->getState());
+        } catch (Exception $e) {
+            return $this->ErrorResponse($e->getMessage());
+        }
+    }
+
+
 }

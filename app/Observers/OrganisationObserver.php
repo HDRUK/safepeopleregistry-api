@@ -3,6 +3,8 @@
 namespace App\Observers;
 
 use App\Models\Organisation;
+use App\Models\Affiliation;
+use App\Models\State;
 use App\Models\ActionLog;
 use Carbon\Carbon;
 
@@ -56,6 +58,7 @@ class OrganisationObserver
                 'completed_at' => null,
             ]);
         }
+        $this->manageAffiliationStates($organisation);
     }
 
     /**
@@ -88,6 +91,7 @@ class OrganisationObserver
             Organisation::ACTION_DATA_SECURITY_COMPLETED
         );
 
+        $this->manageAffiliationStates($organisation);
 
     }
 
@@ -134,6 +138,24 @@ class OrganisationObserver
                 ],
                 ['completed_at' => $isProfileComplete ? Carbon::now() : null]
             );
+        }
+    }
+
+    private function manageAffiliationStates(Organisation $organisation)
+    {
+        if ($organisation->isDirty('unclaimed')) {
+            $unclaimed = $organisation->unclaimed;
+            $state = $unclaimed ? State::STATE_AFFILIATION_INVITED : State::STATE_AFFILIATION_PENDING;
+            $affiliations = Affiliation::where("organisation_id", $organisation->id)
+                            ->with("registryHasAffiliations")
+                            ->get();
+
+            foreach ($affiliations as $affiliation) {
+                foreach ($affiliation->registryHasAffiliations as $rha) {
+                    $rha->setState($state);
+                }
+            }
+
         }
     }
 
