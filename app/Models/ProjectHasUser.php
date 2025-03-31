@@ -16,6 +16,9 @@ class ProjectHasUser extends Model
     use HasFactory;
     use ActionManager;
 
+    public $incrementing = false;
+    //protected $primaryKey = null;
+
     protected $table = 'project_has_users';
 
     public $timestamps = false;

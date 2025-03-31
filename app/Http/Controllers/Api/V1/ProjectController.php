@@ -116,7 +116,7 @@ class ProjectController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
-        $project = Project::with(['projectDetail', 'custodians', 'modelState.state'])->findOrFail($id);
+        $project = Project::with(['projectDetail', 'modelState.state'])->findOrFail($id);
 
         if ($project) {
             return response()->json([
@@ -429,8 +429,6 @@ class ProjectController extends Controller
                 if (isset($status)) {
                     if ($project->canTransitionTo($status)) {
                         $project->transitionTo($status);
-                    } else if($project->isInState($status)) {
-                        $project->setState($status);
                     } else {
                         return $this->BadRequestResponse();
                     }
@@ -653,10 +651,6 @@ class ProjectController extends Controller
         try {
             $validated = $request->validate([
                 'users' => 'required|array',
-                'users.*.registry_id' => 'required|integer|exists:registries,id',
-                'users.*.affiliation_id' => 'required|integer|exists:affiliations,id',
-                'users.*.role' => 'nullable|array',
-                'users.*.role.id' => 'nullable|integer|exists:project_roles,id',
             ]);
 
             $registryIds = collect($validated['users'])->pluck('registry_id')->unique();
@@ -665,41 +659,49 @@ class ProjectController extends Controller
             $results = [];
             $deletes = [];
     
-    
             foreach ($validated['users'] as $entry) {
+             
                 $registry = $registries->get($entry['registry_id']);
-
                 if (!$registry || !$registry->user) {
                     continue;
                 }
-    
+      
                 $digiIdent = $registry->digi_ident;
                 $affiliationId = $entry['affiliation_id'];
-                $roleId = $entry['role']['id'] ?? null;
-    
-                if (is_null($roleId)) {
-                    // Queue deletes to minimize per-query overhead
-                    $deletes[] = [
+                $roleId = isset($entry['role']) ? $entry['role']['id'] ?? null : null;
+
+                // Refactor candidate..
+                // - code is really slow
+                // - should be cleaner with firstOrNew and/or updateOrCreate
+                // - laravel doesnt like this though as it's a pivot table
+                // - dont think ProjectHasUser should be a pivot table as it's
+                //   a three-way pivot between project/registry/affiliation
+                $projectUserQuery = ProjectHasUser::where([
+                    'project_id' => $projectId,
+                    'user_digital_ident' => $digiIdent,
+                    'affiliation_id' => $affiliationId,
+                ]);
+                
+                if (!$projectUserQuery->exists()) {
+                    $projectUser = ProjectHasUser::create([
                         'project_id' => $projectId,
                         'user_digital_ident' => $digiIdent,
                         'affiliation_id' => $affiliationId,
-                    ];
+                    ]);
+                }
+              
+                if (is_null($roleId)) {
+                    $projectUserQuery->delete();
                 } else {
-                    $projectUser = ProjectHasUser::updateOrCreate(
-                        [
-                            'project_id' => $projectId,
-                            'user_digital_ident' => $digiIdent,
-                            'affiliation_id' => $affiliationId,
-                        ],
-                        [
-                            'project_role_id' => $roleId,
-                            'primary_contact' => $entry['primary_contact'] ?? 0,
-                        ]
-                    );
+                    $projectUserQuery->update([
+                        'project_role_id' => $roleId,
+                        'primary_contact' => $entry['primary_contact'] ?? 0
+                    ]);                
     
-                    $results[] = $projectUser;
+                    $results[] = $projectUserQuery->get();
                 }
             }
+    
             return $this->OKResponse($results);
         } catch (Exception $e) {
             return $this->ErrorResponse($e->getMessage());
