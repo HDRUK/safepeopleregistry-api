@@ -110,7 +110,7 @@ class UserController extends Controller
             $user->evaluation = $evaluations[$user->id] ?? null;
             return $user;
         }));
-        
+
 
         return response()->json(
             [

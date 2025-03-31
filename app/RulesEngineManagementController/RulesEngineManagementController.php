@@ -4,13 +4,10 @@ namespace App\RulesEngineManagementController;
 
 use Auth;
 use App\Models\User;
-use App\Models\Rules;
 use App\Models\CustodianUser;
 use App\Models\DecisionModel;
 use App\Models\CustodianModelConfig;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
@@ -22,10 +19,10 @@ class RulesEngineManagementController
     {
         $obj = json_decode(Auth::token(), true);
 
-        if(isset($obj['sub'])) {
+        if (isset($obj['sub'])) {
             return $obj['sub'];
         }
-        
+
         return '';
     }
 

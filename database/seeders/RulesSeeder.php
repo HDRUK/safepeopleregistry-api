@@ -50,7 +50,7 @@ class RulesSeeder extends Seeder
                 'conditions' => json_encode([
                     'path' => 'registry.trainings',
                     'expects' => [
-                        'name' => [ 
+                        'name' => [
                             'Safe Researcher Training',
                             'Research, GDPR, and Confidentiality',
                         ],
@@ -75,8 +75,8 @@ class RulesSeeder extends Seeder
                     ],
                     'expects' => 1,
                 ]),
-                'rule_class' => \App\Rules\Users\NHSSDETrainingRule::class,
-                'description' => 'A User has completed the NHS Research Secure Data Environment training.',
+                'rule_class' => \App\Rules\Users\DataSecurityComplianceRule::class,
+                'description' => 'An organisation must provide data security compliance accreditation information within their profile.',
                 'entity_model_type_id' => 1,
             ],
         ];

@@ -20,11 +20,11 @@ class TrainingRule extends BaseRule
             // that we don't know about, rather than fail immediately
             if (in_array($t['provider'], $conditions['expects']['provider'])
                 || in_array($t['training_name'], $conditions['expects']['provider'])) {
-                    // We only need 1 non-expired training to pass ruling
-                    $then = $t['expires_at'];
-                    $now = Carbon::now();
+                // We only need 1 non-expired training to pass ruling
+                $then = $t['expires_at'];
+                $now = Carbon::now();
 
-                    return $now->lessThan($then);
+                return $now->lessThan($then);
             }
         }
 

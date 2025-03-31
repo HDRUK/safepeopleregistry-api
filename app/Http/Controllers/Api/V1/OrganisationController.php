@@ -6,6 +6,7 @@ use DB;
 use Http;
 use Exception;
 use RegistryManagementController as RMC;
+use App\Services\DecisionEvaluatorService as DES;
 use Carbon\Carbon;
 use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
@@ -31,6 +32,8 @@ class OrganisationController extends Controller
 {
     use CommonFunctions;
     use Responses;
+
+    protected $decisionEvaluator = null;
 
     /**
      * @OA\Get(
@@ -76,6 +79,7 @@ class OrganisationController extends Controller
     public function index(Request $request): JsonResponse
     {
         $organisations = [];
+        $this->decisionEvaluator = new DES($request);
 
         $custodianId = $request->get('custodian_id');
 
@@ -111,6 +115,12 @@ class OrganisationController extends Controller
                     }
                 })
                 ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+
+            $evaluations = $this->decisionEvaluator->evaluate($organisations->items(), true);
+            $organisations->setCollection($organisations->getCollection()->map(function ($organisation) use ($evaluations) {
+                $organisation->evaluation = $evaluations[$organisation->id] ?? null;
+                return $organisation;
+            }));
         }
 
         return $this->OKResponse($organisations);
@@ -170,6 +180,8 @@ class OrganisationController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
+        $this->decisionEvaluator = new DES($request);
+
         $organisation = Organisation::with([
             'departments',
             'subsidiaries',
@@ -186,7 +198,7 @@ class OrganisationController extends Controller
             'registries.user.approvals',
         ])->findOrFail($id);
         if ($organisation) {
-            return $this->OKResponse($organisation);
+            return $this->OKResponseExtended($organisation, 'rules', $this->decisionEvaluator->evaluate($organisation));
         }
 
         throw new NotFoundException();
