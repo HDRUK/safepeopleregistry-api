@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use Illuminate\Database\Eloquent\Relations\HasOne;
+
 class DecisionModel extends Model
 {
     use HasFactory;
@@ -18,4 +20,10 @@ class DecisionModel extends Model
         'conditions',
         'rule_class',
     ];
+
+    public function custodianModelConfig(): HasOne
+    {
+        return $this->hasOne(CustodianModelConfig::class,
+            'entity_model_id');
+    }
 }

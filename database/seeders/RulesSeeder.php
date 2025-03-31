@@ -19,14 +19,18 @@ class RulesSeeder extends Seeder
 
         $rules = [
             [
+                'name' => 'Identity',
                 'model_type' => \App\Models\User::class,
                 'conditions' => json_encode([
                     'path' => 'registry.identity.idvt_result',
                     'expects' => 1,
                 ]),
                 'rule_class' => \App\Rules\Users\IdentityVerificationRule::class,
+                'description' => 'A User has verified their identity via the Identity Verification Technology (IDVT).',
+                'entity_model_type_id' => 2,
             ],
             [
+                'name' => 'User location',
                 'model_type' => \App\Models\User::class,
                 'conditions' => json_encode([
                     'path' => 'location',
@@ -37,6 +41,43 @@ class RulesSeeder extends Seeder
                     ],
                 ]),
                 'rule_class' => \App\Rules\Users\UKDataProtectionRule::class,
+                'description' => 'A User should be located in a country which adheres to equivalent data protection law.',
+                'entity_model_type_id' => 1,
+            ],
+            [
+                'name' => 'Training',
+                'model_type' => \App\Models\User::class,
+                'conditions' => json_encode([
+                    'path' => 'registry.trainings',
+                    'expects' => [
+                        'name' => [ 
+                            'Safe Researcher Training',
+                            'Research, GDPR, and Confidentiality',
+                        ],
+                        'provider' => [
+                            'UK Data Service',
+                            'Medical Research Council (MRC)',
+                        ],
+                    ],
+                ]),
+                'rule_class' => \App\Rules\Users\TrainingRule::class,
+                'description' => 'A User must have completed mandatory training before requesting data access.',
+                'entity_model_type_id' => 1,
+            ],
+            [
+                'name' => 'Data secutiry compliance',
+                'model_type' => \App\Models\Organisation::class,
+                'conditions' => json_encode([
+                    'paths' => [
+                        'ce_certified',
+                        'ce_plus_certified',
+                        'iso_27001_certified',
+                    ],
+                    'expects' => 1,
+                ]),
+                'rule_class' => \App\Rules\Users\NHSSDETrainingRule::class,
+                'description' => 'A User has completed the NHS Research Secure Data Environment training.',
+                'entity_model_type_id' => 1,
             ],
         ];
 

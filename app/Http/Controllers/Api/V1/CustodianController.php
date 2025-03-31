@@ -12,6 +12,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Custodian;
 use App\Models\Organisation;
+use App\Models\CustodianHasRule;
 use App\Models\Rules;
 use App\Models\Project;
 use App\Traits\CommonFunctions;
@@ -774,15 +775,20 @@ class CustodianController extends Controller
     {
         $validated = $request->validate([
             'rule_ids' => 'required|array',
-            'rule_ids.*' => 'integer|exists:rules,id',
+            'rule_ids.*' => 'integer|exists:decision_models,id',
         ]);
 
-        $custodian = Custodian::find($custodianId);
+        $custodian = Custodian::findOrFail($custodianId);
         if (!$custodian) {
             return response()->json(['message' => 'Custodian not found'], 404);
         }
 
-        $custodian->rules()->sync($validated['rule_ids']);
+        foreach ($validated['rule_ids'] as $r) {
+            $chr = CustodianHasRule::updateOrCreate([
+                'custodian_id' => $custodian->id,
+                'rule_id' => $r,
+            ]);
+        }
 
         return response()->json([
             'message' => 'success',

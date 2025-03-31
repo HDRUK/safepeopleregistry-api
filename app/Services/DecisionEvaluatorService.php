@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 
 class DecisionEvaluatorService
 {
-    private $request = null;
     private $custodianRules = [];
 
     public function __construct(Request $request)
@@ -19,6 +18,10 @@ class DecisionEvaluatorService
 
     public function evaluate($models, $batch = false)
     {
+        if (!$this->custodianRules) {
+            return;
+        }
+
         if (!$batch) {
             return $this->evaluateSingle($models);
         }
@@ -43,7 +46,7 @@ class DecisionEvaluatorService
             // We want to ensure that we're only running rules against their
             // intended class types, such as App\Model\User against
             if ($this->normaliseRuleClass($rule->model_type) !== $model->user_group) {
-                return;
+                continue;
             }
 
             $ruleClass = app($rule->rule_class);

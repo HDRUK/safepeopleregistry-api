@@ -12,7 +12,7 @@ class UKDataProtectionRule extends BaseRule
     public function evaluate($model, array $conditions): bool
     {
         $path = $conditions['path'] ?? 'location';
-        $sanctions = $condition['sanctioned_countries'] ?? [];
+        $sanctions = $conditions['sanctioned_countries'];
 
         $actual = Arr::get($model, $path, null);
 

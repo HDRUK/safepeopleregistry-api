@@ -106,10 +106,11 @@ class UserController extends Controller
             ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         $evaluations = $this->decisionEvaluator->evaluate($users->items(), true);
-        $users->getCollection()->transform(function ($user) use ($evaluations) {
+        $users->setCollection($users->getCollection()->map(function ($user) use ($evaluations) {
             $user->evaluation = $evaluations[$user->id] ?? null;
             return $user;
-        });
+        }));
+        
 
         return response()->json(
             [

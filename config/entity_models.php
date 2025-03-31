@@ -1,5 +1,6 @@
 <?php
 
+// LS - TODO - This file needs renaming
 return [
     /*
     |----------------------------------------------------------------------------------------------------
@@ -31,7 +32,7 @@ return [
             ],
             [
                 'name' => 'Organisation due dilligence',
-                'description' => 'Additional Organisation due dilligence checks should be carried our on Organisations who are not validated.',
+                'description' => 'Additional Organisation due dilligence checks should be carried out on Organisations who are not validated.',
                 'entity_model_type_id' => 1,
                 'calls_file' => 1,
                 'file_path' => 'organisation_due_dilligence.json',

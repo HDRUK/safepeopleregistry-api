@@ -13,9 +13,12 @@ return new class () extends Migration {
         Schema::create('decision_models', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+            $table->string('name');
             $table->string('model_type');
             $table->json('conditions');
             $table->string('rule_class');
+            $table->text('description');
+            $table->bigInteger('entity_model_type_id');
         });
     }
 
