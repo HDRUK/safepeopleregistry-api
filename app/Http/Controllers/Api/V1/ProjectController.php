@@ -16,6 +16,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
+use \Illuminate\Pagination\LengthAwarePaginator;
 
 class ProjectController extends Controller
 {
@@ -227,11 +228,65 @@ class ProjectController extends Controller
         ->where('project_id', $projectId)
         ->whereHas('registry.user', function ($query) {
             $query->searchViaRequest()
-                  ->filterByState();
+                  ->filterByState()
+                  ->with("modelState");
         })
         ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return $this->OKResponse($projectUsers);
+    }
+
+
+    public function getAllUsersFlagProject(Request $request,  int $projectId): JsonResponse
+    {
+        $users = User::searchViaRequest()
+        ->where('user_group',User::GROUP_USERS)
+        ->filterByState()
+        ->with([
+            'modelState',
+            'registry.affiliations',
+            'registry.affiliations.organisation',
+            'registry.projectUsers.role',
+            'registry.projectUsers.affiliation'
+        ])
+        ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+
+        $idCounter = 1;
+        $expandedUsers = $users->flatMap(function ($user) use($projectId, &$idCounter) {
+            return $user->registry->affiliations->map(function ($affiliation) use ($user, $projectId, &$idCounter) {
+
+                $matchingProjectUser = $user->registry->projectUsers
+                ->first(function ($projectUser) use ($projectId, $affiliation) {
+                    return $projectUser->project_id == $projectId &&
+                        $projectUser->affiliation_id == $affiliation->id;
+                });
+
+
+                return [
+                    'id' => $idCounter++,
+                    'user_id' => $user->id,
+                    'registry_id' => $user->registry_id,
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'email' => $user->email,
+                    'affiliation_id' => $affiliation->id,
+                    'organisation_name' => $affiliation->organisation->organisation_name,
+                    'role' => $matchingProjectUser?->role,
+                ];
+            });
+        });
+
+        $paginatedResult = new LengthAwarePaginator(
+            $expandedUsers->values()->all(), 
+            $users->total(),
+            $users->perPage(),
+            $users->currentPage(),
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+
+        return $this->OKResponse($paginatedResult);
+       
     }
 
     /**
@@ -588,6 +643,64 @@ class ProjectController extends Controller
             return $this->NotFoundResponse();
         } catch (Exception $e) {
             return $this->ErrorResponse();
+        }
+    }
+
+    public function updateAllProjectUsers(Request $request, int $projectId): JsonResponse
+    {   
+        try {
+            $validated = $request->validate([
+                'users' => 'required|array',
+                'users.*.registry_id' => 'required|integer|exists:registries,id',
+                'users.*.affiliation_id' => 'required|integer|exists:affiliations,id',
+                'users.*.role' => 'nullable|array',
+                'users.*.role.id' => 'nullable|integer|exists:project_roles,id',
+            ]);
+
+            $registryIds = collect($validated['users'])->pluck('registry_id')->unique();
+            $registries = Registry::with('user')->whereIn('id', $registryIds)->get()->keyBy('id');
+    
+            $results = [];
+            $deletes = [];
+    
+    
+            foreach ($validated['users'] as $entry) {
+                $registry = $registries->get($entry['registry_id']);
+
+                if (!$registry || !$registry->user) {
+                    continue;
+                }
+    
+                $digiIdent = $registry->digi_ident;
+                $affiliationId = $entry['affiliation_id'];
+                $roleId = $entry['role']['id'] ?? null;
+    
+                if (is_null($roleId)) {
+                    // Queue deletes to minimize per-query overhead
+                    $deletes[] = [
+                        'project_id' => $projectId,
+                        'user_digital_ident' => $digiIdent,
+                        'affiliation_id' => $affiliationId,
+                    ];
+                } else {
+                    $projectUser = ProjectHasUser::updateOrCreate(
+                        [
+                            'project_id' => $projectId,
+                            'user_digital_ident' => $digiIdent,
+                            'affiliation_id' => $affiliationId,
+                        ],
+                        [
+                            'project_role_id' => $roleId,
+                            'primary_contact' => $entry['primary_contact'] ?? 0,
+                        ]
+                    );
+    
+                    $results[] = $projectUser;
+                }
+            }
+            return $this->OKResponse($results);
+        } catch (Exception $e) {
+            return $this->ErrorResponse($e->getMessage());
         }
     }
 

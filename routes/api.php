@@ -145,11 +145,16 @@ Route::middleware('auth:api')->post('v1/endorsements', [EndorsementController::c
 
 Route::middleware('auth:api')->get('v1/projects', [ProjectController::class, 'index']);
 Route::middleware('auth:api')->get('v1/projects/{id}', [ProjectController::class, 'show']);
+
 Route::middleware('auth:api')->get('v1/projects/user/{registryId}/approved', [ProjectController::class, 'getApprovedProjects']);
 Route::middleware('auth:api')->get('v1/projects/{id}/users', [ProjectController::class, 'getProjectUsers']);
+Route::middleware('auth:api')->get('v1/projects/{id}/all_users', [ProjectController::class, 'getAllUsersFlagProject']);
+Route::middleware('auth:api')->put('v1/projects/{id}/all_users', [ProjectController::class, 'updateAllProjectUsers']);
 Route::middleware('auth:api')->post('v1/projects/{id}/users', [ProjectController::class, 'addProjectUser']);
 Route::middleware('auth:api')->put('v1/projects/{projectId}/users/{registryId}', [ProjectController::class, 'updateProjectUser']);
 Route::middleware('auth:api')->delete('v1/projects/{projectId}/users/{registryId}', [ProjectController::class, 'deleteUserFromProject']);
+
+
 Route::middleware('auth:api')->put('v1/projects/{projectId}/users/{registryId}/primary_contact', [ProjectController::class, 'makePrimaryContact']);
 Route::middleware('auth:api')->post('v1/projects', [ProjectController::class, 'store']);
 Route::middleware('auth:api')->put('v1/projects/{id}', [ProjectController::class, 'update']);
