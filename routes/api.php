@@ -227,6 +227,8 @@ Route::middleware('auth:api')->post('v1/affiliations/{registryId}', [Affiliation
 Route::middleware('auth:api')->put('v1/affiliations/{id}', [AffiliationController::class, 'update']);
 Route::middleware('auth:api')->patch('v1/affiliations/{id}', [AffiliationController::class, 'edit']);
 Route::middleware('auth:api')->delete('v1/affiliations/{id}', [AffiliationController::class, 'destroy']);
+Route::middleware('auth:api')->put('v1/affiliations/{registryId}/affiliation/{id}', [AffiliationController::class, 'updateRegistryAffiliation']);
+
 
 Route::middleware('auth:api')->get('v1/professional_registrations/registry/{registryId}', [ProfessionalRegistrationController::class, 'indexByRegistryId']);
 Route::middleware('auth:api')->post('v1/professional_registrations/registry/{registryId}', [ProfessionalRegistrationController::class, 'storeByRegistryId']);

@@ -24,6 +24,7 @@ class EntityModel extends Model
         'file_path',
         'calls_operation',
         'operation',
+        'active',
     ];
 
     protected $casts = [

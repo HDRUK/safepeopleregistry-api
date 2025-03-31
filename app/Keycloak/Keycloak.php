@@ -28,7 +28,7 @@ class Keycloak
         $userUrl = env('KEYCLOAK_BASE_URL') . '/admin/realms/' . env('KEYCLOAK_REALM') . '/users/' . $user->keycloak_id;
 
         return Http::withHeaders([
-            'Authorization' => 'Bearer ' . $this->getServiceToken(),
+            'Authorization' => $this->getServiceToken(),
         ])->put(
             $userUrl,
             [
@@ -74,7 +74,7 @@ class Keycloak
             $userGroup = $this->determineUserGroup($credentials);
 
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer '.$this->getServiceToken(),
+                'Authorization' => $this->getServiceToken(),
             ])->post(
                 $this->makeUrl(self::USERS_URL),
                 $payload
@@ -216,7 +216,7 @@ class Keycloak
             ];
 
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->getServiceToken(),
+                'Authorization' => $this->getServiceToken(),
             ])->put($authUrl, $payload);
 
             return $response;
@@ -275,7 +275,7 @@ class Keycloak
             $response = Http::asForm()->post($authUrl, $credentials);
             $responseData = $response->json();
 
-            return $responseData['access_token'];
+            return 'Bearer ' . $responseData['access_token'];
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -301,5 +301,147 @@ class Keycloak
         }
 
         return '';
+    }
+
+    public function determineUserGroupFromString(string $group): string
+    {
+        switch (strtolower($group)) {
+            case 'users':
+                return RMC::KC_GROUP_USERS;
+            case 'custodians':
+                return RMC::KC_GROUP_CUSTODIANS;
+            case 'organisations':
+                return RMC::KC_GROUP_ORGANISATIONS;
+            default:
+                return '';
+        }
+    }
+
+    public function checkUserExists(int $userId): bool
+    {
+        if (env('APP_ENV') === 'testing') {
+            // When testing, ensure we don't create additional users
+            return true;
+        }
+
+        try {
+            $email = User::where('id', $userId)->first()->email;
+            $response = Http::withHeaders([
+                'Authorization' => $this->getServiceToken(),
+                'Content-Type' => 'application/json',
+            ])->get(
+                $this->makeUrl(self::USERS_URL),
+                [
+                    'username' => $email,
+                    'exact' => true,
+                ]
+            );
+
+            return count($response->json()) > 0;
+
+        } catch (Exception $e) {
+            throw new Exception($e);
+        }
+    }
+
+    public function createUser(array $credentials): array
+    {
+        // if (env('APP_ENV') === 'testing') {
+        //     return [
+        //         'success' => true,
+        //         'error' => null,
+        //     ];
+        // }
+
+        try {
+            $payload = [
+                'username' => $credentials['email'],
+                'email' => $credentials['email'],
+                'emailVerified' => false,
+                'enabled' => true,
+                'firstName' => $credentials['first_name'],
+                'lastName' => $credentials['last_name'],
+                'credentials' => [],
+                'requiredActions' => [
+                    'UPDATE_PASSWORD',
+                    'VERIFY_EMAIL'
+                ],
+            ];
+
+            $response = Http::withHeaders([
+                'Authorization' => $this->getServiceToken(),
+                'Content-Type' => 'application/json',
+            ])->post(
+                $this->makeUrl(self::USERS_URL),
+                $payload
+            );
+
+            $content = $response->json();
+
+            if ($response->status() === 201) {
+                $headers = array_change_key_case($response->headers(), CASE_LOWER);
+
+                $parts = explode('/', $headers['location'][0]);
+                $last = count($parts) - 1;
+                $newUserId = $parts[$last];
+
+                $user = User::findOrFail($credentials['id']);
+                $user->keycloak_id = $newUserId;
+                if ($user->save()) {
+                    // Finally send a password-reset email directly from keycloak
+                    if ($this->sendKeycloakInvite($newUserId)) {
+                        return [
+                            'success' => true,
+                            'error' => null,
+                        ];
+                    }
+                }
+
+                return [
+                    'success' => false,
+                    'error' => 'unable to save keycloak_id',
+                ];
+            }
+
+            return [
+                'success' => false,
+                'error' => 'unable to create user in keycloak',
+            ];
+        } catch (Exception $e) {
+            throw new Exception($e);
+        }
+    }
+
+    public function sendKeycloakInvite(string $keycloakId): bool
+    {
+        try {
+            $payload = [
+                'type' => 'password',
+                // Here we set:
+                // 16 - length of password
+                // true - that it contains letters
+                // true - that it contains numbers
+                // true - that it contains symbols
+                // false - that it contains spaces
+                'value' => Str::password(16, true, true, true, false),
+                'temporary' => true
+            ];
+
+            $response = Http::withHeaders([
+                'Authorization' => $this->getServiceToken(),
+                'Content-Type' => 'application/json',
+            ])->put(
+                $this->makeUrl(self::USERS_URL . '/' . $keycloakId . '/reset-password'),
+                $payload
+            );
+
+            if ($response->status() === 204) {
+                return true;
+            }
+
+            return false;
+        } catch (Exception $e) {
+            throw new Exception($e);
+        }
     }
 }

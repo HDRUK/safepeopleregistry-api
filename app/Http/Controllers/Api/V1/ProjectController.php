@@ -116,7 +116,7 @@ class ProjectController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
-        $project = Project::with(['projectDetail', 'modelState.state'])->findOrFail($id);
+        $project = Project::with(['projectDetail', 'custodians', 'modelState.state'])->findOrFail($id);
 
         if ($project) {
             return response()->json([
@@ -429,6 +429,8 @@ class ProjectController extends Controller
                 if (isset($status)) {
                     if ($project->canTransitionTo($status)) {
                         $project->transitionTo($status);
+                    } else if($project->isInState($status)) {
+                        $project->setState($status);
                     } else {
                         return $this->BadRequestResponse();
                     }

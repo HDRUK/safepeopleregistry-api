@@ -5,9 +5,12 @@ namespace App\RegistryManagementController;
 use Str;
 use Hash;
 use Keycloak;
+use Exception;
 use App\Models\User;
+use App\Models\DebugLog;
 use App\Models\Registry;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class RegistryManagementController
 {
@@ -23,12 +26,16 @@ class RegistryManagementController
      */
     public static function createRegistryLedger(): mixed
     {
-        return Registry::create([
+        $registry = Registry::create([
             'dl_ident' => null,
             'pp_ident' => null,
             'digi_ident' => RegistryManagementController::generateDigitalIdentifierForRegistry(),
             'verified' => 0,
         ]);
+
+        Log::info('created registry {id}', ['id' => $registry->id]);
+
+        return $registry->id;
     }
 
     /**
@@ -43,96 +50,144 @@ class RegistryManagementController
      */
     public static function createNewUser(array $input, Request $request): mixed
     {
-        $unclaimedUser = User::where('email', $input['email'])->whereNull('keycloak_id')->first();
+        try {
+            $unclaimedUser = User::where('email', $input['email'])->whereNull('keycloak_id')->first();
 
-        if ($unclaimedUser) {
-            $unclaimedUser->first_name = $input['given_name'];
-            $unclaimedUser->last_name = $input['family_name'];
-            $unclaimedUser->email = $input['email'];
-            $unclaimedUser->keycloak_id = $input['sub'];
-            $unclaimedUser->unclaimed = 0;
-            $unclaimedUser->t_and_c_agreed = 1;
-            $unclaimedUser->t_and_c_agreement_date = now();
+            if ($unclaimedUser) {
+                Log::debug('unclaimed user detected - {id}', ['id' => $unclaimedUser->id]);
 
-            $unclaimedUser->save();
+                $unclaimedUser->first_name = $input['given_name'];
+                $unclaimedUser->last_name = $input['family_name'];
+                $unclaimedUser->email = $input['email'];
+                $unclaimedUser->keycloak_id = $input['sub'];
+                $unclaimedUser->unclaimed = 0;
+                $unclaimedUser->t_and_c_agreed = 1;
+                $unclaimedUser->t_and_c_agreement_date = now();
 
-            return [
-                'unclaimed_user_id' => $unclaimedUser->id
-            ];
-        }
+                $unclaimedUser->save();
 
-        $accountType = isset($request['account_type']) ? $request['account_type'] : '';
+                return [
+                    'unclaimed_user_id' => $unclaimedUser->id
+                ];
+            }
 
-        switch (strtolower($accountType)) {
-            case 'user':
-                if (!RegistryManagementController::checkDuplicateKeycloakID($input['sub'])) {
-                    $user = User::create([
-                        'first_name' => $input['given_name'],
-                        'last_name' => $input['family_name'],
-                        'email' => $input['email'],
-                        'keycloak_id' => $input['sub'],
-                        'registry_id' => 0,
-                        'user_group' => RegistryManagementController::KC_GROUP_USERS,
-                        't_and_c_agreed' => 1,
-                        't_and_c_agreement_date' => now(),
-                    ]);
+            $accountType = isset($request['account_type']) ? $request['account_type'] : '';
 
-                    if ($user) {
-                        $user->registry_id = RegistryManagementController::createRegistryLedger()->id;
-                        $user->save();
+            DebugLog::create([
+                'class' => RegistryManagementController::class,
+                'log' => 'account type - ' . $accountType,
+            ]);
+
+            switch (strtolower($accountType)) {
+                case 'user':
+                    if (!RegistryManagementController::checkDuplicateKeycloakID($input['sub'])) {
+
+                        DebugLog::create([
+                            'class' => RegistryManagementController::class,
+                            'log' => 'not duplicate user - ' . $input['sub'],
+                        ]);
+
+                        $user = User::create([
+                            'first_name' => $input['given_name'],
+                            'last_name' => $input['family_name'],
+                            'email' => $input['email'],
+                            'keycloak_id' => $input['sub'],
+                            'registry_id' => 0,
+                            'user_group' => RegistryManagementController::KC_GROUP_USERS,
+                            't_and_c_agreed' => 1,
+                            't_and_c_agreement_date' => now(),
+                        ]);
+
+                        if ($user) {
+                            DebugLog::create([
+                                'class' => RegistryManagementController::class,
+                                'log' => 'created user - ' . json_encode($user),
+                            ]);
+                        } else {
+                            DebugLog::create([
+                                'class' => RegistryManagementController::class,
+                                'log' => 'unable to create user - ' . json_encode($user),
+                            ]);
+                        }
+
+                        $registryId = RegistryManagementController::createRegistryLedger();
+                        Log::debug('created ledger as {id}', ['id' => $registryId]);
+                        DebugLog::create([
+                            'class' => RegistryManagementController::class,
+                            'log' => 'created ledger as - ' . $registryId,
+                        ]);
+
+                        $user->registry_id = $registryId;
+                        if ($user->save()) {
+                            DebugLog::create([
+                                'class' => RegistryManagementController::class,
+                                'log' => 'updated user ' . $user->id . ' with registry_id ' . $registryId,
+                            ]);
+                        } else {
+                            DebugLog::create([
+                                'class' => RegistryManagementController::class,
+                                'log' => 'unable to update user ' . $user->id . ' with registry_id ' . $registryId,
+                            ]);
+                        }
                         Keycloak::updateSoursdDigitalIdentifier($user);
+
+                        return [
+                            'user_id' => $user->id
+                        ];
                     }
 
-                    return [
-                        'user_id' => $user->id
-                    ];
-                }
+                    return false;
 
-                return false;
+                case 'organisation':
+                    if (!RegistryManagementController::checkDuplicateKeycloakID($input['sub'])) {
+                        $user = User::create([
+                            'first_name' => $input['given_name'],
+                            'last_name' => $input['family_name'],
+                            'email' => $input['email'],
+                            'keycloak_id' => $input['sub'],
+                            'registry_id' => null,
+                            'organisation_id' => $request['organisation_id'],
+                            'user_group' => RegistryManagementController::KC_GROUP_ORGANISATIONS,
+                            't_and_c_agreed' => 1,
+                            't_and_c_agreement_date' => now(),
+                        ]);
 
-            case 'organisation':
-                if (!RegistryManagementController::checkDuplicateKeycloakID($input['sub'])) {
-                    $user = User::create([
-                        'first_name' => $input['given_name'],
-                        'last_name' => $input['family_name'],
-                        'email' => $input['email'],
-                        'keycloak_id' => $input['sub'],
-                        'registry_id' => null,
-                        'organisation_id' => $request['organisation_id'],
-                        'user_group' => RegistryManagementController::KC_GROUP_ORGANISATIONS,
-                        't_and_c_agreed' => 1,
-                        't_and_c_agreement_date' => now(),
-                    ]);
+                        return [
+                            'user_id' => $user->id
+                        ];
+                    }
 
-                    return [
-                        'user_id' => $user->id
-                    ];
-                }
+                    return false;
 
-                return false;
+                case 'custodian':
+                    if (!RegistryManagementController::checkDuplicateKeycloakID($input['sub'])) {
+                        $user = User::create([
+                            'first_name' => $input['given_name'],
+                            'last_name' => $input['family_name'],
+                            'email' => $input['email'],
+                            'keycloak_id' => $input['sub'],
+                            'registry_id' => null,
+                            'user_group' => RegistryManagementController::KC_GROUP_CUSTODIANS,
+                            't_and_c_agreed' => 1,
+                            't_and_c_agreement_date' => now(),
+                        ]);
 
-            case 'custodian':
-                if (!RegistryManagementController::checkDuplicateKeycloakID($input['sub'])) {
-                    $user = User::create([
-                        'first_name' => $input['given_name'],
-                        'last_name' => $input['family_name'],
-                        'email' => $input['email'],
-                        'keycloak_id' => $input['sub'],
-                        'registry_id' => null,
-                        'user_group' => RegistryManagementController::KC_GROUP_CUSTODIANS,
-                        't_and_c_agreed' => 1,
-                        't_and_c_agreement_date' => now(),
-                    ]);
+                        return [
+                            'user_id' => $user->id
+                        ];
+                    }
 
-                    return [
-                        'user_id' => $user->id
-                    ];
-                }
+                    return false;
+            }
 
-                return false;
+            return false;
+        } catch (Exception $e) {
+            DebugLog::create([
+                'class' => RegistryManagementController::class,
+                'log' => 'exception ' . json_encode($e),
+            ]);
+            throw new Exception($e);
         }
-
-        return false;
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use Keycloak;
 use Tests\Traits\RefreshDatabaseLite;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
@@ -16,6 +17,13 @@ abstract class TestCase extends BaseTestCase
         parent::setUp();
         $this->liteSetUp();
         $this->disableMiddleware();
+        $this->disableObservers();
+
+        Keycloak::shouldReceive('checkUserExists')
+            ->andReturn(true);
+
+        Keycloak::shouldReceive('determineUserGroup')
+            ->andReturn('USERS');
     }
 
     protected function disableMiddleware(): void

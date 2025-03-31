@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use Hash;
 use Exception;
+use Keycloak;
 use TriggerEmail;
 use RegistryManagementController as RMC;
 use App\Http\Controllers\Controller;
@@ -470,12 +471,26 @@ class CustodianUserController extends Controller
                 'identifier' => 'custodian_user_invite'
             ];
 
-            TriggerEmail::spawnEmail($input);
+            $retVal = Keycloak::createUser([
+                'email' => $unclaimedUser->email,
+                'first_name' => $unclaimedUser->first_name,
+                'last_name' => $unclaimedUser->last_name,
+                'id' => $unclaimedUser->id,
+            ]);
+
+            if ($retVal['success']) {
+                TriggerEmail::spawnEmail($input);
+
+                return response()->json([
+                    'message' => 'success',
+                    'data' => $user,
+                ], 201);
+            }
 
             return response()->json([
-                'message' => 'success',
-                'data' => $user,
-            ], 201);
+                'message' => 'failed',
+                'data' => null,
+            ]);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }

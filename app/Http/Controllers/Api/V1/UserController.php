@@ -105,6 +105,13 @@ class UserController extends Controller
             [
                 'message' => 'success',
                 'data' => $users,
+                // Needs looking at, as this is a VERY HEAVY call, taking 20
+                // seconds against current users. May not be able to include
+                // on generic route. Leaving in as aid to memory
+                // 'rules' => env('RULES_ENGINE_ACTIVE', true) ? REMC::evaluateRulesEngine(
+                //     $users->toArray(),
+                //     REMC::loadCustodianRules($request)
+                // ) : [],
             ],
             200
         );
@@ -223,7 +230,10 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'success',
                 'data' => $user,
-                'rules' => env('RULES_ENGINE_ACTIVE', true) ? REMC::evaluateRulesEngine($user->toArray()) : [],
+                'rules' => env('RULES_ENGINE_ACTIVE', true) ? REMC::evaluateRulesEngine(
+                    $user->toArray(),
+                    REMC::loadCustodianRules($request)
+                ) : [],
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
