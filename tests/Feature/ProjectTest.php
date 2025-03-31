@@ -440,4 +440,27 @@ class ProjectTest extends TestCase
         $this->assertEquals($users[0]['id'], $user->id);
         $this->assertEquals($users[0]['email'], $user->email);
     }
+
+    public function test_the_application_can_show_all_users_for_a_project(): void
+    {
+        $user = User::where('user_group', 'USERS')->first();
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/all_users',
+            );
+
+        $response->assertStatus(200);
+        $users = $response->decodeResponseJson()['data']['data'];
+
+        $this->assertNotNull($users);
+        $this->assertEquals($users[0]['user_id'], $user->id);
+        $this->assertEquals($users[0]['email'], $user->email);
+        $this->assertNotNull($users[0]['role']);
+
+        $this->assertEquals($users[1]['user_id'], $user->id);
+        $this->assertEquals($users[1]['email'], $user->email);
+        $this->assertNull($users[1]['role']);
+    }
+
 }

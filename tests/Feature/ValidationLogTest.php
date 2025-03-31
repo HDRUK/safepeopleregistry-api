@@ -542,7 +542,6 @@ class ValidationLogTest extends TestCase
 
     private function add_user_and_custodian_to_project()
     {
-
         ProjectHasUser::create([
             'project_id' => $this->project->id,
             'user_digital_ident' => $this->user->registry->digi_ident,
