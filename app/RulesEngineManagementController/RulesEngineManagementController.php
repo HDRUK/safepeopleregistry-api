@@ -31,7 +31,7 @@ class RulesEngineManagementController
         $key = RulesEngineManagementController::getCustodianKeyFromHeaders();
         $user = User::where('keycloak_id', $key)->first();
 
-        if (!$user) {
+        if (!$user || $user->user_group !== 'CUSTODIANS') {
             return null;
         }
 

@@ -45,10 +45,6 @@ class DecisionEvaluatorService
         foreach ($this->custodianRules as $rule) {
             // We want to ensure that we're only running rules against their
             // intended class types, such as App\Model\User against
-            if ($rule->model_type === 'App\Models\Organisations') {
-                dd($this->normaliseRuleClass($rule->model_type) . ' and ' . $model->user_group);
-            }
-
             if ($this->normaliseRuleClass($rule->model_type) !== $model->user_group) {
                 continue;
             }
