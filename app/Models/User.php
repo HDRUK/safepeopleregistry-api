@@ -315,4 +315,33 @@ class User extends Authenticatable
 
         return null;
     }
+
+    public function scopeFromProject($query, $projectId)
+    {
+        return $query->whereHas('registry.projectUsers', function ($q) use ($projectId) {
+            $q->where('project_id', $projectId);
+        });
+    }
+
+    public function projectUsers()
+    {
+        return $this->hasManyThrough(
+            ProjectHasUser::class,
+            Registry::class,
+            'id',                    // Registry.id (primary key)
+            'user_digital_ident',    // ProjectHasRegistry.user_digital_ident
+            'registry_id',           // User.registry_id (foreign key)
+            'digi_ident'             // Registry.digi_ident
+        );
+    }
+
+    public function scopeWithProjectMembership($query, $projectId)
+    {
+        return $query->withExists([
+            'projectUsers as is_project_member' => function ($q) use ($projectId) {
+                $q->where('project_id', $projectId);
+            }
+        ]);
+    }
+
 }
