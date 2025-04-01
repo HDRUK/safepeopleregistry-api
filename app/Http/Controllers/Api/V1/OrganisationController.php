@@ -392,6 +392,7 @@ class OrganisationController extends Controller
                 'ror_id' => $input['ror_id'],
                 'website' => $input['website'],
                 'smb_status' => $input['smb_status'],
+                'organisation_size' => $input['organisation_size'],
             ]);
 
             if (isset($input['departments'])) {
@@ -476,6 +477,7 @@ class OrganisationController extends Controller
                 'ror_id' => '',
                 'website' => '',
                 'smb_status' => 0,
+                'organisation_size' => null,
                 'unclaimed' => isset($input['unclaimed']) ? $input['unclaimed'] : 1
             ]);
 
@@ -1207,7 +1209,12 @@ class OrganisationController extends Controller
         // done like this to for the observer class to see the delete
         OrganisationHasSubsidiary::where('organisation_id', $organisationId)
             ->get()
-            ->each(fn ($ohs) => $ohs->delete());
+            ->each(fn ($ohs) =>
+                OrganisationHasSubsidiary::where([
+                    ['organisation_id', '=', $ohs->organisation_id],
+                    ['subsidiary_id', '=', $ohs->subsidiary_id]
+                ])->delete()
+            );
     }
 
     public function addSubsidiary(int $organisationId, array $subsidiary)

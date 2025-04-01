@@ -82,6 +82,11 @@ class Registry extends Model
         return $this->hasOne(User::class, 'registry_id');
     }
 
+    public function projectUsers(): HasMany
+    {
+        return $this->hasMany(ProjectHasUser::class, 'user_digital_ident', 'digi_ident');
+    }
+
     public function identity(): HasOne
     {
         return $this->hasOne(Identity::class, 'registry_id');

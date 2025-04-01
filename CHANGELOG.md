@@ -1,3 +1,17 @@
+## [1.3.0](https://github.com/HDRUK/speedi-as-api/compare/v1.2.0...v1.3.0) (2025-03-31)
+
+### ✨ Features
+
+* **SOURSD-910:** Create keycloak users and send email to log in and change password ([29c9194](https://github.com/HDRUK/speedi-as-api/commit/29c9194e22db8a53634731805f1e020648a13ed8))
+* **SOURSD-910:** ensure soursd users are created in keycloak if not present ([bcd1550](https://github.com/HDRUK/speedi-as-api/commit/bcd1550734a59f06b6496ffd4fa670fc30f20156))
+* **SOURSD-911:** Adds automated ability to query custodian request and apply rules engine config to the response ([963c5f0](https://github.com/HDRUK/speedi-as-api/commit/963c5f04703ad767c1707596efccf6e07aa5cc92))
+* **SOURSD-911:** Adds mechanism for pulls of user endpoint to take into account custodian config and parse rulesets in real-time ([addfe89](https://github.com/HDRUK/speedi-as-api/commit/addfe89d49f459203f5b3798e99147c091f5187a))
+
+### 🐛 Bug Fixes
+
+* **SOURD-923:** debugging login issues ([e4bc4af](https://github.com/HDRUK/speedi-as-api/commit/e4bc4af3c201278baa957c1be7d808a410dc8d8d))
+* **SOURSD-930:** accept same state for projects (#249) ([9d34cac](https://github.com/HDRUK/speedi-as-api/commit/9d34cac90ea80f7391fb92881124924e15bf7384))
+
 ## [1.2.0](https://github.com/HDRUK/speedi-as-api/compare/v1.1.0...v1.2.0) (2025-03-25)
 
 ### ✨ Features
