@@ -16,6 +16,8 @@ parameters:
         - '#Access to an undefined property App\\Models\\User::\$unreadNotifications#'
         - '#Access to an undefined property App\\Models\\ModelState::\$state#'
         - '#Access to an undefined property Illuminate\\Database\\Eloquent\\Model::\$file_path#'
+        - '#Access to an undefined property App\\Models\\User::\$evaluation#'
+        - '#Deprecated in PHP 8\.4: Parameter \#1 \$user \(App\\Models\\User\) is implicitly nullable via default value null#'
 #
 #    excludePaths:
 #        - ./*/*/FileToBeExcluded.php

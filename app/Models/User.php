@@ -220,7 +220,7 @@ class User extends Authenticatable
         'is_sro' => 'boolean',
     ];
 
-    protected $appends = ['status'];
+    protected $appends = ['status', 'evaluation'];
 
     public function status(): Attribute
     {
@@ -315,7 +315,12 @@ class User extends Authenticatable
 
         return null;
     }
-
+  
+    public function getEvaluationAttribute()
+    {
+        return $this->attributes['evaluation'] ?? null;
+    }
+  
     public function scopeFromProject($query, $projectId)
     {
         return $query->whereHas('registry.projectUsers', function ($q) use ($projectId) {

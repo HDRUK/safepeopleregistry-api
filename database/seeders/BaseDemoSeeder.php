@@ -44,7 +44,7 @@ class BaseDemoSeeder extends Seeder
             SectorSeeder::class,
             StateSeeder::class,
             EntityModelTypeSeeder::class,
-            EntityModelSeeder::class,
+            RulesSeeder::class,
             PermissionSeeder::class,
             RulesSeeder::class,
             CustodianSeeder::class,
