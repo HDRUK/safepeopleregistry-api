@@ -26,7 +26,7 @@ class OrganisationObserver
     protected array $sectorSize = [
         'sector_id',
         'website',
-        // 'organisation_size'
+        'organisation_size',
     ];
 
     protected array $securityCompliance = [

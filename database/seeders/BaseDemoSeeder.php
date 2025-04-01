@@ -82,6 +82,7 @@ class BaseDemoSeeder extends Seeder
             'sector_id' => 5, // Charity/Non-profit
             'ror_id' => '02wnqcb97',
             'smb_status' => true,
+            'organisation_size' => 2,
             'website' => 'https://www.website1.com/',
         ]);
 
@@ -207,6 +208,7 @@ National Public Health Ethics Committee for authorization to analyze population 
             'sector_id' => 4, // Public
             'ror_id' => '02wnqcb97',
             'smb_status' => true,
+            'organisation_size' => 2,
             'website' => 'https://www.website2.com/',
         ]);
 
@@ -292,6 +294,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'sector_id' => 6, // Private/Industry
             'ror_id' => null,
             'smb_status' => null,
+            'organisation_size' => 2,
             'website' => null,
         ]);
 
@@ -355,6 +358,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'sector_id' => 5, // Charity/Non-profit
             'ror_id' => '04rtjaj74',
             'smb_status' => true,
+            'organisation_size' => 2,
             'website' => 'https://www.hdruk.ac.uk/',
         ]);
 

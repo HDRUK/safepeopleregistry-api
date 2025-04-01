@@ -71,6 +71,7 @@ class OrganisationTest extends TestCase
             ],
             'ror_id' => '02wnqcb97',
             'smb_status' => false,
+            'organisation_size' => 2,
             'website' => 'https://www.website.com/',
         ];
     }
@@ -220,6 +221,7 @@ class OrganisationTest extends TestCase
                         ],
                         'ror_id',
                         'smb_status',
+                        'organisation_size',
                         'website',
                     ],
                 ],
@@ -301,6 +303,7 @@ class OrganisationTest extends TestCase
                 ],
                 'ror_id',
                 'smb_status',
+                'organisation_size',
                 'website',
             ],
         ]);
@@ -428,6 +431,7 @@ class OrganisationTest extends TestCase
                     ],
                     'ror_id' => '02wnqcb97',
                     'smb_status' => false,
+                    'organisation_size' => 2,
                     'website' => 'https://www.website.com/',
                     'subsidiaries' => [
                         [
