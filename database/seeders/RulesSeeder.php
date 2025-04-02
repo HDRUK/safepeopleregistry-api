@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Seeder;
-use App\Models\Rules;
 use App\Models\DecisionModel;
 
 class RulesSeeder extends Seeder
@@ -25,7 +24,7 @@ class RulesSeeder extends Seeder
                     'path' => 'registry.identity.idvt_result',
                     'expects' => 1,
                 ]),
-                'rule_class' => \App\Rules\Users\IdentityVerificationRule::class,
+                'rule_class' => \App\Rules\Users\IdentityVerification::class,
                 'description' => 'A User has verified their identity via the Identity Verification Technology (IDVT).',
                 'entity_model_type_id' => 2,
             ],
@@ -40,7 +39,7 @@ class RulesSeeder extends Seeder
                         'North Korea',
                     ],
                 ]),
-                'rule_class' => \App\Rules\Users\UKDataProtectionRule::class,
+                'rule_class' => \App\Rules\Users\UKDataProtection::class,
                 'description' => 'A User should be located in a country which adheres to equivalent data protection law.',
                 'entity_model_type_id' => 1,
             ],
@@ -49,34 +48,87 @@ class RulesSeeder extends Seeder
                 'model_type' => \App\Models\User::class,
                 'conditions' => json_encode([
                     'path' => 'registry.trainings',
-                    'expects' => [
-                        'name' => [
-                            'Safe Researcher Training',
-                            'Research, GDPR, and Confidentiality',
-                        ],
-                        'provider' => [
-                            'UK Data Service',
-                            'Medical Research Council (MRC)',
-                        ],
-                    ],
+                    'expects' => 'NHS Research Secure Data Environment Training',
                 ]),
-                'rule_class' => \App\Rules\Users\TrainingRule::class,
-                'description' => 'A User must have completed mandatory training before requesting data access.',
+                'rule_class' => \App\Rules\Users\Training::class,
+                'description' => 'A User has completed the NHS Research Secure Data Environment training.',
+                'entity_model_type_id' => 1,
+            ],
+            [
+                'name' => 'Training',
+                'model_type' => \App\Models\User::class,
+                'conditions' => json_encode([
+                    'path' => 'registry.trainings',
+                    'expects' => 'Safe Researcher Training',
+                ]),
+                'rule_class' => \App\Rules\Users\Training::class,
+                'description' => 'A User has completed the ONS Accredited Researcher training.',
+                'entity_model_type_id' => 1,
+            ],
+            [
+                'name' => 'Training',
+                'model_type' => \App\Models\User::class,
+                'conditions' => json_encode([
+                    'path' => 'registry.trainings',
+                    'expects' => 'Research, GDPR, and Confidentiality',
+                ]),
+                'rule_class' => \App\Rules\Users\Training::class,
+                'description' => 'A User has completed the MRC GDPR training.',
+                'entity_model_type_id' => 1,
+            ],
+            [
+                'name' => 'User affiliation',
+                'model_type' => \App\Models\User::class,
+                'conditions' => json_encode([
+                    'path' => 'registry.affiliations',
+                    'expects' => [],
+                ]),
+                'rule_class' => \App\Rules\Users\AffiliatedOrganisation::class,
+                'description' => 'A User has been affiliated by a relevant, validated Organisation.',
                 'entity_model_type_id' => 1,
             ],
             [
                 'name' => 'Data secutiry compliance',
                 'model_type' => \App\Models\Organisation::class,
                 'conditions' => json_encode([
-                    'paths' => [
-                        'ce_certified',
-                        'ce_plus_certified',
-                        'iso_27001_certified',
-                    ],
+                    'path' => 'ce_certified',
                     'expects' => 1,
                 ]),
-                'rule_class' => \App\Rules\Users\DataSecurityComplianceRule::class,
-                'description' => 'An organisation must provide data security compliance accreditation information within their profile.',
+                'rule_class' => \App\Rules\Organisations\DataSecurityCompliance::class,
+                'description' => 'An Organisation has Cyber Essentials certification.',
+                'entity_model_type_id' => 1,
+            ],
+            [
+                'name' => 'Data security compliance',
+                'model_type' => \App\Models\Organisation::class,
+                'conditions' => json_encode([
+                    'path' => 'ce_plus_certified',
+                    'expects' => 1,
+                ]),
+                'rule_class' => \App\Rules\Organisations\DataSecurityCompliance::class,
+                'description' => 'An Organisation has Cyber Essentials Plus certification.',
+                'entity_model_type_id' => 1,
+            ],
+            [
+                'name' => 'Data security compliance',
+                'model_type' => \App\Models\Organisation::class,
+                'conditions' => json_encode([
+                    'path' => 'iso_27001_certified',
+                    'expects' => 1,
+                ]),
+                'rule_class' => \App\Rules\Organisations\DataSecurityCompliance::class,
+                'description' => 'An Organisation has ISO27001 certification.',
+                'entity_model_type_id' => 1,
+            ],
+            [
+                'name' => 'Data security compliance',
+                'model_type' => \App\Models\Organisation::class,
+                'conditions' => json_encode([
+                    'path' => 'dsptk_certified',
+                    'expects' => 1,
+                ]),
+                'rule_class' => \App\Rules\Organisations\DataSecurityCompliance::class,
+                'description' => 'An Organisation has DSPT certification.',
                 'entity_model_type_id' => 1,
             ],
         ];

@@ -5,9 +5,9 @@ namespace App\Rules\Users;
 use App\Rules\BaseRule;
 use Illuminate\Support\Arr;
 
-class IdentityVerificationRule extends BaseRule
+class IdentityVerification extends BaseRule
 {
-    protected $tag = IdentityVerificationRule::class;
+    protected $tag = IdentityVerification::class;
 
     public function evaluate($model, array $conditions): bool
     {

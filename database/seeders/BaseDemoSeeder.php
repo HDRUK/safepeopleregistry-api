@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use DB;
 use Str;
 use Keycloak;
 use RegistryManagementController as RMC;
@@ -30,6 +31,7 @@ use App\Models\State;
 use App\Models\UserHasCustodianApproval;
 use App\Traits\CommonFunctions;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 
 class BaseDemoSeeder extends Seeder
 {
@@ -46,7 +48,6 @@ class BaseDemoSeeder extends Seeder
             EntityModelTypeSeeder::class,
             RulesSeeder::class,
             PermissionSeeder::class,
-            RulesSeeder::class,
             CustodianSeeder::class,
             SystemConfigSeeder::class,
             ProjectRoleSeeder::class,
@@ -90,6 +91,11 @@ class BaseDemoSeeder extends Seeder
             'organisation_id' => $org1->id,
             'custodian_id' => Custodian::first()->id,
         ]);
+
+        Schema::disableForeignKeyConstraints();
+        DB::table('organisation_has_charity')->truncate();
+        DB::table('charities')->truncate();
+        Schema::enableForeignKeyConstraints();
 
         $charity = Charity::create([
             'registration_id' => '1186569',
