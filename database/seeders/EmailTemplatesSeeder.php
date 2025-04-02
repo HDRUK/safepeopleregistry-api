@@ -366,7 +366,7 @@ class EmailTemplatesSeeder extends Seeder
                 </mj-section>
                 <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px">
                   <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
-                    <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/organisations/delegate_verify/[[users.id]]/[[organisations.id]]/[[organisation_delegates.id]]" padding="10px 25px 10px 25px">I confirm that the named Researcher above is employed by [[organisations.organisation_name]]!</mj-button>
+                    <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]" padding="10px 25px 10px 25px">I confirm that the named Researcher above is employed by [[organisations.organisation_name]]!</mj-button>
                   </mj-column>
                 </mj-section>
               </mj-wrapper>
@@ -433,7 +433,7 @@ class EmailTemplatesSeeder extends Seeder
         ];
 
         foreach ($templates as $template) {
-          EmailTemplate::updateOrCreate(
+          EmailTemplate::updateOrCreateFail(
               ['identifier' => $template['identifier']],
               [
                   'subject' => $template['subject'],
