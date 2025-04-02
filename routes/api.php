@@ -51,7 +51,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('v1/query', [QueryController::class, 'query']);
+Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1/query', [QueryController::class, 'query']);
 
 Route::middleware('api')->get('auth/me', [AuthController::class, 'me']);
 Route::middleware('api')->post('auth/register', [AuthController::class, 'registerKeycloakUser']);
@@ -67,7 +67,7 @@ Route::middleware('auth:api')->delete('v1/users/{id}', [UserController::class, '
 Route::middleware('auth:api')->post('v1/users/invite', [UserController::class, 'invite']);
 Route::middleware('auth:api')->post('v1/users/permissions', [PermissionController::class, 'assignUserPermissionsToFrom']);
 Route::middleware('auth:api')->post('v1/users/change-password/{userId}', [AuthController::class, 'changePassword']);
-Route::middleware('auth:api')->post('v1/users/validate', [UserController::class, 'validateUserRequest']);
+Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1/users/validate', [UserController::class, 'validateUserRequest']);
 Route::middleware('auth:api')->post('v1/users/search_affiliations', [UserController::class, 'searchUsersByNameAndProfessionalEmail']);
 Route::middleware('auth:api')->get('v1/users/{id}/projects', [UserController::class, 'userProjects']);
 
