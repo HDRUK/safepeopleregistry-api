@@ -15,6 +15,6 @@ class DataSecurityCompliance extends BaseRule
         $expects = $conditions['expects'] ?? null;   
         $actual = Arr::get($model, $path, null);
         
-        return $actual === $expects;
+        return $actual == $expects;
     }
 }
