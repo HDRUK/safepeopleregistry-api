@@ -498,7 +498,7 @@ class CustodianTest extends TestCase
 
         $response->assertStatus(401);
         $content = $response->decodeResponseJson();
-        $this->assertEquals($content['message'], 'no known custodian matches the credentials provided');
+        $this->assertEquals($content['message'], 'you must provide your Custodian key');
     }
 
 
