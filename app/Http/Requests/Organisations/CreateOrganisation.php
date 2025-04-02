@@ -55,6 +55,9 @@ class CreateOrganisation extends BaseFormRequest
                 'string',
                 'required',
             ],
+            'organisation_size' => [
+                'integer',
+            ],
         ];
     }
 }

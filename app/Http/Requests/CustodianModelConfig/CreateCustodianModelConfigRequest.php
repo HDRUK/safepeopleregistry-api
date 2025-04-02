@@ -17,7 +17,8 @@ class CreateCustodianModelConfigRequest extends BaseFormRequest
             'entity_model_id' => [
                 'integer',
                 'required',
-                'exists:entity_models,id',
+                // LS - TODO Make this param name consistent
+                'exists:decision_models,id',
             ],
             'active' => [
                 'boolean',

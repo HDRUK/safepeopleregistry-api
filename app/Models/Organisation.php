@@ -176,10 +176,15 @@ use App\Traits\FilterManager;
  *          example="false",
  *          description="Declaration of small/medium business"
  *      ),
+ *      @OA\Property(property="organisation_size",
+ *          type="integer",
+ *          example="1",
+ *          description="Organisation size. Integer denotes list index rather than absolute value"
+ *      ),
  *      @OA\Property(property="unclaimed",
  *          type="boolean",
  *          example="false",
- *          description="Declaration of small/medium business"
+ *          description="Unclaimed"
  *      ),
  * )
  */
@@ -236,6 +241,7 @@ class Organisation extends Model
         'ror_id',
         'website',
         'smb_status',
+        'organisation_size',
         'unclaimed'
     ];
 
@@ -261,6 +267,8 @@ class Organisation extends Model
 
     protected $hidden = [
     ];
+
+    protected $appends = [ 'evaluation' ];
 
     public const ACTION_NAME_ADDRESS_COMPLETED = 'name_address_completed';
     public const ACTION_DIGITAL_ID_COMPLETED = 'digital_identifiers_completed';
@@ -381,5 +389,10 @@ class Organisation extends Model
     public function modelState(): MorphOne
     {
         return $this->morphOne(ModelState::class, 'stateable');
+    }
+
+    public function getEvaluationAttribute()
+    {
+        return $this->attributes['evaluation'] ?? null;
     }
 }

@@ -38,7 +38,6 @@ class APIAuthKeycloakGuardTest extends TestCase
         '/project_details',
         '/project_roles',
         '/system_config',
-        '/rules',
     ];
 
     private $user = null;

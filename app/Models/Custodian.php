@@ -126,7 +126,8 @@ class Custodian extends Model
 
     public function rules(): BelongsToMany
     {
-        return $this->belongsToMany(Rules::class, 'custodian_has_rules', 'custodian_id', 'rule_id');
+        // LS - TODO - this needs renaming.
+        return $this->belongsToMany(DecisionModel::class, 'custodian_has_rules', 'custodian_id', 'rule_id');
     }
 
     /**

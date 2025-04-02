@@ -3,8 +3,9 @@
 namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
-use App\Models\EntityModel;
+use App\Models\DecisionModel;
 use App\Models\CustodianModelConfig;
+use App\Models\CustodianHasRule;
 use App\Models\User;
 use App\Models\Custodian;
 use App\Models\Sector;
@@ -33,8 +34,6 @@ class CustodianTest extends TestCase
 
         $this->projectUniqueId = Str::random(40);
         $this->organisationUniqueId = Str::random(40);
-
-        // $this->enableObservers();
     }
 
     public function test_the_application_can_list_custodians(): void
@@ -120,7 +119,7 @@ class CustodianTest extends TestCase
 
         $content = $response->decodeResponseJson();
 
-        $entities = EntityModel::all();
+        $entities = DecisionModel::all();
         $conf = CustodianModelConfig::where([
             'custodian_id' => $content['data'],
         ])->get()->toArray();
@@ -314,6 +313,7 @@ class CustodianTest extends TestCase
                         ],
                         'ror_id' => '02wnqcb97',
                         'smb_status' => false,
+                        'organisation_size' => 2,
                         'website' => 'https://www.website.com/',
                     ],
                 ],
@@ -401,6 +401,7 @@ class CustodianTest extends TestCase
                         ],
                         'ror_id' => '02wnqcb97',
                         'smb_status' => false,
+                        'organisation_size' => 2,
                         'website' => 'https://www.website.com/',
                     ],
                 ],
@@ -485,6 +486,7 @@ class CustodianTest extends TestCase
                             ],
                             'ror_id' => '02wnqcb97',
                             'smb_status' => false,
+                            'organisation_size' => 2,
                             'website' => 'https://www.website.com/',
                         ],
                     ],
@@ -592,13 +594,16 @@ class CustodianTest extends TestCase
 
     public function test_can_update_rules_for_existing_custodian(): void
     {
-        $newRuleIds = [1,3,4];
+        CustodianHasRule::truncate();
+        $newRuleIds = [1, 3, 4];
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'PATCH',
-                "/api/v1/custodians/1/rules",
-                ['rule_ids' => $newRuleIds]
+                '/api/v1/custodians/1/rules',
+                [
+                    'rule_ids' => $newRuleIds,
+                ]
             );
 
         $response->assertStatus(200);

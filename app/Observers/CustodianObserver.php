@@ -2,7 +2,7 @@
 
 namespace App\Observers;
 
-use App\Models\EntityModel;
+use App\Models\DecisionModel;
 use App\Models\Custodian;
 use App\Models\CustodianModelConfig;
 use App\Models\ActionLog;
@@ -13,10 +13,10 @@ class CustodianObserver
     {
         // New Custodian's need all Entity models adding to their accounts
         // as a default installation
-        $entityModels = EntityModel::all();
-        foreach ($entityModels as $e) {
+        $decisionModels = DecisionModel::all();
+        foreach ($decisionModels as $d) {
             CustodianModelConfig::updateOrCreate([
-                'entity_model_id' => $e->id,
+                'entity_model_id' => $d->id,
                 'active' => 1,
                 'custodian_id' => $custodian->id,
             ]);
