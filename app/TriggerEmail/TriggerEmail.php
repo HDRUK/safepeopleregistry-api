@@ -109,6 +109,7 @@ class TriggerEmail
                 ];
 
                 $replacements = [
+                    '[[organisation_delegates.id]]' => $delegate->id,
                     '[[organisations.organisation_name]]' => $organisation->organisation_name,
                     '[[organisations.lead_application_organisation_name]]' => $organisation->lead_applicant_organisation_name,
                     '[[users.first_name]]' => $delegate->first_name,
