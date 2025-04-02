@@ -47,7 +47,7 @@ class DecisionEvaluatorService
             // intended class types, such as App\Model\User against
             $normModelType = $this->normaliseRuleClass($rule->model_type);
 
-            if ($normModelType !== $model->user_group) {
+            if ($normModelType === User::GROUP_USERS && $normModelType !== $model->user_group) {
                 continue;
             }
 
