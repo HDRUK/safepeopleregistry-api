@@ -20,14 +20,14 @@ class CustodianAuthenticationMiddleware
     public function handle(Request $request, Closure $next): JsonResponse
     {
         try {
-            if (! $request->header('x-custodian-key')) {
+            if (! $request->header('x-client-id')) {
                 return response()->json([
                     'message' => 'you must provide your Custodian key',
                 ], Response::HTTP_UNAUTHORIZED);
             }
 
-            $custodianKey = $request->header('x-custodian-key');
-            $custodian = Custodian::where('unique_identifier', $custodianKey)->first();
+            $custodianKey = $request->header('x-client-id');
+            $custodian = Custodian::where('client_id', $custodianKey)->first();
             if (! $custodian) {
                 return response()->json([
                     'message' => 'no known custodian matches the credentials provided',

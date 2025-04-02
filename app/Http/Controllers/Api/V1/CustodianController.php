@@ -221,8 +221,9 @@ class CustodianController extends Controller
             $input = $request->all();
 
             $signature = Str::random(40);
+            $uuid = Str::uuid()->toString();
             $calculatedHash = Hash::make(
-                $signature.
+                $uuid .
                  ':'.env('CUSTODIAN_SALT_1').
                  ':'.env('CUSTODIAN_SALT_2')
             );
@@ -234,6 +235,7 @@ class CustodianController extends Controller
                 'contact_email' => $input['contact_email'],
                 'enabled' => $input['enabled'],
                 'idvt_required' => (isset($input['idvt_required']) ? $input['idvt_required'] : false),
+                'client_id' => $uuid,
             ]);
 
             return response()->json([

@@ -89,4 +89,20 @@ trait Responses
         ], Response::HTTP_CONFLICT);
     }
 
+    public function MissingCustodianCredentialsResponse(): JsonResponse
+    {
+        return response()->json([
+            'message' => 'missing client and/or custodian id',
+            'data' => null,
+        ], Response::HTTP_UNAUTHORIZED);
+    }
+
+    public function InvalidSignatureResponse(): JsonResponse
+    {
+        return response()->json([
+            'message' => 'invalid signature, or signature failed verification',
+            'data' => null,
+        ], Response::HTTP_BAD_REQUEST);
+    }
+
 }

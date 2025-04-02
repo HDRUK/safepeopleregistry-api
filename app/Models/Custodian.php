@@ -64,6 +64,10 @@ use App\Traits\ActionManager;
  *      @OA\Property(property="gateway_client_id",
  *          type="string",
  *          example="RTWSlsx8iuQxN6JmfKFkopyWF8wfeKNt4tkuJcS3"
+ *      ),
+ *      @OA\Property(property="client_id",
+ *          type="string",
+ *          example="1111-2222-3333-4444-5555"
  *      )
  * )
  */
@@ -89,6 +93,7 @@ class Custodian extends Model
         'idvt_required',
         'gateway_app_id',
         'gateway_client_id',
+        'client_id',
     ];
 
     protected $casts = [
