@@ -28,6 +28,7 @@ class CustodianSeeder extends Seeder
         CustodianUser::truncate();
 
         DB::table('custodian_has_rules')->truncate();
+        DB::table('custodian_model_configs')->truncate();
 
         Schema::enableForeignKeyConstraints();
 
