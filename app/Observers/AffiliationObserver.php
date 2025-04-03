@@ -60,8 +60,11 @@ class AffiliationObserver
             'is_delegate' => 1
         ])->select('id')->pluck('id');
 
-        $userId = $affiliation->registryHasAffiliations()->first()->registry->user->id;
-    
+        $firstRha = $affiliation->registryHasAffiliations()->first();
+        $userId = optional($firstRha)?->registry?->user?->id;
+        if(is_null($userId)){
+            return;
+        }
         foreach ($delegateIds as $delegateId) {
             $input = [
                 'type' => 'USER_DELEGATE',
