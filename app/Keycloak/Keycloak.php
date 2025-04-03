@@ -265,7 +265,7 @@ class Keycloak
         }
     }
 
-    private function getServiceToken(): ?string
+    private function getServiceToken(): string
     {
         if (self::$serviceToken &&
             self::$tokenCreatedAt &&
