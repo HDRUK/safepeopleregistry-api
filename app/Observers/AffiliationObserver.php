@@ -76,8 +76,7 @@ class AffiliationObserver
     }
 
     protected function checkComplete(Affiliation $affiliation){
-            return $affiliation &&
-                !empty($affiliation->member_id) &&
+            return !empty($affiliation->member_id) &&
                 !empty($affiliation->relationship) &&
                 !empty($affiliation->from);
     }
