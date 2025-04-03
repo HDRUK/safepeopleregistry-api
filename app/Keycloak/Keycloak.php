@@ -5,6 +5,7 @@ namespace App\Keycloak;
 use Http;
 use Hash;
 use Exception;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Registry;
 use App\Models\CustodianUser;
@@ -14,6 +15,9 @@ use Illuminate\Support\Str;
 class Keycloak
 {
     public const USERS_URL = '/users';
+    private static ?string $serviceToken = null;
+    private static ?Carbon $tokenCreatedAt = null;
+    private static int $tokenExiprationHours = 4;
 
     public function getUserInfo(string $token)
     {
@@ -261,8 +265,14 @@ class Keycloak
         }
     }
 
-    private function getServiceToken(): string
+    private function getServiceToken(): ?string
     {
+        if (self::$serviceToken &&
+            self::$tokenCreatedAt &&
+            self::$tokenCreatedAt->diffInHours(Carbon::now()) < self::$tokenExiprationHours) {
+            return self::$serviceToken;
+        }
+
         try {
             $authUrl = env('KEYCLOAK_BASE_URL').'/realms/'.env('KEYCLOAK_REALM').'/protocol/openid-connect/token';
 
@@ -275,10 +285,18 @@ class Keycloak
             $response = Http::asForm()->post($authUrl, $credentials);
             $responseData = $response->json();
 
-            return 'Bearer ' . $responseData['access_token'];
+            self::$serviceToken = 'Bearer ' . $responseData['access_token'];
+            self::$tokenCreatedAt = Carbon::now();
+
+            return self::$serviceToken;
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
+    }
+
+    public static function resetServiceToken(): void
+    {
+        self::$serviceToken = null;
     }
 
     private function makeUrl(string $path): string
