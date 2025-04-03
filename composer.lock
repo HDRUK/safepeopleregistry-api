@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d58aceb85f70b32ee8ead980ce09c16c",
+    "content-hash": "4dac91d08a55788818342b95f834eade",
     "packages": [
         {
             "name": "brick/math",
@@ -1695,21 +1695,14 @@
         {
             "name": "hdruk/laravel-mjml",
             "version": "dev-main",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/HDRUK/laravel-mjml.git",
-                "reference": "b078d2bb5a1a5d3aa9c166530064eeb3f06f9a0d"
-            },
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/HDRUK/laravel-mjml/zipball/b078d2bb5a1a5d3aa9c166530064eeb3f06f9a0d",
-                "reference": "b078d2bb5a1a5d3aa9c166530064eeb3f06f9a0d",
-                "shasum": ""
+                "type": "path",
+                "url": "../laravel-mjml",
+                "reference": "49c76256d971d923f51c4b17ab2a7b12a2b61903"
             },
             "require": {
-                "illuminate/support": "^10.10.0"
+                "illuminate/support": "^10.0 || ^11.0"
             },
-            "default-branch": true,
             "type": "library",
             "extra": {
                 "laravel": {
@@ -1736,11 +1729,10 @@
                 }
             ],
             "description": "A Laravel extension to make use of the MJML API",
-            "support": {
-                "source": "https://github.com/HDRUK/laravel-mjml/tree/main",
-                "issues": "https://github.com/HDRUK/laravel-mjml/issues"
-            },
-            "time": "2025-01-29T09:11:18+00:00"
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
         },
         {
             "name": "laminas/laminas-diactoros",
@@ -11480,9 +11472,7 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "hdruk/laravel-mjml": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

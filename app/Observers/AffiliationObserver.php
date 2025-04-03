@@ -2,6 +2,8 @@
 
 namespace App\Observers;
 
+use TriggerEmail;
+use App\Models\User;
 use App\Models\Affiliation;
 use App\Models\RegistryHasAffiliation;
 use App\Traits\AffiliationCompletionManager;
@@ -36,5 +38,48 @@ class AffiliationObserver
             $this->updateActionLog($registryId);
         }
 
+        $this->emailDelegates($affiliation);
+
     }
+
+    protected function emailDelegates(Affiliation $affiliation){
+        $isComplete = $this->checkComplete($affiliation);
+
+        $originalAttributes = $affiliation->getOriginal();
+        $originalAffiliation = new Affiliation($originalAttributes);
+        $wasIncomplete = !$this->checkComplete($originalAffiliation);
+
+        if(!($isComplete && $wasIncomplete)){
+            return;
+        }
+
+        $orgId = $affiliation->organisation_id;
+
+        $delegateIds = User::where([
+            'organisation_id' => $orgId,
+            'is_delegate' => 1
+        ])->select('id')->pluck('id');
+
+        $userId = $affiliation->registryHasAffiliations()->first()->registry->user->id;
+    
+        foreach ($delegateIds as $delegateId) {
+            $input = [
+                'type' => 'USER_DELEGATE',
+                'to' => $delegateId,
+                'by' => $orgId,
+                'for' => $userId,
+                'identifier' => 'delegate_sponsor'
+            ];
+    
+            TriggerEmail::spawnEmail($input);
+        }
+    }
+
+    protected function checkComplete(Affiliation $affiliation){
+            return $affiliation &&
+                !empty($affiliation->member_id) &&
+                !empty($affiliation->relationship) &&
+                !empty($affiliation->from);
+    }
+
 }

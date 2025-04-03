@@ -348,14 +348,13 @@ class EmailTemplatesSeeder extends Seeder
               <mj-wrapper border="none" direction="ltr" text-align="center" padding="20px 0px 20px 0px">
                 <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px">
                   <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
-                    <mj-text align="left" padding="10px 25px 10px 25px">[[users.first_name]] [[users.last_name]]<br/><br/>You\'ve been selected as a delegate sponsor contact for the [[env(APP_NAME)]] Registry system, on behalf of [[organisations.organisation_name]], and by [[organisations.lead_application_organisation_name]].
-                    <div><br/></div>
-                    Your role means you\'re ideally suited to verify
-                    a recent researcher registration as someone who is currently employed by [[organisations.organisation_name]]. We ask that you please confirm this to be true, by clicking the button below. That\'s all. The rest is automatic!
+                    <mj-text align="left" padding="10px 25px 10px 25px">[[delegate_first_name]] [[delegate_last_name]]<br/><br/>
+                    As a delegate for [[organisation_name]] on the [[env(APP_NAME)]] Registry system. You are requested to verify 
+                    a recent researcher registration as someone who is currently employed by [[organisation_name]]. We ask that you please confirm this to be true, by clicking the button below. That\'s all. The rest is automatic!
                     <div><br/></div>
                     <div>
-                      Name: [[users.first_name]] [[users.last_name]]<br/>
-                      Registered: [[users.created_at]]
+                      Name: [[user_first_name]] [[user_last_name]]<br/>
+                      Registered: [[user_created_at]] <br/>
                     </div><br/>
                       ' . $this->supportFooter . '
                         <div><br></div>
@@ -366,7 +365,7 @@ class EmailTemplatesSeeder extends Seeder
                 </mj-section>
                 <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px">
                   <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
-                    <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]" padding="10px 25px 10px 25px">I confirm that the named Researcher above is employed by [[organisations.organisation_name]]!</mj-button>
+                    <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]" padding="10px 25px 10px 25px">I confirm that the named Researcher above is employed by [[organisation_name]]!</mj-button>
                   </mj-column>
                 </mj-section>
               </mj-wrapper>
@@ -433,7 +432,7 @@ class EmailTemplatesSeeder extends Seeder
         ];
 
         foreach ($templates as $template) {
-          EmailTemplate::updateOrCreateFail(
+          EmailTemplate::updateOrCreate(
               ['identifier' => $template['identifier']],
               [
                   'subject' => $template['subject'],
