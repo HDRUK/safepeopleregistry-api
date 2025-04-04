@@ -313,6 +313,13 @@ class Organisation extends Model
         );
     }
 
+    public function sector()
+    {
+        return $this->belongsTo(
+            Sector::class,
+        );
+    }
+
     public function latestEvidence(): BelongsToMany
     {
         return $this->belongsToMany(File::class, 'organisation_has_files')
