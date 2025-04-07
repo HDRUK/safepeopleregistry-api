@@ -751,6 +751,15 @@ class CustodianController extends Controller
             )
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
+        foreach ($results as $result) {
+            $result->model_state = [
+                "state" => [
+                    "slug" => $result->model_state_slug
+                ]
+            ];
+            unset($result->model_state_slug);
+        }
+
         if ($results) {
             return response()->json([
                 'message' => 'success',
