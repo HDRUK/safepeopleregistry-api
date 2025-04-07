@@ -27,35 +27,55 @@ class testsigning extends Command
      */
     public function handle()
     {
-        $custodian = Custodian::where('id', 1)->first();
-        $payload = [
-            'email' => 'dan.ackroyd@ghostbusters.com',
-        ];
+        // $custodian = Custodian::where('id', 1)->first();
+        // $payload = [
+        //     'email' => 'dan.ackroyd@ghostbusters.com',
+        // ];
 
-        $payloadJson = json_encode($payload, JSON_UNESCAPED_SLASHES);
-        $signature = base64_encode(hash_hmac('sha256', $payloadJson, $custodian->unique_identifier, true));
+        // $payloadJson = json_encode($payload, JSON_UNESCAPED_SLASHES);
+        // $signature = base64_encode(hash_hmac('sha256', $payloadJson, $custodian->unique_identifier, true));
 
-        dd($signature);
+        // dd($signature);
 
-        $response = Http::withHeaders([
-            'x-client-id' => $custodian->client_id,
-            'x-signature' => $signature,
-            'Content-Type' => 'application/json',
-            'Accept' => 'application/json',
-        ])->post('http://localhost:8100/api/v1/users/validate', $payload);
+        // $response = Http::withHeaders([
+        //     'x-client-id' => $custodian->client_id,
+        //     'x-signature' => $signature,
+        //     'Content-Type' => 'application/json',
+        //     'Accept' => 'application/json',
+        // ])->post('http://localhost:8100/api/v1/users/validate', $payload);
 
-        // dd($custodian);
-        // dd($response->json()['data']['digital_identifier']);
-        $payload = [
-            'ident' => $response->json()['data']['digital_identifier'],
-        ];
+        // // dd($custodian);
+        // // dd($response->json()['data']['digital_identifier']);
+        // $payload = [
+        //     'ident' => $response->json()['data']['digital_identifier'],
+        // ];
 
-        // dd($payload);
+        // // dd($payload);
 
-        $payloadJson = json_encode($payload, JSON_UNESCAPED_SLASHES);
-        $signature = base64_encode(hash_hmac('sha256', $payloadJson, $custodian->unique_identifier, true));
+        // $payloadJson = json_encode($payload, JSON_UNESCAPED_SLASHES);
+        // $signature = base64_encode(hash_hmac('sha256', $payloadJson, $custodian->unique_identifier, true));
+
+        // dd($signature);
+
+        // $response = Http::withHeaders([
+        //     'x-client-id' => $custodian->client_id,
+        //     'x-signature' => $signature,
+        //     'Content-Type' => 'application/json',
+        //     'Accept' => 'application/json',
+        // ])->post('http://localhost:8100/api/v1/users/validate', $payload);
+
+        // // dd($custodian);
+        // // dd($response->json()['data']['digital_identifier']);
+        // $payload = [
+        //     'ident' => $response->json()['data']['digital_identifier'],
+        // ];
+
+        // // dd($payload);
+
+        // $payloadJson = json_encode($payload, JSON_UNESCAPED_SLASHES);
+        // $signature = base64_encode(hash_hmac('sha256', $payloadJson, $custodian->unique_identifier, true));
 
 
-        dd($signature);
+        // dd($signature);
     }
 }
