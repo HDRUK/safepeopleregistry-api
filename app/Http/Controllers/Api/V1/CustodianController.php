@@ -719,7 +719,6 @@ class CustodianController extends Controller
      */
     public function getProjectsUsers(Request $request, int $custodianId): JsonResponse
     {
-
         $results = DB::table('registries as r')
             ->join('project_has_users as phu', 'phu.user_digital_ident', '=', 'r.digi_ident')
             ->join('projects as p', 'p.id', '=', 'phu.project_id')
@@ -732,6 +731,11 @@ class CustodianController extends Controller
             ->orWhere('a.to', '=' ,'')
             ->leftJoin('organisations as o', 'o.id', '=', 'a.organisation_id')
             ->where('phc.custodian_id', $custodianId)
+            ->join('model_states as ms', function ($join) {
+                $join->on('u.id', '=', 'ms.stateable_id')
+                    ->where('ms.stateable_type', '=', 'App\Models\User');
+            })
+            ->join('states as s', 's.id', '=', 'ms.state_id')
             ->select(
                 'u.first_name',
                 'u.last_name',
@@ -743,6 +747,7 @@ class CustodianController extends Controller
                 'pr.name AS project_role',
                 'a.organisation_id AS organisation_id',
                 'o.organisation_name',
+                's.slug AS model_state_slug',
             )
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
