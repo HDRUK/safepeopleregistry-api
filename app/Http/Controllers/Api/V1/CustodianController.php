@@ -728,7 +728,7 @@ class CustodianController extends Controller
             ->join('registry_has_affiliations as rha', 'rha.registry_id', '=', 'r.id')
             ->leftJoin('affiliations as a', 'a.id', '=', 'rha.affiliation_id')
             ->whereNull('a.to')
-            ->orWhere('a.to', '=' ,'')
+            ->orWhere('a.to', '=', '')
             ->leftJoin('organisations as o', 'o.id', '=', 'a.organisation_id')
             ->where('phc.custodian_id', $custodianId)
             ->join('model_states as ms', function ($join) {
