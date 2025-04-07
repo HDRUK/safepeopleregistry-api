@@ -35,7 +35,7 @@ class testsigning extends Command
         $payloadJson = json_encode($payload, JSON_UNESCAPED_SLASHES);
         $signature = base64_encode(hash_hmac('sha256', $payloadJson, $custodian->unique_identifier, true));
 
-        // dd($signature);
+        dd($signature);
 
         $response = Http::withHeaders([
             'x-client-id' => $custodian->client_id,
