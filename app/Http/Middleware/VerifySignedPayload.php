@@ -5,10 +5,6 @@ namespace App\Http\Middleware;
 use Closure;
 use App\Models\Custodian;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Response;
-
 use App\Http\Traits\Responses;
 
 class VerifySignedPayload

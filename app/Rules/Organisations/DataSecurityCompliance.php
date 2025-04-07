@@ -12,9 +12,9 @@ class DataSecurityCompliance extends BaseRule
     public function evaluate($model, array $conditions): bool
     {
         $path = $conditions['path'] ?? [];
-        $expects = $conditions['expects'] ?? null;   
+        $expects = $conditions['expects'] ?? null;
         $actual = Arr::get($model, $path, null);
-        
+
         return $actual == $expects;
     }
 }
