@@ -699,6 +699,15 @@ class CustodianController extends Controller
      *                          @OA\Property(property="project_role", type="string", example="Principal Investigator (PI)"),
      *                          @OA\Property(property="organisation_id", type="int", example=10),
      *                          @OA\Property(property="organisation_name", type="string", example="SAIL Databank"),
+     *                          @OA\Property(property="model_state", type="object",
+     *                              @OA\Items(
+     *                                  @OA\Property(property="state", type="object",
+     *                                      @OA\Items(
+     *                                          @OA\Property(property="slug", type="string, example="registered")
+     *                                      )
+     *                                  )
+     *                              )
+     *                          )
      *                      )
      *                  ),
      *                  @OA\Property(property="first_page_url", type="string", example="http://localhost:8100/api/v1/custodians/{custodianId}/projects_users?page=1"),
