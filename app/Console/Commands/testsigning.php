@@ -54,28 +54,5 @@ class testsigning extends Command
 
         // $payloadJson = json_encode($payload, JSON_UNESCAPED_SLASHES);
         // $signature = base64_encode(hash_hmac('sha256', $payloadJson, $custodian->unique_identifier, true));
-
-        // dd($signature);
-
-        // $response = Http::withHeaders([
-        //     'x-client-id' => $custodian->client_id,
-        //     'x-signature' => $signature,
-        //     'Content-Type' => 'application/json',
-        //     'Accept' => 'application/json',
-        // ])->post('http://localhost:8100/api/v1/users/validate', $payload);
-
-        // // dd($custodian);
-        // // dd($response->json()['data']['digital_identifier']);
-        // $payload = [
-        //     'ident' => $response->json()['data']['digital_identifier'],
-        // ];
-
-        // // dd($payload);
-
-        // $payloadJson = json_encode($payload, JSON_UNESCAPED_SLASHES);
-        // $signature = base64_encode(hash_hmac('sha256', $payloadJson, $custodian->unique_identifier, true));
-
-
-        // dd($signature);
     }
 }
