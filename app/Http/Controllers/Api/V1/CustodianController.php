@@ -751,6 +751,10 @@ class CustodianController extends Controller
             )
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
+        // Ignore this phpstan error because it actually works fine. 
+        // phpstan doesn't like us iterating over a non-iterable LengthAwarePaginator.
+        // Working around it would require way too much jiggery-pokery.
+        // @phpstan-ignore foreach.nonIterable
         foreach ($results as $result) {
             $result->model_state = [
                 "state" => [
