@@ -663,6 +663,131 @@ class CustodianController extends Controller
 
     /**
      * @OA\Get(
+     *      path="/api/v1/custodians/{custodianId}/projects_users",
+     *      summary="Return all users associated to all projects associated with a custodian",
+     *      description="Fetch a list of users for all projects along with pagination details for a specified custodian.",
+     *      tags={"custodian"},
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *          name="custodianId",
+     *          in="path",
+     *          description="The ID of the custodian whose projects are to be retrieved",
+     *          required=true,
+     *          example="1",
+     *          @OA\Schema(
+     *              type="integer"
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="object",
+     *                  @OA\Property(property="current_page", type="integer", example=1),
+     *                  @OA\Property(property="per_page", type="integer", example=25),
+     *                  @OA\Property(property="total", type="integer", example=24),
+     *                  @OA\Property(property="data", type="array",
+     *                      @OA\Items(
+     *                          @OA\Property(property="first_name", type="string", example="Dan"),
+     *                          @OA\Property(property="last_name", type="string", example="Ackroyd"),
+     *                          @OA\Property(property="user_id", type="int", example=10),
+     *                          @OA\Property(property="digi_ident", type="string", example="$2y$12$3Pu4jwByHs7p2dGLecNtFO7v2B1ftGxMqAFD5AvmvFwlX.7CgD2pW"),
+     *                          @OA\Property(property="registry_id", type="int", example=10),
+     *                          @OA\Property(property="project_id", type="int", example=10),
+     *                          @OA\Property(property="project_name", type="string", example="This is a project name"),
+     *                          @OA\Property(property="project_role", type="string", example="Principal Investigator (PI)"),
+     *                          @OA\Property(property="organisation_id", type="int", example=10),
+     *                          @OA\Property(property="organisation_name", type="string", example="SAIL Databank"),
+     *                          @OA\Property(property="model_state", type="object",
+     *                              @OA\Items(
+     *                                  @OA\Property(property="state", type="object",
+     *                                      @OA\Items(
+     *                                          @OA\Property(property="slug", type="string, example="registered")
+     *                                      )
+     *                                  )
+     *                              )
+     *                          )
+     *                      )
+     *                  ),
+     *                  @OA\Property(property="first_page_url", type="string", example="http://localhost:8100/api/v1/custodians/{custodianId}/projects_users?page=1"),
+     *                  @OA\Property(property="last_page_url", type="string", example="http://localhost:8100/api/v1/custodians/{custodianId}/projects_users?page=1"),
+     *                  @OA\Property(property="next_page_url", type="string", example=null),
+     *                  @OA\Property(property="prev_page_url", type="string", example=null)
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Custodian not found",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *          )
+     *      )
+     * )
+     */
+    public function getProjectsUsers(Request $request, int $custodianId): JsonResponse
+    {
+        $results = DB::table('registries as r')
+            ->join('project_has_users as phu', 'phu.user_digital_ident', '=', 'r.digi_ident')
+            ->join('projects as p', 'p.id', '=', 'phu.project_id')
+            ->join('project_has_custodians as phc', 'phc.project_id', '=', 'p.id')
+            ->join('users as u', 'u.registry_id', '=', 'r.id')
+            ->join('project_roles as pr', 'phu.project_id', '=', 'pr.id')
+            ->join('registry_has_affiliations as rha', 'rha.registry_id', '=', 'r.id')
+            ->leftJoin('affiliations as a', 'a.id', '=', 'rha.affiliation_id')
+            ->whereNull('a.to')
+            ->orWhere('a.to', '=', '')
+            ->leftJoin('organisations as o', 'o.id', '=', 'a.organisation_id')
+            ->where('phc.custodian_id', $custodianId)
+            ->join('model_states as ms', function ($join) {
+                $join->on('u.id', '=', 'ms.stateable_id')
+                    ->where('ms.stateable_type', '=', 'App\Models\User');
+            })
+            ->join('states as s', 's.id', '=', 'ms.state_id')
+            ->select(
+                'u.first_name',
+                'u.last_name',
+                'u.id AS user_id',
+                'r.digi_ident',
+                'r.id AS registry_id',
+                'p.id AS project_id',
+                'p.title AS project_name',
+                'pr.name AS project_role',
+                'a.organisation_id AS organisation_id',
+                'o.organisation_name',
+                's.slug AS model_state_slug',
+            )
+            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+
+        // Ignore this phpstan error because it actually works fine. 
+        // phpstan doesn't like us iterating over a non-iterable LengthAwarePaginator.
+        // Working around it would require way too much jiggery-pokery.
+        // @phpstan-ignore foreach.nonIterable
+        foreach ($results as $result) {
+            $result->model_state = [
+                "state" => [
+                    "slug" => $result->model_state_slug
+                ]
+            ];
+            unset($result->model_state_slug);
+        }
+
+        if ($results) {
+            return response()->json([
+                'message' => 'success',
+                'data' => $results,
+            ], 200);
+        }
+
+        return response()->json([
+            'message' => 'not found',
+            'data' => null,
+        ], 404);
+    }
+
+    /**
+     * @OA\Get(
      *      path="/api/v1/custodians/{id}/rules",
      *      summary="Get rules for a specific custodian",
      *      description="Fetches the list of rules associated with the given custodian ID.",
