@@ -2,7 +2,6 @@
 
 namespace App\Rules\Users;
 
-use Cabon\Carbon;
 use App\Models\State;
 use App\Rules\BaseRule;
 use Illuminate\Support\Arr;

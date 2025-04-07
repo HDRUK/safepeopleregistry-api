@@ -71,7 +71,7 @@ class DecisionEvaluatorService
         $conditions = json_decode($rule->conditions, true);
 
         if (isset($conditions['path']) && is_array($conditions['path'])) {
-            $actual = array_map(fn($key) => Arr::get($model, $key, null), $conditions['path']);
+            $actual = array_map(fn ($key) => Arr::get($model, $key, null), $conditions['path']);
         } else {
             $actual = Arr::get($model, $conditions['path'], null);
         }

@@ -1210,7 +1210,8 @@ class OrganisationController extends Controller
         // done like this to for the observer class to see the delete
         OrganisationHasSubsidiary::where('organisation_id', $organisationId)
             ->get()
-            ->each(fn ($ohs) =>
+            ->each(
+                fn ($ohs) =>
                 OrganisationHasSubsidiary::where([
                     ['organisation_id', '=', $ohs->organisation_id],
                     ['subsidiary_id', '=', $ohs->subsidiary_id]
