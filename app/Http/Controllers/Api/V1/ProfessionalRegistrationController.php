@@ -17,8 +17,12 @@ class ProfessionalRegistrationController extends Controller
     //Hide from swagger
     public function indexByRegistryId(Request $request, int $registryId): JsonResponse
     {
-        $professionalRegistrations = ProfessionalRegistration::with('registryHasProfessionalRegistrations')
-            ->paginate((int) $this->getSystemConfig('PER_PAGE'));
+        $professionalRegistrations = ProfessionalRegistration::withWhereHas(
+            'registryHasProfessionalRegistrations',
+            function ($query) use ($registryId) {
+                $query->where('registry_id', '=', $registryId);
+            })
+        ->paginate((int) $this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',
