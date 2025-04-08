@@ -1,4 +1,4 @@
-## SPeeDI-AS API Tiltfile
+## SOURSD API Tiltfile
 ##
 ## Loki Sinclair <loki.sinclair@hdruk.ac.uk>
 ##
@@ -6,9 +6,9 @@
 # Load in any locally set config
 cfg = read_json("tiltconf.json")
 
-include(cfg.get("speediWebRoot") + "/Tiltfile")
+include(cfg.get("soursdWebRoot") + "/Tiltfile")
 include(cfg.get("clamAVRoot") + "/Tiltfile")
-include(cfg.get("speediAsOcrRoot") + "/Tiltfile")
+include(cfg.get("soursdOcrRoot") + "/Tiltfile")
 
 local_resource("linting", cmd="composer run lint", deps=["./"])
 
