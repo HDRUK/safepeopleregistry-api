@@ -9,14 +9,17 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use App\Traits\SearchManager;
+use App\Traits\SearchProject;
 use App\Traits\StateWorkflow;
 use App\Traits\FilterManager;
+use Carbon\Carbon;
 
 class Project extends Model
 {
     use HasFactory;
     use SoftDeletes;
     use SearchManager;
+    use SearchProject;
     use StateWorkflow;
     use FilterManager;
 
