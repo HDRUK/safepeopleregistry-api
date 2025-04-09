@@ -18,7 +18,7 @@ trait SearchManager
 
         $orGroups = [];
         $andGroups = [];
-    
+
         foreach ($input as $fieldWithOperator => $searchValues) {
             if (str_ends_with($fieldWithOperator, '__or')) {
                 $field = str_replace('__or', '', $fieldWithOperator);
@@ -30,20 +30,20 @@ trait SearchManager
                 $field = $fieldWithOperator;
                 $logic = 'or';
             }
-    
+
             if (!in_array(strtolower($field), static::$searchableColumns)) {
                 continue;
             }
-    
+
             if ($logic === 'or') {
                 $orGroups[$field] = $searchValues;
             } else {
                 $andGroups[$field] = $searchValues;
             }
         }
-    
+
         return $query->where(function ($outerQuery) use ($orGroups, $andGroups) {
-    
+
             foreach ($andGroups as $field => $terms) {
                 $outerQuery->where(function ($q) use ($field, $terms) {
                     foreach ($terms as $term) {
@@ -51,7 +51,7 @@ trait SearchManager
                     }
                 });
             }
-    
+
             if (!empty($orGroups)) {
                 $outerQuery->where(function ($q) use ($orGroups) {
                     foreach ($orGroups as $field => $terms) {

@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: hdruk/speedi-as-api
+  repository: hdruk/soursd-api
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
@@ -25,7 +25,7 @@ serviceAccount:
   annotations: {}
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
-  name: "speedi-as-api"
+  name: "soursd-api"
 
 podAnnotations: {}
 
@@ -35,7 +35,7 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  name: speedi-as-api
+  name: soursd-api
   port: 8100
 
 ingress:
@@ -44,12 +44,12 @@ ingress:
     kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: speedi-as-api.dev.hdruk.ac.uk
+    - host: soursd-api.dev.hdruk.ac.uk
       paths:
         - path: /
       backend:
         service:
-          name: speedi-as-api
+          name: soursd-api
           port:
             number: 8100
   tls: []

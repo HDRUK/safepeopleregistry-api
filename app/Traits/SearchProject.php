@@ -2,8 +2,6 @@
 
 namespace App\Traits;
 
-use Exception;
-use App\Models\State;
 use Carbon\Carbon;
 
 trait SearchProject

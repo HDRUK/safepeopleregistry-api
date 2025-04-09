@@ -315,12 +315,12 @@ class User extends Authenticatable
 
         return null;
     }
-  
+
     public function getEvaluationAttribute()
     {
         return $this->attributes['evaluation'] ?? null;
     }
-  
+
     public function scopeFromProject($query, $projectId)
     {
         return $query->whereHas('registry.projectUsers', function ($q) use ($projectId) {

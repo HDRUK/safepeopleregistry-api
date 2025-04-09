@@ -2,9 +2,7 @@
 
 namespace App\Rules\Users;
 
-use Carbon\Carbon;
 use App\Rules\BaseRule;
-use Illuminate\Support\Arr;
 
 class NHSSDETerms extends BaseRule
 {

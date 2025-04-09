@@ -16,7 +16,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
-use \Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProjectController extends Controller
 {
@@ -237,10 +237,10 @@ class ProjectController extends Controller
     }
 
 
-    public function getAllUsersFlagProject(Request $request,  int $projectId): JsonResponse
+    public function getAllUsersFlagProject(Request $request, int $projectId): JsonResponse
     {
         $users = User::searchViaRequest()
-        ->where('user_group',User::GROUP_USERS)
+        ->where('user_group', User::GROUP_USERS)
         ->filterByState()
         ->with([
             'modelState',
@@ -252,7 +252,7 @@ class ProjectController extends Controller
         ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         $idCounter = 1;
-        $expandedUsers = $users->flatMap(function ($user) use($projectId, &$idCounter) {
+        $expandedUsers = $users->flatMap(function ($user) use ($projectId, &$idCounter) {
             return $user->registry->affiliations->map(function ($affiliation) use ($user, $projectId, &$idCounter) {
 
                 $matchingProjectUser = $user->registry->projectUsers
@@ -277,7 +277,7 @@ class ProjectController extends Controller
         });
 
         $paginatedResult = new LengthAwarePaginator(
-            $expandedUsers->values()->all(), 
+            $expandedUsers->values()->all(),
             $users->total(),
             $users->perPage(),
             $users->currentPage(),
@@ -286,7 +286,7 @@ class ProjectController extends Controller
 
 
         return $this->OKResponse($paginatedResult);
-       
+
     }
 
     /**
@@ -647,7 +647,7 @@ class ProjectController extends Controller
     }
 
     public function updateAllProjectUsers(Request $request, int $projectId): JsonResponse
-    {   
+    {
         try {
             $validated = $request->validate([
                 'users' => 'required|array',
@@ -655,17 +655,17 @@ class ProjectController extends Controller
 
             $registryIds = collect($validated['users'])->pluck('registry_id')->unique();
             $registries = Registry::with('user')->whereIn('id', $registryIds)->get()->keyBy('id');
-    
+
             $results = [];
             $deletes = [];
-    
+
             foreach ($validated['users'] as $entry) {
-             
+
                 $registry = $registries->get($entry['registry_id']);
                 if (!$registry || !$registry->user) {
                     continue;
                 }
-      
+
                 $digiIdent = $registry->digi_ident;
                 $affiliationId = $entry['affiliation_id'];
                 $roleId = isset($entry['role']) ? $entry['role']['id'] ?? null : null;
@@ -681,7 +681,7 @@ class ProjectController extends Controller
                     'user_digital_ident' => $digiIdent,
                     'affiliation_id' => $affiliationId,
                 ]);
-                
+
                 if (!$projectUserQuery->exists()) {
                     $projectUser = ProjectHasUser::create([
                         'project_id' => $projectId,
@@ -689,19 +689,19 @@ class ProjectController extends Controller
                         'affiliation_id' => $affiliationId,
                     ]);
                 }
-              
+
                 if (is_null($roleId)) {
                     $projectUserQuery->delete();
                 } else {
                     $projectUserQuery->update([
                         'project_role_id' => $roleId,
                         'primary_contact' => $entry['primary_contact'] ?? 0
-                    ]);                
-    
+                    ]);
+
                     $results[] = $projectUserQuery->get();
                 }
             }
-    
+
             return $this->OKResponse($results);
         } catch (Exception $e) {
             return $this->ErrorResponse($e->getMessage());

@@ -3,7 +3,7 @@
 return [
 
     /*
-        Default configuration for SPEEDI-AS API Deployment
+        Default configuration for SOURSD API Deployment
     */
     'custodians' => [
         [

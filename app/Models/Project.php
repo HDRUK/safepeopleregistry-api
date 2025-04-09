@@ -12,7 +12,6 @@ use App\Traits\SearchManager;
 use App\Traits\SearchProject;
 use App\Traits\StateWorkflow;
 use App\Traits\FilterManager;
-use Carbon\Carbon;
 
 class Project extends Model
 {
