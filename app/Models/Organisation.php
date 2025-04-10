@@ -320,6 +320,36 @@ class Organisation extends Model
         );
     }
 
+    public function sroOfficer()
+    {
+        return $this->hasOne(
+            User::class,
+        )->where('is_sro', 1);
+    }
+
+
+    public function scopeGetOrganisationsProjects($query)
+    {
+        $results = array();
+        $organisations = $query->get();
+
+        foreach ($organisations as $organisation) {
+            if (count($organisation->projects)) {
+                foreach ($organisation->projects as $project) {
+                    unset($organisation->projects);
+
+                    array_push($results, array_merge($organisation->toArray(), [
+                        'project' => $project
+                    ]));
+                }
+            } else {
+                array_push($results, $organisation->toArray());
+            }
+        }
+
+        return $results;
+    }
+
     public function latestEvidence(): BelongsToMany
     {
         return $this->belongsToMany(File::class, 'organisation_has_files')
@@ -351,6 +381,14 @@ class Organisation extends Model
     public function affiliations(): HasMany
     {
         return $this->hasMany(Affiliation::class, 'organisation_id');
+    }
+
+    public function projects()
+    {
+        return $this->belongsToMany(
+            Project::class,
+            'project_has_organisations',
+        );
     }
 
     public function registries(): HasManyThrough
