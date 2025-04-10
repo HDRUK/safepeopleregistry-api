@@ -722,8 +722,8 @@ class CustodianController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/custodian/{custodianId}/organisations",
-     *      summary="Return all custodian projects associated with a user",
-     *      description="Fetch a list of custdoians organisations with projects associated with a user, along with pagination details.",
+     *      summary="Return all custodian organisations with projects",
+     *      description="Fetch a list of custodians organisations with projects, along with pagination details.",
      *      tags={"custodian"},
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
@@ -761,13 +761,6 @@ class CustodianController extends Controller
      *                  @OA\Property(property="prev_page_url", type="string", example=null)
      *              )
      *          )
-     *      ),
-     *      @OA\Response(
-     *          response=404,
-     *          description="User not found",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="user not found")
-     *          )
      *      )
      * )
      */
@@ -775,13 +768,16 @@ class CustodianController extends Controller
     {
         $results = Organisation::searchViaRequest()
             ->applySorting()
-            ->with(['sroOfficer', 'projects.modelState.state'])
+            ->with(['sroOfficer', 'projects' => function ($query) {
+                $query->filterByState()
+                    ->with("modelState.state");
+            }])
             ->whereHas('projects.custodians', function ($query) use ($custodianId) {
                 $query->where('custodians.id', $custodianId);
             })
             ->whereHas('projects', function ($query) {
-                $query->searchViaRequest()
-                    ->filterByState();
+                $query->filterByState()
+                    ->with("modelState");
             })->getOrganisationsProjects();
 
         return $this->OKResponse($this->paginateCollection($results));
