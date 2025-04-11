@@ -350,21 +350,12 @@ class Organisation extends Model
         return $results;
     }
 
-    public function projects()
-    {
-        return $this->belongsToMany(
-            Project::class,
-            'project_has_organisations',
-        );
-    }
-
     public function latestEvidence(): BelongsToMany
     {
         return $this->belongsToMany(File::class, 'organisation_has_files')
             ->where('status', File::FILE_STATUS_PROCESSED)
             ->whereRaw('updated_at = (SELECT MAX(updated_at) FROM files f WHERE f.type = files.type)');
     }
-
 
     public function ceExpiryEvidence(): BelongsTo
     {
