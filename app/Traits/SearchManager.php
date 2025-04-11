@@ -2,9 +2,6 @@
 
 namespace App\Traits;
 
-use Illuminate\Support\Collection;
-use Illuminate\Pagination\LengthAwarePaginator;
-
 /**
  * SearchManager
  *
@@ -15,10 +12,6 @@ use Illuminate\Pagination\LengthAwarePaginator;
  */
 trait SearchManager
 {
-    use CommonFunctions {
-        getSystemConfig as parentGetSystemConfig;
-    }
-
     public function scopeSearchViaRequest($query): mixed
     {
         $input = \request()->all();
@@ -101,16 +94,5 @@ trait SearchManager
         return $query->when(!is_null($value), function ($query) use ($value, $callback) {
             $callback($query, $value);
         });
-    }
-
-    public function paginateCollection($items)
-    {
-        $perPage = request()->integer('per_page', (int)$this->getSystemConfig('PER_PAGE'));
-        $page = request()->integer('page');
-
-        $items = $items instanceof Collection ? $items : Collection::make($items);
-        $withTotal = collect(['total' => $items->count()]);
-
-        return $withTotal->merge(new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page));
     }
 }

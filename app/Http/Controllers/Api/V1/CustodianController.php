@@ -20,13 +20,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Http\Traits\Responses;
 use Illuminate\Pagination\LengthAwarePaginator;
-use App\Traits\SearchManager;
+use App\Traits\SearchManagerCollection;
 
 class CustodianController extends Controller
 {
     use CommonFunctions;
     use Responses;
-    use SearchManager;
+    use SearchManagerCollection;
 
     /**
      * @OA\Get(
