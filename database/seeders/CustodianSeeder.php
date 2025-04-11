@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use DB;
 use Hash;
-use App\Models\EntityModel;
+use App\Models\DecisionModel;
 use App\Models\CustodianModelConfig;
 use App\Models\Custodian;
 use App\Models\Rules;
@@ -28,6 +28,7 @@ class CustodianSeeder extends Seeder
         CustodianUser::truncate();
 
         DB::table('custodian_has_rules')->truncate();
+        DB::table('custodian_model_configs')->truncate();
 
         Schema::enableForeignKeyConstraints();
 
@@ -42,11 +43,11 @@ class CustodianSeeder extends Seeder
                 'idvt_required' => fake()->randomElement([0, 1]),
             ]);
 
-            $entityModels = EntityModel::all();
+            $decisionModels = DecisionModel::all();
 
-            foreach ($entityModels as $e) {
+            foreach ($decisionModels as $d) {
                 CustodianModelConfig::create([
-                    'entity_model_id' => $e->id,
+                    'entity_model_id' => $d->id,
                     'active' => 1,
                     'custodian_id' => $i->id,
                 ]);

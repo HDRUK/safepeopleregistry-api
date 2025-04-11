@@ -51,7 +51,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('v1/query', [QueryController::class, 'query']);
+Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1/query', [QueryController::class, 'query']);
 
 Route::middleware('api')->get('auth/me', [AuthController::class, 'me']);
 Route::middleware('api')->post('auth/register', [AuthController::class, 'registerKeycloakUser']);
@@ -67,7 +67,7 @@ Route::middleware('auth:api')->delete('v1/users/{id}', [UserController::class, '
 Route::middleware('auth:api')->post('v1/users/invite', [UserController::class, 'invite']);
 Route::middleware('auth:api')->post('v1/users/permissions', [PermissionController::class, 'assignUserPermissionsToFrom']);
 Route::middleware('auth:api')->post('v1/users/change-password/{userId}', [AuthController::class, 'changePassword']);
-Route::middleware('auth:api')->post('v1/users/validate', [UserController::class, 'validateUserRequest']);
+Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1/users/validate', [UserController::class, 'validateUserRequest']);
 Route::middleware('auth:api')->post('v1/users/search_affiliations', [UserController::class, 'searchUsersByNameAndProfessionalEmail']);
 Route::middleware('auth:api')->get('v1/users/{id}/projects', [UserController::class, 'userProjects']);
 
@@ -115,6 +115,7 @@ Route::middleware('auth:api')->get('v1/custodians/{id}', [CustodianController::c
 Route::middleware('auth:api')->get('v1/custodians/identifier/{id}', [CustodianController::class, 'showByUniqueIdentifier']);
 Route::middleware('auth:api')->post('v1/custodians/{id}/invite', [CustodianController::class, 'invite']);
 Route::middleware('auth:api')->get('v1/custodians/{id}/projects', [CustodianController::class, 'getProjects']);
+Route::middleware('auth:api')->get('v1/custodians/{id}/projects_users', [CustodianController::class, 'getProjectsUsers']);
 Route::middleware('auth:api')->post('v1/custodians', [CustodianController::class, 'store']);
 Route::middleware('auth:api')->put('v1/custodians/{id}', [CustodianController::class, 'update']);
 Route::middleware('auth:api')->patch('v1/custodians/{id}', [CustodianController::class, 'edit']);
@@ -144,15 +145,21 @@ Route::middleware('auth:api')->post('v1/endorsements', [EndorsementController::c
 
 Route::middleware('auth:api')->get('v1/projects', [ProjectController::class, 'index']);
 Route::middleware('auth:api')->get('v1/projects/{id}', [ProjectController::class, 'show']);
+
 Route::middleware('auth:api')->get('v1/projects/user/{registryId}/approved', [ProjectController::class, 'getApprovedProjects']);
 Route::middleware('auth:api')->get('v1/projects/{id}/users', [ProjectController::class, 'getProjectUsers']);
-Route::middleware('auth:api')->get('v1/projects/{id}/users/filter', [ProjectController::class, 'getProjectUsersWithFiltering']);
+Route::middleware('auth:api')->get('v1/projects/{id}/all_users', [ProjectController::class, 'getAllUsersFlagProject']);
+Route::middleware('auth:api')->put('v1/projects/{id}/all_users', [ProjectController::class, 'updateAllProjectUsers']);
+Route::middleware('auth:api')->post('v1/projects/{id}/users', [ProjectController::class, 'addProjectUser']);
+Route::middleware('auth:api')->put('v1/projects/{projectId}/users/{registryId}', [ProjectController::class, 'updateProjectUser']);
+Route::middleware('auth:api')->delete('v1/projects/{projectId}/users/{registryId}', [ProjectController::class, 'deleteUserFromProject']);
+
+
+Route::middleware('auth:api')->put('v1/projects/{projectId}/users/{registryId}/primary_contact', [ProjectController::class, 'makePrimaryContact']);
 Route::middleware('auth:api')->post('v1/projects', [ProjectController::class, 'store']);
 Route::middleware('auth:api')->put('v1/projects/{id}', [ProjectController::class, 'update']);
 Route::middleware('auth:api')->patch('v1/projects/{id}', [ProjectController::class, 'edit']);
 Route::middleware('auth:api')->delete('v1/projects/{id}', [ProjectController::class, 'destroy']);
-Route::middleware('auth:api')->put('v1/projects/{projectId}/users/{registryId}/primary_contact', [ProjectController::class, 'makePrimaryContact']);
-Route::middleware('auth:api')->delete('v1/projects/{projectId}/users/{registryId}', [ProjectController::class, 'deleteUserFromProject']);
 
 Route::middleware('auth:api')->get('v1/registries', [RegistryController::class, 'index']);
 Route::middleware('auth:api')->get('v1/registries/{id}', [RegistryController::class, 'show']);

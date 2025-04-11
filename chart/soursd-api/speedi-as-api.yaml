@@ -1,17 +1,17 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: speedi-as-api
+  name: soursd-api
 spec:
   selector:
     matchLabels:
-      app: speedi-as-api
+      app: soursd-api
   template:
     metadata:
       labels:
-        app: speedi-as-api
+        app: soursd-api
   containers:
-    - name: speedi-as-api
-      image: hdruk/speedi-as-api:latest
+    - name: soursd-api
+      image: hdruk/soursd-api:latest
       ports:
         - containerPort: 8100

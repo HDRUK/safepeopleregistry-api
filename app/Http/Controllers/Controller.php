@@ -7,7 +7,7 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 
 /**
- * @OA\Info(title="SPEEDI-AS API", version="0.1")
+ * @OA\Info(title="SOURSD API", version="0.1")
  */
 class Controller extends BaseController
 {

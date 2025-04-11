@@ -39,6 +39,8 @@ class CustodianModelConfigTest extends TestCase
 
     public function test_the_application_can_create_custodian_config(): void
     {
+        $this->enableObservers();
+
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'POST',

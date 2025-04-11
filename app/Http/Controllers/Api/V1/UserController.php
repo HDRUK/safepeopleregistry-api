@@ -6,8 +6,8 @@ use DB;
 use Hash;
 use Keycloak;
 use Exception;
-use RulesEngineManagementController as REMC;
 use RegistryManagementController as RMC;
+use App\Services\DecisionEvaluatorService as DES;
 use App\Models\User;
 use App\Models\Registry;
 use App\Models\Project;
@@ -31,6 +31,8 @@ class UserController extends Controller
     use CommonFunctions;
     use CheckPermissions;
     use Responses;
+
+    protected $decisionEvaluator = null;
 
     /**
      * @OA\Get(
@@ -85,6 +87,8 @@ class UserController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        $this->decisionEvaluator = new DES($request);
+
         $users = User::searchViaRequest()
             ->filterByState()
             ->with([
@@ -92,25 +96,27 @@ class UserController extends Controller
                 'registry',
                 'registry.files',
                 'registry.affiliations',
+                'registry.affiliations.organisation:id,organisation_name',
                 'pendingInvites',
                 'organisation',
                 'departments',
                 'registry.education',
                 'registry.trainings',
+                'registry.identity',
                 'modelState'
             ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
+
+        $evaluations = $this->decisionEvaluator->evaluate($users->items(), true);
+        $users->setCollection($users->getCollection()->map(function ($user) use ($evaluations) {
+            $user->evaluation = $evaluations[$user->id] ?? null;
+            return $user;
+        }));
+
 
         return response()->json(
             [
                 'message' => 'success',
                 'data' => $users,
-                // Needs looking at, as this is a VERY HEAVY call, taking 20
-                // seconds against current users. May not be able to include
-                // on generic route. Leaving in as aid to memory
-                // 'rules' => env('RULES_ENGINE_ACTIVE', true) ? REMC::evaluateRulesEngine(
-                //     $users->toArray(),
-                //     REMC::loadCustodianRules($request)
-                // ) : [],
             ],
             200
         );
@@ -213,6 +219,8 @@ class UserController extends Controller
     public function show(Request $request, int $id): JsonResponse
     {
         try {
+            $this->decisionEvaluator = new DES($request);
+
             $user = User::with([
                 'permissions',
                 'registry',
@@ -229,10 +237,7 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'success',
                 'data' => $user,
-                'rules' => env('RULES_ENGINE_ACTIVE', true) ? REMC::evaluateRulesEngine(
-                    $user->toArray(),
-                    REMC::loadCustodianRules($request)
-                ) : [],
+                'rules' => $this->decisionEvaluator->evaluate($user),
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());

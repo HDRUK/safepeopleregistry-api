@@ -53,6 +53,7 @@ class OrganisationFactory extends Factory
             'ror_id' => '02wnqcb97',
             'website' => 'https://www.website.com/',
             'smb_status' => false,
+            'organisation_size' => 2,
             'unclaimed' => false,
         ];
     }

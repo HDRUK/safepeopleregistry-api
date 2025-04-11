@@ -40,9 +40,14 @@ trait StateWorkflow
         ],
         State::STATE_VALIDATED => [],
         State::STATE_PROJECT_PENDING => [
+            State::STATE_PROJECT_PENDING,
             State::STATE_PROJECT_APPROVED,
         ],
         State::STATE_PROJECT_APPROVED => [
+            State::STATE_PROJECT_APPROVED,
+            State::STATE_PROJECT_COMPLETED
+        ],
+        State::STATE_PROJECT_COMPLETED => [
             State::STATE_PROJECT_COMPLETED
         ],
         State::STATE_AFFILIATION_INVITED => [

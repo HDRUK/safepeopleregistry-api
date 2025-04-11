@@ -42,7 +42,7 @@ class EmailServiceTest extends TestCase
         $template = EmailTemplate::where('identifier', '=', 'example_template')->first();
 
         $replacements = [
-            '[[header_text]]' => 'SPeeDI-AS Registry',
+            '[[header_text]]' => 'SOURSD',
             '[[button_text]]' => 'Click me!',
             '[[subheading_text]]' => 'Sub Heading Something or other',
         ];

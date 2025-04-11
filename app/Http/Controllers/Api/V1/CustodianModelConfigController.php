@@ -6,7 +6,7 @@ use Exception;
 use App\Models\CustodianModelConfig;
 use App\Models\Custodian;
 use App\Models\EntityModelType;
-use App\Models\EntityModel;
+use App\Models\DecisionModel;
 use App\Traits\CommonFunctions;
 use App\Http\Traits\Responses;
 use App\Http\Requests\CustodianModelConfig\CreateCustodianModelConfigRequest;
@@ -61,7 +61,7 @@ class CustodianModelConfigController extends Controller
      */
     public function getByCustodianID(Request $request, int $id): JsonResponse
     {
-        $conf = CustodianModelConfig::where('custodian_id', $id);
+        $conf = CustodianModelConfig::where('custodian_id', $id)->get();
         if (!$conf) {
             return $this->NotFoundResponse();
         }
@@ -246,7 +246,11 @@ class CustodianModelConfigController extends Controller
     public function destroy(Request $request, int $id): JsonResponse
     {
         try {
-            CustodianModelConfig::where('id', $id)->first()->delete();
+            $conf = CustodianModelConfig::where('id', $id)->first();
+            $conf->update([
+                'active' => 0,
+            ]);
+
             return $this->OKResponse(null);
 
         } catch (Exception $e) {
@@ -309,7 +313,7 @@ class CustodianModelConfigController extends Controller
             return $this->NotFoundResponse();
         }
 
-        $entityModels = EntityModel::with(['custodianModelConfig' => function ($query) use ($id) {
+        $entityModels = DecisionModel::with(['custodianModelConfig' => function ($query) use ($id) {
             $query->where('custodian_id', $id);
         }])
         ->whereHas('custodianModelConfig', function ($query) use ($id) {
