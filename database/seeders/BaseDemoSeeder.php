@@ -16,6 +16,7 @@ use App\Models\Training;
 use App\Models\Organisation;
 use App\Models\Affiliation;
 use App\Models\OrganisationHasCharity;
+use App\Models\OrganisationHasSubsidiary;
 use App\Models\Charity;
 use App\Models\Custodian;
 use App\Models\CustodianUser;
@@ -28,6 +29,7 @@ use App\Models\RegistryHasAffiliation;
 use App\Models\OrganisationHasDepartment;
 use App\Models\OrganisationHasCustodianApproval;
 use App\Models\State;
+use App\Models\Subsidiary;
 use App\Models\UserHasCustodianApproval;
 use App\Traits\CommonFunctions;
 use Illuminate\Database\Seeder;
@@ -112,6 +114,21 @@ class BaseDemoSeeder extends Seeder
         OrganisationHasCharity::create([
             'organisation_id' => $org1->id,
             'charity_id' => $charity->id,
+        ]);
+
+        $subsidiary = Subsidiary::create([
+            'name' => 'Health Pathways UK Subsidiary',
+            'address_1' => '12 South View',
+            'address_2' => '',
+            'town' => 'Letchworth Garden City',
+            'county' => 'Hertfordshire',
+            'country' => 'United Kingdom',
+            'postcode' => 'SG6 3JH',
+        ]);
+
+        OrganisationHasSubsidiary::create([
+            'organisation_id' => $org1->id,
+            'subsidiary_id' => $subsidiary->id,
         ]);
 
         $org1Depts = [

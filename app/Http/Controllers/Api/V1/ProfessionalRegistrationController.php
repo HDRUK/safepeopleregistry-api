@@ -21,7 +21,8 @@ class ProfessionalRegistrationController extends Controller
             'registryHasProfessionalRegistrations',
             function ($query) use ($registryId) {
                 $query->where('registry_id', '=', $registryId);
-            })
+            }
+        )
         ->paginate((int) $this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
