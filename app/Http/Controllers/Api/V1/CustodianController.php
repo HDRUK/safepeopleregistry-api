@@ -19,7 +19,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Http\Traits\Responses;
-use Illuminate\Pagination\LengthAwarePaginator;
 use App\Traits\SearchManagerCollection;
 
 class CustodianController extends Controller
