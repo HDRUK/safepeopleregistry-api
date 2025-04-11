@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use App\Traits\SearchManager;
@@ -320,7 +321,7 @@ class Organisation extends Model
         );
     }
 
-    public function sroOfficer()
+    public function sroOfficer(): HasOne
     {
         return $this->hasOne(
             User::class,
@@ -382,7 +383,7 @@ class Organisation extends Model
         return $this->hasMany(Affiliation::class, 'organisation_id');
     }
 
-    public function projects()
+    public function projects(): BelongsToMany
     {
         return $this->belongsToMany(
             Project::class,
