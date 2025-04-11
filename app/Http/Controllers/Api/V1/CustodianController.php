@@ -776,8 +776,7 @@ class CustodianController extends Controller
                 $query->where('custodians.id', $custodianId);
             })
             ->whereHas('projects', function ($query) {
-                $query->filterByState()
-                    ->with("modelState");
+                $query->filterByState();
             })->getOrganisationsProjects();
 
         return $this->OKResponse($this->paginateCollection($results));
