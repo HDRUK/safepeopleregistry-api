@@ -14,7 +14,7 @@ class RegistryReadRequestNotification extends Notification
     private $details;
     private $buttonUrls;
 
-    public function __construct($user, $readRequest, $custodianName)
+    public function __construct($readRequest, $custodianName)
     {
         $this->message = $custodianName . ' requested access to view your SOURSD data on ' . $readRequest->created_at->toFormattedDayDateString() . '.';
         $this->details = 'You can either approve or deny the request from ' . $custodianName . ' below. The Data Custodian will be notified of your decision.';

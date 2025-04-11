@@ -18,6 +18,6 @@ class RegistryReadRequestObserver
         $user = User::where('registry_id', $readRequest->registry_id)->first();
         $custodian = Custodian::where('id', $readRequest->custodian_id)->first();
 
-        Notification::send($user, new RegistryReadRequestNotification([$user->id], $readRequest, $custodian->name));
+        Notification::send($user, new RegistryReadRequestNotification($readRequest, $custodian->name));
     }
 }
