@@ -15,6 +15,8 @@ use App\Models\Organisation;
 use App\Models\CustodianHasRule;
 use App\Models\Rules;
 use App\Models\Project;
+use App\Models\Registry;
+use App\Models\RegistryHasAffiliation;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -834,6 +836,22 @@ class CustodianController extends Controller
             'message' => 'success',
             'data' => $custodian->rules
         ]);
+    }
+
+    public function getOrganisationUsers(Request $request, int $custodianId, int $organisationId): JsonResponse
+    {
+        $users = User::searchViaRequest()->applySorting()->with(['registry.affiliations' => function ($query) use ($organisationId) {
+                $query->where('organisation_id', $organisationId);
+            }])->whereNotNull('registry_id')->whereHas('registry.affiliations', function ($query) use ($organisationId) {
+                $query->where('organisation_id', $organisationId);
+            })
+            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+
+        if ($users) {
+            return $this->OKResponse($users);
+        }
+
+        return $this->NotFoundResponse();
     }
 
     /**
