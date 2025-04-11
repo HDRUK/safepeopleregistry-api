@@ -839,7 +839,7 @@ class CustodianController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/api/v1/custodians/{custodianId}/organistions/{organisationId}/users",
+     *      path="/api/v1/custodians/{custodianId}/organisations/{organisationId}/users",
      *      summary="Get rules for a specific custodian",
      *      description="Fetches the list of users associated with the given custodian and organisations IDs.",
      *      tags={"Custodians"},
@@ -887,6 +887,8 @@ class CustodianController extends Controller
             $query->where('organisation_id', $organisationId);
         })
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+
+            //
 
         if ($users) {
             return $this->OKResponse($users);
