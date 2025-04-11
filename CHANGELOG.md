@@ -1,3 +1,21 @@
+## [1.4.0](https://github.com/HDRUK/soursd-api/compare/v1.3.0...v1.4.0) (2025-04-11)
+
+### ✨ Features
+
+* **SOURSD-912:** Adds rule engine into core code, as go rules failed miserably when running against a full payload of users ([1f8faad](https://github.com/HDRUK/soursd-api/commit/1f8faadb6af2ba140c9337a8107a13f7a2afe988))
+* **SOURSD-912:** Further implementation of rules engine and custom rule sets ([6266857](https://github.com/HDRUK/soursd-api/commit/626685713ac5ca614f5595d28d854822c3a489c3))
+* **SOURSD-912:** Replace gorules with custom implementation for easier and extended use ([a63bfba](https://github.com/HDRUK/soursd-api/commit/a63bfba74b3d205a1ed641eb3339435ebb4a1d8e))
+* **SOURSD-931:** update state (#254) ([ad9ebe1](https://github.com/HDRUK/soursd-api/commit/ad9ebe1ed50d5eb9ef19cb99a21051e58c043a5f))
+* **SOURSD-944:** Implements the rest of the default rules ([fb8889e](https://github.com/HDRUK/soursd-api/commit/fb8889e5c10bc6101eed75c62272b862f3eef14d))
+* **SOURSD-946:** Add migrate to auto build in pipeline. Remove continued prod seeder ([f5af427](https://github.com/HDRUK/soursd-api/commit/f5af427e59b693a0a9b777ed828d52ae5c507b32))
+* **SOURSD-957:** Implements more security around custodian querying ([7ee816f](https://github.com/HDRUK/soursd-api/commit/7ee816f089f55717c93ee2c03d13b3f6bbd1b48c))
+
+### 🐛 Bug Fixes
+
+* **SOURSD-948:** Corrects a bug which accidentally applied custodian rules to organisational requests ([def7af1](https://github.com/HDRUK/soursd-api/commit/def7af11d5aeb01b637346cbb64daa1002b644f1))
+* **SOURSD-952:** Apply regId filter in logic of endpoint. (#266) ([d139e53](https://github.com/HDRUK/soursd-api/commit/d139e53299538c225bdea23e8ac717cc29e6dbbd))
+* **SOURSD-962:** Attempt to fix keycloak timeout in dev env ([85c0fed](https://github.com/HDRUK/soursd-api/commit/85c0fed3761bd91094c45d5845f424239b655bb0))
+
 ## [1.3.0](https://github.com/HDRUK/soursd-api/compare/v1.2.0...v1.3.0) (2025-03-31)
 
 ### ✨ Features
