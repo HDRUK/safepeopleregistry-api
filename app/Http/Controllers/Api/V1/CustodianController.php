@@ -716,7 +716,7 @@ class CustodianController extends Controller
             return $this->OKResponse($projects);
         }
 
-        return $this->NotFoundResponse('user not found');
+        return $this->NotFoundResponse();
     }
 
     /**
