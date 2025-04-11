@@ -155,8 +155,6 @@ class Custodian extends Model
         return $this->belongsToMany(Project::class, 'project_has_custodians', 'custodian_id', 'project_id');
     }
 
-    //custodian - project_has_custodian - project - project_has_organisation - organisation
-
     /**
      * Get all approved organisations for this custodian.
      *
