@@ -885,8 +885,6 @@ class CustodianController extends Controller
             $query->where('organisation_id', $organisationId);
         }])->whereNotNull('registry_id')->whereHas('registry.affiliations', function ($query) use ($organisationId) {
             $query->where('organisation_id', $organisationId);
-        })->whereHas('projects.custodians', function ($query) use ($custodianId) {
-            $query->where('custodians.id', $custodianId);
         })->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         if ($users) {
