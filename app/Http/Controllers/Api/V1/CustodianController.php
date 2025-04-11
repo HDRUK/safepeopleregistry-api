@@ -636,7 +636,7 @@ class CustodianController extends Controller
      * @OA\Get(
      *      path="/api/v1/custodian/{custodianId}/users/{userId}/projects",
      *      summary="Return all custodian projects associated with a user",
-     *      description="Fetch a list of custdoians projects associated with a user, along with pagination details.",
+     *      description="Fetch a list of custodians projects associated with a user, along with pagination details.",
      *      tags={"custodian"},
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
