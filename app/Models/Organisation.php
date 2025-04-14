@@ -328,7 +328,7 @@ class Organisation extends Model
         )->where('is_sro', 1);
     }
 
-
+    //Possible refactor candidate
     public function scopeGetOrganisationsProjects($query)
     {
         $results = array();
