@@ -844,7 +844,7 @@ class CustodianController extends Controller
      *      description="Fetches the list of users associated with the given custodian and organisations IDs.",
      *      tags={"Custodians"},
      *      @OA\Parameter(
-     *          name="id",
+     *          name="custodianId",
      *          in="path",
      *          required=true,
      *          description="ID of the custodian",
