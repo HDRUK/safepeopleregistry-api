@@ -20,7 +20,7 @@ if [ $APP_ENV = 'local' ] || [ $APP_ENV = 'dev' ]; then
 else
     # Only forward-facing migrations anywhere else
     php artisan migrate
-    # call the email template seeder to updateOrCreate without truncating first
+    # call the email template seeder to updateOrCreate withoutc truncating first
     DISABLE_TRUNCATE=true php artisan db:seed --class=EmailTemplatesSeeder
 
     echo "running in prod mode"
