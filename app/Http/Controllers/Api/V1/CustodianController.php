@@ -840,7 +840,7 @@ class CustodianController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/custodians/{custodianId}/organisations/{organisationId}/users",
-     *      summary="Get rules for a specific custodian",
+     *      summary="Get list of people for organistion",
      *      description="Fetches the list of users associated with the given custodian and organisations IDs.",
      *      tags={"Custodians"},
      *      @OA\Parameter(
