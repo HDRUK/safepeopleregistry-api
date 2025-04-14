@@ -983,7 +983,7 @@ class CustodianController extends Controller
      *          description="Successfully retrieved organisation users",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data",
+     *              @OA\Property(property="data", type="array",
      *                  @OA\Items(
      *                      ref="#/components/schemas/User"
      *                  )
