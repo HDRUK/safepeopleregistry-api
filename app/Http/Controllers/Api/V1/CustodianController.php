@@ -851,7 +851,7 @@ class CustodianController extends Controller
      *          @OA\Schema(type="integer")
      *      ),
      *      @OA\Parameter(
-     *          name="id",
+     *          name="organisationId",
      *          in="path",
      *          required=true,
      *          description="ID of the organiastion",
