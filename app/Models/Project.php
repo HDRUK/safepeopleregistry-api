@@ -57,8 +57,8 @@ use App\Traits\FilterManager;
  *          example="2023-10-10T15:03:00Z"
  *      ),
  *      @OA\Property(property="end_date",
- *          type="bool",
- *          example="false"
+ *          type="string",
+ *          example="2024-10-10T15:03:00Z"
  *      )
  * )
  */
