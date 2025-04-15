@@ -91,7 +91,7 @@ Route::middleware('auth:api')->put(
 
 
 Route::middleware('auth:api')->get('v1/validation_logs/{id}', [ValidationLogController::class, 'index']);
-Route::middleware('auth:api')->get('v1/validation_logs/{id}/commments', [ValidationLogController::class, 'comments']);
+Route::middleware('auth:api')->get('v1/validation_logs/{id}/comments', [ValidationLogController::class, 'comments']);
 Route::middleware('auth:api')->put('v1/validation_logs/{id}', [ValidationLogController::class, 'update']);
 
 
