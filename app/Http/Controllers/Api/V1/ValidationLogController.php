@@ -118,6 +118,61 @@ class ValidationLogController extends Controller
 
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/validation_logs/{custodianId}/organisation/{organisationId}",
+     *     summary="Get Validation Logs for Custodian and Organisation",
+     *     description="Retrieve validation logs associated with a given custodian and organisation.",
+     *     tags={"Validation Logs"},
+     *
+     *     @OA\Parameter(
+     *         name="custodianId",
+     *         in="path",
+     *         required=true,
+     *         description="The ID of the custodian entity",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *
+     *     @OA\Parameter(
+     *         name="organisationId",
+     *         in="path",
+     *         required=true,
+     *         description="The ID of the organisation entity",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *
+     *     @OA\Parameter(
+     *         name="show_disabled",
+     *         in="query",
+     *         required=false,
+     *         description="Whether to include disabled validation logs",
+     *         @OA\Schema(type="boolean")
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response with validation logs",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/ValidationLog")
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=404,
+     *         description="Custodian or Organisation not found"
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error"
+     *     )
+     * )
+     */
     public function getCustodianOrganisationValidationLogs(
         Request $request,
         int $custodianId,
