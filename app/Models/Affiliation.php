@@ -133,5 +133,4 @@ class Affiliation extends Model
             'affiliation_id'
         );
     }
-
 }

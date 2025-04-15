@@ -14,16 +14,19 @@ use App\Models\Organisation;
 use App\Models\CustodianHasRule;
 use App\Models\Rules;
 use App\Models\Project;
+use App\Models\Registry;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Http\Traits\Responses;
+use App\Traits\SearchManagerCollection;
 
 class CustodianController extends Controller
 {
     use CommonFunctions;
     use Responses;
+    use SearchManagerCollection;
 
     /**
      * @OA\Get(
@@ -719,6 +722,69 @@ class CustodianController extends Controller
 
     /**
      * @OA\Get(
+     *      path="/api/v1/custodian/{custodianId}/organisations",
+     *      summary="Return all custodian organisations with projects",
+     *      description="Fetch a list of custodians organisations with projects, along with pagination details.",
+     *      tags={"custodian"},
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *          name="custodianId",
+     *          in="path",
+     *          description="The ID of the custodian whose organisations are to be retrieved",
+     *          required=true,
+     *          example="1",
+     *          @OA\Schema(
+     *              type="integer"
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="object",
+     *                  @OA\Property(property="current_page", type="integer", example=1),
+     *                  @OA\Property(property="per_page", type="integer", example=25),
+     *                  @OA\Property(property="total", type="integer", example=24),
+     *                  @OA\Property(property="data", type="array",
+     *                      @OA\Items(
+     *                          ref="#/components/schemas/Organisation",
+     *                          @OA\Property(property="project", type="array",
+     *                              @OA\Items(
+     *                                  ref="#/components/schemas/Project",
+     *                              )
+     *                          )
+     *                      )
+     *                  ),
+     *                  @OA\Property(property="first_page_url", type="string", example="http://localhost:8100/api/v1/custodians/1/organisations?page=1"),
+     *                  @OA\Property(property="last_page_url", type="string", example="http://localhost:8100/api/v1/custodians/1/organisations?page=1"),
+     *                  @OA\Property(property="next_page_url", type="string", example=null),
+     *                  @OA\Property(property="prev_page_url", type="string", example=null)
+     *              )
+     *          )
+     *      )
+     * )
+     */
+    public function getOrganisations(Request $request, int $custodianId): JsonResponse
+    {
+        $results = Organisation::searchViaRequest()
+            ->applySorting()
+            ->with(['sroOfficer', 'projects' => function ($query) {
+                $query->filterByState()
+                    ->with("modelState.state");
+            }])
+            ->whereHas('projects.custodians', function ($query) use ($custodianId) {
+                $query->where('custodians.id', $custodianId);
+            })
+            ->whereHas('projects', function ($query) {
+                $query->filterByState();
+            })->getOrganisationsProjects();
+
+        return $this->OKResponse($this->paginateCollection($results));
+    }
+
+    /**
+     * @OA\Get(
      *      path="/api/v1/custodians/{custodianId}/projects_users",
      *      summary="Return all users associated to all projects associated with a custodian",
      *      description="Fetch a list of users for all projects along with pagination details for a specified custodian.",
@@ -890,6 +956,63 @@ class CustodianController extends Controller
             'message' => 'success',
             'data' => $custodian->rules
         ]);
+    }
+
+    /**
+     * @OA\Get(
+     *      path="/api/v1/custodians/{custodianId}/organisations/{organisationId}/users",
+     *      summary="Get list of people for organistion",
+     *      description="Fetches the list of users associated with the given custodian and organisations IDs.",
+     *      tags={"Custodians"},
+     *      @OA\Parameter(
+     *          name="custodianId",
+     *          in="path",
+     *          required=true,
+     *          description="ID of the custodian",
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\Parameter(
+     *          name="organisationId",
+     *          in="path",
+     *          required=true,
+     *          description="ID of the organiastion",
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successfully retrieved organisation users",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="array",
+     *                  @OA\Items(
+     *                      ref="#/components/schemas/User"
+     *                  )
+     *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Organisation users not found",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="Organisation users not found")
+     *          )
+     *      )
+     * )
+     */
+    public function getOrganisationUsers(Request $request, int $custodianId, int $organisationId): JsonResponse
+    {
+        $users = User::searchViaRequest()->applySorting()->with(['registry.affiliations' => function ($query) use ($organisationId) {
+            $query->where('organisation_id', $organisationId);
+        }])->whereNotNull('registry_id')->whereHas('registry.affiliations', function ($query) use ($organisationId) {
+            $query->where('organisation_id', $organisationId);
+        })->paginate((int)$this->getSystemConfig('PER_PAGE'));
+
+        if ($users) {
+            return $this->OKResponse($users);
+        }
+
+        return $this->NotFoundResponse();
     }
 
     /**
