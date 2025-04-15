@@ -234,10 +234,11 @@ class UserController extends Controller
                 'registry.trainings',
             ])->where('id', $id)->first();
 
+            $user['rules'] = $this->decisionEvaluator->evaluate($user);
+
             return response()->json([
                 'message' => 'success',
-                'data' => $user,
-                'rules' => $this->decisionEvaluator->evaluate($user),
+                'data' => $user
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
