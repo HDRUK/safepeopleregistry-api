@@ -117,6 +117,62 @@ class ValidationLogController extends Controller
 
     }
 
+    public function getCustodianOrganisationValidationLogs(
+        Request $request,
+        int $custodianId,
+        int $organisationId,
+    ): JsonResponse {
+
+        return response()->json("hiya!");
+
+        try {
+            $withDisabled = $request->boolean("show_disabled");
+            $registry = Registry::findOrFail($registryId);
+            $phu = ProjectHasUser::where(
+                [
+                    'project_id' => $projectId,
+                    'user_digital_ident' => $registry->digi_ident
+                ]
+            )->first();
+
+            if (is_null($phu)) {
+                return $this->NotFoundResponse();
+            }
+
+            $phc = ProjectHasCustodian::where(
+                [
+                    'project_id' => $projectId,
+                    'custodian_id' => $custodianId
+                ]
+            )->first();
+
+            if (is_null($phc)) {
+                return $this->NotFoundResponse();
+            }
+
+            $logs = ValidationLog::where('entity_type', Custodian::class)
+                ->where('entity_id', $custodianId)
+                ->where('secondary_entity_type', Project::class)
+                ->where('secondary_entity_id', $projectId)
+                ->where('tertiary_entity_type', Registry::class)
+                ->where('tertiary_entity_id', $registryId)
+                ->with("comments")
+                ->when(
+                    $withDisabled,
+                    function ($query) {
+                        $query->withDisabled();
+                    }
+                )
+                ->get();
+
+            return $this->OKResponse($logs);
+
+        } catch (Exception $e) {
+            return $this->ErrorResponse();
+        }
+
+    }
+
     /**
      * @OA\Put(
      *     path="/api/v1/custodians/{custodianId}/validation_Logs",
