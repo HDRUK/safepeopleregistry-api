@@ -10,6 +10,8 @@ use App\Models\Project;
 use App\Models\ProjectHasCustodian;
 use App\Models\ProjectHasUser;
 use App\Models\Registry;
+use App\Models\Organisation;
+use App\Models\OrganisationHasCustodianApproval;
 
 /**
  * ValidationManager
@@ -87,4 +89,29 @@ trait ValidationManager
             })
             ->delete();
     }
+
+    public function updateCustodianOrganisationValidation(
+        int $custodianId,
+        int $organisationId,
+    ): void {
+
+        $organisation = Organisation::find($organisationId);
+        $custodian = Custodian::find($custodianId);
+     
+        foreach (OrganisationHasCustodianApproval::getDefaultActions() as $action) {
+            ValidationLog::updateOrCreate(
+                [
+                    'entity_id' => $custodian->id,
+                    'entity_type' => Custodian::class,
+                    'name' => $action,
+                    'secondary_entity_id' => $organisation->id,
+                    'secondary_entity_type' => Organisation::class,
+                ],
+                [
+                    'completed_at' => null,
+                ]
+            );
+        }
+    }
+      
 }

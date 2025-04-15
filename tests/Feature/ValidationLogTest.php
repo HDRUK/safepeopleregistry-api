@@ -10,9 +10,12 @@ use App\Models\ProjectHasUser;
 use App\Models\Project;
 use App\Models\ProjectHasCustodian;
 use App\Models\ValidationLog;
+use App\Models\Organisation;
+use App\Models\OrganisationHasCustodianApproval;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 use Carbon\Carbon;
+use DB;
 
 class ValidationLogTest extends TestCase
 {
@@ -98,7 +101,12 @@ class ValidationLogTest extends TestCase
             'custodian_id' => $newCustodian->id ,
         ]);
 
-        $this->assertDatabaseCount('validation_logs', 2 * count($defaultActions));
+        $this->assertEquals(
+            2 * count($defaultActions),
+            DB::table('validation_logs')
+                ->where('secondary_entity_type', Project::class)
+                ->count()
+        );
         foreach ($defaultActions as $action) {
             $this->assertDatabaseHas('validation_logs', [
                 'entity_id' => $newCustodian->id,
@@ -126,7 +134,13 @@ class ValidationLogTest extends TestCase
         ]);
 
 
-        $this->assertDatabaseCount('validation_logs', 2 * count($defaultActions));
+        $this->assertEquals(
+            2 * count($defaultActions),
+            DB::table('validation_logs')
+                ->where('secondary_entity_type', Project::class)
+                ->count()
+        );
+
         foreach ($defaultActions as $action) {
             $this->assertDatabaseHas('validation_logs', [
                 'entity_id' => $newCustodian->id,
@@ -142,7 +156,13 @@ class ValidationLogTest extends TestCase
 
         $phc->delete();
 
-        $this->assertDatabaseCount('validation_logs', count($defaultActions));
+        $this->assertEquals(
+            count($defaultActions),
+            DB::table('validation_logs')
+                ->where('secondary_entity_type', Project::class)
+                ->count()
+        );
+
         foreach ($defaultActions as $action) {
             $this->assertDatabaseMissing('validation_logs', [
                 'entity_id' => $newCustodian->id,
@@ -539,6 +559,45 @@ class ValidationLogTest extends TestCase
         $response->assertJson(['data' => $expectedResponse]);
 
     }
+
+    public function test_it_adds_custodian_organisation_validation_logs()
+    {
+        Organisation::truncate();
+        Custodian::truncate();
+        ValidationLog::truncate();
+
+        $defaultActions = OrganisationHasCustodianApproval::getDefaultActions();
+        $newCustodian = Custodian::factory()->create();
+        $newOrganisation = Organisation::factory()->create();
+
+        $this->assertEquals(
+            count($defaultActions) *  Custodian::count() * Organisation::count(),
+            ValidationLog::where('entity_type', Custodian::class)
+                ->where('secondary_entity_type', Organisation::class)
+                ->count()
+        );
+
+        $newCustodian = Custodian::factory()->create();
+        $this->assertEquals(
+            count($defaultActions) *  Custodian::count() * Organisation::count(),
+            ValidationLog::where('entity_type', Custodian::class)
+                ->where('secondary_entity_type', Organisation::class)
+                ->count()
+        );
+
+
+        $newOrganisation = Organisation::factory()->create();
+
+        $this->assertEquals(
+            count($defaultActions) *  Custodian::count() * Organisation::count(),
+            ValidationLog::where('entity_type', Custodian::class)
+                ->where('secondary_entity_type', Organisation::class)
+                ->count()
+        );
+
+
+    }
+
 
     private function add_user_and_custodian_to_project()
     {

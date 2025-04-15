@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\ValidationLog;
 use App\Models\Custodian;
+use App\Models\Organisation;
 use App\Models\Project;
 use App\Models\ProjectHasUser;
 use App\Models\ProjectHasCustodian;
@@ -113,6 +114,89 @@ class ValidationLogController extends Controller
 
         } catch (Exception $e) {
             return $this->ErrorResponse();
+        }
+
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/validation_logs/{custodianId}/organisation/{organisationId}",
+     *     summary="Get Validation Logs for Custodian and Organisation",
+     *     description="Retrieve validation logs associated with a given custodian and organisation.",
+     *     tags={"Validation Logs"},
+     *
+     *     @OA\Parameter(
+     *         name="custodianId",
+     *         in="path",
+     *         required=true,
+     *         description="The ID of the custodian entity",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *
+     *     @OA\Parameter(
+     *         name="organisationId",
+     *         in="path",
+     *         required=true,
+     *         description="The ID of the organisation entity",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *
+     *     @OA\Parameter(
+     *         name="show_disabled",
+     *         in="query",
+     *         required=false,
+     *         description="Whether to include disabled validation logs",
+     *         @OA\Schema(type="boolean")
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful response with validation logs",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/ValidationLog")
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=404,
+     *         description="Custodian or Organisation not found"
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error"
+     *     )
+     * )
+     */
+    public function getCustodianOrganisationValidationLogs(
+        Request $request,
+        int $custodianId,
+        int $organisationId,
+    ): JsonResponse {
+        $withDisabled = $request->boolean("show_disabled");
+        try {
+            $logs = ValidationLog::where('entity_type', Custodian::class)
+                ->where('entity_id', $custodianId)
+                ->where('secondary_entity_type', Organisation::class)
+                ->where('secondary_entity_id', $organisationId)
+                ->with("comments")
+                ->when(
+                    $withDisabled,
+                    function ($query) {
+                        $query->withDisabled();
+                    }
+                )
+                ->get();
+
+            return $this->OKResponse($logs);
+
+        } catch (Exception $e) {
+            return $this->ErrorResponse($e->getMessage());
         }
 
     }
