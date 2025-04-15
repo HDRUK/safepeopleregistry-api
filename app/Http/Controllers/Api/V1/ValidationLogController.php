@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\ValidationLog;
 use App\Models\Custodian;
+use App\Models\Organisation;
 use App\Models\Project;
 use App\Models\ProjectHasUser;
 use App\Models\ProjectHasCustodian;
@@ -122,40 +123,12 @@ class ValidationLogController extends Controller
         int $custodianId,
         int $organisationId,
     ): JsonResponse {
-
-        return response()->json("hiya!");
-
+        $withDisabled = $request->boolean("show_disabled");
         try {
-            $withDisabled = $request->boolean("show_disabled");
-            $registry = Registry::findOrFail($registryId);
-            $phu = ProjectHasUser::where(
-                [
-                    'project_id' => $projectId,
-                    'user_digital_ident' => $registry->digi_ident
-                ]
-            )->first();
-
-            if (is_null($phu)) {
-                return $this->NotFoundResponse();
-            }
-
-            $phc = ProjectHasCustodian::where(
-                [
-                    'project_id' => $projectId,
-                    'custodian_id' => $custodianId
-                ]
-            )->first();
-
-            if (is_null($phc)) {
-                return $this->NotFoundResponse();
-            }
-
             $logs = ValidationLog::where('entity_type', Custodian::class)
                 ->where('entity_id', $custodianId)
-                ->where('secondary_entity_type', Project::class)
-                ->where('secondary_entity_id', $projectId)
-                ->where('tertiary_entity_type', Registry::class)
-                ->where('tertiary_entity_id', $registryId)
+                ->where('secondary_entity_type', Organisation::class)
+                ->where('secondary_entity_id', $organisationId)
                 ->with("comments")
                 ->when(
                     $withDisabled,
@@ -168,7 +141,7 @@ class ValidationLogController extends Controller
             return $this->OKResponse($logs);
 
         } catch (Exception $e) {
-            return $this->ErrorResponse();
+            return $this->ErrorResponse($e->getMessage());
         }
 
     }
