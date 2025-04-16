@@ -15,6 +15,7 @@ use App\Models\CustodianHasRule;
 use App\Models\Rules;
 use App\Models\Project;
 use App\Models\Registry;
+use App\Models\CustodianUser;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -956,6 +957,61 @@ class CustodianController extends Controller
             'message' => 'success',
             'data' => $custodian->rules
         ]);
+    }
+
+        /**
+     * @OA\Get(
+     *      path="/api/v1/custodians/{custodianId}/organisations/{organisationId}/users",
+     *      summary="Get list of people for organistion",
+     *      description="Fetches the list of users associated with the given custodian and organisations IDs.",
+     *      tags={"Custodians"},
+     *      @OA\Parameter(
+     *          name="custodianId",
+     *          in="path",
+     *          required=true,
+     *          description="ID of the custodian",
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\Parameter(
+     *          name="organisationId",
+     *          in="path",
+     *          required=true,
+     *          description="ID of the organiastion",
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successfully retrieved organisation users",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="array",
+     *                  @OA\Items(
+     *                      ref="#/components/schemas/User"
+     *                  )
+     *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Organisation users not found",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="Organisation users not found")
+     *          )
+     *      )
+     * )
+     */
+    public function getCustodianUsers(Request $request, int $custodianId): JsonResponse
+    {
+        $users = CustodianUser::searchViaRequest()->where('custodian_id', $custodianId)
+            ->applySorting()->with("userPermissions.permission")
+            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+
+        if ($users) {
+            return $this->OKResponse($users);
+        }
+
+        return $this->NotFoundResponse();
     }
 
     /**

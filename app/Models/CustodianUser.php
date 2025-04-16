@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\SearchManager;
 
 class CustodianUser extends Model
 {
     use HasFactory;
+    use SearchManager;
 
     public $table = 'custodian_users';
 
@@ -26,6 +28,18 @@ class CustodianUser extends Model
     protected $hidden = [
         'password',
         'keycloak_id',
+    ];
+
+    protected static array $searchableColumns = [
+        'first_name',
+        'last_name',
+        'email'
+    ];
+
+    protected static array $sortableColumns = [
+        'first_name',
+        'last_name',
+        'email'
     ];
 
     /**
