@@ -59,8 +59,8 @@ class EmailTemplatesSeeder extends Seeder
     {
         $truncate = !env('DISABLE_TRUNCATE', false);
 
-        if($truncate){
-          EmailTemplate::truncate();
+        if ($truncate) {
+            EmailTemplate::truncate();
         }
 
         $templates = [
@@ -132,7 +132,7 @@ class EmailTemplatesSeeder extends Seeder
                 }
               ',
         ],
-        [ 
+        [
           'identifier' => 'custodian_invite',
           'subject' => 'You\'ve been selected as a trusted Data Custodian!',
           'body' => '
@@ -432,15 +432,15 @@ class EmailTemplatesSeeder extends Seeder
         ];
 
         foreach ($templates as $template) {
-          EmailTemplate::updateOrCreate(
-              ['identifier' => $template['identifier']],
-              [
-                  'subject' => $template['subject'],
-                  'body' => $template['body'],
-                  'buttons' => $template['buttons'] ?? '',
-              ]
-          );
-      }
+            EmailTemplate::updateOrCreate(
+                ['identifier' => $template['identifier']],
+                [
+                    'subject' => $template['subject'],
+                    'body' => $template['body'],
+                    'buttons' => $template['buttons'] ?? '',
+                ]
+            );
+        }
 
 
     }

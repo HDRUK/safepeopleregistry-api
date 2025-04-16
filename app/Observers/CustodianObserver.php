@@ -36,7 +36,7 @@ class CustodianObserver
         }
 
         $organisationIds = Organisation::select("id")->pluck("id");
-        foreach ($organisationIds as $organisationId){
+        foreach ($organisationIds as $organisationId) {
             $this->updateCustodianOrganisationValidation(
                 $custodian->id,
                 $organisationId

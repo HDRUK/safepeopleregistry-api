@@ -959,11 +959,11 @@ class CustodianController extends Controller
         ]);
     }
 
-        /**
+    /**
      * @OA\Get(
-     *      path="/api/v1/custodians/{custodianId}/organisations/{organisationId}/users",
+     *      path="/api/v1/custodians/{custodianId}/custodian_users",
      *      summary="Get list of people for organistion",
-     *      description="Fetches the list of users associated with the given custodian and organisations IDs.",
+     *      description="Fetches the list of custodian users based on the custodian id.",
      *      tags={"Custodians"},
      *      @OA\Parameter(
      *          name="custodianId",
@@ -972,31 +972,24 @@ class CustodianController extends Controller
      *          description="ID of the custodian",
      *          @OA\Schema(type="integer")
      *      ),
-     *      @OA\Parameter(
-     *          name="organisationId",
-     *          in="path",
-     *          required=true,
-     *          description="ID of the organiastion",
-     *          @OA\Schema(type="integer")
-     *      ),
      *      @OA\Response(
      *          response=200,
-     *          description="Successfully retrieved organisation users",
+     *          description="Successfully retrieved custodian users",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="array",
      *                  @OA\Items(
-     *                      ref="#/components/schemas/User"
+     *                      ref="#/components/schemas/CustodianUser"
      *                  )
      *              )
      *          ),
      *      ),
      *      @OA\Response(
      *          response=404,
-     *          description="Organisation users not found",
+     *          description="Custodian users not found",
      *          @OA\JsonContent(
      *              type="object",
-     *              @OA\Property(property="message", type="string", example="Organisation users not found")
+     *              @OA\Property(property="message", type="string", example="Custodian users not found")
      *          )
      *      )
      * )

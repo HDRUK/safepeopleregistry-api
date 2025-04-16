@@ -64,7 +64,7 @@ class OrganisationObserver
         $this->manageAffiliationStates($organisation);
 
         $custodianIds = Custodian::select("id")->pluck("id");
-        foreach ($custodianIds as $custodianId){
+        foreach ($custodianIds as $custodianId) {
             $this->updateCustodianOrganisationValidation(
                 $custodianId,
                 $organisation->id

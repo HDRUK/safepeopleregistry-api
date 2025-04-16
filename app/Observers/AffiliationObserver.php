@@ -42,14 +42,15 @@ class AffiliationObserver
 
     }
 
-    protected function emailDelegates(Affiliation $affiliation){
+    protected function emailDelegates(Affiliation $affiliation)
+    {
         $isComplete = $this->checkComplete($affiliation);
 
         $originalAttributes = $affiliation->getOriginal();
         $originalAffiliation = new Affiliation($originalAttributes);
         $wasIncomplete = !$this->checkComplete($originalAffiliation);
 
-        if(!($isComplete && $wasIncomplete)){
+        if (!($isComplete && $wasIncomplete)) {
             return;
         }
 
@@ -62,7 +63,7 @@ class AffiliationObserver
 
         $firstRha = $affiliation->registryHasAffiliations()->first();
         $userId = optional($firstRha)?->registry?->user?->id;
-        if(is_null($userId)){
+        if (is_null($userId)) {
             return;
         }
         foreach ($delegateIds as $delegateId) {
@@ -73,15 +74,16 @@ class AffiliationObserver
                 'for' => $userId,
                 'identifier' => 'delegate_sponsor'
             ];
-    
+
             TriggerEmail::spawnEmail($input);
         }
     }
 
-    protected function checkComplete(Affiliation $affiliation){
-            return !empty($affiliation->member_id) &&
-                !empty($affiliation->relationship) &&
-                !empty($affiliation->from);
+    protected function checkComplete(Affiliation $affiliation)
+    {
+        return !empty($affiliation->member_id) &&
+            !empty($affiliation->relationship) &&
+            !empty($affiliation->from);
     }
 
 }

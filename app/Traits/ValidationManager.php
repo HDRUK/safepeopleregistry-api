@@ -97,7 +97,7 @@ trait ValidationManager
 
         $organisation = Organisation::find($organisationId);
         $custodian = Custodian::find($custodianId);
-     
+
         foreach (OrganisationHasCustodianApproval::getDefaultActions() as $action) {
             ValidationLog::updateOrCreate(
                 [
@@ -113,5 +113,5 @@ trait ValidationManager
             );
         }
     }
-      
+
 }
