@@ -206,7 +206,7 @@ class EmailTemplatesSeeder extends Seeder
                     <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px">
                       <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
                           <mj-text align="left" padding="10px 25px 10px 25px">
-                            You\'ve been added [[role.description]] by [[custodian.name]].                     
+                            You\'ve been added [[role_description]] by [[custodian.name]].                     
                             <div><br/></div>          
                             ' . $this->supportFooter . '
                           </mj-text>

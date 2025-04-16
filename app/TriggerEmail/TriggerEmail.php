@@ -176,7 +176,7 @@ class TriggerEmail
                     '[[custodian_user.last_name]]' => $custodianUser->last_name,
                     '[[custodian.name]]' => $custodian->name,
                     '[[custodian.id]]' => $custodian->id,
-                    '[[role.description]]' => $role_description,
+                    '[[role_description]]' => $role_description,
                     '[[env(SUPPORT_EMAIL)]]' => env('SUPPORT_EMAIL'),
                 ];
 
