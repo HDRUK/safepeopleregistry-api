@@ -59,6 +59,7 @@ Route::middleware('api')->post('auth/register', [AuthController::class, 'registe
 Route::middleware('auth:api')->get('v1/users', [UserController::class, 'index']);
 Route::middleware('auth:api')->get('v1/users/test', [UserController::class, 'fakeEndpointForTesting']);
 Route::middleware('auth:api')->get('v1/users/{id}', [UserController::class, 'show']);
+Route::middleware('auth:api')->get('v1/users/{id}/history', [UserController::class, 'getHistory']);
 Route::middleware('auth:api')->get('v1/users/identifier/{id}', [UserController::class, 'showByUniqueIdentifier']);
 Route::middleware('auth:api')->post('v1/users', [UserController::class, 'store']);
 Route::middleware('auth:api')->put('v1/users/{id}', [UserController::class, 'update']);

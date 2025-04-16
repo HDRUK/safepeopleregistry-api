@@ -244,6 +244,42 @@ class UserController extends Controller
         }
     }
 
+    public function getHistory(Request $request, int $id): JsonResponse
+    {
+        try {
+            // Post-MVP - this should be an audit log for the user...
+            $user = User::findOrFail($id);
+
+            // placeholder to give some history
+            $data = collect([
+                [
+                    'message' => 'profile_created',
+                    'created_at' => $user->created_at,
+                ],
+            ])
+            ->merge(
+                $user->actionLogs
+                    ->whereNotNull("completed_at")
+                    ->map(function ($log) {
+                        return [
+                            'message' => $log->action,
+                            'created_at' => $log->completed_at,
+                        ];
+                    })
+            )
+            ->sortByDesc('created_at')
+            ->values()
+            ->toArray();
+
+            return response()->json([
+                'message' => 'success',
+                'data' => $data,
+            ], 200);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
     /**
      * @OA\Post(
      *      path="/api/v1/users",

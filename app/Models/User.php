@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Traits\SearchManager;
@@ -347,6 +348,11 @@ class User extends Authenticatable
                 $q->where('project_id', $projectId);
             }
         ]);
+    }
+
+    public function actionLogs(): MorphMany
+    {
+        return $this->morphMany(ActionLog::class, 'entity');
     }
 
 }
