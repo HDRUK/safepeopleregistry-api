@@ -95,7 +95,6 @@ class TriggerEmail
                 break;
             case 'USER_DELEGATE':
                 $delegate = User::where('id', $to)->first();
-                $user = User::where('id', $for)->first();
                 $organisation = Organisation::where('id', $by)->first();
                 $template = EmailTemplate::where('identifier', $identifier)->first();
 
