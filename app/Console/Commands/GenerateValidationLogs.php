@@ -24,10 +24,14 @@ class GenerateValidationLogs extends Command
 
         foreach ($custodianIds as $custodianId) {
             foreach ($organisationIds as $organisationId) {
-                $this->updateCustodianOrganisationValidation(
+                $this->info("$custodianId for {$organisationId}");
+                $updatedLogs = $this->updateCustodianOrganisationValidation(
                     $custodianId,
                     $organisationId
                 );
+                foreach ($updatedLogs as $log) {
+                    $this->info("Updated/Created ValidationLog - ID: {$log->id}, Name: {$log->name}");
+                }
             }
         }
 

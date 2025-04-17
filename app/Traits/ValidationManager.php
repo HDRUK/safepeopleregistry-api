@@ -93,13 +93,14 @@ trait ValidationManager
     public function updateCustodianOrganisationValidation(
         int $custodianId,
         int $organisationId,
-    ): void {
+    ): array {
 
         $organisation = Organisation::find($organisationId);
         $custodian = Custodian::find($custodianId);
 
+        $updatedLogs = [];
         foreach (OrganisationHasCustodianApproval::getDefaultActions() as $action) {
-            ValidationLog::updateOrCreate(
+            $logs = ValidationLog::updateOrCreate(
                 [
                     'entity_id' => $custodian->id,
                     'entity_type' => Custodian::class,
@@ -111,7 +112,10 @@ trait ValidationManager
                     'completed_at' => null,
                 ]
             );
+            $updatedLogs[] = $logs;
         }
+
+        return $updatedLogs;
     }
 
 }
