@@ -1106,7 +1106,7 @@ class OrganisationController extends Controller
                     'type' => 'USER_DELEGATE',
                     'to' => $unclaimedUser->id,
                     'by' => $id,
-                    'identifier' => 'delegate_sponsor'
+                    'identifier' => 'delegate_invite'
                 ];
             } else {
                 $input = [
