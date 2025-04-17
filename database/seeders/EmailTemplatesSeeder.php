@@ -328,7 +328,7 @@ class EmailTemplatesSeeder extends Seeder
                     </mj-section>
                     <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
                       <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
-                        <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/user/invited/[[users.id]]/[[organisations.id]]" padding="10px 25px 10px 25px" >Sign me up!</mj-button>
+                        <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 25px 10px 25px" >Sign me up!</mj-button>
                       </mj-column>
                     </mj-section>
                   </mj-wrapper>
@@ -353,8 +353,8 @@ class EmailTemplatesSeeder extends Seeder
                     a recent researcher registration as someone who is currently employed by [[organisation_name]]. We ask that you please confirm this to be true, by clicking the button below. That\'s all. The rest is automatic!
                     <div><br/></div>
                     <div>
-                      Name: [[user_first_name]] [[user_last_name]]<br/>
-                      Registered: [[user_created_at]] <br/>
+                      Name: [[users.first_name]] [[users.last_name]]<br/>
+                      Registered: [[users.created_at]] <br/>
                     </div><br/>
                       ' . $this->supportFooter . '
                         <div><br></div>
@@ -365,7 +365,7 @@ class EmailTemplatesSeeder extends Seeder
                 </mj-section>
                 <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px">
                   <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
-                    <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]" padding="10px 25px 10px 25px">I confirm that the named Researcher above is employed by [[organisation_name]]!</mj-button>
+                    <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 25px 10px 25px">I confirm that the named Researcher above is employed by [[organisation_name]]!</mj-button>
                   </mj-column>
                 </mj-section>
               </mj-wrapper>

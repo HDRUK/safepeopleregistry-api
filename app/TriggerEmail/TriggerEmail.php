@@ -95,7 +95,6 @@ class TriggerEmail
                 break;
             case 'USER_DELEGATE':
                 $delegate = User::where('id', $to)->first();
-                $user = User::where('id', $for)->first();
                 $organisation = Organisation::where('id', $by)->first();
                 $template = EmailTemplate::where('identifier', $identifier)->first();
 
@@ -114,9 +113,6 @@ class TriggerEmail
                     '[[organisation_name]]' => $organisation->organisation_name,
                     '[[delegate_first_name]]' => $delegate->first_name,
                     '[[delegate_last_name]]' => $delegate->last_name,
-                    '[[user_first_name]]' => $user->first_name,
-                    '[[user_last_name]]' => $user->last_name,
-                    '[[user_created_at]]' => $user->created_at,
                     '[[env(AP_NAME)]]' => env('APP_NAME'),
                     '[[env(INVITE_TIME_HOURS)]]' => env('INVITE_TIME_HOURS'),
                     '[[env(SUPPORT_EMAIL)]]' => env('SUPPORT_EMAIL'),
