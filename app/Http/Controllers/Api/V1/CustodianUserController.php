@@ -455,6 +455,9 @@ class CustodianUserController extends Controller
         try {
             $user = CustodianUser::where('id', $id)->first();
 
+            /**
+             * Observer is also creating the keycloak user
+             */
             $unclaimedUser = RMC::createUnclaimedUser([
                 'firstname' => $user['first_name'],
                 'lastname' => $user['last_name'],
@@ -471,26 +474,12 @@ class CustodianUserController extends Controller
                 'identifier' => 'custodian_user_invite'
             ];
 
-            $retVal = Keycloak::createUser([
-                'email' => $unclaimedUser->email,
-                'first_name' => $unclaimedUser->first_name,
-                'last_name' => $unclaimedUser->last_name,
-                'id' => $unclaimedUser->id,
-            ]);
-
-            if ($retVal['success']) {
-                TriggerEmail::spawnEmail($input);
-
-                return response()->json([
-                    'message' => 'success',
-                    'data' => $user,
-                ], 201);
-            }
+            TriggerEmail::spawnEmail($input);
 
             return response()->json([
-                'message' => 'failed',
-                'data' => null,
-            ]);
+                'message' => 'success',
+                'data' => $user,
+            ], 201);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
