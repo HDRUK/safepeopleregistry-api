@@ -165,13 +165,6 @@ class CustodianUserTest extends TestCase
 
         CustodianUser::truncate();
 
-        Keycloak::shouldReceive('createUser')
-            ->once()
-            ->andReturn([
-                'success' => true,
-                'error' => null,
-            ]);
-
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
             'POST',
