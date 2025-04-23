@@ -7,6 +7,7 @@ use App\Models\User;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 use App\Traits\CommonFunctions;
+use Illuminate\Support\Str;
 
 class APIAuthKeycloakGuardTest extends TestCase
 {
@@ -53,7 +54,7 @@ class APIAuthKeycloakGuardTest extends TestCase
         $this->user = User::where('user_group', User::GROUP_USERS)->first();
         $this->custodian_admin = User::where('user_group', User::GROUP_CUSTODIANS)->first();
         $this->custodian_admin->update([
-            'keycloak_id'=> '71b36ea7-efac-4f57-8f42-496f4e2b5e79',
+            'keycloak_id'=> (string) Str::uuid(),
             'unclaimed' => 0,
         ]);
         $this->organisation_admin = User::where('user_group', User::GROUP_ORGANISATIONS)->where("is_delegate",0)->first();
