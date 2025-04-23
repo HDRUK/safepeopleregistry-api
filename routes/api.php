@@ -230,11 +230,11 @@ Route::middleware(['auth:api', 'check.crud.access:organisation,owns'])->post('v1
 Route::middleware(['auth:api', 'check.crud.access:organisation,owns'])->post('v1/organisations/{id}/invite_user', [OrganisationController::class, 'inviteUser']);
 Route::middleware(['auth:api', 'check.crud.access:organisation,owns'])->post('v1/organisations/permissions', [PermissionController::class, 'assignOrganisationPermissionsToFrom']);
 
-// 🟠 Update (must be in group and own the organisation)
+// 🟠 Update (must own the organisation)
 Route::middleware(['auth:api', 'check.crud.access:organisation,group,owns'])->put('v1/organisations/{id}', [OrganisationController::class, 'update']);
 Route::middleware(['auth:api', 'check.crud.access:organisation,group,owns'])->patch('v1/organisations/{id}', [OrganisationController::class, 'edit']);
 
-// 🔴 Delete (must be in group and own)
+// 🔴 Delete (must own)
 Route::middleware(['auth:api', 'check.crud.access:organisation,group,owns'])->delete('v1/organisations/{id}', [OrganisationController::class, 'destroy']);
 
 

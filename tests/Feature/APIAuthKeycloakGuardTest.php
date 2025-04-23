@@ -50,7 +50,9 @@ class APIAuthKeycloakGuardTest extends TestCase
         // auth does in fact work as intended.
         $this->withMiddleware();
 
-        $this->user = User::where('user_group', 'USERS')->first();
+        $this->user = User::where('user_group', User::GROUP_USERS)->first();
+        $this->custodian_admin = User::where('user_group', User::GROUP_CUSTODIANS)->first();
+        $this->organisation_admin = User::where('user_group', User::GROUP_ORGANISATIONS)->where("is_delegate",0)->first();
     }
 
     public function test_the_application_gives_401_for_authed_routes(): void
@@ -66,7 +68,21 @@ class APIAuthKeycloakGuardTest extends TestCase
     public function test_the_application_allows_authed_routes(): void
     {
         foreach ($this->getRoutes as $r) {
-            $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            $endpoint = substr($r,1);
+            $payload =  $this->getMockedKeycloakPayload();
+            switch ($endpoint) {
+                case 'custodians':
+                    $payload['sub'] = $this->custodian_admin->keycloak_id;
+                    continue;
+                    break;
+                case 'organisations':
+                    $payload['sub'] = $this->organisation_admin->keycloak_id;
+                    break;
+                default:
+                    $payload['sub'] = $this->user->keycloak_id;
+                    break;
+            }
+            $response = $this->actingAsKeycloakUser($this->user, $payload)
                 ->json(
                     'GET',
                     self::TEST_URL . $r,
@@ -74,7 +90,9 @@ class APIAuthKeycloakGuardTest extends TestCase
                         'Accept' => 'application/json',
                     ]
                 );
-
+            dump($r);
+            dump($payload);
+            dump($response->decodeResponseJson());
             $response->assertStatus(200);
         }
     }

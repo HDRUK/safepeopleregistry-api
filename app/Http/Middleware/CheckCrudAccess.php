@@ -6,13 +6,20 @@ use Closure;
 use Auth;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Custodian;
 
 class CheckCrudAccess
 {
     public function handle(Request $request, Closure $next, string $entityType,  ...$checks): mixed
     {
         $obj = json_decode(Auth::token(), true);
+    
+        if (!isset($obj['sub'])) {
+            return response()->json(['message' => 'Unauthorized: missing subject in token'], 401);
+        }
+
         $key = $obj['sub'];
+
         $user = User::where('keycloak_id', $key)->first();
 
         if (!$user) {
