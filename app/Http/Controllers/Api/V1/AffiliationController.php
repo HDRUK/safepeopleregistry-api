@@ -230,27 +230,6 @@ class AffiliationController extends Controller
             $affiliation = Affiliation::findOrFail($id);
             $affiliation->update($input);
 
-            if ($request->has('state')) {
-                $newState = $request->input('state');
-                $registryAffiliation = $affiliation->registryHasAffiliations()->first();
-    
-                if ($registryAffiliation) {
-                    $currentState = $registryAffiliation->getState();
-    
-                    if ($currentState !== $newState) {
-                        if ($registryAffiliation->canTransitionTo($newState)) {
-                            $registryAffiliation->setState($newState);
-                            $registryAffiliation->save();
-                        } else {
-                            return response()->json([
-                                'data' => null,
-                                'message' => "Invalid state transition from '$currentState' to '$newState'",
-                            ], 422);
-                        }
-                    }
-                }
-            }
-
 
             return response()->json([
                 'message' => 'success',

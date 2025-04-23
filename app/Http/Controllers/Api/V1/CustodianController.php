@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Auth;
 use DB;
 use Exception;
 use Hash;
