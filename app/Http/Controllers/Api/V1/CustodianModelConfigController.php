@@ -306,7 +306,6 @@ class CustodianModelConfigController extends Controller
     public function getEntityModels(GetEntityModelsRequest $request, int $id): JsonResponse
     {
         $entityModelType = $request->input('entity_model_type');
-
         $entityModelTypeId = EntityModelType::where('name', $entityModelType)->value('id');
 
         if (!$entityModelTypeId) {
@@ -319,16 +318,18 @@ class CustodianModelConfigController extends Controller
         ->whereHas('custodianModelConfig', function ($query) use ($id) {
             $query->where('custodian_id', $id);
         })
-        ->where('entity_model_type_id', $entityModelTypeId)
+        //->where('entity_model_type_id', $entityModelTypeId)
         ->get();
 
         if ($entityModels->isEmpty()) {
             return $this->NotFoundResponse();
         }
+        
 
-        $entityModels = $entityModels->map(function ($model) {
+        $entityModels = $entityModels->map(function ($model) use ($entityModelTypeId)  {
             return [
                 'id' => $model->id,
+                'check' => [$model->entity_model_type_id,$entityModelTypeId],
                 'name' => $model->name,
                 'description' => $model->description,
                 'active' => optional($model->custodianModelConfig)->active,
