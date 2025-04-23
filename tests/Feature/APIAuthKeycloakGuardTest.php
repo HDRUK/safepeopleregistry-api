@@ -52,6 +52,10 @@ class APIAuthKeycloakGuardTest extends TestCase
 
         $this->user = User::where('user_group', User::GROUP_USERS)->first();
         $this->custodian_admin = User::where('user_group', User::GROUP_CUSTODIANS)->first();
+        $this->custodian_admin->update([
+            'keycloak_id'=> '71b36ea7-efac-4f57-8f42-496f4e2b5e79',
+            'unclaimed' => 0,
+        ]);
         $this->organisation_admin = User::where('user_group', User::GROUP_ORGANISATIONS)->where("is_delegate",0)->first();
     }
 
@@ -73,7 +77,6 @@ class APIAuthKeycloakGuardTest extends TestCase
             switch ($endpoint) {
                 case 'custodians':
                     $payload['sub'] = $this->custodian_admin->keycloak_id;
-                    continue;
                     break;
                 case 'organisations':
                     $payload['sub'] = $this->organisation_admin->keycloak_id;
