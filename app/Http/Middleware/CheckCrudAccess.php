@@ -13,7 +13,7 @@ class CheckCrudAccess
     public function handle(Request $request, Closure $next, string $entityType,  ...$checks): mixed
     {
         $obj = json_decode(Auth::token(), true);
-    
+
         if (!isset($obj['sub'])) {
             return response()->json(['message' => 'Unauthorized: missing subject in token'], 401);
         }
@@ -30,7 +30,7 @@ class CheckCrudAccess
 
         if (in_array('group', $checks)) {
             if (!$this->hasGroupAccess($user, $entityType)) {
-                return response()->json(['message' => 'Forbidden: group access denied'], 403);
+                return response()->json(['message' => 'Forbidden: group access denied' ], 403);
             }
         }
     

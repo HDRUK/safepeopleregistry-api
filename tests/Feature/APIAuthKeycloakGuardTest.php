@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Auth;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\User;
 use Tests\TestCase;
@@ -69,31 +70,54 @@ class APIAuthKeycloakGuardTest extends TestCase
             $response->assertStatus(401);
         }
     }
-
-    public function test_the_application_allows_authed_routes(): void
+    public function test_custodian_admin_can_access_routes(): void
     {
+        $payload = $this->getMockedKeycloakPayload();
+        $payload['sub'] = $this->custodian_admin->keycloak_id;
+    
         foreach ($this->getRoutes as $r) {
-            $endpoint = substr($r,1);
-            $payload =  $this->getMockedKeycloakPayload();
-            switch ($endpoint) {
-                case 'custodians':
-                    $payload['sub'] = $this->custodian_admin->keycloak_id;
-                    break;
-                case 'organisations':
-                    $payload['sub'] = $this->organisation_admin->keycloak_id;
-                    break;
-                default:
-                    $payload['sub'] = $this->user->keycloak_id;
-                    break;
-            }
+            if (substr($r, 1) !== 'custodians') continue;
+    
+            $response = $this->actingAsKeycloakUser($this->custodian_admin, $payload)
+                             ->json('GET', self::TEST_URL . $r, [
+                                 'Accept' => 'application/json',
+                             ]);
+    
+            $response->assertStatus(200);
+        }
+    }
+    
+    public function test_organisation_admin_can_access_routes(): void
+    {
+        $payload = $this->getMockedKeycloakPayload();
+        $payload['sub'] = $this->organisation_admin->keycloak_id;
+    
+        foreach ($this->getRoutes as $r) {
+            if (substr($r, 1) !== 'organisations') continue;
+    
+            $response = $this->actingAsKeycloakUser($this->organisation_admin, $payload)
+                             ->json('GET', self::TEST_URL . $r, [
+                                 'Accept' => 'application/json',
+                             ]);
+    
+            $response->assertStatus(200);
+        }
+    }
+
+    public function test_regular_user_can_access_other_routes(): void
+    {
+        $payload = $this->getMockedKeycloakPayload();
+        $payload['sub'] = $this->user->keycloak_id;
+
+        foreach ($this->getRoutes as $r) {
+            $endpoint = substr($r, 1);
+            if (in_array($endpoint, ['custodians', 'organisations'])) continue;
+
             $response = $this->actingAsKeycloakUser($this->user, $payload)
-                ->json(
-                    'GET',
-                    self::TEST_URL . $r,
-                    [
-                        'Accept' => 'application/json',
-                    ]
-                );
+                            ->json('GET', self::TEST_URL . $r, [
+                                'Accept' => 'application/json',
+                            ]);
+
             $response->assertStatus(200);
         }
     }

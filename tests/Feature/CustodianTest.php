@@ -416,8 +416,6 @@ class CustodianTest extends TestCase
 
     public function test_the_application_can_refuse_pushes_when_key_is_invalid(): void
     {
-        
-
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'POST',
