@@ -14,12 +14,10 @@ class InfringementTest extends TestCase
 
     public const TEST_URL = '/api/v1/infringements';
 
-    private $user = null;
-
     public function setUp(): void
     {
         parent::setUp();
-        $this->user = User::where('user_group', 'USERS')->first();
+        $this->withUsers();
     }
 
     public function test_the_application_can_list_infringements(): void

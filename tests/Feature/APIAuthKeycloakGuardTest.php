@@ -42,8 +42,6 @@ class APIAuthKeycloakGuardTest extends TestCase
         '/system_config',
     ];
 
-    private $user = null;
-
     public function setUp(): void
     {
         parent::setUp();
@@ -52,13 +50,6 @@ class APIAuthKeycloakGuardTest extends TestCase
         // auth does in fact work as intended.
         $this->withMiddleware();
 
-        $this->user = User::where('user_group', User::GROUP_USERS)->first();
-        $this->custodian_admin = User::where('user_group', User::GROUP_CUSTODIANS)->first();
-        $this->custodian_admin->update([
-            'keycloak_id'=> (string) Str::uuid(),
-            'unclaimed' => 0,
-        ]);
-        $this->organisation_admin = User::where('user_group', User::GROUP_ORGANISATIONS)->where("is_delegate",0)->first();
     }
 
     public function test_the_application_gives_401_for_authed_routes(): void

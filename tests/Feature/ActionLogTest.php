@@ -32,8 +32,6 @@ class ActionLogTest extends TestCase
 
     public const TEST_URL = '/api/v1/';
 
-    protected User $user;
-
     public function setUp(): void
     {
         parent::setUp();

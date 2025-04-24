@@ -14,12 +14,10 @@ class ProfessionalRegistrationTest extends TestCase
 
     public const TEST_URL = '/api/v1/professional_registrations';
 
-    private $user = null;
-
     public function setUp(): void
     {
         parent::setUp();
-        $this->user = User::where('user_group', 'USERS')->first();
+        $this->withUsers();
     }
 
     public function test_the_application_can_show_professional_registrations_by_registry_id(): void

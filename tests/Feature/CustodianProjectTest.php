@@ -17,14 +17,13 @@ class CustodianProjectTest extends TestCase
 
     public const TEST_URL = '/api/v1/custodians';
 
-    private $user = null;
     private $projectUniqueId = '';
     private $organisationUniqueId = '';
 
     public function setUp(): void
     {
         parent::setUp();
-        $this->user = User::where('user_group', 'CUSTODIAN')->first();
+        $this->withUsers();
         $this->custodian = Custodian::first();
 
         $projects = Project::all();
@@ -44,7 +43,7 @@ class CustodianProjectTest extends TestCase
     public function test_the_application_can_list_custodian_projects(): void
     {
         $nTotal = ProjectHasCustodian::count();
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->custodian_admin, $this->getMockedKeycloakPayload())
             ->json(
                 'GET',
                 self::TEST_URL . '/' . $this->custodian->id . '/projects',
@@ -60,7 +59,7 @@ class CustodianProjectTest extends TestCase
     public function test_the_application_can_list_approved_custodian_projects(): void
     {
         $nApproved = ProjectHasCustodian::where("approved", 1)->count();
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->custodian_admin, $this->getMockedKeycloakPayload())
         ->json(
             'GET',
             self::TEST_URL . '/' . $this->custodian->id . '/projects?approved=1',
@@ -74,7 +73,7 @@ class CustodianProjectTest extends TestCase
     public function test_the_application_can_list_unapproved_custodian_projects(): void
     {
         $nUnapproved = ProjectHasCustodian::where("approved", 0)->count();
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->custodian_admin, $this->getMockedKeycloakPayload())
             ->json(
                 'GET',
                 self::TEST_URL . '/' . $this->custodian->id . '/projects?approved=0',

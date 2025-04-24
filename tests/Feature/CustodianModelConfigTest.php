@@ -16,12 +16,10 @@ class CustodianModelConfigTest extends TestCase
 
     public const TEST_URL = '/api/v1/custodian_config';
 
-    private $user = null;
-
     public function setUp(): void
     {
         parent::setUp();
-        $this->user = User::where('id', 1)->first();
+        $this->withUsers();
     }
 
     public function test_the_application_can_show_custodian_config_by_custodian_id(): void

@@ -16,13 +16,12 @@ class EducationTest extends TestCase
 
     public const TEST_URL = '/api/v1/educations';
 
-    private $user = null;
     private $registry = null;
 
     public function setUp(): void
     {
         parent::setUp();
-        $this->user = User::where('user_group', 'USERS')->first();
+        $this->withUsers();
         $this->registry = Registry::where('id', $this->user->registry_id)->first();
     }
 

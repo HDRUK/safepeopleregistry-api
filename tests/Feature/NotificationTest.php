@@ -15,15 +15,11 @@ class NotificationTest extends TestCase
     use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/users/1/notifications';
-
-    private $user = null;
-
-
+    
     public function setUp(): void
     {
         parent::setUp();
-
-        $this->user = User::where('user_group', 'USERS')->first();
+        $this->withUsers();
 
     }
 

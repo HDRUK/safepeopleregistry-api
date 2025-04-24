@@ -16,14 +16,13 @@ class ResolutionTest extends TestCase
     use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/resolutions';
-
-    private $user = null;
+    
     private $registry = null;
 
     public function setUp(): void
     {
         parent::setUp();
-        $this->user = User::where('user_group', 'USERS')->first();
+        $this->withUsers();
         $this->registry = Registry::where('id', $this->user->registry_id)->first();
 
     }

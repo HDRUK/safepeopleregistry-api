@@ -18,7 +18,6 @@ class ProjectDetailTest extends TestCase
 
     public const TEST_URL = '/api/v1/project_details';
 
-    private $user = null;
     private $registry = null;
     private $project = null;
     private $mockedPayload = [];
@@ -152,7 +151,7 @@ class ProjectDetailTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->user = User::where('user_group', 'USERS')->first();
+        $this->withUsers();
         $this->registry = Registry::where('id', $this->user->registry_id)->first();
         $this->project = Project::where('id', 1)->first();
 

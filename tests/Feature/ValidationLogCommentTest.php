@@ -21,8 +21,6 @@ class ValidationLogCommentTest extends TestCase
 
     public const TEST_URL = '/api/v1/validation_log_comments';
 
-    protected User $user;
-
     private function add_user_and_custodian_to_project()
     {
         ProjectHasUser::create([

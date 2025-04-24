@@ -23,22 +23,23 @@ class CustodianTest extends TestCase
 
     public const TEST_URL = '/api/v1/custodians';
 
-    private $user = null;
     private $projectUniqueId = '';
     private $organisationUniqueId = '';
 
     public function setUp(): void
     {
         parent::setUp();
-        $this->user = User::where('id', 1)->first();
-
+        $this->withMiddleware();
+        $this->withUsers();
         $this->projectUniqueId = Str::random(40);
         $this->organisationUniqueId = Str::random(40);
     }
 
     public function test_the_application_can_list_custodians(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $payload = $this->getMockedKeycloakPayload();
+        $payload['sub'] = $this->custodian_admin->keycloak_id;
+        $response = $this->actingAsKeycloakUser($this->user, $payload)
             ->json(
                 'GET',
                 self::TEST_URL

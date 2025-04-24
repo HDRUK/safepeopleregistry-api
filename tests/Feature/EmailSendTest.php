@@ -17,12 +17,10 @@ class EmailSendTest extends TestCase
 
     public const TEST_URL = '/api/v1/trigger_email';
 
-    private $user = null;
-
     public function setUp(): void
     {
         parent::setUp();
-        $this->user = User::where('id', 1)->first();
+        $this->withUsers();
     }
 
     public function test_the_application_can_send_emails(): void
