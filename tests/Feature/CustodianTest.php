@@ -433,6 +433,7 @@ class CustodianTest extends TestCase
         $content = $response->decodeResponseJson();
 
         $custodian = Custodian::where('id', $content['data'])->first();
+        $custodian->update(['keycloak_id'=>(string) Str::uuid()]);
         $this->enableMiddleware();
         $payload = $this->getMockedKeycloakPayload();
         $payload['sub'] = $custodian->keycloak_id;
