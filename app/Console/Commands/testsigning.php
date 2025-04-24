@@ -31,8 +31,8 @@ class testsigning extends Command
         $custodian = Custodian::where('id', 1)->first();
         $ident = Registry::where('id', 1)->first()->digi_ident;
         $payload = [
-            'digital_identifier' => $ident,
-            // 'email' => 'dan.ackroyd@ghostbusters.com',
+            'custodian_identifier' => '$2y$12$R8fsAq7./uEUEcU7o7QnQOg8q6bfFBrMZgMWb1qPflPiiaobz41TO',
+            'digital_identifier' => '$2y$12$TvwBLJYTkv70bMCSsg6DMu.qluV23TvJVv8tUvbKco3ftvMY0a5Ai'
         ];
 
         $payloadJson = json_encode($payload, JSON_UNESCAPED_SLASHES);
