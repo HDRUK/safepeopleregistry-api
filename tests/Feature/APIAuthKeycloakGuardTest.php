@@ -94,9 +94,6 @@ class APIAuthKeycloakGuardTest extends TestCase
                         'Accept' => 'application/json',
                     ]
                 );
-            dump($r);
-            dump($payload);
-            dump($response->decodeResponseJson());
             $response->assertStatus(200);
         }
     }
