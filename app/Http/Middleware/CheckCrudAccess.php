@@ -12,7 +12,14 @@ class CheckCrudAccess
 {
     public function handle(Request $request, Closure $next, string $entityType,  ...$checks): mixed
     {
-        $user = Auth::guard()->user();
+        $obj = json_decode(Auth::token(),true);
+        $user = null;
+        if (isset($obj['sub'])) {
+            $sub = $obj['sub'];
+            $user = User::where('keycloak_id', $sub)->first();
+        } else {
+            $user = Auth::guard()->user();
+        }
 
         if (!$user) {
             return response()->json(['message' => 'Unauthorized'], 401);
@@ -44,7 +51,7 @@ class CheckCrudAccess
         return match ($entityType) {
             'custodian' => $user->user_group === User::GROUP_CUSTODIANS,
             'user' => true,
-            'organisation' => $user->user_group === User::GROUP_ORGANISATIONS,
+            'organisation' => in_array($user->user_group, [User::GROUP_ORGANISATIONS, User::GROUP_CUSTODIANS]),
             default => false,
         };
     }
