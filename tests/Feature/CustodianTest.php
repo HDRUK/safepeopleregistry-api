@@ -39,12 +39,12 @@ class CustodianTest extends TestCase
     {
         $payload = $this->getMockedKeycloakPayload();
         $payload['sub'] = $this->custodian_admin->keycloak_id;
-        $response = $this->actingAsKeycloakUser($this->user, $payload)
+        $response = $this->actingAsKeycloakUser($this->custodian_admin, $payload)
             ->json(
                 'GET',
                 self::TEST_URL
             );
-
+        dump($response->decodeResponseJson());
         $response->assertStatus(200);
         $this->assertArrayHaskey('data', $response);
     }
