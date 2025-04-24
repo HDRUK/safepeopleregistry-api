@@ -20,6 +20,14 @@ class WebhookEventTriggerSeeder extends Seeder
                 'name' => 'user-joined-project',
                 'description' => 'Event trigger for when a user joins a Project',
             ],
+            [
+                'name' => 'user-accepted-read-request',
+                'description' => 'Event trigger for when a user accepts a read request',
+            ],
+            [
+                'name' => 'user-rejected-read-request',
+                'description' => 'Event trigger for when a user rejects a read request',
+            ],
         ];
 
         foreach ($triggers as $t) {

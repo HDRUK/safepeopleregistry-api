@@ -14,6 +14,16 @@ class WebhookEventTrigger extends Model
 
     public $timestamps = true;
 
+    public const WEBHOOK_EVENT_TRIGGER_USER_LEFT_PROJECT = 'user-left-project';
+    public const WEBHOOK_EVENT_TRIGGER_USER_JOINED_PROJECT = 'user-joined-project';
+    public const WEBHOOK_EVENT_TRIGGER_REGISTRY_READ_REQUEST_ACCEPTED = 'user-accepted-read-request';
+    public const WEBHOOK_EVENT_TRIGGER_REGISTRY_READ_REQUEST_REJECTED = 'user-rejected-read-request';
+
+    public const TRIGGER_EVENT_STATUS = [
+        1 => self::WEBHOOK_EVENT_TRIGGER_REGISTRY_READ_REQUEST_ACCEPTED,
+        2 => self::WEBHOOK_EVENT_TRIGGER_REGISTRY_READ_REQUEST_REJECTED,
+    ];
+
     protected $fillable = [
         'name',
         'description',
