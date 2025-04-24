@@ -132,19 +132,19 @@ Route::middleware(['auth:api', 'check.crud.access:custodian,owns'])->get('v1/cus
 Route::middleware(['auth:api', 'check.crud.access:custodian,owns'])->get('v1/custodians/{id}/organisations/{organisationId}/users', [CustodianController::class, 'getOrganisationUsers']);
 
 // 🟡 Create (group only)
-Route::middleware(['auth:api', 'check.crud.access:custodian,group'])->post('v1/custodians', [CustodianController::class, 'store']);
-Route::middleware(['auth:api', 'check.crud.access:custodian:group'])->post('v1/custodians/push', [CustodianController::class, 'push']);
+Route::middleware(['auth:api', 'check.crud.access:admin,group'])->post('v1/custodians', [CustodianController::class, 'store']);
+Route::middleware(['auth:api', 'check.crud.access:admin,group'])->post('v1/custodians/push', [CustodianController::class, 'push']);
 
-// 🟡 Write with extra access middleware
+// 🟡 Write for admins only
 Route::middleware(['auth:api', 'check.crud.access:custodian,owns'])->post('v1/custodians/{id}/invite', [CustodianController::class, 'invite']);
 
-// 🟠 Update (group and must own)
-Route::middleware(['auth:api', 'check.crud.access:custodian:owns'])->put('v1/custodians/{id}', [CustodianController::class, 'update']);
-Route::middleware(['auth:api', 'check.crud.access:custodian:owns'])->patch('v1/custodians/{id}', [CustodianController::class, 'edit']);
-Route::middleware(['auth:api', 'check.crud.access:custodian:owns'])->patch('v1/custodians/{id}/rules', [CustodianController::class, 'updateCustodianRules']);
+// 🟠 Update (must own)
+Route::middleware(['auth:api', 'check.crud.access:custodian,owns'])->put('v1/custodians/{id}', [CustodianController::class, 'update']);
+Route::middleware(['auth:api', 'check.crud.access:custodian,owns'])->patch('v1/custodians/{id}', [CustodianController::class, 'edit']);
+Route::middleware(['auth:api', 'check.crud.access:custodian,owns'])->patch('v1/custodians/{id}/rules', [CustodianController::class, 'updateCustodianRules']);
 
-// 🔴 Delete (group and must own)
-Route::middleware(['auth:api', 'check.crud.access:custodian:group,owns'])->delete('v1/custodians/{id}', [CustodianController::class, 'destroy']);
+// 🔴 Delete (must own)
+Route::middleware(['auth:api', 'check.crud.access:custodian,owns'])->delete('v1/custodians/{id}', [CustodianController::class, 'destroy']);
 
 
 Route::middleware('auth:api')->get('v1/custodian_users', [CustodianUserController::class, 'index']);

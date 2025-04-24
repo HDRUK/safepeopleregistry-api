@@ -35,23 +35,60 @@ class CustodianTest extends TestCase
         $this->organisationUniqueId = Str::random(40);
     }
 
-    public function test_the_application_can_list_custodians(): void
+    public function test_custodian_can_list_custodians(): void
     {
-        $payload = $this->getMockedKeycloakPayload();
-        $payload['sub'] = $this->custodian_admin->keycloak_id;
-        $response = $this->actingAsKeycloakUser($this->custodian_admin, $payload)
+        $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'GET',
                 self::TEST_URL
             );
-        dump($response->decodeResponseJson());
+
         $response->assertStatus(200);
         $this->assertArrayHaskey('data', $response);
     }
 
-    public function test_the_application_can_show_custodians(): void
+    public function test_non_custodians_cannot_list_custodians(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->user)
+            ->json(
+                'GET',
+                self::TEST_URL
+            );
+
+        $response->assertStatus(403)
+            ->assertJson([
+                'message' => 'Forbidden: group access denied',
+            ]);
+
+        $response = $this->actingAs($this->organisation_admin)
+        ->json(
+            'GET',
+            self::TEST_URL
+        );
+
+        $response->assertStatus(403)
+            ->assertJson([
+                'message' => 'Forbidden: group access denied',
+            ]);
+    }
+
+    public function test_the_users_cannot_see_a_custodian(): void
+    {
+        $response = $this->actingAs($this->user)
+            ->json(
+                'GET',
+                self::TEST_URL . '/1'
+            );
+
+        $response->assertStatus(403)
+        ->assertJson([
+            'message' => 'Forbidden: group access denied',
+        ]);
+    }
+
+    public function test_custodian_can_see_details(): void
+    {
+        $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'GET',
                 self::TEST_URL . '/1'
@@ -61,16 +98,19 @@ class CustodianTest extends TestCase
         $this->assertArrayHasKey('data', $response);
     }
 
+
     public function test_the_application_can_invite_a_custodian(): void
     {
 
         Queue::fake();
         Queue::assertNothingPushed();
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $custodianId = $this->custodian_admin->custodian_user->custodian_id;
+
+        $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'POST',
-                self::TEST_URL . '/1/invite/',
+                self::TEST_URL . '/' . $custodianId . '/invite/',
             );
 
         $response->assertStatus(201);
@@ -80,9 +120,52 @@ class CustodianTest extends TestCase
         $this->assertTrue(count($invites) === 1);
     }
 
-    public function test_the_application_can_create_custodians(): void
+
+    public function test_the_application_cannot_invite_a_user_for_a_custodian_they_dont_administer(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+
+        Queue::fake();
+        Queue::assertNothingPushed();
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'POST',
+                self::TEST_URL . '/' . 2 . '/invite/',
+            );
+
+        $response->assertStatus(403);
+
+        $invites = PendingInvite::all();
+
+        $this->assertTrue(count($invites) === 0);
+    }
+
+    public function test_users_cannot_create_custodians(): void
+    {
+        foreach ([$this->user, $this->custodian_admin, $this->organisation_admin] as $user){
+            $response = $this->actingAs($user)
+                ->json(
+                    'POST',
+                    self::TEST_URL,
+                    [
+                        'name' => 'Test Custodian',
+                        'contact_email' => 'test@test.com',
+                        'enabled' => true,
+                        'idvt_required' => false,
+                    ]
+                );
+            $response->assertStatus(403);
+        }
+    }
+
+    public function test_an_admin_can_create_custodians(): void
+    {
+        $user = $this->user;
+        $user->update([
+            'user_group' => User::GROUP_ADMINS
+        ]);
+
+        $response = $this->actingAs($user)
             ->json(
                 'POST',
                 self::TEST_URL,
@@ -93,7 +176,6 @@ class CustodianTest extends TestCase
                     'idvt_required' => false,
                 ]
             );
-
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
     }
@@ -103,7 +185,12 @@ class CustodianTest extends TestCase
         $this->enableObservers();
         CustodianModelConfig::truncate();
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $user = $this->user;
+        $user->update([
+            'user_group' => User::GROUP_ADMINS
+        ]);
+
+        $response = $this->actingAs($user)
             ->json(
                 'POST',
                 self::TEST_URL,
@@ -128,11 +215,16 @@ class CustodianTest extends TestCase
         $this->assertTrue(count($conf) === count($entities));
     }
 
-    public function test_the_application_can_update_custodians(): void
+    public function test_the_application_creates_action_log(): void
     {
         $this->enableObservers();
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $user = $this->user;
+        $user->update([
+            'user_group' => User::GROUP_ADMINS
+        ]);
+
+        $response = $this->actingAs($user)
             ->json(
                 'POST',
                 self::TEST_URL,
@@ -151,7 +243,7 @@ class CustodianTest extends TestCase
         $this->assertGreaterThan(0, $content['data']);
 
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->custodian_admin)
         ->json(
             'GET',
             self::TEST_URL . '/' . $content['data'] . '/action_log'
@@ -163,11 +255,14 @@ class CustodianTest extends TestCase
             ->firstWhere('action', Custodian::ACTION_COMPLETE_CONFIGURATION);
 
         $this->assertNull($actionLog['completed_at']);
+        }
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+    public function test_the_application_can_update_custodian_they_own(): void
+    {
+        $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'PUT',
-                self::TEST_URL . '/' . $content['data'],
+                self::TEST_URL . '/1' ,
                 [
                     'name' => 'Updated Custodian',
                     'enabled' => false,
@@ -183,54 +278,48 @@ class CustodianTest extends TestCase
         $this->assertEquals($content['idvt_required'], true);
     }
 
-    public function test_the_application_can_delete_custodians(): void
+    public function test_the_application_cannot_update_custodian_they_dont_own(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->custodian_admin)
             ->json(
-                'POST',
-                self::TEST_URL,
+                'PUT',
+                self::TEST_URL . '/2' ,
                 [
-                'name' => 'Test Custodian',
-                'contact_email' => 'test@test.com',
-                'enabled' => true,
-            ]
+                    'name' => 'Updated Custodian',
+                    'enabled' => false,
+                    'idvt_required' => true,
+                ]
             );
+        $response->assertStatus(403);
+    }
 
-        $response->assertStatus(201);
-        $this->assertArrayHasKey('data', $response);
-
-        $content = $response->decodeResponseJson();
-
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+    public function test_the_application_can_delete_custodian(): void
+    {
+        $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'DELETE',
-                self::TEST_URL . '/' . $content['data']
+                self::TEST_URL . '/1' 
             );
 
         $response->assertStatus(200);
     }
 
-    public function test_the_application_can_get_custodians_by_unique_identifier(): void
+    public function test_the_application_cannot_delete_custodian_they_dont_own(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->custodian_admin)
             ->json(
-                'POST',
-                self::TEST_URL,
-                [
-                'name' => 'Test Custodian ABC123',
-                'contact_email' => 'test@test.com',
-                'enabled' => true,
-            ]
+                'DELETE',
+                self::TEST_URL . '/2' 
             );
 
-        $response->assertStatus(201);
-        $this->assertArrayHasKey('data', $response);
+        $response->assertStatus(403);
+    }
 
-        $content = $response->decodeResponseJson();
+    public function test_the_application_can_get_custodians_by_unique_identifier(): void
+    {
+        $custodianCreated = Custodian::first();
 
-        $custodianCreated = Custodian::where('id', $content['data'])->first();
-
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'GET',
                 self::TEST_URL . '/identifier/' . $custodianCreated->unique_identifier
@@ -241,30 +330,17 @@ class CustodianTest extends TestCase
 
         $content = $response->decodeResponseJson()['data'];
 
-        $this->assertEquals($content['name'], 'Test Custodian ABC123');
+        $this->assertEquals($content['name'], $custodianCreated->name);
     }
 
     public function test_the_application_can_receive_custodian_pushes_with_valid_key(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-            ->json(
-                'POST',
-                self::TEST_URL,
-                [
-                'name' => 'Test Custodian ABCDEF',
-                'contact_email' => 'test@test.com',
-                'enabled' => true,
-            ]
-            );
-
-        $response->assertStatus(201);
-        $this->assertArrayHasKey('data', $response);
-
-        $content = $response->decodeResponseJson();
-
-        $custodian = Custodian::where('id', $content['data'])->first();
-
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $user = $this->user;
+        $user->update([
+            'user_group' => User::GROUP_ADMINS
+        ]);
+        $custodian = Custodian::first();
+        $response = $this->actingAs($this->user)
             ->json(
                 'POST',
                 self::TEST_URL . '/push',
@@ -334,7 +410,11 @@ class CustodianTest extends TestCase
 
     public function test_the_application_can_refuse_pushes_with_missing_key(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $user = $this->user;
+        $user->update([
+            'user_group' => User::GROUP_ADMINS
+        ]);
+        $response = $this->actingAs($user)
             ->json(
                 'POST',
                 self::TEST_URL,
@@ -352,7 +432,7 @@ class CustodianTest extends TestCase
 
         $custodian = Custodian::where('id', $content['data'])->first();
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response =  $this->actingAs($user)
             ->json(
                 'POST',
                 self::TEST_URL.'/push',
@@ -418,37 +498,8 @@ class CustodianTest extends TestCase
 
     public function test_the_application_can_sort_returned_data(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-            ->json(
-                'POST',
-                self::TEST_URL,
-                [
-                    'name' => 'ZYX Custodian',
-                    'contact_email' => 'test@test.com',
-                    'enabled' => true,
-                    'idvt_required' => false,
-                ]
-            );
 
-        $response->assertStatus(201);
-        $this->assertArrayHasKey('data', $response);
-
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-            ->json(
-                'POST',
-                self::TEST_URL,
-                [
-                    'name' => 'ABC Custodian',
-                    'contact_email' => 'test@test.com',
-                    'enabled' => true,
-                    'idvt_required' => false,
-                ]
-            );
-
-        $response->assertStatus(201);
-        $this->assertArrayHasKey('data', $response);
-
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'GET',
                 self::TEST_URL . '?sort=name:desc'
@@ -457,10 +508,10 @@ class CustodianTest extends TestCase
         $response->assertStatus(200);
         $content = $response->decodeResponseJson();
 
-        $this->assertTrue(count($content['data']) > 0);
-        $this->assertTrue($content['data']['data'][0]['name'] === 'ZYX Custodian');
+        $this->assertTrue(count($content['data']['data']) > 0);
+        $this->assertTrue($content['data']['data'][0]['name'] === 'SAIL Databank');
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'GET',
                 self::TEST_URL . '?sort=name:asc'
@@ -469,13 +520,13 @@ class CustodianTest extends TestCase
         $response->assertStatus(200);
         $content = $response->decodeResponseJson();
 
-        $this->assertTrue(count($content['data']) > 0);
-        $this->assertTrue($content['data']['data'][0]['name'] === 'ABC Custodian');
+        $this->assertTrue(count($content['data']['data']) > 0);
+        $this->assertTrue($content['data']['data'][0]['name'] === 'NHS England');
     }
 
     public function test_can_get_rules_for_existing_custodian(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'GET',
                 "/api/v1/custodians/1/rules"
@@ -496,13 +547,13 @@ class CustodianTest extends TestCase
 
         $nonexistentId = 99999;
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'GET',
                 "/api/v1/custodians/{$nonexistentId}/rules"
             );
 
-        $response->assertStatus(404);
+        $response->assertStatus(403);
     }
 
 
@@ -511,7 +562,7 @@ class CustodianTest extends TestCase
         CustodianHasRule::truncate();
         $newRuleIds = [1, 3, 4];
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'PATCH',
                 '/api/v1/custodians/1/rules',
