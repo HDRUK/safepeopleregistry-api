@@ -67,7 +67,7 @@ Route::middleware('auth:api')->patch('v1/users/{id}', [UserController::class, 'e
 Route::middleware('auth:api')->delete('v1/users/{id}', [UserController::class, 'destroy']);
 Route::middleware('auth:api')->post('v1/users/invite', [UserController::class, 'invite']);
 Route::middleware('auth:api')->post('v1/users/permissions', [PermissionController::class, 'assignUserPermissionsToFrom']);
-Route::middleware('auth:api')->post('v1/users/change-password/{userId}', [AuthController::class, 'changePassword']);
+Route::middleware('auth:api')->post('v1/users/change-password/{id}', [AuthController::class, 'changePassword']);
 Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1/users/validate', [UserController::class, 'validateUserRequest']);
 Route::middleware('auth:api')->post('v1/users/search_affiliations', [UserController::class, 'searchUsersByNameAndProfessionalEmail']);
 Route::middleware('auth:api')->get('v1/users/{id}/projects', [UserController::class, 'userProjects']);
@@ -75,8 +75,8 @@ Route::middleware('auth:api')->get('v1/users/{id}/projects', [UserController::cl
 Route::middleware('auth:api')->get('v1/users/{id}/notifications', [NotificationController::class, 'getUserNotifications']);
 Route::middleware('auth:api')->get('v1/users/{id}/notifications/count', [NotificationController::class, 'getNotificationCounts']);
 Route::middleware('auth:api')->patch('v1/users/{id}/notifications/read', [NotificationController::class, 'markUserNotificationsAsRead']);
-Route::middleware('auth:api')->patch('v1/users/{userId}/notifications/{notificationId}/read', [NotificationController::class, 'markUserNotificationAsRead']);
-Route::middleware('auth:api')->patch('v1/users/{userId}/notifications/{notificationId}/unread', [NotificationController::class, 'markUserNotificationAsUnread']);
+Route::middleware('auth:api')->patch('v1/users/{id}/notifications/{notificationId}/read', [NotificationController::class, 'markUserNotificationAsRead']);
+Route::middleware('auth:api')->patch('v1/users/{id}/notifications/{notificationId}/unread', [NotificationController::class, 'markUserNotificationAsUnread']);
 
 Route::middleware('auth:api')->get('v1/{entity}/{id}/action_log', [ActionLogController::class, 'getEntityActionLog']);
 Route::middleware('auth:api')->put('v1/action_log/{id}', [ActionLogController::class, 'update']);
@@ -99,12 +99,10 @@ Route::middleware('auth:api')->get('v1/validation_logs/{id}', [ValidationLogCont
 Route::middleware('auth:api')->get('v1/validation_logs/{id}/comments', [ValidationLogController::class, 'comments']);
 Route::middleware('auth:api')->put('v1/validation_logs/{id}', [ValidationLogController::class, 'update']);
 
-
 Route::middleware('auth:api')->get('v1/validation_log_comments/{id}', [ValidationLogCommentController::class, 'show']);
 Route::middleware('auth:api')->post('v1/validation_log_comments', [ValidationLogCommentController::class, 'store']);
 Route::middleware('auth:api')->put('v1/validation_log_comments/{id}', [ValidationLogCommentController::class, 'update']);
 Route::middleware('auth:api')->delete('v1/validation_log_comments/{id}', [ValidationLogCommentController::class, 'destroy']);
-
 
 
 Route::middleware('auth:api')->get('v1/training', [TrainingController::class, 'index']);

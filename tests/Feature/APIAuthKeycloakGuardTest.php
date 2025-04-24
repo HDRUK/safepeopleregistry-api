@@ -45,6 +45,7 @@ class APIAuthKeycloakGuardTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
+        $this->withUsers();
         // $this->liteSetUp();
         // parent class disables this, we renable here to confirm
         // auth does in fact work as intended.
@@ -63,13 +64,10 @@ class APIAuthKeycloakGuardTest extends TestCase
     }
     public function test_custodian_admin_can_access_routes(): void
     {
-        $payload = $this->getMockedKeycloakPayload();
-        $payload['sub'] = $this->custodian_admin->keycloak_id;
-    
         foreach ($this->getRoutes as $r) {
             if (substr($r, 1) !== 'custodians') continue;
     
-            $response = $this->actingAsKeycloakUser($this->custodian_admin, $payload)
+            $response = $this->actingAs($this->custodian_admin)
                              ->json('GET', self::TEST_URL . $r, [
                                  'Accept' => 'application/json',
                              ]);
@@ -80,13 +78,10 @@ class APIAuthKeycloakGuardTest extends TestCase
     
     public function test_organisation_admin_can_access_routes(): void
     {
-        $payload = $this->getMockedKeycloakPayload();
-        $payload['sub'] = $this->organisation_admin->keycloak_id;
-    
         foreach ($this->getRoutes as $r) {
             if (substr($r, 1) !== 'organisations') continue;
     
-            $response = $this->actingAsKeycloakUser($this->organisation_admin, $payload)
+            $response = $this->actingAs($this->organisation_admin)
                              ->json('GET', self::TEST_URL . $r, [
                                  'Accept' => 'application/json',
                              ]);
@@ -97,14 +92,11 @@ class APIAuthKeycloakGuardTest extends TestCase
 
     public function test_regular_user_can_access_other_routes(): void
     {
-        $payload = $this->getMockedKeycloakPayload();
-        $payload['sub'] = $this->user->keycloak_id;
-
         foreach ($this->getRoutes as $r) {
             $endpoint = substr($r, 1);
             if (in_array($endpoint, ['custodians', 'organisations'])) continue;
 
-            $response = $this->actingAsKeycloakUser($this->user, $payload)
+            $response = $this->actingAs($this->user)
                             ->json('GET', self::TEST_URL . $r, [
                                 'Accept' => 'application/json',
                             ]);
