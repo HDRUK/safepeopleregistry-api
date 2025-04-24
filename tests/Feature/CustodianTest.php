@@ -416,6 +416,7 @@ class CustodianTest extends TestCase
 
     public function test_the_application_can_refuse_pushes_when_key_is_invalid(): void
     {
+        
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
@@ -434,10 +435,11 @@ class CustodianTest extends TestCase
         $content = $response->decodeResponseJson();
 
         $custodian = Custodian::where('id', $content['data'])->first();
-
         $this->enableMiddleware();
+        $payload = $this->getMockedKeycloakPayload();
+        $payload['sub'] = $custodian->keycloak_id;
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->user,$payload)
             ->json(
                 'POST',
                 self::TEST_URL.'/push',
