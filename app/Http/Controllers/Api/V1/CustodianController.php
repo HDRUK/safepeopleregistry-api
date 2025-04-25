@@ -16,6 +16,8 @@ use App\Models\Rules;
 use App\Models\Project;
 use App\Models\Registry;
 use App\Models\CustodianUser;
+use App\Models\State;
+use App\Models\ProjectHasCustodian;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -634,6 +636,80 @@ class CustodianController extends Controller
             'message' => 'not found',
             'data' => null,
         ], 404);
+    }
+
+        /**
+     * @OA\Get(
+     *      path="/api/v1/custodian/{custodianId}/projects",
+     *      summary="Return all projects associated with a custodian",
+     *      description="Fetch a list of projects along with pagination details for a specified custodian.",
+     *      tags={"custodian"},
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *          name="custodianId",
+     *          in="path",
+     *          description="The ID of the custodian whose projects are to be retrieved",
+     *          required=true,
+     *          example="1",
+     *          @OA\Schema(
+     *              type="integer"
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="object",
+     *                  @OA\Property(property="current_page", type="integer", example=1),
+     *                  @OA\Property(property="per_page", type="integer", example=25),
+     *                  @OA\Property(property="total", type="integer", example=24),
+     *                  @OA\Property(property="data", type="array",
+     *                      @OA\Items(
+     *                          ref="#/components/schemas/Custodian",
+     *                          @OA\Property(property="approvals", type="array",
+     *                              @OA\Items(
+     *                                  @OA\Property(property="id", type="integer", example=1),
+     *                                  @OA\Property(property="name", type="string", example="SAIL Databank"),
+     *                                  @OA\Property(property="contact_email", type="string", example="sail@email.com"),
+     *                                  @OA\Property(property="enabled", type="boolean", example=true)
+     *                              )
+     *                          )
+     *                      )
+     *                  ),
+     *                  @OA\Property(property="first_page_url", type="string", example="http://localhost:8100/api/v1/custodians/1/projects?page=1"),
+     *                  @OA\Property(property="last_page_url", type="string", example="http://localhost:8100/api/v1/custodians/1/projects?page=1"),
+     *                  @OA\Property(property="next_page_url", type="string", example=null),
+     *                  @OA\Property(property="prev_page_url", type="string", example=null)
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Custodian not found",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *          )
+     *      )
+     * )
+     */
+    public function addProject(Request $request, int $custodianId): JsonResponse
+    {
+        try {
+            $input = $request->only(app(Project::class)->getFillable());
+
+            $project = Project::create($input);
+            $project->setState(State::STATE_PROJECT_PENDING);
+
+            ProjectHasCustodian::create([
+                'custodian_id' => $custodianId,
+                'project_id' => $project->id
+            ]);
+
+            return $this->CreatedResponse($project->id);
+        } catch (Exception $e) {
+            return $this->ErrorResponse($e);
+        }
     }
 
     /**

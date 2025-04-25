@@ -6,6 +6,7 @@ use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\DecisionModel;
 use App\Models\CustodianModelConfig;
 use App\Models\CustodianHasRule;
+use App\Models\ProjectHasCustodian;
 use App\Models\User;
 use App\Models\Custodian;
 use App\Models\Sector;
@@ -95,6 +96,28 @@ class CustodianTest extends TestCase
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
+    }
+
+    public function test_the_application_can_create_projects(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL . '/1/projects',
+                [
+                    'title' => 'Test project',
+                ]
+            );
+
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
+
+        $conf = ProjectHasCustodian::where([
+            'custodian_id' => 1,
+            'project_id' => $response['data']
+        ])->get()->toArray();
+
+        $this->assertTrue(count($conf) === 1);
     }
 
     public function test_the_application_adds_entity_models_to_newly_created_custodians(): void
