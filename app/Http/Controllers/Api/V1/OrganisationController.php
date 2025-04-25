@@ -818,7 +818,7 @@ class OrganisationController extends Controller
     {
         $projects = Project::searchViaRequest()
           ->applySorting()
-          ->with(['approvals', 'organisations'])
+          ->with(['approvals', 'organisations', 'modelState.state'])
           ->filterWhen('approved', function ($query, $approved) {
               if ($approved) {
                   $query->whereHas('approvals');
