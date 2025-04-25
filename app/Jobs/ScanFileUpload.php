@@ -53,8 +53,13 @@ class ScanFileUpload implements ShouldQueue
 
         $response = Http::post(
             $url,
-            ['file' => $filePath, 'storage' => $this->fileSystem]
+            [
+                'file' => $filePath,
+                'storage' => $this->fileSystem,
+                'service_path' => env('APP_URL'),
+            ]
         );
+
         $isInfected = $response['isInfected'] ?? null;
 
         // Check if the file is infected
