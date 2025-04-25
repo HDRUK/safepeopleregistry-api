@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use Http;
-use Keycloak;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\User;
 use App\Jobs\SendEmailJob;
