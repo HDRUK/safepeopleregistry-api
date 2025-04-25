@@ -39,6 +39,7 @@ use App\Http\Controllers\Api\V1\CustodianModelConfigController;
 use App\Http\Controllers\Api\V1\ProjectDetailController;
 use App\Http\Controllers\Api\V1\ProjectRoleController;
 use Illuminate\Support\Facades\Route;
+use App\Models\User;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,27 +57,38 @@ Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1
 Route::middleware('api')->get('auth/me', [AuthController::class, 'me']);
 Route::middleware('api')->post('auth/register', [AuthController::class, 'registerKeycloakUser']);
 
-Route::middleware('auth:api')->get('v1/users', [UserController::class, 'index']);
+// Only custodians or organisations (or admins) can list all users 
+// note - do we want this? 
+Route::middleware(['auth:api','check.crud.access:group='.User::GROUP_CUSTODIANS.'|'.User::GROUP_ORGANISATIONS])->get('v1/users', [UserController::class, 'index']);
+
+// Create user — only allowed for admins
+Route::middleware(['auth:api','check.crud.access'])->post('v1/users', [UserController::class, 'store']);
+
+// Public / no extra access checks (e.g. admin/test/internal stuff)
 Route::middleware('auth:api')->get('v1/users/test', [UserController::class, 'fakeEndpointForTesting']);
-Route::middleware('auth:api')->get('v1/users/{id}', [UserController::class, 'show']);
-Route::middleware('auth:api')->get('v1/users/{id}/history', [UserController::class, 'getHistory']);
-Route::middleware('auth:api')->get('v1/users/identifier/{id}', [UserController::class, 'showByUniqueIdentifier']);
-Route::middleware('auth:api')->post('v1/users', [UserController::class, 'store']);
-Route::middleware('auth:api')->put('v1/users/{id}', [UserController::class, 'update']);
-Route::middleware('auth:api')->patch('v1/users/{id}', [UserController::class, 'edit']);
-Route::middleware('auth:api')->delete('v1/users/{id}', [UserController::class, 'destroy']);
 Route::middleware('auth:api')->post('v1/users/invite', [UserController::class, 'invite']);
 Route::middleware('auth:api')->post('v1/users/permissions', [PermissionController::class, 'assignUserPermissionsToFrom']);
-Route::middleware('auth:api')->post('v1/users/change-password/{id}', [AuthController::class, 'changePassword']);
 Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1/users/validate', [UserController::class, 'validateUserRequest']);
 Route::middleware('auth:api')->post('v1/users/search_affiliations', [UserController::class, 'searchUsersByNameAndProfessionalEmail']);
-Route::middleware('auth:api')->get('v1/users/{id}/projects', [UserController::class, 'userProjects']);
 
-Route::middleware('auth:api')->get('v1/users/{id}/notifications', [NotificationController::class, 'getUserNotifications']);
-Route::middleware('auth:api')->get('v1/users/{id}/notifications/count', [NotificationController::class, 'getNotificationCounts']);
-Route::middleware('auth:api')->patch('v1/users/{id}/notifications/read', [NotificationController::class, 'markUserNotificationsAsRead']);
-Route::middleware('auth:api')->patch('v1/users/{id}/notifications/{notificationId}/read', [NotificationController::class, 'markUserNotificationAsRead']);
-Route::middleware('auth:api')->patch('v1/users/{id}/notifications/{notificationId}/unread', [NotificationController::class, 'markUserNotificationAsUnread']);
+// Must be owner or in org group
+Route::middleware(['auth:api', 'check.crud.access:owns,admin'])->get('v1/users/{id}', [UserController::class, 'show']);
+Route::middleware(['auth:api', 'check.crud.access:owns,admin'])->get('v1/users/{id}/history', [UserController::class, 'getHistory']);
+Route::middleware(['auth:api', 'check.crud.access:owns,admin'])->get('v1/users/identifier/{id}', [UserController::class, 'showByUniqueIdentifier']);
+Route::middleware(['auth:api', 'check.crud.access:owns,admin'])->put('v1/users/{id}', [UserController::class, 'update']);
+Route::middleware(['auth:api', 'check.crud.access:owns,admin'])->patch('v1/users/{id}', [UserController::class, 'edit']);
+Route::middleware(['auth:api', 'check.crud.access:owns,admin'])->delete('v1/users/{id}', [UserController::class, 'destroy']);
+Route::middleware(['auth:api', 'check.crud.access:owns,admin'])->post('v1/users/change-password/{id}', [AuthController::class, 'changePassword']);
+Route::middleware(['auth:api', 'check.crud.access:owns,admin'])->get('v1/users/{id}/projects', [UserController::class, 'userProjects']);
+
+// Notification endpoints — scoped per user, so protect with owns+group too
+Route::middleware(['auth:api', 'check.crud.access:owns'])->get('v1/users/{id}/notifications', [NotificationController::class, 'getUserNotifications']);
+Route::middleware(['auth:api', 'check.crud.access:owns'])->get('v1/users/{id}/notifications/count', [NotificationController::class, 'getNotificationCounts']);
+Route::middleware(['auth:api', 'check.crud.access:owns'])->patch('v1/users/{id}/notifications/read', [NotificationController::class, 'markUserNotificationsAsRead']);
+Route::middleware(['auth:api', 'check.crud.access:owns'])->patch('v1/users/{id}/notifications/{notificationId}/read', [NotificationController::class, 'markUserNotificationAsRead']);
+Route::middleware(['auth:api', 'check.crud.access:owns'])->patch('v1/users/{id}/notifications/{notificationId}/unread', [NotificationController::class, 'markUserNotificationAsUnread']);
+
+
 
 Route::middleware('auth:api')->get('v1/{entity}/{id}/action_log', [ActionLogController::class, 'getEntityActionLog']);
 Route::middleware('auth:api')->put('v1/action_log/{id}', [ActionLogController::class, 'update']);
@@ -99,6 +111,7 @@ Route::middleware('auth:api')->get('v1/validation_logs/{id}', [ValidationLogCont
 Route::middleware('auth:api')->get('v1/validation_logs/{id}/comments', [ValidationLogController::class, 'comments']);
 Route::middleware('auth:api')->put('v1/validation_logs/{id}', [ValidationLogController::class, 'update']);
 
+
 Route::middleware('auth:api')->get('v1/validation_log_comments/{id}', [ValidationLogCommentController::class, 'show']);
 Route::middleware('auth:api')->post('v1/validation_log_comments', [ValidationLogCommentController::class, 'store']);
 Route::middleware('auth:api')->put('v1/validation_log_comments/{id}', [ValidationLogCommentController::class, 'update']);
@@ -115,35 +128,35 @@ Route::middleware('auth:api')->post('v1/training/{trainingId}/link_file/{fileId}
 
 
 // 🟢 Publicly readable by custodians (just need group access)
-Route::middleware(['auth:api', 'check.crud.access:custodian,group'])->get('v1/custodians', [CustodianController::class, 'index']);
-Route::middleware(['auth:api', 'check.crud.access:custodian,group'])->get('v1/custodians/identifier/{id}', [CustodianController::class, 'showByUniqueIdentifier']);
-Route::middleware(['auth:api', 'check.crud.access:custodian,group'])->get('v1/custodians/{id}', [CustodianController::class, 'show']);
+Route::middleware(['auth:api', 'check.crud.access:group=' . User::GROUP_CUSTODIANS])->get('v1/custodians', [CustodianController::class, 'index']);
+Route::middleware(['auth:api', 'check.crud.access:group=' . User::GROUP_CUSTODIANS])->get('v1/custodians/identifier/{id}', [CustodianController::class, 'showByUniqueIdentifier']);
+Route::middleware(['auth:api', 'check.crud.access:group=' . User::GROUP_CUSTODIANS])->get('v1/custodians/{id}', [CustodianController::class, 'show']);
+
 
 // 🟢 Read-only but must own the custodian
-Route::middleware(['auth:api', 'check.crud.access:custodian,owns'])->get('v1/custodians/{id}/projects', [CustodianController::class, 'getProjects']);
-Route::middleware(['auth:api', 'check.crud.access:custodian,owns'])->get('v1/custodians/{id}/users/{userId}/projects', [CustodianController::class, 'getUserProjects']);
-Route::middleware(['auth:api', 'check.crud.access:custodian,owns'])->get('v1/custodians/{id}/organisations', [CustodianController::class, 'getOrganisations']);
-Route::middleware(['auth:api', 'check.crud.access:custodian,owns'])->get('v1/custodians/{id}/custodian_users', [CustodianController::class, 'getCustodianUsers']);
-Route::middleware(['auth:api', 'check.crud.access:custodian,owns'])->get('v1/custodians/{id}/projects_users', [CustodianController::class, 'getProjectsUsers']);
-Route::middleware(['auth:api', 'check.crud.access:custodian,owns'])->get('v1/custodians/{id}/rules', [CustodianController::class, 'getRules']);
-Route::middleware(['auth:api', 'check.crud.access:custodian,owns'])->get('v1/custodians/{id}/users', [CustodianController::class, 'usersWithCustodianApprovals']);
-Route::middleware(['auth:api', 'check.crud.access:custodian,owns'])->get('v1/custodians/{id}/organisations/{organisationId}/users', [CustodianController::class, 'getOrganisationUsers']);
+Route::middleware(['auth:api', 'check.crud.access:owns'])->get('v1/custodians/{id}/projects', [CustodianController::class, 'getProjects']);
+Route::middleware(['auth:api', 'check.crud.access:owns'])->get('v1/custodians/{id}/users/{userId}/projects', [CustodianController::class, 'getUserProjects']);
+Route::middleware(['auth:api', 'check.crud.access:owns'])->get('v1/custodians/{id}/organisations', [CustodianController::class, 'getOrganisations']);
+Route::middleware(['auth:api', 'check.crud.access:owns'])->get('v1/custodians/{id}/custodian_users', [CustodianController::class, 'getCustodianUsers']);
+Route::middleware(['auth:api', 'check.crud.access:owns'])->get('v1/custodians/{id}/projects_users', [CustodianController::class, 'getProjectsUsers']);
+Route::middleware(['auth:api', 'check.crud.access:owns'])->get('v1/custodians/{id}/rules', [CustodianController::class, 'getRules']);
+Route::middleware(['auth:api', 'check.crud.access:owns'])->get('v1/custodians/{id}/users', [CustodianController::class, 'usersWithCustodianApprovals']);
+Route::middleware(['auth:api', 'check.crud.access:owns'])->get('v1/custodians/{id}/organisations/{organisationId}/users', [CustodianController::class, 'getOrganisationUsers']);
 
 // 🟡 Create (group only)
-Route::middleware(['auth:api', 'check.crud.access:admin,group'])->post('v1/custodians', [CustodianController::class, 'store']);
-Route::middleware(['auth:api', 'check.crud.access:admin,group'])->post('v1/custodians/push', [CustodianController::class, 'push']);
+Route::middleware(['auth:api', 'check.crud.access'])->post('v1/custodians', [CustodianController::class, 'store']);
+Route::middleware(['auth:api', 'check.crud.access'])->post('v1/custodians/push', [CustodianController::class, 'push']);
 
 // 🟡 Write for admins only
-Route::middleware(['auth:api', 'check.crud.access:custodian,owns'])->post('v1/custodians/{id}/invite', [CustodianController::class, 'invite']);
+Route::middleware(['auth:api', 'check.crud.access:owns'])->post('v1/custodians/{id}/invite', [CustodianController::class, 'invite']);
 
 // 🟠 Update (must own)
-Route::middleware(['auth:api', 'check.crud.access:custodian,owns'])->put('v1/custodians/{id}', [CustodianController::class, 'update']);
-Route::middleware(['auth:api', 'check.crud.access:custodian,owns'])->patch('v1/custodians/{id}', [CustodianController::class, 'edit']);
-Route::middleware(['auth:api', 'check.crud.access:custodian,owns'])->patch('v1/custodians/{id}/rules', [CustodianController::class, 'updateCustodianRules']);
+Route::middleware(['auth:api', 'check.crud.access:owns'])->put('v1/custodians/{id}', [CustodianController::class, 'update']);
+Route::middleware(['auth:api', 'check.crud.access:owns'])->patch('v1/custodians/{id}', [CustodianController::class, 'edit']);
+Route::middleware(['auth:api', 'check.crud.access:owns'])->patch('v1/custodians/{id}/rules', [CustodianController::class, 'updateCustodianRules']);
 
 // 🔴 Delete (must own)
-Route::middleware(['auth:api', 'check.crud.access:custodian,owns'])->delete('v1/custodians/{id}', [CustodianController::class, 'destroy']);
-
+Route::middleware(['auth:api', 'check.crud.access:owns'])->delete('v1/custodians/{id}', [CustodianController::class, 'destroy']);
 
 Route::middleware('auth:api')->get('v1/custodian_users', [CustodianUserController::class, 'index']);
 Route::middleware('auth:api')->get('v1/custodian_users/{id}', [CustodianUserController::class, 'show']);
@@ -202,38 +215,38 @@ Route::middleware('auth:api')->put('v1/identities/{id}', [IdentityController::cl
 Route::middleware('auth:api')->patch('v1/identities/{id}', [IdentityController::class, 'edit']);
 Route::middleware('auth:api')->delete('v1/identities/{id}', [IdentityController::class, 'destroy']);
 
-// 🟢 Publicly readable by organisation members (just need group access)
-Route::middleware(['auth:api', 'check.crud.access:organisation,group'])->get('v1/organisations', [OrganisationController::class, 'index']);
-Route::middleware(['auth:api', 'check.crud.access:organisation,group'])->get('v1/organisations/{id}', [OrganisationController::class, 'show']);
-Route::middleware(['auth:api', 'check.crud.access:organisation,group'])->get('v1/organisations/{id}/idvt', [OrganisationController::class, 'idvt']);
-Route::middleware(['auth:api', 'check.crud.access:organisation,group'])->get('v1/organisations/{id}/counts/certifications', [OrganisationController::class, 'countCertifications']);
-Route::middleware(['auth:api', 'check.crud.access:organisation,group'])->get('v1/organisations/{id}/counts/users', [OrganisationController::class, 'countUsers']);
-Route::middleware(['auth:api', 'check.crud.access:organisation,group'])->get('v1/organisations/{id}/counts/projects/present', [OrganisationController::class, 'countPresentProjects']);
-Route::middleware(['auth:api', 'check.crud.access:organisation,group'])->get('v1/organisations/{id}/counts/projects/past', [OrganisationController::class, 'countPastProjects']);
-Route::middleware(['auth:api', 'check.crud.access:organisation,group'])->get('v1/organisations/{id}/projects/present', [OrganisationController::class, 'presentProjects']);
-Route::middleware(['auth:api', 'check.crud.access:organisation,group'])->get('v1/organisations/{id}/projects/past', [OrganisationController::class, 'pastProjects']);
-Route::middleware(['auth:api', 'check.crud.access:organisation,group'])->get('v1/organisations/{id}/projects/future', [OrganisationController::class, 'futureProjects']);
-Route::middleware(['auth:api', 'check.crud.access:organisation,group'])->get('v1/organisations/{id}/projects', [OrganisationController::class, 'getProjects']);
-Route::middleware(['auth:api', 'check.crud.access:organisation,group'])->get('v1/organisations/{id}/users', [OrganisationController::class, 'getUsers']);
-Route::middleware(['auth:api', 'check.crud.access:organisation,group'])->get('v1/organisations/{id}/delegates', [OrganisationController::class, 'getDelegates']);
-Route::middleware(['auth:api', 'check.crud.access:organisation,group'])->get('v1/organisations/{id}/registries', [OrganisationController::class, 'getRegistries']);
-Route::middleware(['auth:api', 'check.crud.access:organisation,group'])->get('v1/organisations/ror/{ror}', [OrganisationController::class, 'validateRor']);
+// 🟢 Publicly readable (group access required)
+Route::middleware(['auth:api', 'check.crud.access:group=' . User::GROUP_ORGANISATIONS])->get('v1/organisations', [OrganisationController::class, 'index']);
+Route::middleware(['auth:api', 'check.crud.access:group=' . User::GROUP_ORGANISATIONS])->get('v1/organisations/{id}', [OrganisationController::class, 'show']);
+Route::middleware(['auth:api', 'check.crud.access:group=' . User::GROUP_ORGANISATIONS])->get('v1/organisations/{id}/idvt', [OrganisationController::class, 'idvt']);
+Route::middleware(['auth:api', 'check.crud.access:group=' . User::GROUP_ORGANISATIONS])->get('v1/organisations/{id}/counts/certifications', [OrganisationController::class, 'countCertifications']);
+Route::middleware(['auth:api', 'check.crud.access:group=' . User::GROUP_ORGANISATIONS])->get('v1/organisations/{id}/counts/users', [OrganisationController::class, 'countUsers']);
+Route::middleware(['auth:api', 'check.crud.access:group=' . User::GROUP_ORGANISATIONS])->get('v1/organisations/{id}/counts/projects/present', [OrganisationController::class, 'countPresentProjects']);
+Route::middleware(['auth:api', 'check.crud.access:group=' . User::GROUP_ORGANISATIONS])->get('v1/organisations/{id}/counts/projects/past', [OrganisationController::class, 'countPastProjects']);
+Route::middleware(['auth:api', 'check.crud.access:group=' . User::GROUP_ORGANISATIONS])->get('v1/organisations/{id}/projects/present', [OrganisationController::class, 'presentProjects']);
+Route::middleware(['auth:api', 'check.crud.access:group=' . User::GROUP_ORGANISATIONS])->get('v1/organisations/{id}/projects/past', [OrganisationController::class, 'pastProjects']);
+Route::middleware(['auth:api', 'check.crud.access:group=' . User::GROUP_ORGANISATIONS])->get('v1/organisations/{id}/projects/future', [OrganisationController::class, 'futureProjects']);
+Route::middleware(['auth:api', 'check.crud.access:group=' . User::GROUP_ORGANISATIONS])->get('v1/organisations/{id}/projects', [OrganisationController::class, 'getProjects']);
+Route::middleware(['auth:api', 'check.crud.access:group=' . User::GROUP_ORGANISATIONS])->get('v1/organisations/{id}/users', [OrganisationController::class, 'getUsers']);
+Route::middleware(['auth:api', 'check.crud.access:group=' . User::GROUP_ORGANISATIONS])->get('v1/organisations/{id}/delegates', [OrganisationController::class, 'getDelegates']);
+Route::middleware(['auth:api', 'check.crud.access:group=' . User::GROUP_ORGANISATIONS])->get('v1/organisations/{id}/registries', [OrganisationController::class, 'getRegistries']);
+Route::middleware(['auth:api', 'check.crud.access:group=' . User::GROUP_ORGANISATIONS])->get('v1/organisations/ror/{ror}', [OrganisationController::class, 'validateRor']);
 
 // 🟡 Create (group access required)
-Route::middleware(['auth:api', 'check.crud.access:organisation,group'])->post('v1/organisations', [OrganisationController::class, 'store']);
-Route::middleware(['auth:api', 'check.crud.access:organisation,group'])->post('v1/organisations/unclaimed', [OrganisationController::class, 'storeUnclaimed']);
+Route::middleware(['auth:api', 'check.crud.access:group=' . User::GROUP_ORGANISATIONS])->post('v1/organisations', [OrganisationController::class, 'store']);
+Route::middleware(['auth:api', 'check.crud.access:group=' . User::GROUP_ORGANISATIONS])->post('v1/organisations/unclaimed', [OrganisationController::class, 'storeUnclaimed']);
 
 // 🟡 Write (must own)
-Route::middleware(['auth:api', 'check.crud.access:organisation,owns'])->post('v1/organisations/{id}/invite', [OrganisationController::class, 'invite']);
-Route::middleware(['auth:api', 'check.crud.access:organisation,owns'])->post('v1/organisations/{id}/invite_user', [OrganisationController::class, 'inviteUser']);
-Route::middleware(['auth:api', 'check.crud.access:organisation,owns'])->post('v1/organisations/permissions', [PermissionController::class, 'assignOrganisationPermissionsToFrom']);
+Route::middleware(['auth:api', 'check.crud.access:owns'])->post('v1/organisations/{id}/invite', [OrganisationController::class, 'invite']);
+Route::middleware(['auth:api', 'check.crud.access:owns'])->post('v1/organisations/{id}/invite_user', [OrganisationController::class, 'inviteUser']);
+Route::middleware(['auth:api', 'check.crud.access:owns'])->post('v1/organisations/permissions', [PermissionController::class, 'assignOrganisationPermissionsToFrom']);
 
-// 🟠 Update (must own the organisation)
-Route::middleware(['auth:api', 'check.crud.access:organisation,group,owns'])->put('v1/organisations/{id}', [OrganisationController::class, 'update']);
-Route::middleware(['auth:api', 'check.crud.access:organisation,group,owns'])->patch('v1/organisations/{id}', [OrganisationController::class, 'edit']);
+// 🟠 Update (must own OR group access)
+Route::middleware(['auth:api', 'check.crud.access:owns,group=' . User::GROUP_ORGANISATIONS])->put('v1/organisations/{id}', [OrganisationController::class, 'update']);
+Route::middleware(['auth:api', 'check.crud.access:owns,group=' . User::GROUP_ORGANISATIONS])->patch('v1/organisations/{id}', [OrganisationController::class, 'edit']);
 
-// 🔴 Delete (must own)
-Route::middleware(['auth:api', 'check.crud.access:organisation,group,owns'])->delete('v1/organisations/{id}', [OrganisationController::class, 'destroy']);
+// 🔴 Delete (must own OR group access)
+Route::middleware(['auth:api', 'check.crud.access:owns,group=' . User::GROUP_ORGANISATIONS])->delete('v1/organisations/{id}', [OrganisationController::class, 'destroy']);
 
 
 Route::middleware('auth:api')->get('v1/accreditations/{registryId}', [AccreditationController::class, 'indexByRegistryId']);

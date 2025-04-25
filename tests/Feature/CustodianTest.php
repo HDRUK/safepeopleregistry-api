@@ -57,7 +57,7 @@ class CustodianTest extends TestCase
 
         $response->assertStatus(403)
             ->assertJson([
-                'message' => 'Forbidden: group access denied',
+                'message' => 'Forbidden: insufficient access rights',
             ]);
 
         $response = $this->actingAs($this->organisation_admin)
@@ -68,7 +68,7 @@ class CustodianTest extends TestCase
 
         $response->assertStatus(403)
             ->assertJson([
-                'message' => 'Forbidden: group access denied',
+                'message' => 'Forbidden: insufficient access rights',
             ]);
     }
 
@@ -82,7 +82,7 @@ class CustodianTest extends TestCase
 
         $response->assertStatus(403)
         ->assertJson([
-            'message' => 'Forbidden: group access denied',
+            'message' => 'Forbidden: insufficient access rights',
         ]);
     }
 

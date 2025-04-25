@@ -7,10 +7,11 @@ use Auth;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Custodian;
+use Illuminate\Support\Str;
 
 class CheckCrudAccess
 {
-    public function handle(Request $request, Closure $next, string $entityType,  ...$checks): mixed
+    public function handle(Request $request, Closure $next, ...$checks): mixed
     {
         $obj = json_decode(Auth::token(),true);
         $user = null;
@@ -30,39 +31,74 @@ class CheckCrudAccess
         }
 
         $resourceId = $request->route('id');
+        $entity = $request->segment(3); // /api/v1/<model>
+        $model = Str::studly(Str::singular($entity));
 
-        if (in_array('group', $checks)) {
-            if (!$this->hasGroupAccess($user, $entityType)) {
-                return response()->json(['message' => 'Forbidden: group access denied' ], 403);
-            }
+        $hasGroupAccess = false;
+        $ownsResource = false;
+        $adminsResource = false;
+
+        $groupCheck = collect($checks)->first(fn($c) => str_starts_with($c, 'group='));
+        if ($groupCheck) {
+            $hasGroupAccess = $this->hasGroupAccess($user, $groupCheck);
         }
-    
-        if (in_array('owns', $checks)) {
-            if (!$this->ownsResource($user, $entityType, $resourceId)) {
-                return response()->json(['message' => 'Forbidden: entity is not owned by this user'], 403);
-            }
+
+        $checkOwns = collect($checks)->first(fn($c) => str_starts_with($c, 'owns'));
+        if($checkOwns){
+            $ownsResource = $this->ownsResource($user, $resourceId);
+        }
+
+        $checkAdmin = collect($checks)->first(fn($c) => str_starts_with($c, 'admin'));
+        if($checkAdmin){
+            $adminsResource = $this->adminsResource($user, $model, $resourceId);
+        }
+
+        if (!$hasGroupAccess && !$ownsResource &&  !$adminsResource) {
+            return response()->json(['message' => 'Forbidden: insufficient access rights'], 403);
         }
 
         return $next($request);
     }
 
-    protected function hasGroupAccess($user, string $entityType): bool
+    protected function hasGroupAccess($user, string $groupString): bool
     {
-        return match ($entityType) {
-            'custodian' => $user->user_group === User::GROUP_CUSTODIANS,
-            'user' => true,
-            'organisation' => in_array($user->user_group, [User::GROUP_ORGANISATIONS, User::GROUP_CUSTODIANS]),
+        $groups = $this->getValues($groupString, 'group');
+        return in_array($user->user_group, $groups);
+    }
+
+    protected function ownsResource($user, $routeId): bool
+    {
+        $group = $user->user_group;
+        return match ($group) {
+            User::GROUP_CUSTODIANS => (int)$user->custodian_user->custodian_id === (int)$routeId,
+            User::GROUP_USERS  => (int)$user->id === (int)$routeId,
+            User::GROUP_ORGANISATIONS => (int)$user->organisation_id === (int)$routeId,
             default => false,
         };
     }
 
-    protected function ownsResource($user, string $entityType, $routeId): bool
+    protected function adminsResource($user, $modelName, $routeId): bool
     {
-        return match ($entityType) {
-            'custodian' => (int)$user->custodian_user->custodian_id === (int)$routeId,
-            'user' => (int)$user->id === (int)$routeId,
-            'organisation' => (int)$user->organisation_id === (int)$routeId,
+        $model = '\\App\\Models\\' . $modelName;
+        $obj = $model::find((int)$routeId);
+        if (!$obj) {
+            return false;
+        }
+
+        $group = $user->user_group;
+
+        return match ($group) {
+            User::GROUP_ORGANISATIONS => match ($modelName) {
+                'User' => (int)$user->organisation_id === (int)$obj->organisation_id,
+                default => false,
+            },
             default => false,
         };
+    }
+
+    private function getValues(string $orginial, string $key): array
+    {
+        $orginial = substr($orginial, strlen($key.'='));
+        return explode('|', $orginial);
     }
 }
