@@ -212,7 +212,7 @@ class FileUploadController extends Controller
 
             $file = $request->file('file');
             $fileSystem = env('SCANNING_FILESYSTEM_DISK', 'local_scan');
-            $storedFilename = time().'_'.$file->getClientOriginalName();
+            $storedFilename = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
             $path = $file->storeAs(
                 '',
                 $storedFilename,
