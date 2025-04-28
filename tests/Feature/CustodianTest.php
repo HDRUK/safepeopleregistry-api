@@ -183,7 +183,11 @@ class CustodianTest extends TestCase
 
     public function test_the_application_can_create_projects(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $user = $this->user;
+        $user->update([
+            'user_group' => User::GROUP_ADMINS
+        ]);
+        $response = $this->actingAs($user)
             ->json(
                 'POST',
                 self::TEST_URL . '/1/projects',

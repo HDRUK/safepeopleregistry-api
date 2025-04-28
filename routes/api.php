@@ -144,19 +144,26 @@ Route::middleware(['auth:api', 'anyof:is.admin,is.owner'])
     });
 
 
+// Public
+Route::middleware(['auth:api'])
+->prefix('v1/custodians')
+->group(function () {
+    Route::get('/identifier/{id}', [CustodianController::class, 'showByUniqueIdentifier']);
+    
+});
+
 // Only Publicly readable by custodians (just need group access)
 Route::middleware(['auth:api', 'anyof:is.admin,is.custodian'])
     ->prefix('v1/custodians')
     ->group(function () {
         Route::get('/', [CustodianController::class, 'index']);
     });
-
+    
 // Read/Write/Update/Delete where must own custodian or admin
 Route::middleware(['auth:api', 'anyof:is.admin,is.owner'])
     ->prefix('v1/custodians')
     ->group(function () {
         // Read-only
-        Route::get('/identifier/{id}', [CustodianController::class, 'showByUniqueIdentifier']);
         Route::get('/{id}', [CustodianController::class, 'show']);
         Route::get('/{id}/projects', [CustodianController::class, 'getProjects']);
         Route::get('/{id}/users/{userId}/projects', [CustodianController::class, 'getUserProjects']);

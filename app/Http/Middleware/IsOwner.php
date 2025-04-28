@@ -35,7 +35,6 @@ class IsOwner
             $idName = $entity . 'Id';
             $id = (int)$request->route($idName);
         }
-
         $allowDelegates = true; // in_array('allowDelegates', $checks); 
         
         $ownsResource = $this->ownsResource($user, $model, $id, $allowDelegates);
@@ -45,14 +44,14 @@ class IsOwner
         return $next($request);
     }
 
-    protected function ownsResource($user, $modelName, $id, $allowDelegates = false): bool
+    protected function ownsResource($user, $modelName, $id, $allowDelegates = false, $idName = 'id'): bool
     {
-        $model = '\\App\\Models\\' . $modelName;
-        $obj = $model::where('id',(int)$id)->select('id')->first();
+        $model = '\\App\\Models\\' . $modelName;     
+        $obj = $model::where($idName,(int)$id)->select('id')->first();
         if (!$obj) {
             return false;
         }
-
+    
         $group = $user->user_group;
 
         return match ($modelName) {
