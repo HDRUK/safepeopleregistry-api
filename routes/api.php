@@ -124,6 +124,9 @@ Route::middleware('auth:api')->get('v1/custodians/{id}/users/{userId}/projects',
 Route::middleware('auth:api')->get('v1/custodians/{id}/organisations', [CustodianController::class, 'getOrganisations']);
 Route::middleware('auth:api')->get('v1/custodians/{id}/custodian_users', [CustodianController::class, 'getCustodianUsers']);
 
+Route::middleware('auth:api')->post('v1/custodians/{id}/projects', [CustodianController::class, 'addProject']);
+
+
 Route::middleware('auth:api')->get('v1/custodians/{id}/projects_users', [CustodianController::class, 'getProjectsUsers']);
 Route::middleware('auth:api')->post('v1/custodians', [CustodianController::class, 'store']);
 Route::middleware('auth:api')->put('v1/custodians/{id}', [CustodianController::class, 'update']);
