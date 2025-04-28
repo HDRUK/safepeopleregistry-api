@@ -34,7 +34,8 @@ class AnyOfMiddleware
             // add more mappings as needed
         ];
 
-        return $map[$name] ?? abort(500, "Unknown middleware: $name");
+        [$middlewareName] = explode(':', $name, 2); 
+        return $map[$middlewareName] ?? abort(500, "Unknown middleware: $middlewareName");
     }
 
     private function isSuccessfulResponse($response): bool
