@@ -68,6 +68,9 @@ class Kernel extends HttpKernel
         'check.custodian.access' => \App\Http\Middleware\CustodianAuthenticationMiddleware::class,
         'verify.signed.payload' => \App\Http\Middleware\VerifySignedPayload::class,
         'anyof' => \App\Http\Middleware\AnyOfMiddleware::class,
-        'is_admin' => \App\Http\Middleware\IsAdmin::class,
+        'is.admin' => \App\Http\Middleware\IsAdmin::class,
+        'is.custodian' => \App\Http\Middleware\IsCustodian::class,
+        'is.organisation' => \App\Http\Middleware\IsOrganisation::class,
+        'is.owner' => \App\Http\Middleware\IsOwner::class,
     ];
 }

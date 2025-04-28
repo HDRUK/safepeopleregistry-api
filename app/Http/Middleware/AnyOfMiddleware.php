@@ -27,10 +27,10 @@ class AnyOfMiddleware
     private function resolveMiddlewareClass($name)
     {
         $map = [
-            'is_admin' => \App\Http\Middleware\IsAdmin::class,
-            'is_custodian' => \App\Http\Middleware\IsCustodian::class,
-            'is_organisation' => \App\Http\Middleware\IsOrganisation::class,
-            'is_owner' => \App\Http\Middleware\IsOwner::class,
+            'is.admin' => \App\Http\Middleware\IsAdmin::class,
+            'is.custodian' => \App\Http\Middleware\IsCustodian::class,
+            'is.organisation' => \App\Http\Middleware\IsOrganisation::class,
+            'is.owner' => \App\Http\Middleware\IsOwner::class,
             // add more mappings as needed
         ];
 

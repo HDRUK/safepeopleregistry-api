@@ -59,10 +59,10 @@ Route::middleware('api')->post('auth/register', [AuthController::class, 'registe
 
 // Only admins, custodians or organisations can list all users 
 // note - do we want this? 
-Route::middleware(['auth:api','anyof:is_admin,is_custodian,is_organisation'])->get('v1/users', [UserController::class, 'index']);
+Route::middleware(['auth:api','anyof:is.admin,is.custodian,is.organisation'])->get('v1/users', [UserController::class, 'index']);
 
 // Create user — only allowed for admins
-Route::middleware(['auth:api','is_admin'])->post('v1/users', [UserController::class, 'store']);
+Route::middleware(['auth:api','is.admin'])->post('v1/users', [UserController::class, 'store']);
 
 // Public / no extra access checks (e.g. admin/test/internal stuff)
 Route::middleware('auth:api')->get('v1/users/test', [UserController::class, 'fakeEndpointForTesting']);
@@ -73,21 +73,21 @@ Route::middleware('auth:api')->post('v1/users/search_affiliations', [UserControl
 
 // Must be owner or an admin
 //,
-Route::middleware(['auth:api', 'anyof:is_admin,is_custodian,is_organisation,is_owner'])->get('v1/users/{id}', [UserController::class, 'show']);
-Route::middleware(['auth:api', 'anyof:is_admin,is_custodian,is_organisation,is_owner'])->get('v1/users/{id}/history', [UserController::class, 'getHistory']);
-Route::middleware(['auth:api', 'anyof:is_admin,is_custodian,is_organisation,is_owner'])->get('v1/users/identifier/{id}', [UserController::class, 'showByUniqueIdentifier']);
-Route::middleware(['auth:api', 'anyof:is_admin,is_custodian,is_organisation,is_owner'])->put('v1/users/{id}', [UserController::class, 'update']);
-Route::middleware(['auth:api', 'anyof:is_admin,is_custodian,is_organisation,is_owner'])->patch('v1/users/{id}', [UserController::class, 'edit']);
-Route::middleware(['auth:api', 'anyof:is_admin,is_custodian,is_organisation,is_owner'])->delete('v1/users/{id}', [UserController::class, 'destroy']);
-Route::middleware(['auth:api', 'anyof:is_admin,is_custodian,is_organisation,is_owner'])->post('v1/users/change-password/{id}', [AuthController::class, 'changePassword']);
-Route::middleware(['auth:api', 'anyof:is_admin,is_custodian,is_organisation,is_owner'])->get('v1/users/{id}/projects', [UserController::class, 'userProjects']);
+Route::middleware(['auth:api', 'anyof:is.admin,is.custodian,is.organisation,is.owner'])->get('v1/users/{id}', [UserController::class, 'show']);
+Route::middleware(['auth:api', 'anyof:is.admin,is.custodian,is.organisation,is.owner'])->get('v1/users/{id}/history', [UserController::class, 'getHistory']);
+Route::middleware(['auth:api', 'anyof:is.admin,is.custodian,is.organisation,is.owner'])->get('v1/users/identifier/{id}', [UserController::class, 'showByUniqueIdentifier']);
+Route::middleware(['auth:api', 'anyof:is.admin,is.custodian,is.organisation,is.owner'])->put('v1/users/{id}', [UserController::class, 'update']);
+Route::middleware(['auth:api', 'anyof:is.admin,is.custodian,is.organisation,is.owner'])->patch('v1/users/{id}', [UserController::class, 'edit']);
+Route::middleware(['auth:api', 'anyof:is.admin,is.custodian,is.organisation,is.owner'])->delete('v1/users/{id}', [UserController::class, 'destroy']);
+Route::middleware(['auth:api', 'anyof:is.admin,is.custodian,is.organisation,is.owner'])->post('v1/users/change-password/{id}', [AuthController::class, 'changePassword']);
+Route::middleware(['auth:api', 'anyof:is.admin,is.custodian,is.organisation,is.owner'])->get('v1/users/{id}/projects', [UserController::class, 'userProjects']);
 
 // Notification endpoints — scoped per used, only admin and user can get and modify these
-Route::middleware(['auth:api', 'anyof:is_admin,is_owner'])->get('v1/users/{id}/notifications', [NotificationController::class, 'getUserNotifications']);
-Route::middleware(['auth:api', 'anyof:is_admin,is_owner'])->get('v1/users/{id}/notifications/count', [NotificationController::class, 'getNotificationCounts']);
-Route::middleware(['auth:api', 'anyof:is_admin,is_owner'])->patch('v1/users/{id}/notifications/read', [NotificationController::class, 'markUserNotificationsAsRead']);
-Route::middleware(['auth:api', 'anyof:is_admin,is_owner'])->patch('v1/users/{id}/notifications/{notificationId}/read', [NotificationController::class, 'markUserNotificationAsRead']);
-Route::middleware(['auth:api', 'anyof:is_admin,is_owner'])->patch('v1/users/{id}/notifications/{notificationId}/unread', [NotificationController::class, 'markUserNotificationAsUnread']);
+Route::middleware(['auth:api', 'anyof:is.admin,is.owner'])->get('v1/users/{id}/notifications', [NotificationController::class, 'getUserNotifications']);
+Route::middleware(['auth:api', 'anyof:is.admin,is.owner'])->get('v1/users/{id}/notifications/count', [NotificationController::class, 'getNotificationCounts']);
+Route::middleware(['auth:api', 'anyof:is.admin,is.owner'])->patch('v1/users/{id}/notifications/read', [NotificationController::class, 'markUserNotificationsAsRead']);
+Route::middleware(['auth:api', 'anyof:is.admin,is.owner'])->patch('v1/users/{id}/notifications/{notificationId}/read', [NotificationController::class, 'markUserNotificationAsRead']);
+Route::middleware(['auth:api', 'anyof:is.admin,is.owner'])->patch('v1/users/{id}/notifications/{notificationId}/unread', [NotificationController::class, 'markUserNotificationAsUnread']);
 
 
 Route::middleware('auth:api')->get('v1/{entity}/{id}/action_log', [ActionLogController::class, 'getEntityActionLog']);
@@ -128,14 +128,14 @@ Route::middleware(['auth:api'])
     });
 
 // Special access (admin/custodian/organisation/owner)
-Route::middleware(['auth:api', 'anyof:is_admin,is_custodian,is_organisation,is_owner'])
+Route::middleware(['auth:api', 'anyof:is.admin,is.custodian,is.organisation,is.owner'])
     ->prefix('v1/training')
     ->group(function () {
         Route::get('/registry/{registryId}', [TrainingController::class, 'indexByRegistryId']);
     });
 
 // Admin-only actions
-Route::middleware(['auth:api', 'anyof:is_admin,is_owner'])
+Route::middleware(['auth:api', 'anyof:is.admin,is.owner'])
     ->prefix('v1/training')
     ->group(function () {
         Route::put('/{id}', [TrainingController::class, 'update']);
@@ -145,14 +145,14 @@ Route::middleware(['auth:api', 'anyof:is_admin,is_owner'])
 
 
 // Only Publicly readable by custodians (just need group access)
-Route::middleware(['auth:api', 'anyof:is_admin,is_custodian'])
+Route::middleware(['auth:api', 'anyof:is.admin,is.custodian'])
     ->prefix('v1/custodians')
     ->group(function () {
         Route::get('/', [CustodianController::class, 'index']);
     });
 
 // Read/Write/Update/Delete where must own custodian or admin
-Route::middleware(['auth:api', 'anyof:is_admin,is_owner'])
+Route::middleware(['auth:api', 'anyof:is.admin,is.owner'])
     ->prefix('v1/custodians')
     ->group(function () {
         // Read-only
@@ -180,7 +180,7 @@ Route::middleware(['auth:api', 'anyof:is_admin,is_owner'])
     });
 
 // Create (admin only)
-Route::middleware(['auth:api', 'is_admin'])
+Route::middleware(['auth:api', 'is.admin'])
     ->prefix('v1/custodians')
     ->group(function () {
         Route::post('/', [CustodianController::class, 'store']);
@@ -245,7 +245,7 @@ Route::middleware('auth:api')->patch('v1/identities/{id}', [IdentityController::
 Route::middleware('auth:api')->delete('v1/identities/{id}', [IdentityController::class, 'destroy']);
 
 // 🟢 Publicly readable (ONLY admin or organisation)
-Route::middleware(['auth:api', 'anyof:is_admin,is_custodian,is_owner:allowDelegate'])
+Route::middleware(['auth:api', 'anyof:is.admin,is.custodian,is.owner:allowDelegate'])
     ->prefix('v1/organisations')
     ->controller(OrganisationController::class)
     ->group(function () {
@@ -266,7 +266,7 @@ Route::middleware(['auth:api', 'anyof:is_admin,is_custodian,is_owner:allowDelega
         Route::get('/ror/{ror}', 'validateRor');
     });
 
-Route::middleware(['auth:api', 'anyof:is_admin,is_custodian,is_organisation'])
+Route::middleware(['auth:api', 'anyof:is.admin,is.custodian,is.organisation'])
     ->prefix('v1/organisations')
     ->controller(OrganisationController::class)
     ->group(function () {
@@ -277,7 +277,7 @@ Route::middleware(['auth:api', 'anyof:is_admin,is_custodian,is_organisation'])
     });
 
 
-Route::middleware(['auth:api', 'anyof:is_admin,is_owner'])
+Route::middleware(['auth:api', 'anyof:is.admin,is.owner'])
     ->prefix('v1/organisations')
     ->controller(OrganisationController::class)
     ->group(function () {
@@ -290,7 +290,7 @@ Route::middleware(['auth:api', 'anyof:is_admin,is_owner'])
     });
 
 // 🟡 Write actions (invites and permissions) — same role access
-Route::middleware(['auth:api', 'anyof:is_admin,is_owner'])
+Route::middleware(['auth:api', 'anyof:is.admin,is.owner'])
     ->prefix('v1/organisations')
     ->group(function () {
         Route::controller(OrganisationController::class)->group(function () {
