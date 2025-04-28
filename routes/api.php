@@ -169,6 +169,7 @@ Route::middleware(['auth:api', 'anyof:is.admin,is.owner'])
 
         // Write
         Route::post('/{id}/invite', [CustodianController::class, 'invite']);
+        Route::post('/{id}/projects', [CustodianController::class, 'addProject']);
 
         // Update
         Route::put('/{id}', [CustodianController::class, 'update']);

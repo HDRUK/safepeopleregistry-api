@@ -16,8 +16,14 @@ class RegistryReadRequestNotification extends Notification
 
     public function __construct($readRequest, $custodianName)
     {
-        $this->message = $custodianName . ' requested access to view your SOURSD data on ' . $readRequest->created_at->toFormattedDayDateString() . '.';
-        $this->details = 'You can either approve or deny the request from ' . $custodianName . ' below. The Data Custodian will be notified of your decision.';
+        $this->message = $custodianName . ' requested SOURSD API access to view your data on ' . $readRequest->created_at->toFormattedDayDateString() . '.';
+        $this->details = 'This request is likely because you have previously opted out of public registry inclusion.';
+        $this->details .= '<ul>';
+        $this->details .= '<li>You can either approve or deny the request from ' . $custodianName . ' below. The Data Custodian will be notified of your decision.</li>';
+        $this->details .= '<li>SOURSD API access allows the custodian to respond to webhooks automatically and validate you within their own systems.</li>';
+        $this->details .= '<li>No data will be shared with the custodian via the SOURSD API, unless you approve their request.</li>';
+        $this->details .= '</ul>';
+
         $this->buttonUrls = [
             'Approve' => $readRequest->id,
             'Deny' => $readRequest->id,
