@@ -57,14 +57,6 @@ class IsOwner
                 'Organisation' => $group === User::GROUP_ORGANISATIONS && $user->is_delegate === 0 && (int)$user->organisation_id === (int)$obj->id,
                 default => false,
             };
-
- 
-        return match ($group) {
-            User::GROUP_CUSTODIANS => (int) ($user->custodian_id ?? $user->custodian_user->custodian_id) === (int)$routeId,
-            User::GROUP_USERS  => (int)$user->id === (int)$routeId,
-            User::GROUP_ORGANISATIONS => (int)$user->organisation_id === (int)$routeId,
-            default => false,
-        };
     }
 
 
