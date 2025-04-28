@@ -242,7 +242,7 @@ class PermissionMatrixTest extends TestCase
             return "[$method] " . $test['route'];
         }, $expectedMatrix);
 
-        $this->printMatrix($matrix, $routes);
+        $this->printMatrixT($matrix, $routes);
     }
 
     private function runMatrixTests(array $users, array $routes, array $expectedMatrix)
@@ -295,6 +295,38 @@ class PermissionMatrixTest extends TestCase
             echo "\n";
         }
     }
+
+    private function printMatrixT(array $matrix, array $routes, string $title = 'Permission Matrix')
+    {
+        $columnWidths = [];
+    
+        // Base width for first column ('Route')
+        $columnWidths['Route'] = 30;
+    
+        foreach ($matrix as $role => $permissions) {
+            $columnWidths[$role] = strlen($role) + 5; // Some margin
+        }
+    
+        echo "\n$title:\n";
+    
+        // Header
+        echo str_pad('Route', $columnWidths['Route']);
+        foreach ($matrix as $role => $permissions) {
+            echo str_pad($role, $columnWidths[$role]);
+        }
+        echo "\n";
+    
+        foreach ($routes as $route) {
+            echo str_pad($route, $columnWidths['Route']);
+            foreach ($matrix as $role => $permissions) {
+                $visibleText = self::stripAnsi($permissions[$route] ?? '-'); // Protect if missing
+                $padding = $columnWidths[$role] + (strlen($permissions[$route] ?? '-') - strlen($visibleText));
+                echo str_pad($permissions[$route] ?? '-', $padding);
+            }
+            echo "\n";
+        }
+    }
+    
 
 
     private static function stripAnsi($text)
