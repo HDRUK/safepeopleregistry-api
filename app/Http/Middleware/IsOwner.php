@@ -48,11 +48,13 @@ class IsOwner
             return false;
         }
 
+        $group = $user->user_group;
+
         return match ($modelName) {
                 'User' => (int)$user->id === (int)$obj->id,
                 'Registry' => (int)$user->registry_id === (int)$obj->id,
-                'Custodian' =>  (int) ($user->custodian_id ?? $user->custodian_user->custodian_id) === (int)$obj->id,
-                //'Organisation' => (int)$user->organisation_id === (int)$routeId,
+                'Custodian' =>  $group === User::GROUP_CUSTODIANS &&  (int) ($user->custodian_id ?? $user->custodian_user->custodian_id) === (int)$obj->id,
+                'Organisation' => $group === User::GROUP_ORGANISATIONS && $user->is_delegate === 0 && (int)$user->organisation_id === (int)$obj->id,
                 default => false,
             };
 
