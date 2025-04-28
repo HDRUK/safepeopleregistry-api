@@ -57,7 +57,7 @@ class CustodianTest extends TestCase
 
         $response->assertStatus(403)
             ->assertJson([
-                'message' => 'Forbidden: insufficient access rights',
+                'message' => 'forbidden',
             ]);
 
         $response = $this->actingAs($this->organisation_admin)
@@ -68,7 +68,7 @@ class CustodianTest extends TestCase
 
         $response->assertStatus(403)
             ->assertJson([
-                'message' => 'Forbidden: insufficient access rights',
+                'message' => 'forbidden',
             ]);
     }
 
@@ -82,7 +82,7 @@ class CustodianTest extends TestCase
 
         $response->assertStatus(403)
         ->assertJson([
-            'message' => 'Forbidden: insufficient access rights',
+            'message' => 'forbidden',
         ]);
     }
 
@@ -529,7 +529,7 @@ class CustodianTest extends TestCase
         $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'GET',
-                "/api/v1/custodians/1/rules"
+                self::TEST_URL . '/1/rules'
             );
 
         $response->assertStatus(200);
@@ -550,7 +550,7 @@ class CustodianTest extends TestCase
         $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'GET',
-                "/api/v1/custodians/{$nonexistentId}/rules"
+                 self::TEST_URL . "/{$nonexistentId}/rules"
             );
 
         $response->assertStatus(403);

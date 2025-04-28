@@ -45,13 +45,17 @@ class CheckCrudAccess
 
         $checkOwns = collect($checks)->first(fn($c) => str_starts_with($c, 'owns'));
         if($checkOwns){
-            $ownsResource = $this->ownsResource($user, $resourceId);
+            list($temp, $idName) = explode('.',$this->getValues($checkOwns,'owns')[0],2);
+            $id = (int)$request->route($idName);
+            return response()->json($id);
+            $ownsResource = $this->ownsResource($user, $model, $resourceId);
         }
 
         $checkAdmin = collect($checks)->first(fn($c) => str_starts_with($c, 'admin'));
         if($checkAdmin){
             $adminsResource = $this->adminsResource($user, $model, $resourceId);
         }
+
 
         if (!$hasGroupAccess && !$ownsResource &&  !$adminsResource) {
             return response()->json(['message' => 'Forbidden: insufficient access rights'], 403);
@@ -66,11 +70,26 @@ class CheckCrudAccess
         return in_array($user->user_group, $groups);
     }
 
-    protected function ownsResource($user, $routeId): bool
+    protected function ownsResource($user, $modelName, $routeId): bool
     {
-        $group = $user->user_group;
+        $model = '\\App\\Models\\' . $modelName;
+        //$obj = $model::find((int)$routeId);
+        //if (!$obj) {
+        //    return false;
+        // }
+
+        //$group = $user->user_group;
+
+        return match ($modelName) {
+                'User' => (int)$user->id === (int)$routeId,
+                'Custodian' =>  (int) ($user->custodian_id ?? $user->custodian_user->custodian_id) === (int)$routeId,
+                'Organisation' => (int)$user->organisation_id === (int)$routeId,
+                default => false,
+            };
+
+ 
         return match ($group) {
-            User::GROUP_CUSTODIANS => (int)$user->custodian_user->custodian_id === (int)$routeId,
+            User::GROUP_CUSTODIANS => (int) ($user->custodian_id ?? $user->custodian_user->custodian_id) === (int)$routeId,
             User::GROUP_USERS  => (int)$user->id === (int)$routeId,
             User::GROUP_ORGANISATIONS => (int)$user->organisation_id === (int)$routeId,
             default => false,

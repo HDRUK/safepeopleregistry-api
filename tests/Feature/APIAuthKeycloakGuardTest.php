@@ -94,7 +94,7 @@ class APIAuthKeycloakGuardTest extends TestCase
     {
         foreach ($this->getRoutes as $r) {
             $endpoint = substr($r, 1);
-            if (in_array($endpoint, ['custodians', 'organisations'])) continue;
+            if (in_array($endpoint, ['custodians', 'organisations', 'users'])) continue;
 
             $response = $this->actingAs($this->user)
                             ->json('GET', self::TEST_URL . $r, [
