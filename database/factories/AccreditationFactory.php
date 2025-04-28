@@ -20,7 +20,7 @@ class AccreditationFactory extends Factory
         $awardedDate = Carbon::parse(fake()->date());
 
         return [
-            'awarded_at' => $awardedDate->toDateString(),
+            ' => $awardedDate->toDateString(),
             'awarding_body_name' => fake()->company(),
             'awarding_body_ror' => fake()->url(),
             'title' => 'Safe Researcher Training',

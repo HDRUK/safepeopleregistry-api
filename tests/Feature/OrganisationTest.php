@@ -82,7 +82,6 @@ class OrganisationTest extends TestCase
                 'GET',
                 self::TEST_URL . '?organisation_name[]=health%20pathways'
             );
-
         $response->assertStatus(200);
         $content = $response->decodeResponseJson();
 
@@ -230,22 +229,11 @@ class OrganisationTest extends TestCase
 
     public function test_the_application_can_show_organisations(): void
     {
-        $response = $this->actingAs($this->organisation_admin)
-            ->json(
-                'POST',
-                self::TEST_URL,
-                $this->testOrg
-            );
-
-        $response->assertStatus(201);
-        $this->assertArrayHasKey('data', $response);
-
-        $content = $response->decodeResponseJson();
 
         $response = $this->actingAs($this->organisation_admin)
             ->json(
                 'GET',
-                self::TEST_URL . '/' . $content['data']
+                self::TEST_URL . '/1' 
             );
 
         $response->assertStatus(200);

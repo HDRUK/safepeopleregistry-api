@@ -23,11 +23,14 @@ class IsOwner
         
         $entity = $request->segment(3); // /api/v1/<model>
         $model = Str::studly(Str::singular($entity));
-
+       
         $idName = 'id';
         $id = (int)$request->route($idName);
         if(!$id){
             $entity = $request->segment(4); 
+            if(!$entity){
+                return $this->ForbiddenResponse();
+            }
             $model = Str::studly(Str::singular($entity));
             $idName = $entity . 'Id';
             $id = (int)$request->route($idName);

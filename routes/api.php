@@ -245,12 +245,20 @@ Route::middleware('auth:api')->put('v1/identities/{id}', [IdentityController::cl
 Route::middleware('auth:api')->patch('v1/identities/{id}', [IdentityController::class, 'edit']);
 Route::middleware('auth:api')->delete('v1/identities/{id}', [IdentityController::class, 'destroy']);
 
+// public for all with accounts
+Route::middleware(['auth:api'])
+    ->prefix('v1/organisations')
+    ->controller(OrganisationController::class)
+    ->group(function () {
+        Route::get('/', 'index');
+    });
+
+
 // 🟢 Publicly readable (ONLY admin or organisation)
 Route::middleware(['auth:api', 'anyof:is.admin,is.custodian,is.owner:allowDelegate'])
     ->prefix('v1/organisations')
     ->controller(OrganisationController::class)
     ->group(function () {
-        Route::get('/', 'index');
         Route::get('/{id}', 'show');
         Route::get('/{id}/idvt', 'idvt');
         Route::get('/{id}/counts/certifications', 'countCertifications');
