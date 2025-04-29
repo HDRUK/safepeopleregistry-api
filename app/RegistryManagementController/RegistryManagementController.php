@@ -220,7 +220,7 @@ class RegistryManagementController
         return $digiIdent;
     }
 
-    public static function createUnclaimedUser(array $user): User
+    public static function createUnclaimedUser(array $user, bool $strictCreate = false): User
     {
         $registry = Registry::create([
           'dl_ident' => null,
@@ -229,7 +229,7 @@ class RegistryManagementController
           'verified' => 0,
         ]);
 
-        return User::create([
+        $userData = [
             'first_name' => $user['firstname'],
             'last_name' => $user['lastname'],
             'email' => $user['email'],
@@ -237,12 +237,21 @@ class RegistryManagementController
             'feed_source' => 'ORG',
             'registry_id' => $registry->id,
             'orc_id' => '',
-            'user_group' => isset($user['user_group']) ? $user['user_group'] : '',
-            'organisation_id' => isset($user['organisation_id']) ? $user['organisation_id'] : null,
-            'custodian_id' => isset($user['custodian_id']) ? $user['custodian_id'] : null,
-            'custodian_user_id' => isset($user['custodian_user_id']) ? $user['custodian_user_id'] : null,
-            'is_delegate' => isset($user['is_delegate']) ? $user['is_delegate'] : 0,
-            'role' => isset($user['role']) ? $user['role'] : null,
-        ]);
+            'user_group' => $user['user_group'] ?? '',
+            'organisation_id' => $user['organisation_id'] ?? null,
+            'custodian_id' => $user['custodian_id'] ?? null,
+            'custodian_user_id' => $user['custodian_user_id'] ?? null,
+            'is_delegate' => $user['is_delegate'] ?? 0,
+            'role' => $user['role'] ?? null,
+        ];
+    
+        if ($strictCreate) {
+            return User::create($userData);
+        } else {
+            return User::updateOrCreate(
+                ['email' => $user['email']],
+                $userData
+            );
+        }
     }
 }
