@@ -383,6 +383,16 @@ class Organisation extends Model
         return $this->hasMany(Affiliation::class, 'organisation_id');
     }
 
+
+    public function scopeGetCurrentRegistries($query, $id)
+    {
+        return RegistryHasAffiliation::with('affiliation')
+        ->whereHas('affiliation', function ($query) use ($id) {
+            $query->where('organisation_id', 1)->where('to', '=', '')
+            ->orWhereNull('to');
+        });
+    }
+
     public function projects(): BelongsToMany
     {
         return $this->belongsToMany(

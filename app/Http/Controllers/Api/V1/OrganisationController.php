@@ -1293,18 +1293,6 @@ class OrganisationController extends Controller
         ], 404);
     }
 
-    public function getAffiliations()
-    {
-        $affiliations = RegistryHasAffiliation::whereHas(
-            'affiliation',
-            function ($query) use ($id) {
-                $query->where('organisation_id', $id);
-            }
-        );
-
-
-    }
-
     /**
      * @OA\Get(
      *      path="/api/v1/organisations/{id}/registries",
@@ -1375,12 +1363,7 @@ class OrganisationController extends Controller
         try {
             $showPending = $request->boolean("show_pending");
 
-            $registryIds = RegistryHasAffiliation::with('affiliation')
-                ->whereHas('affiliation', function ($query) use ($id) {
-                    $query->where('organisation_id', $id)->where('to', '=', '')
-                    ->orWhereNull('to');
-                })
-            ->pluck('registry_id');
+            $registryIds = Organisation::getCurrentRegistries($id)->pluck('registry_id');
 
             $users = User::searchViaRequest()
             ->applySorting()
