@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
-use App\Models\User;
 use App\Models\Project;
 use App\Models\Custodian;
 use App\Models\ProjectHasCustodian;

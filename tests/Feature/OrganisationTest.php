@@ -233,7 +233,7 @@ class OrganisationTest extends TestCase
         $response = $this->actingAs($this->organisation_admin)
             ->json(
                 'GET',
-                self::TEST_URL . '/1' 
+                self::TEST_URL . '/1'
             );
 
         $response->assertStatus(200);

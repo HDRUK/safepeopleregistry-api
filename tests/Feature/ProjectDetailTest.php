@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use Gateway;
 use KeycloakGuard\ActingAsKeycloakUser;
-use App\Models\User;
 use App\Models\Registry;
 use App\Models\Project;
 use App\Models\ProjectDetail;

@@ -14,7 +14,6 @@ use App\Http\Controllers\Api\V1\CustodianController;
 use App\Http\Controllers\Api\V1\CustodianUserController;
 use App\Http\Controllers\Api\V1\ONSSubmissionController;
 use App\Http\Controllers\Api\V1\OrganisationController;
-use App\Http\Controllers\Api\V1\OrganisationDelegatesController;
 use App\Http\Controllers\Api\V1\PermissionController;
 use App\Http\Controllers\Api\V1\ProjectController;
 use App\Http\Controllers\Api\V1\QueryController;
@@ -57,8 +56,8 @@ Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1
 Route::middleware('api')->get('auth/me', [AuthController::class, 'me']);
 Route::middleware('api')->post('auth/register', [AuthController::class, 'registerKeycloakUser']);
 
-// Only admins, custodians or organisations can list all users 
-// note - do we want this? 
+// Only admins, custodians or organisations can list all users
+// note - do we want this?
 Route::middleware(['auth:api','anyof:is.admin,is.custodian,is.organisation'])->get('v1/users', [UserController::class, 'index']);
 
 // Create user — only allowed for admins
@@ -149,7 +148,7 @@ Route::middleware(['auth:api'])
 ->prefix('v1/custodians')
 ->group(function () {
     Route::get('/identifier/{id}', [CustodianController::class, 'showByUniqueIdentifier']);
-    
+
 });
 
 // Only Publicly readable by custodians (just need group access)
@@ -158,7 +157,7 @@ Route::middleware(['auth:api', 'anyof:is.admin,is.custodian'])
     ->group(function () {
         Route::get('/', [CustodianController::class, 'index']);
     });
-    
+
 // Read/Write/Update/Delete where must own custodian or admin
 Route::middleware(['auth:api', 'anyof:is.admin,is.owner'])
     ->prefix('v1/custodians')

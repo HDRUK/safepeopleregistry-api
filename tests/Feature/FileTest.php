@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\File;
-use App\Models\User;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 use Illuminate\Support\Facades\Storage;

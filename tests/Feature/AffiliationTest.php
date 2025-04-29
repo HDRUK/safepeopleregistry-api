@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use Carbon\Carbon;
 use KeycloakGuard\ActingAsKeycloakUser;
-use App\Models\User;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 use App\Traits\CommonFunctions;

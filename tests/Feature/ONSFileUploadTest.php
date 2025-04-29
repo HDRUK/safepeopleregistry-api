@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
-use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;

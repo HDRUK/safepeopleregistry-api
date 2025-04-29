@@ -2,8 +2,6 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\RegistryHasTraining;
@@ -12,7 +10,6 @@ use KeycloakGuard\ActingAsKeycloakUser;
 
 class PermissionMatrixTest extends TestCase
 {
-
     use Authorisation;
     use ActingAsKeycloakUser;
 
@@ -133,12 +130,12 @@ class PermissionMatrixTest extends TestCase
 
 
         $this->runTests($expectedMatrix);
-    
+
     }
 
     public function test_training_permissions_matrix()
     {
-        $userTrainingId = RegistryHasTraining::where('registry_id',$this->user->registry_id)
+        $userTrainingId = RegistryHasTraining::where('registry_id', $this->user->registry_id)
                           ->first()->training_id;
         $expectedMatrix = [
             [
@@ -210,7 +207,7 @@ class PermissionMatrixTest extends TestCase
         ];
 
         $this->runTests($expectedMatrix);
-    
+
     }
 
     private function runTests(array $expectedMatrix)
@@ -218,10 +215,10 @@ class PermissionMatrixTest extends TestCase
         $matrix = [];
 
         foreach ($expectedMatrix as $test) {
-            $method = $test['method'] ?? 'get'; 
+            $method = $test['method'] ?? 'get';
             $route = $test['route'];
             $roles = $test['permissions'];
-            $payload = $test['payload'] ?? []; 
+            $payload = $test['payload'] ?? [];
 
             $routeKey = '[' . strtoupper($method) . '] ' . $route;
 
@@ -230,11 +227,11 @@ class PermissionMatrixTest extends TestCase
 
                 $response = $this->actingAs($user)->{$method}(self::TEST_URL . $route, $payload);
                 $status = $response->status();
- 
+
 
                 $response->assertStatus($expectedStatus);
 
-                $matrix[$role][$routeKey] = $status >= 200 && $status<300 ? "\033[32m$status\033[0m" : "\033[31m$status\033[0m";
+                $matrix[$role][$routeKey] = $status >= 200 && $status < 300 ? "\033[32m$status\033[0m" : "\033[31m$status\033[0m";
             }
         }
         $routes = array_map(function ($test) {
@@ -299,23 +296,23 @@ class PermissionMatrixTest extends TestCase
     private function printMatrixT(array $matrix, array $routes, string $title = 'Permission Matrix')
     {
         $columnWidths = [];
-    
+
         // Base width for first column ('Route')
         $columnWidths['Route'] = 30;
-    
+
         foreach ($matrix as $role => $permissions) {
             $columnWidths[$role] = strlen($role) + 5; // Some margin
         }
-    
+
         echo "\n$title:\n";
-    
+
         // Header
         echo str_pad('Route', $columnWidths['Route']);
         foreach ($matrix as $role => $permissions) {
             echo str_pad($role, $columnWidths[$role]);
         }
         echo "\n";
-    
+
         foreach ($routes as $route) {
             echo str_pad($route, $columnWidths['Route']);
             foreach ($matrix as $role => $permissions) {
@@ -326,7 +323,7 @@ class PermissionMatrixTest extends TestCase
             echo "\n";
         }
     }
-    
+
 
 
     private static function stripAnsi($text)
@@ -335,5 +332,5 @@ class PermissionMatrixTest extends TestCase
     }
 
 
-   
+
 }

@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Jobs\SendEmailJob;
-use App\Models\User;
 use App\Models\PendingInvite;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;

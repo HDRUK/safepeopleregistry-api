@@ -143,7 +143,7 @@ class CustodianTest extends TestCase
 
     public function test_users_cannot_create_custodians(): void
     {
-        foreach ([$this->user, $this->custodian_admin, $this->organisation_admin] as $user){
+        foreach ([$this->user, $this->custodian_admin, $this->organisation_admin] as $user) {
             $response = $this->actingAs($user)
                 ->json(
                     'POST',
@@ -282,14 +282,14 @@ class CustodianTest extends TestCase
             ->firstWhere('action', Custodian::ACTION_COMPLETE_CONFIGURATION);
 
         $this->assertNull($actionLog['completed_at']);
-        }
+    }
 
     public function test_the_application_can_update_custodian_they_own(): void
     {
         $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'PUT',
-                self::TEST_URL . '/1' ,
+                self::TEST_URL . '/1',
                 [
                     'name' => 'Updated Custodian',
                     'enabled' => false,
@@ -310,7 +310,7 @@ class CustodianTest extends TestCase
         $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'PUT',
-                self::TEST_URL . '/2' ,
+                self::TEST_URL . '/2',
                 [
                     'name' => 'Updated Custodian',
                     'enabled' => false,
@@ -325,7 +325,7 @@ class CustodianTest extends TestCase
         $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'DELETE',
-                self::TEST_URL . '/1' 
+                self::TEST_URL . '/1'
             );
 
         $response->assertStatus(200);
@@ -336,7 +336,7 @@ class CustodianTest extends TestCase
         $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'DELETE',
-                self::TEST_URL . '/2' 
+                self::TEST_URL . '/2'
             );
 
         $response->assertStatus(403);
@@ -577,7 +577,7 @@ class CustodianTest extends TestCase
         $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'GET',
-                 self::TEST_URL . "/{$nonexistentId}/rules"
+                self::TEST_URL . "/{$nonexistentId}/rules"
             );
 
         $response->assertStatus(403);

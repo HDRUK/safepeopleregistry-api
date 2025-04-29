@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
-use App\Models\User;
 use App\Models\Registry;
 use App\Models\Infringement;
 use App\Models\InfringementHasResolution;
@@ -16,7 +15,7 @@ class ResolutionTest extends TestCase
     use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/resolutions';
-    
+
     private $registry = null;
 
     public function setUp(): void

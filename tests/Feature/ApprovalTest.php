@@ -6,7 +6,6 @@ use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\Custodian;
 use App\Models\Organisation;
 use App\Models\OrganisationHasCustodianApproval;
-use App\Models\User;
 use App\Models\UserHasCustodianApproval;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;

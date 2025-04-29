@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Middleware;
 
 use Closure;
@@ -13,8 +14,8 @@ class AnyOfMiddleware
         foreach ($guards as $guard) {
             $middlewareClass = $this->resolveMiddlewareClass($guard);
 
-            $dummyClosure = function($request){return $this->OKResponse([]);};
-            $response = app($middlewareClass)->handle($request,$dummyClosure);
+            $dummyClosure = function ($request) {return $this->OKResponse([]);};
+            $response = app($middlewareClass)->handle($request, $dummyClosure);
 
             if ($this->isSuccessfulResponse($response)) {
                 return $next($request);
@@ -34,7 +35,7 @@ class AnyOfMiddleware
             // add more mappings as needed
         ];
 
-        [$middlewareName] = explode(':', $name, 2); 
+        [$middlewareName] = explode(':', $name, 2);
         return $map[$middlewareName] ?? abort(500, "Unknown middleware: $middlewareName");
     }
 

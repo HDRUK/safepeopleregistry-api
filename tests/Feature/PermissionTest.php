@@ -7,7 +7,6 @@ use App\Models\Custodian;
 use App\Models\Organisation;
 use App\Models\OrganisationHasCustodianPermission;
 use App\Models\Permission;
-use App\Models\User;
 use App\Models\UserHasCustodianPermission;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;

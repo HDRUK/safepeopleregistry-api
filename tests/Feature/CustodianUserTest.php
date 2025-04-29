@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use Http;
 use KeycloakGuard\ActingAsKeycloakUser;
-use App\Models\User;
 use App\Jobs\SendEmailJob;
 use Illuminate\Support\Facades\Queue;
 use App\Models\CustodianUser;

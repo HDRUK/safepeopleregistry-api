@@ -33,15 +33,16 @@ abstract class TestCase extends BaseTestCase
 
     }
 
-    protected function withUsers():void{
+    protected function withUsers(): void
+    {
         $this->user = User::where('user_group', User::GROUP_USERS)->first();
         $this->custodian_admin = User::where('user_group', User::GROUP_CUSTODIANS)->first();
         $this->custodian_admin->update([
-            'keycloak_id'=> (string) Str::uuid(),
+            'keycloak_id' => (string) Str::uuid(),
             'unclaimed' => 0,
         ]);
-        $this->organisation_admin = User::where('user_group', User::GROUP_ORGANISATIONS)->where("is_delegate",0)->first();
-        $this->organisation_delegate = User::where('user_group', User::GROUP_ORGANISATIONS)->where("is_delegate",1)->first();
+        $this->organisation_admin = User::where('user_group', User::GROUP_ORGANISATIONS)->where("is_delegate", 0)->first();
+        $this->organisation_delegate = User::where('user_group', User::GROUP_ORGANISATIONS)->where("is_delegate", 1)->first();
     }
 
     protected function disableMiddleware(): void

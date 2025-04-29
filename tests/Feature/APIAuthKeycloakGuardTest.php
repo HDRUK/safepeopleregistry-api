@@ -4,11 +4,9 @@ namespace Tests\Feature;
 
 use Auth;
 use KeycloakGuard\ActingAsKeycloakUser;
-use App\Models\User;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 use App\Traits\CommonFunctions;
-use Illuminate\Support\Str;
 
 class APIAuthKeycloakGuardTest extends TestCase
 {
@@ -65,27 +63,31 @@ class APIAuthKeycloakGuardTest extends TestCase
     public function test_custodian_admin_can_access_routes(): void
     {
         foreach ($this->getRoutes as $r) {
-            if (substr($r, 1) !== 'custodians') continue;
-    
+            if (substr($r, 1) !== 'custodians') {
+                continue;
+            }
+
             $response = $this->actingAs($this->custodian_admin)
                              ->json('GET', self::TEST_URL . $r, [
                                  'Accept' => 'application/json',
                              ]);
-    
+
             $response->assertStatus(200);
         }
     }
-    
+
     public function test_organisation_admin_can_access_routes(): void
     {
         foreach ($this->getRoutes as $r) {
-            if (substr($r, 1) !== 'organisations') continue;
-    
+            if (substr($r, 1) !== 'organisations') {
+                continue;
+            }
+
             $response = $this->actingAs($this->organisation_admin)
                              ->json('GET', self::TEST_URL . $r, [
                                  'Accept' => 'application/json',
                              ]);
-    
+
             $response->assertStatus(200);
         }
     }
@@ -94,7 +96,9 @@ class APIAuthKeycloakGuardTest extends TestCase
     {
         foreach ($this->getRoutes as $r) {
             $endpoint = substr($r, 1);
-            if (in_array($endpoint, ['custodians', 'organisations', 'users'])) continue;
+            if (in_array($endpoint, ['custodians', 'organisations', 'users'])) {
+                continue;
+            }
 
             $response = $this->actingAs($this->user)
                             ->json('GET', self::TEST_URL . $r, [

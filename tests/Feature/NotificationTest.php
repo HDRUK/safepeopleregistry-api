@@ -15,7 +15,7 @@ class NotificationTest extends TestCase
     use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/users/1/notifications';
-    
+
     public function setUp(): void
     {
         parent::setUp();
