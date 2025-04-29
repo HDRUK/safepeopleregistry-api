@@ -690,57 +690,6 @@ class CustodianController extends Controller
     }
 
     /**
-     * @OA\Post(
-     *      path="/api/v1/custodians/{custodianId}/projects",
-     *      summary="Create a project for a custodian",
-     *      description="Create a project for a custodian",
-     *      tags={"Custodian"},
-     *      summary="Custodian@addProject",
-     *      security={{"bearerAuth":{}}},
-     *      @OA\RequestBody(
-     *          required=true,
-     *          description="Project definition",
-     *          @OA\JsonContent(
-     *                  @OA\Property(property="title", type="string", example="New project"),
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=201,
-     *          description="Success",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data", type="number", example="1")
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=500,
-     *          description="Error",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="error")
-     *          )
-     *      )
-     * )
-     */
-    public function addProject(Request $request, int $custodianId): JsonResponse
-    {
-        try {
-            $input = $request->only(app(Project::class)->getFillable());
-
-            $project = Project::create($input);
-            $project->setState(State::STATE_PROJECT_PENDING);
-
-            ProjectHasCustodian::create([
-                'custodian_id' => $custodianId,
-                'project_id' => $project->id
-            ]);
-
-            return $this->CreatedResponse($project->id);
-        } catch (Exception $e) {
-            return $this->ErrorResponse($e);
-        }
-    }
-
-    /**
      * @OA\Get(
      *      path="/api/v1/custodian/{custodianId}/users/{userId}/projects",
      *      summary="Return all custodian projects associated with a user",
