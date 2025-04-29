@@ -1133,7 +1133,11 @@ class OrganisationController extends Controller
     {
         try {
             $organisation = Organisation::where('id', $id)->first();
-
+            if (!$organisation) {
+                return response()->json([
+                    'message' => 'Organisation not found.',
+                ], 404);
+            }
             $unclaimedUser = RMC::createUnclaimedUser([
                 'firstname' => '',
                 'lastname' => '',
@@ -1141,6 +1145,12 @@ class OrganisationController extends Controller
                 'user_group' => 'ORGANISATIONS',
                 'organisation_id' => $id
             ]);
+
+            if (!$unclaimedUser->unclaimed) {
+                return response()->json([
+                    'message' => 'Lead applicant has already claimed their account.',
+                ], 400); 
+            }
 
             $input = [
                 'type' => 'ORGANISATION',
