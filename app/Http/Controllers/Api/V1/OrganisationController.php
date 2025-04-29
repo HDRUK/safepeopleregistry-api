@@ -1293,7 +1293,8 @@ class OrganisationController extends Controller
         ], 404);
     }
 
-    public function getAffiliations() {
+    public function getAffiliations()
+    {
         $affiliations = RegistryHasAffiliation::whereHas(
             'affiliation',
             function ($query) use ($id) {
