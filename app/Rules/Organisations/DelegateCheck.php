@@ -12,10 +12,10 @@ class DelegateCheck extends BaseRule
     public function evaluate($model, array $conditions): bool
     {
         $path = $conditions['path'] ?? 'is_delegate';
-        $epected == $conditions['expects'] ??  ['minimum' => 1];
+        $expected = $conditions['expects'] ??  ['minimum' => 1];
         $actual = Arr::get($model, $path, null);
 
         $actualCount = is_array($actual) ? count($actual) : 0;
-        return $actualCount >= ($expects['minimum'] ?? 1);
+        return $actualCount >= ($expected['minimum'] ?? 1);
     }
 }
