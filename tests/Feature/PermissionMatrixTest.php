@@ -8,6 +8,8 @@ use App\Models\RegistryHasTraining;
 use Tests\Traits\Authorisation;
 use KeycloakGuard\ActingAsKeycloakUser;
 
+use Database\Factories\UserFactory;
+
 class PermissionMatrixTest extends TestCase
 {
     use Authorisation;
@@ -127,8 +129,47 @@ class PermissionMatrixTest extends TestCase
             ],
         ];
 
+        $this->runTests($expectedMatrix);
+    }
 
+    public function test_user_update_permissions_matrix()
+    {
+        $definition = UserFactory::new()->definition();
 
+        $expectedMatrix = [
+            [
+                'method' => 'post',
+                'route' => '/users',
+                'payload' => $definition,
+                'permissions' => [
+                    'admin' => 201,
+                    'custodian1' => 403,
+                    'custodian2' => 403,
+                    'organisation1' => 403,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'put',
+                'route' => '/users/'. $this->user->id,
+                'payload' => [
+                    'first_name'  => fake()->firstname()
+                ],
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 200,
+                    'custodian2' => 200,
+                    'organisation1' => 200,
+                    'organisation2' => 200,
+                    'delegate' => 200,
+                    'researcher1' => 200,
+                    'researcher2' => 403,
+                ],
+            ],
+        ];
         $this->runTests($expectedMatrix);
 
     }
@@ -293,22 +334,24 @@ class PermissionMatrixTest extends TestCase
         }
     }
 
-    private function printMatrixT(array $matrix, array $routes, string $title = 'Permission Matrix')
+    private function printMatrixT(array $matrix, array $routes)
     {
         $columnWidths = [];
 
         // Base width for first column ('Route')
         $columnWidths['Route'] = 30;
 
+        $users = [];
         foreach ($matrix as $role => $permissions) {
-            $columnWidths[$role] = strlen($role) + 5; // Some margin
+            $id = $this->users[$role]->id;
+            $username = preg_replace('/\d+/', '', $role) . "($id)";
+            $users[] = $username;
+   
+            $columnWidths[$username] = strlen($username) + 5; // Some margin
         }
 
-        echo "\n$title:\n";
-
-        // Header
         echo str_pad('Route', $columnWidths['Route']);
-        foreach ($matrix as $role => $permissions) {
+        foreach ($users as $role) {
             echo str_pad($role, $columnWidths[$role]);
         }
         echo "\n";
@@ -316,12 +359,16 @@ class PermissionMatrixTest extends TestCase
         foreach ($routes as $route) {
             echo str_pad($route, $columnWidths['Route']);
             foreach ($matrix as $role => $permissions) {
-                $visibleText = self::stripAnsi($permissions[$route] ?? '-'); // Protect if missing
-                $padding = $columnWidths[$role] + (strlen($permissions[$route] ?? '-') - strlen($visibleText));
+                $id = $this->users[$role]->id;
+                $username = preg_replace('/\d+/', '', $role) . "($id)";
+                $visibleText = self::stripAnsi($permissions[$route] ?? '-'); 
+                $padding = $columnWidths[$username] + (strlen($permissions[$route] ?? '-') - strlen($visibleText));
                 echo str_pad($permissions[$route] ?? '-', $padding);
             }
             echo "\n";
         }
+
+        echo(str_repeat('_', array_sum($columnWidths))) . "\n";
     }
 
 
