@@ -205,10 +205,14 @@ class RulesSeeder extends Seeder
                 'name' => 'Sanctions',
                 'model_type' => \App\Models\Organisation::class,
                 'conditions' => json_encode([
-                    'path' => 'sanctions_status',
-                    'expects' => 0,
+                    'path' => 'country',
+                    'sanctioned_countries' => [
+                        'China',
+                        'Russia',
+                        'North Korea',
+                    ],
                 ]),
-                'rule_class' => \App\Rules\Organisations\SanctionsCheck::class, // You may need to create this
+                'rule_class' => \App\Rules\Organisations\SanctionsCheck::class, 
                 'description' => 'An Organisation is not on the UK sanctions list.',
                 'entity_model_type_id' => 3,
             ],
@@ -287,7 +291,7 @@ class RulesSeeder extends Seeder
                         'minimum' => 1,
                     ],
                 ]),
-                'rule_class' => \App\Rules\Organisations\DelegateCheck::class, // You may need to define this
+                'rule_class' => \App\Rules\Organisations\DelegateCheck::class, 
                 'description' => 'An Organisation has at least one Delegate/Key Contact to affiliate Users.',
                 'entity_model_type_id' => 3,
             ],
@@ -295,41 +299,7 @@ class RulesSeeder extends Seeder
 
         ];
 
-        // $rules = [
-        //     [
-        //         'name' => 'countrySanctions',
-        //         'title' => 'Country sanctions',
-        //         'description' => 'Users and Organisations who are on UK Sanctions Lists should not be provided access to data (existing demo data).'
-        //     ],
-        //     [
-        //         'name' => 'userLocation',
-        //         'title' => 'User location',
-        //         'description' => 'A User should be located in a country which adheres to equivalent data protection law.'
-        //     ],
-        //     [
-        //         'name' => 'dueDiligence',
-        //         'title' => 'Due Diligence',
-        //         'description' => 'Additional organisation due diligence checks should be carried out on Organisations who are not approved Organisations.'
-        //     ],
-        //     [
-        //         'name' => 'training',
-        //         'title' => 'Training',
-        //         'description' => 'A user must have completed mandatory TRE/SDE training before accessing a TRE/SDE.'
-        //     ],
-        //     [
-        //         'name' => 'dataSecurityCompliance',
-        //         'title' => 'Data security compliance',
-        //         'description' => 'An organisation must provide data security compliance accreditation information within their profile.'
-        //     ],
-        //     [
-        //         'name' => 'delegate',
-        //         'title' => 'Delegate',
-        //         'description' => 'An Organisation must have at least one delegate to vouch for a User’s behaviour within a TRE/SDE.'
-        //     ]
-        // ];
-
         foreach ($rules as $rule) {
-            // Rules::create($rule);
             DecisionModel::create($rule);
         }
 
