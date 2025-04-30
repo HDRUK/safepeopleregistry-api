@@ -18,9 +18,6 @@ class IdentityFactory extends Factory
     {
         return [
             'registry_id' => 1,
-            'selfie_path' => 'storage/1/selfie.jpeg',
-            'passport_path' => 'storage/1/passport.jpeg',
-            'drivers_license_path' => 'storage/1/drivers_license.jpeg',
             'address_1' => '123 Road',
             'address_2' => null,
             'town' => 'Town',
@@ -29,9 +26,18 @@ class IdentityFactory extends Factory
             'postcode' => 'AB12 3CD',
             'dob' => '1977-07-25',
             'idvt_result' => null,
-            'idvt_result_perc' => null,
-            'idvt_errors' => null,
             'idvt_completed_at' => null,
+            'idvt_result_perc' => null,
+            'idvt_success' => 0,
+            'idvt_identification_number' => null,
+            'idvt_document_type' => null,
+            'idvt_document_number' => null,
+            'idvt_document_country' => null,
+            'idvt_document_valid_until' => null,
+            'idvt_attempt_id' => null,
+            'idvt_context_id' => null,
+            'idvt_document_dob' => null,
+            'idvt_context' => null,
         ];
     }
 }

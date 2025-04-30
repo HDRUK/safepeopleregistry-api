@@ -908,9 +908,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
 
             Identity::create([
                 'registry_id' =>            $user->registry_id,
-                'selfie_path' =>            $u['identity']['selfie_path'],
-                'passport_path' =>          $u['identity']['passport_path'],
-                'drivers_license_path' =>   $u['identity']['drivers_license_path'],
                 'address_1' =>              $u['identity']['address_1'],
                 'address_2' =>              $u['identity']['address_2'],
                 'town' =>                   $u['identity']['town'],
@@ -918,10 +915,18 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'country' =>                $u['identity']['country'],
                 'postcode' =>               $u['identity']['postcode'],
                 'dob' =>                    $u['identity']['dob'],
-                'idvt_result' =>            $u['identity']['idvt_result'],
-                'idvt_result_perc' =>       $u['identity']['idvt_result_perc'],
-                'idvt_errors' =>            $u['identity']['idvt_errors'],
-                'idvt_completed_at' =>      $u['identity']['idvt_completed_at'],
+                'idvt_success' =>           $u['identity']['idvt_result'],
+                'idvt_identification_number' => null,
+                'idvt_document_type'        => 'PASSPORT',
+                'idvt_document_number'      => null,
+                'idvt_document_country'     => 'GB',
+                'idvt_document_valid_until' => null,
+                'idvt_attempt_id'           => null,
+                'idvt_context_id'           => null,
+                'idvt_document_dob'         => $u['identity']['dob'],
+                'idvt_context'              => null,
+                'idvt_completed_at'         => $u['identity']['idvt_completed_at'],
+                'idvt_result_text'          => null,
             ]);
         }
 
