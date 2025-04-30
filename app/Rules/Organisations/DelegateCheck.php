@@ -11,6 +11,7 @@ class DelegateCheck extends BaseRule
 
     public function evaluate($model, array $conditions): bool
     {
+        // to be implemented
         return true;
     }
 }
