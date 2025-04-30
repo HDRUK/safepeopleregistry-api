@@ -1149,7 +1149,7 @@ class OrganisationController extends Controller
             if (!$unclaimedUser->unclaimed) {
                 return response()->json([
                     'message' => 'Lead applicant has already claimed their account.',
-                ], 400);
+                ], 400); 
             }
 
             $input = [

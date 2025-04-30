@@ -244,12 +244,12 @@ class RegistryManagementController
             'is_delegate' => $user['is_delegate'] ?? 0,
             'role' => $user['role'] ?? null,
         ];
-
+        
         if ($strictCreate) {
             return User::create($userData);
         } else {
             $existingUser = User::where('email', $user['email'])->first();
-
+           
             if ($existingUser) {
                 if ($existingUser->unclaimed) {
                     $existingUser->update($userData);
