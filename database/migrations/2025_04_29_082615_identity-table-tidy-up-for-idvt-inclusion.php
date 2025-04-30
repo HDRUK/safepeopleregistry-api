@@ -10,16 +10,33 @@ return new class () extends Migration {
      */
     public function up(): void
     {
+        // I swear SQLite gets worse with every version bump...
+        //
         Schema::table('identities', function (Blueprint $table) {
             $table->dropColumn('selfie_path');
+        });
+
+        Schema::table('identities', function (Blueprint $table) {
             $table->dropColumn('passport_path');
+        });
+
+        Schema::table('identities', function (Blueprint $table) {
             $table->dropColumn('drivers_license_path');
+        });
 
+        Schema::table('identities', function (Blueprint $table) {
             $table->dropColumn('idvt_result_perc');
+        });
+
+        Schema::table('identities', function (Blueprint $table) {
             $table->dropColumn('idvt_errors');
+        });
 
+        Schema::table('identities', function (Blueprint $table) {
             $table->dropColumn('idvt_result');
+        });
 
+        Schema::table('identities', function (Blueprint $table) {
             $table->string('idvt_result_text')->nullable()->after('idvt_completed_at');
             $table->json('idvt_context')->nullable()->after('idvt_result');
             $table->tinyInteger('idvt_success')->default(0)->after('idvt_context');

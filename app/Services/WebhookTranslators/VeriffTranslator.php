@@ -54,7 +54,7 @@ class VeriffTranslator implements WebhookTranslationInterface
             return;
         }
 
-        $val = $identity->update([
+        $identity->update([
             'idvt_success' => $data['verification']['status'] === 'approved' ? 1 : 0,
             'idvt_result_text' => $data['verification']['status'],
             'idvt_context' => json_encode($data),
@@ -68,10 +68,5 @@ class VeriffTranslator implements WebhookTranslationInterface
             'idvt_context_id' => $data['verification']['id'] ?? null,
             'idvt_document_dob' => $data['verification']['person']['dateOfBirth'] ?? null,
         ]);
-        $identity->save();
-
-        dd($val);
-        dd('oops');
-
     }
 }

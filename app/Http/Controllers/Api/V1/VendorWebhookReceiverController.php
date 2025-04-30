@@ -14,7 +14,7 @@ class VendorWebhookReceiverController extends Controller
     use HmacSigning;
     use Responses;
 
-    public function receive(Request $request, string $provider = null): JsonResponse
+    public function receive(Request $request, string $provider): JsonResponse
     {
         $translator = TranslatorFactory::make($provider);
         if (!$translator->validateSignature($request)) {
@@ -22,5 +22,7 @@ class VendorWebhookReceiverController extends Controller
         }
         $translatedPayload = $translator->translate(json_decode($request->getContent(), true));
         $translator->saveContext($translatedPayload);
+
+        return $this->OKResponse([]);
     }
 }

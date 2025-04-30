@@ -22,6 +22,16 @@ class TranslatorFactory
                     'error' => 'Unknown provider',
                 ];
             }
+
+            public function validateSignature($request): bool
+            {
+                return false;
+            }
+
+            public function saveContext(array $data): void
+            {
+                // No action needed for unknown providers
+            }
         };
     }
 }

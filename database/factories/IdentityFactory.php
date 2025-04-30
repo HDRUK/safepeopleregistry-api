@@ -27,7 +27,6 @@ class IdentityFactory extends Factory
             'dob' => '1977-07-25',
             'idvt_result' => null,
             'idvt_completed_at' => null,
-            'idvt_result_perc' => null,
             'idvt_success' => 0,
             'idvt_identification_number' => null,
             'idvt_document_type' => null,

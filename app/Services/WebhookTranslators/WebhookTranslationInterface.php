@@ -2,6 +2,8 @@
 
 namespace App\Services\WebhookTranslators;
 
+use Illuminate\Http\Request;
+
 interface WebhookTranslationInterface
 {
     public function validateSignature(Request $request): bool;
