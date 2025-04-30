@@ -41,7 +41,6 @@ class DecisionEvaluatorService
 
         $modelClass = get_class($model);
         $results = [];
-
         foreach ($this->custodianRules as $rule) {
             // We want to ensure that we're only running rules against their
             // intended class types, such as App\Model\User against
