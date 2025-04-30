@@ -5,9 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Seeder;
 use App\Models\DecisionModel;
-use App\Models\Custodian;
 use App\Models\CustodianModelConfig;
-
 
 class RulesSeeder extends Seeder
 {
@@ -212,7 +210,7 @@ class RulesSeeder extends Seeder
                         'North Korea',
                     ],
                 ]),
-                'rule_class' => \App\Rules\Organisations\SanctionsCheck::class, 
+                'rule_class' => \App\Rules\Organisations\SanctionsCheck::class,
                 'description' => 'An Organisation is not on the UK sanctions list.',
                 'entity_model_type_id' => 3,
             ],
@@ -291,11 +289,11 @@ class RulesSeeder extends Seeder
                         'minimum' => 1,
                     ],
                 ]),
-                'rule_class' => \App\Rules\Organisations\DelegateCheck::class, 
+                'rule_class' => \App\Rules\Organisations\DelegateCheck::class,
                 'description' => 'An Organisation has at least one Delegate/Key Contact to affiliate Users.',
                 'entity_model_type_id' => 3,
             ],
-            
+
 
         ];
 
