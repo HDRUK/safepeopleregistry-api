@@ -13,7 +13,6 @@ class SanctionsCheck extends BaseRule
     {
         $path = $conditions['path'] ?? 'country';
         $sanctions = $conditions['sanctioned_countries'];
-
         $actual = Arr::get($model, $path, null);
 
         return in_array($actual, $sanctions);
