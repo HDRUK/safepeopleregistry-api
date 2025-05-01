@@ -388,7 +388,7 @@ class Organisation extends Model
     {
         return RegistryHasAffiliation::with('affiliation')
         ->whereHas('affiliation', function ($query) use ($id) {
-            $query->where('organisation_id', 1)->where('to', '=', '')
+            $query->where('organisation_id', $id)->where('to', '=', '')
             ->orWhereNull('to');
         });
     }
