@@ -18,12 +18,14 @@ class CustodianProjectTest extends TestCase
 
     private $projectUniqueId = '';
     private $organisationUniqueId = '';
+    protected $custodian;
 
     public function setUp(): void
     {
         parent::setUp();
         $this->withUsers();
-        $this->custodian = Custodian::first();
+        $this->custodian = Custodian::where('id', $this->custodian_admin->custodian_user->custodian_id)
+            ->first();
 
         $projects = Project::all();
         ProjectHasCustodian::truncate();
@@ -42,7 +44,7 @@ class CustodianProjectTest extends TestCase
     public function test_the_application_can_list_custodian_projects(): void
     {
         $nTotal = ProjectHasCustodian::count();
-        $response = $this->actingAsKeycloakUser($this->custodian_admin, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'GET',
                 self::TEST_URL . '/' . $this->custodian->id . '/projects',
@@ -52,17 +54,16 @@ class CustodianProjectTest extends TestCase
         $this->assertArrayHasKey('data', $response['data']);
 
         $this->assertTrue(count($response['data']['data']) === $nTotal);
-
     }
 
     public function test_the_application_can_list_approved_custodian_projects(): void
     {
         $nApproved = ProjectHasCustodian::where("approved", 1)->count();
-        $response = $this->actingAsKeycloakUser($this->custodian_admin, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . '/' . $this->custodian->id . '/projects?approved=1',
-        );
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $this->custodian->id . '/projects?approved=1',
+            );
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
         $this->assertArrayHasKey('data', $response['data']);
@@ -72,7 +73,7 @@ class CustodianProjectTest extends TestCase
     public function test_the_application_can_list_unapproved_custodian_projects(): void
     {
         $nUnapproved = ProjectHasCustodian::where("approved", 0)->count();
-        $response = $this->actingAsKeycloakUser($this->custodian_admin, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'GET',
                 self::TEST_URL . '/' . $this->custodian->id . '/projects?approved=0',
@@ -83,5 +84,4 @@ class CustodianProjectTest extends TestCase
         $this->assertArrayHasKey('data', $response['data']);
         $this->assertTrue(count($response['data']['data']) === $nUnapproved);
     }
-
 }

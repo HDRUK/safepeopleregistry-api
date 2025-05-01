@@ -334,8 +334,8 @@ class PermissionMatrixTest extends TestCase
                     'organisation1' => 200,
                     'organisation2' => 200,
                     'delegate' => 200,
-                    'researcher1' => 200,
-                    'researcher2' => 200,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
                 ],
             ],
             [
@@ -348,8 +348,8 @@ class PermissionMatrixTest extends TestCase
                     'organisation1' => 200,
                     'organisation2' => 200,
                     'delegate' => 200,
-                    'researcher1' => 200,
-                    'researcher2' => 200,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
                 ],
             ],
             [

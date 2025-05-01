@@ -88,7 +88,7 @@ class UserController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        if (!Gate::allows('viewAll', User::class)) {
+        if (!Gate::allows('viewAny', User::class)) {
             return $this->ForbiddenResponse();
         }
         $this->decisionEvaluator = new DES($request);
@@ -782,7 +782,7 @@ class UserController extends Controller
 
     public function searchUsersByNameAndProfessionalEmail(Request $request): JsonResponse
     {
-        if (!Gate::allows('viewAll', User::class)) {
+        if (!Gate::allows('viewAny', User::class)) {
             return $this->ForbiddenResponse();
         }
         try {

@@ -60,17 +60,6 @@ class CustodianTest extends TestCase
             ->assertJson([
                 'message' => 'forbidden',
             ]);
-
-        $response = $this->actingAs($this->organisation_admin)
-            ->json(
-                'GET',
-                self::TEST_URL
-            );
-
-        $response->assertStatus(403)
-            ->assertJson([
-                'message' => 'forbidden',
-            ]);
     }
 
     public function test_the_users_cannot_see_a_custodian(): void

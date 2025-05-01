@@ -22,16 +22,18 @@ class UserTest extends TestCase
     public const TEST_URL = '/api/v1/users';
 
     private $rulesStr = '{"performance":"1.079917ms","result":{"rule_alert":"ok"},"trace":{"f0f95b67-1c93-45d2-ba72-b113827c8613":{"id":"f0f95b67-1c93-45d2-ba72-b113827c8613","name":"request","input":null,"output":null},"974d8379-3471-4e74-8929-f3bd3b1f3faf":{"id":"974d8379-3471-4e74-8929-f3bd3b1f3faf","name":"Country Sanction","input":{"consent_scrape":false,"created_at":"2024-12-23T13:45:07.000000Z","declaration_signed":0,"departments":[],"email":"dan.ackroyd@ghostbusters.com","first_name":"Dan","id":10,"is_delegate":0,"is_org_admin":0,"last_name":"Ackroyd","orcid_scanning":false,"organisation_id":0,"pending_invites":[],"permissions":[],"public_opt_in":0,"registry":{"created_at":"2024-12-23T13:45:07.000000Z","deleted_at":null,"education":[{"created_at":"2024-12-23T13:45:07.000000Z","from":"2014-12-23","id":1,"institute_address":"Keppel Street, London, WC1E 7HT","institute_identifier":"00a0jsq62","institute_name":"London School of Hygiene &amp; Tropical Medicine","registry_id":1,"source":"user","title":"Infectious Disease &#039;Omics","to":"2018-12-23","updated_at":"2024-12-23T13:45:07.000000Z"},{"created_at":"2024-12-23T13:45:07.000000Z","from":"2019-12-23","id":2,"institute_address":"Stocker Road, Exeter, Devon EX4 4SZ","institute_identifier":"03yghzc09","institute_name":"University of Exeter","registry_id":1,"source":"user","title":"MSc Health Data Science","to":"2020-12-23","updated_at":"2024-12-23T13:45:07.000000Z"}],"files":[],"id":1,"identity":{"address_1":"123 Road name","address_2":"","country":"USA","county":"Illinois","created_at":"2024-12-23T13:45:09.000000Z","deleted_at":null,"dob":"1962-01-01","drivers_license_path":"\/path\/to\/non\/existent\/license\/","id":1,"idvt_completed_at":"2024-12-23 13:45:07","idvt_errors":null,"idvt_result":1,"idvt_result_perc":100,"passport_path":"\/path\/to\/non\/existent\/passport\/","postcode":"62629","registry_id":1,"selfie_path":"\/path\/to\/non\/existent\/selfie\/","town":"Springfield","updated_at":"2024-12-23T13:45:09.000000Z"},"training":[{"awarded_at":"2022-12-23 00:00:00","created_at":"2024-12-23T13:45:07.000000Z","expires_at":"2027-12-23 00:00:00","expires_in_years":5,"id":1,"provider":"UK Data Service","registry_id":1,"training_name":"Safe Researcher Training","updated_at":"2024-12-23T13:45:07.000000Z"},{"awarded_at":"2022-12-23 00:00:00","created_at":"2024-12-23T13:45:07.000000Z","expires_at":"2027-12-23 00:00:00","expires_in_years":5,"id":2,"provider":"Medical Research Council (MRC)","registry_id":1,"training_name":"Research, GDPR, and Confidentiality","updated_at":"2024-12-23T13:45:07.000000Z"}],"updated_at":"2024-12-23T13:45:07.000000Z","verified":false},"registry_id":1,"unclaimed":0,"updated_at":"2024-12-23T13:45:07.000000Z","user_group":"USERS"},"output":{"rule_alert":"ok"},"performance":"252.042\u00b5s","traceData":{"index":0,"reference_map":[],"rule":{"_description":"Defines country cleared on sanctions list","_id":"a19572dc-7dea-4be4-94cc-95e0c05d14a1","registry.identity.country[7e128890-760a-473d-adaa-266c2c4c3b1f]":"== \"USA\""}}},"60af625b-0162-4a45-8ff0-224e22da162d":{"id":"60af625b-0162-4a45-8ff0-224e22da162d","name":"Country Sanction Switch","input":{"consent_scrape":false,"created_at":"2024-12-23T13:45:07.000000Z","declaration_signed":0,"departments":[],"email":"dan.ackroyd@ghostbusters.com","first_name":"Dan","id":10,"is_delegate":0,"is_org_admin":0,"last_name":"Ackroyd","orcid_scanning":false,"organisation_id":0,"pending_invites":[],"permissions":[],"public_opt_in":0,"registry":{"created_at":"2024-12-23T13:45:07.000000Z","deleted_at":null,"education":[{"created_at":"2024-12-23T13:45:07.000000Z","from":"2014-12-23","id":1,"institute_address":"Keppel Street, London, WC1E 7HT","institute_identifier":"00a0jsq62","institute_name":"London School of Hygiene &amp; Tropical Medicine","registry_id":1,"source":"user","title":"Infectious Disease &#039;Omics","to":"2018-12-23","updated_at":"2024-12-23T13:45:07.000000Z"},{"created_at":"2024-12-23T13:45:07.000000Z","from":"2019-12-23","id":2,"institute_address":"Stocker Road, Exeter, Devon EX4 4SZ","institute_identifier":"03yghzc09","institute_name":"University of Exeter","registry_id":1,"source":"user","title":"MSc Health Data Science","to":"2020-12-23","updated_at":"2024-12-23T13:45:07.000000Z"}],"files":[],"id":1,"identity":{"address_1":"123 Road name","address_2":"","country":"USA","county":"Illinois","created_at":"2024-12-23T13:45:09.000000Z","deleted_at":null,"dob":"1962-01-01","drivers_license_path":"\/path\/to\/non\/existent\/license\/","id":1,"idvt_completed_at":"2024-12-23 13:45:07","idvt_errors":null,"idvt_result":1,"idvt_result_perc":100,"passport_path":"\/path\/to\/non\/existent\/passport\/","postcode":"62629","registry_id":1,"selfie_path":"\/path\/to\/non\/existent\/selfie\/","town":"Springfield","updated_at":"2024-12-23T13:45:09.000000Z"},"training":[{"awarded_at":"2022-12-23 00:00:00","created_at":"2024-12-23T13:45:07.000000Z","expires_at":"2027-12-23 00:00:00","expires_in_years":5,"id":1,"provider":"UK Data Service","registry_id":1,"training_name":"Safe Researcher Training","updated_at":"2024-12-23T13:45:07.000000Z"},{"awarded_at":"2022-12-23 00:00:00","created_at":"2024-12-23T13:45:07.000000Z","expires_at":"2027-12-23 00:00:00","expires_in_years":5,"id":2,"provider":"Medical Research Council (MRC)","registry_id":1,"training_name":"Research, GDPR, and Confidentiality","updated_at":"2024-12-23T13:45:07.000000Z"}],"updated_at":"2024-12-23T13:45:07.000000Z","verified":false},"registry_id":1,"unclaimed":0,"updated_at":"2024-12-23T13:45:07.000000Z","user_group":"USERS"},"output":{"consent_scrape":false,"created_at":"2024-12-23T13:45:07.000000Z","declaration_signed":0,"departments":[],"email":"dan.ackroyd@ghostbusters.com","first_name":"Dan","id":10,"is_delegate":0,"is_org_admin":0,"last_name":"Ackroyd","orcid_scanning":false,"organisation_id":0,"pending_invites":[],"permissions":[],"public_opt_in":0,"registry":{"created_at":"2024-12-23T13:45:07.000000Z","deleted_at":null,"education":[{"created_at":"2024-12-23T13:45:07.000000Z","from":"2014-12-23","id":1,"institute_address":"Keppel Street, London, WC1E 7HT","institute_identifier":"00a0jsq62","institute_name":"London School of Hygiene &amp; Tropical Medicine","registry_id":1,"source":"user","title":"Infectious Disease &#039;Omics","to":"2018-12-23","updated_at":"2024-12-23T13:45:07.000000Z"},{"created_at":"2024-12-23T13:45:07.000000Z","from":"2019-12-23","id":2,"institute_address":"Stocker Road, Exeter, Devon EX4 4SZ","institute_identifier":"03yghzc09","institute_name":"University of Exeter","registry_id":1,"source":"user","title":"MSc Health Data Science","to":"2020-12-23","updated_at":"2024-12-23T13:45:07.000000Z"}],"files":[],"id":1,"identity":{"address_1":"123 Road name","address_2":"","country":"USA","county":"Illinois","created_at":"2024-12-23T13:45:09.000000Z","deleted_at":null,"dob":"1962-01-01","drivers_license_path":"\/path\/to\/non\/existent\/license\/","id":1,"idvt_completed_at":"2024-12-23 13:45:07","idvt_errors":null,"idvt_result":1,"idvt_result_perc":100,"passport_path":"\/path\/to\/non\/existent\/passport\/","postcode":"62629","registry_id":1,"selfie_path":"\/path\/to\/non\/existent\/selfie\/","town":"Springfield","updated_at":"2024-12-23T13:45:09.000000Z"},"training":[{"awarded_at":"2022-12-23 00:00:00","created_at":"2024-12-23T13:45:07.000000Z","expires_at":"2027-12-23 00:00:00","expires_in_years":5,"id":1,"provider":"UK Data Service","registry_id":1,"training_name":"Safe Researcher Training","updated_at":"2024-12-23T13:45:07.000000Z"},{"awarded_at":"2022-12-23 00:00:00","created_at":"2024-12-23T13:45:07.000000Z","expires_at":"2027-12-23 00:00:00","expires_in_years":5,"id":2,"provider":"Medical Research Council (MRC)","registry_id":1,"training_name":"Research, GDPR, and Confidentiality","updated_at":"2024-12-23T13:45:07.000000Z"}],"updated_at":"2024-12-23T13:45:07.000000Z","verified":false},"registry_id":1,"unclaimed":0,"updated_at":"2024-12-23T13:45:07.000000Z","user_group":"USERS"},"performance":"70.25\u00b5s","traceData":null},"a6fe621c-a071-4da5-85c8-4ab6b662681d":{"id":"a6fe621c-a071-4da5-85c8-4ab6b662681d","name":"response","input":null,"output":null}}}';
+    protected $admin;
 
     public function setUp(): void
     {
         parent::setUp();
         $this->withUsers();
+        $this->admin = User::factory()->create(['user_group' => User::GROUP_ADMINS]);
     }
 
     public function test_the_application_can_search_users_by_email(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->admin)
             ->json(
                 'GET',
                 self::TEST_URL . '?email[]=bill.murray@ghostbusters.com',
@@ -47,7 +49,7 @@ class UserTest extends TestCase
 
     public function test_the_application_can_search_by_user_group(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->admin)
             ->json(
                 'GET',
                 self::TEST_URL . '?user_group[]=USERS',
@@ -60,7 +62,7 @@ class UserTest extends TestCase
             $this->assertTrue($data['user_group'] === 'USERS');
         }
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->admin)
             ->json(
                 'GET',
                 self::TEST_URL . '?user_group[]=ORGANISATIONS',
@@ -76,7 +78,7 @@ class UserTest extends TestCase
 
     public function test_the_application_can_search_users_by_first_name(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->admin)
             ->json(
                 'GET',
                 self::TEST_URL . '?first_name[]=bill',
@@ -92,7 +94,7 @@ class UserTest extends TestCase
 
     public function test_the_application_can_search_users_by_last_name(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->admin)
             ->json(
                 'GET',
                 self::TEST_URL . '?last_name[]=murray',
@@ -204,11 +206,11 @@ class UserTest extends TestCase
 
     public function test_the_application_can_list_users(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL
+            );
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
@@ -248,19 +250,19 @@ class UserTest extends TestCase
     public function test_the_application_can_show_users(): void
     {
         $fakeUrl = env('RULES_ENGINE_SERVICE', 'https://rules-engine.test') .
-        env('RULES_ENGINE_PROJECT_ID', '298357293857') . '/evaluate/' .
-        env('RULES_ENGINE_EVAL_MODEL', 'something.json');
+            env('RULES_ENGINE_PROJECT_ID', '298357293857') . '/evaluate/' .
+            env('RULES_ENGINE_EVAL_MODEL', 'something.json');
 
         Http::fake([
             $fakeUrl => Http::response($this->rulesStr, 200),
         ]);
 
         $user = User::where('user_group', RMC::KC_GROUP_USERS)->first();
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . '/' . $user->id // One of the researchers
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $user->id // One of the researchers
+            );
 
         $response->assertStatus(200);
         $content = $response->decodeResponseJson();
@@ -279,7 +281,7 @@ class UserTest extends TestCase
     {
         $this->enableObservers();
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->admin)
             ->json(
                 'POST',
                 self::TEST_URL,
@@ -307,7 +309,7 @@ class UserTest extends TestCase
 
     public function test_the_application_fails_when_unable_to_create_users(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->admin)
             ->json(
                 'POST',
                 self::TEST_URL,
@@ -325,20 +327,20 @@ class UserTest extends TestCase
         // Assert bad request, knowing that we've not sent an email address
         $response->assertStatus(400);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'POST',
-            self::TEST_URL,
-            [
-                'first_name' => fake()->firstname(),
-                'last_name' => fake()->lastname(),
-                'email' => 'myemail.com',
-                'provider' => fake()->word(),
-                'provider_sub' => Str::random(10),
-                'public_opt_in' => fake()->randomElement([0, 1]),
-                'declaration_signed' => fake()->randomElement([0, 1]),
-            ]
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
+                    'first_name' => fake()->firstname(),
+                    'last_name' => fake()->lastname(),
+                    'email' => 'myemail.com',
+                    'provider' => fake()->word(),
+                    'provider_sub' => Str::random(10),
+                    'public_opt_in' => fake()->randomElement([0, 1]),
+                    'declaration_signed' => fake()->randomElement([0, 1]),
+                ]
+            );
 
         // Assert bad request, knowing that we've not sent an invalid email address
         $response->assertStatus(400);
@@ -349,7 +351,7 @@ class UserTest extends TestCase
         $this->enableObservers();
 
         Carbon::setTestNow(Carbon::now());
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->admin)
             ->json(
                 'POST',
                 self::TEST_URL,
@@ -373,11 +375,11 @@ class UserTest extends TestCase
         $content = $response->decodeResponseJson()['data'];
         $this->assertGreaterThan(0, $content);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . '/' . $content . '/action_log'
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $content . '/action_log'
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -387,7 +389,7 @@ class UserTest extends TestCase
         $this->assertNull($actionLog['completed_at']);
 
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->admin)
             ->json(
                 'PUT',
                 self::TEST_URL . '/' . $content,
@@ -410,11 +412,11 @@ class UserTest extends TestCase
         $this->assertEquals($content['declaration_signed'], true);
         $this->assertEquals($content['organisation_id'], 2);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . '/' . $content['id'] . '/action_log'
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $content['id'] . '/action_log'
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -432,7 +434,7 @@ class UserTest extends TestCase
     {
         $this->enableObservers();
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->admin)
             ->json(
                 'POST',
                 self::TEST_URL,
@@ -462,7 +464,7 @@ class UserTest extends TestCase
             'completed_at' => null,
         ]);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->admin)
             ->json(
                 'PUT',
                 self::TEST_URL . '/' . $id,
@@ -487,14 +489,14 @@ class UserTest extends TestCase
         $testTime = Carbon::now();
         Carbon::setTestNow($testTime);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'PUT',
-            self::TEST_URL . '/' . $id,
-            [
-                'location' => fake()->country(),
-            ]
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'PUT',
+                self::TEST_URL . '/' . $id,
+                [
+                    'location' => fake()->country(),
+                ]
+            );
 
         $response->assertStatus(200);
         $content = $response->decodeResponseJson()['data'];
@@ -510,7 +512,7 @@ class UserTest extends TestCase
 
     public function test_the_application_can_delete_users(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->admin)
             ->json(
                 'POST',
                 self::TEST_URL,
@@ -531,7 +533,7 @@ class UserTest extends TestCase
         $content = $response->decodeResponseJson()['data'];
         $this->assertGreaterThan(0, $content);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->admin)
             ->json(
                 'DELETE',
                 self::TEST_URL . '/' . $content
@@ -546,7 +548,7 @@ class UserTest extends TestCase
         $user = User::where('registry_id', 1)->first(); // Should be Dan Ackroyd
         $registry = Registry::where('id', $user->registry_id)->first();
 
-        $response = $this->actingAskeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->admin)
             ->json(
                 'POST',
                 self::TEST_URL . '/validate',
@@ -571,14 +573,14 @@ class UserTest extends TestCase
             //'ror' => '1234567',
         ])->first();
 
-        $response = $this->actingAskeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'POST',
-            self::TEST_URL . '/validate',
-            [
-                'email' => $aff->email,
-            ],
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'POST',
+                self::TEST_URL . '/validate',
+                [
+                    'email' => $aff->email,
+                ],
+            );
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
@@ -592,16 +594,16 @@ class UserTest extends TestCase
 
     public function test_the_application_can_search_across_affiliations_by_name_and_email(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'POST',
-            self::TEST_URL . '/search_affiliations',
-            [
-                'first_name' => 'dan',
-                'last_name' => 'spencer',
-                'email' => 'dan.ackroyd@healthpathwaysukltd.com',
-            ]
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'POST',
+                self::TEST_URL . '/search_affiliations',
+                [
+                    'first_name' => 'dan',
+                    'last_name' => 'spencer',
+                    'email' => 'dan.ackroyd@healthpathwaysukltd.com',
+                ]
+            );
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
@@ -623,11 +625,11 @@ class UserTest extends TestCase
         $user = User::where('user_group', 'USERS')->first();
         $user->setState(State::STATE_PENDING);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . '?filter=pending'
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '?filter=pending'
+            );
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
