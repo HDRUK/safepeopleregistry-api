@@ -17,9 +17,6 @@ class Identity extends Model
 
     protected $fillable = [
         'registry_id',
-        'selfie_path',
-        'passport_path',
-        'drivers_license_path',
         'address_1',
         'address_2',
         'town',
@@ -27,10 +24,18 @@ class Identity extends Model
         'country',
         'postcode',
         'dob',
-        'idvt_result',
-        'idvt_result_perc',
-        'idvt_errors',
+        'idvt_success',
+        'idvt_identification_number',
+        'idvt_document_type',
+        'idvt_document_number',
+        'idvt_document_country',
+        'idvt_document_valid_until',
+        'idvt_attempt_id',
+        'idvt_context_id',
+        'idvt_document_dob',
+        'idvt_context',
         'idvt_completed_at',
+        'idvt_result_text',
     ];
 
     // protected $hidden = [

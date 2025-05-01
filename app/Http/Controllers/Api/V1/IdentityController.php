@@ -188,24 +188,13 @@ class IdentityController extends Controller
     public function store(Request $request): JsonResponse
     {
         try {
-            $input = $request->all();
-            $identity = Identity::create([
-                'registry_id' => $input['registry_id'],
-                'selfie_path' => $input['selfie_path'],
-                'passport_path' => $input['passport_path'],
-                'drivers_license_path' => $input['drivers_license_path'],
-                'address_1' => $input['address_1'],
-                'address_2' => $input['address_2'],
-                'town' => $input['town'],
-                'county' => $input['county'],
-                'country' => $input['country'],
-                'postcode' => $input['postcode'],
-                'dob' => $input['dob'],
-                'idvt_result' => $input['idvt_result'],
-                'idvt_result_perc' => $input['idvt_result_perc'],
-                'idvt_errors' => $input['idvt_errors'],
-                'idvt_completed_at' => $input['idvt_completed_at'],
-            ]);
+            $input = $request->only(app(Identity::class)->getFillable());
+            $identity = Identity::create($input);
+            if (!$identity) {
+                return response()->json([
+                    'message' => 'error',
+                ], 400);
+            }
 
             return response()->json([
                 'message' => 'success',
@@ -283,26 +272,10 @@ class IdentityController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         try {
-            $input = $request->all();
+            $input = $request->only(app(Identity::class)->getFillable());
 
             $identity = Identity::findOrFail($id);
-            $identity->update([
-                'registry_id' => $input['registry_id'],
-                'selfie_path' => $input['selfie_path'],
-                'passport_path' => $input['passport_path'],
-                'drivers_license_path' => $input['drivers_license_path'],
-                'address_1' => $input['address_1'],
-                'address_2' => $input['address_2'],
-                'town' => $input['town'],
-                'county' => $input['county'],
-                'country' => $input['country'],
-                'postcode' => $input['postcode'],
-                'dob' => $input['dob'],
-                'idvt_result' => $input['idvt_result'],
-                'idvt_result_perc' => $input['idvt_result_perc'],
-                'idvt_errors' => $input['idvt_errors'],
-                'idvt_completed_at' => $input['idvt_completed_at'],
-            ]);
+            $identity->update($input);
 
             return response()->json([
                 'message' => 'success',
@@ -380,26 +353,10 @@ class IdentityController extends Controller
     public function edit(Request $request, int $id): JsonResponse
     {
         try {
-            $input = $request->all();
+            $input = $request->only(app(Identity::class)->getFillable());
 
             $id = Identity::findOrFail($id);
-            $id->update([
-                'registry_id' => $input['registry_id'],
-                'selfie_path' => $input['selfie_path'],
-                'passport_path' => $input['passport_path'],
-                'drivers_license_path' => $input['drivers_license_path'],
-                'address_1' => $input['address_1'],
-                'address_2' => $input['address_2'],
-                'town' => $input['town'],
-                'county' => $input['county'],
-                'country' => $input['country'],
-                'postcode' => $input['postcode'],
-                'dob' => $input['dob'],
-                'idvt_result' => $input['idvt_result'],
-                'idvt_result_perc' => $input['idvt_result_perc'],
-                'idvt_errors' => $input['idvt_errors'],
-                'idvt_completed_at' => $input['idvt_completed_at'],
-            ]);
+            $id->update($input);
 
             return response()->json([
                 'message' => 'success',
