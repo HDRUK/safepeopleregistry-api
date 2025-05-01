@@ -38,7 +38,7 @@ return new class () extends Migration {
 
         Schema::table('identities', function (Blueprint $table) {
             $table->string('idvt_result_text')->nullable()->after('idvt_completed_at');
-            $table->json('idvt_context')->nullable()->after('idvt_result');
+            $table->json('idvt_context')->nullable()->after('idvt_result_text');
             $table->tinyInteger('idvt_success')->default(0)->after('idvt_context');
             $table->string('idvt_identification_number')->nullable()->after('idvt_success');
             $table->string('idvt_document_type')->nullable()->after('idvt_identification_number');
