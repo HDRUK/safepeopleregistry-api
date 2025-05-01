@@ -13,27 +13,39 @@ return new class () extends Migration {
         // I swear SQLite gets worse with every version bump...
         //
         Schema::table('identities', function (Blueprint $table) {
-            $table->dropColumn('selfie_path');
+            if (Schema::hasColumn('identities', 'selfie_path')) {
+                $table->dropColumn('selfie_path');
+            }
         });
 
         Schema::table('identities', function (Blueprint $table) {
-            $table->dropColumn('passport_path');
+            if (Schema::hasColumn('identities', 'passport_path')) {
+                $table->dropColumn('passport_path');
+            }
         });
 
         Schema::table('identities', function (Blueprint $table) {
-            $table->dropColumn('drivers_license_path');
+            if (Schema::hasColumn('identities', 'drivers_license_path')) {
+                $table->dropColumn('drivers_license_path');
+            }
         });
 
         Schema::table('identities', function (Blueprint $table) {
-            $table->dropColumn('idvt_result_perc');
+            if (Schema::hasColumn('identities', 'idvt_result_perc')) {
+                $table->dropColumn('idvt_result_perc');
+            }
         });
 
         Schema::table('identities', function (Blueprint $table) {
-            $table->dropColumn('idvt_errors');
+            if (Schema::hasColumn('identities', 'idvt_errors')) {
+                $table->dropColumn('idvt_errors');
+            }
         });
 
         Schema::table('identities', function (Blueprint $table) {
-            $table->dropColumn('idvt_result');
+            if (Schema::hasColumn('identities', 'idvt_result')) {
+                $table->dropColumn('idvt_result');
+            }
         });
 
         Schema::table('identities', function (Blueprint $table) {
