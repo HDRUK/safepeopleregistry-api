@@ -22,7 +22,7 @@ class TrainingTest extends TestCase
 
     public function test_the_application_can_list_training(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->user)
             ->json(
                 'GET',
                 self::TEST_URL
@@ -34,7 +34,7 @@ class TrainingTest extends TestCase
 
     public function test_the_application_can_list_training_by_registry_id(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->user)
             ->json(
                 'GET',
                 self::TEST_URL . '/registry/' . $this->user->registry_id
@@ -47,11 +47,11 @@ class TrainingTest extends TestCase
 
     public function test_the_application_can_show_training(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . '/1'
-        );
+        $response = $this->actingAs($this->user)
+            ->json(
+                'GET',
+                self::TEST_URL . '/1'
+            );
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
@@ -59,7 +59,7 @@ class TrainingTest extends TestCase
 
     public function test_the_application_can_create_training(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->user)
             ->json(
                 'POST',
                 self::TEST_URL,
@@ -89,21 +89,21 @@ class TrainingTest extends TestCase
 
     public function test_the_application_can_update_training(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'POST',
-            self::TEST_URL,
-            [
-                'provider' => 'Fake Training Provider',
-                'awarded_at' => Carbon::now(),
-                'expires_at' => Carbon::now()->addYears(5),
-                'expires_in_years' => 5,
-                'training_name' => 'Completely made up Researcher Training',
-                'certification_id' => 1,
-                'pro_registration' => 0,
-                'registry_id' => $this->user->registry_id,
-            ]
-        );
+        $response = $this->actingAs($this->user)
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
+                    'provider' => 'Fake Training Provider',
+                    'awarded_at' => Carbon::now(),
+                    'expires_at' => Carbon::now()->addYears(5),
+                    'expires_in_years' => 5,
+                    'training_name' => 'Completely made up Researcher Training',
+                    'certification_id' => 1,
+                    'pro_registration' => 0,
+                    'registry_id' => $this->user->registry_id,
+                ]
+            );
 
         $response->assertStatus(201);
         $content = $response->decodeResponseJson()['data'];
@@ -111,7 +111,7 @@ class TrainingTest extends TestCase
         $this->assertArrayHasKey('data', $response);
         $this->assertGreaterThan(0, $content);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->user)
             ->json(
                 'PUT',
                 self::TEST_URL . '/' . $content,
@@ -139,7 +139,7 @@ class TrainingTest extends TestCase
 
     public function test_the_application_can_delete_training(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->user)
             ->json(
                 'POST',
                 self::TEST_URL,
@@ -161,7 +161,7 @@ class TrainingTest extends TestCase
         $this->assertArrayHasKey('data', $response);
         $this->assertGreaterThan(0, $content);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->user)
             ->json(
                 'DELETE',
                 self::TEST_URL . '/' . $content,
@@ -172,7 +172,7 @@ class TrainingTest extends TestCase
 
     public function test_the_application_fails_deleting_training(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->user)
             ->json(
                 'POST',
                 self::TEST_URL,
@@ -194,7 +194,7 @@ class TrainingTest extends TestCase
         $this->assertArrayHasKey('data', $response);
         $this->assertGreaterThan(0, $content);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->user)
             ->json(
                 'DELETE',
                 self::TEST_URL . '/' . ($content + 1),

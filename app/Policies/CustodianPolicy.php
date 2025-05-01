@@ -29,13 +29,10 @@ class CustodianPolicy
      */
     public function create(User $user): bool
     {
-        if (in_array(
+        return  in_array(
             $user->user_group,
-            [User::GROUP_ADMINS, User::GROUP_CUSTODIANS]
-        )) {
-            return true;
-        }
-        return false;
+            [User::GROUP_ADMINS]
+        );
     }
 
     public function view_detailed(User $user, Custodian $custodian): bool

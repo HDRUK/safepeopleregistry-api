@@ -2,10 +2,14 @@
 
 namespace App\Providers;
 
-use App\Models\Custodian;
+
 use Illuminate\Support\Facades\Gate;
 use App\Models\User;
+use App\Models\Registry;
+use App\Models\Custodian;
 use App\Policies\UserPolicy;
+use App\Policies\RegistryPolicy;
+use App\Policies\CustodianPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -17,6 +21,8 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         User::class => UserPolicy::class,
+        Registry::class => RegistryPolicy::class,
+        Custodian::class => CustodianPolicy::class,
     ];
 
     /**
@@ -27,15 +33,6 @@ class AuthServiceProvider extends ServiceProvider
         //role based gate
         Gate::define('admin', function (User $user): bool {
             return (bool) $user->user_group === User::GROUP_ADMINS;
-        });
-
-        //permission
-        Gate::define('custodian.view', function (User $user, int $custodianId): bool {
-            if (Gate::forUser($user)->allows('admin')) {
-                return true;
-            }
-
-            return optional($user->custodian_user)->custodian_id === $custodianId;
         });
     }
 }

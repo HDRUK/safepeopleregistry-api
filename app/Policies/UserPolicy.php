@@ -27,14 +27,17 @@ class UserPolicy
      */
     public function view(User $user, User $model): bool
     {
-        return in_array(
+        if (in_array(
             $user->user_group,
             [
                 User::GROUP_ADMINS,
                 User::GROUP_CUSTODIANS,
                 User::GROUP_ORGANISATIONS
             ]
-        );
+        )) {
+            return true;
+        }
+        return $user->id === $model->id;
     }
 
     /**

@@ -238,6 +238,10 @@ class UserController extends Controller
                 'registry.trainings',
             ])->where('id', $id)->first();
 
+            if (!Gate::allows('view', $user)) {
+                return $this->ForbiddenResponse();
+            }
+
             $user['rules'] = $this->decisionEvaluator->evaluate($user);
 
             return response()->json([
@@ -358,6 +362,9 @@ class UserController extends Controller
      */
     public function store(CreateUser $request): JsonResponse
     {
+        if (!Gate::allows('create', User::class)) {
+            return $this->ForbiddenResponse();
+        }
         try {
             $input = $request->all();
 
