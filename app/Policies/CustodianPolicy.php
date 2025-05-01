@@ -13,7 +13,13 @@ class CustodianPolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        return  in_array(
+            $user->user_group,
+            [
+                User::GROUP_ADMINS,
+                User::GROUP_CUSTODIANS
+            ]
+        );
     }
 
     /**
@@ -21,7 +27,13 @@ class CustodianPolicy
      */
     public function view(User $user, Custodian $custodian): bool
     {
-        return true;
+        return  in_array(
+            $user->user_group,
+            [
+                User::GROUP_ADMINS,
+                User::GROUP_CUSTODIANS
+            ]
+        );
     }
 
     /**

@@ -62,10 +62,10 @@ class CustodianTest extends TestCase
             ]);
 
         $response = $this->actingAs($this->organisation_admin)
-        ->json(
-            'GET',
-            self::TEST_URL
-        );
+            ->json(
+                'GET',
+                self::TEST_URL
+            );
 
         $response->assertStatus(403)
             ->assertJson([
@@ -82,9 +82,9 @@ class CustodianTest extends TestCase
             );
 
         $response->assertStatus(403)
-        ->assertJson([
-            'message' => 'forbidden',
-        ]);
+            ->assertJson([
+                'message' => 'forbidden',
+            ]);
     }
 
     public function test_custodian_can_see_details(): void
@@ -271,10 +271,10 @@ class CustodianTest extends TestCase
 
 
         $response = $this->actingAs($this->custodian_admin)
-        ->json(
-            'GET',
-            self::TEST_URL . '/' . $content['data'] . '/action_log'
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $content['data'] . '/action_log'
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -372,59 +372,59 @@ class CustodianTest extends TestCase
                 'POST',
                 self::TEST_URL . '/push',
                 [
-                'researchers' => [],
-                'projects' => [
-                    [
-                        'unique_id' => $this->projectUniqueId,
-                        'title' => 'This is a Test Project',
-                        'lay_summary' => 'Test Lay Summary',
-                        'public_benefit' => 'No one dies, ever.',
-                        'request_category_type' => 'category type',
-                        'technical_summary' => 'Technical Summary',
-                        'other_approval_committees' => 'Does anyone actually know what this means?',
-                        'start_date' => Carbon::now()->addMonths(6),
-                        'end_date' => Carbon::now()->addYears(2),
-                        'affiliate_id' => 1,
-                    ],
-                ],
-                'organisations' => [
-                    [
-                        'organisation_name' => 'HEALTH DATA RESEARCH UK',
-                        'address_1' => '215 Euston Road',
-                        'address_2' => '',
-                        'town' => 'Blah',
-                        'county' => 'London',
-                        'country' => 'United Kingdom',
-                        'postcode' => 'NW1 2BE',
-                        'lead_applicant_organisation_name' => 'Some One',
-                        'lead_applicant_email' => fake()->email(),
-                        'password' => 'tempP4ssword',
-                        'organisation_unique_id' => Str::random(40),
-                        'applicant_names' => 'Some One, Some Two, Some Three',
-                        'funders_and_sponsors' => 'UKRI, MRC',
-                        'sub_license_arrangements' => 'N/A',
-                        'verified' => false,
-                        'companies_house_no' => '10887014',
-                        'dsptk_certified' => 1,
-                        'dsptk_ods_code' => '12345Z',
-                        'iso_27001_certified' => 0,
-                        'iso_27001_certification_num' => '',
-                        'ce_certified' => 1,
-                        'ce_certification_num' => 'A1234',
-                        'sector_id' => fake()->randomElement([0, count(Sector::SECTORS)]),
-                        'charities' => [
-                            'registration_id' => '1186569',
+                    'researchers' => [],
+                    'projects' => [
+                        [
+                            'unique_id' => $this->projectUniqueId,
+                            'title' => 'This is a Test Project',
+                            'lay_summary' => 'Test Lay Summary',
+                            'public_benefit' => 'No one dies, ever.',
+                            'request_category_type' => 'category type',
+                            'technical_summary' => 'Technical Summary',
+                            'other_approval_committees' => 'Does anyone actually know what this means?',
+                            'start_date' => Carbon::now()->addMonths(6),
+                            'end_date' => Carbon::now()->addYears(2),
+                            'affiliate_id' => 1,
                         ],
-                        'ror_id' => '02wnqcb97',
-                        'smb_status' => false,
-                        'organisation_size' => 2,
-                        'website' => 'https://www.website.com/',
+                    ],
+                    'organisations' => [
+                        [
+                            'organisation_name' => 'HEALTH DATA RESEARCH UK',
+                            'address_1' => '215 Euston Road',
+                            'address_2' => '',
+                            'town' => 'Blah',
+                            'county' => 'London',
+                            'country' => 'United Kingdom',
+                            'postcode' => 'NW1 2BE',
+                            'lead_applicant_organisation_name' => 'Some One',
+                            'lead_applicant_email' => fake()->email(),
+                            'password' => 'tempP4ssword',
+                            'organisation_unique_id' => Str::random(40),
+                            'applicant_names' => 'Some One, Some Two, Some Three',
+                            'funders_and_sponsors' => 'UKRI, MRC',
+                            'sub_license_arrangements' => 'N/A',
+                            'verified' => false,
+                            'companies_house_no' => '10887014',
+                            'dsptk_certified' => 1,
+                            'dsptk_ods_code' => '12345Z',
+                            'iso_27001_certified' => 0,
+                            'iso_27001_certification_num' => '',
+                            'ce_certified' => 1,
+                            'ce_certification_num' => 'A1234',
+                            'sector_id' => fake()->randomElement([0, count(Sector::SECTORS)]),
+                            'charities' => [
+                                'registration_id' => '1186569',
+                            ],
+                            'ror_id' => '02wnqcb97',
+                            'smb_status' => false,
+                            'organisation_size' => 2,
+                            'website' => 'https://www.website.com/',
+                        ],
                     ],
                 ],
-            ],
                 [
-                'x-custodian-key' => $custodian->unique_identifier,
-            ]
+                    'x-custodian-key' => $custodian->unique_identifier,
+                ]
             );
 
         $response->assertStatus(200);
@@ -462,58 +462,58 @@ class CustodianTest extends TestCase
         $response =  $this->actingAs($user)
             ->json(
                 'POST',
-                self::TEST_URL.'/push',
+                self::TEST_URL . '/push',
                 [
-                'researchers' => [],
-                'projects' => [
-                    [
-                        'unique_id' => $this->projectUniqueId,
-                        'title' => 'This is a Test Project',
-                        'lay_summary' => 'Test Lay Summary',
-                        'public_benefit' => 'No one dies, ever.',
-                        'request_category_type' => 'category type',
-                        'technical_summary' => 'Technical Summary',
-                        'other_approval_committees' => 'Does anyone actually know what this means?',
-                        'start_date' => Carbon::now()->addMonths(6),
-                        'end_date' => Carbon::now()->addYears(2),
-                        'affiliate_id' => 1,
-                    ],
-                ],
-                'organisations' => [
-                    [
-                        'organisation_name' => 'HEALTH DATA RESEARCH UK',
-                        'address_1' => '215 Euston Road',
-                        'address_2' => '',
-                        'town' => 'Blah',
-                        'county' => 'London',
-                        'country' => 'United Kingdom',
-                        'postcode' => 'NW1 2BE',
-                        'lead_applicant_organisation_name' => 'Some One',
-                        'lead_applicant_email' => fake()->email(),
-                        'password' => 'tempP4ssword',
-                        'organisation_unique_id' => Str::random(40),
-                        'applicant_names' => 'Some One, Some Two, Some Three',
-                        'funders_and_sponsors' => 'UKRI, MRC',
-                        'sub_license_arrangements' => 'N/A',
-                        'verified' => false,
-                        'companies_house_no' => '10887014',
-                        'dsptk_certified' => 1,
-                        'dsptk_ods_code' => '12345Z',
-                        'iso_27001_certified' => 0,
-                        'iso_27001_certification_num' => '',
-                        'ce_certified' => 1,
-                        'ce_certification_num' => 'A1234',
-                        'sector_id' => fake()->randomElement([0, count(Sector::SECTORS)]),
-                        'charities' => [
-                            'registration_id' => '1186569',
+                    'researchers' => [],
+                    'projects' => [
+                        [
+                            'unique_id' => $this->projectUniqueId,
+                            'title' => 'This is a Test Project',
+                            'lay_summary' => 'Test Lay Summary',
+                            'public_benefit' => 'No one dies, ever.',
+                            'request_category_type' => 'category type',
+                            'technical_summary' => 'Technical Summary',
+                            'other_approval_committees' => 'Does anyone actually know what this means?',
+                            'start_date' => Carbon::now()->addMonths(6),
+                            'end_date' => Carbon::now()->addYears(2),
+                            'affiliate_id' => 1,
                         ],
-                        'ror_id' => '02wnqcb97',
-                        'smb_status' => false,
-                        'organisation_size' => 2,
-                        'website' => 'https://www.website.com/',
                     ],
-                ],
-            ]
+                    'organisations' => [
+                        [
+                            'organisation_name' => 'HEALTH DATA RESEARCH UK',
+                            'address_1' => '215 Euston Road',
+                            'address_2' => '',
+                            'town' => 'Blah',
+                            'county' => 'London',
+                            'country' => 'United Kingdom',
+                            'postcode' => 'NW1 2BE',
+                            'lead_applicant_organisation_name' => 'Some One',
+                            'lead_applicant_email' => fake()->email(),
+                            'password' => 'tempP4ssword',
+                            'organisation_unique_id' => Str::random(40),
+                            'applicant_names' => 'Some One, Some Two, Some Three',
+                            'funders_and_sponsors' => 'UKRI, MRC',
+                            'sub_license_arrangements' => 'N/A',
+                            'verified' => false,
+                            'companies_house_no' => '10887014',
+                            'dsptk_certified' => 1,
+                            'dsptk_ods_code' => '12345Z',
+                            'iso_27001_certified' => 0,
+                            'iso_27001_certification_num' => '',
+                            'ce_certified' => 1,
+                            'ce_certification_num' => 'A1234',
+                            'sector_id' => fake()->randomElement([0, count(Sector::SECTORS)]),
+                            'charities' => [
+                                'registration_id' => '1186569',
+                            ],
+                            'ror_id' => '02wnqcb97',
+                            'smb_status' => false,
+                            'organisation_size' => 2,
+                            'website' => 'https://www.website.com/',
+                        ],
+                    ],
+                ]
             );
 
         $response->assertStatus(401);
@@ -580,7 +580,7 @@ class CustodianTest extends TestCase
                 self::TEST_URL . "/{$nonexistentId}/rules"
             );
 
-        $response->assertStatus(403);
+        $response->assertStatus(404);
     }
 
 

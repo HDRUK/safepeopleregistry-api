@@ -62,6 +62,9 @@ class CustodianController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        if (!Gate::allows('viewAny', Custodian::class)) {
+            return $this->ForbiddenResponse();
+        }
         $custodians = Custodian::searchViaRequest()
             ->applySorting()
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
@@ -112,6 +115,10 @@ class CustodianController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
+        if (!Gate::allows('viewAny', Custodian::class)) {
+            return $this->ForbiddenResponse();
+        }
+
         $custodian = Custodian::findOrFail($id);
         if ($custodian) {
             return response()->json([
@@ -1239,6 +1246,9 @@ class CustodianController extends Controller
     {
         try {
             $custodian = Custodian::where('id', $id)->first();
+            if (! Gate::allows('update', $custodian)) {
+                return $this->ForbiddenResponse();
+            }
 
             $unclaimedUser = RMC::createUnclaimedUser([
                 'firstname' => '',

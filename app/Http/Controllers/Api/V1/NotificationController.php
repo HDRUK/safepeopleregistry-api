@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Api\V1;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Traits\Responses;
 use App\Traits\CommonFunctions;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 
 class NotificationController extends Controller
 {
+    use Responses;
     use CommonFunctions;
     /**
      * @OA\Get(
