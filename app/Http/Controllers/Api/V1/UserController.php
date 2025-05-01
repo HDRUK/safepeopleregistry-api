@@ -842,6 +842,9 @@ class UserController extends Controller
     public function userProjects(Request $request, int $id): JsonResponse
     {
         $user = User::with('registry')->findOrFail($id);
+        if (!Gate::allows('view', $user)) {
+            return $this->ForbiddenResponse();
+        }
 
         $projectIds = ProjectHasUser::where('user_digital_ident', $user->registry->digi_ident)
             ->pluck('project_id')
