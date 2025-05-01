@@ -32,7 +32,7 @@ class AuthServiceProvider extends ServiceProvider
     {
         //role based gate
         Gate::define('admin', function (User $user): bool {
-            return (bool) $user->user_group === User::GROUP_ADMINS;
+            return $user->user_group === User::GROUP_ADMINS;
         });
     }
 }
