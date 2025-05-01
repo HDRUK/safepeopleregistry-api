@@ -4,11 +4,14 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use App\Models\User;
+
 use App\Models\RegistryHasTraining;
+use Database\Factories\CustodianFactory;
 use Tests\Traits\Authorisation;
 use KeycloakGuard\ActingAsKeycloakUser;
 
 use Database\Factories\UserFactory;
+use Illuminate\Support\Facades\DB;
 
 class PermissionMatrixTest extends TestCase
 {
@@ -16,6 +19,11 @@ class PermissionMatrixTest extends TestCase
     use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1';
+    protected $admin;
+    protected $user2;
+    protected $custodian2;
+    protected $organisation2;
+    protected $users;
 
     protected function setUp(): void
     {
@@ -37,7 +45,6 @@ class PermissionMatrixTest extends TestCase
             'researcher1' => $this->user,
             'researcher2' => $this->user2,
         ];
-
     }
 
     public function test_main_permissions_matrix()
@@ -154,7 +161,7 @@ class PermissionMatrixTest extends TestCase
             ],
             [
                 'method' => 'put',
-                'route' => '/users/'. $this->user->id,
+                'route' => '/users/' . $this->user->id,
                 'payload' => [
                     'first_name'  => fake()->firstname()
                 ],
@@ -171,13 +178,12 @@ class PermissionMatrixTest extends TestCase
             ],
         ];
         $this->runTests($expectedMatrix);
-
     }
 
     public function test_training_permissions_matrix()
     {
         $userTrainingId = RegistryHasTraining::where('registry_id', $this->user->registry_id)
-                          ->first()->training_id;
+            ->first()->training_id;
         $expectedMatrix = [
             [
                 'method' => 'get',
@@ -248,7 +254,108 @@ class PermissionMatrixTest extends TestCase
         ];
 
         $this->runTests($expectedMatrix);
+    }
 
+    public function test_custodian_permissions_matrix()
+    {
+        $definition = CustodianFactory::new()->definition();
+        foreach ($definition as $key => $value) {
+            if ($value instanceof \DateTimeInterface) {
+                $definition[$key] = $value->format('Y-m-d H:i:s');
+            }
+        }
+        $expectedMatrix = [
+            [
+                'method' => 'get',
+                'route' => '/custodians',
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 200,
+                    'custodian2' => 200,
+                    'organisation1' => 200,
+                    'organisation2' => 200,
+                    'delegate' => 200,
+                    'researcher1' => 200,
+                    'researcher2' => 200,
+                ],
+            ],
+            [
+                'method' => 'get',
+                'route' => '/custodians/1',
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 200,
+                    'custodian2' => 200,
+                    'organisation1' => 200,
+                    'organisation2' => 200,
+                    'delegate' => 200,
+                    'researcher1' => 200,
+                    'researcher2' => 200,
+                ],
+            ],
+            [
+                'method' => 'get',
+                'route' => '/custodians/1/projects',
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 200,
+                    'custodian2' => 200,
+                    'organisation1' => 403,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'post',
+                'route' => '/custodians',
+                'payload' => $definition,
+                'permissions' => [
+                    'admin' => 201,
+                    'custodian1' => 403,
+                    'custodian2' => 403,
+                    'organisation1' => 403,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'put',
+                'route' => '/custodians/1',
+                'payload' => [
+                    'name' =>  fake()->company(),
+                ],
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 200,
+                    'custodian2' => 403,
+                    'organisation1' => 403,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'delete',
+                'route' => '/custodians/1',
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 200,
+                    'custodian2' => 403,
+                    'organisation1' => 403,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+        ];
+
+        $this->runTests($expectedMatrix);
     }
 
     private function runTests(array $expectedMatrix)
@@ -266,13 +373,22 @@ class PermissionMatrixTest extends TestCase
             foreach ($roles as $role => $expectedStatus) {
                 $user = $this->users[$role];
 
-                $response = $this->actingAs($user)->{$method}(self::TEST_URL . $route, $payload);
-                $status = $response->status();
+                DB::beginTransaction();
+                //simulate - dont actually make change to DB
+                try {
+                    $response = $this->actingAs($user)->{$method}(self::TEST_URL . $route, $payload);
+                    $status = $response->status();
 
+                    $this->assertEquals(
+                        $expectedStatus,
+                        $response->getStatusCode(),
+                        "[$method] $route: received status {$response->getStatusCode()}, expected {$expectedStatus} → role={$role}"
+                    );
 
-                $response->assertStatus($expectedStatus);
-
-                $matrix[$role][$routeKey] = $status >= 200 && $status < 300 ? "\033[32m$status\033[0m" : "\033[31m$status\033[0m";
+                    $matrix[$role][$routeKey] = $status >= 200 && $status < 300 ? "\033[32m$status\033[0m" : "\033[31m$status\033[0m";
+                } finally {
+                    DB::rollBack(); // Restore DB state after each role test
+                }
             }
         }
         $routes = array_map(function ($test) {
@@ -346,7 +462,7 @@ class PermissionMatrixTest extends TestCase
             $id = $this->users[$role]->id;
             $username = preg_replace('/\d+/', '', $role) . "($id)";
             $users[] = $username;
-   
+
             $columnWidths[$username] = strlen($username) + 5; // Some margin
         }
 
@@ -361,14 +477,14 @@ class PermissionMatrixTest extends TestCase
             foreach ($matrix as $role => $permissions) {
                 $id = $this->users[$role]->id;
                 $username = preg_replace('/\d+/', '', $role) . "($id)";
-                $visibleText = self::stripAnsi($permissions[$route] ?? '-'); 
+                $visibleText = self::stripAnsi($permissions[$route] ?? '-');
                 $padding = $columnWidths[$username] + (strlen($permissions[$route] ?? '-') - strlen($visibleText));
                 echo str_pad($permissions[$route] ?? '-', $padding);
             }
             echo "\n";
         }
 
-        echo(str_repeat('_', array_sum($columnWidths))) . "\n";
+        echo (str_repeat('_', array_sum($columnWidths))) . "\n";
     }
 
 
@@ -377,7 +493,4 @@ class PermissionMatrixTest extends TestCase
     {
         return preg_replace('/\e\[[0-9;]*m/', '', $text);
     }
-
-
-
 }

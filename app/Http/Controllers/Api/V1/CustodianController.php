@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use DB;
 use Exception;
 use Hash;
+use Auth;
 use RegistryManagementController as RMC;
 use TriggerEmail;
 use App\Http\Controllers\Controller;
@@ -24,6 +25,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Http\Traits\Responses;
 use App\Traits\SearchManagerCollection;
+use Illuminate\Support\Facades\Gate;
 
 class CustodianController extends Controller
 {
@@ -222,6 +224,10 @@ class CustodianController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+        if (!Gate::allows('create', Custodian::class)) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $input = $request->all();
 
@@ -229,8 +235,8 @@ class CustodianController extends Controller
             $uuid = Str::uuid()->toString();
             $calculatedHash = Hash::make(
                 $uuid .
-                 ':'.env('CUSTODIAN_SALT_1').
-                 ':'.env('CUSTODIAN_SALT_2')
+                    ':' . env('CUSTODIAN_SALT_1') .
+                    ':' . env('CUSTODIAN_SALT_2')
             );
 
             $custodian = Custodian::create([
@@ -310,6 +316,11 @@ class CustodianController extends Controller
         try {
             $input = $request->only(app(Custodian::class)->getFillable());
             $custodian = Custodian::findOrFail($id);
+
+            if (!Gate::allows('update', $custodian)) {
+                return $this->ForbiddenResponse();
+            }
+
             $custodian->update($input);
 
             if ($custodian) {
@@ -389,6 +400,10 @@ class CustodianController extends Controller
 
             $custodian = Custodian::where('id', $id)->first();
 
+            if (!Gate::allows('update', $custodian)) {
+                return $this->ForbiddenResponse();
+            }
+
             $custodian->invite_accepted_at = isset($input['invite_accepted_at']) ? $input['invite_accepted_at'] : $custodian->invite_accepted_at;
             $custodian->name = isset($input['name']) ? $input['name'] : $custodian->name;
             $custodian->contact_email = isset($input['contact_email']) ? $input['contact_email'] : $custodian->contact_email;
@@ -459,7 +474,12 @@ class CustodianController extends Controller
     public function destroy(Request $request, int $id): JsonResponse
     {
         try {
-            Custodian::where('id', $id)->delete();
+            $custodian = Custodian::findOrFail((int)$id);
+            if (!Gate::allows('delete', $custodian)) {
+                return $this->ForbiddenResponse();
+            }
+
+            $custodian->delete();
 
             return response()->json([
                 'message' => 'success',
@@ -615,15 +635,20 @@ class CustodianController extends Controller
      */
     public function getProjects(Request $request, int $custodianId): JsonResponse
     {
+        $custodian = Custodian::findOrFail($custodianId);
+        if (! Gate::allows('view_projects', $custodian)) {
+            return $this->ForbiddenResponse();
+        }
+
         $projects = Project::searchViaRequest()
-          ->applySorting()
-          ->with(['approvals', 'organisations', 'modelState.state'])
-          ->filterByCommon()
-          ->whereHas('custodians', function ($query) use ($custodianId) {
-              $query->where('custodians.id', $custodianId);
-          })
-          ->withCount('projectUsers')
-          ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+            ->applySorting()
+            ->with(['approvals', 'organisations', 'modelState.state'])
+            ->filterByCommon()
+            ->whereHas('custodians', function ($query) use ($custodianId) {
+                $query->where('custodians.id', $custodianId);
+            })
+            ->withCount('projectUsers')
+            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         if ($projects) {
             return response()->json([

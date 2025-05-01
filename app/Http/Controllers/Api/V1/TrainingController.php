@@ -96,6 +96,7 @@ class TrainingController extends Controller
      */
     public function indexByRegistryId(Request $request, int $registryId): JsonResponse
     {
+        //$this->
         $linkedTraining = RegistryHasTraining::where([
             'registry_id' => $registryId,
         ])->select('training_id')->get()->toArray();

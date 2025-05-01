@@ -58,10 +58,10 @@ Route::middleware('api')->post('auth/register', [AuthController::class, 'registe
 
 // Only admins, custodians or organisations can list all users
 // note - do we want this?
-Route::middleware(['auth:api','anyof:is.admin,is.custodian,is.organisation'])->get('v1/users', [UserController::class, 'index']);
+Route::middleware(['auth:api', 'anyof:is.admin,is.custodian,is.organisation'])->get('v1/users', [UserController::class, 'index']);
 
 // Create user — only allowed for admins
-Route::middleware(['auth:api','is.admin'])->post('v1/users', [UserController::class, 'store']);
+Route::middleware(['auth:api', 'is.admin'])->post('v1/users', [UserController::class, 'store']);
 
 // Public / no extra access checks (e.g. admin/test/internal stuff)
 Route::middleware('auth:api')->get('v1/users/test', [UserController::class, 'fakeEndpointForTesting']);
@@ -145,24 +145,19 @@ Route::middleware(['auth:api', 'anyof:is.admin,is.owner'])
 
 // Public
 Route::middleware(['auth:api'])
-->prefix('v1/custodians')
-->group(function () {
-    Route::get('/identifier/{id}', [CustodianController::class, 'showByUniqueIdentifier']);
-
-});
-
-// Only Publicly readable by custodians (just need group access)
-Route::middleware(['auth:api', 'anyof:is.admin,is.custodian'])
     ->prefix('v1/custodians')
     ->group(function () {
-        Route::get('/', [CustodianController::class, 'index']);
+        Route::get('/identifier/{id}', [CustodianController::class, 'showByUniqueIdentifier']);
     });
 
+
+
 // Read/Write/Update/Delete where must own custodian or admin
-Route::middleware(['auth:api', 'anyof:is.admin,is.owner'])
+Route::middleware(['auth:api'])
     ->prefix('v1/custodians')
     ->group(function () {
-        // Read-only
+        //read
+        Route::get('/', [CustodianController::class, 'index']);
         Route::get('/{id}', [CustodianController::class, 'show']);
         Route::get('/{id}/projects', [CustodianController::class, 'getProjects']);
         Route::get('/{id}/users/{userId}/projects', [CustodianController::class, 'getUserProjects']);
@@ -288,7 +283,6 @@ Route::middleware(['auth:api', 'anyof:is.admin,is.custodian,is.organisation'])
         // Create
         Route::post('/', 'store');
         Route::post('/unclaimed', 'storeUnclaimed');
-
     });
 
 
