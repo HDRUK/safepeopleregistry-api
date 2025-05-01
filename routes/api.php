@@ -117,48 +117,31 @@ Route::middleware('auth:api')->put('v1/validation_log_comments/{id}', [Validatio
 Route::middleware('auth:api')->delete('v1/validation_log_comments/{id}', [ValidationLogCommentController::class, 'destroy']);
 
 
-// Public access (just needs auth - any user can create a training)
+
+
 Route::middleware(['auth:api'])
     ->prefix('v1/training')
     ->group(function () {
+
         Route::get('/', [TrainingController::class, 'index']);
         Route::get('/{id}', [TrainingController::class, 'show']);
-        Route::post('/', [TrainingController::class, 'store']);
-    });
 
-// Special access (admin/custodian/organisation/owner)
-Route::middleware(['auth:api', 'anyof:is.admin,is.custodian,is.organisation,is.owner'])
-    ->prefix('v1/training')
-    ->group(function () {
         Route::get('/registry/{registryId}', [TrainingController::class, 'indexByRegistryId']);
-    });
 
-// Admin-only actions
-Route::middleware(['auth:api', 'anyof:is.admin,is.owner'])
-    ->prefix('v1/training')
-    ->group(function () {
+        Route::post('/', [TrainingController::class, 'store']);
+
         Route::put('/{id}', [TrainingController::class, 'update']);
         Route::delete('/{id}', [TrainingController::class, 'destroy']);
         Route::post('/{trainingId}/link_file/{fileId}', [TrainingController::class, 'linkTrainingFile']);
     });
 
-
-// Public
-Route::middleware(['auth:api'])
-    ->prefix('v1/custodians')
-    ->group(function () {
-        Route::get('/identifier/{id}', [CustodianController::class, 'showByUniqueIdentifier']);
-    });
-
-
-
-// Read/Write/Update/Delete where must own custodian or admin
 Route::middleware(['auth:api'])
     ->prefix('v1/custodians')
     ->group(function () {
         //read
         Route::get('/', [CustodianController::class, 'index']);
         Route::get('/{id}', [CustodianController::class, 'show']);
+        Route::get('/identifier/{id}', [CustodianController::class, 'showByUniqueIdentifier']);
         Route::get('/{id}/projects', [CustodianController::class, 'getProjects']);
         Route::get('/{id}/users/{userId}/projects', [CustodianController::class, 'getUserProjects']);
         Route::get('/{id}/organisations', [CustodianController::class, 'getOrganisations']);
@@ -168,7 +151,10 @@ Route::middleware(['auth:api'])
         Route::get('/{id}/users', [CustodianController::class, 'usersWithCustodianApprovals']);
         Route::get('/{id}/organisations/{organisationId}/users', [CustodianController::class, 'getOrganisationUsers']);
 
+
         // Write
+        Route::post('/', [CustodianController::class, 'store']);
+        Route::post('/push', [CustodianController::class, 'push']);
         Route::post('/{id}/invite', [CustodianController::class, 'invite']);
         Route::post('/{id}/projects', [CustodianController::class, 'addProject']);
 
@@ -181,13 +167,7 @@ Route::middleware(['auth:api'])
         Route::delete('/{id}', [CustodianController::class, 'destroy']);
     });
 
-// Create (admin only)
-Route::middleware(['auth:api', 'is.admin'])
-    ->prefix('v1/custodians')
-    ->group(function () {
-        Route::post('/', [CustodianController::class, 'store']);
-        Route::post('/push', [CustodianController::class, 'push']);
-    });
+
 
 Route::middleware('auth:api')->get('v1/custodian_users', [CustodianUserController::class, 'index']);
 Route::middleware('auth:api')->get('v1/custodian_users/{id}', [CustodianUserController::class, 'show']);

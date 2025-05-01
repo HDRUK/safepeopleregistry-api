@@ -636,7 +636,7 @@ class CustodianController extends Controller
     public function getProjects(Request $request, int $custodianId): JsonResponse
     {
         $custodian = Custodian::findOrFail($custodianId);
-        if (! Gate::allows('view_projects', $custodian)) {
+        if (! Gate::allows('view_detailed', $custodian)) {
             return $this->ForbiddenResponse();
         }
 
@@ -846,6 +846,10 @@ class CustodianController extends Controller
      */
     public function getOrganisations(Request $request, int $custodianId): JsonResponse
     {
+        $custodian = Custodian::findOrFail($custodianId);
+        if (! Gate::allows('view_detailed', $custodian)) {
+            return $this->ForbiddenResponse();
+        }
         $results = Organisation::searchViaRequest()
             ->applySorting()
             ->with(['sroOfficer', 'projects' => function ($query) {
@@ -925,6 +929,10 @@ class CustodianController extends Controller
      */
     public function getProjectsUsers(Request $request, int $custodianId): JsonResponse
     {
+        $custodian = Custodian::findOrFail($custodianId);
+        if (! Gate::allows('view_detailed', $custodian)) {
+            return $this->ForbiddenResponse();
+        }
         $results = DB::table('registries as r')
             ->join('project_has_users as phu', 'phu.user_digital_ident', '=', 'r.digi_ident')
             ->join('projects as p', 'p.id', '=', 'phu.project_id')
@@ -1074,6 +1082,7 @@ class CustodianController extends Controller
      */
     public function getCustodianUsers(Request $request, int $custodianId): JsonResponse
     {
+
         $users = CustodianUser::searchViaRequest()->where('custodian_id', $custodianId)
             ->applySorting()->with("userPermissions.permission")
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));

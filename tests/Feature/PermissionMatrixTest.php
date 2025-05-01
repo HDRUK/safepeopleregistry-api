@@ -21,8 +21,11 @@ class PermissionMatrixTest extends TestCase
     public const TEST_URL = '/api/v1';
     protected $admin;
     protected $user2;
+    protected $custodian1;
     protected $custodian2;
+    protected $organisation1;
     protected $organisation2;
+    protected $delegate;
     protected $users;
 
     protected function setUp(): void
@@ -139,11 +142,39 @@ class PermissionMatrixTest extends TestCase
         $this->runTests($expectedMatrix);
     }
 
-    public function test_user_update_permissions_matrix()
+    public function test_user_permissions_matrix()
     {
         $definition = UserFactory::new()->definition();
 
         $expectedMatrix = [
+            [
+                'method' => 'get',
+                'route' => '/users/' . $this->user->id,
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 200,
+                    'custodian2' => 200,
+                    'organisation1' => 200,
+                    'organisation2' => 200,
+                    'delegate' => 200,
+                    'researcher1' => 200,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'get',
+                'route' => '/users/' . $this->user2->id,
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 200,
+                    'custodian2' => 200,
+                    'organisation1' => 200,
+                    'organisation2' => 200,
+                    'delegate' => 200,
+                    'researcher1' => 403,
+                    'researcher2' => 200,
+                ],
+            ],
             [
                 'method' => 'post',
                 'route' => '/users',
@@ -161,19 +192,138 @@ class PermissionMatrixTest extends TestCase
             ],
             [
                 'method' => 'put',
-                'route' => '/users/' . $this->user->id,
+                'route' => '/users/' . $this->admin->id,
+                'payload' => [
+                    'first_name'  => fake()->firstname()
+                ],
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 403,
+                    'custodian2' => 403,
+                    'organisation1' => 403,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'put',
+                'route' => '/users/' . $this->custodian_admin->id,
                 'payload' => [
                     'first_name'  => fake()->firstname()
                 ],
                 'permissions' => [
                     'admin' => 200,
                     'custodian1' => 200,
+                    'custodian2' => 403,
+                    'organisation1' => 403,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'put',
+                'route' => '/users/' . $this->custodian2->id,
+                'payload' => [
+                    'first_name'  => fake()->firstname()
+                ],
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 403,
                     'custodian2' => 200,
+                    'organisation1' => 403,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'put',
+                'route' => '/users/' . $this->organisation_admin->id,
+                'payload' => [
+                    'first_name'  => fake()->firstname()
+                ],
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 403,
+                    'custodian2' => 403,
                     'organisation1' => 200,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'put',
+                'route' => '/users/' . $this->organisation2->id,
+                'payload' => [
+                    'first_name'  => fake()->firstname()
+                ],
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 403,
+                    'custodian2' => 403,
+                    'organisation1' => 403,
                     'organisation2' => 200,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'put',
+                'route' => '/users/' . $this->organisation_delegate->id,
+                'payload' => [
+                    'first_name'  => fake()->firstname()
+                ],
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 403,
+                    'custodian2' => 403,
+                    'organisation1' => 200,
+                    'organisation2' => 403,
                     'delegate' => 200,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'put',
+                'route' => '/users/' . $this->user->id,
+                'payload' => [
+                    'first_name'  => fake()->firstname()
+                ],
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 403,
+                    'custodian2' => 403,
+                    'organisation1' => 403,
+                    'organisation2' => 403,
+                    'delegate' => 403,
                     'researcher1' => 200,
                     'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'put',
+                'route' => '/users/' . $this->user2->id,
+                'payload' => [
+                    'first_name'  => fake()->firstname()
+                ],
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 403,
+                    'custodian2' => 403,
+                    'organisation1' => 403,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 200,
                 ],
             ],
         ];
@@ -296,6 +446,20 @@ class PermissionMatrixTest extends TestCase
             [
                 'method' => 'get',
                 'route' => '/custodians/1/projects',
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 200,
+                    'custodian2' => 200,
+                    'organisation1' => 403,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'get',
+                'route' => '/custodians/1/organisations',
                 'permissions' => [
                     'admin' => 200,
                     'custodian1' => 200,
@@ -473,7 +637,8 @@ class PermissionMatrixTest extends TestCase
         echo "\n";
 
         foreach ($routes as $route) {
-            echo str_pad($route, $columnWidths['Route']);
+            $displayRoute = strlen($route) > 30 ? substr($route, 0, 26) . '... ' : $route;
+            echo str_pad($displayRoute, $columnWidths['Route']);
             foreach ($matrix as $role => $permissions) {
                 $id = $this->users[$role]->id;
                 $username = preg_replace('/\d+/', '', $role) . "($id)";
