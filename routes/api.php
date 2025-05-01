@@ -56,37 +56,45 @@ Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1
 Route::middleware('api')->get('auth/me', [AuthController::class, 'me']);
 Route::middleware('api')->post('auth/register', [AuthController::class, 'registerKeycloakUser']);
 
-// Only admins, custodians or organisations can list all users
-// note - do we want this?
-Route::middleware(['auth:api'])->get('v1/users', [UserController::class, 'index']);
 
-// Create user — only allowed for admins
-Route::middleware(['auth:api'])->post('v1/users', [UserController::class, 'store']);
+Route::middleware(['auth:api'])
+    ->prefix('v1/users')
+    ->group(function () {
 
-// Public / no extra access checks (e.g. admin/test/internal stuff)
-Route::middleware('auth:api')->get('v1/users/test', [UserController::class, 'fakeEndpointForTesting']);
-Route::middleware('auth:api')->post('v1/users/invite', [UserController::class, 'invite']);
-Route::middleware('auth:api')->post('v1/users/permissions', [PermissionController::class, 'assignUserPermissionsToFrom']);
-Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1/users/validate', [UserController::class, 'validateUserRequest']);
-Route::middleware('auth:api')->post('v1/users/search_affiliations', [UserController::class, 'searchUsersByNameAndProfessionalEmail']);
+        Route::get('/', [UserController::class, 'index']);
+        Route::get('/test', [UserController::class, 'fakeEndpointForTesting']);
+        Route::get('/{id}', [UserController::class, 'show']);
+        Route::get('/{id}/history', [UserController::class, 'getHistory']);
+        Route::get('/identifier/{id}', [UserController::class, 'showByUniqueIdentifier']);
+        Route::get('/{id}/projects', [UserController::class, 'userProjects']);
 
-// Must be owner or an admin
-//,
-Route::middleware(['auth:api'])->get('v1/users/{id}', [UserController::class, 'show']);
-Route::middleware(['auth:api'])->get('v1/users/{id}/history', [UserController::class, 'getHistory']);
-Route::middleware(['auth:api'])->get('v1/users/identifier/{id}', [UserController::class, 'showByUniqueIdentifier']);
-Route::middleware(['auth:api'])->put('v1/users/{id}', [UserController::class, 'update']);
-Route::middleware(['auth:api'])->patch('v1/users/{id}', [UserController::class, 'edit']);
-Route::middleware(['auth:api'])->delete('v1/users/{id}', [UserController::class, 'destroy']);
-Route::middleware(['auth:api'])->post('v1/users/change-password/{id}', [AuthController::class, 'changePassword']);
-Route::middleware(['auth:api'])->get('v1/users/{id}/projects', [UserController::class, 'userProjects']);
+        // create
+        Route::post('/', [UserController::class, 'store']);
+        Route::post('/change-password/{id}', [AuthController::class, 'changePassword']);
+        Route::post('/invite', [UserController::class, 'invite']);
+        Route::post('/permissions', [PermissionController::class, 'assignUserPermissionsToFrom']);
+        Route::post('/search_affiliations', [UserController::class, 'searchUsersByNameAndProfessionalEmail']);
 
-// Notification endpoints — scoped per used, only admin and user can get and modify these
-Route::middleware(['auth:api'])->get('v1/users/{id}/notifications', [NotificationController::class, 'getUserNotifications']);
-Route::middleware(['auth:api'])->get('v1/users/{id}/notifications/count', [NotificationController::class, 'getNotificationCounts']);
-Route::middleware(['auth:api'])->patch('v1/users/{id}/notifications/read', [NotificationController::class, 'markUserNotificationsAsRead']);
-Route::middleware(['auth:api'])->patch('v1/users/{id}/notifications/{notificationId}/read', [NotificationController::class, 'markUserNotificationAsRead']);
-Route::middleware(['auth:api'])->patch('v1/users/{id}/notifications/{notificationId}/unread', [NotificationController::class, 'markUserNotificationAsUnread']);
+
+        //update
+        Route::put('/{id}', [UserController::class, 'update']);
+        Route::patch('/{id}', [UserController::class, 'edit']);
+        Route::delete('/{id}', [UserController::class, 'destroy']);
+
+
+        // Notifications
+        Route::get('/{id}/notifications', [NotificationController::class, 'getUserNotifications']);
+        Route::get('/{id}/notifications/count', [NotificationController::class, 'getNotificationCounts']);
+        Route::patch('/{id}/notifications/read', [NotificationController::class, 'markUserNotificationsAsRead']);
+        Route::patch('/{id}/notifications/{notificationId}/read', [NotificationController::class, 'markUserNotificationAsRead']);
+        Route::patch('/{id}/notifications/{notificationId}/unread', [NotificationController::class, 'markUserNotificationAsUnread']);
+    });
+
+// probably redundant...
+Route::middleware(['check.custodian.access', 'verify.signed.payload'])
+    ->post('v1/users/validate', [UserController::class, 'validateUserRequest']);
+
+
 
 
 Route::middleware('auth:api')->get('v1/{entity}/{id}/action_log', [ActionLogController::class, 'getEntityActionLog']);

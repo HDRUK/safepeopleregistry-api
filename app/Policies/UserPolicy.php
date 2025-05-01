@@ -92,4 +92,16 @@ class UserPolicy
     {
         return $user->user_group === User::GROUP_ADMINS;
     }
+
+    public function invite(User $user): bool
+    {
+        return in_array(
+            $user->user_group,
+            [
+                User::GROUP_ADMINS,
+                User::GROUP_CUSTODIANS,
+                User::GROUP_ORGANISATIONS
+            ]
+        );
+    }
 }

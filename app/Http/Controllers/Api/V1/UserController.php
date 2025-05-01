@@ -258,6 +258,9 @@ class UserController extends Controller
         try {
             // Post-MVP - this should be an audit log for the user...
             $user = User::findOrFail($id);
+            if (!Gate::allows('view', $user)) {
+                return $this->ForbiddenResponse();
+            }
 
             // placeholder to give some history
             $data = collect([
@@ -399,6 +402,9 @@ class UserController extends Controller
     //Hide from swagger docs
     public function invite(Request $request): JsonResponse
     {
+        if (!Gate::allows('invite', User::class)) {
+            return $this->ForbiddenResponse();
+        }
         try {
             $input = $request->all();
 
@@ -776,6 +782,9 @@ class UserController extends Controller
 
     public function searchUsersByNameAndProfessionalEmail(Request $request): JsonResponse
     {
+        if (!Gate::allows('viewAll', User::class)) {
+            return $this->ForbiddenResponse();
+        }
         try {
             $input = $request->only([
                 'first_name',
