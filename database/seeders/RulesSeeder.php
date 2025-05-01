@@ -126,7 +126,7 @@ class RulesSeeder extends Seeder
                 'name' => 'Identity',
                 'model_type' => \App\Models\User::class,
                 'conditions' => json_encode([
-                    'path' => 'registry.identity.idvt_result',
+                    'path' => 'registry.identity.idvt_success',
                     'expects' => 1,
                 ]),
                 'rule_class' => \App\Rules\Users\IdentityVerification::class,

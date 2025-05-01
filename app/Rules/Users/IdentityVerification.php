@@ -11,7 +11,7 @@ class IdentityVerification extends BaseRule
 
     public function evaluate($model, array $conditions): bool
     {
-        $path = $conditions['path'] ?? 'registry.identity.idvt_result';
+        $path = $conditions['path'] ?? 'registry.identity.idvt_success';
         $expected = $conditions['expected'] ?? 1;
 
         $actual = Arr::get($model, $path, null);
