@@ -34,14 +34,32 @@ class VeriffTranslator implements WebhookTranslationInterface
 
     public function translate(array $data): array
     {
-        return [
-            'status' => $data['status'] ?? null,
-            'verification' => $data['verification'] ?? null,
-            'verified' => $data['verification']['status'] ?? null,
-            'decision_time' => $data['verification']['decision_time'] ?? null,
-            'registry_id' => $data['verification']['vendorData'] ?? null,
-        ];
+        return $this->translateAction($data);
     }
+
+    public function translateAction(array $data): array
+    {
+        switch (strtolower($data['action'])) {
+            case 'started':
+                return [
+                    'action' => 'started',
+                    'attempt_id' => $data['attemptId'] ?? null,
+                    'registry_id' => $data['vendorData'] ?? null,
+                ];
+            case 'submitted':
+                return [
+                    'action' => 'submitted',
+                    'status' => $data['status'] ?? null,
+                    'verification' => $data['verification'] ?? null,
+                    'verified' => $data['verification']['status'] ?? null,
+                    'decision_time' => $data['verification']['decisionTime'] ?? null,
+                    'registry_id' => $data['verification']['vendorData'] ?? null,
+                ];
+            default:
+                return [];
+        }
+    }
+
 
     public function saveContext(array $data): void
     {
@@ -49,7 +67,7 @@ class VeriffTranslator implements WebhookTranslationInterface
         if (!$registry) {
             DebugLog::create([
                 'class' => VeriffTranslator::class,
-                'log' => 'Attempt to save veriff context with unknown registry_id - ' . json_encode($data),
+                'log' => 'Attempt to save veriff context with unknown registry_id - ' . json_encode($data) . ' likely the submitted event - can ignore',
             ]);
 
             return;
