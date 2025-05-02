@@ -53,10 +53,11 @@ use App\Models\User;
 
 Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1/query', [QueryController::class, 'query']);
 
+// --- AUTH ---
 Route::middleware('api')->get('auth/me', [AuthController::class, 'me']);
 Route::middleware('api')->post('auth/register', [AuthController::class, 'registerKeycloakUser']);
 
-
+// --- USERS ---
 Route::middleware(['auth:api'])
     ->prefix('v1/users')
     ->group(function () {
@@ -90,12 +91,13 @@ Route::middleware(['auth:api'])
         Route::patch('/{id}/notifications/{notificationId}/unread', [NotificationController::class, 'markUserNotificationAsUnread']);
     });
 
+// --- USER VALIDATION ---
 // probably redundant...
 Route::middleware(['check.custodian.access', 'verify.signed.payload'])
     ->post('v1/users/validate', [UserController::class, 'validateUserRequest']);
 
 
-// Action Logs
+// --- ACTION LOGS ---
 Route::middleware('auth:api')
     ->prefix('v1')
     ->controller(ActionLogController::class)
@@ -104,25 +106,31 @@ Route::middleware('auth:api')
         Route::put('action_log/{id}', 'update');
     });
 
-Route::middleware('auth:api')->get(
-    'v1/custodians/{custodianId}/projects/{projectId}/registries/{registryId}/validation_logs',
-    [ValidationLogController::class, 'getCustodianProjectUserValidationLogs']
-);
-Route::middleware('auth:api')->get(
-    'v1/custodians/{custodianId}/organisations/{organisationId}/validation_logs',
-    [ValidationLogController::class, 'getCustodianOrganisationValidationLogs']
-);
-Route::middleware('auth:api')->put(
-    'v1/custodians/{custodianId}/validation_logs',
-    [ValidationLogController::class, 'updateCustodianValidationLogs']
-);
+// --- VALIDATION LOGS ---
+Route::middleware('auth:api')
+    ->prefix('v1')
+    ->group(function () {
 
+        // /validation_logs
+        Route::prefix('validation_logs')
+            ->controller(ValidationLogController::class)
+            ->group(function () {
+                Route::get('{id}', 'index');
+                Route::get('{id}/comments', 'comments');
+                Route::put('{id}', 'update');
+            });
 
-Route::middleware('auth:api')->get('v1/validation_logs/{id}', [ValidationLogController::class, 'index']);
-Route::middleware('auth:api')->get('v1/validation_logs/{id}/comments', [ValidationLogController::class, 'comments']);
-Route::middleware('auth:api')->put('v1/validation_logs/{id}', [ValidationLogController::class, 'update']);
+        // /custodians/.../validation_logs
+        Route::prefix('custodians')
+            ->controller(ValidationLogController::class)
+            ->group(function () {
+                Route::get('{custodianId}/projects/{projectId}/registries/{registryId}/validation_logs', 'getCustodianProjectUserValidationLogs');
+                Route::get('{custodianId}/organisations/{organisationId}/validation_logs', 'getCustodianOrganisationValidationLogs');
+                Route::put('{custodianId}/validation_logs', 'updateCustodianValidationLogs');
+            });
+    });
 
-
+// --- VALIDATION LOG COMMENTS ---
 Route::middleware('auth:api')
     ->prefix('v1/validation_log_comments')
     ->controller(ValidationLogCommentController::class)
@@ -133,6 +141,7 @@ Route::middleware('auth:api')
         Route::delete('{id}', 'destroy');
     });
 
+// --- TRAINING ---
 Route::middleware('auth:api')
     ->prefix('v1/training')
     ->controller(TrainingController::class)
@@ -148,6 +157,7 @@ Route::middleware('auth:api')
         Route::delete('/{id}', 'destroy');
     });
 
+// --- CUSTODIANS ---
 Route::middleware(['auth:api'])
     ->prefix('v1/custodians')
     ->controller(CustodianController::class)
@@ -181,7 +191,7 @@ Route::middleware(['auth:api'])
     });
 
 
-
+// --- CUSTODIAN USERS ---
 Route::middleware('auth:api')
     ->prefix('v1/custodian_users')
     ->controller(CustodianUserController::class)
@@ -195,7 +205,7 @@ Route::middleware('auth:api')
         Route::post('invite/{id}', 'invite');
     });
 
-// Departments
+// --- DEPARTMENTS ---
 Route::middleware('auth:api')
     ->prefix('v1/departments')
     ->controller(DepartmentController::class)
@@ -207,7 +217,7 @@ Route::middleware('auth:api')
         Route::delete('{id}', 'destroy');
     });
 
-// Endorsements
+// --- ENDORSEMENTS ---
 Route::middleware('auth:api')
     ->prefix('v1/endorsements')
     ->controller(EndorsementController::class)
@@ -217,7 +227,7 @@ Route::middleware('auth:api')
         Route::post('/', 'store');
     });
 
-// Projects
+// --- PROJECTS ---
 Route::middleware('auth:api')
     ->prefix('v1/projects')
     ->controller(ProjectController::class)
@@ -240,6 +250,7 @@ Route::middleware('auth:api')
         Route::put('{projectId}/users/{registryId}/primary_contact', 'makePrimaryContact');
     });
 
+// --- REGISTRIES ---
 Route::middleware('auth:api')
     ->prefix('v1/registries')
     ->controller(RegistryController::class)
@@ -252,7 +263,7 @@ Route::middleware('auth:api')
         Route::delete('{id}', 'destroy');
     });
 
-
+// --- EXPERIENCES ---
 Route::middleware('auth:api')
     ->prefix('v1/experiences')
     ->controller(ExperienceController::class)
@@ -265,7 +276,7 @@ Route::middleware('auth:api')
         Route::delete('{id}', 'destroy');
     });
 
-
+// --- IDENTITIES ---
 Route::middleware('auth:api')
     ->prefix('v1/identities')
     ->controller(IdentityController::class)
@@ -278,45 +289,40 @@ Route::middleware('auth:api')
         Route::delete('{id}', 'destroy');
     });
 
+// --- ORGANISATIONS ---
 Route::middleware('auth:api')
-    ->prefix('v1/organisations')
-    ->controller(OrganisationController::class)
-    ->group(function () {
-        Route::get('/', 'index');
-        Route::get('/{id}', 'show');
-        Route::get('/{id}/idvt', 'idvt');
-        Route::get('/{id}/counts/certifications', 'countCertifications');
-        Route::get('/{id}/counts/users', 'countUsers');
-        Route::get('/{id}/counts/projects/present', 'countPresentProjects');
-        Route::get('/{id}/counts/projects/past', 'countPastProjects');
-        Route::get('/{id}/projects/present', 'presentProjects');
-        Route::get('/{id}/projects/past', 'pastProjects');
-        Route::get('/{id}/projects/future', 'futureProjects');
-        Route::get('/{id}/projects', 'getProjects');
-        Route::get('/{id}/users', 'getUsers');
-        Route::get('/{id}/delegates', 'getDelegates');
-        Route::get('/{id}/registries', 'getRegistries');
-        Route::get('/ror/{ror}', 'validateRor');
-
-        Route::post('/', 'store');
-        Route::post('/unclaimed', 'storeUnclaimed');
-
-        // Update
-        Route::put('/{id}', 'update');
-        Route::patch('/{id}', 'edit');
-
-        // Delete
-        Route::delete('/{id}', 'destroy');
-    });
-
-
-// 🟡 Write actions (invites and permissions) — same role access
-Route::middleware(['auth:api'])
     ->prefix('v1/organisations')
     ->group(function () {
         Route::controller(OrganisationController::class)->group(function () {
+            // Read
+            Route::get('/', 'index');
+            Route::get('/{id}', 'show');
+            Route::get('/{id}/idvt', 'idvt');
+            Route::get('/{id}/counts/certifications', 'countCertifications');
+            Route::get('/{id}/counts/users', 'countUsers');
+            Route::get('/{id}/counts/projects/present', 'countPresentProjects');
+            Route::get('/{id}/counts/projects/past', 'countPastProjects');
+            Route::get('/{id}/projects/present', 'presentProjects');
+            Route::get('/{id}/projects/past', 'pastProjects');
+            Route::get('/{id}/projects/future', 'futureProjects');
+            Route::get('/{id}/projects', 'getProjects');
+            Route::get('/{id}/users', 'getUsers');
+            Route::get('/{id}/delegates', 'getDelegates');
+            Route::get('/{id}/registries', 'getRegistries');
+            Route::get('/ror/{ror}', 'validateRor');
+
+            // Create
+            Route::post('/', 'store');
+            Route::post('/unclaimed', 'storeUnclaimed');
             Route::post('/{id}/invite', 'invite');
             Route::post('/{id}/invite_user', 'inviteUser');
+
+            // Update
+            Route::put('/{id}', 'update');
+            Route::patch('/{id}', 'edit');
+
+            // Delete
+            Route::delete('/{id}', 'destroy');
         });
 
         Route::controller(PermissionController::class)->group(function () {
@@ -324,101 +330,194 @@ Route::middleware(['auth:api'])
         });
     });
 
-Route::middleware('auth:api')->get('v1/accreditations/{registryId}', [AccreditationController::class, 'indexByRegistryId']);
-Route::middleware('auth:api')->post('v1/accreditations/{registryId}', [AccreditationController::class, 'storeByRegistryId']);
-Route::middleware('auth:api')->put('v1/accreditations/{id}/{registryId}', [AccreditationController::class, 'updateByRegistryId']);
-Route::middleware('auth:api')->patch('v1/accreditations/{id}/{registryId}', [AccreditationController::class, 'editByRegistryId']);
-Route::middleware('auth:api')->delete('v1/accreditations/{id}/{registryId}', [AccreditationController::class, 'destroyByRegistryId']);
+// --- ACCREDITATIONS ---
+Route::middleware('auth:api')
+    ->prefix('v1/accreditations')
+    ->controller(AccreditationController::class)
+    ->group(function () {
+        Route::get('{registryId}', 'indexByRegistryId');
+        Route::post('{registryId}', 'storeByRegistryId');
+        Route::put('{id}/{registryId}', 'updateByRegistryId');
+        Route::patch('{id}/{registryId}', 'editByRegistryId');
+        Route::delete('{id}/{registryId}', 'destroyByRegistryId');
+    });
 
-Route::middleware('auth:api')->get('v1/affiliations/{registryId}', [AffiliationController::class, 'indexByRegistryId']);
-Route::middleware('auth:api')->post('v1/affiliations/{registryId}', [AffiliationController::class, 'storeByRegistryId']);
-Route::middleware('auth:api')->put('v1/affiliations/{id}', [AffiliationController::class, 'update']);
-Route::middleware('auth:api')->patch('v1/affiliations/{id}', [AffiliationController::class, 'edit']);
-Route::middleware('auth:api')->delete('v1/affiliations/{id}', [AffiliationController::class, 'destroy']);
-Route::middleware('auth:api')->put('v1/affiliations/{registryId}/affiliation/{id}', [AffiliationController::class, 'updateRegistryAffiliation']);
+// --- AFFILIATIONS ---
+Route::middleware('auth:api')
+    ->prefix('v1/affiliations')
+    ->controller(AffiliationController::class)
+    ->group(function () {
+        Route::get('{registryId}', 'indexByRegistryId');
+        Route::post('{registryId}', 'storeByRegistryId');
+        Route::put('{id}', 'update');
+        Route::patch('{id}', 'edit');
+        Route::delete('{id}', 'destroy');
+        Route::put('{registryId}/affiliation/{id}', 'updateRegistryAffiliation');
+    });
 
+// --- PROFESSIONAL REGISTRATIONS ---
+Route::middleware('auth:api')
+    ->prefix('v1/professional_registrations')
+    ->controller(ProfessionalRegistrationController::class)
+    ->group(function () {
+        Route::get('registry/{registryId}', 'indexByRegistryId');
+        Route::post('registry/{registryId}', 'storeByRegistryId');
+        Route::put('{id}', 'update');
+        Route::patch('{id}', 'edit');
+        Route::delete('{id}', 'destroy');
+    });
 
-Route::middleware('auth:api')->get('v1/professional_registrations/registry/{registryId}', [ProfessionalRegistrationController::class, 'indexByRegistryId']);
-Route::middleware('auth:api')->post('v1/professional_registrations/registry/{registryId}', [ProfessionalRegistrationController::class, 'storeByRegistryId']);
-Route::middleware('auth:api')->put('v1/professional_registrations/{id}', [ProfessionalRegistrationController::class, 'update']);
-Route::middleware('auth:api')->patch('v1/professional_registrations/{id}', [ProfessionalRegistrationController::class, 'edit']);
-Route::middleware('auth:api')->delete('v1/professional_registrations/{id}', [ProfessionalRegistrationController::class, 'destroy']);
+// --- EDUCATIONS ---
+Route::middleware('auth:api')
+    ->prefix('v1/educations')
+    ->controller(EducationController::class)
+    ->group(function () {
+        Route::get('{registryId}', 'indexByRegistryId');
+        Route::get('{id}/{registryId}', 'showByRegistryId');
+        Route::post('{registryId}', 'storeByRegistryId');
+        Route::put('{id}/{registryId}', 'updateByRegistryId');
+        Route::patch('{id}/{registryId}', 'editByRegistryId');
+        Route::delete('{id}/{registryId}', 'destroyByRegistryId');
+    });
 
-Route::middleware('auth:api')->get('v1/educations/{registryId}', [EducationController::class, 'indexByRegistryId']);
-Route::middleware('auth:api')->get('v1/educations/{id}/{registryId}', [EducationController::class, 'showByRegistryId']);
-Route::middleware('auth:api')->post('v1/educations/{registryId}', [EducationController::class, 'storeByRegistryId']);
-Route::middleware('auth:api')->put('v1/educations/{id}/{registryId}', [EducationController::class, 'updateByRegistryId']);
-Route::middleware('auth:api')->patch('v1/educations/{id}/{registryId}', [EducationController::class, 'editByRegistryId']);
-Route::middleware('auth:api')->delete('v1/educations/{id}/{registryId}', [EducationController::class, 'destroyByRegistryId']);
+// --- SECTORS ---
+Route::middleware('auth:api')
+    ->prefix('v1/sectors')
+    ->controller(SectorController::class)
+    ->group(function () {
+        Route::get('/', 'index');
+        Route::get('{id}', 'show');
+        Route::post('/', 'store');
+        Route::put('{id}', 'update');
+        Route::patch('{id}', 'edit');
+        Route::delete('{id}', 'destroy');
+    });
 
-Route::middleware('auth:api')->get('v1/sectors', [SectorController::class, 'index']);
-Route::middleware('auth:api')->get('v1/sectors/{id}', [SectorController::class, 'show']);
-Route::middleware('auth:api')->post('v1/sectors', [SectorController::class, 'store']);
-Route::middleware('auth:api')->put('v1/sectors/{id}', [SectorController::class, 'update']);
-Route::middleware('auth:api')->patch('v1/sectors/{id}', [SectorController::class, 'edit']);
-Route::middleware('auth:api')->delete('v1/sectors/{id}', [SectorController::class, 'destroy']);
+// --- RESOLUTIONS ---
+Route::middleware('auth:api')
+    ->prefix('v1/resolutions')
+    ->controller(ResolutionController::class)
+    ->group(function () {
+        Route::get('{registryId}', 'indexByRegistryId');
+        Route::post('{registryId}', 'storeByRegistryId');
+    });
 
-Route::middleware('auth:api')->get('v1/resolutions/{registryId}', [ResolutionController::class, 'indexByRegistryId']);
-Route::middleware('auth:api')->post('v1/resolutions/{registryId}', [ResolutionController::class, 'storeByRegistryId']);
+// --- HISTORIES ---
+Route::middleware('auth:api')
+    ->prefix('v1/histories')
+    ->controller(HistoryController::class)
+    ->group(function () {
+        Route::get('/', 'index');
+        Route::get('{id}', 'show');
+        Route::post('/', 'store');
+    });
 
-Route::middleware('auth:api')->get('v1/histories', [HistoryController::class, 'index']);
-Route::middleware('auth:api')->get('v1/histories/{id}', [HistoryController::class, 'show']);
-Route::middleware('auth:api')->post('v1/histories', [HistoryController::class, 'store']);
+// --- INFRINGEMENTS ---
+Route::middleware('auth:api')
+    ->prefix('v1/infringements')
+    ->controller(InfringementController::class)
+    ->group(function () {
+        Route::get('/', 'index');
+        Route::get('{id}', 'show');
+        Route::post('/', 'store');
+    });
 
-Route::middleware('auth:api')->get('v1/infringements', [InfringementController::class, 'index']);
-Route::middleware('auth:api')->get('v1/infringements/{id}', [InfringementController::class, 'show']);
-Route::middleware('auth:api')->post('v1/infringements', [InfringementController::class, 'store']);
-
+// --- PERMISSIONS ---
 Route::middleware('auth:api')->get('v1/permissions', [PermissionController::class, 'index']);
 
+// --- EMAIL TEMPLATES ---
 Route::middleware('auth:api')->get('v1/email_templates', [EmailTemplateController::class, 'index']);
 
+// --- TRIGGER EMAIL ---
 Route::middleware('auth:api')->post('v1/trigger_email', [TriggerEmailController::class, 'spawnEmail']);
 
-Route::middleware('auth:api')->post('v1/files', [FileUploadController::class, 'store']);
-Route::middleware('auth:api')->get('v1/files/{id}', [FileUploadController::class, 'show']);
-Route::middleware('auth:api')->get('v1/files/{id}/download', [FileUploadController::class, 'download']);
+// --- FILE UPLOADS ---
+Route::middleware('auth:api')
+    ->prefix('v1/files')
+    ->controller(FileUploadController::class)
+    ->group(function () {
+        Route::post('/', 'store');
+        Route::get('{id}', 'show');
+        Route::get('{id}/download', 'download');
+    });
 
+// --- APPROVALS ---
+Route::middleware('auth:api')
+    ->prefix('v1/approvals')
+    ->controller(ApprovalController::class)
+    ->group(function () {
+        Route::post('{entity_type}', 'store');
+        Route::get('{entity_type}/{id}/custodian/{custodian_id}', 'getEntityHasCustodianApproval');
+        Route::delete('{entity_type}/{id}/custodian/{custodian_id}', 'delete');
+    });
 
-Route::middleware('auth:api')->post('v1/approvals/{entity_type}', [ApprovalController::class, 'store']);
-Route::middleware('auth:api')->get('v1/approvals/{entity_type}/{id}/custodian/{custodian_id}', [ApprovalController::class, 'getEntityHasCustodianApproval']);
-Route::middleware('auth:api')->delete('v1/approvals/{entity_type}/{id}/custodian/{custodian_id}', [ApprovalController::class, 'delete']);
-
-Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1/request_access', [RegistryReadRequestController::class, 'request']);
+// --- REQUEST ACCESS ---
+Route::middleware(['check.custodian.access', 'verify.signed.payload'])
+    ->post('v1/request_access', [RegistryReadRequestController::class, 'request']);
 Route::middleware('auth:api')->patch('v1/request_access/{id}', [RegistryReadRequestController::class, 'acceptOrReject']);
 
-Route::middleware('auth:api')->get('v1/webhooks/receivers', [WebhookController::class, 'getAllReceivers']);
-Route::middleware('auth:api')->get('v1/webhooks/receivers/{custodianId}', [WebhookController::class, 'getReceiversByCustodian']);
-Route::middleware('auth:api')->post('v1/webhooks/receivers', [WebhookController::class, 'createReceiver']);
-Route::middleware('auth:api')->put('v1/webhooks/receivers/{custodianId}', [WebhookController::class, 'updateReceiver']);
-Route::middleware('auth:api')->delete('v1/webhooks/receivers/{custodianId}', [WebhookController::class, 'deleteReceiver']);
-Route::middleware('auth:api')->get('v1/webhooks/event-triggers', [WebhookController::class, 'getAllEventTriggers']);
+// --- WEBHOOKS ---
+Route::middleware('auth:api')
+    ->prefix('v1/webhooks')
+    ->controller(WebhookController::class)
+    ->group(function () {
+        Route::get('receivers', 'getAllReceivers');
+        Route::get('receivers/{custodianId}', 'getReceiversByCustodian');
+        Route::post('receivers', 'createReceiver');
+        Route::put('receivers/{custodianId}', 'updateReceiver');
+        Route::delete('receivers/{custodianId}', 'deleteReceiver');
+        Route::get('event-triggers', 'getAllEventTriggers');
+    });
 
-Route::middleware('auth:api')->put('v1/custodian_config/update-active/{id}', [CustodianModelConfigController::class, 'updateCustodianModelConfigsActive']);
-Route::middleware('auth:api')->post('v1/custodian_config', [CustodianModelConfigController::class, 'store']);
-Route::middleware('auth:api')->get('v1/custodian_config/{id}', [CustodianModelConfigController::class, 'getByCustodianID']);
-Route::middleware('auth:api')->put('v1/custodian_config/{id}', [CustodianModelConfigController::class, 'update']);
-Route::middleware('auth:api')->delete('v1/custodian_config/{id}', [CustodianModelConfigController::class, 'destroy']);
-Route::middleware('auth:api')->get('v1/custodian_config/{id}/entity_models', [CustodianModelConfigController::class, 'getEntityModels']);
+// --- CUSTODIAN CONFIG ---
+Route::middleware('auth:api')
+    ->prefix('v1/custodian_config')
+    ->controller(CustodianModelConfigController::class)
+    ->group(function () {
+        Route::put('update-active/{id}', 'updateCustodianModelConfigsActive');
+        Route::post('/', 'store');
+        Route::get('{id}', 'getByCustodianID');
+        Route::put('{id}', 'update');
+        Route::delete('{id}', 'destroy');
+        Route::get('{id}/entity_models', 'getEntityModels');
+    });
 
-Route::middleware('auth:api')->get('v1/project_details', [ProjectDetailController::class, 'index']);
-Route::middleware('auth:api')->get('v1/project_details/{id}', [ProjectDetailController::class, 'show']);
-Route::middleware('auth:api')->post('v1/project_details', [ProjectDetailController::class, 'store']);
-Route::middleware('auth:api')->put('v1/project_details/{id}', [ProjectDetailController::class, 'update']);
-Route::middleware('auth:api')->delete('v1/project_details/{id}', [ProjectDetailController::class, 'destroy']);
-Route::middleware('auth:api')->post('v1/project_details/query_gateway_dur', [ProjectDetailController::class, 'queryGatewayDurByProjectID']);
+// --- PROJECT DETAILS ---
+Route::middleware('auth:api')
+    ->prefix('v1/project_details')
+    ->controller(ProjectDetailController::class)
+    ->group(function () {
+        Route::get('/', 'index');
+        Route::get('{id}', 'show');
+        Route::post('/', 'store');
+        Route::put('{id}', 'update');
+        Route::delete('{id}', 'destroy');
+        Route::post('query_gateway_dur', 'queryGatewayDurByProjectID');
+    });
 
-Route::middleware('auth:api')->get('v1/project_roles', [ProjectRoleController::class, 'index']);
-Route::middleware('auth:api')->get('v1/project_roles/{id}', [ProjectRoleController::class, 'show']);
-Route::middleware('auth:api')->post('v1/project_roles', [ProjectRoleController::class, 'store']);
-Route::middleware('auth:api')->put('v1/project_roles/{id}', [ProjectRoleController::class, 'update']);
+// --- PROJECT ROLES ---
+Route::middleware('auth:api')
+    ->prefix('v1/project_roles')
+    ->controller(ProjectRoleController::class)
+    ->group(function () {
+        Route::get('/', 'index');
+        Route::get('{id}', 'show');
+        Route::post('/', 'store');
+        Route::put('{id}', 'update');
+    });
 
-Route::middleware('auth:api')->get('v1/system_config', [SystemConfigController::class, 'index']);
-Route::middleware('auth:api')->post('v1/system_config', [SystemConfigController::class, 'store']);
-Route::middleware('auth:api')->get('v1/system_config/{name}', [SystemConfigController::class, 'getByName']);
+// --- SYSTEM CONFIG ---
+Route::middleware('auth:api')
+    ->prefix('v1/system_config')
+    ->controller(SystemConfigController::class)
+    ->group(function () {
+        Route::get('/', 'index');
+        Route::post('/', 'store');
+        Route::get('{name}', 'getByName');
+    });
 
+// --- RULES ---
 Route::middleware('auth:api')->get('v1/rules', [RulesEngineManagementController::class, 'getRules']);
-
 // ONS CSV RESEARCHER FEED
 Route::post('v1/ons_researcher_feed', [ONSSubmissionController::class, 'receiveCSV']);
 
