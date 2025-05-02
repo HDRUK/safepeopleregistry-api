@@ -36,6 +36,7 @@ class Identity extends Model
         'idvt_context',
         'idvt_completed_at',
         'idvt_result_text',
+        'idvt_started_at',
     ];
 
     // protected $hidden = [
