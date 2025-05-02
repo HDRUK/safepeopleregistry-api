@@ -95,10 +95,14 @@ Route::middleware(['check.custodian.access', 'verify.signed.payload'])
     ->post('v1/users/validate', [UserController::class, 'validateUserRequest']);
 
 
-
-
-Route::middleware('auth:api')->get('v1/{entity}/{id}/action_log', [ActionLogController::class, 'getEntityActionLog']);
-Route::middleware('auth:api')->put('v1/action_log/{id}', [ActionLogController::class, 'update']);
+// Action Logs
+Route::middleware('auth:api')
+    ->prefix('v1')
+    ->controller(ActionLogController::class)
+    ->group(function () {
+        Route::get('{entity}/{id}/action_log', 'getEntityActionLog');
+        Route::put('action_log/{id}', 'update');
+    });
 
 Route::middleware('auth:api')->get(
     'v1/custodians/{custodianId}/projects/{projectId}/registries/{registryId}/validation_logs',
@@ -119,11 +123,15 @@ Route::middleware('auth:api')->get('v1/validation_logs/{id}/comments', [Validati
 Route::middleware('auth:api')->put('v1/validation_logs/{id}', [ValidationLogController::class, 'update']);
 
 
-Route::middleware('auth:api')->get('v1/validation_log_comments/{id}', [ValidationLogCommentController::class, 'show']);
-Route::middleware('auth:api')->post('v1/validation_log_comments', [ValidationLogCommentController::class, 'store']);
-Route::middleware('auth:api')->put('v1/validation_log_comments/{id}', [ValidationLogCommentController::class, 'update']);
-Route::middleware('auth:api')->delete('v1/validation_log_comments/{id}', [ValidationLogCommentController::class, 'destroy']);
-
+Route::middleware('auth:api')
+    ->prefix('v1/validation_log_comments')
+    ->controller(ValidationLogCommentController::class)
+    ->group(function () {
+        Route::get('{id}', 'show');
+        Route::post('/', 'store');
+        Route::put('{id}', 'update');
+        Route::delete('{id}', 'destroy');
+    });
 
 Route::middleware('auth:api')
     ->prefix('v1/training')
