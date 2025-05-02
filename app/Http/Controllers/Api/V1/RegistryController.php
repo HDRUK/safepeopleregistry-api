@@ -46,7 +46,7 @@ class RegistryController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        if (!Gate::allows('viewAll', Registry::class)) {
+        if (!Gate::allows('viewAny', Registry::class)) {
             return $this->ForbiddenResponse();
         }
         $registries = Registry::with([

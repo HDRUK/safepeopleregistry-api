@@ -7,9 +7,11 @@ use Illuminate\Support\Facades\Gate;
 use App\Models\User;
 use App\Models\Registry;
 use App\Models\Custodian;
+use App\Models\Organisation;
 use App\Policies\UserPolicy;
 use App\Policies\RegistryPolicy;
 use App\Policies\CustodianPolicy;
+use App\Policies\OrganisationPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -23,6 +25,7 @@ class AuthServiceProvider extends ServiceProvider
         User::class => UserPolicy::class,
         Registry::class => RegistryPolicy::class,
         Custodian::class => CustodianPolicy::class,
+        Organisation::class => OrganisationPolicy::class,
     ];
 
     /**

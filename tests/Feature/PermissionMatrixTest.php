@@ -8,6 +8,7 @@ use App\Models\User;
 
 use App\Models\RegistryHasTraining;
 use Database\Factories\CustodianFactory;
+use Database\Factories\OrganisationFactory;
 use Tests\Traits\Authorisation;
 use KeycloakGuard\ActingAsKeycloakUser;
 
@@ -52,6 +53,239 @@ class PermissionMatrixTest extends TestCase
             'researcher1' => $this->user,
             'researcher2' => $this->user2,
         ];
+    }
+
+    public function test_custodian_permissions_matrix()
+    {
+        $definition = CustodianFactory::new()->definition();
+        foreach ($definition as $key => $value) {
+            if ($value instanceof \DateTimeInterface) {
+                $definition[$key] = $value->format('Y-m-d H:i:s');
+            }
+        }
+        $expectedMatrix = [
+            [
+                'method' => 'get',
+                'route' => '/custodians',
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 200,
+                    'custodian2' => 200,
+                    'organisation1' => 200,
+                    'organisation2' => 200,
+                    'delegate' => 200,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'get',
+                'route' => '/custodians/1',
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 200,
+                    'custodian2' => 200,
+                    'organisation1' => 200,
+                    'organisation2' => 200,
+                    'delegate' => 200,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'get',
+                'route' => '/custodians/1/projects',
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 200,
+                    'custodian2' => 200,
+                    'organisation1' => 403,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'get',
+                'route' => '/custodians/1/organisations',
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 200,
+                    'custodian2' => 200,
+                    'organisation1' => 403,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'post',
+                'route' => '/custodians',
+                'payload' => $definition,
+                'permissions' => [
+                    'admin' => 201,
+                    'custodian1' => 403,
+                    'custodian2' => 403,
+                    'organisation1' => 403,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'put',
+                'route' => '/custodians/1',
+                'payload' => [
+                    'name' =>  fake()->company(),
+                ],
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 200,
+                    'custodian2' => 403,
+                    'organisation1' => 403,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'delete',
+                'route' => '/custodians/1',
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 200,
+                    'custodian2' => 403,
+                    'organisation1' => 403,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+        ];
+
+        $this->runTests($expectedMatrix);
+    }
+
+    public function test_organisation_permissions_matrix()
+    {
+        $definition = OrganisationFactory::new()->definition();
+        foreach ($definition as $key => $value) {
+            if ($value instanceof \DateTimeInterface) {
+                $definition[$key] = $value->format('Y-m-d H:i:s');
+            }
+        }
+
+        $expectedMatrix = [
+            [
+                'method' => 'get',
+                'route' => '/organisations',
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 200,
+                    'custodian2' => 200,
+                    'organisation1' => 200,
+                    'organisation2' => 200,
+                    'delegate' => 200,
+                    'researcher1' => 200,
+                    'researcher2' => 200,
+                ],
+            ],
+            [
+                'method' => 'get',
+                'route' => '/organisations/1',
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 200,
+                    'custodian2' => 200,
+                    'organisation1' => 200,
+                    'organisation2' => 200,
+                    'delegate' => 200,
+                    'researcher1' => 200,
+                    'researcher2' => 200,
+                ],
+            ],
+            [
+                'method' => 'post',
+                'route' => '/organisations',
+                'payload' => $definition,
+                'permissions' => [
+                    'admin' => 201,
+                    'custodian1' => 403,
+                    'custodian2' => 403,
+                    'organisation1' => 403,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'put',
+                'route' => '/organisations/1',
+                'payload' => [
+                    'organisation_name' =>  fake()->company(),
+                ],
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 403,
+                    'custodian2' => 403,
+                    'organisation1' => 200,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'delete',
+                'route' => '/organisations/1',
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 403,
+                    'custodian2' => 403,
+                    'organisation1' => 200,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'get',
+                'route' => '/organisations/1/users',
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 200,
+                    'custodian2' => 200,
+                    'organisation1' => 200,
+                    'organisation2' => 403,
+                    'delegate' => 200,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'get',
+                'route' => '/organisations/1/delegates',
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 200,
+                    'custodian2' => 200,
+                    'organisation1' => 200,
+                    'organisation2' => 403,
+                    'delegate' => 200,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+        ];
+
+        $this->runTests($expectedMatrix);
     }
 
 
@@ -312,122 +546,6 @@ class PermissionMatrixTest extends TestCase
                     'delegate' => 200,
                     'researcher1' => 200, # should be 200 if created it or not?
                     'researcher2' => 200, # should be 403?
-                ],
-            ],
-        ];
-
-        $this->runTests($expectedMatrix);
-    }
-
-    public function test_custodian_permissions_matrix()
-    {
-        $definition = CustodianFactory::new()->definition();
-        foreach ($definition as $key => $value) {
-            if ($value instanceof \DateTimeInterface) {
-                $definition[$key] = $value->format('Y-m-d H:i:s');
-            }
-        }
-        $expectedMatrix = [
-            [
-                'method' => 'get',
-                'route' => '/custodians',
-                'permissions' => [
-                    'admin' => 200,
-                    'custodian1' => 200,
-                    'custodian2' => 200,
-                    'organisation1' => 200,
-                    'organisation2' => 200,
-                    'delegate' => 200,
-                    'researcher1' => 403,
-                    'researcher2' => 403,
-                ],
-            ],
-            [
-                'method' => 'get',
-                'route' => '/custodians/1',
-                'permissions' => [
-                    'admin' => 200,
-                    'custodian1' => 200,
-                    'custodian2' => 200,
-                    'organisation1' => 200,
-                    'organisation2' => 200,
-                    'delegate' => 200,
-                    'researcher1' => 403,
-                    'researcher2' => 403,
-                ],
-            ],
-            [
-                'method' => 'get',
-                'route' => '/custodians/1/projects',
-                'permissions' => [
-                    'admin' => 200,
-                    'custodian1' => 200,
-                    'custodian2' => 200,
-                    'organisation1' => 403,
-                    'organisation2' => 403,
-                    'delegate' => 403,
-                    'researcher1' => 403,
-                    'researcher2' => 403,
-                ],
-            ],
-            [
-                'method' => 'get',
-                'route' => '/custodians/1/organisations',
-                'permissions' => [
-                    'admin' => 200,
-                    'custodian1' => 200,
-                    'custodian2' => 200,
-                    'organisation1' => 403,
-                    'organisation2' => 403,
-                    'delegate' => 403,
-                    'researcher1' => 403,
-                    'researcher2' => 403,
-                ],
-            ],
-            [
-                'method' => 'post',
-                'route' => '/custodians',
-                'payload' => $definition,
-                'permissions' => [
-                    'admin' => 201,
-                    'custodian1' => 403,
-                    'custodian2' => 403,
-                    'organisation1' => 403,
-                    'organisation2' => 403,
-                    'delegate' => 403,
-                    'researcher1' => 403,
-                    'researcher2' => 403,
-                ],
-            ],
-            [
-                'method' => 'put',
-                'route' => '/custodians/1',
-                'payload' => [
-                    'name' =>  fake()->company(),
-                ],
-                'permissions' => [
-                    'admin' => 200,
-                    'custodian1' => 200,
-                    'custodian2' => 403,
-                    'organisation1' => 403,
-                    'organisation2' => 403,
-                    'delegate' => 403,
-                    'researcher1' => 403,
-                    'researcher2' => 403,
-                ],
-            ],
-            [
-                'method' => 'delete',
-                'route' => '/custodians/1',
-                'permissions' => [
-                    'admin' => 200,
-                    'custodian1' => 200,
-                    'custodian2' => 403,
-                    'organisation1' => 403,
-                    'organisation2' => 403,
-                    'delegate' => 403,
-                    'researcher1' => 403,
-                    'researcher2' => 403,
                 ],
             ],
         ];
