@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Registry;
 use Tests\TestCase;
 use App\Models\User;
 
@@ -35,6 +36,9 @@ class PermissionMatrixTest extends TestCase
         $this->withUsers();
         $this->admin = User::factory()->create(['user_group' => User::GROUP_ADMINS]);
         $this->user2 = User::factory()->create(['user_group' => User::GROUP_USERS]);
+        $this->user2->update(
+            ['registry_id' => Registry::where('id', '!=', $this->user->registry_id)->inRandomOrder()->first()->id]
+        );
         $this->custodian2 = User::factory()->create(['user_group' => User::GROUP_CUSTODIANS]);
         $this->organisation2 = User::factory()->create(['user_group' => User::GROUP_ORGANISATIONS]);
 
@@ -423,6 +427,99 @@ class PermissionMatrixTest extends TestCase
                     'organisation2' => 403,
                     'delegate' => 403,
                     'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+        ];
+
+        $this->runTests($expectedMatrix);
+    }
+
+    public function test_registry_permissions_matrix()
+    {
+
+        $expectedMatrix = [
+            [
+                'method' => 'get',
+                'route' => '/registries',
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 200,
+                    'custodian2' => 200,
+                    'organisation1' => 200,
+                    'organisation2' => 200,
+                    'delegate' => 200,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'get',
+                'route' => '/registries/' . $this->user->registry_id,
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 200,
+                    'custodian2' => 200,
+                    'organisation1' => 200,
+                    'organisation2' => 200,
+                    'delegate' => 200,
+                    'researcher1' => 200,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'get',
+                'route' => '/registries/' . $this->user2->registry_id,
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 200,
+                    'custodian2' => 200,
+                    'organisation1' => 200,
+                    'organisation2' => 200,
+                    'delegate' => 200,
+                    'researcher1' => 403,
+                    'researcher2' => 200,
+                ],
+            ],
+            [
+                'method' => 'put',
+                'route' => '/registries/' . $this->user->registry_id,
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 403,
+                    'custodian2' => 403,
+                    'organisation1' => 403,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 200,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'put',
+                'route' => '/registries/' . $this->user->registry_id,
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 403,
+                    'custodian2' => 403,
+                    'organisation1' => 403,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 200,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'delete',
+                'route' => '/registries/' . $this->user->registry_id,
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 403,
+                    'custodian2' => 403,
+                    'organisation1' => 403,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 200,
                     'researcher2' => 403,
                 ],
             ],

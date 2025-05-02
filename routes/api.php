@@ -125,54 +125,51 @@ Route::middleware('auth:api')->put('v1/validation_log_comments/{id}', [Validatio
 Route::middleware('auth:api')->delete('v1/validation_log_comments/{id}', [ValidationLogCommentController::class, 'destroy']);
 
 
-
-
-Route::middleware(['auth:api'])
+Route::middleware('auth:api')
     ->prefix('v1/training')
+    ->controller(TrainingController::class)
     ->group(function () {
+        Route::get('/', 'index');
+        Route::get('/{id}', 'show');
+        Route::get('/registry/{registryId}', 'indexByRegistryId');
 
-        Route::get('/', [TrainingController::class, 'index']);
-        Route::get('/{id}', [TrainingController::class, 'show']);
+        Route::post('/', 'store');
+        Route::post('/{trainingId}/link_file/{fileId}', 'linkTrainingFile');
 
-        Route::get('/registry/{registryId}', [TrainingController::class, 'indexByRegistryId']);
-
-        Route::post('/', [TrainingController::class, 'store']);
-
-        Route::put('/{id}', [TrainingController::class, 'update']);
-        Route::delete('/{id}', [TrainingController::class, 'destroy']);
-        Route::post('/{trainingId}/link_file/{fileId}', [TrainingController::class, 'linkTrainingFile']);
+        Route::put('/{id}', 'update');
+        Route::delete('/{id}', 'destroy');
     });
 
 Route::middleware(['auth:api'])
     ->prefix('v1/custodians')
+    ->controller(CustodianController::class)
     ->group(function () {
-        //read
-        Route::get('/', [CustodianController::class, 'index']);
-        Route::get('/{id}', [CustodianController::class, 'show']);
-        Route::get('/identifier/{id}', [CustodianController::class, 'showByUniqueIdentifier']);
-        Route::get('/{id}/projects', [CustodianController::class, 'getProjects']);
-        Route::get('/{id}/users/{userId}/projects', [CustodianController::class, 'getUserProjects']);
-        Route::get('/{id}/organisations', [CustodianController::class, 'getOrganisations']);
-        Route::get('/{id}/custodian_users', [CustodianController::class, 'getCustodianUsers']);
-        Route::get('/{id}/projects_users', [CustodianController::class, 'getProjectsUsers']);
-        Route::get('/{id}/rules', [CustodianController::class, 'getRules']);
-        Route::get('/{id}/users', [CustodianController::class, 'usersWithCustodianApprovals']);
-        Route::get('/{id}/organisations/{organisationId}/users', [CustodianController::class, 'getOrganisationUsers']);
-
+        // Read
+        Route::get('/', 'index');
+        Route::get('/{id}', 'show');
+        Route::get('/identifier/{id}', 'showByUniqueIdentifier');
+        Route::get('/{id}/projects', 'getProjects');
+        Route::get('/{id}/users/{userId}/projects', 'getUserProjects');
+        Route::get('/{id}/organisations', 'getOrganisations');
+        Route::get('/{id}/custodian_users', 'getCustodianUsers');
+        Route::get('/{id}/projects_users', 'getProjectsUsers');
+        Route::get('/{id}/rules', 'getRules');
+        Route::get('/{id}/users', 'usersWithCustodianApprovals');
+        Route::get('/{id}/organisations/{organisationId}/users', 'getOrganisationUsers');
 
         // Write
-        Route::post('/', [CustodianController::class, 'store']);
-        Route::post('/push', [CustodianController::class, 'push']);
-        Route::post('/{id}/invite', [CustodianController::class, 'invite']);
-        Route::post('/{id}/projects', [CustodianController::class, 'addProject']);
+        Route::post('/', 'store');
+        Route::post('/push', 'push');
+        Route::post('/{id}/invite', 'invite');
+        Route::post('/{id}/projects', 'addProject');
 
         // Update
-        Route::put('/{id}', [CustodianController::class, 'update']);
-        Route::patch('/{id}', [CustodianController::class, 'edit']);
-        Route::patch('/{id}/rules', [CustodianController::class, 'updateCustodianRules']);
+        Route::put('/{id}', 'update');
+        Route::patch('/{id}', 'edit');
+        Route::patch('/{id}/rules', 'updateCustodianRules');
 
         // Delete
-        Route::delete('/{id}', [CustodianController::class, 'destroy']);
+        Route::delete('/{id}', 'destroy');
     });
 
 
@@ -213,12 +210,19 @@ Route::middleware('auth:api')->put('v1/projects/{id}', [ProjectController::class
 Route::middleware('auth:api')->patch('v1/projects/{id}', [ProjectController::class, 'edit']);
 Route::middleware('auth:api')->delete('v1/projects/{id}', [ProjectController::class, 'destroy']);
 
-Route::middleware('auth:api')->get('v1/registries', [RegistryController::class, 'index']);
-Route::middleware('auth:api')->get('v1/registries/{id}', [RegistryController::class, 'show']);
-Route::middleware('auth:api')->post('v1/registries', [RegistryController::class, 'store']);
-Route::middleware('auth:api')->put('v1/registries/{id}', [RegistryController::class, 'update']);
-Route::middleware('auth:api')->patch('v1/registries/{id}', [RegistryController::class, 'edit']);
-Route::middleware('auth:api')->delete('v1/registries/{id}', [RegistryController::class, 'destroy']);
+
+Route::middleware('auth:api')
+    ->prefix('v1/registries')
+    ->controller(RegistryController::class)
+    ->group(function () {
+        Route::get('/', 'index');
+        Route::get('{id}', 'show');
+        Route::post('/', 'store');
+        Route::put('{id}', 'update');
+        Route::patch('{id}', 'edit');
+        Route::delete('{id}', 'destroy');
+    });
+
 
 Route::middleware('auth:api')->get('v1/experiences', [ExperienceController::class, 'index']);
 Route::middleware('auth:api')->get('v1/experiences/{id}', [ExperienceController::class, 'show']);
@@ -235,7 +239,7 @@ Route::middleware('auth:api')->patch('v1/identities/{id}', [IdentityController::
 Route::middleware('auth:api')->delete('v1/identities/{id}', [IdentityController::class, 'destroy']);
 
 
-Route::middleware(['auth:api'])
+Route::middleware('auth:api')
     ->prefix('v1/organisations')
     ->controller(OrganisationController::class)
     ->group(function () {

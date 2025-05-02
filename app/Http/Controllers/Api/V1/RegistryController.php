@@ -10,6 +10,7 @@ use App\Http\Traits\Responses;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class RegistryController extends Controller
 {
@@ -45,6 +46,9 @@ class RegistryController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        if (!Gate::allows('viewAll', Registry::class)) {
+            return $this->ForbiddenResponse();
+        }
         $registries = Registry::with([
             'files',
         ])->paginate((int)$this->getSystemConfig('PER_PAGE'));
@@ -96,6 +100,10 @@ class RegistryController extends Controller
             'files',
         ])->findOrFail($id);
 
+        if (!Gate::allows('view', $registry)) {
+            return $this->ForbiddenResponse();
+        }
+
         if ($registry) {
             return $this->OKResponse($registry);
         }
@@ -139,9 +147,14 @@ class RegistryController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+        if (!Gate::allows('create', Registry::class)) {
+            return $this->ForbiddenResponse();
+        }
         try {
             $input = $request->only(app(Registry::class)->getFillable());
             $registry = Registry::create($input);
+
+
 
             return $this->CreatedResponse($registry->id);
         } catch (Exception $e) {
@@ -204,6 +217,9 @@ class RegistryController extends Controller
         try {
             $input = $request->only(app(Registry::class)->getFillable());
             $registry = Registry::findOrFail($id);
+            if (!Gate::allows('update', $registry)) {
+                return $this->ForbiddenResponse();
+            }
             $registry->update($input);
 
 
@@ -258,7 +274,11 @@ class RegistryController extends Controller
     public function destroy(Request $request, int $id): JsonResponse
     {
         try {
-            Registry::where('id', $id)->delete();
+            $registry = Registry::findOrFail($id);
+            if (!Gate::allows('update', $registry)) {
+                return $this->ForbiddenResponse();
+            }
+            $registry->delete();
             return $this->OKResponse(null);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
