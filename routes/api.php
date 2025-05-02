@@ -224,20 +224,30 @@ Route::middleware('auth:api')
     });
 
 
-Route::middleware('auth:api')->get('v1/experiences', [ExperienceController::class, 'index']);
-Route::middleware('auth:api')->get('v1/experiences/{id}', [ExperienceController::class, 'show']);
-Route::middleware('auth:api')->post('v1/experiences', [ExperienceController::class, 'store']);
-Route::middleware('auth:api')->put('v1/experiences/{id}', [ExperienceController::class, 'update']);
-Route::middleware('auth:api')->patch('v1/experiences/{id}', [ExperienceController::class, 'edit']);
-Route::middleware('auth:api')->delete('v1/experiences/{id}', [ExperienceController::class, 'destroy']);
+Route::middleware('auth:api')
+    ->prefix('v1/experiences')
+    ->controller(ExperienceController::class)
+    ->group(function () {
+        Route::get('/', 'index');
+        Route::get('{id}', 'show');
+        Route::post('/', 'store');
+        Route::put('{id}', 'update');
+        Route::patch('{id}', 'edit');
+        Route::delete('{id}', 'destroy');
+    });
 
-Route::middleware('auth:api')->get('v1/identities', [IdentityController::class, 'index']);
-Route::middleware('auth:api')->get('v1/identities/{id}', [IdentityController::class, 'show']);
-Route::middleware('auth:api')->post('v1/identities', [IdentityController::class, 'store']);
-Route::middleware('auth:api')->put('v1/identities/{id}', [IdentityController::class, 'update']);
-Route::middleware('auth:api')->patch('v1/identities/{id}', [IdentityController::class, 'edit']);
-Route::middleware('auth:api')->delete('v1/identities/{id}', [IdentityController::class, 'destroy']);
 
+Route::middleware('auth:api')
+    ->prefix('v1/identities')
+    ->controller(IdentityController::class)
+    ->group(function () {
+        Route::get('/', 'index');
+        Route::get('{id}', 'show');
+        Route::post('/', 'store');
+        Route::put('{id}', 'update');
+        Route::patch('{id}', 'edit');
+        Route::delete('{id}', 'destroy');
+    });
 
 Route::middleware('auth:api')
     ->prefix('v1/organisations')
