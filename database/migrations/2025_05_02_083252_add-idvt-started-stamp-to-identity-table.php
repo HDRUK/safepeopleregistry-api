@@ -11,7 +11,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::table('identities', function (Blueprint $table) {
-            $table->string('idvt_started_at')->nullable()->after('idvt_status');
+            $table->string('idvt_started_at')->nullable();
         });
     }
 

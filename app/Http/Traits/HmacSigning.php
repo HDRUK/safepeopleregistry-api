@@ -2,6 +2,8 @@
 
 namespace App\Http\Traits;
 
+use App\Models\DebugLog;
+
 trait HmacSigning
 {
     /**

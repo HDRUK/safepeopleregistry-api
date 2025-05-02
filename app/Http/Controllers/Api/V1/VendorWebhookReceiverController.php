@@ -33,8 +33,16 @@ class VendorWebhookReceiverController extends Controller
         }
 
         $translatedPayload = $translator->translate(json_decode($request->getContent(), true));
-        $translator->saveContext($translatedPayload);
+        if (empty($translatedPayload)) {
+            DebugLog::create([
+                'class' => VendorWebhookReceiverController::class,
+                'log' => 'No action to process for webhook callback from ' . $provider,
+            ]);
 
+            return $this->OKResponse([]);
+        }
+        
+        $translator->saveContext($translatedPayload);
         return $this->OKResponse([]);
     }
 }
