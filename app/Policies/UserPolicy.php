@@ -3,62 +3,35 @@
 namespace App\Policies;
 
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class UserPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
     public function viewAny(User $user): bool
     {
-        return in_array(
-            $user->user_group,
-            [
-                User::GROUP_ADMINS,
-                User::GROUP_CUSTODIANS,
-                User::GROUP_ORGANISATIONS
-            ]
-        );
+        return $user->inGroup([
+            User::GROUP_ADMINS,
+            User::GROUP_CUSTODIANS,
+            User::GROUP_ORGANISATIONS,
+        ]);
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
     public function view(User $user, User $model): bool
     {
-        if (in_array(
-            $user->user_group,
-            [
-                User::GROUP_ADMINS,
-                User::GROUP_CUSTODIANS,
-                User::GROUP_ORGANISATIONS
-            ]
-        )) {
-            return true;
-        }
-        return $user->id === $model->id;
+        return $this->viewAny($user) || $user->id === $model->id;
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
     public function create(User $user): bool
     {
-        return $user->user_group === User::GROUP_ADMINS;
+        return $user->isAdmin();
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
     public function update(User $user, User $model): bool
     {
-        // Admins can update anyone
-        if ($user->user_group === User::GROUP_ADMINS) {
+        if ($user->isAdmin()) {
             return true;
         }
 
-        // Custodians can update other custodians with the same custodian_id
+        // custodians can update themselves
         if (
             $user->user_group === User::GROUP_CUSTODIANS &&
             $model->user_group === User::GROUP_CUSTODIANS &&
@@ -67,41 +40,34 @@ class UserPolicy
             return true;
         }
 
-        // Organisations can update other users in the same organisation
+        // Organisation admins can update themselves 
         if (
             $user->user_group === User::GROUP_ORGANISATIONS &&
             $model->user_group === User::GROUP_ORGANISATIONS &&
             $user->organisation_id === $model->organisation_id
         ) {
-            if ((int) $user->is_delegate === 0) {
+            // Org admins can update anyone in the same org
+            if (!$user->is_delegate) {
                 return true;
             }
 
-            if ((int) $user->is_delegate === 1 && (int) $model->is_delegate === 1) {
+            // Delegates can only update other delegates
+            if ($user->is_delegate && $model->is_delegate) {
                 return true;
             }
         }
 
+        // others they can self-update 
         return $user->id === $model->id;
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
     public function delete(User $user, User $model): bool
     {
-        return $user->user_group === User::GROUP_ADMINS;
+        return $user->isAdmin();
     }
 
     public function invite(User $user): bool
     {
-        return in_array(
-            $user->user_group,
-            [
-                User::GROUP_ADMINS,
-                User::GROUP_CUSTODIANS,
-                User::GROUP_ORGANISATIONS
-            ]
-        );
+        return $this->viewAny($user); // same access logic as viewAny for now
     }
 }

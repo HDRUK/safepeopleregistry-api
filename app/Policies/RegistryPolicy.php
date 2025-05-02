@@ -4,51 +4,30 @@ namespace App\Policies;
 
 use App\Models\Registry;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class RegistryPolicy
 {
-
-    public function viewAll(User $user): bool
+    public function viewAny(User $user): bool
     {
-        if (in_array(
-            $user->user_group,
-            [
-                User::GROUP_ADMINS,
-                User::GROUP_CUSTODIANS,
-                User::GROUP_ORGANISATIONS
-            ]
-        )) {
-            return true;
-        }
-        return false;
+        return $user->inGroup([
+            User::GROUP_ADMINS,
+            User::GROUP_CUSTODIANS,
+            User::GROUP_ORGANISATIONS,
+        ]);
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
     public function view(User $user, Registry $registry): bool
     {
-        if (in_array(
-            $user->user_group,
-            [
-                User::GROUP_ADMINS,
-                User::GROUP_CUSTODIANS,
-                User::GROUP_ORGANISATIONS
-            ]
-        )) {
-            return true;
-        }
-        return $user->registry_id === $registry->id;
+        return $this->viewAny($user) || $user->registry_id === $registry->id;
     }
 
     public function create(User $user): bool
     {
-        return $user->user_group ===  User::GROUP_ADMINS;
+        return $user->isAdmin();
     }
 
     public function update(User $user, Registry $registry): bool
     {
-        return $user->user_group ===  User::GROUP_ADMINS || $user->registry_id === $registry->id;
+        return $user->isAdmin() || $user->registry_id === $registry->id;
     }
 }
