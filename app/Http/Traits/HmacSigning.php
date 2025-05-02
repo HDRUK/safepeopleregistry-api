@@ -24,12 +24,12 @@ trait HmacSigning
 
     public function generateSignature(string $payload, string $secretKey): string
     {
-        return hash_hmac('sha256', $payload, $secretKey);
+        return strtolower(hash_hmac('sha256', $payload, $secretKey));
     }
 
     public function verifySignature(string $payload, string $secretKey, string $signature): bool
     {
-        $expectedSignature = strtolower($this->generateSignature($payload, $secretKey));
+        $expectedSignature = $this->generateSignature($payload, $secretKey);
         return hash_equals($expectedSignature, $signature);
     }
 }

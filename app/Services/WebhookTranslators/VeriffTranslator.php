@@ -15,21 +15,19 @@ class VeriffTranslator implements WebhookTranslationInterface
 
     public function validateSignature(Request $request): bool
     {
+        DebugLog::create([
+            'class' => VeriffTranslator::class,
+            'log' => 'Veriff signature validation - ' . json_encode($request->json()->all()) . ' - ' . $request->header('x-hmac-signature') . ' - ' . $this->generateSignature(
+                $request->json()->all(),
+                env('IDVT_SUPPLIER_SECRET_KEY')
+            ),
+        ]);
+
         $verdict = $this->verifySignature(
-            $request->getContent(),
+            $request->json()->all(),
             env('IDVT_SUPPLIER_SECRET_KEY'),
             $request->header('x-hmac-signature')
         );
-
-        if (!$verdict) {
-            DebugLog::create([
-                'class' => VeriffTranslator::class,
-                'log' => 'Invalid signature from Veriff - ' . json_encode($request->all()) . ' - ' . $request->header('x-hmac-signature') . ' - ' . $this->generateSignature(
-                    $request->getContent(),
-                    env('IDVT_SUPPLIER_SECRET_KEY')
-                ),
-            ]);
-        }
 
         return $verdict;
     }

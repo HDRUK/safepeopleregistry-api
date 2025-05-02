@@ -6,9 +6,11 @@ use Http;
 use App\Models\Custodian;
 use App\Models\Registry;
 use Illuminate\Console\Command;
+use App\Http\Traits\HmacSigning;
 
 class testsigning extends Command
 {
+    use HmacSigning;
     /**
      * The name and signature of the console command.
      *
@@ -28,6 +30,12 @@ class testsigning extends Command
      */
     public function handle()
     {
+        $mockSharedKey = 'abcdef12-abcd-abcd-abcd-abcdef012345';
+        $mockedPayload = '{"verification":{"callback":"https://veriff.com","person":{"firstName":"John","lastName":"Smith"},"document":{"type":"PASSPORT","country":"EE"},"vendorData":"unique id of the end-user","timestamp":"2016-05-19T08:30:25.597Z"}}';
+        $signature = $this->generateSignature($mockedPayload, $mockSharedKey);
+
+        dd($signature);
+
         // // $custodian = Custodian::where('id', 1)->first();
         // // $ident = Registry::where('id', 1)->first()->digi_ident;
         // // $payload = [
