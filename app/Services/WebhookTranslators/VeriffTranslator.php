@@ -44,7 +44,7 @@ class VeriffTranslator implements WebhookTranslationInterface
                 'verification' => $data['verification'] ?? null,
                 'verified' => $data['verification']['status'] ?? null,
                 'decision_time' => $data['verification']['decisionTime'] ?? null,
-                'registry_id' => base64_decode($data['verification']['vendorData']) ?? null,
+                'registry_id' => base64_decode($data['verification']['vendorData']),
             ];
         }
 
@@ -53,7 +53,7 @@ class VeriffTranslator implements WebhookTranslationInterface
                 return [
                     'action' => self::ACTION_STARTED,
                     'attempt_id' => $data['attemptId'] ?? null,
-                    'registry_id' => base64_decode($data['vendorData']) ?? null,
+                    'registry_id' => base64_decode($data['vendorData']),
                 ];
             case self::ACTION_SUBMITTED:
                 // Ignore this, just means the user has submitted the job on Veriff side

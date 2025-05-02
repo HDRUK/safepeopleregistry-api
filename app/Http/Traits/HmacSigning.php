@@ -31,13 +31,7 @@ trait HmacSigning
 
     public function verifySignature(string $payload, string $secretKey, string $signature): bool
     {
-        $incomingPayload = (is_array($payload)) ? json_encode($payload) : $payload;
-        DebugLog::create([
-            'class' => __CLASS__,
-            'log' => 'Veriff signature validation - ' . $incomingPayload . ' - ' . $signature
-        ]);
-
-        $expectedSignature = $this->generateSignature($incomingPayload, $secretKey);
+        $expectedSignature = $this->generateSignature($payload, $secretKey);
         return hash_equals($expectedSignature, $signature);
     }
 }
