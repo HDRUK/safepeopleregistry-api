@@ -174,42 +174,63 @@ Route::middleware(['auth:api'])
 
 
 
-Route::middleware('auth:api')->get('v1/custodian_users', [CustodianUserController::class, 'index']);
-Route::middleware('auth:api')->get('v1/custodian_users/{id}', [CustodianUserController::class, 'show']);
-Route::middleware('auth:api')->post('v1/custodian_users', [CustodianUserController::class, 'store']);
-Route::middleware('auth:api')->put('v1/custodian_users/{id}', [CustodianUserController::class, 'update']);
-Route::middleware('auth:api')->patch('v1/custodian_users/{id}', [CustodianUserController::class, 'edit']);
-Route::middleware('auth:api')->delete('v1/custodian_users/{id}', [CustodianUserController::class, 'destroy']);
-Route::middleware('auth:api')->post('v1/custodian_users/invite/{id}', [CustodianUserController::class, 'invite']);
+Route::middleware('auth:api')
+    ->prefix('v1/custodian_users')
+    ->controller(CustodianUserController::class)
+    ->group(function () {
+        Route::get('/', 'index');
+        Route::get('{id}', 'show');
+        Route::post('/', 'store');
+        Route::put('{id}', 'update');
+        Route::patch('{id}', 'edit');
+        Route::delete('{id}', 'destroy');
+        Route::post('invite/{id}', 'invite');
+    });
 
-Route::middleware('auth:api')->get('v1/departments', [DepartmentController::class, 'index']);
-Route::middleware('auth:api')->get('v1/departments/{id}', [DepartmentController::class, 'show']);
-Route::middleware('auth:api')->post('v1/departments', [DepartmentController::class, 'store']);
-Route::middleware('auth:api')->patch('v1/departments/{id}', [DepartmentController::class, 'update']);
-Route::middleware('auth:api')->delete('v1/departments/{id}', [DepartmentController::class, 'destroy']);
+// Departments
+Route::middleware('auth:api')
+    ->prefix('v1/departments')
+    ->controller(DepartmentController::class)
+    ->group(function () {
+        Route::get('/', 'index');
+        Route::get('{id}', 'show');
+        Route::post('/', 'store');
+        Route::patch('{id}', 'update');
+        Route::delete('{id}', 'destroy');
+    });
 
-Route::middleware('auth:api')->get('v1/endorsements', [EndorsementController::class, 'index']);
-Route::middleware('auth:api')->get('v1/endorsements/{id}', [EndorsementController::class, 'show']);
-Route::middleware('auth:api')->post('v1/endorsements', [EndorsementController::class, 'store']);
+// Endorsements
+Route::middleware('auth:api')
+    ->prefix('v1/endorsements')
+    ->controller(EndorsementController::class)
+    ->group(function () {
+        Route::get('/', 'index');
+        Route::get('{id}', 'show');
+        Route::post('/', 'store');
+    });
 
-Route::middleware('auth:api')->get('v1/projects', [ProjectController::class, 'index']);
-Route::middleware('auth:api')->get('v1/projects/{id}', [ProjectController::class, 'show']);
+// Projects
+Route::middleware('auth:api')
+    ->prefix('v1/projects')
+    ->controller(ProjectController::class)
+    ->group(function () {
+        Route::get('/', 'index');
+        Route::get('{id}', 'show');
+        Route::post('/', 'store');
+        Route::put('{id}', 'update');
+        Route::patch('{id}', 'edit');
+        Route::delete('{id}', 'destroy');
 
-Route::middleware('auth:api')->get('v1/projects/user/{registryId}/approved', [ProjectController::class, 'getApprovedProjects']);
-Route::middleware('auth:api')->get('v1/projects/{id}/users', [ProjectController::class, 'getProjectUsers']);
-Route::middleware('auth:api')->get('v1/projects/{id}/all_users', [ProjectController::class, 'getAllUsersFlagProject']);
-Route::middleware('auth:api')->put('v1/projects/{id}/all_users', [ProjectController::class, 'updateAllProjectUsers']);
-Route::middleware('auth:api')->post('v1/projects/{id}/users', [ProjectController::class, 'addProjectUser']);
-Route::middleware('auth:api')->put('v1/projects/{projectId}/users/{registryId}', [ProjectController::class, 'updateProjectUser']);
-Route::middleware('auth:api')->delete('v1/projects/{projectId}/users/{registryId}', [ProjectController::class, 'deleteUserFromProject']);
-
-
-Route::middleware('auth:api')->put('v1/projects/{projectId}/users/{registryId}/primary_contact', [ProjectController::class, 'makePrimaryContact']);
-Route::middleware('auth:api')->post('v1/projects', [ProjectController::class, 'store']);
-Route::middleware('auth:api')->put('v1/projects/{id}', [ProjectController::class, 'update']);
-Route::middleware('auth:api')->patch('v1/projects/{id}', [ProjectController::class, 'edit']);
-Route::middleware('auth:api')->delete('v1/projects/{id}', [ProjectController::class, 'destroy']);
-
+        // Project user management
+        Route::get('user/{registryId}/approved', 'getApprovedProjects');
+        Route::get('{id}/users', 'getProjectUsers');
+        Route::get('{id}/all_users', 'getAllUsersFlagProject');
+        Route::put('{id}/all_users', 'updateAllProjectUsers');
+        Route::post('{id}/users', 'addProjectUser');
+        Route::put('{projectId}/users/{registryId}', 'updateProjectUser');
+        Route::delete('{projectId}/users/{registryId}', 'deleteUserFromProject');
+        Route::put('{projectId}/users/{registryId}/primary_contact', 'makePrimaryContact');
+    });
 
 Route::middleware('auth:api')
     ->prefix('v1/registries')
