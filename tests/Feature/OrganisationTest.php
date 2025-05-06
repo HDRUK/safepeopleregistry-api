@@ -301,7 +301,7 @@ class OrganisationTest extends TestCase
         $isoCertified = fake()->randomElement([1, 0]);
         $ceCertified = fake()->randomElement([1, 0]);
 
-        $response = $this->actingAs($this->organisation_admin)
+        $response = $this->actingAs($this->admin)
             ->json(
                 'POST',
                 self::TEST_URL,
@@ -317,7 +317,7 @@ class OrganisationTest extends TestCase
         $email = fake()->email();
         $organisationName = fake()->company();
 
-        $response = $this->actingAs($this->organisation_admin)
+        $response = $this->actingAs($this->admin)
             ->json(
                 'POST',
                 self::TEST_URL . '/unclaimed',
@@ -338,7 +338,7 @@ class OrganisationTest extends TestCase
 
         $this->testOrg['departments'] = [1, 2, 3];
 
-        $response = $this->actingAs($this->organisation_admin)
+        $response = $this->actingAs($this->admin)
             ->json(
                 'POST',
                 self::TEST_URL,
@@ -367,10 +367,10 @@ class OrganisationTest extends TestCase
         $this->enableObservers();
 
         $response = $this->actingAs($this->organisation_admin)
-        ->json(
-            'GET',
-            self::TEST_URL . '/' . 1 . '/action_log'
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . 1 . '/action_log'
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -444,10 +444,10 @@ class OrganisationTest extends TestCase
         ]);
 
         $response = $this->actingAs($this->organisation_admin)
-        ->json(
-            'GET',
-            self::TEST_URL . '/' . 1 . '/action_log'
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . 1 . '/action_log'
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -458,16 +458,15 @@ class OrganisationTest extends TestCase
             Carbon::now()->format('Y-m-d H:i:s'),
             $actionLog['completed_at']
         );
-
     }
 
     public function test_the_application_can_delete_organisations(): void
     {
         $response = $this->actingAs($this->organisation_admin)
-        ->json(
-            'DELETE',
-            self::TEST_URL . '/' . 1
-        );
+            ->json(
+                'DELETE',
+                self::TEST_URL . '/' . 1
+            );
         $response->assertStatus(200);
     }
 
@@ -498,7 +497,7 @@ class OrganisationTest extends TestCase
 
 
 
-        $response = $this->actingAs($this->organisation_admin)
+        $response = $this->actingAs($this->admin)
             ->json(
                 'POST',
                 self::TEST_URL,
@@ -510,7 +509,7 @@ class OrganisationTest extends TestCase
 
         $this->testOrg['organisation_name'] = 'ABC Org';
 
-        $response = $this->actingAs($this->organisation_admin)
+        $response = $this->actingAs($this->admin)
             ->json(
                 'POST',
                 self::TEST_URL,
@@ -675,10 +674,10 @@ class OrganisationTest extends TestCase
         );
 
         $responseSortedByTitle = $this->actingAs($this->organisation_admin)
-        ->json(
-            'GET',
-            self::TEST_URL . '/1/projects?sort=title:asc'
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/projects?sort=title:asc'
+            );
 
         $responseSortedByTitle->assertStatus(200);
         $titles = array_column($responseSortedByTitle['data']['data'], 'title');
@@ -694,10 +693,10 @@ class OrganisationTest extends TestCase
         );
 
         $responseSortedByTitle = $this->actingAs($this->organisation_admin)
-        ->json(
-            'GET',
-            self::TEST_URL . '/1/projects?sort=title:desc'
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/projects?sort=title:desc'
+            );
 
         $responseSortedByTitle->assertStatus(200);
         $titles = array_column($responseSortedByTitle['data']['data'], 'title');
@@ -712,38 +711,35 @@ class OrganisationTest extends TestCase
         );
 
         $responseSortedByTitle = $this->actingAs($this->organisation_admin)
-        ->json(
-            'GET',
-            self::TEST_URL . '/1/projects?sort=title'
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/projects?sort=title'
+            );
         $responseSortedByTitle->assertStatus(500, 'Needs a direction');
 
 
         $responseSortedByTitle = $this->actingAs($this->organisation_admin)
-        ->json(
-            'GET',
-            self::TEST_URL . '/1/projects?sort=title:abc'
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/projects?sort=title:abc'
+            );
         $responseSortedByTitle->assertStatus(500, 'unknwon direction');
 
         $responseSortedByTitle = $this->actingAs($this->organisation_admin)
-        ->json(
-            'GET',
-            self::TEST_URL . '/1/projects?sort=abc:xyz'
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/projects?sort=abc:xyz'
+            );
         $responseSortedByTitle->assertStatus(500);
-
-
-
     }
 
     public function test_the_application_can_list_users_for_an_organisation(): void
     {
         $response = $this->actingAs($this->organisation_admin)
-                ->json(
-                    'GET',
-                    self::TEST_URL . '/1/users'
-                );
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/users'
+            );
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);

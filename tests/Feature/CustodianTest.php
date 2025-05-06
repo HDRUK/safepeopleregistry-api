@@ -235,12 +235,7 @@ class CustodianTest extends TestCase
     {
         $this->enableObservers();
 
-        $user = $this->user;
-        $user->update([
-            'user_group' => User::GROUP_ADMINS
-        ]);
-
-        $response = $this->actingAs($user)
+        $response = $this->actingAs($this->admin)
             ->json(
                 'POST',
                 self::TEST_URL,
@@ -259,7 +254,7 @@ class CustodianTest extends TestCase
         $this->assertGreaterThan(0, $content['data']);
 
 
-        $response = $this->actingAs($this->custodian_admin)
+        $response = $this->actingAs($this->admin)
             ->json(
                 'GET',
                 self::TEST_URL . '/' . $content['data'] . '/action_log'

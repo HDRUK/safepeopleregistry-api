@@ -39,7 +39,6 @@ class PermissionMatrixTest extends TestCase
         parent::setUp();
         $this->withMiddleware();
         $this->withUsers();
-        $this->admin = User::factory()->create(['user_group' => User::GROUP_ADMINS]);
         $this->user2 = User::factory()->create(['user_group' => User::GROUP_USERS]);
         $this->user2->update(
             ['registry_id' => Registry::where('id', '!=', $this->user->registry_id)->inRandomOrder()->first()->id]

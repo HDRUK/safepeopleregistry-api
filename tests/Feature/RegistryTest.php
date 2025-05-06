@@ -20,7 +20,6 @@ class RegistryTest extends TestCase
     {
         parent::setUp();
         $this->withUsers();
-        $this->admin = User::factory()->create(['user_group' => User::GROUP_ADMINS]);
     }
 
     public function test_the_application_can_list_registries(): void

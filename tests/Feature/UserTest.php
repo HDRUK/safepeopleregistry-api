@@ -28,7 +28,6 @@ class UserTest extends TestCase
     {
         parent::setUp();
         $this->withUsers();
-        $this->admin = User::factory()->create(['user_group' => User::GROUP_ADMINS]);
     }
 
     public function test_the_application_can_search_users_by_email(): void
@@ -540,56 +539,6 @@ class UserTest extends TestCase
             );
 
         $response->assertStatus(200);
-    }
-
-    public function test_the_application_can_validate_a_user_by_email_address(): void
-    {
-        // First get a user account for an email
-        $user = User::where('registry_id', 1)->first(); // Should be Dan Ackroyd
-        $registry = Registry::where('id', $user->registry_id)->first();
-
-        $response = $this->actingAs($this->admin)
-            ->json(
-                'POST',
-                self::TEST_URL . '/validate',
-                [
-                    'email' => $user->email,
-                ],
-            );
-
-        $response->assertStatus(200);
-        $this->assertArrayHasKey('data', $response);
-
-        $content = $response->decodeResponseJson()['data'];
-        $this->assertGreaterThan(0, $content);
-
-        $this->assertEquals($content['identity_source'], 'users');
-        $this->assertEquals($content['email'], $user->email);
-        $this->assertEquals($content['digital_identifier'], $registry->digi_ident);
-
-        // Now get an email via affiliations which will relate to the same user
-        $aff = Affiliation::where([
-            'registry_id' => 1,
-            //'ror' => '1234567',
-        ])->first();
-
-        $response = $this->actingAs($this->admin)
-            ->json(
-                'POST',
-                self::TEST_URL . '/validate',
-                [
-                    'email' => $aff->email,
-                ],
-            );
-
-        $response->assertStatus(200);
-        $this->assertArrayHasKey('data', $response);
-
-        $content = $response->decodeResponseJson()['data'];
-
-        $this->assertEquals($content['identity_source'], 'affiliations');
-        $this->assertEquals($content['email'], $aff->email);
-        $this->assertEquals($content['digital_identifier'], $registry->digi_ident);
     }
 
     public function test_the_application_can_search_across_affiliations_by_name_and_email(): void

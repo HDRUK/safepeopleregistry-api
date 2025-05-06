@@ -14,6 +14,7 @@ abstract class TestCase extends BaseTestCase
     use CreatesApplication;
     use RefreshDatabaseLite;
     protected $user = null;
+    protected $admin = null;
     protected $custodian_admin = null;
     protected $organisation_admin = null;
     protected $organisation_delegate = null;
@@ -30,7 +31,6 @@ abstract class TestCase extends BaseTestCase
 
         Keycloak::shouldReceive('determineUserGroup')
             ->andReturn('USERS');
-
     }
 
     protected function withUsers(): void
@@ -43,6 +43,8 @@ abstract class TestCase extends BaseTestCase
         ]);
         $this->organisation_admin = User::where('user_group', User::GROUP_ORGANISATIONS)->where("is_delegate", 0)->first();
         $this->organisation_delegate = User::where('user_group', User::GROUP_ORGANISATIONS)->where("is_delegate", 1)->first();
+
+        $this->admin = User::factory()->create(['user_group' => User::GROUP_ADMINS]);
     }
 
     protected function disableMiddleware(): void
@@ -64,5 +66,4 @@ abstract class TestCase extends BaseTestCase
     {
         Model::setEventDispatcher(app('events'));
     }
-
 }
