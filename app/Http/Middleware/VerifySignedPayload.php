@@ -6,10 +6,12 @@ use Closure;
 use App\Models\Custodian;
 use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
+use App\Http\Traits\HmacSigning;
 
 class VerifySignedPayload
 {
     use Responses;
+    use HmacSigning;
 
     public function handle(Request $request, Closure $next)
     {
@@ -29,9 +31,7 @@ class VerifySignedPayload
         }
 
         $secretKey = $custodian->unique_identifier;
-        $expectedSignature = base64_encode(hash_hmac('sha256', $payload, $secretKey, true));
-
-        if (!hash_equals($expectedSignature, $signature)) {
+        if (!$this->verifyBase64RawSignature($payload, $secretKey, $signature)) {
             return $this->InvalidSignatureResponse();
         }
 

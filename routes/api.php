@@ -37,6 +37,7 @@ use App\Http\Controllers\Api\V1\WebhookController;
 use App\Http\Controllers\Api\V1\CustodianModelConfigController;
 use App\Http\Controllers\Api\V1\ProjectDetailController;
 use App\Http\Controllers\Api\V1\ProjectRoleController;
+use App\Http\Controllers\Api\V1\VendorWebhookReceiverController;
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
 
@@ -512,6 +513,12 @@ Route::middleware('auth:api')
 
 // --- RULES ---
 Route::middleware('auth:api')->get('v1/rules', [RulesEngineManagementController::class, 'getRules']);
+<<<<<<< HEAD
+=======
+
+Route::post('v1/webhooks/{provider}', [VendorWebhookReceiverController::class, 'receive']);
+
+>>>>>>> origin
 // ONS CSV RESEARCHER FEED
 Route::post('v1/ons_researcher_feed', [ONSSubmissionController::class, 'receiveCSV']);
 

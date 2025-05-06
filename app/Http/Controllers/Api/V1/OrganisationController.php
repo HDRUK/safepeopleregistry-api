@@ -1396,14 +1396,11 @@ class OrganisationController extends Controller
         try {
             $showPending = $request->boolean("show_pending");
 
-            $registryIds = RegistryHasAffiliation::with('affiliation')
-                ->whereHas('affiliation', function ($query) use ($id) {
-                    $query->where('organisation_id', $id);
-                })
-                ->pluck('registry_id');
+            $registryIds = Organisation::getCurrentRegistries($id)->pluck('registry_id');
 
             $users = User::searchViaRequest()
                 ->applySorting()
+                ->with(['registry.affiliations'])
                 ->where(function ($query) use ($registryIds, $showPending, $id) {
                     $query->whereIn('registry_id', $registryIds);
 
