@@ -91,12 +91,6 @@ Route::middleware(['auth:api'])
         Route::patch('/{id}/notifications/{notificationId}/unread', [NotificationController::class, 'markUserNotificationAsUnread']);
     });
 
-// --- USER VALIDATION ---
-// probably redundant...
-Route::middleware(['check.custodian.access', 'verify.signed.payload'])
-    ->post('v1/users/validate', [UserController::class, 'validateUserRequest']);
-
-
 // --- ACTION LOGS ---
 Route::middleware('auth:api')
     ->prefix('v1')
