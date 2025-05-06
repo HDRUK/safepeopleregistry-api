@@ -4,63 +4,40 @@ namespace App\Policies;
 
 use App\Models\ActionLog;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
+use App\Models\Organisation;
+use App\Models\Custodian;
 
 class ActionLogPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
-    public function viewAny(User $user): bool
-    {
-        //
-    }
-
     /**
      * Determine whether the user can view the model.
      */
     public function view(User $user, ActionLog $actionLog): bool
     {
-        //
+        $entityType = $actionLog->entity_type->value;
+        $entityId = $actionLog->entity_id;
+
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        switch ($entityType) {
+            case User::class:
+                return $user->id === $entityId;
+
+            case Organisation::class:
+                return  $user->is_delegate === 0 && $user->organisation_id === $entityId;
+
+            case Custodian::class:
+                return optional($user->custodian_user)->custodian_id === $entityId;
+
+            default:
+                return false;
+        }
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
-    public function create(User $user): bool
-    {
-        //
-    }
-
-    /**
-     * Determine whether the user can update the model.
-     */
     public function update(User $user, ActionLog $actionLog): bool
     {
-        //
-    }
-
-    /**
-     * Determine whether the user can delete the model.
-     */
-    public function delete(User $user, ActionLog $actionLog): bool
-    {
-        //
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, ActionLog $actionLog): bool
-    {
-        //
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, ActionLog $actionLog): bool
-    {
-        //
+        return $this->view($user, $actionLog);
     }
 }

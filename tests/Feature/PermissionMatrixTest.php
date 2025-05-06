@@ -2,6 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\ActionLog;
+use App\Models\Custodian;
+use App\Models\CustodianUser;
+use App\Models\Organisation;
 use App\Models\Registry;
 use Tests\TestCase;
 use App\Models\User;
@@ -41,7 +45,23 @@ class PermissionMatrixTest extends TestCase
             ['registry_id' => Registry::where('id', '!=', $this->user->registry_id)->inRandomOrder()->first()->id]
         );
         $this->custodian2 = User::factory()->create(['user_group' => User::GROUP_CUSTODIANS]);
-        $this->organisation2 = User::factory()->create(['user_group' => User::GROUP_ORGANISATIONS]);
+        $cu = CustodianUser::create([
+            'first_name' => fake()->firstname(),
+            'last_name' => fake()->lastname(),
+            'email' => fake()->email(),
+            'provider' => '',
+            'keycloak_id' => '',
+            'custodian_id' => 2,
+        ]);
+        $this->custodian2->update([
+            'custodian_user_id' => $cu->id
+        ]);
+
+        $this->organisation2 = User::factory()->create([
+            'user_group' => User::GROUP_ORGANISATIONS,
+            'is_delegate' => 0,
+            'organisation_id' => 2
+        ]);
 
         $this->users = [
             'admin' => $this->admin,
@@ -646,6 +666,272 @@ class PermissionMatrixTest extends TestCase
         $this->runTests($expectedMatrix);
     }
 
+    public function test_action_log_permissions_matrix()
+    {
+
+        $custodian1Logs = ActionLog::where('entity_type', Custodian::class)
+            ->where('entity_id', 1)
+            ->orderBy('id')
+            ->take(2)
+            ->get();
+
+        $custodian1Log1 = $custodian1Logs->get(0);
+        $custodian1Log2 = $custodian1Logs->get(1);
+
+        $custodian2Logs = ActionLog::where('entity_type', Custodian::class)
+            ->where('entity_id', 2)
+            ->orderBy('id')
+            ->take(2)
+            ->get();
+
+        $custodian2Log1 = $custodian2Logs->get(0);
+        $custodian2Log2 = $custodian2Logs->get(1);
+
+        $organisation1Logs = ActionLog::where('entity_type', Organisation::class)
+            ->where('entity_id', 1)
+            ->orderBy('id')
+            ->take(2)
+            ->get();
+
+        $organisation1Log1 = $organisation1Logs->get(0);
+        $organisation1Log2 = $organisation1Logs->get(1);
+
+        $organisation2Logs = ActionLog::where('entity_type', Organisation::class)
+            ->where('entity_id', 2)
+            ->orderBy('id')
+            ->take(2)
+            ->get();
+
+        $organisation2Log1 = $organisation2Logs->get(0);
+        $organisation2Log2 = $organisation2Logs->get(1);
+
+
+        $researcher1Logs = ActionLog::where('entity_type', User::class)
+            ->where('entity_id', $this->user->id)
+            ->orderBy('id')
+            ->take(2)
+            ->get();
+
+        $researcher1Log1 = $researcher1Logs->get(0);
+        $researcher1Log2 = $researcher1Logs->get(1);
+
+
+        $expectedMatrix = [
+            [
+                'method' => 'get',
+                'route' => '/users/' . $this->user->id . '/action_log',
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 403,
+                    'custodian2' => 403,
+                    'organisation1' => 403,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 200,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'get',
+                'route' => '/custodians/1/action_log',
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 200,
+                    'custodian2' => 403,
+                    'organisation1' => 403,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'get',
+                'route' => '/custodians/2/action_log',
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 403,
+                    'custodian2' => 200,
+                    'organisation1' => 403,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'get',
+                'route' => '/organisations/1/action_log',
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 403,
+                    'custodian2' => 403,
+                    'organisation1' => 200,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'get',
+                'route' => '/organisations/2/action_log',
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 403,
+                    'custodian2' => 403,
+                    'organisation1' => 403,
+                    'organisation2' => 200,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'put',
+                'route' => '/action_log/' . $custodian1Log1->id,
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 200,
+                    'custodian2' => 403,
+                    'organisation1' => 403,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'put',
+                'route' => '/action_log/' . $custodian1Log2->id,
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 200,
+                    'custodian2' => 403,
+                    'organisation1' => 403,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'put',
+                'route' => '/action_log/' . $custodian2Log1->id,
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 403,
+                    'custodian2' => 200,
+                    'organisation1' => 403,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'put',
+                'route' => '/action_log/' . $custodian2Log2->id,
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 403,
+                    'custodian2' => 200,
+                    'organisation1' => 403,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'put',
+                'route' => '/action_log/' . $organisation1Log1->id,
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 403,
+                    'custodian2' => 403,
+                    'organisation1' => 200,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'put',
+                'route' => '/action_log/' . $organisation1Log2->id,
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 403,
+                    'custodian2' => 403,
+                    'organisation1' => 200,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'put',
+                'route' => '/action_log/' . $organisation2Log1->id,
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 403,
+                    'custodian2' => 403,
+                    'organisation1' => 403,
+                    'organisation2' => 200,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'put',
+                'route' => '/action_log/' . $organisation2Log2->id,
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 403,
+                    'custodian2' => 403,
+                    'organisation1' => 403,
+                    'organisation2' => 200,
+                    'delegate' => 403,
+                    'researcher1' => 403,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'put',
+                'route' => '/action_log/' . $researcher1Log1->id,
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 403,
+                    'custodian2' => 403,
+                    'organisation1' => 403,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 200,
+                    'researcher2' => 403,
+                ],
+            ],
+            [
+                'method' => 'put',
+                'route' => '/action_log/' . $researcher1Log2->id,
+                'permissions' => [
+                    'admin' => 200,
+                    'custodian1' => 403,
+                    'custodian2' => 403,
+                    'organisation1' => 403,
+                    'organisation2' => 403,
+                    'delegate' => 403,
+                    'researcher1' => 200,
+                    'researcher2' => 403,
+                ],
+            ]
+        ];
+
+        $this->runTests($expectedMatrix);
+    }
+
     private function runTests(array $expectedMatrix)
     {
         $matrix = [];
@@ -761,7 +1047,7 @@ class PermissionMatrixTest extends TestCase
         echo "\n";
 
         foreach ($routes as $route) {
-            $displayRoute = strlen($route) > 30 ? substr($route, 0, 26) . '... ' : $route;
+            $displayRoute = strlen($route) > 29 ? substr($route, 0, 25) . '... ' : $route;
             echo str_pad($displayRoute, $columnWidths['Route']);
             foreach ($matrix as $role => $permissions) {
                 $id = $this->users[$role]->id;
