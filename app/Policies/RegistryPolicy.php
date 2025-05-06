@@ -7,6 +7,7 @@ use App\Models\User;
 
 class RegistryPolicy
 {
+    // note: - use before() for pre-authorisation ($user->isAdmin())
     public function viewAny(User $user): bool
     {
         return $user->inGroup([

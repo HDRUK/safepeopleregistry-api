@@ -928,7 +928,7 @@ class OrganisationController extends Controller
     {
         try {
             $org = Organisation::findOrFail($organisationId);
-            if (!Gate::allows('view_details', $org)) {
+            if (!Gate::allows('viewDetailed', $org)) {
                 return $this->ForbiddenResponse();
             }
             $users = User::searchViaRequest()
@@ -1004,7 +1004,7 @@ class OrganisationController extends Controller
     {
         try {
             $org = Organisation::findOrFail($organisationId);
-            if (!Gate::allows('view_details', $org)) {
+            if (!Gate::allows('viewDetailed', $org)) {
                 return $this->ForbiddenResponse();
             }
             $delegates = User::with(["departments"])

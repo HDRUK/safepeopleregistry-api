@@ -27,7 +27,7 @@ class CustodianPolicy
         return $user->isAdmin();
     }
 
-    public function view_detailed(User $user, Custodian $custodian): bool
+    public function viewDetailed(User $user, Custodian $custodian): bool
     {
         return $user->inGroup([
             User::GROUP_ADMINS,

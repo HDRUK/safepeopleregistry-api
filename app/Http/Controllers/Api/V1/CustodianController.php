@@ -643,7 +643,7 @@ class CustodianController extends Controller
     public function getProjects(Request $request, int $custodianId): JsonResponse
     {
         $custodian = Custodian::findOrFail($custodianId);
-        if (! Gate::allows('view_detailed', $custodian)) {
+        if (! Gate::allows('viewDetailed', $custodian)) {
             return $this->ForbiddenResponse();
         }
 
@@ -854,7 +854,7 @@ class CustodianController extends Controller
     public function getOrganisations(Request $request, int $custodianId): JsonResponse
     {
         $custodian = Custodian::findOrFail($custodianId);
-        if (! Gate::allows('view_detailed', $custodian)) {
+        if (! Gate::allows('viewDetailed', $custodian)) {
             return $this->ForbiddenResponse();
         }
         $results = Organisation::searchViaRequest()
@@ -937,7 +937,7 @@ class CustodianController extends Controller
     public function getProjectsUsers(Request $request, int $custodianId): JsonResponse
     {
         $custodian = Custodian::findOrFail($custodianId);
-        if (! Gate::allows('view_detailed', $custodian)) {
+        if (! Gate::allows('viewDetailed', $custodian)) {
             return $this->ForbiddenResponse();
         }
         $results = DB::table('registries as r')

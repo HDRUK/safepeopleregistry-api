@@ -24,7 +24,7 @@ class OrganisationPolicy
         return $this->update($user, $organisation);
     }
 
-    public function view_details(User $user, Organisation $organisation): bool
+    public function viewDetailed(User $user, Organisation $organisation): bool
     {
         return $user->isAdmin() || $user->inGroup([User::GROUP_CUSTODIANS]) ||
             ($user->inGroup([User::GROUP_ORGANISATIONS]) && $user->organisation_id === $organisation->id);
