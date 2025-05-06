@@ -41,7 +41,7 @@ class VendorWebhookReceiverController extends Controller
 
             return $this->OKResponse([]);
         }
-        
+
         $translator->saveContext($translatedPayload);
         return $this->OKResponse([]);
     }

@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\State;
 use App\Models\Organisation;
 use App\Models\ActionLog;
+use App\Jobs\OrcIDScanner;
 use App\Notifications\AdminUserChanged;
 use Illuminate\Support\Facades\Notification;
 use Carbon\Carbon;
@@ -54,6 +55,9 @@ class UserObserver
                 throw new Exception('unable to clone user ' . json_encode($user) . ' within keycloak ');
             }
         }
+
+        // Call the OrcID scanner job to fetch the OrcID data.
+        OrcIDScanner::dispatch($user);
     }
 
     /**
@@ -114,6 +118,9 @@ class UserObserver
                 );
             }
         }
+
+        // Call the OrcID scanner job to fetch the OrcID data.
+        OrcIDScanner::dispatch($user);
     }
 
     /**
