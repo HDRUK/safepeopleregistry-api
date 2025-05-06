@@ -102,7 +102,7 @@ class VeriffTranslator implements WebhookTranslationInterface
         Log::debug('VeriffTranslator::saveContext - ' . json_encode($data));
         if (isset($data['action']) && $data['action'] === self::ACTION_DECISION) {
             Log::info('here with ' . json_encode($data));
-        
+
             $identity->update([
                 'idvt_success' => $data['verification']['status'] === 'approved' ? 1 : 0,
                 'idvt_result_text' => $data['verification']['status'],
