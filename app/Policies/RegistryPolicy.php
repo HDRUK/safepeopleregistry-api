@@ -30,4 +30,10 @@ class RegistryPolicy
     {
         return $user->isAdmin() || $user->registry_id === $registry->id;
     }
+
+    public function delete(User $user, Registry $registry): bool
+    {
+        //same policy as update, for now
+        return $this->update($user, $registry);
+    }
 }

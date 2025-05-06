@@ -275,7 +275,7 @@ class RegistryController extends Controller
     {
         try {
             $registry = Registry::findOrFail($id);
-            if (!Gate::allows('update', $registry)) {
+            if (!Gate::allows('delete', $registry)) {
                 return $this->ForbiddenResponse();
             }
             $registry->delete();
