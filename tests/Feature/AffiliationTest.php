@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use Carbon\Carbon;
 use KeycloakGuard\ActingAsKeycloakUser;
-use App\Models\User;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 use App\Traits\CommonFunctions;
@@ -17,12 +16,10 @@ class AffiliationTest extends TestCase
 
     public const TEST_URL = '/api/v1/affiliations';
 
-    private $user = null;
-
     public function setUp(): void
     {
         parent::setUp();
-        $this->user = User::where('id', 1)->first();
+        $this->withUsers();
     }
 
     public function test_the_application_can_show_affiliations_by_registry_id(): void

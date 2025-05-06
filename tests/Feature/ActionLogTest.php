@@ -31,15 +31,14 @@ class ActionLogTest extends TestCase
     use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/';
-
-    protected User $user;
+    protected $file = null;
 
     public function setUp(): void
     {
         parent::setUp();
         $this->enableObservers();
-
-        $this->user = User::factory()->create();
+        $this->withUsers();
+        $this->user = User::factory()->create(); // fresh user needed
         $this->file = File::create([
             'name' => 'temp',
             'type' => 'CERTIFICATION',
@@ -101,11 +100,11 @@ class ActionLogTest extends TestCase
 
     public function test_it_returns_user_action_logs_via_api()
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "users/{$this->user->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "users/{$this->user->id}/action_log",
+            );
 
         $response->assertStatus(200);
 
@@ -118,7 +117,6 @@ class ActionLogTest extends TestCase
         }, User::getDefaultActions());
 
         $response->assertJson(['data' => $expectedResponse]);
-
     }
 
 
@@ -126,11 +124,11 @@ class ActionLogTest extends TestCase
     {
         $org = Organisation::factory()->create();
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "organisations/{$org->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "organisations/{$org->id}/action_log",
+            );
 
         $response->assertStatus(200);
 
@@ -143,7 +141,6 @@ class ActionLogTest extends TestCase
         }, Organisation::getDefaultActions());
 
         $response->assertJson(['data' => $expectedResponse]);
-
     }
 
 
@@ -151,11 +148,11 @@ class ActionLogTest extends TestCase
     {
         $custodian = Custodian::factory()->create();
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "custodians/{$custodian->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "custodians/{$custodian->id}/action_log",
+            );
 
         $response->assertStatus(200);
 
@@ -168,16 +165,15 @@ class ActionLogTest extends TestCase
         }, Custodian::getDefaultActions());
 
         $response->assertJson(['data' => $expectedResponse]);
-
     }
 
     public function test_it_fails_to_return_action_logs_via_api_for_unsupported()
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "test/1/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "test/1/action_log",
+            );
         $response->assertStatus(400);
     }
 
@@ -192,11 +188,11 @@ class ActionLogTest extends TestCase
             'location' => fake()->country()
         ]);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "users/{$this->user->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "users/{$this->user->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -207,7 +203,6 @@ class ActionLogTest extends TestCase
             Carbon::now()->format('Y-m-d H:i:s'),
             $actionLog['completed_at']
         );
-
     }
 
     public function test_it_can_log_user_affiliations_complete()
@@ -220,11 +215,11 @@ class ActionLogTest extends TestCase
         $this->user->refresh();
 
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "users/{$this->user->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "users/{$this->user->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -253,11 +248,11 @@ class ActionLogTest extends TestCase
             'affiliation_id' => $affiliation->id,
         ]);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "users/{$this->user->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "users/{$this->user->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -276,11 +271,11 @@ class ActionLogTest extends TestCase
             'affiliation_id' => $affiliation->id,
         ]);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "users/{$this->user->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "users/{$this->user->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -305,11 +300,11 @@ class ActionLogTest extends TestCase
     {
         Carbon::setTestNow(Carbon::now());
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "users/{$this->user->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "users/{$this->user->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -319,19 +314,19 @@ class ActionLogTest extends TestCase
 
         $actionLogId = $actionLog['id'];
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'PUT',
-            self::TEST_URL . "action_log/{$actionLogId}?complete",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'PUT',
+                self::TEST_URL . "action_log/{$actionLogId}?complete",
+            );
         $response->assertStatus(200);
 
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "users/{$this->user->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "users/{$this->user->id}/action_log",
+            );
         $response->assertStatus(200);
         $responseData = $response['data'];
 
@@ -345,19 +340,19 @@ class ActionLogTest extends TestCase
             $actionLog['completed_at']
         );
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'PUT',
-            self::TEST_URL . "action_log/{$actionLogId}?incomplete",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'PUT',
+                self::TEST_URL . "action_log/{$actionLogId}?incomplete",
+            );
         $response->assertStatus(200);
 
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "users/{$this->user->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "users/{$this->user->id}/action_log",
+            );
         $response->assertStatus(200);
         $responseData = $response['data'];
 
@@ -376,11 +371,11 @@ class ActionLogTest extends TestCase
         Carbon::setTestNow(Carbon::now());
         $org = Organisation::factory()->create();
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "organisations/{$org->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "organisations/{$org->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -397,11 +392,11 @@ class ActionLogTest extends TestCase
             'postcode' => fake()->postcode(),
         ]);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "organisations/{$org->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "organisations/{$org->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -413,7 +408,6 @@ class ActionLogTest extends TestCase
             Carbon::now()->format('Y-m-d H:i:s'),
             $actionLog['completed_at']
         );
-
     }
 
     public function test_it_can_log_organisation_digitial_identifiers_complete()
@@ -422,11 +416,11 @@ class ActionLogTest extends TestCase
         $org = Organisation::factory()->create();
 
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "organisations/{$org->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "organisations/{$org->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -440,11 +434,11 @@ class ActionLogTest extends TestCase
             'ror_id' => fake()->numberBetween(1000, 2000),
         ]);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "organisations/{$org->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "organisations/{$org->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -456,7 +450,6 @@ class ActionLogTest extends TestCase
             Carbon::now()->format('Y-m-d H:i:s'),
             $actionLog['completed_at']
         );
-
     }
 
 
@@ -465,11 +458,11 @@ class ActionLogTest extends TestCase
         Carbon::setTestNow(Carbon::now());
         $org = Organisation::factory()->create();
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "organisations/{$org->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "organisations/{$org->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -484,11 +477,11 @@ class ActionLogTest extends TestCase
             'website' => fake()->url()
         ]);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "organisations/{$org->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "organisations/{$org->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -500,7 +493,6 @@ class ActionLogTest extends TestCase
             Carbon::now()->format('Y-m-d H:i:s'),
             $actionLog['completed_at']
         );
-
     }
 
     public function test_it_can_log_organisation_data_security_complete()
@@ -508,11 +500,11 @@ class ActionLogTest extends TestCase
         Carbon::setTestNow(Carbon::now());
         $org = Organisation::factory()->create();
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "organisations/{$org->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "organisations/{$org->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -537,7 +529,7 @@ class ActionLogTest extends TestCase
             'ce_plus_expiry_evidence' => $this->file->id,
         ]);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->admin)
             ->json(
                 'GET',
                 self::TEST_URL . "organisations/{$org->id}/action_log",
@@ -558,11 +550,11 @@ class ActionLogTest extends TestCase
         ]);
 
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "organisations/{$org->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "organisations/{$org->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -571,7 +563,6 @@ class ActionLogTest extends TestCase
 
 
         $this->assertNull($actionLog['completed_at']);
-
     }
 
 
@@ -581,11 +572,11 @@ class ActionLogTest extends TestCase
         $org = Organisation::factory()->create();
         $sub = Subsidiary::factory()->create();
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "organisations/{$org->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "organisations/{$org->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -601,11 +592,11 @@ class ActionLogTest extends TestCase
             ]
         );
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "organisations/{$org->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "organisations/{$org->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -623,11 +614,11 @@ class ActionLogTest extends TestCase
         )->first();
         $ohs->delete();
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "organisations/{$org->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "organisations/{$org->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -635,7 +626,6 @@ class ActionLogTest extends TestCase
             ->firstWhere('action', Organisation::ACTION_ADD_SUBSIDIARY_COMPLETED);
 
         $this->assertNull($actionLog['completed_at']);
-
     }
 
 
@@ -645,11 +635,11 @@ class ActionLogTest extends TestCase
         $org = Organisation::factory()->create();
         $dep = Department::create(['name' => fake()->company()]);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "organisations/{$org->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "organisations/{$org->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -670,11 +660,11 @@ class ActionLogTest extends TestCase
         ]);
 
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "organisations/{$org->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "organisations/{$org->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -699,11 +689,11 @@ class ActionLogTest extends TestCase
 
         $org = Organisation::factory()->create();
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "organisations/{$org->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "organisations/{$org->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -729,11 +719,11 @@ class ActionLogTest extends TestCase
             'affiliation_id' => $affiliation->id,
         ]);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "organisations/{$org->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "organisations/{$org->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -753,11 +743,11 @@ class ActionLogTest extends TestCase
 
         $custodian = Custodian::factory()->create();
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "custodians/{$custodian->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "custodians/{$custodian->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -776,11 +766,11 @@ class ActionLogTest extends TestCase
             'custodian_id' => $custodian->id
         ]);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "custodians/{$custodian->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "custodians/{$custodian->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -791,7 +781,6 @@ class ActionLogTest extends TestCase
             Carbon::now()->format('Y-m-d H:i:s'),
             $actionLog['completed_at']
         );
-
     }
 
     /* Not implemented yet
@@ -807,11 +796,11 @@ class ActionLogTest extends TestCase
 
         $custodian = Custodian::factory()->create();
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "custodians/{$custodian->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "custodians/{$custodian->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -822,11 +811,11 @@ class ActionLogTest extends TestCase
 
         $cu = CustodianUser::factory()->create(['custodian_id' => $custodian->id]);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "custodians/{$custodian->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "custodians/{$custodian->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -840,11 +829,11 @@ class ActionLogTest extends TestCase
 
         $cu->delete();
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "custodians/{$custodian->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "custodians/{$custodian->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -852,7 +841,6 @@ class ActionLogTest extends TestCase
             ->firstWhere('action', Custodian::ACTION_ADD_USERS);
 
         $this->assertNull($actionLog['completed_at']);
-
     }
 
     public function test_it_can_log_custodian_add_project_complete()
@@ -861,11 +849,11 @@ class ActionLogTest extends TestCase
 
         $custodian = Custodian::factory()->create();
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "custodians/{$custodian->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "custodians/{$custodian->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -882,11 +870,11 @@ class ActionLogTest extends TestCase
             ]
         );
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "custodians/{$custodian->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "custodians/{$custodian->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -900,11 +888,11 @@ class ActionLogTest extends TestCase
 
         $phc->delete();
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "custodians/{$custodian->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "custodians/{$custodian->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -924,11 +912,11 @@ class ActionLogTest extends TestCase
         $custodian = Custodian::factory()->create();
         $organisation = Organisation::factory()->create();
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "custodians/{$custodian->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "custodians/{$custodian->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -943,11 +931,11 @@ class ActionLogTest extends TestCase
             'custodian_id' => $custodian->id
         ]);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "custodians/{$custodian->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "custodians/{$custodian->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];
@@ -961,11 +949,11 @@ class ActionLogTest extends TestCase
 
         $this->assertTrue($ohca->delete());
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "custodians/{$custodian->id}/action_log",
-        );
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "custodians/{$custodian->id}/action_log",
+            );
 
         $response->assertStatus(200);
         $responseData = $response['data'];

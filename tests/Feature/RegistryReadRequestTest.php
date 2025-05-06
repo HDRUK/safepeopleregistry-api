@@ -17,12 +17,10 @@ class RegistryReadRequestTest extends TestCase
 
     public const TEST_URL = '/api/v1/request_access';
 
-    private $user = null;
-
     public function setUp(): void
     {
         parent::setUp();
-        $this->user = User::where('user_group', 'USERS')->first();
+        $this->withUsers();
     }
 
     public function test_the_application_can_issue_registry_read_requests(): void

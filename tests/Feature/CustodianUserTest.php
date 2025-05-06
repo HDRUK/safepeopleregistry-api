@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use Http;
 use KeycloakGuard\ActingAsKeycloakUser;
-use App\Models\User;
 use App\Jobs\SendEmailJob;
 use Illuminate\Support\Facades\Queue;
 use App\Models\CustodianUser;
@@ -21,12 +20,10 @@ class CustodianUserTest extends TestCase
 
     public const TEST_URL = '/api/v1/custodian_users';
 
-    private $user = null;
-
     public function setUp(): void
     {
         parent::setUp();
-        $this->user = User::where('id', 1)->first();
+        $this->withUsers();
 
         Http::fake([
             env('KEYCLOAK_BASE_URL') . '/*' => Http::response([

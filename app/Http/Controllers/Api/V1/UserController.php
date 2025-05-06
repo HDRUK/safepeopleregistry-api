@@ -24,6 +24,7 @@ use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use App\Traits\CommonFunctions;
 use App\Traits\CheckPermissions;
+use Illuminate\Support\Facades\Gate;
 use TriggerEmail;
 
 class UserController extends Controller
@@ -87,6 +88,9 @@ class UserController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        if (!Gate::allows('viewAny', User::class)) {
+            return $this->ForbiddenResponse();
+        }
         $this->decisionEvaluator = new DES($request);
 
         $users = User::searchViaRequest()
@@ -234,6 +238,10 @@ class UserController extends Controller
                 'registry.trainings',
             ])->where('id', $id)->first();
 
+            if (!Gate::allows('view', $user)) {
+                return $this->ForbiddenResponse();
+            }
+
             $user['rules'] = $this->decisionEvaluator->evaluate($user);
 
             return response()->json([
@@ -250,6 +258,9 @@ class UserController extends Controller
         try {
             // Post-MVP - this should be an audit log for the user...
             $user = User::findOrFail($id);
+            if (!Gate::allows('view', $user)) {
+                return $this->ForbiddenResponse();
+            }
 
             // placeholder to give some history
             $data = collect([
@@ -258,19 +269,19 @@ class UserController extends Controller
                     'created_at' => $user->created_at,
                 ],
             ])
-            ->merge(
-                $user->actionLogs
-                    ->whereNotNull("completed_at")
-                    ->map(function ($log) {
-                        return [
-                            'message' => $log->action,
-                            'created_at' => $log->completed_at,
-                        ];
-                    })
-            )
-            ->sortByDesc('created_at')
-            ->values()
-            ->toArray();
+                ->merge(
+                    $user->actionLogs
+                        ->whereNotNull("completed_at")
+                        ->map(function ($log) {
+                            return [
+                                'message' => $log->action,
+                                'created_at' => $log->completed_at,
+                            ];
+                        })
+                )
+                ->sortByDesc('created_at')
+                ->values()
+                ->toArray();
 
             return response()->json([
                 'message' => 'success',
@@ -354,6 +365,9 @@ class UserController extends Controller
      */
     public function store(CreateUser $request): JsonResponse
     {
+        if (!Gate::allows('create', User::class)) {
+            return $this->ForbiddenResponse();
+        }
         try {
             $input = $request->all();
 
@@ -379,7 +393,6 @@ class UserController extends Controller
                 'message' => 'success',
                 'data' => $user->id,
             ], 201);
-
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -389,6 +402,9 @@ class UserController extends Controller
     //Hide from swagger docs
     public function invite(Request $request): JsonResponse
     {
+        if (!Gate::allows('invite', User::class)) {
+            return $this->ForbiddenResponse();
+        }
         try {
             $input = $request->all();
 
@@ -512,6 +528,11 @@ class UserController extends Controller
             $input = $request->all();
 
             $user = User::where('id', $id)->first();
+
+            if (!Gate::allows('update', $user)) {
+                return $this->ForbiddenResponse();
+            }
+
             $user->first_name = isset($input['first_name']) ? $input['first_name'] : $user->first_name;
             $user->last_name = isset($input['last_name']) ? $input['last_name'] : $user->last_name;
             $user->email = isset($input['email']) ? $input['email'] : $user->email;
@@ -641,6 +662,11 @@ class UserController extends Controller
         try {
             $input = $request->all();
             $user = User::find($id);
+
+            if (!Gate::allows('update', $user)) {
+                return $this->ForbiddenResponse();
+            }
+
             $originalUser = clone $user;
 
             if (!$user) {
@@ -736,7 +762,13 @@ class UserController extends Controller
     public function destroy(Request $request, int $id): JsonResponse
     {
         try {
-            User::where('id', $id)->delete();
+            $user = User::findOrFail($id);
+
+            if (!Gate::allows('delete', $user)) {
+                return $this->ForbiddenResponse();
+            }
+            $user->delete();
+
             UserHasCustodianPermission::where('user_id', $id)->delete();
             UserHasCustodianApproval::where('user_id', $id)->delete();
 
@@ -750,6 +782,9 @@ class UserController extends Controller
 
     public function searchUsersByNameAndProfessionalEmail(Request $request): JsonResponse
     {
+        if (!Gate::allows('viewAny', User::class)) {
+            return $this->ForbiddenResponse();
+        }
         try {
             $input = $request->only([
                 'first_name',
@@ -807,6 +842,9 @@ class UserController extends Controller
     public function userProjects(Request $request, int $id): JsonResponse
     {
         $user = User::with('registry')->findOrFail($id);
+        if (!Gate::allows('view', $user)) {
+            return $this->ForbiddenResponse();
+        }
 
         $projectIds = ProjectHasUser::where('user_digital_ident', $user->registry->digi_ident)
             ->pluck('project_id')
@@ -815,8 +853,7 @@ class UserController extends Controller
         $projects = Project::whereIn('id', $projectIds)
             ->withCount('projectUsers')
             ->with(['organisations', 'modelState.state'])
-            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
-        ;
+            ->paginate((int)$this->getSystemConfig('PER_PAGE'));;
         return $this->OKResponse($projects);
     }
 

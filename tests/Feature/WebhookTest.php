@@ -15,7 +15,6 @@ class WebhookTest extends TestCase
     use ActingAsKeycloakUser;
     use Authorisation;
 
-    protected $user;
     protected $custodian;
     protected const TEST_URL = '/api/v1/webhooks';
 

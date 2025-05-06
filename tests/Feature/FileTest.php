@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\File;
-use App\Models\User;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 use Illuminate\Support\Facades\Storage;
@@ -16,15 +15,13 @@ class FileTest extends TestCase
 
     public const TEST_URL = '/api/v1/files';
 
-    private $user = null;
-
     public function setUp(): void
     {
         parent::setUp();
         config(['scanning_filesystem_disk' => 'local_scan']);
         Storage::fake('local_scan');
 
-        $this->user = User::where('id', 1)->first();
+        $this->withUsers();
     }
 
     public function test_it_should_return_not_download_if_file_status_is_not_processed()

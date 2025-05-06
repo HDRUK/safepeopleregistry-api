@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
-use App\Models\User;
 use App\Models\Registry;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
@@ -15,12 +14,10 @@ class QueryTest extends TestCase
 
     public const TEST_URL = '/api/v1/query';
 
-    private $user = null;
-
     public function setUp(): void
     {
         parent::setUp();
-        $this->user = User::where('user_group', 'USERS')->first();
+        $this->withUsers();
     }
 
     public function test_the_application_can_query_the_system(): void

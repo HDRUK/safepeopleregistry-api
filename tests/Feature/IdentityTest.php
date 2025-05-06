@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
 use Carbon\Carbon;
-use App\Models\User;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
@@ -15,12 +14,10 @@ class IdentityTest extends TestCase
 
     public const TEST_URL = '/api/v1/identities';
 
-    private $user = null;
-
     public function setUp(): void
     {
         parent::setUp();
-        $this->user = User::where('user_group', 'USERS')->first();
+        $this->withUsers();
     }
 
     public function test_the_application_can_list_identities(): void

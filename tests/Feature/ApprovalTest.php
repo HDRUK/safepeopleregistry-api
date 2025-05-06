@@ -6,7 +6,6 @@ use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\Custodian;
 use App\Models\Organisation;
 use App\Models\OrganisationHasCustodianApproval;
-use App\Models\User;
 use App\Models\UserHasCustodianApproval;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
@@ -18,7 +17,6 @@ class ApprovalTest extends TestCase
 
     public const TEST_URL = '/api/v1/approvals';
 
-    private $user = null;
     private $registry = null;
     private $custodian = null;
     private $organisation = null;
@@ -26,7 +24,7 @@ class ApprovalTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->user = User::where('user_group', 'USERS')->first();
+        $this->withUsers();
 
         $this->custodian = Custodian::where('id', 1)->first();
         $this->organisation = Organisation::where('id', 1)->first();

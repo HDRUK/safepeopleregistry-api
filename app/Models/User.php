@@ -226,7 +226,7 @@ class User extends Authenticatable
     public function status(): Attribute
     {
         return new Attribute(
-            get: fn () => $this->unclaimed === 1 ? self::STATUS_INVITED : self::STATUS_REGISTERED
+            get: fn() => $this->unclaimed === 1 ? self::STATUS_INVITED : self::STATUS_REGISTERED
         );
     }
 
@@ -355,4 +355,13 @@ class User extends Authenticatable
         return $this->morphMany(ActionLog::class, 'entity');
     }
 
+    public function isAdmin(): bool
+    {
+        return $this->user_group === self::GROUP_ADMINS;
+    }
+
+    public function inGroup(array $groups): bool
+    {
+        return in_array($this->user_group, $groups);
+    }
 }
