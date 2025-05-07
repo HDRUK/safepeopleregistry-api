@@ -37,6 +37,7 @@ use App\Http\Controllers\Api\V1\WebhookController;
 use App\Http\Controllers\Api\V1\CustodianModelConfigController;
 use App\Http\Controllers\Api\V1\ProjectDetailController;
 use App\Http\Controllers\Api\V1\ProjectRoleController;
+use App\Http\Controllers\Api\V1\ProjectUserCustodianApprovalController;
 use App\Http\Controllers\Api\V1\VendorWebhookReceiverController;
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
@@ -499,6 +500,16 @@ Route::middleware('auth:api')
         Route::get('{id}', 'show');
         Route::post('/', 'store');
         Route::put('{id}', 'update');
+    });
+
+// --- PROJECT USER CUSTODIAN APPROVAL ---
+Route::middleware('auth:api')
+    ->prefix('v1/custodian_approvals')
+    ->controller(ProjectUserCustodianApprovalController::class)
+    ->group(function () {
+        Route::get('/{custodianId}/projects/{projectId}/registry/{registryId}', 'show');
+        Route::post('/{custodianId}/projects/{projectId}/registry/{registryId}/affiliations/{affiliationId}', 'store');
+        Route::delete('/{custodianId}/projects/{projectId}/registry/{registryId}/affiliations/{affiliationId}', 'destroy');
     });
 
 // --- SYSTEM CONFIG ---

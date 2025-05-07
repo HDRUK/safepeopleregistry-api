@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\V1;
 use DB;
 use Exception;
 use Hash;
-use Auth;
 use RegistryManagementController as RMC;
 use TriggerEmail;
 use App\Http\Controllers\Controller;

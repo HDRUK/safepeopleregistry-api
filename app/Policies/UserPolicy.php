@@ -40,7 +40,7 @@ class UserPolicy
             return true;
         }
 
-        // Organisation admins can update themselves 
+        // Organisation admins can update themselves
         if (
             $user->user_group === User::GROUP_ORGANISATIONS &&
             $model->user_group === User::GROUP_ORGANISATIONS &&
@@ -57,7 +57,7 @@ class UserPolicy
             }
         }
 
-        // others they can self-update 
+        // others they can self-update
         return $user->id === $model->id;
     }
 
