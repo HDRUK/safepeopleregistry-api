@@ -9,13 +9,11 @@ use App\Models\Organisation;
 use App\Models\Registry;
 use Tests\TestCase;
 use App\Models\User;
-
 use App\Models\RegistryHasTraining;
 use Database\Factories\CustodianFactory;
 use Database\Factories\OrganisationFactory;
 use Tests\Traits\Authorisation;
 use KeycloakGuard\ActingAsKeycloakUser;
-
 use Database\Factories\UserFactory;
 use Illuminate\Support\Facades\DB;
 

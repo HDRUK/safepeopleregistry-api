@@ -7,8 +7,6 @@ use RegistryManagementController as RMC;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\User;
 use App\Models\State;
-use App\Models\Registry;
-use App\Models\Affiliation;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
