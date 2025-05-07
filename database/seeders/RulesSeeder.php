@@ -177,17 +177,18 @@ class RulesSeeder extends Seeder
                 'description' => 'A User has completed the MRC GDPR training.',
                 'entity_model_type_id' => 2,
             ],
-            [
-                'name' => 'SDE Network',
-                'model_type' => \App\Models\User::class,
-                'conditions' => json_encode([
-                    'path' => 'registry.agreements',
-                    'expects' => 'NHS Research Secure Data Environment Terms of Use',
-                ]),
-                'rule_class' => \App\Rules\Users\AgreementAccepted::class, // You may need to define this
-                'description' => 'A User has signed the NHS Research Secure Data Environment Terms of Use.',
-                'entity_model_type_id' => 2,
-            ],
+            // TODO - Add this rule back in when the rule is implemented
+            // [
+            //     'name' => 'SDE Network',
+            //     'model_type' => \App\Models\User::class,
+            //     'conditions' => json_encode([
+            //         'path' => 'registry.agreements',
+            //         'expects' => 'NHS Research Secure Data Environment Terms of Use',
+            //     ]),
+            //     'rule_class' => \App\Rules\Users\AgreementAccepted::class, // You may need to define this
+            //     'description' => 'A User has signed the NHS Research Secure Data Environment Terms of Use.',
+            //     'entity_model_type_id' => 2,
+            // ],
             [
                 'name' => 'User affiliation',
                 'model_type' => \App\Models\User::class,
