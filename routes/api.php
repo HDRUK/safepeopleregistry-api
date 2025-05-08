@@ -35,6 +35,7 @@ use App\Http\Controllers\Api\V1\ProfessionalRegistrationController;
 use App\Http\Controllers\Api\V1\DepartmentController;
 use App\Http\Controllers\Api\V1\WebhookController;
 use App\Http\Controllers\Api\V1\CustodianModelConfigController;
+use App\Http\Controllers\Api\V1\OrganisationCustodianApprovalController;
 use App\Http\Controllers\Api\V1\ProjectDetailController;
 use App\Http\Controllers\Api\V1\ProjectRoleController;
 use App\Http\Controllers\Api\V1\ProjectUserCustodianApprovalController;
@@ -509,7 +510,15 @@ Route::middleware('auth:api')
     ->group(function () {
         Route::get('/{custodianId}/projects/{projectId}/registry/{registryId}', 'show');
         Route::post('/{custodianId}/projects/{projectId}/registry/{registryId}', 'store');
-        Route::delete('/{custodianId}/projects/{projectId}/registry/{registryId}', 'destroy');
+    });
+
+// --- ORGANISATION CUSTODIAN APPROVAL ---
+Route::middleware('auth:api')
+    ->prefix('v1/custodian_approvals')
+    ->controller(OrganisationCustodianApprovalController::class)
+    ->group(function () {
+        Route::get('/{custodianId}/organisation/{organisationId}', 'show');
+        Route::post('/{custodianId}/organisation/{organisationId}', 'store');
     });
 
 // --- SYSTEM CONFIG ---

@@ -18,6 +18,8 @@ class ProjectUserCustodianApproval extends Model
         'project_id',
         'user_id',
         'custodian_id',
+        'approved',
+        'comment'
     ];
 
     public function project(): BelongsTo
@@ -32,6 +34,6 @@ class ProjectUserCustodianApproval extends Model
 
     public function custodian(): BelongsTo
     {
-        return $this->belongsTo(Custodian::class);
+        return $this->belongsTo(Custodian::class, 'custodian_id');
     }
 }

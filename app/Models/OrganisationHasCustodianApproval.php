@@ -22,6 +22,8 @@ class OrganisationHasCustodianApproval extends Model
     protected $fillable = [
         'organisation_id',
         'custodian_id',
+        'approved',
+        'comment',
     ];
 
     public const ORGANISATION_ALIGNED_SDE_NETWORK = 'organisation_aligned_sde_network';

@@ -12,7 +12,9 @@ return new class() extends Migration {
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('custodian_id');
 
-            $table->unique(['project_id', 'user_id', 'custodian_id'], 'uq_project_user_custodian');
+            $table->tinyInteger('approved')->default(0);
+            $table->text('comment')->nullable();
+            $table->timestamp('created_at')->useCurrent();
 
             $table->foreign('project_id')
                 ->references('id')
