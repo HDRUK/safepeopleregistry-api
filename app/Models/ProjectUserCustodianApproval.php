@@ -9,14 +9,25 @@ class ProjectUserCustodianApproval extends Model
 {
     protected $table = 'project_user_has_custodian_approval';
 
+    public $timestamps = false;
+
+    protected $primaryKey = null;
+    public $incrementing = false;
+
     protected $fillable = [
-        'project_user_id',
+        'project_id',
+        'user_id',
         'custodian_id',
     ];
 
-    public function projectUser(): BelongsTo
+    public function project(): BelongsTo
     {
-        return $this->belongsTo(ProjectHasUser::class, 'project_user_id');
+        return $this->belongsTo(Project::class, 'project_id');
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function custodian(): BelongsTo

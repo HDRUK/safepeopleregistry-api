@@ -4,22 +4,18 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class () extends Migration {
+// project_id should be unsiggnedBigInteger - causes SQL errors
+return new class() extends Migration {
     public function up(): void
     {
-        // Drop existing indexes or foreign keys first if needed
         Schema::table('project_has_users', function (Blueprint $table) {
-            // If there are any foreign keys on project_id, drop them first
-            // Example: $table->dropForeign(['project_id']);
-            $table->dropIndex(['project_id']); // Drop index to change column
+            $table->dropIndex(['project_id']);
         });
 
-        // Change the column type
         Schema::table('project_has_users', function (Blueprint $table) {
             $table->unsignedBigInteger('project_id')->change();
         });
 
-        // Recreate the index if needed
         Schema::table('project_has_users', function (Blueprint $table) {
             $table->index('project_id');
         });
@@ -29,7 +25,7 @@ return new class () extends Migration {
     {
         Schema::table('project_has_users', function (Blueprint $table) {
             $table->dropIndex(['project_id']);
-            $table->bigInteger('project_id')->change(); // revert back to signed
+            $table->bigInteger('project_id')->change();
             $table->index('project_id');
         });
     }

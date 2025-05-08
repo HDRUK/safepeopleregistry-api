@@ -508,8 +508,8 @@ Route::middleware('auth:api')
     ->controller(ProjectUserCustodianApprovalController::class)
     ->group(function () {
         Route::get('/{custodianId}/projects/{projectId}/registry/{registryId}', 'show');
-        Route::post('/{custodianId}/projects/{projectId}/registry/{registryId}/affiliations/{affiliationId}', 'store');
-        Route::delete('/{custodianId}/projects/{projectId}/registry/{registryId}/affiliations/{affiliationId}', 'destroy');
+        Route::post('/{custodianId}/projects/{projectId}/registry/{registryId}', 'store');
+        Route::delete('/{custodianId}/projects/{projectId}/registry/{registryId}', 'destroy');
     });
 
 // --- SYSTEM CONFIG ---

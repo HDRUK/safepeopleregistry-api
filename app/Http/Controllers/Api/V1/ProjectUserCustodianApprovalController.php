@@ -9,6 +9,7 @@ use App\Http\Traits\Responses;
 use App\Models\ProjectHasCustodian;
 use App\Models\ProjectHasUser;
 use App\Models\Registry;
+use Illuminate\Http\JsonResponse;
 
 class ProjectUserCustodianApprovalController extends Controller
 {
@@ -16,51 +17,76 @@ class ProjectUserCustodianApprovalController extends Controller
 
     public function show(Request $request, int $custodianId, int $projectId, int $registryId)
     {
+        $registry = $this->resolveAndAuthorize($custodianId, $projectId, $registryId);
+        if ($registry instanceof JsonResponse) {
+            return $registry;
+        }
+
+        $puhca = ProjectUserCustodianApproval::where([
+            'project_id' => $projectId,
+            'user_id' => $registry->user->id,
+            'custodian_id' => $custodianId
+        ])->exists();
+
+        return $this->OKResponse($puhca);
+    }
+
+    public function store(Request $request, int $custodianId, int $projectId, int $registryId)
+    {
+        $registry = $this->resolveAndAuthorize($custodianId, $projectId, $registryId);
+        if ($registry instanceof JsonResponse) {
+            return $registry;
+        }
+
+        $approval = ProjectUserCustodianApproval::create([
+            'project_id' => $projectId,
+            'user_id' => $registry->user->id,
+            'custodian_id' => $custodianId,
+        ]);
+        return $this->CreatedResponse($approval);
+    }
+
+    public function destroy(Request $request, int $custodianId, int $projectId, int $registryId)
+    {
+        $registry = $this->resolveAndAuthorize($custodianId, $projectId, $registryId);
+        if ($registry instanceof JsonResponse) {
+            return $registry;
+        }
+
+        $approval = ProjectUserCustodianApproval::where([
+            'project_id' => $projectId,
+            'user_id' => $registry->user->id,
+            'custodian_id' => $custodianId,
+        ])->delete();
+
+        return $this->OKResponse(null);
+    }
+
+    private function resolveAndAuthorize(int $custodianId, int $projectId, int $registryId): Registry|JsonResponse
+    {
         $phc = ProjectHasCustodian::where([
             'project_id' => $projectId,
             'custodian_id' => $custodianId,
         ])->exists();
 
         if (!$phc) {
+            return $this->ForbiddenResponse();
+        }
+
+        $registry = Registry::find($registryId);
+        if (!$registry || !$registry->user) {
             return $this->NotFoundResponse();
         }
 
-        $registry = Registry::where([
-            'id' => $registryId
-        ])->select('digi_ident')->first();
-
-        $phu = ProjectHasUser::where(
-            [
-                'project_id' => $projectId,
-                //'affiliation_id' => $affiliationId,
-                'user_digital_ident' => $registry->digi_ident,
-            ]
-        )->get();
-
+        $phu = ProjectHasUser::where([
+            'project_id' => $projectId,
+            'user_digital_ident' => $registry->digi_ident,
+        ])->exists();
 
         if (!$phu) {
-            return $this->NotFoundResponse();
+            return $this->ForbiddenResponse();
         }
 
-        return $this->OKResponse($phu);
-    }
-
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'project_user_id' => 'required|exists:project_has_users,id',
-            'custodian_id' => 'required|exists:custodians,id',
-        ]);
-
-        $approval = ProjectUserCustodianApproval::create($validated);
-
-        return response()->json($approval, 201);
-    }
-
-    public function destroy(ProjectUserCustodianApproval $approval)
-    {
-        $approval->delete();
-
-        return $this->OKResponse(null);
+        return $registry;
     }
 }

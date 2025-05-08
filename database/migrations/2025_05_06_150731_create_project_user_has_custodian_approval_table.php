@@ -4,21 +4,27 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class () extends Migration {
+return new class() extends Migration {
     public function up(): void
     {
         Schema::create('project_user_has_custodian_approval', function (Blueprint $table) {
-            $table->unsignedBigInteger('project_user_id');
+            $table->unsignedBigInteger('project_id');
+            $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('custodian_id');
 
-            $table->unique(['project_user_id', 'custodian_id'], 'uq_project_user_custodian');
+            $table->unique(['project_id', 'user_id', 'custodian_id'], 'uq_project_user_custodian');
 
-            $table->foreign('project_user_id', 'fk_puca_project_user')
+            $table->foreign('project_id')
                 ->references('id')
-                ->on('project_has_users')
+                ->on('projects')
                 ->onDelete('cascade');
 
-            $table->foreign('custodian_id', 'fk_puca_custodian')
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
+
+            $table->foreign('custodian_id')
                 ->references('id')
                 ->on('custodians')
                 ->onDelete('cascade');
