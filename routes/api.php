@@ -517,8 +517,8 @@ Route::middleware('auth:api')
     ->prefix('v1/custodian_approvals/{custodianId}')
     ->controller(OrganisationCustodianApprovalController::class)
     ->group(function () {
-        Route::get('/organisation/{organisationId}', 'show');
-        Route::post('/organisation/{organisationId}', 'store');
+        Route::get('/organisations/{organisationId}', 'show');
+        Route::post('/organisations/{organisationId}', 'store');
     });
 
 // --- SYSTEM CONFIG ---
