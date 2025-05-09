@@ -514,11 +514,11 @@ Route::middleware('auth:api')
 
 // --- ORGANISATION CUSTODIAN APPROVAL ---
 Route::middleware('auth:api')
-    ->prefix('v1/custodian_approvals')
+    ->prefix('v1/custodian_approvals/{custodianId}')
     ->controller(OrganisationCustodianApprovalController::class)
     ->group(function () {
-        Route::get('/{custodianId}/organisation/{organisationId}', 'show');
-        Route::post('/{custodianId}/organisation/{organisationId}', 'store');
+        Route::get('/organisation/{organisationId}', 'show');
+        Route::post('/organisation/{organisationId}', 'store');
     });
 
 // --- SYSTEM CONFIG ---
