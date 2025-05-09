@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use KeycloakGuard\ActingAsKeycloakUser;
 use Carbon\Carbon;
 use Tests\TestCase;
