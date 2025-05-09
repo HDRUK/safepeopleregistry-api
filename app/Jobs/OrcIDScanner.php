@@ -8,7 +8,6 @@ use App\Models\Accreditation;
 use App\Models\Education;
 use App\Models\Affiliation;
 use App\Models\RegistryHasAccreditation;
-use App\Models\RegistryHasEducation;
 use App\Models\User;
 use App\Models\Organisation;
 use Illuminate\Bus\Queueable;
@@ -41,7 +40,7 @@ class OrcIDScanner implements ShouldQueue
      */
     public function handle(): void
     {
-        if ($this->user->consent_scrape && $this->user->orc_id !== null && $this->user->user_group === 'USERS') {
+        if ($this->user->consent_scrape && $this->user->orc_id !== null && $this->user->user_group === User::GROUP_USERS) {
             $this->user->orcid_scanning = 1;
             $this->user->save();
 
@@ -76,7 +75,7 @@ class OrcIDScanner implements ShouldQueue
                     'endDate' => $this->normaliseDate($education['end-date']),
                 ];
 
-                $education = Education::create([
+                $education = Education::firstOrCreate([
                     'title' => $title,
                     'from' => $dates['startDate'],
                     'to' => $dates['endDate'],
@@ -85,11 +84,6 @@ class OrcIDScanner implements ShouldQueue
                     'institute_identifier' => $organisation['disambiguated-organization']['disambiguated-organization-identifier'],
                     'source' => $organisation['disambiguated-organization']['disambiguation-source'],
                     'registry_id' => $this->user->registry_id,
-                ]);
-
-                RegistryHasEducation::create([
-                    'registry_id' => $this->user->registry_id,
-                    'education_id' => $education->id,
                 ]);
             }
         }
@@ -110,6 +104,10 @@ class OrcIDScanner implements ShouldQueue
                     'endDate' => $this->normaliseDate($qualification['end-date']),
                 ];
 
+                // TODO - This is a refactor candidate, as we can't firstOrCreate this as there
+                // is no real unique constraints on the table. We need to hard link this to
+                // registry_id instead. Future scope, as this is a larger change impacting several
+                // areas of the code.
                 $accreditation = Accreditation::create([
                     'awarded_at' => $dates['startDate'],
                     'awarding_body_name' => $organisation['name'],
@@ -119,7 +117,7 @@ class OrcIDScanner implements ShouldQueue
                     'awarded_locale' => $organisation['address']['country'],
                 ]);
 
-                RegistryHasAccreditation::create([
+                RegistryHasAccreditation::firstOrCreate([
                     'registry_id' => $this->user->registry_id,
                     'accreditation_id' => $accreditation->id,
                 ]);

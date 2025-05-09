@@ -161,7 +161,9 @@ class WebhookController extends Controller
             'webhook_event_id' => 'required|exists:webhook_event_triggers,id',
         ]);
 
-        $receiver = CustodianWebhookReceiver::create([
+        // We don't want these to be duplicated, so either return the existing
+        // or create a new receiver.
+        $receiver = CustodianWebhookReceiver::firstOrCreate([
             'custodian_id' => $request->custodian_id,
             'url' => $request->url,
             'webhook_event' => $request->webhook_event_id,
