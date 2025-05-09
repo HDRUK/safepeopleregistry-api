@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use Exception;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ApprovalRequest;
 use App\Models\ProjectUserCustodianApproval;
 use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
@@ -43,18 +44,13 @@ class ProjectUserCustodianApprovalController extends Controller
         }
     }
 
-    public function store(Request $request, int $custodianId, int $projectId, int $registryId)
+    public function store(ApprovalRequest $request, int $custodianId, int $projectId, int $registryId)
     {
         try {
             $custodian = Custodian::findOrFail($custodianId);
             if (!Gate::allows('update', $custodian)) {
                 return $this->ForbiddenResponse();
             }
-
-            $validated = $request->validate([
-                'approved' => 'required|integer|in:0,1',
-                'comment' => 'required|string',
-            ]);
 
             $registry = $this->resolveAndAuthorize($custodianId, $projectId, $registryId);
             if ($registry instanceof JsonResponse) {
