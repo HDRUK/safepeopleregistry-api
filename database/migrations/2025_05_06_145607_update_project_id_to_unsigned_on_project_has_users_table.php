@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 // project_id should be unsiggnedBigInteger - causes SQL errors
-return new class() extends Migration {
+return new class () extends Migration {
     public function up(): void
     {
         Schema::table('project_has_users', function (Blueprint $table) {
