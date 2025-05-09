@@ -9,8 +9,10 @@ use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
 use App\Models\ProjectHasCustodian;
 use App\Models\ProjectHasUser;
+use App\Models\Custodian;
 use App\Models\Registry;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Gate;
 
 class ProjectUserCustodianApprovalController extends Controller
 {
@@ -18,6 +20,10 @@ class ProjectUserCustodianApprovalController extends Controller
 
     public function show(Request $request, int $custodianId, int $projectId, int $registryId)
     {
+        if (!Gate::allows('viewAny', Custodian::class)) {
+            return $this->ForbiddenResponse();
+        }
+
         $registry = $this->resolveAndAuthorize($custodianId, $projectId, $registryId);
         if ($registry instanceof JsonResponse) {
             return $registry;
@@ -35,6 +41,11 @@ class ProjectUserCustodianApprovalController extends Controller
     public function store(Request $request, int $custodianId, int $projectId, int $registryId)
     {
         try {
+            $custodian = Custodian::findOrFail($custodianId);
+            if (!Gate::allows('update', $custodian)) {
+                return $this->ForbiddenResponse();
+            }
+
             $validated = $request->validate([
                 'approved' => 'required|integer|in:0,1',
                 'comment' => 'required|string',
