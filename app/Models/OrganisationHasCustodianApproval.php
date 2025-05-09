@@ -26,6 +26,10 @@ class OrganisationHasCustodianApproval extends Model
         'comment',
     ];
 
+    protected $casts = [
+        'created_at' => 'datetime',
+    ];
+
     public const ORGANISATION_ALIGNED_SDE_NETWORK = 'organisation_aligned_sde_network';
     public const CONFIDENT_COSTS_FOR_PROJECTS = 'confident_cost_for_projects_will_be_met';
 
