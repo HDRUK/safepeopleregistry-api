@@ -20,22 +20,27 @@ class ProjectUserCustodianApprovalController extends Controller
 
     public function show(Request $request, int $custodianId, int $projectId, int $registryId)
     {
-        if (!Gate::allows('viewAny', Custodian::class)) {
-            return $this->ForbiddenResponse();
+        try {
+            $custodian = Custodian::findOrFail($custodianId);
+            if (!Gate::allows('view', $custodian)) {
+                return $this->ForbiddenResponse();
+            }
+
+            $registry = $this->resolveAndAuthorize($custodianId, $projectId, $registryId);
+            if ($registry instanceof JsonResponse) {
+                return $registry;
+            }
+
+            $puhca = ProjectUserCustodianApproval::where([
+                'project_id' => $projectId,
+                'user_id' => $registry->user->id,
+                'custodian_id' => $custodianId
+            ])->latest('created_at')->first();
+
+            return $this->OKResponse($puhca);
+        } catch (Exception $e) {
+            return $this->ErrorResponse($e->getMessage());
         }
-
-        $registry = $this->resolveAndAuthorize($custodianId, $projectId, $registryId);
-        if ($registry instanceof JsonResponse) {
-            return $registry;
-        }
-
-        $puhca = ProjectUserCustodianApproval::where([
-            'project_id' => $projectId,
-            'user_id' => $registry->user->id,
-            'custodian_id' => $custodianId
-        ])->latest('created_at')->first();
-
-        return $this->OKResponse($puhca);
     }
 
     public function store(Request $request, int $custodianId, int $projectId, int $registryId)

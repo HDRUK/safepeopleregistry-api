@@ -9,6 +9,7 @@ use App\Http\Traits\Responses;
 use App\Models\Organisation;
 use App\Models\Custodian;
 use App\Models\OrganisationHasCustodianApproval;
+use Illuminate\Support\Facades\Gate;
 
 class OrganisationCustodianApprovalController extends Controller
 {
@@ -16,20 +17,34 @@ class OrganisationCustodianApprovalController extends Controller
 
     public function show(Request $request, int $custodianId, int $organisationId)
     {
-        $organisation = Organisation::where('id', $organisationId)->first();
-        $custodian = Custodian::where('id', $custodianId)->first();
+        try {
+            $custodian = Custodian::findOrFail($custodianId);
+            if (!Gate::allows('view', $custodian)) {
+                return $this->ForbiddenResponse();
+            }
 
-        $ohia = OrganisationHasCustodianApproval::create([
-            'organisation_id' => $organisation->id,
-            'custodian_id' => $custodian->id,
-        ])->latest('created_at')->first();
+            $organisation = Organisation::where('id', $organisationId)->first();
+            $custodian = Custodian::where('id', $custodianId)->first();
 
-        return $this->OKResponse($ohia);
+            $ohia = OrganisationHasCustodianApproval::create([
+                'organisation_id' => $organisation->id,
+                'custodian_id' => $custodian->id,
+            ])->latest('created_at')->first();
+
+            return $this->OKResponse($ohia);
+        } catch (Exception $e) {
+            return $this->ErrorResponse($e->getMessage());
+        }
     }
 
     public function store(Request $request, int $custodianId, int $organisationId)
     {
         try {
+            $custodian = Custodian::findOrFail($custodianId);
+            if (!Gate::allows('update', $custodian)) {
+                return $this->ForbiddenResponse();
+            }
+
             $validated = $request->validate([
                 'approved' => 'required|integer|in:0,1',
                 'comment' => 'required|string',
