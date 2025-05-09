@@ -11,6 +11,10 @@ class ProjectUserCustodianApproval extends Model
 
     public $timestamps = false;
 
+    protected $casts = [
+        'created_at' => 'datetime',
+    ];
+
     protected $primaryKey = null;
     public $incrementing = false;
 
