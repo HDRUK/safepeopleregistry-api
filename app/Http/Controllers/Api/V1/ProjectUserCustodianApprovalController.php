@@ -61,8 +61,8 @@ class ProjectUserCustodianApprovalController extends Controller
                 'project_id' => $projectId,
                 'user_id' => $registry->user->id,
                 'custodian_id' => $custodianId,
-                'approved' => $validated['approved'],
-                'comment' => $validated['comment'],
+                'approved' => $request['approved'],
+                'comment' => $request['comment'],
             ]);
 
             return $this->CreatedResponse($approval);

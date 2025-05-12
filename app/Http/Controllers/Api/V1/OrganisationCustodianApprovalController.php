@@ -56,8 +56,8 @@ class OrganisationCustodianApprovalController extends Controller
             $approval = OrganisationHasCustodianApproval::create([
                 'organisation_id' => $organisation->id,
                 'custodian_id' => $custodian->id,
-                'approved' => $validated['approved'],
-                'comment' => $validated['comment'],
+                'approved' => $request['approved'],
+                'comment' => $request['comment'],
             ]);
 
             return $this->CreatedResponse($approval);
