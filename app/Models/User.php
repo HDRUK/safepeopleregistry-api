@@ -172,6 +172,7 @@ class User extends Authenticatable
     ];
 
     protected static array $searchableColumns = [
+        'name',
         'first_name',
         'last_name',
         'email',
@@ -226,7 +227,7 @@ class User extends Authenticatable
     public function status(): Attribute
     {
         return new Attribute(
-            get: fn () => $this->unclaimed === 1 ? self::STATUS_INVITED : self::STATUS_REGISTERED
+            get: fn() => $this->unclaimed === 1 ? self::STATUS_INVITED : self::STATUS_REGISTERED
         );
     }
 
