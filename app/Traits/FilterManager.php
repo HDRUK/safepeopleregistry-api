@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use Exception;
 use App\Models\State;
 
 trait FilterManager
@@ -18,7 +19,7 @@ trait FilterManager
 
         $invalidSlugs = array_diff($stateSlugs, State::STATES);
         if (!empty($invalidSlugs)) {
-            throw new \Exception('Unknown state filters: ' . implode(', ', $invalidSlugs) .
+            throw new Exception('Unknown state filters: ' . implode(', ', $invalidSlugs) .
                 '. Valid states are: ' . implode(', ', State::STATES));
         }
 
