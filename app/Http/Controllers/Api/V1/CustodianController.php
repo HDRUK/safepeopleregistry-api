@@ -650,6 +650,7 @@ class CustodianController extends Controller
             ->applySorting()
             ->with(['approvals', 'organisations', 'modelState.state'])
             ->filterByCommon()
+            ->filterByState()
             ->whereHas('custodians', function ($query) use ($custodianId) {
                 $query->where('custodians.id', $custodianId);
             })
