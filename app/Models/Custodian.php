@@ -78,7 +78,7 @@ class Custodian extends Model
     use HasFactory;
     use SearchManager;
     use ActionManager;
-    //use FilterManager;
+    use FilterManager;
 
     protected $table = 'custodians';
 
