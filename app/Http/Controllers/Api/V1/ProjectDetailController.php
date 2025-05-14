@@ -145,8 +145,8 @@ class ProjectDetailController extends Controller
     {
         try {
             $input = $request->only(app(ProjectDetail::class)->getFillable());
-            $input['datasets'] = (isset($input['datasets' ]) ? json_encode($input['datasets']) : []);
-            $input['other_approval_committees'] = (isset($input['other_approval_committees']) ? json_encode($input['other_approval_committees']) : []);
+            $input['datasets'] = $this->safe_json_array($input['datasets'] ?? []);
+            $input['other_approval_committees'] = $this->safe_json_array($input['other_approval_committees'] ?? []);
             $projectDetail = ProjectDetail::create($input);
 
             return $this->CreatedResponse($projectDetail->id);
@@ -285,5 +285,10 @@ class ProjectDetailController extends Controller
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
+    }
+
+    function safe_json_array($value)
+    {
+        return json_encode(is_array($value) ? $value : []);
     }
 }
