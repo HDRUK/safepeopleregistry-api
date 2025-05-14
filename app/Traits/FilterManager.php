@@ -9,23 +9,28 @@ trait FilterManager
 {
     public function scopeFilterByState($query)
     {
-        $stateSlug = \request()->only(['filter']);
-        if (!$stateSlug) {
-            return;
+        $stateSlugs = \request()->input('filter');
+
+        if (empty($stateSlugs)) {
+            return $query;
         }
 
-        if (!in_array($stateSlug['filter'], State::STATES)) {
-            throw new Exception('filter state \"' . $stateSlug['filter'] . '\" is unknown and must be one of: '
-                . implode(', ', State::STATES));
+        $stateSlugs = is_array($stateSlugs) ? $stateSlugs : [$stateSlugs];
+
+        $invalidSlugs = array_diff($stateSlugs, State::STATES);
+        if (!empty($invalidSlugs)) {
+            throw new \Exception('Unknown state filters: ' . implode(', ', $invalidSlugs) .
+                '. Valid states are: ' . implode(', ', State::STATES));
         }
 
-        $state = State::where('slug', $stateSlug['filter'])->first();
-        if (!$state) {
-            return;
+        $states = State::whereIn('slug', $stateSlugs)->pluck('id');
+
+        if ($states->isEmpty()) {
+            return $query;
         }
 
-        return $query->whereHas('modelState', function ($query) use ($state) {
-            $query->where('state_id', $state->id);
+        return $query->whereHas('modelState', function ($query) use ($states) {
+            $query->whereIn('state_id', $states);
         });
     }
 }
