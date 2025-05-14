@@ -2,7 +2,6 @@
 
 namespace App\Traits;
 
-use Exception;
 use App\Models\State;
 
 trait FilterManager
