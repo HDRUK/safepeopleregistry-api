@@ -27,20 +27,16 @@ class CustodianObserver
 
         foreach (Custodian::getDefaultActions() as $action) {
             ActionLog::firstOrCreate([
-                 'entity_id' => $custodian->id,
-                 'entity_type' => Custodian::class,
-                 'action' => $action,
+                'entity_id' => $custodian->id,
+                'entity_type' => Custodian::class,
+                'action' => $action,
             ], [
-                 'completed_at' => null,
-             ]);
+                'completed_at' => null,
+            ]);
         }
 
-        $organisationIds = Organisation::select("id")->pluck("id");
-        foreach ($organisationIds as $organisationId) {
-            $this->updateCustodianOrganisationValidation(
-                $custodian->id,
-                $organisationId
-            );
-        }
+        $this->updateAllCustodianOrganisationValidation(
+            $custodian->id,
+        );
     }
 }

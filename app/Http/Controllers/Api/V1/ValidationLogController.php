@@ -237,7 +237,6 @@ class ValidationLogController extends Controller
     public function updateCustodianValidationLogs(Request $request, int $custodianId): JsonResponse
     {
         $validated = $request->validate([
-            'name' => 'required|string',
             'enabled' => 'required|in:0,1',
         ]);
 
@@ -245,7 +244,6 @@ class ValidationLogController extends Controller
             $updated = ValidationLog::withDisabled()
                 ->where('entity_type', Custodian::class)
                 ->where('entity_id', $custodianId)
-                ->where('name', $validated['name'])
                 ->update(['enabled' => $validated['enabled']]);
 
             return $this->OKResponse($updated);

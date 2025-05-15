@@ -39,7 +39,6 @@ trait ValidationManager
             })
             ->get();
 
-
         foreach ($phus as $phu) {
             $registry = $phu->registry;
             foreach ($phcs as $phc) {
@@ -131,6 +130,16 @@ trait ValidationManager
                     'completed_at' => null,
                 ]
             );
+        }
+    }
+
+    public function updateAllCustodianOrganisationValidation(
+        int $custodianId
+    ): void {
+
+        $organisationIds = Organisation::pluck('id');
+        foreach ($organisationIds as $organisationId) {
+            $this->updateCustodianOrganisationValidation($custodianId, $organisationId);
         }
     }
 }

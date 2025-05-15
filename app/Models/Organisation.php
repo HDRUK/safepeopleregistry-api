@@ -292,8 +292,12 @@ class Organisation extends Model
     {
         return [
             [
-                'name' => '',
-                'description' => ''
+                'name' => 'organisation_aligned_with_sde_network',
+                'description' => 'Is the Organisation aligned with the SDE network?',
+            ],
+            [
+                'name' => 'confidence_in_costs_and_profits_for_future_projects',
+                'description' => 'Are we confident costs would be met and profits realised for future projects?',
             ],
         ];
     }
