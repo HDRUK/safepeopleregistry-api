@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ValidationChecks\CreateValidationCheckRequest;
 use App\Http\Requests\ValidationChecks\ValidationCheckRequest;
 use App\Http\Traits\Responses;
 use App\Models\ValidationCheck;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class ValidationCheckController extends Controller
 {
@@ -94,7 +96,7 @@ class ValidationCheckController extends Controller
      *     )
      * )
      */
-    public function store(ValidationCheckRequest $request): JsonResponse
+    public function store(CreateValidationCheckRequest $request): JsonResponse
     {
         $input = $request->only(app(ValidationCheck::class)->getFillable());
 
@@ -137,14 +139,15 @@ class ValidationCheckController extends Controller
      *     )
      * )
      */
-    public function update(ValidationCheckRequest $request, $id): JsonResponse
+    public function update(Request $request, $id): JsonResponse
     {
+        $input = $request->only(app(ValidationCheck::class)->getFillable());
         $check = ValidationCheck::find($id);
         if (!$check) {
             return $this->NotFoundResponse();
         }
 
-        $check->update($request->validated());
+        $check->update($input);
 
         return $this->OKResponse($check);
     }

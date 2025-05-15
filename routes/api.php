@@ -149,6 +149,7 @@ Route::middleware('auth:api')
         Route::get('/{id}', 'show');
         Route::post('/', 'store');
         Route::put('/{id}', 'update');
+        Route::delete('/{id}', 'destroy');
     });
 
 

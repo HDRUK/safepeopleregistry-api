@@ -6,7 +6,7 @@ use App\Enums\ValidationCheckAppliesTo;
 use App\Http\Requests\BaseFormRequest;
 use Illuminate\Validation\Rules\Enum;
 
-class ValidationCheckRequest extends BaseFormRequest
+class CreateValidationCheckRequest extends BaseFormRequest
 {
     public function rules(): array
     {
