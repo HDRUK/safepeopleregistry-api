@@ -42,7 +42,7 @@ class UpdateActionNotifications implements ShouldQueue
         $this->processUsers(User::GROUP_CUSTODIANS, User::query());
     }
 
-    private function processUsers(string $group, &$query): void
+    private function processUsers(string $group, $query): void
     {
         $query->where("user_group", $group)
             ->chunk($this->chunkSize, function ($users) use ($group) {
