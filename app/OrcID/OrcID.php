@@ -99,9 +99,11 @@ class OrcID
 
         $response = Http::withHeaders($headers)->get($url);
         if ($response->status() === 200) {
+            $response->close();
             return json_decode($response->body(), true);
         }
 
+        $response->close();
         return [];
     }
 }
