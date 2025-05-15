@@ -85,6 +85,7 @@ class Keycloak
             );
 
             $content = json_decode($response->body(), true);
+            $response->close();
 
             if ($response->status() === 201) {
                 $headers = $response->headers();
@@ -185,6 +186,7 @@ class Keycloak
 
             $response = Http::asForm()->post($authUrl, $credentials);
             $responseData = $response->json();
+            $response->close();
 
             if ($response->status() === 200) {
                 $user = User::where('email', $username)->first();
@@ -284,6 +286,7 @@ class Keycloak
 
             $response = Http::asForm()->post($authUrl, $credentials);
             $responseData = $response->json();
+            $response->close();
 
             self::$serviceToken = 'Bearer ' . $responseData['access_token'];
             self::$tokenCreatedAt = Carbon::now();
@@ -354,6 +357,7 @@ class Keycloak
                     'exact' => true,
                 ]
             );
+            $response->close();
 
             return count($response->json()) > 0;
 
@@ -395,6 +399,7 @@ class Keycloak
             );
 
             $content = $response->json();
+            $response->close();
 
             if ($response->status() === 201) {
                 $headers = array_change_key_case($response->headers(), CASE_LOWER);
@@ -454,8 +459,11 @@ class Keycloak
             );
 
             if ($response->status() === 204) {
+                $response->close();
                 return true;
             }
+
+            $response->close();
 
             return false;
         } catch (Exception $e) {

@@ -61,6 +61,7 @@ class ScanFileUpload implements ShouldQueue
         );
 
         $isInfected = $response['isInfected'] ?? null;
+        $response->close();
 
         // Check if the file is infected
         if ($isInfected || $isInfected === null) {
