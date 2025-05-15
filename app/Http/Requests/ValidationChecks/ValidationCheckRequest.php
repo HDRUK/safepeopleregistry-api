@@ -1,21 +1,13 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\ValidationChecks;
 
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Enum;
 use App\Enums\ValidationCheckAppliesTo;
+use App\Http\Requests\BaseFormRequest;
+use Illuminate\Validation\Rules\Enum;
 
-
-class ValidationCheckRequest extends FormRequest
+class ValidationCheckRequest extends BaseFormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
-    {
-        return true;
-    }
 
     public function rules(): array
     {

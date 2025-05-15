@@ -31,18 +31,27 @@ class ProjectHasUser extends Model
         'affiliation_id',
     ];
 
-    public const VALIDATE_COMPLETE_CONFIGURATION = 'mandatory_training_complete';
-    public const NO_MISCONDUCT = 'no_misconduct';
-    public const NO_RELEVANT_CRIMINAL_RECORD = 'no_relevant_criminal_record';
-    public const ORGANISATION_HAS_CONFIRMED_USER = 'organisation_has_confirmed_the_user';
-
-
-    protected static array $defaultActions = [
-        self::VALIDATE_COMPLETE_CONFIGURATION,
-        self::NO_MISCONDUCT,
-        self::NO_RELEVANT_CRIMINAL_RECORD,
-        self::ORGANISATION_HAS_CONFIRMED_USER
-    ];
+    public static function defaultValidationChecks(): array
+    {
+        return [
+            [
+                'name' => 'mandatory_training_complete',
+                'description' => 'Mandatory training has been completed',
+            ],
+            [
+                'name' => 'no_misconduct',
+                'description' => 'The user has no record of misconduct',
+            ],
+            [
+                'name' => 'no_relevant_criminal_record',
+                'description' => 'The user has no relevant criminal record',
+            ],
+            [
+                'name' => 'organisation_has_confirmed_the_user',
+                'description' => 'The organisation has confirmed the user',
+            ],
+        ];
+    }
 
     public function role(): BelongsTo
     {
