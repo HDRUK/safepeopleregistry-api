@@ -7,7 +7,6 @@ use App\Models\ProjectHasUser;
 use App\Models\ValidationCheck;
 use Illuminate\Database\Seeder;
 
-
 class ValidationCheckSeeder extends Seeder
 {
     /**

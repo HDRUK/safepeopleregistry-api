@@ -5,20 +5,17 @@ namespace Tests\Feature;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\User;
 use App\Models\Custodian;
-use App\Models\CustodianHasValidationCheck;
 use App\Models\Registry;
 use App\Models\ProjectHasUser;
 use App\Models\Project;
 use App\Models\ProjectHasCustodian;
 use App\Models\ValidationLog;
 use App\Models\Organisation;
-use App\Models\OrganisationHasCustodianApproval;
 use App\Models\ValidationCheck;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 use Carbon\Carbon;
 use DB;
-use Illuminate\Support\Facades\DB as FacadesDB;
 
 class ValidationLogTest extends TestCase
 {

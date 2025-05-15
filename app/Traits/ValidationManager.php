@@ -12,7 +12,6 @@ use App\Models\ProjectHasCustodian;
 use App\Models\ProjectHasUser;
 use App\Models\Registry;
 use App\Models\Organisation;
-use App\Models\OrganisationHasCustodianApproval;
 
 /**
  * ValidationManager

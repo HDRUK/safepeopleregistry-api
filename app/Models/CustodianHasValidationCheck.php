@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class CustodianHasValidationCheck extends Pivot
@@ -15,12 +16,12 @@ class CustodianHasValidationCheck extends Pivot
         'validation_check_id',
     ];
 
-    public function custodian()
+    public function custodian(): BelongsTo
     {
         return $this->belongsTo(Custodian::class);
     }
 
-    public function validationCheck()
+    public function validationCheck(): BelongsTo
     {
         return $this->belongsTo(ValidationCheck::class);
     }

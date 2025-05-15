@@ -7,13 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use App\Observers\OrganisationHasCustodianApprovalObserver;
-use App\Traits\ActionManager;
 
 #[ObservedBy([OrganisationHasCustodianApprovalObserver::class])]
 class OrganisationHasCustodianApproval extends Model
 {
     use HasFactory;
-    use ActionManager;
 
     protected $table = 'organisation_has_custodian_approvals';
 

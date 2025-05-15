@@ -19,7 +19,7 @@ class ValidationCheckController extends Controller
      *     description="Retrieve all validation checks.",
      *     tags={"Validation Checks"},
      *     security={{"bearerAuth":{}}},
-     * 
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Validation checks retrieved successfully",
@@ -64,7 +64,6 @@ class ValidationCheckController extends Controller
     {
         $check = ValidationCheck::find($id);
         if (!$check) {
-            return $this->OKResponse('whats up');
             return $this->NotFoundResponse();
         }
 

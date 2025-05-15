@@ -8,7 +8,6 @@ use Illuminate\Validation\Rules\Enum;
 
 class ValidationCheckRequest extends BaseFormRequest
 {
-
     public function rules(): array
     {
         return [

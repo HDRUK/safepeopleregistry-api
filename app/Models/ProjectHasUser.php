@@ -8,13 +8,11 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
-use App\Traits\ActionManager;
 
 #[ObservedBy([ProjectHasUserObserver::class])]
 class ProjectHasUser extends Model
 {
     use HasFactory;
-    use ActionManager;
 
     public $incrementing = false;
     //protected $primaryKey = null;

@@ -3,7 +3,6 @@
 namespace App\Observers;
 
 use App\Models\CustodianHasValidationCheck;
-use App\Models\Organisation;
 use App\Traits\ValidationManager;
 
 class CustodianHasValidationCheckObserver
