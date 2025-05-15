@@ -56,6 +56,8 @@ class BaseDemoSeeder extends Seeder
             EmailTemplatesSeeder::class,
             DepartmentSeeder::class,
             WebhookEventTriggerSeeder::class,
+            ValidationCheckSeeder::class,
+            CustodianHasValidationCheckSeeder::class
         ]);
 
         // --------------------------------------------------------------------------------
@@ -132,7 +134,14 @@ class BaseDemoSeeder extends Seeder
         ]);
 
         $org1Depts = [
-            2, 3, 6, 11, 13, 20, 22, 23,
+            2,
+            3,
+            6,
+            11,
+            13,
+            20,
+            22,
+            23,
         ];
 
         foreach ($org1Depts as $depts) {
@@ -241,7 +250,10 @@ National Public Health Ethics Committee for authorization to analyze population 
         ]);
 
         $org2Depts = [
-            2, 11, 13, 23,
+            2,
+            11,
+            13,
+            23,
         ];
 
         foreach ($org2Depts as $depts) {
@@ -322,7 +334,8 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         ]);
 
         $org3Depts = [
-            11, 16,
+            11,
+            16,
         ];
 
         foreach ($org3Depts as $depts) {
@@ -952,7 +965,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                     'affiliation_id' => $aff->id,
                     'registry_id' => $user->registry_id,
                 ]);
-
             }
         }
 

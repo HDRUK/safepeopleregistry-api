@@ -24,6 +24,10 @@ class ValidationLogTest extends TestCase
 
     public const TEST_URL = '/api/v1/';
 
+    protected $registry;
+    protected $custodian;
+    protected $project;
+
     public function setUp(): void
     {
         parent::setUp();
@@ -56,7 +60,7 @@ class ValidationLogTest extends TestCase
 
         ProjectHasCustodian::create([
             'project_id' => $this->project->id,
-            'custodian_id' => $this->custodian->id ,
+            'custodian_id' => $this->custodian->id,
         ]);
 
 
@@ -96,7 +100,7 @@ class ValidationLogTest extends TestCase
         $newCustodian = Custodian::factory()->create();
         ProjectHasCustodian::create([
             'project_id' => $this->project->id,
-            'custodian_id' => $newCustodian->id ,
+            'custodian_id' => $newCustodian->id,
         ]);
 
         $this->assertEquals(
@@ -117,7 +121,6 @@ class ValidationLogTest extends TestCase
                 'completed_at' => null,
             ]);
         }
-
     }
 
     public function test_it_removes_validation_logs_when_a_custodian_is_removed_from_a_project()
@@ -128,7 +131,7 @@ class ValidationLogTest extends TestCase
         $newCustodian = Custodian::factory()->create();
         $phc = ProjectHasCustodian::create([
             'project_id' => $this->project->id,
-            'custodian_id' => $newCustodian->id ,
+            'custodian_id' => $newCustodian->id,
         ]);
 
 
@@ -178,13 +181,12 @@ class ValidationLogTest extends TestCase
     public function test_it_doesnt_find_custodian_project_user_logs_via_api()
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
+            );
 
         $response->assertStatus(404);
-
     }
 
     public function test_it_returns_custodian_project_user_logs_via_api()
@@ -193,10 +195,10 @@ class ValidationLogTest extends TestCase
         $this->add_user_and_custodian_to_project();
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
+            );
 
         $response->assertStatus(200);
 
@@ -214,7 +216,6 @@ class ValidationLogTest extends TestCase
         }, $defaultActions);
 
         $response->assertJson(['data' => $expectedResponse]);
-
     }
 
     public function test_it_can_mark_validation_as_complete_via_api()
@@ -223,10 +224,10 @@ class ValidationLogTest extends TestCase
 
         $this->add_user_and_custodian_to_project();
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
+            );
         $response->assertStatus(200);
         $responseData = $response['data'];
 
@@ -238,17 +239,17 @@ class ValidationLogTest extends TestCase
         $validationLogId = $validationLog['id'];
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'PUT',
-            self::TEST_URL . "validation_logs/{$validationLogId}?complete",
-        );
+            ->json(
+                'PUT',
+                self::TEST_URL . "validation_logs/{$validationLogId}?complete",
+            );
         $response->assertStatus(200);
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
+            );
         $response->assertStatus(200);
         $responseData = $response['data'];
 
@@ -261,17 +262,17 @@ class ValidationLogTest extends TestCase
         );
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'PUT',
-            self::TEST_URL . "validation_logs/{$validationLogId}?incomplete",
-        );
+            ->json(
+                'PUT',
+                self::TEST_URL . "validation_logs/{$validationLogId}?incomplete",
+            );
         $response->assertStatus(200);
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
+            );
         $response->assertStatus(200);
         $responseData = $response['data'];
 
@@ -279,7 +280,6 @@ class ValidationLogTest extends TestCase
             ->firstWhere('name', ProjectHasUser::VALIDATE_COMPLETE_CONFIGURATION);
 
         $this->assertNull($validationLog['completed_at']);
-
     }
 
     public function test_it_can_mark_validation_as_pass_or_fail_via_api()
@@ -288,10 +288,10 @@ class ValidationLogTest extends TestCase
 
         $this->add_user_and_custodian_to_project();
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
+            );
         $response->assertStatus(200);
         $responseData = $response['data'];
 
@@ -304,17 +304,17 @@ class ValidationLogTest extends TestCase
         $validationLogId = $validationLog['id'];
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'PUT',
-            self::TEST_URL . "validation_logs/{$validationLogId}?pass",
-        );
+            ->json(
+                'PUT',
+                self::TEST_URL . "validation_logs/{$validationLogId}?pass",
+            );
         $response->assertStatus(200);
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
+            );
         $response->assertStatus(200);
         $responseData = $response['data'];
 
@@ -328,17 +328,17 @@ class ValidationLogTest extends TestCase
         $this->assertEquals(1, $validationLog['manually_confirmed']);
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'PUT',
-            self::TEST_URL . "validation_logs/{$validationLogId}?fail",
-        );
+            ->json(
+                'PUT',
+                self::TEST_URL . "validation_logs/{$validationLogId}?fail",
+            );
         $response->assertStatus(200);
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
+            );
         $response->assertStatus(200);
         $responseData = $response['data'];
 
@@ -350,7 +350,6 @@ class ValidationLogTest extends TestCase
             $validationLog['completed_at']
         );
         $this->assertEquals(0, $validationLog['manually_confirmed']);
-
     }
 
     public function test_it_can_mark_validation_as_enabled_disabled_via_api()
@@ -359,10 +358,10 @@ class ValidationLogTest extends TestCase
 
         $this->add_user_and_custodian_to_project();
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
+            );
         $response->assertStatus(200);
         $responseData = $response['data'];
 
@@ -375,18 +374,18 @@ class ValidationLogTest extends TestCase
         $validationLogId = $validationLog['id'];
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'PUT',
-            self::TEST_URL . "validation_logs/{$validationLogId}?disable",
-        );
+            ->json(
+                'PUT',
+                self::TEST_URL . "validation_logs/{$validationLogId}?disable",
+            );
         $response->assertStatus(200);
 
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
+            );
         $response->assertStatus(200);
         $responseData = $response['data'];
 
@@ -397,10 +396,10 @@ class ValidationLogTest extends TestCase
 
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs?show_disabled=1",
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs?show_disabled=1",
+            );
         $response->assertStatus(200);
         $responseData = $response['data'];
 
@@ -410,17 +409,17 @@ class ValidationLogTest extends TestCase
         $this->assertEquals(0, $validationLog['enabled']);
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'PUT',
-            self::TEST_URL . "validation_logs/{$validationLogId}?enable",
-        );
+            ->json(
+                'PUT',
+                self::TEST_URL . "validation_logs/{$validationLogId}?enable",
+            );
         $response->assertStatus(200);
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
+            );
         $response->assertStatus(200);
         $responseData = $response['data'];
 
@@ -428,7 +427,6 @@ class ValidationLogTest extends TestCase
             ->firstWhere('name', ProjectHasUser::VALIDATE_COMPLETE_CONFIGURATION);
 
         $this->assertEquals(1, $validationLog['enabled']);
-
     }
 
     public function test_it_can_handle_custodian_project_user_validation_checks_via_api()
@@ -438,10 +436,10 @@ class ValidationLogTest extends TestCase
         $this->add_user_and_custodian_to_project();
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
+            );
 
         $response->assertStatus(200);
 
@@ -466,17 +464,17 @@ class ValidationLogTest extends TestCase
             $validationLogId = $validationLog['id'];
 
             $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-            ->json(
-                'PUT',
-                self::TEST_URL . "validation_logs/{$validationLogId}?pass",
-            );
+                ->json(
+                    'PUT',
+                    self::TEST_URL . "validation_logs/{$validationLogId}?pass",
+                );
             $response->assertStatus(200);
 
             $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-            ->json(
-                'GET',
-                self::TEST_URL . "validation_logs/{$validationLogId}",
-            );
+                ->json(
+                    'GET',
+                    self::TEST_URL . "validation_logs/{$validationLogId}",
+                );
             $response->assertStatus(200);
             $this->assertEquals(1, $response['data']['manually_confirmed']);
             $this->assertEquals(
@@ -493,10 +491,10 @@ class ValidationLogTest extends TestCase
         $this->add_user_and_custodian_to_project();
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
+            );
 
         $response->assertStatus(200);
 
@@ -523,22 +521,22 @@ class ValidationLogTest extends TestCase
         ];
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'PUT',
-            self::TEST_URL . "custodians/{$this->custodian->id}/validation_logs",
-            $payload
-        );
+            ->json(
+                'PUT',
+                self::TEST_URL . "custodians/{$this->custodian->id}/validation_logs",
+                $payload
+            );
         $response->assertStatus(200);
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . "custodians/{$this->custodian->id}/projects/{$this->project->id}/registries/{$this->registry->id}/validation_logs",
+            );
 
         $response->assertStatus(200);
 
-        $actionsWithRemoved = array_values(array_filter($defaultActions, fn ($v) => $v !== $actionToDisable));
+        $actionsWithRemoved = array_values(array_filter($defaultActions, fn($v) => $v !== $actionToDisable));
 
         $expectedResponse = array_map(function ($action) {
             return [
@@ -555,7 +553,6 @@ class ValidationLogTest extends TestCase
         }, $actionsWithRemoved);
 
         $response->assertJson(['data' => $expectedResponse]);
-
     }
 
     public function test_it_adds_custodian_organisation_validation_logs()
@@ -592,8 +589,6 @@ class ValidationLogTest extends TestCase
                 ->where('secondary_entity_type', Organisation::class)
                 ->count()
         );
-
-
     }
 
 
@@ -605,11 +600,7 @@ class ValidationLogTest extends TestCase
         ]);
         ProjectHasCustodian::create([
             'project_id' => $this->project->id,
-            'custodian_id' => $this->custodian->id ,
+            'custodian_id' => $this->custodian->id,
         ]);
-
     }
-
-
-
 }

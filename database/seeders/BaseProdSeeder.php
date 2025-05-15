@@ -28,6 +28,7 @@ class BaseProdSeeder extends Seeder
             StateSeeder::class,
             EntityModelSeeder::class,
             RulesSeeder::class,
+            ValidationCheckSeeder::class,
         ]);
     }
 }
