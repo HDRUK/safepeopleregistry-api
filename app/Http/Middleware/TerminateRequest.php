@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Log;
 use Closure;
+use App\Models\DebugLog;
 use Illuminate\Contracts\Foundation\Application;
 
 class TerminateRequest
@@ -22,11 +23,9 @@ class TerminateRequest
 
     public function terminate($request, $response)
     {
-        Log::info('Request: ' . $request->getMethod() . ' ' . $request->getRequestUri());
-        Log::info('Response: ' . $response->getStatusCode());
-
-        $memoryUsage = memory_get_usage(true);
-
-        Log::info('Memory usage after request: ' . round($memoryUsage / 1024 / 1024, 2) . ' MB');
+        DebugLog::create([
+            'class' => $request->route()->getActionName(),
+            'log' => 'Memory usage after request: ' . round(memory_get_usage(true) / 1024 / 1024, 2) . ' MB',
+        ]);
     }
 }
