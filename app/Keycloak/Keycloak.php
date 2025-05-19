@@ -357,7 +357,6 @@ class Keycloak
                     'exact' => true,
                 ]
             );
-            $response->close();
 
             return count($response->json()) > 0;
 
