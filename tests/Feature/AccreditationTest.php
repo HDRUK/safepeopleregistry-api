@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
 use Carbon\Carbon;
-use App\Models\User;
 use App\Models\Registry;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
@@ -16,14 +15,13 @@ class AccreditationTest extends TestCase
 
     public const TEST_URL = '/api/v1/accreditations';
 
-    private $user = null;
     private $registry = null;
 
     public function setUp(): void
     {
         parent::setUp();
+        $this->withUsers();
 
-        $this->user = User::where('user_group', 'USERS')->first();
         $this->registry = Registry::where('id', $this->user->registry_id)->first();
     }
 

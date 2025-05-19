@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Traits\SearchManager;
@@ -171,6 +172,7 @@ class User extends Authenticatable
     ];
 
     protected static array $searchableColumns = [
+        'name',
         'first_name',
         'last_name',
         'email',
@@ -225,7 +227,7 @@ class User extends Authenticatable
     public function status(): Attribute
     {
         return new Attribute(
-            get: fn () => $this->unclaimed === 1 ? self::STATUS_INVITED : self::STATUS_REGISTERED
+            get: fn() => $this->unclaimed === 1 ? self::STATUS_INVITED : self::STATUS_REGISTERED
         );
     }
 
@@ -349,4 +351,18 @@ class User extends Authenticatable
         ]);
     }
 
+    public function actionLogs(): MorphMany
+    {
+        return $this->morphMany(ActionLog::class, 'entity');
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->user_group === self::GROUP_ADMINS;
+    }
+
+    public function inGroup(array $groups): bool
+    {
+        return in_array($this->user_group, $groups);
+    }
 }

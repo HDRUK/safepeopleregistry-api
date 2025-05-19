@@ -13,6 +13,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
 use App\Http\Requests\Training\CreateTraining;
+use App\Models\Registry;
+use Illuminate\Support\Facades\Gate;
 
 class TrainingController extends Controller
 {
@@ -96,6 +98,11 @@ class TrainingController extends Controller
      */
     public function indexByRegistryId(Request $request, int $registryId): JsonResponse
     {
+        $registry = Registry::findOrFail($registryId);
+        if (!Gate::allows('view', $registry)) {
+            return $this->ForbiddenResponse();
+        }
+
         $linkedTraining = RegistryHasTraining::where([
             'registry_id' => $registryId,
         ])->select('training_id')->get()->toArray();

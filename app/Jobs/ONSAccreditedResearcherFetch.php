@@ -38,6 +38,8 @@ class ONSAccreditedResearcherFetch implements ShouldQueue
             $this->processPageContent($htmlContent);
         }
 
+        $response->close();
+
         // non-200 response returned. Ignore.
         return;
     }
@@ -64,9 +66,12 @@ class ONSAccreditedResearcherFetch implements ShouldQueue
             $response = Http::withOptions(['sink' => $filePath])->get($url);
 
             if (!$response->successful()) {
+                $response->close();
                 echo 'unable to download ' . $url . ' file!';
                 return;
             }
+
+            $response->close();
 
             $data = $this->parseONSFile($filePath);
             echo(count($data) . ' found in file...' . "\n");

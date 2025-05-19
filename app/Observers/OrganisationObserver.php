@@ -3,13 +3,16 @@
 namespace App\Observers;
 
 use App\Models\Organisation;
+use App\Models\Custodian;
 use App\Models\Affiliation;
 use App\Models\State;
 use App\Models\ActionLog;
 use Carbon\Carbon;
+use App\Traits\ValidationManager;
 
 class OrganisationObserver
 {
+    use ValidationManager;
     protected array $nameAndAddressFields = [
         'organisation_name',
         'address_1',
@@ -59,6 +62,14 @@ class OrganisationObserver
             ]);
         }
         $this->manageAffiliationStates($organisation);
+
+        $custodianIds = Custodian::select("id")->pluck("id");
+        foreach ($custodianIds as $custodianId) {
+            $this->updateCustodianOrganisationValidation(
+                $custodianId,
+                $organisation->id
+            );
+        }
     }
 
     /**

@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
 use Carbon\Carbon;
-use App\Models\User;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
@@ -14,18 +13,17 @@ class RegistryTest extends TestCase
     use ActingAsKeycloakUser;
 
     public const TEST_URL = '/api/v1/registries';
-
-    private $user = null;
+    protected $admin;
 
     public function setUp(): void
     {
         parent::setUp();
-        $this->user = User::where('user_group', 'USERS')->first();
+        $this->withUsers();
     }
 
     public function test_the_application_can_list_registries(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->admin)
             ->json(
                 'GET',
                 self::TEST_URL
@@ -37,15 +35,15 @@ class RegistryTest extends TestCase
 
     public function test_the_application_can_show_registries(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->admin)
             ->json(
                 'POST',
                 self::TEST_URL,
                 [
-                'dl_ident' => '23897592835298352',
-                'pp_ident' => 'PASSPORTIDENT 92387429874 A',
-                'verified' => false,
-            ]
+                    'dl_ident' => '23897592835298352',
+                    'pp_ident' => 'PASSPORTIDENT 92387429874 A',
+                    'verified' => false,
+                ]
             );
 
         $response->assertStatus(201);
@@ -53,7 +51,7 @@ class RegistryTest extends TestCase
 
         $content = $response->decodeResponseJson();
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->admin)
             ->json(
                 'GET',
                 self::TEST_URL . '/' . $content['data']
@@ -65,15 +63,15 @@ class RegistryTest extends TestCase
 
     public function test_the_application_can_create_registries(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->admin)
             ->json(
                 'POST',
                 self::TEST_URL,
                 [
-                'dl_ident' => '23897592835298352',
-                'pp_ident' => 'PASSPORTIDENT 92387429874 A',
-                'verified' => false,
-            ]
+                    'dl_ident' => '23897592835298352',
+                    'pp_ident' => 'PASSPORTIDENT 92387429874 A',
+                    'verified' => false,
+                ]
             );
 
         $response->assertStatus(201);
@@ -82,15 +80,15 @@ class RegistryTest extends TestCase
 
     public function test_the_application_can_update_registries(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->admin)
             ->json(
                 'POST',
                 self::TEST_URL,
                 [
-                'dl_ident' => '23897592835298352',
-                'pp_ident' => 'PASSPORTIDENT 92387429874 A',
-                'verified' => false,
-            ]
+                    'dl_ident' => '23897592835298352',
+                    'pp_ident' => 'PASSPORTIDENT 92387429874 A',
+                    'verified' => false,
+                ]
             );
 
         $response->assertStatus(201);
@@ -100,15 +98,15 @@ class RegistryTest extends TestCase
 
         $newDate = Carbon::now()->subYears(2);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->admin)
             ->json(
                 'PUT',
                 self::TEST_URL . '/' . $content['data'],
                 [
-                'dl_ident' => '23897592835298352',
-                'pp_ident' => 'PASSPORTIDENT 92387429874 A',
-                'verified' => true,
-            ]
+                    'dl_ident' => '23897592835298352',
+                    'pp_ident' => 'PASSPORTIDENT 92387429874 A',
+                    'verified' => true,
+                ]
             );
 
         $response->assertStatus(200);
@@ -121,16 +119,16 @@ class RegistryTest extends TestCase
 
     public function test_the_application_can_delete_registries(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->admin)
             ->json(
                 'POST',
                 self::TEST_URL,
                 [
-                'user_id' => 1,
-                'dl_ident' => '23897592835298352',
-                'pp_ident' => 'PASSPORTIDENT 92387429874 A',
-                'verified' => false,
-            ]
+                    'user_id' => 1,
+                    'dl_ident' => '23897592835298352',
+                    'pp_ident' => 'PASSPORTIDENT 92387429874 A',
+                    'verified' => false,
+                ]
             );
 
         $response->assertStatus(201);

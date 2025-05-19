@@ -25,7 +25,7 @@ class OrganisationFactory extends Factory
             'organisation_name' => 'HEALTH DATA RESEARCH UK',
             'address_1' => '215 Euston Road',
             'address_2' => null,
-            'town' => '',
+            'town' => 'London',
             'county' => 'London',
             'country' => 'United Kingdom',
             'postcode' => 'NW1 2BE',
@@ -65,5 +65,4 @@ class OrganisationFactory extends Factory
             $organisation->charities()->attach($charity->id);
         });
     }
-
 }

@@ -4,11 +4,14 @@ namespace App\Observers;
 
 use App\Models\DecisionModel;
 use App\Models\Custodian;
+use App\Models\Organisation;
 use App\Models\CustodianModelConfig;
 use App\Models\ActionLog;
+use App\Traits\ValidationManager;
 
 class CustodianObserver
 {
+    use ValidationManager;
     public function created(Custodian $custodian): void
     {
         // New Custodian's need all Entity models adding to their accounts
@@ -30,6 +33,14 @@ class CustodianObserver
             ], [
                  'completed_at' => null,
              ]);
+        }
+
+        $organisationIds = Organisation::select("id")->pluck("id");
+        foreach ($organisationIds as $organisationId) {
+            $this->updateCustodianOrganisationValidation(
+                $custodian->id,
+                $organisationId
+            );
         }
     }
 }

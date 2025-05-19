@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Api\V1;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Traits\Responses;
 use App\Traits\CommonFunctions;
 use App\Models\User;
+use Illuminate\Support\Facades\Gate;
 
 class NotificationController extends Controller
 {
+    use Responses;
     use CommonFunctions;
     /**
      * @OA\Get(
@@ -78,6 +81,10 @@ class NotificationController extends Controller
             return response()->json(['error' => 'User not found'], 404);
         }
 
+        if (!Gate::allows('view', $user)) {
+            return $this->ForbiddenResponse();
+        }
+
         $status = $request->query('status');
 
         $notificationsQuery = $user->notifications();
@@ -90,8 +97,8 @@ class NotificationController extends Controller
         $perPage = $request->integer('per_page', (int)$this->getSystemConfig('PER_PAGE'));
 
         $notifications = $notificationsQuery
-                            ->orderBy('created_at', 'desc')
-                            ->paginate($perPage);
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
 
         return response()->json([
             'message' => 'success',
@@ -144,6 +151,10 @@ class NotificationController extends Controller
             return response()->json(['error' => 'User not found'], 404);
         }
 
+        if (!Gate::allows('view', $user)) {
+            return $this->ForbiddenResponse();
+        }
+
         $readCount = $user->notifications()->whereNotNull('read_at')->count();
         $unreadCount = $user->notifications()->whereNull('read_at')->count();
 
@@ -189,6 +200,10 @@ class NotificationController extends Controller
 
         if (!$user) {
             return response()->json(['error' => 'User not found'], 404);
+        }
+
+        if (!Gate::allows('update', $user)) {
+            return $this->ForbiddenResponse();
         }
 
         foreach ($user->unreadNotifications as $notification) {
@@ -240,6 +255,10 @@ class NotificationController extends Controller
             return response()->json(['error' => 'User not found'], 404);
         }
 
+        if (!Gate::allows('update', $user)) {
+            return $this->ForbiddenResponse();
+        }
+
         $notification = $user->notifications()->find($notificationId);
 
         if (!$notification) {
@@ -284,6 +303,10 @@ class NotificationController extends Controller
 
         if (!$user) {
             return response()->json(['error' => 'User not found'], 404);
+        }
+
+        if (!Gate::allows('update', $user)) {
+            return $this->ForbiddenResponse();
         }
 
         $notification = $user->notifications()->find($notificationId);

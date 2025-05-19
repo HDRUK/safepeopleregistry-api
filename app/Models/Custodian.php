@@ -9,6 +9,7 @@ use App\Traits\SearchManager;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use App\Traits\ActionManager;
+use App\Traits\FilterManager;
 
 /**
  * @OA\Schema(
@@ -77,6 +78,7 @@ class Custodian extends Model
     use HasFactory;
     use SearchManager;
     use ActionManager;
+    use FilterManager;
 
     protected $table = 'custodians';
 
@@ -169,6 +171,4 @@ class Custodian extends Model
             'organisation_id'
         );
     }
-
-
 }

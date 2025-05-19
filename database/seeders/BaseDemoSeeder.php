@@ -16,6 +16,7 @@ use App\Models\Training;
 use App\Models\Organisation;
 use App\Models\Affiliation;
 use App\Models\OrganisationHasCharity;
+use App\Models\OrganisationHasSubsidiary;
 use App\Models\Charity;
 use App\Models\Custodian;
 use App\Models\CustodianUser;
@@ -28,6 +29,7 @@ use App\Models\RegistryHasAffiliation;
 use App\Models\OrganisationHasDepartment;
 use App\Models\OrganisationHasCustodianApproval;
 use App\Models\State;
+use App\Models\Subsidiary;
 use App\Models\UserHasCustodianApproval;
 use App\Traits\CommonFunctions;
 use Illuminate\Database\Seeder;
@@ -112,6 +114,21 @@ class BaseDemoSeeder extends Seeder
         OrganisationHasCharity::create([
             'organisation_id' => $org1->id,
             'charity_id' => $charity->id,
+        ]);
+
+        $subsidiary = Subsidiary::create([
+            'name' => 'Health Pathways UK Subsidiary',
+            'address_1' => '12 South View',
+            'address_2' => '',
+            'town' => 'Letchworth Garden City',
+            'county' => 'Hertfordshire',
+            'country' => 'United Kingdom',
+            'postcode' => 'SG6 3JH',
+        ]);
+
+        OrganisationHasSubsidiary::create([
+            'organisation_id' => $org1->id,
+            'subsidiary_id' => $subsidiary->id,
         ]);
 
         $org1Depts = [
@@ -504,8 +521,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                     'country' => 'USA',
                     'postcode' => '62629',
                     'dob' => '1962-01-01',
-                    'idvt_result' => 1,
-                    'idvt_result_perc' => 100.0,
+                    'idvt_success' => 1,
                     'idvt_errors' => null,
                     'idvt_completed_at' => Carbon::now(),
                 ],
@@ -559,8 +575,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                     'country' => 'UK',
                     'postcode' => 'B1 8TY',
                     'dob' => '1971-10-01',
-                    'idvt_result' => 0,
-                    'idvt_result_perc' => 0.0,
+                    'idvt_success' => 0,
                     'idvt_errors' => null,
                     'idvt_completed_at' => null,
                 ],
@@ -599,8 +614,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                     'country' => 'UK',
                     'postcode' => 'BA6 9IT',
                     'dob' => '1943-08-12',
-                    'idvt_result' => 1,
-                    'idvt_result_perc' => 78.0,
+                    'idvt_success' => 1,
                     'idvt_errors' => null,
                     'idvt_completed_at' => Carbon::now(),
                 ],
@@ -639,8 +653,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                     'country' => 'CHN',
                     'postcode' => '100053',
                     'dob' => '1964-12-12',
-                    'idvt_result' => 1,
-                    'idvt_result_perc' => 78.0,
+                    'idvt_success' => 1,
                     'idvt_errors' => null,
                     'idvt_completed_at' => Carbon::now(),
                 ],
@@ -684,8 +697,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                     'country' => 'UK',
                     'postcode' => 'EC1Y 8SY',
                     'dob' => '1982-06-20',
-                    'idvt_result' => 1,
-                    'idvt_result_perc' => 94.0,
+                    'idvt_success' => 1,
                     'idvt_errors' => null,
                     'idvt_completed_at' => Carbon::now(),
                 ],
@@ -724,8 +736,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                     'country' => 'UK',
                     'postcode' => 'NW1 2AY',
                     'dob' => '1984-02-25',
-                    'idvt_result' => 1,
-                    'idvt_result_perc' => 87.0,
+                    'idvt_success' => 1,
                     'idvt_errors' => null,
                     'idvt_completed_at' => Carbon::now(),
                 ],
@@ -767,8 +778,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                     'country' => 'UK',
                     'postcode' => 'SW3 6JT',
                     'dob' => '1989-02-05',
-                    'idvt_result' => 1,
-                    'idvt_result_perc' => 87.0,
+                    'idvt_success' => 1,
                     'idvt_errors' => null,
                     'idvt_completed_at' => Carbon::now(),
                 ],
@@ -807,8 +817,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                     'country' => 'UK',
                     'postcode' => 'SW3 6JT',
                     'dob' => '1981-04-05',
-                    'idvt_result' => 0,
-                    'idvt_result_perc' => 0.0,
+                    'idvt_success' => 0,
                     'idvt_errors' => null,
                     'idvt_completed_at' => null,
                 ],
@@ -891,9 +900,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
 
             Identity::create([
                 'registry_id' =>            $user->registry_id,
-                'selfie_path' =>            $u['identity']['selfie_path'],
-                'passport_path' =>          $u['identity']['passport_path'],
-                'drivers_license_path' =>   $u['identity']['drivers_license_path'],
                 'address_1' =>              $u['identity']['address_1'],
                 'address_2' =>              $u['identity']['address_2'],
                 'town' =>                   $u['identity']['town'],
@@ -901,10 +907,18 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'country' =>                $u['identity']['country'],
                 'postcode' =>               $u['identity']['postcode'],
                 'dob' =>                    $u['identity']['dob'],
-                'idvt_result' =>            $u['identity']['idvt_result'],
-                'idvt_result_perc' =>       $u['identity']['idvt_result_perc'],
-                'idvt_errors' =>            $u['identity']['idvt_errors'],
-                'idvt_completed_at' =>      $u['identity']['idvt_completed_at'],
+                'idvt_success' =>           $u['identity']['idvt_success'],
+                'idvt_identification_number' => null,
+                'idvt_document_type'        => 'PASSPORT',
+                'idvt_document_number'      => null,
+                'idvt_document_country'     => 'GB',
+                'idvt_document_valid_until' => null,
+                'idvt_attempt_id'           => null,
+                'idvt_context_id'           => null,
+                'idvt_document_dob'         => $u['identity']['dob'],
+                'idvt_context'              => null,
+                'idvt_completed_at'         => $u['identity']['idvt_completed_at'],
+                'idvt_result_text'          => null,
             ]);
         }
 

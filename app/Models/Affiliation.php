@@ -94,6 +94,9 @@ class Affiliation extends Model
         'email',
         'ror',
         'registry_id',
+        'verdict_user_id',
+        'verdict_date_actioned',
+        'verdict_outcome',
     ];
 
     protected $appends = ['registryAffiliationState'];
@@ -130,5 +133,4 @@ class Affiliation extends Model
             'affiliation_id'
         );
     }
-
 }

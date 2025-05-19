@@ -24,13 +24,11 @@ class ProjectTest extends TestCase
 
     public const TEST_URL = '/api/v1/projects';
 
-    private $user = null;
-
     public function setUp(): void
     {
         parent::setUp();
         Carbon::setTestNow(Carbon::now());
-        $this->user = User::where('user_group', 'USERS')->first();
+        $this->withUsers();
     }
 
     public function test_the_application_can_search_on_project_name(): void

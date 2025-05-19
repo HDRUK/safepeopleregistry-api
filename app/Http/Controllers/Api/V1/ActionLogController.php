@@ -9,9 +9,12 @@ use App\Models\User;
 use App\Models\Organisation;
 use App\Models\Custodian;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Gate;
+use App\Http\Traits\Responses;
 
 class ActionLogController extends Controller
 {
+    use Responses;
     /**
      * @OA\Get(
      *     path="/api/v1/{entity}/{id}/action_log",
@@ -86,8 +89,17 @@ class ActionLogController extends Controller
         }
 
         $logs = ActionLog::where('entity_type', $entityClassMap[$entity])
-                ->where('entity_id', $id)
-                ->get();
+            ->where('entity_id', $id)
+            ->get();
+
+        if (count($logs) === 0) {
+            return $this->NotFoundResponse();
+        }
+
+        if (!Gate::allows('view', $logs[0])) {
+            return $this->ForbiddenResponse();
+        }
+
 
         if ($logs->isEmpty()) {
             return response()->json(['message' => 'No action logs found for this entity'], 404);
@@ -145,6 +157,10 @@ class ActionLogController extends Controller
             return response()->json(['message' => 'Action log not found'], 404);
         }
 
+        if (!Gate::allows('update', $log)) {
+            return $this->ForbiddenResponse();
+        }
+
         if ($request->has('complete')) {
             $log->completed_at = Carbon::now();
         } elseif ($request->has('incomplete')) {
@@ -158,6 +174,4 @@ class ActionLogController extends Controller
             'data' => $log
         ]);
     }
-
-
 }

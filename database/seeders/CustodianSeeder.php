@@ -82,6 +82,18 @@ class CustodianSeeder extends Seeder
                 'url' => 'https://webhook.site/4c812c72-3db1-4162-9160-5a798b52306c', // free webhook receiver
                 'webhook_event' => 1,
             ]);
+
+            CustodianWebhookReceiver::create([
+                'custodian_id' => $i->id,
+                'url' => 'https://webhook.site/4c812c72-3db1-4162-9160-5a798b52306c', // free webhook receiver
+                'webhook_event' => 3,
+            ]);
+
+            CustodianWebhookReceiver::create([
+                'custodian_id' => $i->id,
+                'url' => 'https://webhook.site/4c812c72-3db1-4162-9160-5a798b52306c', // free webhook receiver
+                'webhook_event' => 4,
+            ]);
         }
     }
 }

@@ -3,14 +3,21 @@
 namespace Tests;
 
 use Keycloak;
+use App\Models\User;
 use Tests\Traits\RefreshDatabaseLite;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication;
     use RefreshDatabaseLite;
+    protected $user = null;
+    protected $admin = null;
+    protected $custodian_admin = null;
+    protected $organisation_admin = null;
+    protected $organisation_delegate = null;
 
     protected function setUp(): void
     {
@@ -24,6 +31,20 @@ abstract class TestCase extends BaseTestCase
 
         Keycloak::shouldReceive('determineUserGroup')
             ->andReturn('USERS');
+    }
+
+    protected function withUsers(): void
+    {
+        $this->user = User::where('user_group', User::GROUP_USERS)->first();
+        $this->custodian_admin = User::where('user_group', User::GROUP_CUSTODIANS)->first();
+        $this->custodian_admin->update([
+            'keycloak_id' => (string) Str::uuid(),
+            'unclaimed' => 0,
+        ]);
+        $this->organisation_admin = User::where('user_group', User::GROUP_ORGANISATIONS)->where("is_delegate", 0)->first();
+        $this->organisation_delegate = User::where('user_group', User::GROUP_ORGANISATIONS)->where("is_delegate", 1)->first();
+
+        $this->admin = User::factory()->create(['user_group' => User::GROUP_ADMINS]);
     }
 
     protected function disableMiddleware(): void
@@ -45,5 +66,4 @@ abstract class TestCase extends BaseTestCase
     {
         Model::setEventDispatcher(app('events'));
     }
-
 }

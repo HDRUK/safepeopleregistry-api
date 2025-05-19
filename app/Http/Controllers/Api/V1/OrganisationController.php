@@ -27,6 +27,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\Organisations\EditOrganisation;
 use TriggerEmail;
 use App\Http\Traits\Responses;
+use Illuminate\Support\Facades\Gate;
 
 class OrganisationController extends Controller
 {
@@ -359,6 +360,9 @@ class OrganisationController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+        if (!Gate::allows('create', Organisation::class)) {
+            return $this->ForbiddenResponse();
+        }
         try {
             $input = $request->all();
             $organisation = Organisation::create([
@@ -560,6 +564,9 @@ class OrganisationController extends Controller
         try {
             $input = $request->only(app(Organisation::class)->getFillable());
             $org = Organisation::findOrFail($id);
+            if (!Gate::allows('update', $org)) {
+                return $this->ForbiddenResponse();
+            }
             $org->update($input);
 
             if ($request->has('subsidiaries')) {
@@ -648,6 +655,9 @@ class OrganisationController extends Controller
     {
         try {
             $organisation = Organisation::find($id);
+            if (!Gate::allows('update', $organisation)) {
+                return $this->ForbiddenResponse();
+            }
 
             if (!$organisation) {
                 return $this->NotFoundResponse();
@@ -722,7 +732,12 @@ class OrganisationController extends Controller
     public function destroy(Request $request, int $id): JsonResponse
     {
         try {
-            Organisation::where('id', $id)->delete();
+            $organisation = Organisation::findOrFail($id);
+
+            if (!Gate::allows('delete', $organisation)) {
+                return $this->ForbiddenResponse();
+            }
+            $organisation->delete();
 
             return response()->json([
                 'message' => 'success',
@@ -813,24 +828,24 @@ class OrganisationController extends Controller
      *          )
      *      )
      * )
-    */
+     */
     public function getProjects(Request $request, int $organisationId): JsonResponse
     {
         $projects = Project::searchViaRequest()
-          ->applySorting()
-          ->with(['approvals', 'organisations'])
-          ->filterWhen('approved', function ($query, $approved) {
-              if ($approved) {
-                  $query->whereHas('approvals');
-              } else {
-                  $query->whereDoesntHave('approvals');
-              }
-          })
-          ->whereHas('organisations', function ($query) use ($organisationId) {
-              $query->where('organisations.id', $organisationId);
-          })
-          ->withCount('projectUsers')
-          ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+            ->applySorting()
+            ->with(['approvals', 'organisations', 'modelState.state'])
+            ->filterWhen('approved', function ($query, $approved) {
+                if ($approved) {
+                    $query->whereHas('approvals');
+                } else {
+                    $query->whereDoesntHave('approvals');
+                }
+            })
+            ->whereHas('organisations', function ($query) use ($organisationId) {
+                $query->where('organisations.id', $organisationId);
+            })
+            ->withCount('projectUsers')
+            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         if ($projects) {
             return response()->json([
@@ -912,22 +927,26 @@ class OrganisationController extends Controller
     public function getUsers(Request $request, int $organisationId): JsonResponse
     {
         try {
+            $org = Organisation::findOrFail($organisationId);
+            if (!Gate::allows('viewDetailed', $org)) {
+                return $this->ForbiddenResponse();
+            }
             $users = User::searchViaRequest()
                 ->with([
-                'permissions',
-                'registry',
-                'registry.files',
-                'pendingInvites',
-                'organisation',
-                'departments',
-                'registry.education',
-                'registry.trainings',
-            ])->where('organisation_id', $organisationId)
-              ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+                    'permissions',
+                    'registry',
+                    'registry.files',
+                    'pendingInvites',
+                    'organisation',
+                    'departments',
+                    'registry.education',
+                    'registry.trainings',
+                ])->where('organisation_id', $organisationId)
+                ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
             return response()->json([
-              'message' => 'success',
-              'data' => $users,
+                'message' => 'success',
+                'data' => $users,
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -984,14 +1003,18 @@ class OrganisationController extends Controller
     public function getDelegates(Request $request, int $organisationId): JsonResponse
     {
         try {
+            $org = Organisation::findOrFail($organisationId);
+            if (!Gate::allows('viewDetailed', $org)) {
+                return $this->ForbiddenResponse();
+            }
             $delegates = User::with(["departments"])
-              ->where('organisation_id', $organisationId)
-              ->where('is_delegate', 1)
-              ->get();
+                ->where('organisation_id', $organisationId)
+                ->where('is_delegate', 1)
+                ->get();
 
             return response()->json([
-              'message' => 'success',
-              'data' => $delegates,
+                'message' => 'success',
+                'data' => $delegates,
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -1106,7 +1129,7 @@ class OrganisationController extends Controller
                     'type' => 'USER_DELEGATE',
                     'to' => $unclaimedUser->id,
                     'by' => $id,
-                    'identifier' => 'delegate_sponsor'
+                    'identifier' => 'delegate_invite'
                 ];
             } else {
                 $input = [
@@ -1133,7 +1156,11 @@ class OrganisationController extends Controller
     {
         try {
             $organisation = Organisation::where('id', $id)->first();
-
+            if (!$organisation) {
+                return response()->json([
+                    'message' => 'Organisation not found.',
+                ], 404);
+            }
             $unclaimedUser = RMC::createUnclaimedUser([
                 'firstname' => '',
                 'lastname' => '',
@@ -1141,6 +1168,12 @@ class OrganisationController extends Controller
                 'user_group' => 'ORGANISATIONS',
                 'organisation_id' => $id
             ]);
+
+            if (!$unclaimedUser->unclaimed) {
+                return response()->json([
+                    'message' => 'Lead applicant has already claimed their account.',
+                ], 400);
+            }
 
             $input = [
                 'type' => 'ORGANISATION',
@@ -1170,9 +1203,9 @@ class OrganisationController extends Controller
             $projectCount = Project::whereHas('organisations', function ($query) use ($id) {
                 $query->where('organisations.id', $id);
             })
-            ->where('start_date', '<=', Carbon::now())
-            ->where('end_date', '>=', Carbon::now())
-            ->count();
+                ->where('start_date', '<=', Carbon::now())
+                ->where('end_date', '>=', Carbon::now())
+                ->count();
 
             return response()->json(
                 ['data' => $projectCount],
@@ -1192,9 +1225,9 @@ class OrganisationController extends Controller
             $projectCount = Project::whereHas('organisations', function ($query) use ($id) {
                 $query->where('organisations.id', $id);
             })
-            ->where('start_date', '<', Carbon::now())
-            ->where('end_date', '<', Carbon::now())
-            ->count();
+                ->where('start_date', '<', Carbon::now())
+                ->where('end_date', '<', Carbon::now())
+                ->count();
 
             return response()->json(
                 ['data' => $projectCount],
@@ -1281,9 +1314,12 @@ class OrganisationController extends Controller
     {
         $response = Http::get(env('ROR_API_URL') . '/' . $ror);
         if ($response->status() === 200) {
+            $payload = $response->json();
+            $response->close();
+
             return response()->json([
                 'message' => 'success',
-                'data' => $response->json(),
+                'data' => $payload,
             ], 200);
         }
 
@@ -1363,27 +1399,24 @@ class OrganisationController extends Controller
         try {
             $showPending = $request->boolean("show_pending");
 
-            $registryIds = RegistryHasAffiliation::with('affiliation')
-                ->whereHas('affiliation', function ($query) use ($id) {
-                    $query->where('organisation_id', $id);
-                })
-            ->pluck('registry_id');
+            $registryIds = Organisation::getCurrentRegistries($id)->pluck('registry_id');
 
             $users = User::searchViaRequest()
-            ->applySorting()
-            ->where(function ($query) use ($registryIds, $showPending, $id) {
-                $query->whereIn('registry_id', $registryIds);
+                ->applySorting()
+                ->with(['registry.affiliations'])
+                ->where(function ($query) use ($registryIds, $showPending, $id) {
+                    $query->whereIn('registry_id', $registryIds);
 
-                if ($showPending) {
-                    $pendingInviteUserIds = PendingInvite::where([
-                        'organisation_id' => $id,
-                        'status' => config('speedi.invite_status.PENDING')
-                    ])->pluck('user_id');
+                    if ($showPending) {
+                        $pendingInviteUserIds = PendingInvite::where([
+                            'organisation_id' => $id,
+                            'status' => config('speedi.invite_status.PENDING')
+                        ])->pluck('user_id');
 
-                    $query->orWhereIn('id', $pendingInviteUserIds);
-                }
-            })
-            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+                        $query->orWhereIn('id', $pendingInviteUserIds);
+                    }
+                })
+                ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
             return response()->json([
                 'message' => 'success',

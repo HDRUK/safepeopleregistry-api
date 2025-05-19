@@ -9,14 +9,65 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use App\Traits\SearchManager;
+use App\Traits\SearchProject;
 use App\Traits\StateWorkflow;
 use App\Traits\FilterManager;
 
+/**
+ * @OA\Schema(
+ *      schema="Project",
+ *      title="Project",
+ *      description="Project model",
+ *      @OA\Property(property="id",
+ *          type="integer",
+ *          example=1,
+ *          description="Model primary key"
+ *      ),
+ *      @OA\Property(property="title",
+ *          type="string",
+ *          example="Project name"
+ *      ),
+ *      @OA\Property(property="unique_id",
+ *          type="string",
+ *          example="89AItHDuaqXsfgqOA85d"
+ *      ),
+ *      @OA\Property(property="lay_summary",
+ *          type="string",
+ *          example="This study aims to evaluate how digital mental health interventions (such as mobile apps for meditation, cognitive behavioral therapy, and mental health tracking) affect the mental health and well-being of young adults aged 18-30."
+ *      ),
+ *      @OA\Property(property="public_benefit",
+ *          type="string",
+ *          example="The findings from this research could lead to improved digital health interventions tailored to the mental health needs of young adults.",
+ *          description="A unique identifier for Custodian's within SOURSD"
+ *      ),
+ *      @OA\Property(property="request_category_type",
+ *          type="string",
+ *          example="Health and Social Research"
+ *      ),
+ *      @OA\Property(property="technical_summary",
+ *          type="string",
+ *          example="This project involves analyzing anonymized, aggregated data from digital health applications used by young adults."
+ *      ),
+ *      @OA\Property(property="other_approval_commitees",
+ *          type="string",
+ *          example="This project requires approval from:  University Institutional Review Board (IRB) to ensure ethical considerations are met. Data Access Committee (DAC) from the app providers to secure permissions for using anonymized, aggregated data."
+ *      ),
+ *      @OA\Property(property="start_date",
+ *          type="string",
+ *          example="2023-10-10T15:03:00Z"
+ *      ),
+ *      @OA\Property(property="end_date",
+ *          type="string",
+ *          example="2024-10-10T15:03:00Z"
+ *      )
+ * )
+ */
 class Project extends Model
 {
     use HasFactory;
     use SoftDeletes;
     use SearchManager;
+    use SearchProject;
     use StateWorkflow;
     use FilterManager;
 

@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
 use Carbon\Carbon;
-use App\Models\User;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
@@ -15,12 +14,10 @@ class IdentityTest extends TestCase
 
     public const TEST_URL = '/api/v1/identities';
 
-    private $user = null;
-
     public function setUp(): void
     {
         parent::setUp();
-        $this->user = User::where('user_group', 'USERS')->first();
+        $this->withUsers();
     }
 
     public function test_the_application_can_list_identities(): void
@@ -36,30 +33,32 @@ class IdentityTest extends TestCase
     {
         $passed = fake()->randomElement([0, 1]);
 
-        $passRate = fake()->numberBetween(80, 100);
-        $failRate = fake()->numberBetween(0, 50);
-
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'POST',
                 self::TEST_URL,
                 [
-                'registry_id' => 1,
-                'selfie_path' => 'path/to/selfie.jpeg',
-                'passport_path' => 'path/to/passport.jpeg',
-                'drivers_license_path' => 'path/to/drivers_license.jpeg',
-                'address_1' => '123 Blah blah',
-                'address_2' => '',
-                'town' => 'Town',
-                'county' => 'County',
-                'country' => 'Country',
-                'postcode' => 'BLA4 4HH',
-                'dob' => '1988-01-01',
-                'idvt_result' => $passed,
-                'idvt_result_perc' => ($passed ? $passRate : $failRate),
-                'idvt_errors' => null,
-                'idvt_completed_at' => Carbon::now(),
-            ]
+                    'registry_id' => 1,
+                    'address_1' => '123 Blah blah',
+                    'address_2' => '',
+                    'town' => 'Town',
+                    'county' => 'County',
+                    'country' => 'Country',
+                    'postcode' => 'BLA4 4HH',
+                    'dob' => '1988-01-01',
+                    'idvt_success' => $passed,
+                    'idvt_result' => ($passed === 1 ? 'approved' : 'declined'),
+                    'idvt_completed_at' => Carbon::now(),
+                    'idvt_identification_number' => null,
+                    'idvt_document_type' => null,
+                    'idvt_document_number' => null,
+                    'idvt_document_country' => null,
+                    'idvt_document_valid_until' => null,
+                    'idvt_attempt_id' => null,
+                    'idvt_context_id' => null,
+                    'idvt_document_dob' => null,
+                    'idvt_context' => null,
+                ]
             );
 
         $response->assertStatus(201);
@@ -78,30 +77,32 @@ class IdentityTest extends TestCase
     {
         $passed = fake()->randomElement([0, 1]);
 
-        $passRate = fake()->numberBetween(80, 100);
-        $failRate = fake()->numberBetween(0, 50);
-
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'POST',
                 self::TEST_URL,
                 [
-                'registry_id' => 1,
-                'selfie_path' => 'path/to/selfie.jpeg',
-                'passport_path' => 'path/to/passport.jpeg',
-                'drivers_license_path' => 'path/to/drivers_license.jpeg',
-                'address_1' => '123 Blah blah',
-                'address_2' => '',
-                'town' => 'Town',
-                'county' => 'County',
-                'country' => 'Country',
-                'postcode' => 'BLA4 4HH',
-                'dob' => '1988-01-01',
-                'idvt_result' => $passed,
-                'idvt_result_perc' => ($passed ? $passRate : $failRate),
-                'idvt_errors' => null,
-                'idvt_completed_at' => Carbon::now(),
-            ]
+                    'registry_id' => 1,
+                    'address_1' => '123 Blah blah',
+                    'address_2' => '',
+                    'town' => 'Town',
+                    'county' => 'County',
+                    'country' => 'Country',
+                    'postcode' => 'BLA4 4HH',
+                    'dob' => '1988-01-01',
+                    'idvt_success' => $passed,
+                    'idvt_result' => ($passed === 1 ? 'approved' : 'declined'),
+                    'idvt_completed_at' => Carbon::now(),
+                    'idvt_identification_number' => null,
+                    'idvt_document_type' => null,
+                    'idvt_document_number' => null,
+                    'idvt_document_country' => null,
+                    'idvt_document_valid_until' => null,
+                    'idvt_attempt_id' => null,
+                    'idvt_context_id' => null,
+                    'idvt_document_dob' => null,
+                    'idvt_context' => null,
+                ]
             );
 
         $response->assertStatus(201);
@@ -112,30 +113,32 @@ class IdentityTest extends TestCase
     {
         $passed = fake()->randomElement([0, 1]);
 
-        $passRate = fake()->numberBetween(80, 100);
-        $failRate = fake()->numberBetween(0, 50);
-
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'POST',
                 self::TEST_URL,
                 [
-                'registry_id' => 1,
-                'selfie_path' => 'path/to/selfie.jpeg',
-                'passport_path' => 'path/to/passport.jpeg',
-                'drivers_license_path' => 'path/to/drivers_license.jpeg',
-                'address_1' => '123 Blah blah',
-                'address_2' => '',
-                'town' => 'Town',
-                'county' => 'County',
-                'country' => 'Country',
-                'postcode' => 'BLA4 4HH',
-                'dob' => '1988-01-01',
-                'idvt_result' => $passed,
-                'idvt_result_perc' => ($passed ? $passRate : $failRate),
-                'idvt_errors' => null,
-                'idvt_completed_at' => Carbon::now(),
-            ]
+                    'registry_id' => 1,
+                    'address_1' => '123 Blah blah',
+                    'address_2' => '',
+                    'town' => 'Town',
+                    'county' => 'County',
+                    'country' => 'Country',
+                    'postcode' => 'BLA4 4HH',
+                    'dob' => '1988-01-01',
+                    'idvt_success' => $passed,
+                    'idvt_result' => ($passed === 1 ? 'approved' : 'declined'),
+                    'idvt_completed_at' => Carbon::now(),
+                    'idvt_identification_number' => null,
+                    'idvt_document_type' => null,
+                    'idvt_document_number' => null,
+                    'idvt_document_country' => null,
+                    'idvt_document_valid_until' => null,
+                    'idvt_attempt_id' => null,
+                    'idvt_context_id' => null,
+                    'idvt_document_dob' => null,
+                    'idvt_context' => null,
+                ]
             );
 
         $response->assertStatus(201);
@@ -150,22 +153,27 @@ class IdentityTest extends TestCase
                 'PUT',
                 self::TEST_URL . '/' . $content['data'],
                 [
-                'registry_id' => 1,
-                'selfie_path' => 'path/to/selfie1.jpeg',
-                'passport_path' => 'path/to/passport.jpeg',
-                'drivers_license_path' => 'path/to/drivers_license.jpeg',
-                'address_1' => '123 Blah blah',
-                'address_2' => '',
-                'town' => 'Town',
-                'county' => 'County',
-                'country' => 'Country',
-                'postcode' => 'BLA4 4HH',
-                'dob' => '1978-01-01',
-                'idvt_result' => $passed,
-                'idvt_result_perc' => ($passed ? $passRate : $failRate),
-                'idvt_errors' => null,
-                'idvt_completed_at' => Carbon::now(),
-            ]
+                    'registry_id' => 1,
+                    'address_1' => '123 Blah blah',
+                    'address_2' => '',
+                    'town' => 'Town',
+                    'county' => 'County',
+                    'country' => 'Country',
+                    'postcode' => 'BLA4 4HH',
+                    'dob' => '1988-01-01',
+                    'idvt_success' => $passed,
+                    'idvt_result' => ($passed === 1 ? 'approved' : 'declined'),
+                    'idvt_completed_at' => Carbon::now(),
+                    'idvt_identification_number' => null,
+                    'idvt_document_type' => 'PASSPORT',
+                    'idvt_document_number' => null,
+                    'idvt_document_country' => null,
+                    'idvt_document_valid_until' => null,
+                    'idvt_attempt_id' => null,
+                    'idvt_context_id' => null,
+                    'idvt_document_dob' => null,
+                    'idvt_context' => null,
+                ]
             );
 
         $response->assertStatus(200);
@@ -175,8 +183,8 @@ class IdentityTest extends TestCase
 
         $this->assertDatabaseHas('identities', [
             'id' => $content['data']['id'],
-            'dob' => '1978-01-01',
-            'selfie_path' => 'path/to/selfie1.jpeg',
+            'dob' => '1988-01-01',
+            'idvt_document_type' => 'PASSPORT',
         ]);
     }
 
@@ -184,30 +192,32 @@ class IdentityTest extends TestCase
     {
         $passed = fake()->randomElement([0, 1]);
 
-        $passRate = fake()->numberBetween(80, 100);
-        $failRate = fake()->numberBetween(0, 50);
-
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'POST',
                 self::TEST_URL,
                 [
-                'registry_id' => 1,
-                'selfie_path' => 'path/to/selfie.jpeg',
-                'passport_path' => 'path/to/passport.jpeg',
-                'drivers_license_path' => 'path/to/drivers_license.jpeg',
-                'address_1' => '123 Blah blah',
-                'address_2' => '',
-                'town' => 'Town',
-                'county' => 'County',
-                'country' => 'Country',
-                'postcode' => 'BLA4 4HH',
-                'dob' => '1988-01-01',
-                'idvt_result' => $passed,
-                'idvt_result_perc' => ($passed ? $passRate : $failRate),
-                'idvt_errors' => null,
-                'idvt_completed_at' => Carbon::now(),
-            ]
+                    'registry_id' => 1,
+                    'address_1' => '123 Blah blah',
+                    'address_2' => '',
+                    'town' => 'Town',
+                    'county' => 'County',
+                    'country' => 'Country',
+                    'postcode' => 'BLA4 4HH',
+                    'dob' => '1988-01-01',
+                    'idvt_success' => $passed,
+                    'idvt_result' => ($passed === 1 ? 'approved' : 'declined'),
+                    'idvt_completed_at' => Carbon::now(),
+                    'idvt_identification_number' => null,
+                    'idvt_document_type' => 'PASSPORT',
+                    'idvt_document_number' => null,
+                    'idvt_document_country' => null,
+                    'idvt_document_valid_until' => null,
+                    'idvt_attempt_id' => null,
+                    'idvt_context_id' => null,
+                    'idvt_document_dob' => null,
+                    'idvt_context' => null,
+                ]
             );
 
         $response->assertStatus(201);

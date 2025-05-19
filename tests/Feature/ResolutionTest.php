@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use KeycloakGuard\ActingAsKeycloakUser;
-use App\Models\User;
 use App\Models\Registry;
 use App\Models\Infringement;
 use App\Models\InfringementHasResolution;
@@ -17,13 +16,12 @@ class ResolutionTest extends TestCase
 
     public const TEST_URL = '/api/v1/resolutions';
 
-    private $user = null;
     private $registry = null;
 
     public function setUp(): void
     {
         parent::setUp();
-        $this->user = User::where('user_group', 'USERS')->first();
+        $this->withUsers();
         $this->registry = Registry::where('id', $this->user->registry_id)->first();
 
     }

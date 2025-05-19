@@ -28,7 +28,10 @@ class Gateway
                 $durUrl . $project->unique_id
             );
 
-            return $dur->json()['data'];
+            $payload = $dur->json()['data'] ?? [];
+            $dur->close();
+
+            return $payload;
         } catch (Exception $e) {
             throw new Exception($e);
         }
