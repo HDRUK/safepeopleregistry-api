@@ -1314,9 +1314,12 @@ class OrganisationController extends Controller
     {
         $response = Http::get(env('ROR_API_URL') . '/' . $ror);
         if ($response->status() === 200) {
+            $payload = $response->json();
+            $response->close();
+
             return response()->json([
                 'message' => 'success',
-                'data' => $response->json(),
+                'data' => $payload,
             ], 200);
         }
 

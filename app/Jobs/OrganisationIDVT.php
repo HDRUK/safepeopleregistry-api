@@ -167,7 +167,8 @@ class OrganisationIDVT implements ShouldQueue
                 'idvt_completed_at' => Carbon::now()->toDateTimeString(),
                 'verified' => false,
             ]);
-
+            $responseCompany->close();
+            $responsePeople->close();
             return;
         }
 
@@ -175,6 +176,9 @@ class OrganisationIDVT implements ShouldQueue
             $responseCompany->json()['data'],
             $responsePeople->json()['data']
         );
+        $responseCompany->close();
+        $responsePeople->close();
+        
         $this->renderVerdict();
     }
 

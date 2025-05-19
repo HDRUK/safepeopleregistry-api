@@ -34,6 +34,7 @@ trait Authorisation
 
         $response = Http::asForm()->post($authUrl, $credentials);
         $responseData = $response->json();
+        $response->close();
 
         return $responseData['access_token'];
     }
