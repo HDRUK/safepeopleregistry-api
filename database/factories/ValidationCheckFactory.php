@@ -15,7 +15,8 @@ class ValidationCheckFactory extends Factory
         return [
             'name' => $this->faker->unique()->slug,
             'description' => $this->faker->sentence,
-            'applies_to' => ProjectHasUser::class
+            'applies_to' => ProjectHasUser::class,
+            'enabled' => 1
         ];
     }
 }

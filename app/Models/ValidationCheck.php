@@ -5,15 +5,29 @@ namespace App\Models;
 use App\Enums\ValidationCheckAppliesTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\SearchManager;
 
 class ValidationCheck extends Model
 {
     use HasFactory;
+    use SearchManager;
 
     protected $fillable = [
         'name',
         'description',
         'applies_to',
+        'enabled'
+    ];
+
+    protected static array $searchableColumns = [
+        'applies_to',
+        'name',
+        'description',
+    ];
+
+    protected static array $sortableColumns = [
+        'name',
+        'description',
     ];
 
     protected $casts = [

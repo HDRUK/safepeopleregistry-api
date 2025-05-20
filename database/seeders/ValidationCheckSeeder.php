@@ -21,7 +21,8 @@ class ValidationCheckSeeder extends Seeder
                     'applies_to' => ProjectHasUser::class,
                 ],
                 [
-                    'description' => $check['description']
+                    'description' => $check['description'],
+                    'enabled' => 1
                 ]
             );
         }
@@ -33,7 +34,8 @@ class ValidationCheckSeeder extends Seeder
                     'applies_to' => Organisation::class,
                 ],
                 [
-                    'description' => $check['description']
+                    'description' => $check['description'],
+                    'enabled' => 1
                 ]
             );
         }

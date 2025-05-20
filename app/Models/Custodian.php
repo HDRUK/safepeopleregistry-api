@@ -172,7 +172,7 @@ class Custodian extends Model
         );
     }
 
-    public function validationChecks()
+    public function validationChecks(): BelongsToMany
     {
         return $this->belongsToMany(
             ValidationCheck::class,

@@ -142,14 +142,24 @@ Route::middleware('auth:api')
 
 // --- VALIDATION CHECKS ---
 Route::middleware('auth:api')
-    ->prefix('v1/validation_checks')
+    ->prefix('v1')
     ->controller(ValidationCheckController::class)
     ->group(function () {
-        Route::get('/', 'index');
-        Route::get('/{id}', 'show');
-        Route::post('/', 'store');
-        Route::put('/{id}', 'update');
-        Route::delete('/{id}', 'destroy');
+
+        Route::prefix('validation_checks')
+            ->group(function () {
+                Route::get('/', 'index');
+                Route::get('/{id}', 'show');
+                Route::post('/', 'store');
+                Route::put('/{id}', 'update');
+                Route::delete('/{id}', 'destroy');
+            });
+
+        Route::prefix('custodians/{custodianId}/validation_checks')
+            ->group(function () {
+                Route::get('/', 'getCustodianValidationChecks');
+                Route::post('/', 'createCustodianValidationChecks');
+            });
     });
 
 

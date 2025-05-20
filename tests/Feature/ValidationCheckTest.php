@@ -60,7 +60,8 @@ class ValidationCheckTest extends TestCase
         $payload = [
             'name' => 'test_check',
             'description' => 'Test check description',
-            'applies_to' => ProjectHasUser::class
+            'applies_to' => ProjectHasUser::class,
+            'enabled' => 1
         ];
 
         $response = $this->postJson(self::TEST_URL, $payload);
@@ -70,6 +71,8 @@ class ValidationCheckTest extends TestCase
                 'data' => [
                     'name' => $payload['name'],
                     'description' => $payload['description'],
+                    'applies_to' => $payload['applies_to'],
+                    'enabled' => $payload['enabled'],
                 ]
             ]);
 
@@ -81,7 +84,7 @@ class ValidationCheckTest extends TestCase
         $check = ValidationCheck::factory()->create([
             'name' => 'original_name',
             'description' => 'original_description',
-            'applies_to' => ProjectHasUser::class
+            'applies_to' => ProjectHasUser::class,
         ]);
 
         $payload = [

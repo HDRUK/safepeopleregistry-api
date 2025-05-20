@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ValidationChecks\CreateValidationCheckRequest;
-use App\Http\Requests\ValidationChecks\ValidationCheckRequest;
 use App\Http\Traits\Responses;
+use App\Models\Custodian;
 use App\Models\ValidationCheck;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -189,5 +189,94 @@ class ValidationCheckController extends Controller
         $check->delete();
 
         return $this->OKResponse(null);
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/custodians/{custodianId}/validation_checks",
+     *     summary="Get validation checks assigned to a custodian",
+     *     description="Returns the list of validation checks associated with a specific custodian.",
+     *     tags={"Custodians"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="custodianId",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the custodian",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Validation checks retrieved successfully",
+     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/ValidationCheck"))
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Custodian not found",
+     *         @OA\JsonContent(@OA\Property(property="message", type="string", example="Custodian not found"))
+     *     )
+     * )
+     */
+    public function getCustodianValidationChecks($custodianId): JsonResponse
+    {
+        $custodian = Custodian::with('validationChecks')->findOrFail($custodianId);
+        $checks = $custodian->validationChecks()
+            ->searchViaRequest()
+            ->get();
+        return $this->OKResponse($checks);
+    }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/custodians/{custodianId}/validation_checks",
+     *     summary="Assign a validation check to a custodian",
+     *     description="Creates a new validation check and assigns it to a specific custodian via the custodian_has_validation_check pivot table.",
+     *     tags={"Custodians"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="custodianId",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the custodian to assign the validation check to",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name", "type"}, // Replace with actual required fields from ValidationCheck
+     *             @OA\Property(property="name", type="string", example="Check format"),
+     *             @OA\Property(property="type", type="string", example="format"),
+     *             @OA\Property(property="description", type="string", example="Ensures proper formatting of input")
+     *             // Add other fields as needed
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Validation check created and assigned successfully",
+     *         @OA\JsonContent(ref="#/components/schemas/ValidationCheck")
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid input",
+     *         @OA\JsonContent(@OA\Property(property="message", type="string", example="Invalid input data"))
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Custodian not found",
+     *         @OA\JsonContent(@OA\Property(property="message", type="string", example="Custodian not found"))
+     *     )
+     * )
+     */
+    public function createCustodianValidationChecks(Request $request, $custodianId): JsonResponse
+    {
+        $custodian = Custodian::findOrFail($custodianId);
+
+        $input = $request->only(app(ValidationCheck::class)->getFillable());
+        $check = ValidationCheck::create($input);
+
+        $custodian->validationChecks()->attach($check->id);
+
+        return $this->CreatedResponse($check);
     }
 }

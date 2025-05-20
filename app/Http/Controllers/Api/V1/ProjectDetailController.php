@@ -287,7 +287,7 @@ class ProjectDetailController extends Controller
         }
     }
 
-    function safeJsonArray($value)
+    public function safeJsonArray($value)
     {
         return json_encode(is_array($value) ? $value : []);
     }
