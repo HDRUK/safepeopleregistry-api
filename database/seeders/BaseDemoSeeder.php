@@ -414,7 +414,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'is_org_admin' => 1,
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
                 'organisation_id' => $org1->id, // Needed because this is an org admin
-                'keycloak_id' => '0a12bc97-87b3-4f10-bb95-a2d8e65752f8', // Dragons ahead - needs to map 1:1 with KC users
+                'keycloak_id' => '8eac955d-b612-4869-85d9-14f1c1c89ddd', // Dragons ahead - needs to map 1:1 with KC users
                 'is_sro' => 1,
             ],
             [
@@ -424,7 +424,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'is_org_admin' => 1,
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
                 'organisation_id' => $org1->id, // Needed because this is an org admin
-                'keycloak_id' => 'f636e859-b1a2-4e2d-ad0c-4688989b1f5c', // Dragons ahead - needs to map 1:1 with KC users
+                'keycloak_id' => '6799aaad-e948-460e-a6da-e7a2cde36688', // Dragons ahead - needs to map 1:1 with KC users
             ],
             [
                 'first_name' => 'Delegate',
@@ -433,7 +433,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'is_delegate' => 1,
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
                 'organisation_id' => $org1->id, // Needed because this is an org admin
-                'keycloak_id' => '47991933-3cdb-4519-8d3d-e7bb76fdca27', // Dragons ahead - needs to map 1:1 with KC users
+                'keycloak_id' => '04543a1f-6955-43da-9361-e113adf8ba99', // Dragons ahead - needs to map 1:1 with KC users
             ],
         ];
 
@@ -445,7 +445,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'is_org_admin' => 1,
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
                 'organisation_id' => $org2->id, // Needed because this is an org admin
-                'keycloak_id' => 'dd4eaa64-cea4-4f2d-847c-fba13a04bbb2', // Dragons ahead - needs to map 1:1 with KC users
+                'keycloak_id' => 'cd7ccf85-b3b3-4580-9403-444d5b099e43', // Dragons ahead - needs to map 1:1 with KC users
                 'is_sro' => 1,
             ],
             [
@@ -455,7 +455,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'is_org_admin' => 1,
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
                 'organisation_id' => $org2->id, // Needed because this is an org admin
-                'keycloak_id' => '18184ade-39f5-40ff-b2a4-e049703af754', // Dragons ahead - needs to map 1:1 with KC users
+                'keycloak_id' => '72716858-9b45-42ec-9292-dc24c877f931', // Dragons ahead - needs to map 1:1 with KC users
             ],
             [
                 'first_name' => 'Delegate',
@@ -464,7 +464,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'is_delegate' => 1,
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
                 'organisation_id' => $org2->id, // Needed because this is an org admin
-                'keycloak_id' => '6a09ff56-b655-4e28-805e-50de8789bd66', // Dragons ahead - needs to map 1:1 with KC users
+                'keycloak_id' => 'b4941c21-d7ca-4eba-9260-ff4c80ae695a', // Dragons ahead - needs to map 1:1 with KC users
             ],
         ];
 
@@ -476,7 +476,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'is_org_admin' => 1,
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
                 'organisation_id' => $org3->id, // Needed because this is an org admin
-                'keycloak_id' => 'a8f73e81-f46d-4b3a-844c-ce05ce39c9f0', // Dragons ahead - needs to map 1:1 with KC users
+                'keycloak_id' => '57ca4c58-2582-440b-9232-e13d009d4c7e', // Dragons ahead - needs to map 1:1 with KC users
             ],
             [
                 'first_name' => 'Admin',
@@ -485,7 +485,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'is_org_admin' => 1,
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
                 'organisation_id' => $org3->id, // Needed because this is an org admin
-                'keycloak_id' => '952172dd-c5bf-4e84-ab15-51ef271e6985', // Dragons ahead - needs to map 1:1 with KC users
+                'keycloak_id' => '0db3e4c1-2406-450d-9892-0de23888555e', // Dragons ahead - needs to map 1:1 with KC users
             ],
             [
                 'first_name' => 'Delegate',
@@ -494,7 +494,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'is_delegate' => 1,
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
                 'organisation_id' => $org3->id, // Needed because this is an org admin
-                'keycloak_id' => 'd80e516b-f729-43cb-b6bb-936793f3f199', // Dragons ahead - needs to map 1:1 with KC users
+                'keycloak_id' => '04a67026-cdd5-482a-8952-d7296978de92', // Dragons ahead - needs to map 1:1 with KC users
             ],
         ];
 
@@ -518,7 +518,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'last_name' => 'Ackroyd',
                 'email' => 'dan.ackroyd@ghostbusters.com',
                 'user_group' => RMC::KC_GROUP_USERS,
-                'keycloak_id' => 'aad586a6-724a-44f0-a270-8e558c5bdf7f',
+                'keycloak_id' => '7fe7978e-ea45-4673-90c8-fff2f50a8c5d',
                 'projects' => [
                     $org1Proj1->id,
                     $org1Proj2->id,
@@ -573,7 +573,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'last_name' => 'Weaver',
                 'email' => 'sigourney.weaver@ghostbusters.com',
                 'user_group' => RMC::KC_GROUP_USERS,
-                'keycloak_id' => '303d179a-ccdb-49fa-9bda-276840b07cfa',
+                'keycloak_id' => '18ed800f-7655-46e3-b8c3-bd4e623c838d',
                 'projects' => [
                     $org1Proj1->id,
                 ],
@@ -612,7 +612,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'last_name' => 'Murray',
                 'email' => 'bill.murray@ghostbusters.com',
                 'user_group' => RMC::KC_GROUP_USERS,
-                'keycloak_id' => '06dbad18-3356-4181-8dad-1ddcf4718b5a',
+                'keycloak_id' => 'ed1ecc24-0dd6-45b8-a6b0-aec6fe606d6a',
                 'projects' => [
                     $org1Proj2->id,
                 ],
@@ -651,7 +651,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'last_name' => 'Potts',
                 'email' => 'annie.potts@ghostbusters.com',
                 'user_group' => RMC::KC_GROUP_USERS,
-                'keycloak_id' => '6b9af72e-9d05-4df2-ad38-25ba082d9cfc',
+                'keycloak_id' => '26c81ec3-f96b-4d3a-a828-7dfd8b02fce0',
                 'projects' => [
                     $org1Proj2->id,
                 ],
@@ -693,7 +693,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'last_name' => 'Ramis',
                 'email' => 'harold.ramis@ghostbusters.com',
                 'user_group' => RMC::KC_GROUP_USERS,
-                'keycloak_id' => '760da050-5b3f-47b3-976c-0d42ea533f94',
+                'keycloak_id' => '53d093a8-bb85-4bdd-a2eb-edc0c5cfb853',
                 'projects' => [
                     $org2Proj1->id,
                     $org1Proj1->id,
@@ -734,7 +734,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'last_name' => 'Runyon',
                 'email' => 'jennifer.runyon@ghostbusters.com',
                 'user_group' => RMC::KC_GROUP_USERS,
-                'keycloak_id' => 'f770c1cc-9935-4d52-ad76-19e33ca526b1',
+                'keycloak_id' => '33d6522d-01d4-4db5-97b6-654ba6792772',
                 'projects' => [
                     $org2Proj1->id,
                 ],
@@ -776,7 +776,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'last_name' => 'John',
                 'email' => 'tobacco.john@dodgydomain.com',
                 'user_group' => RMC::KC_GROUP_USERS,
-                'keycloak_id' => '5fc28eb7-71fc-495c-9d53-1ec7fa9954bd',
+                'keycloak_id' => '5c534c54-bc7f-4131-9ad4-68e91d6fa552',
                 'projects' => [
                     $org2Proj1->id,
                 ],
@@ -815,7 +815,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'last_name' => 'Dave',
                 'email' => 'tobacco.dave@dodgydomain.com',
                 'user_group' => RMC::KC_GROUP_USERS,
-                'keycloak_id' => 'de17935a-a79e-4b47-8d92-8041901dec15',
+                'keycloak_id' => 'b667c709-6ff4-41a1-8bdb-c9a1ebbe369a',
                 'projects' => [
                     $org1Proj1->id,
                 ],

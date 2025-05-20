@@ -199,25 +199,17 @@ class RegistryManagementController
      */
     private static function checkDuplicateKeycloakID(string $id): bool
     {
-        $user = User::where('keycloak_id', '=', $id)->first();
-        if (!$user) {
-            // We don't have a record of this user yet
-            return false;
-        }
-
-        return true;
+        return User::where('keycloak_id', '=', $id)->exists();
     }
 
     public static function generateDigitalIdentifierForRegistry(): string
     {
         $signature = Str::random(64);
-        $digiIdent = Hash::make(
+        return Hash::make(
             $signature.
             ':'.env('REGISTRY_SALT_1').
             ':'.env('REGISTRY_SALT_2')
         );
-
-        return $digiIdent;
     }
 
     public static function createUnclaimedUser(array $user, bool $strictCreate = false): User
@@ -245,6 +237,8 @@ class RegistryManagementController
             'role' => $user['role'] ?? null,
         ];
 
+        unset($registry);
+
         if ($strictCreate) {
             return User::create($userData);
         } else {
@@ -253,6 +247,7 @@ class RegistryManagementController
             if ($existingUser) {
                 if ($existingUser->unclaimed) {
                     $existingUser->update($userData);
+                    unset($userData);
                 }
                 return $existingUser;
             }
