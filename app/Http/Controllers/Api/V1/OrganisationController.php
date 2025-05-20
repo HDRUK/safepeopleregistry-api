@@ -12,6 +12,7 @@ use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use App\Jobs\OrganisationIDVT;
 use App\Models\Project;
+use App\Models\DebugLog;
 use App\Models\Organisation;
 use App\Models\Charity;
 use App\Models\OrganisationHasDepartment;
@@ -1147,7 +1148,12 @@ class OrganisationController extends Controller
                 'data' => $unclaimedUser->id,
             ], 201);
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+            DebugLog::create([
+                'class' => __CLASS__,
+                'log' => $e,
+            ]);
+
+            throw $e;
         }
     }
 
