@@ -26,16 +26,12 @@ class RegistryManagementController
      */
     public static function createRegistryLedger(): mixed
     {
-        $registry = Registry::create([
+        return Registry::create([
             'dl_ident' => null,
             'pp_ident' => null,
             'digi_ident' => RegistryManagementController::generateDigitalIdentifierForRegistry(),
             'verified' => 0,
-        ]);
-
-        Log::info('created registry {id}', ['id' => $registry->id]);
-
-        return $registry->id;
+        ])->id;
     }
 
     /**
@@ -50,6 +46,9 @@ class RegistryManagementController
      */
     public static function createNewUser(array $input, Request $request): mixed
     {
+        $unclaimedUser = null;
+        $user = null;
+
         try {
             $unclaimedUser = User::where('email', $input['email'])->whereNull('keycloak_id')->first();
 
@@ -187,6 +186,9 @@ class RegistryManagementController
                 'log' => 'exception ' . json_encode($e),
             ]);
             throw new Exception($e);
+        } finally {
+            unset($unclaimedUser);
+            unset($user);
         }
     }
 
@@ -214,44 +216,58 @@ class RegistryManagementController
 
     public static function createUnclaimedUser(array $user, bool $strictCreate = false): User
     {
-        $registry = Registry::create([
-          'dl_ident' => null,
-          'pp_ident' => null,
-          'digi_ident' => RegistryManagementController::generateDigitalIdentifierForRegistry(),
-          'verified' => 0,
-        ]);
+        $registry = null;
+        $userData = null;
 
-        $userData = [
-            'first_name' => $user['firstname'],
-            'last_name' => $user['lastname'],
-            'email' => $user['email'],
-            'unclaimed' => 1,
-            'feed_source' => 'ORG',
-            'registry_id' => $registry->id,
-            'orc_id' => '',
-            'user_group' => $user['user_group'] ?? '',
-            'organisation_id' => $user['organisation_id'] ?? null,
-            'custodian_id' => $user['custodian_id'] ?? null,
-            'custodian_user_id' => $user['custodian_user_id'] ?? null,
-            'is_delegate' => $user['is_delegate'] ?? 0,
-            'role' => $user['role'] ?? null,
-        ];
-
-        unset($registry);
-
-        if ($strictCreate) {
-            return User::create($userData);
-        } else {
-            $existingUser = User::where('email', $user['email'])->first();
-
-            if ($existingUser) {
-                if ($existingUser->unclaimed) {
-                    $existingUser->update($userData);
-                    unset($userData);
-                }
-                return $existingUser;
-            }
-            return User::create($userData);
+        try {
+            $registry = Registry::create([
+                'dl_ident' => null,
+                'pp_ident' => null,
+                'digi_ident' => RegistryManagementController::generateDigitalIdentifierForRegistry(),
+                'verified' => 0,
+              ]);
+      
+              $userData = [
+                  'first_name' => $user['firstname'],
+                  'last_name' => $user['lastname'],
+                  'email' => $user['email'],
+                  'unclaimed' => 1,
+                  'feed_source' => 'ORG',
+                  'registry_id' => $registry->id,
+                  'orc_id' => '',
+                  'user_group' => $user['user_group'] ?? '',
+                  'organisation_id' => $user['organisation_id'] ?? null,
+                  'custodian_id' => $user['custodian_id'] ?? null,
+                  'custodian_user_id' => $user['custodian_user_id'] ?? null,
+                  'is_delegate' => $user['is_delegate'] ?? 0,
+                  'role' => $user['role'] ?? null,
+              ];
+      
+              if ($strictCreate) {
+                  return User::create($userData);
+              } else {
+                  $existingUser = User::where('email', $user['email'])->first();
+      
+                  if ($existingUser) {
+                      if ($existingUser->unclaimed) {
+                          $existingUser->update($userData);
+                          unset($userData);
+                      }
+                      return $existingUser;
+                  }
+                  $user = User::create($userData);
+      
+                  return $user;
+              }
+        } catch (Exception $e) {
+            DebugLog::create([
+                'class' => RegistryManagementController::class,
+                'log' => 'exception ' . json_encode($e),
+            ]);
+            throw new Exception($e);
+        } finally {
+            unset($registry);
+            unset($userData);
         }
     }
 }
