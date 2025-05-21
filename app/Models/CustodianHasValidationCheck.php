@@ -9,7 +9,7 @@ class CustodianHasValidationCheck extends Pivot
 {
     protected $table = 'custodian_has_validation_check';
 
-    public $timestamps = true;
+    public $timestamps = false;
 
     protected $fillable = [
         'custodian_id',
