@@ -35,26 +35,42 @@ class Keycloak
             ])->get($userInfoUrl);
     }
 
-    public function updateSoursdDigitalIdentifier(User $user)
+    public static function updateSoursdDigitalIdentifier(User $user)
     {
+        $response = null;
         $userUrl = env('KEYCLOAK_BASE_URL') . '/admin/realms/' . env('KEYCLOAK_REALM') . '/users/' . $user->keycloak_id;
 
-        return Http::withHeaders([
-            'Authorization' => $this->getServiceToken(),
-        ])->put(
-            $userUrl,
-            [
-                'attributes' => [
-                    'soursdDigitalIdentifier' => [
-                        Registry::where('id', $user->registry_id)->first()->digi_ident
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => self::getServiceToken(),
+            ])->put(
+                $userUrl,
+                [
+                    'attributes' => [
+                        'soursdDigitalIdentifier' => [
+                            Registry::where('id', $user->registry_id)->first()->digi_ident
+                        ],
                     ],
                 ],
-            ],
-        );
+            );
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        } finally {
+            if ($response) {
+                $response->close();
+            }
+
+            unset($userUrl);
+        }
     }
 
     public function create(array $credentials): array
     {
+        $response = null;
+        $payload = null;
+        $user = null;
+        $registry = null;
+
         try {
             $isResearcher = isset($credentials['is_researcher']) ? true : false;
             $isCustodian = isset($credentials['is_custodian']) ? true : false;
@@ -93,7 +109,6 @@ class Keycloak
             );
 
             $content = json_decode($response->body(), true);
-            $response->close();
 
             if ($response->status() === 201) {
                 $headers = $response->headers();
@@ -176,105 +191,23 @@ class Keycloak
             }
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
-        }
-    }
-
-    public function login(string $username, string $password): array
-    {
-        try {
-            $authUrl = env('KEYCLOAK_BASE_URL') . '/realms/' . env('KEYCLOAK_REALM') . '/protocol/openid-connect/token';
-
-            $credentials = [
-                'username' => $username,
-                'password' => $password,
-                'client_id' => env('KEYCLOAK_CLIENT_ID'),
-                'client_secret' => env('KEYCLOAK_CLIENT_SECRET'),
-                'grant_type' => 'password',
-            ];
-
-            $response = Http::asForm()->post($authUrl, $credentials);
-            $responseData = $response->json();
-            $response->close();
-
-            if ($response->status() === 200) {
-                $user = User::where('email', $username)->first();
-                if ($user) {
-                    return [
-                        'user' => $user,
-                        'response' => $responseData,
-                        'status' => $response->status(),
-                    ];
-                }
+        } finally {
+            if ($response) {
+                $response->close();
             }
 
-            return [
-                'user' => null,
-                'response' => null,
-                'status' => 401,
-            ];
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+            unset($response);
+            unset($payload);
+            unset($registry);
+            unset($user);
         }
     }
 
-    public function changePassword(string $keycloakUserId, string $password): mixed
+    private static function getServiceToken(): string
     {
-        try {
-            $authUrl = env('KEYCLOAK_BASE_URL') . '/admin/realms/' . env('KEYCLOAK_REALM') . '/users/' . $keycloakUserId . '/reset-password';
+        $response = null;
+        $responseData = null;
 
-            $payload = [
-                'type' => 'password',
-                'temporary' => 'false',
-                'value' => $password,
-            ];
-
-            $response = Http::withHeaders([
-                'Authorization' => $this->getServiceToken(),
-            ])->put($authUrl, $payload);
-
-            return $response;
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
-    }
-
-    public function logout(string $token): bool
-    {
-        try {
-            $authUrl = env('KEYCLOAK_BASE_URL') . '/realms/' . env('KEYCLOAK_REALM') . '/protocol/openid-connect/logout';
-
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $token,
-            ])->post($authUrl);
-
-            if ($response->status() === 200) {
-                return true;
-            }
-
-            return false;
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
-    }
-
-    public function me(string $token, string $id): mixed
-    {
-        try {
-            $authUrl = env('KEYCLOAK_BASE_URL') . '/realms/' . env('KEYCLOAK_REALM') . '/users/' . $id;
-
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $token,
-            ])->post($authUrl);
-
-            $responseData = $response->json();
-            dd($responseData);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
-    }
-
-    private function getServiceToken(): string
-    {
         if (
             self::$serviceToken &&
             self::$tokenCreatedAt &&
@@ -302,6 +235,13 @@ class Keycloak
             return self::$serviceToken;
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
+        } finally {
+            if ($response) {
+                $response->close();
+            }
+
+            unset($response);
+            unset($responseData);
         }
     }
 
@@ -348,6 +288,9 @@ class Keycloak
 
     public function checkUserExists(int $userId): bool
     {
+        $response = null;
+        $email = null;
+
         if (env('APP_ENV') === 'testing') {
             // When testing, ensure we don't create additional users
             return true;
@@ -369,17 +312,22 @@ class Keycloak
             return count($response->json()) > 0;
         } catch (Exception $e) {
             throw new Exception($e);
+        } finally {
+            if ($response) {
+                $response->close();
+            }
+
+            unset($response);
+            unset($email);
         }
     }
 
     public function createUser(array $credentials): array
     {
-        // if (env('APP_ENV') === 'testing') {
-        //     return [
-        //         'success' => true,
-        //         'error' => null,
-        //     ];
-        // }
+        $response = null;
+        $payload = null;
+        $user = null;
+        $content = null;
 
         try {
             $payload = [
@@ -405,7 +353,6 @@ class Keycloak
             );
 
             $content = $response->json();
-            $response->close();
 
             if ($response->status() === 201) {
                 $headers = array_change_key_case($response->headers(), CASE_LOWER);
@@ -438,11 +385,23 @@ class Keycloak
             ];
         } catch (Exception $e) {
             throw new Exception($e);
+        } finally {
+            if ($response) {
+                $response->close();
+            }
+
+            unset($response);
+            unset($payload);
+            unset($user);
+            unset($content);
         }
     }
 
     public function sendKeycloakInvite(string $keycloakId): bool
     {
+        $response = null;
+        $payload = null;
+
         try {
             $payload = [
                 'type' => 'password',
@@ -465,15 +424,19 @@ class Keycloak
             );
 
             if ($response->status() === 204) {
-                $response->close();
                 return true;
             }
-
-            $response->close();
 
             return false;
         } catch (Exception $e) {
             throw new Exception($e);
+        } finally {
+            if ($response) {
+                $response->close();
+            }
+
+            unset($response);
+            unset($payload);
         }
     }
 }
