@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ValidationChecks\CreateValidationCheckRequest;
 use App\Http\Traits\Responses;
 use App\Models\Custodian;
+use App\Models\CustodianHasValidationCheck;
 use App\Models\ValidationCheck;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -299,7 +300,10 @@ class ValidationCheckController extends Controller
             $input = $request->only(app(ValidationCheck::class)->getFillable());
             $check = ValidationCheck::create($input);
 
-            $custodian->validationChecks()->attach($check->id);
+            CustodianHasValidationCheck::create([
+                'custodian_id' => $custodian->id,
+                'validation_check_id' => $check->id,
+            ]);
 
             return $this->CreatedResponse($check);
         } catch (Exception $e) {
