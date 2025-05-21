@@ -74,7 +74,6 @@ Route::middleware(['auth:api'])
 
         // create
         Route::post('/', [UserController::class, 'store']);
-        Route::post('/change-password/{id}', [AuthController::class, 'changePassword']);
         Route::post('/invite', [UserController::class, 'invite']);
         Route::post('/permissions', [PermissionController::class, 'assignUserPermissionsToFrom']);
         Route::post('/search_affiliations', [UserController::class, 'searchUsersByNameAndProfessionalEmail']);

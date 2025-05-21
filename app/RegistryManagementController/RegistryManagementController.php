@@ -26,8 +26,6 @@ class RegistryManagementController
      */
     public static function createRegistryLedger(): mixed
     {
-        Log::info('created registry {id}', ['id' => $registry->id]);
-
         return Registry::create([
             'dl_ident' => null,
             'pp_ident' => null,

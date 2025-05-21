@@ -34,7 +34,7 @@ class Keycloak
 
         try {
             $response = Http::withHeaders([
-                'Authorization' => $this->getServiceToken(),
+                'Authorization' => self::getServiceToken(),
             ])->put(
                 $userUrl,
                 [
@@ -195,7 +195,7 @@ class Keycloak
         }
     }
 
-    private function getServiceToken(): string
+    private static function getServiceToken(): string
     {
         $response = null;
         $responseData = null;
