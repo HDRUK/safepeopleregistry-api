@@ -112,7 +112,7 @@ class ValidationLogController extends Controller
 
             return $this->OKResponse($logs);
         } catch (Exception $e) {
-            return $this->ErrorResponse();
+            return $this->ErrorResponse($e->getMessage());
         }
     }
 
@@ -248,7 +248,7 @@ class ValidationLogController extends Controller
 
             return $this->OKResponse($updated);
         } catch (Exception $e) {
-            return $this->ErrorResponse();
+            return $this->ErrorResponse($e->getMessage());
         }
     }
 

@@ -7,6 +7,7 @@ use App\Http\Requests\ValidationChecks\CreateValidationCheckRequest;
 use App\Http\Traits\Responses;
 use App\Models\Custodian;
 use App\Models\ValidationCheck;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -64,12 +65,16 @@ class ValidationCheckController extends Controller
      */
     public function show($id): JsonResponse
     {
-        $check = ValidationCheck::find($id);
-        if (!$check) {
-            return $this->NotFoundResponse();
-        }
+        try {
+            $check = ValidationCheck::findOrFail($id);
+            if (!$check) {
+                return $this->NotFoundResponse();
+            }
 
-        return $this->OKResponse($check);
+            return $this->OKResponse($check);
+        } catch (Exception $e) {
+            return $this->ErrorResponse($e->getMessage());
+        }
     }
 
     /**
@@ -141,15 +146,19 @@ class ValidationCheckController extends Controller
      */
     public function update(Request $request, $id): JsonResponse
     {
-        $input = $request->only(app(ValidationCheck::class)->getFillable());
-        $check = ValidationCheck::find($id);
-        if (!$check) {
-            return $this->NotFoundResponse();
+        try {
+            $input = $request->only(app(ValidationCheck::class)->getFillable());
+            $check = ValidationCheck::findOrFail($id);
+            if (!$check) {
+                return $this->NotFoundResponse();
+            }
+
+            $check->update($input);
+
+            return $this->OKResponse($check);
+        } catch (Exception $e) {
+            return $this->ErrorResponse($e->getMessage());
         }
-
-        $check->update($input);
-
-        return $this->OKResponse($check);
     }
 
     /**
@@ -181,14 +190,18 @@ class ValidationCheckController extends Controller
      */
     public function destroy($id): JsonResponse
     {
-        $check = ValidationCheck::find($id);
-        if (!$check) {
-            return $this->NotFoundResponse();
+        try {
+            $check = ValidationCheck::findOrFail($id);
+            if (!$check) {
+                return $this->NotFoundResponse();
+            }
+
+            $check->delete();
+
+            return $this->OKResponse(null);
+        } catch (Exception $e) {
+            return $this->ErrorResponse($e->getMessage());
         }
-
-        $check->delete();
-
-        return $this->OKResponse(null);
     }
 
     /**
@@ -219,11 +232,15 @@ class ValidationCheckController extends Controller
      */
     public function getCustodianValidationChecks($custodianId): JsonResponse
     {
-        $custodian = Custodian::with('validationChecks')->findOrFail($custodianId);
-        $checks = $custodian->validationChecks()
-            ->searchViaRequest()
-            ->get();
-        return $this->OKResponse($checks);
+        try {
+            $custodian = Custodian::with('validationChecks')->findOrFail($custodianId);
+            $checks = $custodian->validationChecks()
+                ->searchViaRequest()
+                ->get();
+            return $this->OKResponse($checks);
+        } catch (Exception $e) {
+            return $this->ErrorResponse($e->getMessage());
+        }
     }
 
 
@@ -270,13 +287,17 @@ class ValidationCheckController extends Controller
      */
     public function createCustodianValidationChecks(Request $request, $custodianId): JsonResponse
     {
-        $custodian = Custodian::findOrFail($custodianId);
+        try {
+            $custodian = Custodian::findOrFail($custodianId);
 
-        $input = $request->only(app(ValidationCheck::class)->getFillable());
-        $check = ValidationCheck::create($input);
+            $input = $request->only(app(ValidationCheck::class)->getFillable());
+            $check = ValidationCheck::create($input);
 
-        $custodian->validationChecks()->attach($check->id);
+            $custodian->validationChecks()->attach($check->id);
 
-        return $this->CreatedResponse($check);
+            return $this->CreatedResponse($check);
+        } catch (Exception $e) {
+            return $this->ErrorResponse($e->getMessage());
+        }
     }
 }
