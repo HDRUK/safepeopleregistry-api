@@ -66,7 +66,7 @@ class ValidationCheckController extends Controller
     public function show($id): JsonResponse
     {
         try {
-            $check = ValidationCheck::findOrFail($id);
+            $check = ValidationCheck::find($id);
             if (!$check) {
                 return $this->NotFoundResponse();
             }
@@ -148,7 +148,7 @@ class ValidationCheckController extends Controller
     {
         try {
             $input = $request->only(app(ValidationCheck::class)->getFillable());
-            $check = ValidationCheck::findOrFail($id);
+            $check = ValidationCheck::find($id);
             if (!$check) {
                 return $this->NotFoundResponse();
             }
@@ -191,7 +191,7 @@ class ValidationCheckController extends Controller
     public function destroy($id): JsonResponse
     {
         try {
-            $check = ValidationCheck::findOrFail($id);
+            $check = ValidationCheck::find($id);
             if (!$check) {
                 return $this->NotFoundResponse();
             }
@@ -233,7 +233,10 @@ class ValidationCheckController extends Controller
     public function getCustodianValidationChecks($custodianId): JsonResponse
     {
         try {
-            $custodian = Custodian::with('validationChecks')->findOrFail($custodianId);
+            $custodian = Custodian::with('validationChecks')->find($custodianId);
+            if (!$custodian) {
+                return $this->NotFoundResponse();
+            }
             $checks = $custodian->validationChecks()
                 ->searchViaRequest()
                 ->get();
@@ -288,7 +291,10 @@ class ValidationCheckController extends Controller
     public function createCustodianValidationChecks(Request $request, $custodianId): JsonResponse
     {
         try {
-            $custodian = Custodian::findOrFail($custodianId);
+            $custodian = Custodian::find($custodianId);
+            if (!$custodian) {
+                return $this->NotFoundResponse();
+            }
 
             $input = $request->only(app(ValidationCheck::class)->getFillable());
             $check = ValidationCheck::create($input);
