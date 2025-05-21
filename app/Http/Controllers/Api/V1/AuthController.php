@@ -35,17 +35,13 @@ class AuthController extends Controller
             $tokenParts = explode('Bearer ', $request->headers->get('Authorization'));
             $token = trim($tokenParts[1] ?? '');
 
-            DebugLog::create([
-                'class' => AuthController::class,
-                'log' => 'token: ' .  $token,
-            ]);
 
             $response = Keycloak::getUserInfo($request->headers->get('Authorization'));
             $payload = $response->json();
 
             DebugLog::create([
-                'class' => AuthController::class,
-                'log' => json_encode($payload)
+                'class' => 'up the ra',
+                'log' => json_encode(array_keys($payload))
             ]);
 
             $user = RMC::createNewUser($payload, $request);
@@ -94,6 +90,12 @@ class AuthController extends Controller
                     'data' => null,
                 ], 201);
             }
+
+
+            DebugLog::create([
+                'class' => 'up the ra',
+                'log' => 'failed to register'
+            ]);
 
             return response()->json([
                 'message' => 'failed',

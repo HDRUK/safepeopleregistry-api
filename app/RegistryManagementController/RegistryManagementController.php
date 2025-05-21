@@ -53,6 +53,11 @@ class RegistryManagementController
         try {
             $unclaimedUser = User::where('email', $input['email'])->whereNull('keycloak_id')->first();
 
+            DebugLog::create([
+                'class' => 'up the ra email',
+                'log' => $unclaimedUser->email,
+            ]);
+
             if ($unclaimedUser) {
                 Log::debug('unclaimed user detected - {id}', ['id' => $unclaimedUser->id]);
 
@@ -206,19 +211,19 @@ class RegistryManagementController
     {
         $signature = Str::random(64);
         return Hash::make(
-            $signature.
-            ':'.env('REGISTRY_SALT_1').
-            ':'.env('REGISTRY_SALT_2')
+            $signature .
+                ':' . env('REGISTRY_SALT_1') .
+                ':' . env('REGISTRY_SALT_2')
         );
     }
 
     public static function createUnclaimedUser(array $user, bool $strictCreate = false): User
     {
         $registry = Registry::create([
-          'dl_ident' => null,
-          'pp_ident' => null,
-          'digi_ident' => RegistryManagementController::generateDigitalIdentifierForRegistry(),
-          'verified' => 0,
+            'dl_ident' => null,
+            'pp_ident' => null,
+            'digi_ident' => RegistryManagementController::generateDigitalIdentifierForRegistry(),
+            'verified' => 0,
         ]);
 
         $userData = [
