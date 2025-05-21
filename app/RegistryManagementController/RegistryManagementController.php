@@ -54,8 +54,8 @@ class RegistryManagementController
             $unclaimedUser = User::where('email', $input['email'])->whereNull('keycloak_id')->first();
 
             DebugLog::create([
-                'class' => 'up the ra email',
-                'log' => $unclaimedUser->email,
+                'class' => RegistryManagementController::class,
+                'log' => 'Found unclaimed user ' . $unclaimedUser->email,
             ]);
 
             if ($unclaimedUser) {
