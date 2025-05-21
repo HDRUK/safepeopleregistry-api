@@ -41,14 +41,12 @@ class AuthController extends Controller
             ]);
 
             $response = Keycloak::getUserInfo($request->headers->get('Authorization'));
-
-
             $payload = $response->json();
 
-            return response()->json([
-                'message' => 'success',
-                'data' => $payload
-            ], 201);
+            DebugLog::create([
+                'class' => AuthController::class,
+                'log' => json_encode($payload)
+            ]);
 
             $user = RMC::createNewUser($payload, $request);
 
