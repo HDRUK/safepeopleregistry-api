@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Registry;
 use App\Models\CustodianUser;
+use App\Models\DebugLog;
 use RegistryManagementController as RMC;
 use Illuminate\Support\Str;
 
@@ -21,7 +22,11 @@ class Keycloak
 
     public function getUserInfo(string $token)
     {
-        $userInfoUrl = env('KEYCLOAK_BASE_URL').'/realms/'.env('KEYCLOAK_REALM').'/protocol/openid-connect/userinfo';
+        $userInfoUrl = env('KEYCLOAK_BASE_URL') . '/realms/' . env('KEYCLOAK_REALM') . '/protocol/openid-connect/userinfo';
+        DebugLog::create([
+            'class' => Keycloak::class,
+            'log' => $userInfoUrl
+        ]);
         return Http::withHeaders([
             'Authorization' => $token,
         ])->get($userInfoUrl);
@@ -128,9 +133,9 @@ class Keycloak
                 if ($userGroup === 'RESEARCHERS') {
                     $signature = Str::random(64);
                     $digiIdent = Hash::make(
-                        $signature.
-                        ':'.env('REGISTRY_SALT_1').
-                        ':'.env('REGISTRY_SALT_2')
+                        $signature .
+                            ':' . env('REGISTRY_SALT_1') .
+                            ':' . env('REGISTRY_SALT_2')
                     );
 
                     $registry = Registry::create([
@@ -174,7 +179,7 @@ class Keycloak
     public function login(string $username, string $password): array
     {
         try {
-            $authUrl = env('KEYCLOAK_BASE_URL').'/realms/'.env('KEYCLOAK_REALM').'/protocol/openid-connect/token';
+            $authUrl = env('KEYCLOAK_BASE_URL') . '/realms/' . env('KEYCLOAK_REALM') . '/protocol/openid-connect/token';
 
             $credentials = [
                 'username' => $username,
@@ -204,7 +209,6 @@ class Keycloak
                 'response' => null,
                 'status' => 401,
             ];
-
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -234,10 +238,10 @@ class Keycloak
     public function logout(string $token): bool
     {
         try {
-            $authUrl = env('KEYCLOAK_BASE_URL').'/realms/'.env('KEYCLOAK_REALM').'/protocol/openid-connect/logout';
+            $authUrl = env('KEYCLOAK_BASE_URL') . '/realms/' . env('KEYCLOAK_REALM') . '/protocol/openid-connect/logout';
 
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer '.$token,
+                'Authorization' => 'Bearer ' . $token,
             ])->post($authUrl);
 
             if ($response->status() === 200) {
@@ -253,15 +257,14 @@ class Keycloak
     public function me(string $token, string $id): mixed
     {
         try {
-            $authUrl = env('KEYCLOAK_BASE_URL').'/realms/'.env('KEYCLOAK_REALM').'/users/'.$id;
+            $authUrl = env('KEYCLOAK_BASE_URL') . '/realms/' . env('KEYCLOAK_REALM') . '/users/' . $id;
 
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer '.$token,
+                'Authorization' => 'Bearer ' . $token,
             ])->post($authUrl);
 
             $responseData = $response->json();
             dd($responseData);
-
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -269,14 +272,16 @@ class Keycloak
 
     private function getServiceToken(): string
     {
-        if (self::$serviceToken &&
+        if (
+            self::$serviceToken &&
             self::$tokenCreatedAt &&
-            self::$tokenCreatedAt->diffInHours(Carbon::now()) < self::$tokenExiprationHours) {
+            self::$tokenCreatedAt->diffInHours(Carbon::now()) < self::$tokenExiprationHours
+        ) {
             return self::$serviceToken;
         }
 
         try {
-            $authUrl = env('KEYCLOAK_BASE_URL').'/realms/'.env('KEYCLOAK_REALM').'/protocol/openid-connect/token';
+            $authUrl = env('KEYCLOAK_BASE_URL') . '/realms/' . env('KEYCLOAK_REALM') . '/protocol/openid-connect/token';
 
             $credentials = [
                 'client_secret' => env('KEYCLOAK_CLIENT_SECRET'),
@@ -304,7 +309,7 @@ class Keycloak
 
     private function makeUrl(string $path): string
     {
-        return env('KEYCLOAK_BASE_URL').'/admin/realms/'.env('KEYCLOAK_REALM').$path;
+        return env('KEYCLOAK_BASE_URL') . '/admin/realms/' . env('KEYCLOAK_REALM') . $path;
     }
 
     public function determineUserGroup(array $input): string
@@ -359,7 +364,6 @@ class Keycloak
             );
 
             return count($response->json()) > 0;
-
         } catch (Exception $e) {
             throw new Exception($e);
         }

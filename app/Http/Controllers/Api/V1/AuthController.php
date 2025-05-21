@@ -18,6 +18,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
+use App\Models\DebugLog;
 
 class AuthController extends Controller
 {
@@ -32,7 +33,14 @@ class AuthController extends Controller
     {
         $token = explode('Bearer ', $request->headers->get('Authorization'));
 
+        DebugLog::create([
+            'class' => AuthController::class,
+            'log' => 'token: ' .  $token,
+        ]);
+
         $response = Keycloak::getUserInfo($request->headers->get('Authorization'));
+
+
         $payload = $response->json();
 
         return response()->json([
