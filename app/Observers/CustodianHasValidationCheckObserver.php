@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Jobs\UpdateCustodianValidation;
 use App\Models\CustodianHasValidationCheck;
 use App\Traits\ValidationManager;
 
@@ -12,8 +13,9 @@ class CustodianHasValidationCheckObserver
     public function saved(CustodianHasValidationCheck $model): void
     {
         $custodianId = $model->custodian_id;
-        $this->updateAllCustodianOrganisationValidation(
+        UpdateCustodianValidation::dispatch(
             $custodianId,
+            $model->validationCheck->applies_to
         );
     }
 }

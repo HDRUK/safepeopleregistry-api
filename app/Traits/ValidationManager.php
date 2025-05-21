@@ -25,7 +25,6 @@ trait ValidationManager
         ?string $userDigitalIdent = null,
         ?int $custodianId = null
     ): void {
-
         $phus = ProjectHasUser::where('project_id', $projectId)
             ->when($userDigitalIdent, function ($query, $userDigitalIdent) {
                 return $query->where('user_digital_ident', $userDigitalIdent);
@@ -139,6 +138,16 @@ trait ValidationManager
         $organisationIds = Organisation::pluck('id');
         foreach ($organisationIds as $organisationId) {
             $this->updateCustodianOrganisationValidation($custodianId, $organisationId);
+        }
+    }
+
+    public function updateAllCustodianProjectUserValidation(
+        int $custodianId
+    ): void {
+
+        $projectIds = ProjectHasCustodian::pluck('project_id');
+        foreach ($projectIds as $projectId) {
+            $this->updateCustodianProjectUserValidation($projectId, null, $custodianId);
         }
     }
 }
