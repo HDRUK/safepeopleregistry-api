@@ -265,11 +265,10 @@ class ValidationCheckController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"name", "type"}, // Replace with actual required fields from ValidationCheck
+     *             required={"name", "type"}, 
      *             @OA\Property(property="name", type="string", example="Check format"),
      *             @OA\Property(property="type", type="string", example="format"),
      *             @OA\Property(property="description", type="string", example="Ensures proper formatting of input")
-     *             // Add other fields as needed
      *         )
      *     ),
      *     @OA\Response(
