@@ -6,12 +6,12 @@ use RuntimeException;
 use InvalidArgumentException;
 use App\Models\ValidationLog;
 use App\Models\Custodian;
+use App\Models\CustodianHasValidationCheck;
 use App\Models\Project;
 use App\Models\ProjectHasCustodian;
 use App\Models\ProjectHasUser;
 use App\Models\Registry;
 use App\Models\Organisation;
-use App\Models\OrganisationHasCustodianApproval;
 
 /**
  * ValidationManager
@@ -25,7 +25,6 @@ trait ValidationManager
         ?string $userDigitalIdent = null,
         ?int $custodianId = null
     ): void {
-
         $phus = ProjectHasUser::where('project_id', $projectId)
             ->when($userDigitalIdent, function ($query, $userDigitalIdent) {
                 return $query->where('user_digital_ident', $userDigitalIdent);
@@ -42,16 +41,25 @@ trait ValidationManager
             $registry = $phu->registry;
             foreach ($phcs as $phc) {
                 $custodian = $phc->custodian;
-                foreach (ProjectHasUser::getDefaultActions() as $action) {
+                $vchecks = CustodianHasValidationCheck::with("validationCheck")
+                    ->where([
+                        'custodian_id' => $custodian->id
+                    ])
+                    ->whereHas('validationCheck', function ($query) {
+                        $query->where('applies_to', ProjectHasUser::class);
+                    })
+                    ->pluck('validation_check_id');
+
+                foreach ($vchecks as $vcid) {
                     ValidationLog::updateOrCreate(
                         [
                             'entity_id' => $custodian->id,
                             'entity_type' => Custodian::class,
-                            'name' => $action,
                             'secondary_entity_id' => $projectId,
                             'secondary_entity_type' => Project::class,
                             'tertiary_entity_id' => $registry->id,
                             'tertiary_entity_type' => Registry::class,
+                            'validation_check_id' => $vcid
                         ],
                         [
                             'completed_at' => null,
@@ -98,14 +106,23 @@ trait ValidationManager
         $organisation = Organisation::find($organisationId);
         $custodian = Custodian::find($custodianId);
 
-        foreach (OrganisationHasCustodianApproval::getDefaultActions() as $action) {
+        $vchecks = CustodianHasValidationCheck::with("validationCheck")
+            ->where([
+                'custodian_id' => $custodian->id
+            ])
+            ->whereHas('validationCheck', function ($query) {
+                $query->where('applies_to', Organisation::class);
+            })
+            ->pluck('validation_check_id');
+
+        foreach ($vchecks as $vcid) {
             ValidationLog::updateOrCreate(
                 [
                     'entity_id' => $custodian->id,
                     'entity_type' => Custodian::class,
-                    'name' => $action,
                     'secondary_entity_id' => $organisation->id,
                     'secondary_entity_type' => Organisation::class,
+                    'validation_check_id' => $vcid
                 ],
                 [
                     'completed_at' => null,
@@ -114,4 +131,23 @@ trait ValidationManager
         }
     }
 
+    public function updateAllCustodianOrganisationValidation(
+        int $custodianId
+    ): void {
+
+        $organisationIds = Organisation::pluck('id');
+        foreach ($organisationIds as $organisationId) {
+            $this->updateCustodianOrganisationValidation($custodianId, $organisationId);
+        }
+    }
+
+    public function updateAllCustodianProjectUserValidation(
+        int $custodianId
+    ): void {
+
+        $projectIds = ProjectHasCustodian::pluck('project_id');
+        foreach ($projectIds as $projectId) {
+            $this->updateCustodianProjectUserValidation($projectId, null, $custodianId);
+        }
+    }
 }

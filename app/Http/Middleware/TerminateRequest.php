@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use Log;
 use Closure;
 use App\Models\DebugLog;
 use Illuminate\Contracts\Foundation\Application;

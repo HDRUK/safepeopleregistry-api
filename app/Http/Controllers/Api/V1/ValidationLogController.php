@@ -101,7 +101,7 @@ class ValidationLogController extends Controller
                 ->where('secondary_entity_id', $projectId)
                 ->where('tertiary_entity_type', Registry::class)
                 ->where('tertiary_entity_id', $registryId)
-                ->with("comments")
+                ->with(["comments", "validationCheck"])
                 ->when(
                     $withDisabled,
                     function ($query) {
@@ -112,7 +112,7 @@ class ValidationLogController extends Controller
 
             return $this->OKResponse($logs);
         } catch (Exception $e) {
-            return $this->ErrorResponse();
+            return $this->ErrorResponse($e->getMessage());
         }
     }
 
@@ -182,7 +182,7 @@ class ValidationLogController extends Controller
                 ->where('entity_id', $custodianId)
                 ->where('secondary_entity_type', Organisation::class)
                 ->where('secondary_entity_id', $organisationId)
-                ->with("comments")
+                ->with(["comments", "validationCheck"])
                 ->when(
                     $withDisabled,
                     function ($query) {
@@ -237,7 +237,6 @@ class ValidationLogController extends Controller
     public function updateCustodianValidationLogs(Request $request, int $custodianId): JsonResponse
     {
         $validated = $request->validate([
-            'name' => 'required|string',
             'enabled' => 'required|in:0,1',
         ]);
 
@@ -245,12 +244,11 @@ class ValidationLogController extends Controller
             $updated = ValidationLog::withDisabled()
                 ->where('entity_type', Custodian::class)
                 ->where('entity_id', $custodianId)
-                ->where('name', $validated['name'])
                 ->update(['enabled' => $validated['enabled']]);
 
             return $this->OKResponse($updated);
         } catch (Exception $e) {
-            return $this->ErrorResponse();
+            return $this->ErrorResponse($e->getMessage());
         }
     }
 
@@ -287,7 +285,7 @@ class ValidationLogController extends Controller
     public function index($validationLogId): JsonResponse
     {
         $validationLog = ValidationLog::withDisabled()
-            ->with("comments")
+            ->with(["comments", "validationCheck"])
             ->find($validationLogId);
 
         if (!$validationLog) {

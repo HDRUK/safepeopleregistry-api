@@ -178,7 +178,7 @@ class OrganisationIDVT implements ShouldQueue
         );
         $responseCompany->close();
         $responsePeople->close();
-        
+
         $this->renderVerdict();
     }
 

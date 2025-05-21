@@ -29,6 +29,7 @@ use App\Http\Controllers\Api\V1\EmailTemplateController;
 use App\Http\Controllers\Api\V1\SectorController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\ActionLogController;
+use App\Http\Controllers\Api\V1\ValidationCheckController;
 use App\Http\Controllers\Api\V1\ValidationLogController;
 use App\Http\Controllers\Api\V1\ValidationLogCommentController;
 use App\Http\Controllers\Api\V1\ProfessionalRegistrationController;
@@ -103,6 +104,7 @@ Route::middleware('auth:api')
         Route::put('action_log/{id}', 'update');
     });
 
+
 // --- VALIDATION LOGS ---
 Route::middleware('auth:api')
     ->prefix('v1')
@@ -137,6 +139,29 @@ Route::middleware('auth:api')
         Route::put('{id}', 'update');
         Route::delete('{id}', 'destroy');
     });
+
+// --- VALIDATION CHECKS ---
+Route::middleware('auth:api')
+    ->prefix('v1')
+    ->controller(ValidationCheckController::class)
+    ->group(function () {
+
+        Route::prefix('validation_checks')
+            ->group(function () {
+                Route::get('/', 'index');
+                Route::get('/{id}', 'show');
+                Route::post('/', 'store');
+                Route::put('/{id}', 'update');
+                Route::delete('/{id}', 'destroy');
+            });
+
+        Route::prefix('custodians/{custodianId}/validation_checks')
+            ->group(function () {
+                Route::get('/', 'getCustodianValidationChecks');
+                Route::post('/', 'createCustodianValidationChecks');
+            });
+    });
+
 
 // --- TRAINING ---
 Route::middleware('auth:api')

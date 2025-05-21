@@ -266,10 +266,9 @@ class Organisation extends Model
         'organisation_name',
     ];
 
-    protected $hidden = [
-    ];
+    protected $hidden = [];
 
-    protected $appends = [ 'evaluation' ];
+    protected $appends = ['evaluation'];
 
     public const ACTION_NAME_ADDRESS_COMPLETED = 'name_address_completed';
     public const ACTION_DIGITAL_ID_COMPLETED = 'digital_identifiers_completed';
@@ -288,6 +287,20 @@ class Organisation extends Model
         self::ACTION_ADD_SRO_COMPLETED,
         self::ACTION_AFFILIATE_EMPLOYEES_COMPLETED,
     ];
+
+    public static function defaultValidationChecks(): array
+    {
+        return [
+            [
+                'name' => 'organisation_aligned_with_sde_network',
+                'description' => 'Is the Organisation aligned with the SDE network?',
+            ],
+            [
+                'name' => 'confidence_in_costs_and_profits_for_future_projects',
+                'description' => 'Are we confident costs would be met and profits realised for future projects?',
+            ],
+        ];
+    }
 
 
     public function permissions(): BelongsToMany
@@ -387,10 +400,10 @@ class Organisation extends Model
     public function scopeGetCurrentRegistries($query, $id)
     {
         return RegistryHasAffiliation::with('affiliation')
-        ->whereHas('affiliation', function ($query) use ($id) {
-            $query->where('organisation_id', $id)->where('to', '=', '')
-            ->orWhereNull('to');
-        });
+            ->whereHas('affiliation', function ($query) use ($id) {
+                $query->where('organisation_id', $id)->where('to', '=', '')
+                    ->orWhereNull('to');
+            });
     }
 
     public function projects(): BelongsToMany
