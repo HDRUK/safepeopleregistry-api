@@ -35,8 +35,16 @@ class AuthController extends Controller
             $tokenParts = explode('Bearer ', $request->headers->get('Authorization'));
             $token = trim($tokenParts[1] ?? '');
 
+            DebugLog::create([
+                'class' => 'up the ra',
+                'log' => 'got token'
+            ]);
+            DebugLog::create([
+                'class' => AuthController::class,
+                'log' => 'got token!'
+            ]);
 
-            $response = Keycloak::getUserInfo($request->headers->get('Authorization'));
+            $response = Keycloak::getUserInfo($token);
             $payload = $response->json();
 
             DebugLog::create([
