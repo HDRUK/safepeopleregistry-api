@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Traits\Responses;
 use App\Http\Controllers\Controller;
-use Exception;
 
 class ValidationLogCommentController extends Controller
 {
@@ -44,16 +43,13 @@ class ValidationLogCommentController extends Controller
      */
     public function show($id): JsonResponse
     {
-        try {
-            $comment = ValidationLogComment::with(['user', 'validationLog'])->findOrFail($id);
+        $comment = ValidationLogComment::with(['user', 'validationLog'])->find($id);
 
-            if (!$comment) {
-                return $this->NotFoundResponse();
-            }
-            return $this->OKResponse($comment);
-        } catch (Exception $e) {
-            return $this->ErrorResponse($e->getMessage());
+        if (!$comment) {
+            return $this->NotFoundResponse();
         }
+        return $this->OKResponse($comment);
+
     }
 
 
@@ -85,23 +81,19 @@ class ValidationLogCommentController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        try {
-            $validated = $request->validate([
-                'validation_log_id' => 'required|exists:validation_logs,id',
-                'user_id' => 'required|exists:users,id',
-                'comment' => 'required|string'
-            ]);
+        $validated = $request->validate([
+            'validation_log_id' => 'required|exists:validation_logs,id',
+            'user_id' => 'required|exists:users,id',
+            'comment' => 'required|string'
+        ]);
 
-            $comment = ValidationLogComment::create([
-                'validation_log_id' => $validated['validation_log_id'],
-                'user_id' => $validated['user_id'],
-                'comment' => $validated['comment']
-            ]);
+        $comment = ValidationLogComment::create([
+            'validation_log_id' => $validated['validation_log_id'],
+            'user_id' => $validated['user_id'],
+            'comment' => $validated['comment']
+        ]);
 
-            return $this->CreatedResponse($comment);
-        } catch (Exception $e) {
-            return $this->ErrorResponse($e->getMessage());
-        }
+        return $this->CreatedResponse($comment);
     }
 
     /**
@@ -144,22 +136,18 @@ class ValidationLogCommentController extends Controller
      */
     public function update(Request $request, $id): JsonResponse
     {
-        try {
-            $validated = $request->validate([
-                'comment' => 'required|string',
-            ]);
+        $validated = $request->validate([
+            'comment' => 'required|string',
+        ]);
 
-            $comment = ValidationLogComment::find($id);
-            if (!$comment) {
-                return $this->NotFoundResponse();
-            }
-
-            $comment->update(['comment' => $validated['comment']]);
-
-            return $this->OKResponse($comment);
-        } catch (Exception $e) {
-            return $this->ErrorResponse($e->getMessage());
+        $comment = ValidationLogComment::find($id);
+        if (!$comment) {
+            return $this->NotFoundResponse();
         }
+
+        $comment->update(['comment' => $validated['comment']]);
+
+        return $this->OKResponse($comment);
     }
 
     /**
@@ -193,17 +181,13 @@ class ValidationLogCommentController extends Controller
      */
     public function destroy($id): JsonResponse
     {
-        try {
-            $comment = ValidationLogComment::findOrFail($id);
-            if (!$comment) {
-                return $this->NotFoundResponse();
-            }
-
-            $comment->delete();
-
-            return $this->OKResponse(null);
-        } catch (Exception $e) {
-            return $this->ErrorResponse($e->getMessage());
+        $comment = ValidationLogComment::find($id);
+        if (!$comment) {
+            return $this->NotFoundResponse();
         }
+
+        $comment->delete();
+
+        return $this->OKResponse(null);
     }
 }
