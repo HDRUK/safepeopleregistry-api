@@ -26,9 +26,7 @@ class AuthController extends Controller
      *
      * @return void
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     public function registerKeycloakUser(Request $request): JsonResponse
     {
@@ -36,6 +34,11 @@ class AuthController extends Controller
 
         $response = Keycloak::getUserInfo($request->headers->get('Authorization'));
         $payload = $response->json();
+
+        return response()->json([
+            'message' => 'success',
+            'data' => $payload
+        ], 201);
 
         $user = RMC::createNewUser($payload, $request);
 
