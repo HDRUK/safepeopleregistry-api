@@ -28,7 +28,7 @@ class Keycloak
             'log' => $userInfoUrl
         ]);
         return Http::withHeaders([
-            'Authorization' => $token,
+            'Authorization' => 'Bearer ' . $token,
         ])->get($userInfoUrl);
     }
 

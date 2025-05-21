@@ -31,7 +31,8 @@ class AuthController extends Controller
 
     public function registerKeycloakUser(Request $request): JsonResponse
     {
-        $token = explode('Bearer ', $request->headers->get('Authorization'));
+        $tokenParts = explode('Bearer ', $request->headers->get('Authorization'));
+        $token = trim($tokenParts[1] ?? '');
 
         DebugLog::create([
             'class' => AuthController::class,
