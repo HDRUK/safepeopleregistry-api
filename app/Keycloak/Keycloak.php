@@ -27,8 +27,8 @@ class Keycloak
             'class' => Keycloak::class,
             'log' => $userInfoUrl
         ]);
-        return Http::withOptions([
-            'verify' => false,
+        return Http::witOptions([
+            'verify' =>  '/etc/ssl/certs/cacert.pem',
         ])
             ->withHeaders([
                 'Authorization' => 'Bearer ' . $token,
