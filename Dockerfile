@@ -19,6 +19,8 @@ RUN apt-get update && apt-get install -y \
     wget \
     zlib1g-dev \
     zip \
+    ca-certificates && \
+    update-ca-certificates \
     default-mysql-client \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd pdo pdo_mysql soap zip iconv bcmath \
@@ -27,6 +29,9 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install exif \
     && docker-php-ext-configure pcntl --enable-pcntl \
     && docker-php-ext-install pcntl
+
+RUN mkdir -p /etc/pki/tls/certs && \
+    ln -s /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- \
@@ -55,7 +60,7 @@ RUN composer install \
 
 # Generate Swagger
 RUN php artisan l5-swagger:generate
-
+RUN ls -l /etc/pki/tls/certs/
 # Starts both, laravel server and job queue
 CMD ["/var/www/docker/start.sh"]
 
