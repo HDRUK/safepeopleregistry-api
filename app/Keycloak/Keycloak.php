@@ -27,12 +27,9 @@ class Keycloak
             'class' => Keycloak::class,
             'log' => $userInfoUrl
         ]);
-        return Http::witOptions([
-            'verify' =>  '/etc/ssl/certs/cacert.pem',
-        ])
-            ->withHeaders([
-                'Authorization' => 'Bearer ' . $token,
-            ])->get($userInfoUrl);
+        return Http::withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->get($userInfoUrl);
     }
 
     public static function updateSoursdDigitalIdentifier(User $user)
