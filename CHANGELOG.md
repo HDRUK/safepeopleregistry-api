@@ -1,3 +1,16 @@
+## [1.5.1](https://github.com/HDRUK/soursd-api/compare/v1.5.0...v1.5.1) (2025-05-22)
+
+### 🐛 Bug Fixes
+
+* **SOURSD-1113:** Implement Validation Check controller (#306) ([ee49c76](https://github.com/HDRUK/soursd-api/commit/ee49c760b44cc2147c46c39c44be64c35ae50df7))
+* **SOURSD-1113:** Quick fixes for swagger (#316) ([6a34eb5](https://github.com/HDRUK/soursd-api/commit/6a34eb53445641ac8629d9626332ae19962156e1))
+* **SOURSD-880:** Attempt to reduce uncleared memory and adds logging … (#314) ([a87dfc9](https://github.com/HDRUK/soursd-api/commit/a87dfc9f41f9b68fdef4e1c7cdd0d205ffa678b4))
+* **SOURSD-880:** Attempt to reduce uncleared memory and adds logging for strange certs issue in dev env ([c874fa2](https://github.com/HDRUK/soursd-api/commit/c874fa2bef171db3f51df91c6ccf0cf33a010e96))
+* **SOURSD-880:** Remap keycloak ids after new environment deployed ([dbd6568](https://github.com/HDRUK/soursd-api/commit/dbd6568e247f7e5b277a6947e86ec8cb5dc398b7))
+* **SOURSD-880:** Remap keycloak ids after new environment deployed (#312) ([7656b36](https://github.com/HDRUK/soursd-api/commit/7656b36d8cf6f50b63efd1159286b277652d2a8e))
+* **SOURSD-880:** Round 10 of trying to get to the bottom of this memo… (#315) ([34a49fb](https://github.com/HDRUK/soursd-api/commit/34a49fb5cae0ea33961b5cdbb72a5411ed7551d8))
+* **SOURSD-880:** Round 10 of trying to get to the bottom of this memory leak in dev ([7633109](https://github.com/HDRUK/soursd-api/commit/763310934b634942008bf7d1ef00e6c5b162f1e5))
+
 ## [1.5.0](https://github.com/HDRUK/soursd-api/compare/v1.4.0...v1.5.0) (2025-05-19)
 
 ### ✨ Features
