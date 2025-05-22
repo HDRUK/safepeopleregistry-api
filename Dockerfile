@@ -58,6 +58,7 @@ RUN composer install \
 
 # Generate Swagger
 RUN php artisan l5-swagger:generate
+
 # Starts both, laravel server and job queue
 CMD ["/var/www/docker/start.sh"]
 
