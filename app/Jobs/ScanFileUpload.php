@@ -49,7 +49,7 @@ class ScanFileUpload implements ShouldQueue
             'file' => (string) $filePath,
             'storage' => (string) $this->fileSystem,
         ];
-        $url = env('CLAMAV_API_URL', 'http://clamav:3001').'/scan_file';
+        $url = env('CLAM_AV_SERVICE_URL', 'http://clamav:3001').'/scan_file';
 
         $response = Http::post(
             $url,
