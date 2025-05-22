@@ -30,8 +30,8 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure pcntl --enable-pcntl \
     && docker-php-ext-install pcntl
 
-RUN mkdir -p /etc/pki/tls/certs && \
-    ln -s /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt
+# RUN mkdir -p /etc/pki/tls/certs && \
+#     ln -s /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- \
