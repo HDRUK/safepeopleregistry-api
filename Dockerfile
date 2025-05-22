@@ -60,7 +60,7 @@ RUN composer install \
 
 # Generate Swagger
 RUN php artisan l5-swagger:generate
-RUN ls -l /etc/pki/tls/certs/
+# RUN ls -l /etc/pki/tls/certs/
 # Starts both, laravel server and job queue
 CMD ["/var/www/docker/start.sh"]
 
