@@ -29,6 +29,7 @@ use App\Http\Controllers\Api\V1\EmailTemplateController;
 use App\Http\Controllers\Api\V1\SectorController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\ActionLogController;
+use App\Http\Controllers\Api\V1\ValidationCheckController;
 use App\Http\Controllers\Api\V1\ValidationLogController;
 use App\Http\Controllers\Api\V1\ValidationLogCommentController;
 use App\Http\Controllers\Api\V1\ProfessionalRegistrationController;
@@ -74,7 +75,6 @@ Route::middleware(['auth:api'])
 
         // create
         Route::post('/', [UserController::class, 'store']);
-        Route::post('/change-password/{id}', [AuthController::class, 'changePassword']);
         Route::post('/invite', [UserController::class, 'invite']);
         Route::post('/permissions', [PermissionController::class, 'assignUserPermissionsToFrom']);
         Route::post('/search_affiliations', [UserController::class, 'searchUsersByNameAndProfessionalEmail']);
@@ -102,6 +102,7 @@ Route::middleware('auth:api')
         Route::get('{entity}/{id}/action_log', 'getEntityActionLog');
         Route::put('action_log/{id}', 'update');
     });
+
 
 // --- VALIDATION LOGS ---
 Route::middleware('auth:api')
@@ -137,6 +138,29 @@ Route::middleware('auth:api')
         Route::put('{id}', 'update');
         Route::delete('{id}', 'destroy');
     });
+
+// --- VALIDATION CHECKS ---
+Route::middleware('auth:api')
+    ->prefix('v1')
+    ->controller(ValidationCheckController::class)
+    ->group(function () {
+
+        Route::prefix('validation_checks')
+            ->group(function () {
+                Route::get('/', 'index');
+                Route::get('/{id}', 'show');
+                Route::post('/', 'store');
+                Route::put('/{id}', 'update');
+                Route::delete('/{id}', 'destroy');
+            });
+
+        Route::prefix('custodians/{custodianId}/validation_checks')
+            ->group(function () {
+                Route::get('/', 'getCustodianValidationChecks');
+                Route::post('/', 'createCustodianValidationChecks');
+            });
+    });
+
 
 // --- TRAINING ---
 Route::middleware('auth:api')

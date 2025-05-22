@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @OA\Schema(
@@ -100,7 +101,7 @@ class ValidationLog extends Model
         'secondary_entity_type',
         'tertiary_entity_id',
         'tertiary_entity_type',
-        'name',
+        'validation_check_id',
         'completed_at',
         'manually_confirmed'
     ];
@@ -127,5 +128,10 @@ class ValidationLog extends Model
     public function comments(): HasMany
     {
         return $this->hasMany(ValidationLogComment::class);
+    }
+
+    public function validationCheck(): BelongsTo
+    {
+        return $this->belongsTo(ValidationCheck::class);
     }
 }

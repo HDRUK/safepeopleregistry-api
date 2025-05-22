@@ -171,4 +171,13 @@ class Custodian extends Model
             'organisation_id'
         );
     }
+
+    public function validationChecks(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            ValidationCheck::class,
+            'custodian_has_validation_check'
+        )
+            ->using(CustodianHasValidationCheck::class);
+    }
 }
