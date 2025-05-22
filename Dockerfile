@@ -19,8 +19,6 @@ RUN apt-get update && apt-get install -y \
     wget \
     zlib1g-dev \
     zip \
-    # ca-certificates && \
-    # update-ca-certificates \
     default-mysql-client \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd pdo pdo_mysql soap zip iconv bcmath \
@@ -60,7 +58,6 @@ RUN composer install \
 
 # Generate Swagger
 RUN php artisan l5-swagger:generate
-# RUN ls -l /etc/pki/tls/certs/
 # Starts both, laravel server and job queue
 CMD ["/var/www/docker/start.sh"]
 
