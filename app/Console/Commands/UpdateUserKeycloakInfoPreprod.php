@@ -6,9 +6,9 @@ use Illuminate\Console\Command;
 use App\Models\User;
 use Carbon\Carbon;
 
-class UpdateUserKeycloakInfo extends Command
+class UpdateUserKeycloakInfoPreprod extends Command
 {
-    protected $signature = 'app:update-keycloak';
+    protected $signature = 'users:update-keycloak';
     protected $description = 'Update keycloak_id, t_and_c_agreed, and t_and_c_agreement_date for users';
 
     public function handle()
