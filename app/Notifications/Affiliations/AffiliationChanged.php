@@ -21,8 +21,7 @@ class AffiliationChanged extends Notification
         foreach ($oldDetails as $key => $oldValue) {
             $newValue = $newDetails[$key] ?? null;
             if ($oldValue !== $newValue) {
-                $changes[] = [
-                    'key' => $key,
+                $changes[$key] = [
                     'old' => $oldValue,
                     'new' => $newValue,
                 ];
