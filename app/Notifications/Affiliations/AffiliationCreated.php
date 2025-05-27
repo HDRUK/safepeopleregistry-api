@@ -15,6 +15,6 @@ class AffiliationCreated extends Notification
 
     public function __construct(User $user, Affiliation $affiliation)
     {
-        $this->buildNotification($user, $affiliation, " created a new affiliation!");
+        $this->buildNotification($user, $affiliation, "created a new affiliation!");
     }
 }
