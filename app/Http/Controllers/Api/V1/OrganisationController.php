@@ -29,6 +29,7 @@ use App\Http\Requests\Organisations\EditOrganisation;
 use TriggerEmail;
 use App\Http\Traits\Responses;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
 
 class OrganisationController extends Controller
 {
@@ -461,7 +462,7 @@ class OrganisationController extends Controller
                 'postcode' => '',
                 'lead_applicant_organisation_name' => '',
                 'lead_applicant_email' => $input['lead_applicant_email'],
-                'organisation_unique_id' => '',
+                'organisation_unique_id' => Str::random(40),
                 'applicant_names' => '',
                 'funders_and_sponsors' => '',
                 'sub_license_arrangements' => '',
@@ -1250,7 +1251,7 @@ class OrganisationController extends Controller
         OrganisationHasSubsidiary::where('organisation_id', $organisationId)
             ->get()
             ->each(
-                fn ($ohs) =>
+                fn($ohs) =>
                 OrganisationHasSubsidiary::where([
                     ['organisation_id', '=', $ohs->organisation_id],
                     ['subsidiary_id', '=', $ohs->subsidiary_id]
