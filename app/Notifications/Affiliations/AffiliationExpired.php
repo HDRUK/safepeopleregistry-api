@@ -15,6 +15,6 @@ class AffiliationExpired extends Notification
 
     public function __construct(User $user, Affiliation $affiliation)
     {
-        $this->buildNotification($user, $affiliation, " affiliation expired!");
+        $this->buildNotification($user, $affiliation, "affiliation expired!");
     }
 }
