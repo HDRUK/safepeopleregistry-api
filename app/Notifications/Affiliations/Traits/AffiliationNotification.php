@@ -7,7 +7,6 @@ use App\Models\User;
 
 trait AffiliationNotification
 {
-
     protected $payload;
 
     protected function getAffiliationDetails(Affiliation $affiliation): array

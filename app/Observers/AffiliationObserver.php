@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Models\Affiliation;
 use App\Models\RegistryHasAffiliation;
 use App\Traits\AffiliationCompletionManager;
-
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\Affiliations\AffiliationCreated;
 use App\Notifications\Affiliations\AffiliationDeleted;
@@ -39,7 +38,7 @@ class AffiliationObserver
         // note - need to handle if the affiliation organisation has been changed?
         // - this would need to send a create notification to do the new organisation?
         // - should they be allowed to change the affiliation anyway?!
-        // - it would be much better for them to just create a new one 
+        // - it would be much better for them to just create a new one
 
     }
 
