@@ -7,6 +7,10 @@ use App\Models\User;
 use App\Models\Affiliation;
 use App\Models\RegistryHasAffiliation;
 use App\Traits\AffiliationCompletionManager;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\Affiliations\AffiliationCreated;
+use App\Notifications\Affiliations\AffiliationDeleted;
+use App\Notifications\Affiliations\AffiliationChanged;
 
 class AffiliationObserver
 {
@@ -15,16 +19,37 @@ class AffiliationObserver
     public function created(Affiliation $affiliation): void
     {
         $this->handleChange($affiliation);
+        $user = $affiliation->registry->user;
+        $orgAdmins = $this->getOrgAdmins($affiliation);
+
+        Notification::send($orgAdmins, new AffiliationCreated($user, $affiliation));
     }
 
     public function updated(Affiliation $affiliation): void
     {
         $this->handleChange($affiliation);
+
+        $user = $affiliation->registry->user;
+        $orgAdmins = $this->getOrgAdmins($affiliation);
+        $oldAffiliation = new Affiliation($affiliation->getOriginal());
+
+        Notification::send($orgAdmins, new AffiliationChanged($user, $oldAffiliation, $affiliation));
+
+        // note - need to handle if the affiliation organisation has been changed?
+        // - this would need to send a create notification to do the new organisation?
+        // - should they be allowed to change the affiliation anyway?!
+        // - it would be much better for them to just create a new one
+
     }
 
     public function deleted(Affiliation $affiliation): void
     {
         $this->handleChange($affiliation);
+
+        $user = $affiliation->registry->user;
+        $orgAdmins = $this->getOrgAdmins($affiliation);
+
+        Notification::send($orgAdmins, new AffiliationDeleted($user, $affiliation));
     }
 
     protected function handleChange(Affiliation $affiliation): void
@@ -39,7 +64,6 @@ class AffiliationObserver
         }
 
         $this->emailDelegates($affiliation);
-
     }
 
     protected function emailDelegates(Affiliation $affiliation)
@@ -86,4 +110,12 @@ class AffiliationObserver
             !empty($affiliation->from);
     }
 
+    private function getOrgAdmins(Affiliation $affiliation)
+    {
+        $organisation = $affiliation->organisation;
+        return User::where([
+            'organisation_id' => $organisation->id,
+            'user_group' => User::GROUP_ORGANISATIONS
+        ])->get();
+    }
 }

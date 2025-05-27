@@ -124,6 +124,20 @@ class Affiliation extends Model
     /**
      * Get the organisation related to the affiliation.
      *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function registry()
+    {
+        return $this->belongsTo(
+            Registry::class,
+            'registry_id',
+            'id'
+        );
+    }
+
+    /**
+     * Get the organisation related to the affiliation.
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function registryHasAffiliations()
