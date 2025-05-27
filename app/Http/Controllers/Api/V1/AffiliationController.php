@@ -73,13 +73,13 @@ class AffiliationController extends Controller
                 },
             ]
         )
-        ->whereHas(
-            'registryHasAffiliations',
-            function ($query) use ($registryId) {
-                $query->where('registry_id', $registryId);
-            }
-        )
-        ->paginate((int) $this->getSystemConfig('PER_PAGE'));
+            ->whereHas(
+                'registryHasAffiliations',
+                function ($query) use ($registryId) {
+                    $query->where('registry_id', $registryId);
+                }
+            )
+            ->paginate((int) $this->getSystemConfig('PER_PAGE'));
 
         return response()->json([
             'message' => 'success',
@@ -230,12 +230,10 @@ class AffiliationController extends Controller
             $affiliation = Affiliation::findOrFail($id);
             $affiliation->update($input);
 
-
             return response()->json([
                 'message' => 'success',
                 'data' => $affiliation,
             ], 200);
-
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -386,7 +384,7 @@ class AffiliationController extends Controller
                 [
                     'registry_id' => $registryId,
                     'affiliation_id' => $affiliationId
-                    ]
+                ]
             )->first();
             if (!$rha) {
                 return $this->NotFoundResponse();
@@ -406,8 +404,8 @@ class AffiliationController extends Controller
             if (!$rha->canTransitionTo($newStateSlug)) {
                 return $this->ErrorResponse(
                     'Invalid state transition. ' .
-                    $rha->getState() .
-                    ' => ' . $newStateSlug
+                        $rha->getState() .
+                        ' => ' . $newStateSlug
                 );
             }
 
@@ -418,6 +416,4 @@ class AffiliationController extends Controller
             return $this->ErrorResponse($e->getMessage());
         }
     }
-
-
 }

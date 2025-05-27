@@ -13,20 +13,17 @@ trait AffiliationNotification
     protected function getAffiliationDetails(Affiliation $affiliation): array
     {
         return [
-            'id' => $affiliation->id,
-            'organisation' => optional($affiliation->organisation)->name,
-            'relationship' => $affiliation->relationship,
-            'department' => $affiliation->department,
-            'role' => $affiliation->role,
-            'from' => $affiliation->from,
-            'to' => $affiliation->to,
-            'email' => $affiliation->email,
-            'ror' => $affiliation->ror,
-            'registry_id' => $affiliation->registry_id,
+            'Organisation' => optional($affiliation->organisation)->organisation_name,
+            'Start Date' => $affiliation->from,
+            'End Date' => $affiliation->to,
+            'Relationship' => $affiliation->relationship,
+            'Department' => $affiliation->department,
+            'Role' => $affiliation->role,
+            'Email' => $affiliation->email,
         ];
     }
 
-    protected function buildNotification(User $user, Affiliation $affiliation, string $initMessage): array
+    protected function buildNotification(User $user, Affiliation $affiliation, string $initMessage)
     {
         $message = "{$user->first_name} {$user->last_name} $initMessage";
         $details = $this->getAffiliationDetails($affiliation);
