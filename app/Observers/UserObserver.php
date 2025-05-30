@@ -111,7 +111,7 @@ class UserObserver
 
         if ($user->isDirty($this->profileCompleteFields)) {
             $isProfileComplete = collect($this->profileCompleteFields)
-                ->every(fn($field) => !empty($user->$field));
+                ->every(fn ($field) => !empty($user->$field));
 
             if ($isProfileComplete) {
                 ActionLog::updateOrCreate(

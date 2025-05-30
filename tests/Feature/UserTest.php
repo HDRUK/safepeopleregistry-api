@@ -276,32 +276,29 @@ class UserTest extends TestCase
 
     public function test_the_application_can_create_users(): void
     {
-        $this->enableObservers();
+        $this->withTemporaryObservers(function () {
+            $response = $this->actingAs($this->admin)
+                ->json(
+                    'POST',
+                    self::TEST_URL,
+                    [
+                        'first_name' => fake()->firstname(),
+                        'last_name' => fake()->lastname(),
+                        'email' => fake()->email(),
+                        'provider' => fake()->word(),
+                        'provider_sub' => Str::random(10),
+                        'public_opt_in' => fake()->randomElement([0, 1]),
+                        'declaration_signed' => fake()->randomElement([0, 1]),
+                    ]
+                );
+            $response->assertStatus(201);
+            $this->assertArrayHasKey('data', $response);
 
-        $response = $this->actingAs($this->admin)
-            ->json(
-                'POST',
-                self::TEST_URL,
-                [
-                    'first_name' => fake()->firstname(),
-                    'last_name' => fake()->lastname(),
-                    'email' => fake()->email(),
-                    'provider' => fake()->word(),
-                    'provider_sub' => Str::random(10),
-                    'public_opt_in' => fake()->randomElement([0, 1]),
-                    'declaration_signed' => fake()->randomElement([0, 1]),
-                ]
-            );
-
-        $response->assertStatus(201);
-        $this->assertArrayHasKey('data', $response);
-
-        // Test that when a user is created, our observer sets the initial
-        // entity status for workflows
-        $user = User::where('id', $response['data'])->first();
-        $this->assertTrue($user->isInState(State::STATE_REGISTERED));
-
-        $this->disableObservers();
+            // Test that when a user is created, our observer sets the initial
+            // entity status for workflows
+            $user = User::where('id', $response['data'])->first();
+            $this->assertTrue($user->isInState(State::STATE_REGISTERED));
+        });
     }
 
     public function test_the_application_fails_when_unable_to_create_users(): void
@@ -345,165 +342,167 @@ class UserTest extends TestCase
 
     public function test_the_application_can_update_users(): void
     {
-        $this->enableObservers();
+        $this->withTemporaryObservers(function () {
 
-        Carbon::setTestNow(Carbon::now());
-        $response = $this->actingAs($this->admin)
-            ->json(
-                'POST',
-                self::TEST_URL,
-                [
-                    'first_name' => fake()->firstname(),
-                    'last_name' => fake()->lastname(),
-                    'email' => fake()->email(),
-                    'provider' => fake()->word(),
-                    'provider_sub' => Str::random(10),
-                    'consent_scrape' => true,
-                    'public_opt_in' => false,
-                    'declaration_signed' => false,
-                    'organisation_id' => 1,
-                    'orc_id' => fake()->numerify('####-####-####-####'),
-                ]
+            Carbon::setTestNow(Carbon::now());
+            $response = $this->actingAs($this->admin)
+                ->json(
+                    'POST',
+                    self::TEST_URL,
+                    [
+                        'first_name' => fake()->firstname(),
+                        'last_name' => fake()->lastname(),
+                        'email' => fake()->email(),
+                        'provider' => fake()->word(),
+                        'provider_sub' => Str::random(10),
+                        'consent_scrape' => true,
+                        'public_opt_in' => false,
+                        'declaration_signed' => false,
+                        'organisation_id' => 1,
+                        'orc_id' => fake()->numerify('####-####-####-####'),
+                    ]
+                );
+
+            $response->assertStatus(201);
+            $this->assertArrayHasKey('data', $response);
+
+            $content = $response->decodeResponseJson()['data'];
+            $this->assertGreaterThan(0, $content);
+
+            $response = $this->actingAs($this->admin)
+                ->json(
+                    'GET',
+                    self::TEST_URL . '/' . $content . '/action_log'
+                );
+
+            $response->assertStatus(200);
+            $responseData = $response['data'];
+            $actionLog = collect($responseData)
+                ->firstWhere('action', User::ACTION_PROFILE_COMPLETED);
+
+            $this->assertNull($actionLog['completed_at']);
+
+
+            $response = $this->actingAs($this->admin)
+                ->json(
+                    'PUT',
+                    self::TEST_URL . '/' . $content,
+                    [
+                        'first_name' => 'Updated',
+                        'last_name' => 'Name',
+                        'email' => fake()->email(),
+                        'declaration_signed' => true,
+                        'organisation_id' => 2,
+                        'location' => 1
+                    ]
+                );
+
+            $response->assertStatus(200);
+            $content = $response->decodeResponseJson()['data'];
+
+            $this->assertEquals($content['first_name'], 'Updated');
+            $this->assertEquals($content['last_name'], 'Name');
+            $this->assertEquals($content['consent_scrape'], true);
+            $this->assertEquals($content['declaration_signed'], true);
+            $this->assertEquals($content['organisation_id'], 2);
+
+            $response = $this->actingAs($this->admin)
+                ->json(
+                    'GET',
+                    self::TEST_URL . '/' . $content['id'] . '/action_log'
+                );
+
+            $response->assertStatus(200);
+            $responseData = $response['data'];
+            $actionLog = collect($responseData)
+                ->firstWhere('action', User::ACTION_PROFILE_COMPLETED);
+
+            $this->assertEquals(
+                Carbon::now()->format('Y-m-d H:i:s'),
+                $actionLog['completed_at']
             );
-
-        $response->assertStatus(201);
-        $this->assertArrayHasKey('data', $response);
-
-        $content = $response->decodeResponseJson()['data'];
-        $this->assertGreaterThan(0, $content);
-
-        $response = $this->actingAs($this->admin)
-            ->json(
-                'GET',
-                self::TEST_URL . '/' . $content . '/action_log'
-            );
-
-        $response->assertStatus(200);
-        $responseData = $response['data'];
-        $actionLog = collect($responseData)
-            ->firstWhere('action', User::ACTION_PROFILE_COMPLETED);
-
-        $this->assertNull($actionLog['completed_at']);
-
-
-        $response = $this->actingAs($this->admin)
-            ->json(
-                'PUT',
-                self::TEST_URL . '/' . $content,
-                [
-                    'first_name' => 'Updated',
-                    'last_name' => 'Name',
-                    'email' => fake()->email(),
-                    'declaration_signed' => true,
-                    'organisation_id' => 2,
-                    'location' => 1
-                ]
-            );
-
-        $response->assertStatus(200);
-        $content = $response->decodeResponseJson()['data'];
-
-        $this->assertEquals($content['first_name'], 'Updated');
-        $this->assertEquals($content['last_name'], 'Name');
-        $this->assertEquals($content['consent_scrape'], true);
-        $this->assertEquals($content['declaration_signed'], true);
-        $this->assertEquals($content['organisation_id'], 2);
-
-        $response = $this->actingAs($this->admin)
-            ->json(
-                'GET',
-                self::TEST_URL . '/' . $content['id'] . '/action_log'
-            );
-
-        $response->assertStatus(200);
-        $responseData = $response['data'];
-        $actionLog = collect($responseData)
-            ->firstWhere('action', User::ACTION_PROFILE_COMPLETED);
-
-        $this->assertEquals(
-            Carbon::now()->format('Y-m-d H:i:s'),
-            $actionLog['completed_at']
-        );
+        });
     }
 
 
     public function test_the_application_can_complete_action_log_for_profile(): void
     {
-        $this->enableObservers();
+        $this->withTemporaryObservers(function () {
 
-        $response = $this->actingAs($this->admin)
-            ->json(
-                'POST',
-                self::TEST_URL,
-                [
-                    'first_name' => fake()->firstname(),
-                    'last_name' => fake()->lastname(),
-                    'email' => fake()->email(),
-                    'provider' => fake()->word(),
-                    'provider_sub' => Str::random(10),
-                    'consent_scrape' => true,
-                    'public_opt_in' => false,
-                    'declaration_signed' => false,
-                    'organisation_id' => 1,
-                    'orc_id' => fake()->numerify('####-####-####-####'),
-                ]
-            );
+            $response = $this->actingAs($this->admin)
+                ->json(
+                    'POST',
+                    self::TEST_URL,
+                    [
+                        'first_name' => fake()->firstname(),
+                        'last_name' => fake()->lastname(),
+                        'email' => fake()->email(),
+                        'provider' => fake()->word(),
+                        'provider_sub' => Str::random(10),
+                        'consent_scrape' => true,
+                        'public_opt_in' => false,
+                        'declaration_signed' => false,
+                        'organisation_id' => 1,
+                        'orc_id' => fake()->numerify('####-####-####-####'),
+                    ]
+                );
 
-        $response->assertStatus(201);
-        $this->assertArrayHasKey('data', $response);
+            $response->assertStatus(201);
+            $this->assertArrayHasKey('data', $response);
 
-        $id = $response->decodeResponseJson()['data'];
+            $id = $response->decodeResponseJson()['data'];
 
-        $this->assertDatabaseHas('action_logs', [
-            'entity_id' => $id,
-            'entity_type' => User::class,
-            'action' => User::ACTION_PROFILE_COMPLETED,
-            'completed_at' => null,
-        ]);
+            $this->assertDatabaseHas('action_logs', [
+                'entity_id' => $id,
+                'entity_type' => User::class,
+                'action' => User::ACTION_PROFILE_COMPLETED,
+                'completed_at' => null,
+            ]);
 
-        $response = $this->actingAs($this->admin)
-            ->json(
-                'PUT',
-                self::TEST_URL . '/' . $id,
-                [
-                    'first_name' => 'Updated',
-                    'last_name' => 'Name',
-                    'email' => fake()->email(),
-                ]
-            );
+            $response = $this->actingAs($this->admin)
+                ->json(
+                    'PUT',
+                    self::TEST_URL . '/' . $id,
+                    [
+                        'first_name' => 'Updated',
+                        'last_name' => 'Name',
+                        'email' => fake()->email(),
+                    ]
+                );
 
-        $response->assertStatus(200);
-        $content = $response->decodeResponseJson()['data'];
+            $response->assertStatus(200);
+            $content = $response->decodeResponseJson()['data'];
 
-        $this->assertDatabaseHas('action_logs', [
-            'entity_id' => $id,
-            'entity_type' => User::class,
-            'action' => User::ACTION_PROFILE_COMPLETED,
-            'completed_at' => null,
-        ]);
+            $this->assertDatabaseHas('action_logs', [
+                'entity_id' => $id,
+                'entity_type' => User::class,
+                'action' => User::ACTION_PROFILE_COMPLETED,
+                'completed_at' => null,
+            ]);
 
-        // Changed to save this, to avoid race condition of ms/s moving on before assertion runs
-        $testTime = Carbon::now();
-        Carbon::setTestNow($testTime);
+            // Changed to save this, to avoid race condition of ms/s moving on before assertion runs
+            $testTime = Carbon::now();
+            Carbon::setTestNow($testTime);
 
-        $response = $this->actingAs($this->admin)
-            ->json(
-                'PUT',
-                self::TEST_URL . '/' . $id,
-                [
-                    'location' => fake()->country(),
-                ]
-            );
+            $response = $this->actingAs($this->admin)
+                ->json(
+                    'PUT',
+                    self::TEST_URL . '/' . $id,
+                    [
+                        'location' => fake()->country(),
+                    ]
+                );
 
-        $response->assertStatus(200);
-        $content = $response->decodeResponseJson()['data'];
+            $response->assertStatus(200);
+            $content = $response->decodeResponseJson()['data'];
 
-        $this->assertDatabaseHas('action_logs', [
-            'entity_id' => $id,
-            'entity_type' => User::class,
-            'action' => User::ACTION_PROFILE_COMPLETED,
-            'completed_at' => $testTime,
-        ]);
+            $this->assertDatabaseHas('action_logs', [
+                'entity_id' => $id,
+                'entity_type' => User::class,
+                'action' => User::ACTION_PROFILE_COMPLETED,
+                'completed_at' => $testTime,
+            ]);
+        });
     }
 
 
