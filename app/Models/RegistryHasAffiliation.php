@@ -7,7 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use App\Traits\StateWorkflow;
+use App\Observers\RegistryHasAffiliationObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
+#[ObservedBy([RegistryHasAffiliationObserver::class])]
 class RegistryHasAffiliation extends Model
 {
     use HasFactory;

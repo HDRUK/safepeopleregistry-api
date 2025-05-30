@@ -9,6 +9,7 @@ use App\Models\State;
 use App\Models\Organisation;
 use App\Models\ActionLog;
 use App\Jobs\OrcIDScanner;
+use App\Models\DebugLog;
 use App\Notifications\AdminUserChanged;
 use Illuminate\Support\Facades\Notification;
 use Carbon\Carbon;
@@ -65,7 +66,12 @@ class UserObserver
      */
     public function updated(User $user): void
     {
-        $originalUser = $user->getOriginal();
+
+        DebugLog::create([
+            'class' => User::class,
+            'log' => 'Organisation Admin ::' . json_encode($user->getChanges()),
+        ]);
+
         $changes = [];
 
         $fieldsToTrack = ['first_name', 'last_name', 'email'];
@@ -99,9 +105,16 @@ class UserObserver
                     $user->getOriginal('organisation_id')
                 ]
             );
-            Notification::send($usersToNotify, new AdminUserChanged($user, $changes));
-        }
 
+
+
+            Notification::send($usersToNotify, new AdminUserChanged($user, $changes));
+
+            DebugLog::create([
+                'class' => User::class,
+                'log' => 'Organisation Admin users notified of a change to a user',
+            ]);
+        }
 
         if ($user->isDirty($this->profileCompleteFields)) {
             $isProfileComplete = collect($this->profileCompleteFields)
@@ -153,7 +166,7 @@ class UserObserver
             $orgId = [$orgId];
         }
         return User::where('is_org_admin', 1)
-                    ->whereIn("organisation_id", $orgId)
-                    ->get();
+            ->whereIn("organisation_id", $orgId)
+            ->get();
     }
 }

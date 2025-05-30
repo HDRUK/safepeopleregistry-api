@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Observers\AffiliationObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
 /**
  * @OA\Schema(
@@ -75,6 +77,7 @@ use Illuminate\Database\Eloquent\Model;
  *      )
  * )
  */
+#[ObservedBy([AffiliationObserver::class])]
 class Affiliation extends Model
 {
     use HasFactory;

@@ -682,8 +682,6 @@ class UserController extends Controller
                 return $this->ForbiddenResponse();
             }
 
-            $originalUser = clone $user;
-
             if (!$user) {
                 return response()->json([
                     'message' => 'User not found'
@@ -691,11 +689,11 @@ class UserController extends Controller
             }
 
             if (isset($input['department_id']) && $input['department_id'] !== 0 && $input['department_id'] !== null) {
-                UserHasDepartments::where('user_id', $user->id)->delete();
-                UserHasDepartments::create([
-                    'user_id' => $user->id,
-                    'department_id' => $request['department_id'],
-                ]);
+                //UserHasDepartments::where('user_id', $user->id)->delete();
+                //UserHasDepartments::create([
+                //    'user_id' => $user->id,
+                //    'department_id' => $request['department_id'],
+                //]);
             };
 
             $input = $request->only(app(User::class)->getFillable());
@@ -710,7 +708,7 @@ class UserController extends Controller
 
                 return response()->json([
                     'message' => 'success',
-                    'data' => User::find($id)
+                    //'data' => $user->fresh()
                 ], 200);
             }
 

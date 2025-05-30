@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Keycloak;
-use Exception;
 use RegistryManagementController as RMC;
 use Carbon\Carbon;
 use App\Models\Organisation;
