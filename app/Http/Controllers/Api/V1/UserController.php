@@ -689,11 +689,11 @@ class UserController extends Controller
             }
 
             if (isset($input['department_id']) && $input['department_id'] !== 0 && $input['department_id'] !== null) {
-                //UserHasDepartments::where('user_id', $user->id)->delete();
-                //UserHasDepartments::create([
-                //    'user_id' => $user->id,
-                //    'department_id' => $request['department_id'],
-                //]);
+                UserHasDepartments::where('user_id', $user->id)->delete();
+                UserHasDepartments::create([
+                    'user_id' => $user->id,
+                    'department_id' => $request['department_id'],
+                ]);
             };
 
             $input = $request->only(app(User::class)->getFillable());
@@ -708,7 +708,7 @@ class UserController extends Controller
 
                 return response()->json([
                     'message' => 'success',
-                    //'data' => $user->fresh()
+                    'data' => $user->fresh()
                 ], 200);
             }
 
@@ -866,8 +866,7 @@ class UserController extends Controller
         $projects = Project::whereIn('id', $projectIds)
             ->withCount('projectUsers')
             ->with(['organisations', 'modelState.state'])
-            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
-        ;
+            ->paginate((int)$this->getSystemConfig('PER_PAGE'));;
         return $this->OKResponse($projects);
     }
 

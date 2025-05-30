@@ -69,7 +69,7 @@ class UserObserver
 
         DebugLog::create([
             'class' => User::class,
-            'log' => 'Organisation Admin ::' . json_encode($user->getChanges()),
+            'log' => 'User updated ::' . json_encode($user->getChanges()),
         ]);
 
         $changes = [];
@@ -106,19 +106,12 @@ class UserObserver
                 ]
             );
 
-
-
             Notification::send($usersToNotify, new AdminUserChanged($user, $changes));
-
-            DebugLog::create([
-                'class' => User::class,
-                'log' => 'Organisation Admin users notified of a change to a user',
-            ]);
         }
 
         if ($user->isDirty($this->profileCompleteFields)) {
             $isProfileComplete = collect($this->profileCompleteFields)
-                ->every(fn ($field) => !empty($user->$field));
+                ->every(fn($field) => !empty($user->$field));
 
             if ($isProfileComplete) {
                 ActionLog::updateOrCreate(
