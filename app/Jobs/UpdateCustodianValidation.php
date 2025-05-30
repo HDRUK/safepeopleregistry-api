@@ -12,11 +12,7 @@ use Illuminate\Queue\SerializesModels;
 
 class UpdateCustodianValidation implements ShouldQueue
 {
-    use Dispatchable;
-    use InteractsWithQueue;
-    use Queueable;
-    use SerializesModels;
-    use ValidationManager;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, ValidationManager;
 
     protected int $custodianId;
     protected ValidationCheckAppliesTo $appliesTo;
@@ -33,7 +29,7 @@ class UpdateCustodianValidation implements ShouldQueue
             $this->updateAllCustodianOrganisationValidation(
                 $this->custodianId,
             );
-        } elseif ($this->appliesTo === ValidationCheckAppliesTo::ProjectUser) {
+        } else if ($this->appliesTo === ValidationCheckAppliesTo::ProjectUser) {
             $this->updateAllCustodianProjectUserValidation(
                 $this->custodianId,
             );
