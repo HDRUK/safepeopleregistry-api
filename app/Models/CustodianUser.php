@@ -2,11 +2,9 @@
 
 namespace App\Models;
 
-use App\Observers\CustodianUserObserver;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\SearchManager;
-use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
 /**
  * @OA\Schema(

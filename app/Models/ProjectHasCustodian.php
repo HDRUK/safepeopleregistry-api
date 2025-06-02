@@ -4,8 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Observers\ProjectHasCustodianObserver;
-use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
 class ProjectHasCustodian extends Model
 {

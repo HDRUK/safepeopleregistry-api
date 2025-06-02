@@ -4,8 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
-use App\Observers\CustodianHasValidationCheckObserver;
-use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
 class CustodianHasValidationCheck extends Pivot
 {

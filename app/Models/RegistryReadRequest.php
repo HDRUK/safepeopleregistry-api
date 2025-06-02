@@ -2,10 +2,8 @@
 
 namespace App\Models;
 
-use App\Observers\RegistryReadRequestObserver;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
 class RegistryReadRequest extends Model
 {
