@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
-#[ObservedBy([ProjectHasUserObserver::class])]
 class ProjectHasUser extends Model
 {
     use HasFactory;

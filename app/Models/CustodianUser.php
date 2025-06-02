@@ -45,7 +45,6 @@ use Illuminate\Database\Eloquent\Attributes\ObservedBy;
  *      )
  * )
  */
-#[ObservedBy([CustodianUserObserver::class])]
 class CustodianUser extends Model
 {
     use HasFactory;

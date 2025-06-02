@@ -189,7 +189,6 @@ use App\Traits\FilterManager;
  *      ),
  * )
  */
-#[ObservedBy([OrganisationObserver::class])]
 class Organisation extends Model
 {
     use HasFactory;

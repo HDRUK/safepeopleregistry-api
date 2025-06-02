@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use App\Observers\ProjectHasCustodianObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
-#[ObservedBy([ProjectHasCustodianObserver::class])]
 class ProjectHasCustodian extends Model
 {
     use HasFactory;

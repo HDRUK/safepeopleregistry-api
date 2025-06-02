@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 use App\Observers\CustodianHasValidationCheckObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
-#[ObservedBy([CustodianHasValidationCheckObserver::class])]
 class CustodianHasValidationCheck extends Pivot
 {
     protected $table = 'custodian_has_validation_check';

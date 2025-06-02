@@ -50,7 +50,6 @@ use Illuminate\Database\Eloquent\Attributes\ObservedBy;
  *      ),
  * )
  */
-#[ObservedBy([RegistryObserver::class])]
 class Registry extends Model
 {
     use HasFactory;

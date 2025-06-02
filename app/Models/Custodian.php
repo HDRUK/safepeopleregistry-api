@@ -72,7 +72,6 @@ use App\Traits\FilterManager;
  *      )
  * )
  */
-#[ObservedBy([CustodianObserver::class])]
 class Custodian extends Model
 {
     use HasFactory;

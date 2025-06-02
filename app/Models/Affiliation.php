@@ -77,7 +77,6 @@ use Illuminate\Database\Eloquent\Attributes\ObservedBy;
  *      )
  * )
  */
-#[ObservedBy([AffiliationObserver::class])]
 class Affiliation extends Model
 {
     use HasFactory;

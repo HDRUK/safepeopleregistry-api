@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
-#[ObservedBy([RegistryReadRequestObserver::class])]
 class RegistryReadRequest extends Model
 {
     use HasFactory;

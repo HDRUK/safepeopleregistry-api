@@ -10,7 +10,6 @@ use App\Traits\StateWorkflow;
 use App\Observers\RegistryHasAffiliationObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
-#[ObservedBy([RegistryHasAffiliationObserver::class])]
 class RegistryHasAffiliation extends Model
 {
     use HasFactory;
