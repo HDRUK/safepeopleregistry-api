@@ -199,7 +199,7 @@ class Keycloak
     {
         $response = null;
         $responseData = null;
-    
+
         if (self::$serviceToken &&
             self::$tokenCreatedAt &&
             self::$tokenCreatedAt->diffInHours(Carbon::now()) < self::$tokenExiprationHours) {

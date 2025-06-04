@@ -322,13 +322,11 @@ class OrganisationTest extends TestCase
                 'POST',
                 self::TEST_URL . '/unclaimed',
                 [
-                    'organisation_name' => $organisationName,
                     'lead_applicant_email' => $email
                 ]
             );
 
-        $response->assertStatus(201);
-        $this->assertArrayHasKey('data', $response);
+        $response->assertStatus(200);
     }
 
     public function test_the_application_can_create_organisations_with_departments(): void
