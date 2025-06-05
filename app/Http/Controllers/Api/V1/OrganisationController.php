@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use DB;
 use Http;
+use Auth;
 use Exception;
 use RegistryManagementController as RMC;
 use App\Services\DecisionEvaluatorService as DES;
@@ -29,7 +30,6 @@ use App\Http\Requests\Organisations\EditOrganisation;
 use TriggerEmail;
 use App\Http\Traits\Responses;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Str;
 
 class OrganisationController extends Controller
 {
@@ -447,52 +447,86 @@ class OrganisationController extends Controller
         }
     }
 
-    //Hide from swagger
-    public function storeUnclaimed(Request $request): JsonResponse
+    public function inviteOrganisationSimple(Request $request): JsonResponse
     {
-        try {
-            $input = $request->all();
-            $organisation = Organisation::create([
-                'organisation_name' => $input['organisation_name'],
-                'address_1' => '',
-                'address_2' => '',
-                'town' => '',
-                'county' => '',
-                'country' => '',
-                'postcode' => '',
-                'lead_applicant_organisation_name' => '',
-                'lead_applicant_email' => $input['lead_applicant_email'],
-                'organisation_unique_id' => Str::random(40),
-                'applicant_names' => '',
-                'funders_and_sponsors' => '',
-                'sub_license_arrangements' => '',
-                'verified' => 0,
-                'companies_house_no' => '',
-                'sector_id' => 0,
-                'dsptk_certified' => 0,
-                'dsptk_ods_code' => '',
-                'dsptk_expiry_date' => null,
-                'iso_27001_certified' => 0,
-                'iso_27001_certification_num' => '',
-                'iso_expiry_date' => null,
-                'ce_certified' => 0,
-                'ce_certification_num' => '',
-                'ce_expiry_date' => null,
-                'ce_plus_certified' => 0,
-                'ce_plus_certification_num' => '',
-                'ce_plus_expiry_date' => null,
-                'ror_id' => '',
-                'website' => '',
-                'smb_status' => 0,
-                'organisation_size' => null,
-                'unclaimed' => isset($input['unclaimed']) ? $input['unclaimed'] : 1
-            ]);
+        $input = [
+            'type' => 'ORGANISATION_INVITE_SIMPLE',
+            'to' => -1,
+            'address' => $request->get('lead_applicant_email'),
+            'by' => Auth::user()->id,
+            'identifier' => 'organisation_invite_new',
+        ];
 
-            return $this->CreatedResponse($organisation->id);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
+        TriggerEmail::spawnEmail($input);
+
+        return $this->OKResponse(null);
     }
+
+    //Hide from swagger
+    // public function storeUnclaimed(Request $request): JsonResponse
+    // {
+    //     // We don't need to create a new organisation, nor do we need to create
+    //     // an unclaimed user. Just fire an invite email instead and defer
+    //     // to whatever user the email ends up being sent to within the
+    //     // organisation.
+    //     //
+    //     $input = [
+    //         'type' => 'ORGANISATION_INVITE',
+    //         'to' => -1,
+    //         'address' => $request->get('lead_applicant_email'),
+    //         'by' => Auth::user()->id,
+    //         'identifier' => 'organisation_invite',
+    //     ];
+
+    //     TriggerEmail::dispatch($input);
+
+    //     return $this->OKResponse(null);
+
+    //     // TriggerEmail::dispatch($input);
+
+    //     // try {
+    //     //     $input = $request->all();
+    //     //     $organisation = Organisation::create([
+    //     //         'organisation_name' => $input['organisation_name'],
+    //     //         'address_1' => '',
+    //     //         'address_2' => '',t
+    //     //         'town' => '',
+    //     //         'county' => '',
+    //     //         'country' => '',
+    //     //         'postcode' => '',
+    //     //         'lead_applicant_organisation_name' => '',
+    //     //         'lead_applicant_email' => $input['lead_applicant_email'],
+    //     //         'organisation_unique_id' => '',
+    //     //         'applicant_names' => '',
+    //     //         'funders_and_sponsors' => '',
+    //     //         'sub_license_arrangements' => '',
+    //     //         'verified' => 0,
+    //     //         'companies_house_no' => '',
+    //     //         'sector_id' => 0,
+    //     //         'dsptk_certified' => 0,
+    //     //         'dsptk_ods_code' => '',
+    //     //         'dsptk_expiry_date' => null,
+    //     //         'iso_27001_certified' => 0,
+    //     //         'iso_27001_certification_num' => '',
+    //     //         'iso_expiry_date' => null,
+    //     //         'ce_certified' => 0,
+    //     //         'ce_certification_num' => '',
+    //     //         'ce_expiry_date' => null,
+    //     //         'ce_plus_certified' => 0,
+    //     //         'ce_plus_certification_num' => '',
+    //     //         'ce_plus_expiry_date' => null,
+    //     //         'ror_id' => '',
+    //     //         'website' => '',
+    //     //         'smb_status' => 0,
+    //     //         'organisation_size' => null,
+    //     //         'unclaimed' => isset($input['unclaimed']) ? $input['unclaimed'] : 1
+    //     //     ]);
+
+    //     //     return $this->CreatedResponse($organisation->id);
+    //     // } catch (Exception $e) {
+    //     //     throw new Exception($e->getMessage());
+    //     // }
+    // }
 
 
     /**

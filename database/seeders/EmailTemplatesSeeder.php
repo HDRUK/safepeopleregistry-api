@@ -428,7 +428,53 @@ class EmailTemplatesSeeder extends Seeder
             </mj-body></mjml >
               ',
               'buttons' => '',
-        ]
+        ],
+        [
+          'identifier' => 'organisation_invite_new',
+          'subject' => 'Someone is requesting you join [[env(APP_NAME)]] as a new Organisation',
+          'body' => '
+            <mjml>
+              '. $this->mjmlHead . '
+              <mj-body background-color="#efeeea" width="600px" >
+                <mj-body background-color="#efeeea" width="600px" >
+                  ' . $this->titleBar . '
+                  <mj-wrapper border="none" direction="ltr" text-align="center" padding="20px 0px 20px 0px" >
+                    <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
+                      <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
+                        <mj-text align="left" padding="10px 25px 10px 25px" >
+                          <mj-text>
+                              Hello! One of your employees or students is requesting that you create an Organisation account within [[env(APP_NAME)]].
+                          </mj-text>
+                          <mj-text>
+                              [[USER_FIRST_NAME]] [[USER_LAST_NAME]] is attempting to affiliate themselves within their [[env(APP_NAME)]] profile, but your Organisation
+                              isn\'t known to us.
+                          </mj-text>
+                          <mj-text>
+                              <strong>Why are you receiving this?</strong> We ask the user to provide an email for the invitation to be sent. If this email finds you and you\'re
+                              not the right person to complete this registration, then please forward it to the person who is. This email is generic, and not tied to you in any way.
+                          </mj-text>
+                          <mj-button href="[[env(APP_URL)]]">
+                              More information
+                          </mj-button>
+                          <div><br></div>
+                          ' . $this->supportFooter . '
+                          <div><br></div>
+                          <div><br></div>
+                          </div>
+                        </mj-text>
+                      </mj-column>
+                    </mj-section>
+                    <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
+                      <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
+                        <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 25px 10px 25px" >Sign me up!</mj-button>
+                      </mj-column>
+                    </mj-section>
+                  </mj-wrapper>
+                </mj-body>
+              </mjml > 
+            ',
+            'buttons' => '',
+        ],        
         ];
 
         foreach ($templates as $template) {

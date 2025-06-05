@@ -204,10 +204,24 @@ class TriggerEmail
                 ]);
 
                 break;
+            case 'ORGANISATION_INVITE_SIMPLE':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $newRecipients = [
+                    'id' => $to,
+                    'email' => $input['address'],
+                ];
+                $user = User::where('id', $by)->first();
+                $replacements = [
+                    '[[env(APP_NAME)]]' => env('APP_NAME'),
+                    '[[env(SUPPORT_EMAIL)]]' => env('SUPPORT_EMAIL'),
+                    '[[USER_FIRST_NAME]]' => $user->first_name,
+                    '[[USER_LAST_NAME]]' => $user->last_name,
+                ];
+                // no break
             default: // Unknown type.
                 break;
         }
 
-        SendEmailJob::dispatch($newRecipients, $template, $replacements);
+        SendEmailJob::dispatch($newRecipients, $template, $replacements, $newRecipients['email']);
     }
 }
