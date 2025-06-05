@@ -99,14 +99,10 @@ class Affiliation extends Model
         'verdict_outcome',
     ];
 
-    //protected $appends = ['registryAffiliationState'];
-    protected $hidden = ['registryHasAffiliations'];
-
     public function getRegistryAffiliationStateAttribute()
     {
         return optional($this->registryHasAffiliations->first())->getState();
     }
-
 
     /**
      * Get the organisation related to the affiliation.
