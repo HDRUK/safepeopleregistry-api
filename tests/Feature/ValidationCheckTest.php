@@ -4,13 +4,10 @@ namespace Tests\Feature;
 
 use App\Models\ProjectHasUser;
 use App\Models\ValidationCheck;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ValidationCheckTest extends TestCase
 {
-    // use RefreshDatabase;
-
     public const TEST_URL = '/api/v1/validation_checks';
 
     protected function setUp(): void
