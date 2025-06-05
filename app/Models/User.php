@@ -22,6 +22,7 @@ use App\Traits\FilterManager;
  *
  * @property \Illuminate\Database\Eloquent\Collection|\Illuminate\Notifications\DatabaseNotification[] $unreadNotifications
  * @method \Illuminate\Notifications\DatabaseNotification[] unreadNotifications()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User searchViaRequest(array|null $input = null)
  */
 /**
  * @OA\Components(
@@ -224,7 +225,7 @@ class User extends Authenticatable
     public function status(): Attribute
     {
         return new Attribute(
-            get: fn () => $this->unclaimed === 1 ? self::STATUS_INVITED : self::STATUS_REGISTERED
+            get: fn() => $this->unclaimed === 1 ? self::STATUS_INVITED : self::STATUS_REGISTERED
         );
     }
 

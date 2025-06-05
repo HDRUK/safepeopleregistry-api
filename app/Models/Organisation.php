@@ -16,6 +16,11 @@ use App\Traits\StateWorkflow;
 use App\Traits\FilterManager;
 
 /**
+ * App\Models\Organisation
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Organisation searchViaRequest(array|null $input = null)
+ */
+/**
  * @OA\Schema(
  *      schema="Organisation",
  *      title="Organisation",
