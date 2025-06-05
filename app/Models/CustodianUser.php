@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use App\Traits\SearchManager;
 
 /**
+ * @property-read \Illuminate\Database\Eloquent\Collection<\App\Models\CustodianUserHasPermission> $userPermissions
+ */
+/**
  * @OA\Schema(
  *      schema="CustodianUser",
  *      title="Custodian User",
@@ -82,9 +85,9 @@ class CustodianUser extends Model
     /**
      * Get the permissions associated with the custodian user.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\CustodianUserHasPermission>
      */
-    public function userPermissions()
+    public function userPermissions(): HasMany
     {
         return $this->hasMany(CustodianUserHasPermission::class, 'custodian_user_id', 'id');
     }
@@ -92,9 +95,9 @@ class CustodianUser extends Model
     /**
      * Get the custodian that owns the user.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Custodian>
      */
-    public function custodian()
+    public function custodian(): BelongsTo
     {
         return $this->belongsTo(Custodian::class, 'custodian_id', 'id');
     }

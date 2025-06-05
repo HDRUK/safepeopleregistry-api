@@ -11,9 +11,9 @@ class OrcID
 {
     public function getAuthoriseUrl(): string
     {
-        $url = env('ORCID_URL').'oauth/authorize?client_id='.
-            env('ORCID_APP_ID').'&response_type=token&'.
-            'scope=openid&redirect_uri='.env('ORCID_REDIRECT_URL');
+        $url = config('speedi.system.orcid_url') . 'oauth/authorize?client_id=' .
+        config('speedi.system.orcid_app_id') . '&response_type=token&' .
+            'scope=openid&redirect_uri=' . config('speedi.system.orcid_redirect_url');
 
         return $url;
     }
@@ -28,15 +28,15 @@ class OrcID
         // differences.
         $ch = curl_init();
 
-        curl_setopt($ch, CURLOPT_URL, env('ORCID_AUTH_URL').'oauth/token');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_URL, config('speedi.system.orcid_auth_url') . 'oauth/token');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt(
             $ch,
             CURLOPT_POSTFIELDS,
-            'client_id='.env('ORCID_APP_ID').'&'.
-            'client_secret='.env('ORCID_CLIENT_SECRET').'&'.
-            'scope=/read-public&'.
+            'client_id=' . config('speedi.system.client_id') . '&' .
+            'client_secret=' . config('speedi.system.client_secret') . '&' .
+            'scope=/read-public&' .
             'grant_type=client_credentials'
         );
 
@@ -91,7 +91,7 @@ class OrcID
 
     public function getOrcIDRecord(string $token, string $orcid, string $record): array
     {
-        $url = env('ORCID_URL').'v3.0/'.$orcid.'/'.$record;
+        $url = config('speedi.system.orcid_url') . 'v3.0/'.$orcid.'/'.$record;
         $headers = [
             'Authorization' => 'Bearer '.$token,
             'Accept' => 'application/orcid+json',

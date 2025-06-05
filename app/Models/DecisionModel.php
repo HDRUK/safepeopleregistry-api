@@ -20,6 +20,9 @@ class DecisionModel extends Model
         'rule_class',
     ];
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\CustodianModelConfig>
+     */
     public function custodianModelConfig(): HasOne
     {
         return $this->hasOne(

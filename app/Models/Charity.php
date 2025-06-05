@@ -24,6 +24,9 @@ class Charity extends Model
 
     public $timestamps = false;
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Organisation>
+     */
     public function organisations(): BelongsToMany
     {
         return $this->belongsToMany(Organisation::class, 'organisation_has_charity');

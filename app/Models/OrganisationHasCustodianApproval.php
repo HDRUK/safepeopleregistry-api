@@ -27,6 +27,7 @@ class OrganisationHasCustodianApproval extends Model
 
     /**
      * Get the organisation associated with the approval.
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Organisation>
      */
     public function organisation(): BelongsTo
     {
@@ -35,6 +36,7 @@ class OrganisationHasCustodianApproval extends Model
 
     /**
      * Get the custodian associated with the approval.
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Custodian>
      */
     public function custodian(): BelongsTo
     {

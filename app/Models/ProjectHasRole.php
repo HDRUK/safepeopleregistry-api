@@ -23,6 +23,9 @@ class ProjectHasRole extends Model
         return User::inRandomOrder()->first();
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\ProjectRole>
+     */
     public function role(): BelongsTo
     {
         return $this->belongsTo(ProjectRole::class, 'project_role_id', 'id');

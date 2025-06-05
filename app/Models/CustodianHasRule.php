@@ -20,6 +20,8 @@ class CustodianHasRule extends Pivot
 
     /**
      * Get the custodian associated with this record.
+     * 
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Custodian>
      */
     public function custodian(): BelongsTo
     {
@@ -28,6 +30,7 @@ class CustodianHasRule extends Pivot
 
     /**
      * Get the rule associated with this record.
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Rules>
      */
     public function rule(): BelongsTo
     {

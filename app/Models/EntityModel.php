@@ -45,6 +45,11 @@ class EntityModel extends Model
         'name',
     ];
 
+    /**
+     * Get the custodian model configuration associated with this entity model.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne<\App\Models\CustodianModelConfig>
+     */
     public function custodianModelConfig(): HasOne
     {
         return $this->hasOne(CustodianModelConfig::class);

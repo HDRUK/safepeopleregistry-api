@@ -21,6 +21,8 @@ class OrganisationHasSubsidiary extends Model
 
     /**
      * Get the organisation associated with this record.
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Organisation>
      */
     public function organisation(): BelongsTo
     {
@@ -29,6 +31,8 @@ class OrganisationHasSubsidiary extends Model
 
     /**
      * Get the subsidiary associated with this record.
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Subsidiary>
      */
     public function subsidiary(): BelongsTo
     {

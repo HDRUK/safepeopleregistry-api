@@ -107,16 +107,25 @@ class Project extends Model
         'title',
     ];
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\ProjectHasUser>
+     */
     public function projectUsers(): HasMany
     {
         return $this->hasMany(ProjectHasUser::class);
     }
 
-    public function projectDetail()
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\HasOne<\App\Models\ProjectDetail>
+     */
+    public function projectDetail(): HasOne
     {
         return $this->hasOne(ProjectDetail::class);
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Organisation>
+     */
     public function organisations(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -125,6 +134,9 @@ class Project extends Model
         );
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Custodian>
+     */
     public function custodians(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -135,6 +147,9 @@ class Project extends Model
         )->withPivot('approved');
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Custodian>
+     */
     public function approvals(): BelongsToMany
     {
         return $this->belongsToMany(

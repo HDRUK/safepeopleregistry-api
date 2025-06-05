@@ -209,8 +209,8 @@ class RegistryManagementController
         $signature = Str::random(64);
         return Hash::make(
             $signature.
-            ':'.env('REGISTRY_SALT_1').
-            ':'.env('REGISTRY_SALT_2')
+            ':' . config('speedi.system.registry_salt_1') .
+            ':' . config('speedi.system.registry_salt_2')
         );
     }
 

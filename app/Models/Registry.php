@@ -74,21 +74,33 @@ class Registry extends Model
         'pp_ident',
     ];
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\HasOne<\App\Models\User>
+     */
     public function user(): HasOne
     {
         return $this->hasOne(User::class, 'registry_id');
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\ProjectHasUser>
+     */
     public function projectUsers(): HasMany
     {
         return $this->hasMany(ProjectHasUser::class, 'user_digital_ident', 'digi_ident');
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\HasOne<\App\Models\Identity>
+     */
     public function identity(): HasOne
     {
         return $this->hasOne(Identity::class, 'registry_id');
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Affiliation>
+     */
     public function affiliations(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -99,16 +111,25 @@ class Registry extends Model
         );
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Education>
+     */
     public function education(): HasMany
     {
         return $this->hasMany(Education::class, 'registry_id');
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Training>
+     */
     public function professionalRegistrations(): HasMany
     {
         return $this->hasMany(Training::class, 'registry_id');
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Accreditation>
+     */
     public function accreditations(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -128,16 +149,25 @@ class Registry extends Model
     //     return $this->hasMany(Project::class, 'registry_id');
     // }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Training>
+     */
     public function trainings(): BelongsToMany
     {
         return $this->belongsToMany(Training::class, 'registry_has_trainings');
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\History>
+     */
     public function history(): BelongsToMany
     {
         return $this->belongsToMany(History::class, 'registry_has_histories');
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\File>
+     */
     public function files(): BelongsToMany
     {
         return $this->belongsToMany(File::class, 'registry_has_files');

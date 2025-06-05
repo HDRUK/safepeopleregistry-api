@@ -21,7 +21,7 @@ class Keycloak
 
     public function getUserInfo(string $token)
     {
-        $userInfoUrl = env('KEYCLOAK_BASE_URL').'/realms/'.env('KEYCLOAK_REALM').'/protocol/openid-connect/userinfo';
+        $userInfoUrl = config('speedi.system.keycloak_base_url') . '/realms/' . config('speedi.system.keycloak_realm') . '/protocol/openid-connect/userinfo';
         return Http::withHeaders([
             'Authorization' => $token,
         ])->get($userInfoUrl);
@@ -30,7 +30,7 @@ class Keycloak
     public static function updateSoursdDigitalIdentifier(User $user)
     {
         $response = null;
-        $userUrl = env('KEYCLOAK_BASE_URL') . '/admin/realms/' . env('KEYCLOAK_REALM') . '/users/' . $user->keycloak_id;
+        $userUrl = config('speedi.system.keycloak_base_url') . '/admin/realms/' . config('speedi.system.keycloak_realm') . '/users/' . $user->keycloak_id;
 
         try {
             $response = Http::withHeaders([
@@ -144,8 +144,8 @@ class Keycloak
                     $signature = Str::random(64);
                     $digiIdent = Hash::make(
                         $signature.
-                        ':'.env('REGISTRY_SALT_1').
-                        ':'.env('REGISTRY_SALT_2')
+                        ':' . config('speedi.system.registry_salt_1') .
+                        ':' . config('speedi.system.registry_salt_2')
                     );
 
                     $registry = Registry::create([
@@ -159,7 +159,7 @@ class Keycloak
                         'registry_id' => $registry->id,
                     ]);
 
-                    if (!in_array(env('APP_ENV'), ['testing', 'ci'])) {
+                    if (!in_array(config('speedi.system.app_env'), ['testing', 'ci'])) {
                         Keycloak::updateSoursdDigitalIdentifier($user);
                     }
                 }
@@ -207,11 +207,11 @@ class Keycloak
         }
 
         try {
-            $authUrl = env('KEYCLOAK_BASE_URL').'/realms/'.env('KEYCLOAK_REALM').'/protocol/openid-connect/token';
+            $authUrl = config('speedi.system.keycloak_base_url') . '/realms/' . config('speedi.system.keycloak_realm') . '/protocol/openid-connect/token';
 
             $credentials = [
-                'client_secret' => env('KEYCLOAK_CLIENT_SECRET'),
-                'client_id' => env('KEYCLOAK_CLIENT_ID'),
+                'client_secret' => config('speedi.system.keycloak_client_secret'),
+                'client_id' => config('speedi.system.keycloak_client_id'),
                 'grant_type' => 'client_credentials',
             ];
 
@@ -242,7 +242,7 @@ class Keycloak
 
     private function makeUrl(string $path): string
     {
-        return env('KEYCLOAK_BASE_URL').'/admin/realms/'.env('KEYCLOAK_REALM').$path;
+        return config('speedi.system.keycloak_base_url') . '/admin/realms/' . config('speedi.system.keycloak_realm') . $path;
     }
 
     public function determineUserGroup(array $input): string
@@ -281,7 +281,7 @@ class Keycloak
         $response = null;
         $email = null;
 
-        if (env('APP_ENV') === 'testing') {
+        if (config('speedi.system.app_env') === 'testing') {
             // When testing, ensure we don't create additional users
             return true;
         }

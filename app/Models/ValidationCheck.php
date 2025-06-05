@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ValidationCheckAppliesTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\SearchManager;
@@ -49,6 +50,9 @@ class ValidationCheck extends Model
         'applies_to' => ValidationCheckAppliesTo::class,
     ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Custodian>
+     */
     public function custodians()
     {
         return $this->belongsToMany(Custodian::class, 'custodian_validation_check')

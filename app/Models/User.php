@@ -21,6 +21,7 @@ use App\Traits\FilterManager;
  * App\Models\User
  *
  * @property \Illuminate\Database\Eloquent\Collection|\Illuminate\Notifications\DatabaseNotification[] $unreadNotifications
+ * @property-read \App\Models\ModelState|null $modelState
  * @method \Illuminate\Notifications\DatabaseNotification[] unreadNotifications()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User searchViaRequest(array|null $input = null)
  */
@@ -229,6 +230,9 @@ class User extends Authenticatable
         );
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Permission>
+     */
     public function permissions(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -237,6 +241,9 @@ class User extends Authenticatable
         );
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Custodian>
+     */
     public function approvals(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -245,6 +252,9 @@ class User extends Authenticatable
         );
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Registry>
+     */    
     public function registry(): BelongsTo
     {
         return $this->belongsTo(
@@ -252,11 +262,19 @@ class User extends Authenticatable
         );
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\PendingInvite>
+     */
     public function pendingInvites(): HasMany
     {
         return $this->hasMany(PendingInvite::class);
     }
 
+    /**
+     * Get the organisation related to the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Organisation>
+     */    
     public function organisation(): BelongsTo
     {
         return $this->belongsTo(
@@ -264,6 +282,11 @@ class User extends Authenticatable
         );
     }
 
+    /**
+     * Get the custodian related to the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Custodian>
+     */
     public function custodian(): BelongsTo
     {
         return $this->belongsTo(
@@ -271,6 +294,11 @@ class User extends Authenticatable
         );
     }
 
+    /**
+     * Get the custodian user related to the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\CustodianUser>
+     */
     public function custodian_user(): BelongsTo
     {
         return $this->belongsTo(
@@ -278,6 +306,11 @@ class User extends Authenticatable
         );
     }
 
+    /**
+     * Get the organisation related to the affiliation.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Department>
+     */
     public function departments(): BelongsToMany
     {
         return $this->belongsToMany(

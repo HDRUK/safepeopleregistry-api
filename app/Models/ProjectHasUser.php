@@ -48,21 +48,33 @@ class ProjectHasUser extends Model
         ];
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\ProjectRole>
+     */
     public function role(): BelongsTo
     {
         return $this->belongsTo(ProjectRole::class, 'project_role_id', 'id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Registry>
+     */
     public function registry(): BelongsTo
     {
         return $this->belongsTo(Registry::class, 'user_digital_ident', 'digi_ident');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Project>
+     */
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class, 'project_id', 'id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Affiliation>
+     */
     public function affiliation(): BelongsTo
     {
         return $this->belongsTo(Affiliation::class, 'affiliation_id', 'id');

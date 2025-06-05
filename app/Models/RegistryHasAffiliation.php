@@ -22,11 +22,17 @@ class RegistryHasAffiliation extends Model
         'affiliation_id',
     ];
 
+    /**
+    * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Affiliation>
+    */
     public function affiliation(): BelongsTo
     {
         return $this->belongsTo(Affiliation::class, 'affiliation_id');
     }
 
+    /**
+    * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Registry>
+    */
     public function registry(): BelongsTo
     {
         return $this->belongsTo(Registry::class, 'registry_id');

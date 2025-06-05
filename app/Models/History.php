@@ -24,6 +24,11 @@ class History extends Model
         'ledger_hash',
     ];
 
+    /**
+     * Get the endorsements associated with this history.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Endorsement>
+     */
     public function endorsements(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -32,6 +37,11 @@ class History extends Model
         );
     }
 
+    /**
+     * Get the infringements associated with this history.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Infringement>
+     */
     public function infringements(): BelongsToMany
     {
         return $this->belongsToMany(

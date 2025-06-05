@@ -10,9 +10,9 @@
         "doctrine/dbal": "^3.8",
         "guzzlehttp/guzzle": "^7.2",
         "hdruk/laravel-mjml": "dev-main",
-        "laravel/framework": "^11.0",
+        "laravel/framework": "^12.0",
         "laravel/horizon": "^5.29",
-        "laravel/octane": "^2.5",
+        "laravel/octane": "^2.8.1",
         "laravel/socialite": "^5.14",
         "laravel/tinker": "^2.8",
         "phpoffice/phpspreadsheet": "^4.1",
@@ -26,15 +26,16 @@
         "staudenmeir/eloquent-has-many-deep": "^1.7"
     },
     "require-dev": {
+        "barryvdh/laravel-ide-helper": "^3.5",
         "fakerphp/faker": "^1.9.1",
-        "larastan/larastan": "^2.9",
+        "larastan/larastan": "^3.4",
         "laravel/pint": "^1.18",
         "laravel/sail": "^1.18",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^8.1",
-        "pestphp/pest": "^2.34",
-        "phpstan/phpstan": "^1.12",
-        "phpunit/phpunit": "^10.1",
+        "pestphp/pest": "^3.0",
+        "phpstan/phpstan": "^2.1",
+        "phpunit/phpunit": "^11.0",
         "spatie/laravel-ignition": "^2.0"
     },
     "autoload": {

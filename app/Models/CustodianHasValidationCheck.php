@@ -16,11 +16,21 @@ class CustodianHasValidationCheck extends Pivot
         'validation_check_id',
     ];
 
+    /**
+     * Get the custodian associated with this validation check.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Custodian>
+     */
     public function custodian(): BelongsTo
     {
         return $this->belongsTo(Custodian::class);
     }
 
+    /**
+     * Get the validation check associated with this custodian.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\ValidationCheck>
+     */
     public function validationCheck(): BelongsTo
     {
         return $this->belongsTo(ValidationCheck::class);

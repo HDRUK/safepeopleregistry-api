@@ -21,9 +21,9 @@ class CustodianUserHasPermission extends Model
     /**
      * Get the permission associated with this custodian user.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Permission>
      */
-    public function permission()
+    public function permission(): BelongsTo
     {
         return $this->belongsTo(Permission::class, 'permission_id', 'id');
     }

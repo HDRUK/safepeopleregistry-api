@@ -22,6 +22,9 @@ class PendingInvite extends Model
         'invite_sent_at'
     ];
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\HasOne<\App\Models\Organisation>
+     */
     public function organisation(): HasOne
     {
         return $this->hasOne(
@@ -30,6 +33,9 @@ class PendingInvite extends Model
         );
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\HasOne<\App\Models\User>
+     */
     public function user(): HasOne
     {
         return $this->hasOne(

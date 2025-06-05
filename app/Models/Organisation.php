@@ -305,6 +305,9 @@ class Organisation extends Model
     }
 
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Permission>
+     */
     public function permissions(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -313,6 +316,9 @@ class Organisation extends Model
         );
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Custodian>
+     */
     public function approvals(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -321,6 +327,9 @@ class Organisation extends Model
         );
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\File>
+     */
     public function files(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -329,6 +338,9 @@ class Organisation extends Model
         );
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Sector>
+     */
     public function sector()
     {
         return $this->belongsTo(
@@ -336,6 +348,9 @@ class Organisation extends Model
         );
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\HasOne<\App\Models\User>
+     */
     public function sroOfficer(): HasOne
     {
         return $this->hasOne(
@@ -366,6 +381,9 @@ class Organisation extends Model
         return $results;
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\File>
+     */
     public function latestEvidence(): BelongsToMany
     {
         return $this->belongsToMany(File::class, 'organisation_has_files')
@@ -373,26 +391,41 @@ class Organisation extends Model
             ->whereRaw('updated_at = (SELECT MAX(updated_at) FROM files f WHERE f.type = files.type)');
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\File>
+     */
     public function ceExpiryEvidence(): BelongsTo
     {
         return $this->belongsTo(File::class, 'ce_expiry_evidence');
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\File>
+     */
     public function cePlusExpiryEvidence(): BelongsTo
     {
         return $this->belongsTo(File::class, 'ce_plus_expiry_evidence');
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\File>
+     */
     public function isoExpiryEvidence(): BelongsTo
     {
         return $this->belongsTo(File::class, 'iso_expiry_evidence');
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\File>
+     */
     public function dsptkExpiryEvidence(): BelongsTo
     {
         return $this->belongsTo(File::class, 'dsptk_expiry_evidence');
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Affiliation>
+     */
     public function affiliations(): HasMany
     {
         return $this->hasMany(Affiliation::class, 'organisation_id');
@@ -408,6 +441,9 @@ class Organisation extends Model
             });
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Project>
+     */
     public function projects(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -416,6 +452,9 @@ class Organisation extends Model
         );
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\HasManyThrough<\App\Models\Registry>
+     */
     public function registries(): HasManyThrough
     {
         return $this->hasManyThrough(
@@ -428,6 +467,9 @@ class Organisation extends Model
         )->distinct();
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Department>
+     */
     public function departments(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -436,6 +478,9 @@ class Organisation extends Model
         );
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Subsidiary>
+     */
     public function subsidiaries(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -444,6 +489,9 @@ class Organisation extends Model
         );
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\User>
+     */
     public function delegates(): HasMany
     {
         return $this->hasMany(
@@ -451,6 +499,9 @@ class Organisation extends Model
         )->where('is_delegate', 1);
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Charity>
+     */
     public function charities()
     {
         return $this->belongsToMany(Charity::class, 'organisation_has_charity');

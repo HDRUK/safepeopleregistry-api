@@ -83,6 +83,9 @@ class Training extends Model
         'training_name',
     ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\File>
+     */
     public function files(): BelongsToMany
     {
         return $this->belongsToMany(

@@ -21,6 +21,8 @@ class UserHasDepartments extends Model
 
     /**
      * Get the user that belongs to this relationship.
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\User>
      */
     public function user(): BelongsTo
     {
@@ -29,6 +31,7 @@ class UserHasDepartments extends Model
 
     /**
      * Get the department that belongs to this relationship.
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Department>
      */
     public function department(): BelongsTo
     {

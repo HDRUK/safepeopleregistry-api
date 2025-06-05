@@ -26,16 +26,25 @@ class ProjectUserCustodianApproval extends Model
         'comment'
     ];
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Project>
+     */
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class, 'project_id');
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\User>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Custodian>
+     */
     public function custodian(): BelongsTo
     {
         return $this->belongsTo(Custodian::class, 'custodian_id');

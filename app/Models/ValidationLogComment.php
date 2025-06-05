@@ -69,11 +69,17 @@ class ValidationLogComment extends Model
         'comment',
     ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\ValidationLog>
+     */
     public function validationLog(): BelongsTo
     {
         return $this->belongsTo(ValidationLog::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\User>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

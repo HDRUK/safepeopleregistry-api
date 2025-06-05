@@ -128,6 +128,9 @@ class ProjectDetail extends Model
         'data_assets',
     ];
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Project>
+     */
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);

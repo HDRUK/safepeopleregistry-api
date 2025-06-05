@@ -24,7 +24,7 @@ class ProjectHasCustodian extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function project()
+    public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class, 'project_id', 'id');
     }
@@ -32,9 +32,9 @@ class ProjectHasCustodian extends Model
     /**
      * Get the custodian that this relationship belongs to.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Custodian>
      */
-    public function custodian()
+    public function custodian(): BelongsTo
     {
         return $this->belongsTo(Custodian::class, 'custodian_id', 'id');
     }

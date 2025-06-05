@@ -49,14 +49,14 @@ class ScanFileUpload implements ShouldQueue
             'file' => (string) $filePath,
             'storage' => (string) $this->fileSystem,
         ];
-        $url = env('CLAM_AV_SERVICE_URL', 'http://clamav:3001').'/scan_file';
+        $url = config('speedi.system.clam_av_service_url') . '/scan_file';
 
         $response = Http::post(
             $url,
             [
                 'file' => $filePath,
                 'storage' => $this->fileSystem,
-                'service_path' => env('APP_URL'),
+                'service_path' => config('speedi.system.app_url'),
             ]
         );
 

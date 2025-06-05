@@ -125,11 +125,17 @@ class ValidationLog extends Model
         return $this->morphTo();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\ValidationLogComment>
+     */
     public function comments(): HasMany
     {
         return $this->hasMany(ValidationLogComment::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\ValidationCheck>
+     */
     public function validationCheck(): BelongsTo
     {
         return $this->belongsTo(ValidationCheck::class);

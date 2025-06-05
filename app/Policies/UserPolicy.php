@@ -52,6 +52,7 @@ class UserPolicy
             }
 
             // Delegates can only update other delegates
+            /** @phpstan-ignore-next-line */
             if ($user->is_delegate && $model->is_delegate) {
                 return true;
             }

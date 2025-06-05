@@ -31,6 +31,9 @@ class WebhookEventTrigger extends Model
         'enabled',
     ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\CustodianWebhookReceiver>
+     */
     public function receivers(): HasMany
     {
         return $this->hasMany(CustodianWebhookReceiver::class, 'webhook_event', 'id');

@@ -107,7 +107,7 @@ class Affiliation extends Model
     /**
      * Get the organisation related to the affiliation.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Organisation>
      */
     public function organisation()
     {
@@ -121,7 +121,7 @@ class Affiliation extends Model
     /**
      * Get the organisation related to the affiliation.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Registry>
      */
     public function registry()
     {
