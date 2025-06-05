@@ -24,6 +24,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Http\Traits\Responses;
 use App\Models\ProjectHasUser;
+use App\Traits\SearchManager;
 use App\Traits\SearchManagerCollection;
 use Illuminate\Support\Facades\Gate;
 
@@ -32,6 +33,7 @@ class CustodianController extends Controller
     use CommonFunctions;
     use Responses;
     use SearchManagerCollection;
+    use SearchManager;
 
     /**
      * @OA\Get(
