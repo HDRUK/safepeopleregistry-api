@@ -650,16 +650,13 @@ class ValidationLogTest extends TestCase
 
         $expectedLogCount = count($defaultChecks) * Custodian::count() * Organisation::count();
 
-        $temp = ValidationLog::where('entity_type', Custodian::class)
+        $actualCount = ValidationLog::where('entity_type', Custodian::class)
             ->where('secondary_entity_type', Organisation::class)
             ->count();
 
-
         $this->assertEquals(
             $expectedLogCount,
-            ValidationLog::where('entity_type', Custodian::class)
-                ->where('secondary_entity_type', Organisation::class)
-                ->count()
+            $actualCount
         );
 
         // Add a second organisation

@@ -2,12 +2,10 @@
 
 namespace App\Models;
 
-use App\Observers\CustodianObserver;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\SearchManager;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use App\Traits\ActionManager;
 use App\Traits\FilterManager;
 
@@ -72,7 +70,6 @@ use App\Traits\FilterManager;
  *      )
  * )
  */
-#[ObservedBy([CustodianObserver::class])]
 class Custodian extends Model
 {
     use HasFactory;

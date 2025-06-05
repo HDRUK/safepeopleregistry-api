@@ -5,10 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Attributes\ObservedBy;
-use App\Observers\OrganisationHasSubsidiaryObserver;
 
-#[ObservedBy([OrganisationHasSubsidiaryObserver::class])]
 class OrganisationHasSubsidiary extends Model
 {
     use HasFactory;

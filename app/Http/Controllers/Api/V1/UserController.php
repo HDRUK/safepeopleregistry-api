@@ -682,8 +682,6 @@ class UserController extends Controller
                 return $this->ForbiddenResponse();
             }
 
-            $originalUser = clone $user;
-
             if (!$user) {
                 return response()->json([
                     'message' => 'User not found'
@@ -710,7 +708,7 @@ class UserController extends Controller
 
                 return response()->json([
                     'message' => 'success',
-                    'data' => User::find($id)
+                    'data' => $user->fresh()
                 ], 200);
             }
 
@@ -869,7 +867,6 @@ class UserController extends Controller
             ->withCount('projectUsers')
             ->with(['organisations', 'modelState.state'])
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
-        ;
         return $this->OKResponse($projects);
     }
 

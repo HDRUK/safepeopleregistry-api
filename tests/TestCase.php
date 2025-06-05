@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use Closure;
 use Keycloak;
 use App\Models\User;
 use Tests\Traits\RefreshDatabaseLite;
@@ -65,5 +66,16 @@ abstract class TestCase extends BaseTestCase
     protected function enableObservers()
     {
         Model::setEventDispatcher(app('events'));
+    }
+
+    protected function withTemporaryObservers(Closure $callback)
+    {
+        $this->enableObservers();
+
+        try {
+            return $callback();
+        } finally {
+            $this->disableObservers();
+        }
     }
 }
