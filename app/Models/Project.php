@@ -14,6 +14,11 @@ use App\Traits\StateWorkflow;
 use App\Traits\FilterManager;
 
 /**
+ * App\Models\Project
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Project searchViaRequest(array|null $input = null)
+ */
+/**
  * @OA\Schema(
  *      schema="Project",
  *      title="Project",

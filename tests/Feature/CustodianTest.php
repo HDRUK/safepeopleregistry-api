@@ -601,4 +601,35 @@ class CustodianTest extends TestCase
             ]);
         }
     }
+
+    public function test_custodian_can_get_project_users(): void
+    {
+        $custodianId = $this->custodian_admin->custodian_user->custodian_id;
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $custodianId . '/projects_users'
+            );
+
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson();
+
+        $this->assertEquals('success', $content['message']);
+        $this->assertArrayHasKey('data', $content);
+        $this->assertArrayHasKey('data', $content['data']);
+        $this->assertIsArray($content['data']['data']);
+    }
+
+    public function test_user_cannot_get_project_users_for_other_custodian(): void
+    {
+        $response = $this->actingAs($this->user)
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/projects_users'
+            );
+
+        $response->assertStatus(403)
+            ->assertJson(['message' => 'forbidden']);
+    }
 }
