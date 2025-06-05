@@ -474,7 +474,7 @@ class EmailTemplatesSeeder extends Seeder
               </mjml > 
             ',
             'buttons' => '',
-        ],        
+        ],
         ];
 
         foreach ($templates as $template) {
