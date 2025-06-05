@@ -36,7 +36,7 @@ class ONSSubmissionController extends Controller
         $path = $file->storeAs(
             '',
             $storedFilename,
-            $fileSystem.'.unscanned'
+            $fileSystem . '_unscanned'
         );
 
         if (! $path) {

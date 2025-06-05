@@ -9,7 +9,7 @@ use Tests\TestCase;
 
 class ValidationCheckTest extends TestCase
 {
-    use RefreshDatabase;
+    // use RefreshDatabase;
 
     public const TEST_URL = '/api/v1/validation_checks';
 

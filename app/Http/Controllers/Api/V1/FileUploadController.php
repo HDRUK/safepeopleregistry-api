@@ -139,7 +139,7 @@ class FileUploadController extends Controller
                 return $this->NotImplementedResponse();
             }
 
-            $scannedFileSystem = 'local_scan.scanned';
+            $scannedFileSystem = $fileSystem . '_scanned';
 
             if (!Storage::disk($scannedFileSystem)->exists($filePath)) {
                 return $this->NotFoundResponse();
@@ -216,7 +216,7 @@ class FileUploadController extends Controller
             $path = $file->storeAs(
                 '',
                 $storedFilename,
-                $fileSystem.'.unscanned'
+                $fileSystem . '_unscanned'
             );
 
             if (!$path) {
