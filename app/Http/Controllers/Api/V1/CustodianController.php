@@ -12,9 +12,7 @@ use App\Models\User;
 use App\Models\Custodian;
 use App\Models\Organisation;
 use App\Models\CustodianHasRule;
-use App\Models\Rules;
 use App\Models\Project;
-use App\Models\Registry;
 use App\Models\CustodianUser;
 use App\Models\State;
 use App\Models\ProjectHasCustodian;
@@ -24,7 +22,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Http\Traits\Responses;
 use App\Models\ProjectHasUser;
-use App\Traits\SearchManager;
 use App\Traits\SearchManagerCollection;
 use Illuminate\Support\Facades\Gate;
 
@@ -33,7 +30,6 @@ class CustodianController extends Controller
     use CommonFunctions;
     use Responses;
     use SearchManagerCollection;
-    use SearchManager;
 
     /**
      * @OA\Get(
