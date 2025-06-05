@@ -10,6 +10,11 @@ namespace App\Traits;
  * the incoming request (from query string) parameters
  * and search for them against the db record
  */
+/**
+ * Trait SearchManager
+ *
+ * @method static Builder searchViaRequest(array|null $input = null)
+ */
 trait SearchManager
 {
     public function scopeSearchViaRequest($query, ?array $input = null): mixed
