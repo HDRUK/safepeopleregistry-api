@@ -12,9 +12,9 @@ namespace App\Traits;
  */
 trait SearchManager
 {
-    public function scopeSearchViaRequest($query): mixed
+    public function scopeSearchViaRequest($query, ?array $input = null): mixed
     {
-        $input = \request()->all();
+        $input = $input ?? request()->all();
 
         $orGroups = [];
         $andGroups = [];
