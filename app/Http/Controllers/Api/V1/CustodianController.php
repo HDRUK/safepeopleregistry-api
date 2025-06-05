@@ -973,14 +973,17 @@ class CustodianController extends Controller
             ->when(!empty($searchName), function ($query) use ($searchName) {
                 $query->where(function ($subQuery) use ($searchName) {
                     $subQuery->whereHas('project', function ($q) use ($searchName) {
+                        /** @phpstan-ignore-next-line */
                         $q->searchViaRequest(['title' => $searchName]);
                     });
 
                     $subQuery->orWhereHas('registry.user', function ($q) use ($searchName) {
+                        /** @phpstan-ignore-next-line */
                         $q->searchViaRequest(['name' => $searchName]);
                     });
 
                     $subQuery->orWhereHas('affiliation.organisation', function ($q) use ($searchName) {
+                        /** @phpstan-ignore-next-line */
                         $q->searchViaRequest(['organisation_name' => $searchName]);
                     });
                 });
