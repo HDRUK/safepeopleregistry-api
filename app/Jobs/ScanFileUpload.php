@@ -68,14 +68,14 @@ class ScanFileUpload implements ShouldQueue
             $file->update([
                 'status' => File::FILE_STATUS_FAILED,
             ]);
-            Storage::disk($this->fileSystem.'.unscanned')
+            Storage::disk($this->fileSystem . '_unscanned')
                 ->delete($file->path);
         } else {
             $loc = $file->path;
-            $content = Storage::disk($this->fileSystem.'.unscanned')->get($loc);
+            $content = Storage::disk($this->fileSystem . '_unscanned')->get($loc);
 
-            Storage::disk($this->fileSystem.'.scanned')->put($loc, $content);
-            Storage::disk($this->fileSystem.'.unscanned')->delete($loc);
+            Storage::disk($this->fileSystem . '_scanned')->put($loc, $content);
+            Storage::disk($this->fileSystem . '_unscanned')->delete($loc);
 
             $file->update([
                 'status' => File::FILE_STATUS_PROCESSED,

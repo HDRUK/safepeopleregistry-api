@@ -227,6 +227,7 @@ class ProjectController extends Controller
         ])
             ->where('project_id', $projectId)
             ->whereHas('registry.user', function ($query) {
+                /** @var \Illuminate\Database\Eloquent\Builder<\App\Models\Project> $query */
                 $query->searchViaRequest()
                     ->filterByState()
                     ->with("modelState");
