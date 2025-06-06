@@ -111,7 +111,7 @@ class ONSAccreditedResearcherFetch implements ShouldQueue
         // Get header row
         $headers = [];
         $colStartIndex = config('speedi.system.ons_column_start_index', 1);
-        $rowStartIndex = config('speedi.system.ons_row_start_index', 1);
+        $rowStartIndex = config('speedi.system.ons_row_start_index', 6);
 
         for ($col = $colStartIndex; $col <= $highestColumnIndex; $col++) {
             $columnLetter = Coordinate::stringFromColumnIndex($col);
