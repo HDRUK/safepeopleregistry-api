@@ -9,11 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 use App\Traits\SearchManager;
 
 /**
- * @property-read \Illuminate\Database\Eloquent\Collection<\App\Models\CustodianUserHasPermission> $userPermissions
- */
-/**
- *
- *
  * @OA\Schema (
  *      schema="CustodianUser",
  *      title="Custodian User",

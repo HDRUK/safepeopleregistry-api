@@ -17,13 +17,6 @@ use App\Traits\StateWorkflow;
 use App\Traits\FilterManager;
 
 /**
- * @property \Illuminate\Database\Eloquent\Collection|\Illuminate\Notifications\DatabaseNotification[] $unreadNotifications
- * @property-read \App\Models\ModelState|null $modelState
- * @method \Illuminate\Notifications\DatabaseNotification[] unreadNotifications()
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User searchViaRequest(array|null $input = null)
- */
-/**
- * @OA\Components (
  * @OA\Schema (
  *      schema="User",
  *      title="User",
@@ -107,18 +100,15 @@ use App\Traits\FilterManager;
  *          property="t_and_c_agreement_date",
  *          type="string",
  *          example="2024-02-04 12:00:00"
- *     )
+ *      )
  * )
- * )
- */
-/**
- * App\Models\User
  *
  * @property \Illuminate\Database\Eloquent\Collection|\Illuminate\Notifications\DatabaseNotification[] $unreadNotifications
  * @property-read \App\Models\ModelState|null $modelState
  * @method \Illuminate\Notifications\DatabaseNotification[] unreadNotifications()
  * @property-read string $status
  * @property-read mixed $evaluation
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User searchViaRequest(array|null $input = null)
  *
  * @mixin \Eloquent
  */
