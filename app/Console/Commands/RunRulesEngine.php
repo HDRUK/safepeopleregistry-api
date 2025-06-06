@@ -29,7 +29,7 @@ class RunRulesEngine extends Command
         $headers = [
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',
-            'X-Access-Token' => env('RULES_ENGINE_PROJECT_TOKEN'),
+            'X-Access-Token' => config('speedi.system.rules_engine_access_token'),
         ];
 
         $body = [
@@ -42,7 +42,7 @@ class RunRulesEngine extends Command
         ];
 
         $response = Http::withHeaders($headers)->post(
-            env('RULES_ENGINE_SERVICE').env('RULES_ENGINE_PROJECT_ID').'/evaluate/'.env('RULES_ENGINE_DOCUMENT_ID'),
+            config('speedi.system.rules_engine_service') . config('speedi.system.rules_engine_project_id') . '/evaluate/' . config('speedi.system.rules_engine_document_id'),
             $body
         );
 

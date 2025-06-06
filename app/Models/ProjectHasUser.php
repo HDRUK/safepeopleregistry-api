@@ -7,6 +7,30 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ *
+ *
+ * @property int $project_id
+ * @property string $user_digital_ident
+ * @property int|null $project_role_id
+ * @property int $primary_contact
+ * @property int|null $affiliation_id
+ * @property-read \App\Models\Affiliation|null $affiliation
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ProjectHasCustodian> $approvals
+ * @property-read int|null $approvals_count
+ * @property-read \App\Models\Project|null $project
+ * @property-read \App\Models\Registry|null $registry
+ * @property-read \App\Models\ProjectRole|null $role
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUser newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUser newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUser query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUser whereAffiliationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUser wherePrimaryContact($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUser whereProjectId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUser whereProjectRoleId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUser whereUserDigitalIdent($value)
+ * @mixin \Eloquent
+ */
 class ProjectHasUser extends Model
 {
     use HasFactory;
@@ -48,21 +72,33 @@ class ProjectHasUser extends Model
         ];
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\ProjectRole>
+     */
     public function role(): BelongsTo
     {
         return $this->belongsTo(ProjectRole::class, 'project_role_id', 'id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Registry>
+     */
     public function registry(): BelongsTo
     {
         return $this->belongsTo(Registry::class, 'user_digital_ident', 'digi_ident');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Project>
+     */
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class, 'project_id', 'id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Affiliation>
+     */
     public function affiliation(): BelongsTo
     {
         return $this->belongsTo(Affiliation::class, 'affiliation_id', 'id');

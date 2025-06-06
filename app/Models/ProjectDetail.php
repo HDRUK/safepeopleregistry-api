@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * @OA\Schema(
+ *
+ *
+ * @OA\Schema (
  *      schema="ProjectDetail",
  *      title="Project Detail",
  *      description="ProjectDetail model",
@@ -91,8 +93,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *      @OA\Property(property="research_outputs",
  *          type="object",
  *          example={
-*               "https://yourdomain.com/research_output_1",
-*               "https://yourdomain.com/research_output_2"
+ *               "https://yourdomain.com/research_output_1",
+ *               "https://yourdomain.com/research_output_2"
  *          }
  *      ),
  *      @OA\Property(property="data_assets",
@@ -100,6 +102,49 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *          example="Our data assets are..."
  *      )
  * )
+ * @property int $id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int $project_id
+ * @property string|null $datasets
+ * @property string|null $other_approval_committees
+ * @property string|null $data_sensitivity_level
+ * @property string|null $legal_basis_for_data_article6
+ * @property int $duty_of_confidentiality
+ * @property int $national_data_optout
+ * @property string|null $request_frequency
+ * @property string|null $dataset_linkage_description
+ * @property string|null $data_minimisation
+ * @property string|null $data_use_description
+ * @property string|null $access_date
+ * @property string|null $access_type
+ * @property string|null $data_privacy
+ * @property string|null $research_outputs
+ * @property string|null $data_assets
+ * @property-read \App\Models\Project|null $project
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectDetail newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectDetail newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectDetail query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectDetail whereAccessDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectDetail whereAccessType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectDetail whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectDetail whereDataAssets($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectDetail whereDataMinimisation($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectDetail whereDataPrivacy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectDetail whereDataSensitivityLevel($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectDetail whereDataUseDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectDetail whereDatasetLinkageDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectDetail whereDatasets($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectDetail whereDutyOfConfidentiality($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectDetail whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectDetail whereLegalBasisForDataArticle6($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectDetail whereNationalDataOptout($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectDetail whereOtherApprovalCommittees($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectDetail whereProjectId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectDetail whereRequestFrequency($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectDetail whereResearchOutputs($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectDetail whereUpdatedAt($value)
+ * @mixin \Eloquent
  */
 class ProjectDetail extends Model
 {
@@ -128,6 +173,9 @@ class ProjectDetail extends Model
         'data_assets',
     ];
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Project>
+     */
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);

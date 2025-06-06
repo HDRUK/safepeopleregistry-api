@@ -10,7 +10,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * @OA\Schema(
+ *
+ *
+ * @OA\Schema (
  *     schema="ValidationLog",
  *     title="Validation Log",
  *     description="Validation Log model",
@@ -86,6 +88,37 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *         description="Whether the validation was manually confirmed"
  *     ),
  * )
+ * @property int $id
+ * @property string $entity_type
+ * @property int|null $validation_check_id
+ * @property int $entity_id
+ * @property string|null $secondary_entity_type
+ * @property int|null $secondary_entity_id
+ * @property string|null $tertiary_entity_type
+ * @property int|null $tertiary_entity_id
+ * @property string|null $completed_at
+ * @property int $manually_confirmed
+ * @property int $enabled
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ValidationLogComment> $comments
+ * @property-read int|null $comments_count
+ * @property-read Model|\Eloquent $entity
+ * @property-read \App\Models\ValidationCheck|null $validationCheck
+ * @method static Builder<static>|ValidationLog newModelQuery()
+ * @method static Builder<static>|ValidationLog newQuery()
+ * @method static Builder<static>|ValidationLog query()
+ * @method static Builder<static>|ValidationLog whereCompletedAt($value)
+ * @method static Builder<static>|ValidationLog whereEnabled($value)
+ * @method static Builder<static>|ValidationLog whereEntityId($value)
+ * @method static Builder<static>|ValidationLog whereEntityType($value)
+ * @method static Builder<static>|ValidationLog whereId($value)
+ * @method static Builder<static>|ValidationLog whereManuallyConfirmed($value)
+ * @method static Builder<static>|ValidationLog whereSecondaryEntityId($value)
+ * @method static Builder<static>|ValidationLog whereSecondaryEntityType($value)
+ * @method static Builder<static>|ValidationLog whereTertiaryEntityId($value)
+ * @method static Builder<static>|ValidationLog whereTertiaryEntityType($value)
+ * @method static Builder<static>|ValidationLog whereValidationCheckId($value)
+ * @method static Builder<static>|ValidationLog withDisabled()
+ * @mixin \Eloquent
  */
 
 class ValidationLog extends Model
@@ -125,11 +158,17 @@ class ValidationLog extends Model
         return $this->morphTo();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\ValidationLogComment>
+     */
     public function comments(): HasMany
     {
         return $this->hasMany(ValidationLogComment::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\ValidationCheck>
+     */
     public function validationCheck(): BelongsTo
     {
         return $this->belongsTo(ValidationCheck::class);

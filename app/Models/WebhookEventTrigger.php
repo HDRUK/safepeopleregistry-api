@@ -6,6 +6,29 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ *
+ *
+ * @property int $id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string $name
+ * @property string $description
+ * @property int $enabled
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CustodianWebhookReceiver> $receivers
+ * @property-read int|null $receivers_count
+ * @method static \Database\Factories\WebhookEventTriggerFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WebhookEventTrigger newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WebhookEventTrigger newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WebhookEventTrigger query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WebhookEventTrigger whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WebhookEventTrigger whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WebhookEventTrigger whereEnabled($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WebhookEventTrigger whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WebhookEventTrigger whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WebhookEventTrigger whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class WebhookEventTrigger extends Model
 {
     use HasFactory;
@@ -31,6 +54,9 @@ class WebhookEventTrigger extends Model
         'enabled',
     ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\CustodianWebhookReceiver, \App\Models\WebhookEventTrigger>
+     */
     public function receivers(): HasMany
     {
         return $this->hasMany(CustodianWebhookReceiver::class, 'webhook_event', 'id');

@@ -437,7 +437,7 @@ class OrganisationController extends Controller
 
 
             // Run automated IDVT
-            if (!in_array(env('APP_ENV'), ['testing', 'ci'])) {
+            if (!in_array(config('speedi.system.app_env'), ['testing', 'ci'])) {
                 OrganisationIDVT::dispatchSync($organisation);
             }
 
@@ -1154,7 +1154,7 @@ class OrganisationController extends Controller
                 'role' => isset($input['role']) ? $input['role'] : null,
             ]);
 
-            if (isset($input['department_id']) && $input['department_id'] !== 0 && $input['department_id'] !== null) {
+            if (isset($input['department_id']) && $input['department_id'] !== 0 && $input['department_id'] != null) {
                 UserHasDepartments::create([
                     'user_id' => $unclaimedUser->id,
                     'department_id' => $request['department_id'],
@@ -1353,7 +1353,7 @@ class OrganisationController extends Controller
 
     public function validateRor(Request $request, string $ror): JsonResponse
     {
-        $response = Http::get(env('ROR_API_URL') . '/' . $ror);
+        $response = Http::get(config('speedi.system.ror_api_url') . '/' . $ror);
         if ($response->status() === 200) {
             $payload = $response->json();
             $response->close();

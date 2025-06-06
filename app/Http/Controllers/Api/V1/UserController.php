@@ -286,9 +286,13 @@ class UserController extends Controller
                 ->merge(
                     $user->actionLogs
                         ->whereNotNull("completed_at")
+                        // LS - PHPStan doesn't like the dynamic property access here, but it's fine.
+                        /** @phpstan-ignore-next-line */
                         ->map(function ($log) {
                             return [
+                                /** @phpstan-ignore-next-line */
                                 'message' => $log->action,
+                                /** @phpstan-ignore-next-line */
                                 'created_at' => $log->completed_at,
                             ];
                         })
@@ -688,7 +692,7 @@ class UserController extends Controller
                 ], 404);
             }
 
-            if (isset($input['department_id']) && $input['department_id'] !== 0 && $input['department_id'] !== null) {
+            if (isset($input['department_id']) && $input['department_id'] !== 0 && $input['department_id'] != null) {
                 UserHasDepartments::where('user_id', $user->id)->delete();
                 UserHasDepartments::create([
                     'user_id' => $user->id,

@@ -92,8 +92,8 @@ class UserObserver
             $newOrganisation = $user->organisation;
 
             $changes['organisation'] = [
-                'old' => $oldOrganisation?->organisation_name ?? 'N/A',
-                'new' => $newOrganisation?->organisation_name ?? 'N/A',
+                'old' => $oldOrganisation->organisation_name ?? 'N/A',
+                'new' => $newOrganisation->organisation_name ?? 'N/A',
             ];
         }
 

@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 use App\Traits\SearchManager;
 
 /**
- * @OA\Schema(
+ *
+ *
+ * @OA\Schema (
  *     schema="ValidationCheck",
  *     type="object",
  *     title="Validation Check",
@@ -21,6 +23,31 @@ use App\Traits\SearchManager;
  *     @OA\Property(property="created_at", type="string", format="date-time", example="2024-01-01T00:00:00Z"),
  *     @OA\Property(property="updated_at", type="string", format="date-time", example="2024-01-01T00:00:00Z")
  * )
+ * @property int $id
+ * @property string $name
+ * @property string|null $description
+ * @property ValidationCheckAppliesTo $applies_to
+ * @property int $enabled
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Custodian> $custodians
+ * @property-read int|null $custodians_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ValidationCheck applySorting()
+ * @method static \Database\Factories\ValidationCheckFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ValidationCheck filterWhen(string $filter, $callback)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ValidationCheck forContext(\App\Enums\ValidationCheckAppliesTo $context)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ValidationCheck newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ValidationCheck newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ValidationCheck query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ValidationCheck searchViaRequest()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ValidationCheck whereAppliesTo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ValidationCheck whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ValidationCheck whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ValidationCheck whereEnabled($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ValidationCheck whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ValidationCheck whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ValidationCheck whereUpdatedAt($value)
+ * @mixin \Eloquent
  */
 class ValidationCheck extends Model
 {
@@ -49,6 +76,9 @@ class ValidationCheck extends Model
         'applies_to' => ValidationCheckAppliesTo::class,
     ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Custodian>
+     */
     public function custodians()
     {
         return $this->belongsToMany(Custodian::class, 'custodian_validation_check')

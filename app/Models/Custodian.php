@@ -10,7 +10,9 @@ use App\Traits\ActionManager;
 use App\Traits\FilterManager;
 
 /**
- * @OA\Schema(
+ *
+ *
+ * @OA\Schema (
  *      schema="Custodian",
  *      title="Custodian",
  *      description="Custodian model",
@@ -128,6 +130,11 @@ class Custodian extends Model
         'contact_email',
     ];
 
+    /**
+     * Get all rules that belong to this custodian.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\DecisionModel>
+     */
     public function rules(): BelongsToMany
     {
         // LS - TODO - this needs renaming.
@@ -137,7 +144,7 @@ class Custodian extends Model
     /**
      * Get all custodian users that belong to this custodian.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\CustodianUser>
      */
     public function custodianUsers()
     {
@@ -147,7 +154,7 @@ class Custodian extends Model
     /**
      * Get all custodian users that belong to this custodian.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Project>
      */
     public function projects(): BelongsToMany
     {
@@ -157,7 +164,7 @@ class Custodian extends Model
     /**
      * Get all approved organisations for this custodian.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Organisation>
      */
     public function approvedOrganisations(): BelongsToMany
     {
@@ -169,6 +176,9 @@ class Custodian extends Model
         );
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\CustodianHasValidationCheck>
+     */
     public function validationChecks(): BelongsToMany
     {
         return $this->belongsToMany(

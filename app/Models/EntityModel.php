@@ -7,6 +7,40 @@ use Illuminate\Database\Eloquent\Model;
 use App\Traits\SearchManager;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
+/**
+ *
+ *
+ * @property int $id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string $name
+ * @property string|null $description
+ * @property int $entity_model_type_id
+ * @property bool $calls_file
+ * @property string|null $file_path
+ * @property bool $calls_operation
+ * @property string|null $operation
+ * @property int $active
+ * @property-read \App\Models\CustodianModelConfig|null $custodianModelConfig
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EntityModel applySorting()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EntityModel filterWhen(string $filter, $callback)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EntityModel newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EntityModel newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EntityModel query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EntityModel searchViaRequest()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EntityModel whereActive($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EntityModel whereCallsFile($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EntityModel whereCallsOperation($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EntityModel whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EntityModel whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EntityModel whereEntityModelTypeId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EntityModel whereFilePath($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EntityModel whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EntityModel whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EntityModel whereOperation($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EntityModel whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class EntityModel extends Model
 {
     use HasFactory;
@@ -45,6 +79,11 @@ class EntityModel extends Model
         'name',
     ];
 
+    /**
+     * Get the custodian model configuration associated with this entity model.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne<\App\Models\CustodianModelConfig>
+     */
     public function custodianModelConfig(): HasOne
     {
         return $this->hasOne(CustodianModelConfig::class);

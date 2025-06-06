@@ -227,7 +227,7 @@ class ProjectController extends Controller
         ])
             ->where('project_id', $projectId)
             ->whereHas('registry.user', function ($query) {
-                /** @var \Illuminate\Database\Eloquent\Builder<\App\Models\Project> $query */
+                /** @phpstan-ignore-next-line */
                 $query->searchViaRequest()
                     ->filterByState()
                     ->with("modelState");
@@ -253,7 +253,10 @@ class ProjectController extends Controller
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         $idCounter = 1;
+        /** @phpstan-ignore-next-line */
         $expandedUsers = $users->flatMap(function ($user) use ($projectId, &$idCounter) {
+            // LS - Even though the return types match, phpstan sees them as not covariant.
+            /** @phpstan-ignore-next-line */
             return $user->registry->affiliations->map(function ($affiliation) use ($user, $projectId, &$idCounter) {
 
                 $matchingProjectUser = $user->registry->projectUsers

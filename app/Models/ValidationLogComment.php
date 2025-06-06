@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * @OA\Schema(
+ *
+ *
+ * @OA\Schema (
  *     schema="ValidationLogComment",
  *     title="Validation Log Comment",
  *     description="Comments on validation logs",
@@ -56,6 +58,24 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *         description="Timestamp when the comment was last updated"
  *     ),
  * )
+ * @property int $id
+ * @property int $validation_log_id
+ * @property int $user_id
+ * @property string $comment
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\User $user
+ * @property-read \App\Models\ValidationLog $validationLog
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ValidationLogComment newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ValidationLogComment newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ValidationLogComment query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ValidationLogComment whereComment($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ValidationLogComment whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ValidationLogComment whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ValidationLogComment whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ValidationLogComment whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ValidationLogComment whereValidationLogId($value)
+ * @mixin \Eloquent
  */
 class ValidationLogComment extends Model
 {
@@ -69,11 +89,17 @@ class ValidationLogComment extends Model
         'comment',
     ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\ValidationLog, \App\Models\ValidationLogComment>
+     */
     public function validationLog(): BelongsTo
     {
         return $this->belongsTo(ValidationLog::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\User, \App\Models\ValidationLogComment>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

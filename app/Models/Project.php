@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
@@ -66,6 +67,54 @@ use App\Traits\FilterManager;
  *          example="2024-10-10T15:03:00Z"
  *      )
  * )
+ * @property int $id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null $unique_id
+ * @property string $title
+ * @property string|null $lay_summary
+ * @property string|null $public_benefit
+ * @property string|null $request_category_type
+ * @property string|null $technical_summary
+ * @property string|null $other_approval_committees
+ * @property string|null $start_date
+ * @property string|null $end_date
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Custodian> $approvals
+ * @property-read int|null $approvals_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Custodian> $custodians
+ * @property-read int|null $custodians_count
+ * @property-read \App\Models\ModelState|null $modelState
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Organisation> $organisations
+ * @property-read int|null $organisations_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ProjectHasUser> $projectUsers
+ * @property-read int|null $project_users_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project applySorting()
+ * @method static \Database\Factories\ProjectFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project filterByCommon()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project filterByState()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project filterWhen(string $filter, $callback)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project searchViaRequest()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project whereEndDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project whereLaySummary($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project whereOtherApprovalCommittees($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project wherePublicBenefit($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project whereRequestCategoryType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project whereStartDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project whereTechnicalSummary($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project whereTitle($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project whereUniqueId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Project withoutTrashed()
+ * @mixin \Eloquent
  */
 class Project extends Model
 {
@@ -107,16 +156,25 @@ class Project extends Model
         'title',
     ];
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\ProjectHasUser>
+     */
     public function projectUsers(): HasMany
     {
         return $this->hasMany(ProjectHasUser::class);
     }
 
-    public function projectDetail()
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\HasOne<\App\Models\ProjectDetail>
+     */
+    public function projectDetail(): HasOne
     {
         return $this->hasOne(ProjectDetail::class);
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Organisation>
+     */
     public function organisations(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -125,6 +183,9 @@ class Project extends Model
         );
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Custodian>
+     */
     public function custodians(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -135,6 +196,9 @@ class Project extends Model
         )->withPivot('approved');
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Custodian>
+     */
     public function approvals(): BelongsToMany
     {
         return $this->belongsToMany(

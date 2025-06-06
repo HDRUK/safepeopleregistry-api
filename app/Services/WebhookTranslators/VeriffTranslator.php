@@ -22,7 +22,7 @@ class VeriffTranslator implements WebhookTranslationInterface
     {
         $verdict = $this->verifySignature(
             $request->getContent(),
-            env('IDVT_SUPPLIER_SECRET_KEY'),
+            config('speedi.system.idvt_supplier_secret_key'),
             $request->header('x-hmac-signature')
         );
 

@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use App\Enums\ActionLogType;
 
 /**
- * @OA\Schema(
+ *
+ *
+ * @OA\Schema (
  *     schema="ActionLog",
  *     title="Action Log",
  *     description="Action Log model",
@@ -49,6 +51,21 @@ use App\Enums\ActionLogType;
  *         description="Timestamp when the action was completed (nullable)"
  *     ),
  * )
+ * @property int $id
+ * @property ActionLogType $entity_type
+ * @property int $entity_id
+ * @property string $action
+ * @property string|null $completed_at
+ * @property-read Model|\Eloquent $entity
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ActionLog newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ActionLog newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ActionLog query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ActionLog whereAction($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ActionLog whereCompletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ActionLog whereEntityId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ActionLog whereEntityType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ActionLog whereId($value)
+ * @mixin \Eloquent
  */
 class ActionLog extends Model
 {

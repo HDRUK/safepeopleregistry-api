@@ -100,7 +100,7 @@ class OrganisationIDVT implements ShouldQueue
         ],
     ];
 
-    private ?Organisation $organisation;
+    private Organisation $organisation;
 
     private string $nameToCheck = '';
 
@@ -145,16 +145,16 @@ class OrganisationIDVT implements ShouldQueue
     public function handle(): void
     {
         $responseCompany = Http::post(
-            env('IDVT_ORG_SCANNER'),
+            config('speedi.system.idvt_org_scanner'),
             [
-                'url' => env('IDVT_COMPANIES_HOUSE_URL').$this->numberToCheck,
+                'url' => config('speedi.system.idvt_companies_house_url') . $this->numberToCheck,
             ],
         );
 
         $responsePeople = Http::post(
-            env('IDVT_ORG_SCANNER'),
+            config('speedi.system.idvt_org_scanner'),
             [
-                'url' => env('IDVT_COMPANIES_HOUSE_URL').$this->numberToCheck.'/officers',
+                'url' => config('speedi.system.idvt_companies_house_url') . $this->numberToCheck.'/officers',
             ],
         );
 
