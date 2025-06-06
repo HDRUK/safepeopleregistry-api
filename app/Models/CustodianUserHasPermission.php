@@ -2,9 +2,23 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ *
+ *
+ * @property-read \App\Models\Permission $permission
+ * @property int $custodian_user_id
+ * @property int $permission_id
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianUserHasPermission newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianUserHasPermission newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianUserHasPermission query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianUserHasPermission whereCustodianUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianUserHasPermission wherePermissionId($value)
+ * @mixin \Eloquent
+ */
 class CustodianUserHasPermission extends Model
 {
     use HasFactory;

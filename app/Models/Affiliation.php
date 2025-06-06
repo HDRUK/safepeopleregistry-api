@@ -6,7 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * @OA\Schema(
+ *
+ *
+ * @OA\Schema (
  *      schema="Affiliation",
  *      title="Affiliation",
  *      description="Affiliation model",
@@ -74,6 +76,48 @@ use Illuminate\Database\Eloquent\Model;
  *          description="The Registry primary key associated with this affiliation"
  *      )
  * )
+ * @property int $id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int $organisation_id
+ * @property string $member_id
+ * @property string|null $relationship
+ * @property string|null $from
+ * @property string|null $to
+ * @property string|null $department
+ * @property string|null $role
+ * @property string|null $email
+ * @property string|null $ror
+ * @property int $registry_id
+ * @property int|null $verdict_user_id
+ * @property string|null $verdict_date_actioned
+ * @property int|null $verdict_outcome
+ * @property-read mixed $registry_affiliation_state
+ * @property-read \App\Models\Organisation|null $organisation
+ * @property-read \App\Models\Registry|null $registry
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RegistryHasAffiliation> $registryHasAffiliations
+ * @property-read int|null $registry_has_affiliations_count
+ * @method static \Database\Factories\AffiliationFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereDepartment($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereFrom($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereMemberId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereOrganisationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereRegistryId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereRelationship($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereRole($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereRor($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereTo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereVerdictDateActioned($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereVerdictOutcome($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereVerdictUserId($value)
+ * @mixin \Eloquent
  */
 class Affiliation extends Model
 {

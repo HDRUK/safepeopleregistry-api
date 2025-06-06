@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 use App\Traits\SearchManager;
 
 /**
- * @OA\Schema(
+ *
+ *
+ * @OA\Schema (
  *      schema="Training",
  *      title="Training",
  *      description="Training model",
@@ -53,6 +55,36 @@ use App\Traits\SearchManager;
  *          example="1"
  *      )
  * )
+ * @property int $id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string $provider
+ * @property string $awarded_at
+ * @property string $expires_at
+ * @property int $expires_in_years
+ * @property string $training_name
+ * @property int|null $certification_id
+ * @property int $pro_registration
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\File> $files
+ * @property-read int|null $files_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Training applySorting()
+ * @method static \Database\Factories\TrainingFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Training filterWhen(string $filter, $callback)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Training newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Training newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Training query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Training searchViaRequest()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Training whereAwardedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Training whereCertificationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Training whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Training whereExpiresAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Training whereExpiresInYears($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Training whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Training whereProRegistration($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Training whereProvider($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Training whereTrainingName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Training whereUpdatedAt($value)
+ * @mixin \Eloquent
  */
 class Training extends Model
 {

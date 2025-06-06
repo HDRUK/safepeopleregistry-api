@@ -10,7 +10,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * @OA\Schema(
+ *
+ *
+ * @OA\Schema (
  *      schema="Registry",
  *      title="Registry",
  *      description="Registry model",
@@ -42,11 +44,53 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *          type="string",
  *          example=""
  *      ),
-  *      @OA\Property(property="verified",
+ *      @OA\Property(property="verified",
  *          type="integer",
  *          example="1"
  *      ),
  * )
+ * @property int $id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null $dl_ident
+ * @property string|null $pp_ident
+ * @property string $digi_ident
+ * @property bool $verified
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Accreditation> $accreditations
+ * @property-read int|null $accreditations_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Affiliation> $affiliations
+ * @property-read int|null $affiliations_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Education> $education
+ * @property-read int|null $education_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\File> $files
+ * @property-read int|null $files_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\History> $history
+ * @property-read int|null $history_count
+ * @property-read \App\Models\Identity|null $identity
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Training> $professionalRegistrations
+ * @property-read int|null $professional_registrations_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ProjectHasUser> $projectUsers
+ * @property-read int|null $project_users_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Training> $trainings
+ * @property-read int|null $trainings_count
+ * @property-read \App\Models\User|null $user
+ * @method static \Database\Factories\RegistryFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Registry newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Registry newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Registry onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Registry query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Registry whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Registry whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Registry whereDigiIdent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Registry whereDlIdent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Registry whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Registry wherePpIdent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Registry whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Registry whereVerified($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Registry withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Registry withoutTrashed()
+ * @mixin \Eloquent
  */
 class Registry extends Model
 {

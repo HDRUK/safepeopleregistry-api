@@ -33,7 +33,7 @@ class CustodianAuthenticationMiddleware
         }
 
         if (! (Hash::check(
-            $custodianKey.':'.env('CUSTODIAN_SALT_1').':'.env('CUSTODIAN_SALT_2'),
+            $custodianKey . ':' . config('speedi.system.custodian_salt_1') . ':' . config('speedi.system.custodian_salt_2'),
             $custodian->calculated_hash
         ))) {
             return response()->json([

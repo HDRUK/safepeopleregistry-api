@@ -6,6 +6,20 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ *
+ *
+ * @property int $organisation_id
+ * @property int $subsidiary_id
+ * @property-read \App\Models\Organisation|null $organisation
+ * @property-read \App\Models\Subsidiary|null $subsidiary
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganisationHasSubsidiary newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganisationHasSubsidiary newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganisationHasSubsidiary query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganisationHasSubsidiary whereOrganisationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganisationHasSubsidiary whereSubsidiaryId($value)
+ * @mixin \Eloquent
+ */
 class OrganisationHasSubsidiary extends Model
 {
     use HasFactory;
@@ -21,7 +35,7 @@ class OrganisationHasSubsidiary extends Model
 
     /**
      * Get the organisation associated with this record.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Organisation>
      */
     public function organisation(): BelongsTo
@@ -31,7 +45,7 @@ class OrganisationHasSubsidiary extends Model
 
     /**
      * Get the subsidiary associated with this record.
-     * 
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Subsidiary>
      */
     public function subsidiary(): BelongsTo

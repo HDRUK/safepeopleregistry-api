@@ -238,6 +238,8 @@ class ValidationCheckController extends Controller
             if (!$custodian) {
                 return $this->NotFoundResponse();
             }
+            // LS - For some reason PHPStan does not recognise the searchViaRequest method.
+            /** @phpstan-ignore-next-line */
             $checks = $custodian->validationChecks()
                 ->searchViaRequest()
                 ->get();

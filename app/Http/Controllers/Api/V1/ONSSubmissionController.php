@@ -31,7 +31,7 @@ class ONSSubmissionController extends Controller
         ]);
 
         $file = $request->file('file');
-        $fileSystem = env('SCANNING_FILESYSTEM_DISK', 'local_scan');
+        $fileSystem = config('speedi.system.scanning_filesystem_disk');
         $storedFilename = time().'_'.$file->getClientOriginalName();
         $path = $file->storeAs(
             '',
@@ -52,7 +52,7 @@ class ONSSubmissionController extends Controller
             'status' => File::FILE_STATUS_PENDING,
         ]);
 
-        if (!in_array(env('APP_ENV'), ['testing', 'ci'])) {
+        if (!in_array(config('speedi.system.app_env'), ['testing', 'ci'])) {
             ScanFileUpload::dispatchSync($file->id, $fileSystem, 'ONSFile');
         }
 

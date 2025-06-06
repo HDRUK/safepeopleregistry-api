@@ -21,7 +21,7 @@ use App\Traits\FilterManager;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Organisation searchViaRequest(array|null $input = null)
  */
 /**
- * @OA\Schema(
+ * @OA\Schema (
  *      schema="Organisation",
  *      title="Organisation",
  *      description="Organisation model",
@@ -191,6 +191,143 @@ use App\Traits\FilterManager;
  *          description="Unclaimed"
  *      ),
  * )
+ * @property int $id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $organisation_name
+ * @property string $address_1
+ * @property string|null $address_2
+ * @property string $town
+ * @property string $county
+ * @property string $country
+ * @property string $postcode
+ * @property string|null $lead_applicant_organisation_name
+ * @property string|null $lead_applicant_email
+ * @property string|null $password
+ * @property string $organisation_unique_id
+ * @property string|null $applicant_names
+ * @property string|null $funders_and_sponsors
+ * @property string|null $sub_license_arrangements
+ * @property bool $verified
+ * @property string|null $dsptk_ods_code
+ * @property int $dsptk_certified
+ * @property \Illuminate\Support\Carbon|null $dsptk_expiry_date
+ * @property int|null $dsptk_expiry_evidence
+ * @property bool $iso_27001_certified
+ * @property bool $ce_certified
+ * @property string|null $ce_certification_num
+ * @property \Illuminate\Support\Carbon|null $ce_expiry_date
+ * @property int|null $ce_expiry_evidence
+ * @property int $ce_plus_certified
+ * @property string|null $ce_plus_certification_num
+ * @property \Illuminate\Support\Carbon|null $ce_plus_expiry_date
+ * @property int|null $ce_plus_expiry_evidence
+ * @property bool|null $idvt_result
+ * @property float|null $idvt_result_perc
+ * @property string|null $idvt_errors
+ * @property string|null $idvt_completed_at
+ * @property string $companies_house_no
+ * @property int $sector_id
+ * @property string|null $iso_27001_certification_num
+ * @property \Illuminate\Support\Carbon|null $iso_expiry_date
+ * @property int|null $iso_expiry_evidence
+ * @property string|null $ror_id
+ * @property string|null $website
+ * @property int|null $smb_status
+ * @property int|null $organisation_size
+ * @property bool $unclaimed
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ActionLog> $actionLogs
+ * @property-read int|null $action_logs_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Affiliation> $affiliations
+ * @property-read int|null $affiliations_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Custodian> $approvals
+ * @property-read int|null $approvals_count
+ * @property-read \App\Models\File|null $ceExpiryEvidence
+ * @property-read \App\Models\File|null $cePlusExpiryEvidence
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Charity> $charities
+ * @property-read int|null $charities_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $delegates
+ * @property-read int|null $delegates_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Department> $departments
+ * @property-read int|null $departments_count
+ * @property-read \App\Models\File|null $dsptkExpiryEvidence
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\File> $files
+ * @property-read int|null $files_count
+ * @property-read mixed $evaluation
+ * @property-read \App\Models\File|null $isoExpiryEvidence
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\File> $latestEvidence
+ * @property-read int|null $latest_evidence_count
+ * @property-read \App\Models\ModelState|null $modelState
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Permission> $permissions
+ * @property-read int|null $permissions_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Project> $projects
+ * @property-read int|null $projects_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Registry> $registries
+ * @property-read int|null $registries_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ActionLog> $secondaryActionLogs
+ * @property-read int|null $secondary_action_logs_count
+ * @property-read \App\Models\Sector|null $sector
+ * @property-read \App\Models\User|null $sroOfficer
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Subsidiary> $subsidiaries
+ * @property-read int|null $subsidiaries_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ActionLog> $tertiaryActionLogs
+ * @property-read int|null $tertiary_action_logs_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation applySorting()
+ * @method static \Database\Factories\OrganisationFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation filterByState()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation filterWhen(string $filter, $callback)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation getCurrentRegistries($id)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation getOrganisationsProjects()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation searchViaRequest()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereAddress1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereAddress2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereApplicantNames($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereCeCertificationNum($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereCeCertified($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereCeExpiryDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereCeExpiryEvidence($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereCePlusCertificationNum($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereCePlusCertified($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereCePlusExpiryDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereCePlusExpiryEvidence($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereCompaniesHouseNo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereCountry($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereCounty($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereDsptkCertified($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereDsptkExpiryDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereDsptkExpiryEvidence($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereDsptkOdsCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereFundersAndSponsors($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereIdvtCompletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereIdvtErrors($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereIdvtResult($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereIdvtResultPerc($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereIso27001CertificationNum($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereIso27001Certified($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereIsoExpiryDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereIsoExpiryEvidence($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereLeadApplicantEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereLeadApplicantOrganisationName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereOrganisationName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereOrganisationSize($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereOrganisationUniqueId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation wherePassword($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation wherePostcode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereRorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereSectorId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereSmbStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereSubLicenseArrangements($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereTown($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereUnclaimed($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereVerified($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereWebsite($value)
+ * @mixin \Eloquent
  */
 class Organisation extends Model
 {
@@ -453,7 +590,7 @@ class Organisation extends Model
     }
 
     /**
-     *  @return \Illuminate\Database\Eloquent\Relations\HasManyThrough<\App\Models\Registry>
+     *  @return \Illuminate\Database\Eloquent\Relations\HasManyThrough<\App\Models\Registry, \App\Models\RegistryHasAffiliation, static>
      */
     public function registries(): HasManyThrough
     {

@@ -10,7 +10,9 @@ use App\Traits\ActionManager;
 use App\Traits\FilterManager;
 
 /**
- * @OA\Schema(
+ *
+ *
+ * @OA\Schema (
  *      schema="Custodian",
  *      title="Custodian",
  *      description="Custodian model",

@@ -240,8 +240,8 @@ class CustodianController extends Controller
             $uuid = Str::uuid()->toString();
             $calculatedHash = Hash::make(
                 $uuid .
-                    ':' . env('CUSTODIAN_SALT_1') .
-                    ':' . env('CUSTODIAN_SALT_2')
+                    ':' . config('speedi.system.custodian_salt_1') .
+                    ':' . config('speedi.system.custodian_salt_2')
             );
 
             $custodian = Custodian::create([
@@ -859,6 +859,7 @@ class CustodianController extends Controller
         $results = Organisation::searchViaRequest()
             ->applySorting()
             ->with(['sroOfficer', 'projects' => function ($query) {
+                /** @var \Illuminate\Database\Eloquent\Builder<\App\Models\Organisation> $query */
                 $query->filterByState()
                     ->with("modelState.state");
             }])
@@ -866,7 +867,8 @@ class CustodianController extends Controller
                 $query->where('custodians.id', $custodianId);
             })
             ->whereHas('projects', function ($query) {
-                /** @var \Illuminate\Database\Eloquent\Builder<\App\Models\Custodian> $query */
+                // LS - Model relation too deep on whereHas, so we have to ignore it here
+                /** @phpstan-ignore-next-line */
                 $query->filterByState();
             })->getOrganisationsProjects();
 

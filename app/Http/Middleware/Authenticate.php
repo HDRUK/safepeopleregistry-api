@@ -12,6 +12,6 @@ class Authenticate extends Middleware
      */
     protected function redirectTo(Request $request): ?string
     {
-        return $request->expectsJson() ? null : redirect()->away(env('PORTAL_URL'));
+        return $request->expectsJson() ? null : redirect()->away(config('speedi.system.portal_url'));
     }
 }

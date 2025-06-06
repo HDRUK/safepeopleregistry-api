@@ -6,7 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * @OA\Schema(
+ *
+ *
+ * @OA\Schema (
  *      schema="CustodianModelConfig",
  *      title="CustodianModelConfig",
  *      description="CustodianModelConfig model",
@@ -36,6 +38,23 @@ use Illuminate\Database\Eloquent\Model;
  *          example=12
  *      ),
  * )
+ * @property int $id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int $entity_model_id
+ * @property int $active
+ * @property int $custodian_id
+ * @method static \Database\Factories\CustodianModelConfigFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianModelConfig newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianModelConfig newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianModelConfig query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianModelConfig whereActive($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianModelConfig whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianModelConfig whereCustodianId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianModelConfig whereEntityModelId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianModelConfig whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianModelConfig whereUpdatedAt($value)
+ * @mixin \Eloquent
  */
 class CustodianModelConfig extends Model
 {

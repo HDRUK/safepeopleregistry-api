@@ -23,11 +23,14 @@ return [
         // Application configuration
         'app_name' => env('APP_NAME', 'Safe People Registry'),
         'app_env' => env('APP_ENV', 'production'),
-        'app_url' => env('APP_URL', 'https://safepeopleregistry.org'),
+        'app_url' => env('APP_URL', 'http://soursd-api:8100'),
+        'portal_url' => env('PORTAL_URL'),
         'support_email' => env('SUPPORT_EMAIL', 'support@safepeopleregistry.org'),
         'invite_time_hours' => env('INVITE_TIME_HOURS', 24),
         'registry_salt_1' => env('REGISTRY_SALT_1'),
         'registry_salt_2' => env('REGISTRY_SALT_2'),
+        'custodian_salt_1' => env('CUSTODIAN_SALT_1'),
+        'custodian_salt_2' => env('CUSTODIAN_SALT_2'),
         // System configuration
         'idvt_supplier_secret_key' => env('IDVT_SUPPLIER_SECRET_KEY'),
         // Keycloak configuration
@@ -49,5 +52,12 @@ return [
         'orcid_auth_url' => env('ORCID_AUTH_URL'),
         'orcid_client_id' => env('ORCID_CLIENT_ID'),
         'orcid_client_secret' => env('ORCID_CLIENT_SECRET'),
+        'rules_engine_project_token' => env('RULES_ENGINE_PROJECT_TOKEN'),
+        'rules_engine_service' => env('RULES_ENGINE_SERVICE'),
+        'rules_engine_project_id' => env('RULES_ENGINE_PROJECT_ID'),
+        'rules_engine_document_id' => env('RULES_ENGINE_DOCUMENT_ID'),
+        'gateway_api_url' => env('GATEWAY_API_URL'),
+        'scanning_filesystem_disk' => env('SCANNING_FILESYSTEM_DISK', 'local_scan'),
+        'ror_api_url' => env('ROR_API_URL'),
     ],
 ];

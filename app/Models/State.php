@@ -5,6 +5,24 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ *
+ *
+ * @property int $id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string $name
+ * @property string $slug
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|State newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|State newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|State query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|State whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|State whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|State whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|State whereSlug($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|State whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class State extends Model
 {
     use HasFactory;

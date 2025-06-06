@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use App\Traits\SearchManager;
 
 /**
- * @OA\Schema(
+ *
+ *
+ * @OA\Schema (
  *  schema="ProjectRole",
  *  title="ProjectRole",
  *  description="ProjectRole model",
@@ -28,6 +30,21 @@ use App\Traits\SearchManager;
  *      example="Role Name"
  *  )
  * )
+ * @property int $id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string $name
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectRole applySorting()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectRole filterWhen(string $filter, $callback)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectRole newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectRole newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectRole query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectRole searchViaRequest()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectRole whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectRole whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectRole whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectRole whereUpdatedAt($value)
+ * @mixin \Eloquent
  */
 class ProjectRole extends Model
 {

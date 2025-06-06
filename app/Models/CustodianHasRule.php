@@ -5,6 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ *
+ *
+ * @property int $custodian_id
+ * @property int $rule_id
+ * @property-read \App\Models\Custodian $custodian
+ * @property-read \App\Models\Rules $rule
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianHasRule newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianHasRule newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianHasRule query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianHasRule whereCustodianId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianHasRule whereRuleId($value)
+ * @mixin \Eloquent
+ */
 class CustodianHasRule extends Pivot
 {
     protected $table = 'custodian_has_rules';
@@ -20,7 +34,7 @@ class CustodianHasRule extends Pivot
 
     /**
      * Get the custodian associated with this record.
-     * 
+     *
      *  @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Custodian>
      */
     public function custodian(): BelongsTo

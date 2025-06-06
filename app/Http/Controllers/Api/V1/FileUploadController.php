@@ -133,7 +133,7 @@ class FileUploadController extends Controller
             }
 
             $filePath = $file->path;
-            $fileSystem = env('SCANNING_FILESYSTEM_DISK', 'local_scan');
+            $fileSystem = config('speedi.system.scanning_filesystem_disk');
 
             if ($fileSystem !== 'local_scan') {
                 return $this->NotImplementedResponse();
@@ -211,7 +211,7 @@ class FileUploadController extends Controller
             ]);
 
             $file = $request->file('file');
-            $fileSystem = env('SCANNING_FILESYSTEM_DISK', 'local_scan');
+            $fileSystem = config('speedi.system.scanning_filesystem_disk');
             $storedFilename = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
             $path = $file->storeAs(
                 '',
@@ -233,7 +233,7 @@ class FileUploadController extends Controller
                 'status' => File::FILE_STATUS_PENDING,
             ]);
 
-            if (strtoupper($input['entity_type'] ?? '') === 'RESEARCHER' && isset($input['registry_id']) && $input['registry_id'] !== null) {
+            if (strtoupper($input['entity_type'] ?? '') === 'RESEARCHER' && isset($input['registry_id']) && $input['registry_id'] != null) {
                 $registryId = intval($input['registry_id']);
                 $user = User::where('registry_id', $registryId)->first();
 
@@ -251,7 +251,7 @@ class FileUploadController extends Controller
                     'registry_id' => $registry->id,
                     'file_id' => $fileIn->id,
                 ]);
-            } elseif (isset($input['organisation_id']) && $input['organisation_id'] !== null) {
+            } elseif (isset($input['organisation_id']) && $input['organisation_id'] != null) {
                 $organisationId = intval($input['organisation_id']);
                 $organisation = Organisation::find($organisationId);
 

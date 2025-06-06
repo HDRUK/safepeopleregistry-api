@@ -185,11 +185,11 @@ class OrcIDScanner implements ShouldQueue
         $formedDateString = '';
 
         if (is_array($date)) {
-            if (isset($date['month']) && $date['month'] !== null) {
+            if (isset($date['month']) && $date['month'] != null) {
                 $formedDateString .= $date['month']['value'].'/';
             }
 
-            if (isset($date['year']) && $date['year'] !== null) {
+            if (isset($date['year']) && $date['year'] != null) {
                 $formedDateString .= $date['year']['value'];
             }
 

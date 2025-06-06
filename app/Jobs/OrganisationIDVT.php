@@ -100,7 +100,7 @@ class OrganisationIDVT implements ShouldQueue
         ],
     ];
 
-    private ?Organisation $organisation;
+    private Organisation $organisation;
 
     private string $nameToCheck = '';
 
