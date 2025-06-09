@@ -60,7 +60,7 @@ trait SearchManager
             if (!empty($orGroups)) {
                 $outerQuery->where(function ($q) use ($orGroups) {
                     foreach ($orGroups as $field => $terms) {
-                        if (is_array($terms)) {
+                        if (is_array($terms)) { // Singular term was causing a 500.
                             foreach ($terms as $term) {
                                 $q->orWhere($field, 'LIKE', '%' . $term . '%');
                             }
