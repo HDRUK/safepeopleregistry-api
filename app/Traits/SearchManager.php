@@ -60,8 +60,12 @@ trait SearchManager
             if (!empty($orGroups)) {
                 $outerQuery->where(function ($q) use ($orGroups) {
                     foreach ($orGroups as $field => $terms) {
-                        foreach ($terms as $term) {
-                            $q->orWhere($field, 'LIKE', '%' . $term . '%');
+                        if (is_array($terms)) {
+                            foreach ($terms as $term) {
+                                $q->orWhere($field, 'LIKE', '%' . $term . '%');
+                            }
+                        } else {
+                            $q->orWhere($field, 'LIKE', '%' . $terms . '%');
                         }
                     }
                 });

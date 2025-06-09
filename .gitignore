@@ -24,7 +24,5 @@ composer.lock
 tiltconf.json
 _ide_helper.php
 **/caddy
-frankenphp
-frankenphp-worker.php
 clean.shrr
-.rr.yaml
+rr
