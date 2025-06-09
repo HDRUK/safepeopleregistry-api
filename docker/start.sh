@@ -5,8 +5,8 @@ if [ -e /var/www/.env ]; then
 fi
 
 #base_command="php artisan octane:start --server=roadrunner --max-requests=250 --host=0.0.0.0 --port=8100"
-base_command="./rr serve --config=.rr.yaml"
-# base_command="php artisan serve --host=0.0.0.0 --port=8100"
+# base_command="./rr serve --config=.rr.yaml"
+base_command="php artisan serve --host=0.0.0.0 --port=8100"
 
 if [ $APP_ENV = 'local' ] || [ $APP_ENV = 'dev' ]; then
     echo 'running in dev mode - with watch'
