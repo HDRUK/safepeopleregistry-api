@@ -106,10 +106,7 @@ class ProjectController extends Controller
      */
     public function getUsersWorkflow(Request $request): JsonResponse
     {
-        return response()->json(
-            $this->pickTransitions([State::STATE_FORM_RECEIVED, State::STATE_VALIDATION_IN_PROGRESS,State::STATE_VALIDATION_COMPLETE,State::STATE_MORE_USER_INFO_REQ,State::STATE_ESCALATE_VALIDATION]),
-            200
-        );
+        return $this->OKResponse($this->pickTransitions([State::STATE_FORM_RECEIVED, State::STATE_VALIDATION_IN_PROGRESS,State::STATE_VALIDATION_COMPLETE,State::STATE_MORE_USER_INFO_REQ,State::STATE_ESCALATE_VALIDATION]));
     }
 
     /**
