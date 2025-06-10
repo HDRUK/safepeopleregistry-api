@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
+use App\Traits\StateWorkflow;
 
 /**
  *
@@ -21,6 +23,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read \App\Models\Project|null $project
  * @property-read \App\Models\Registry|null $registry
  * @property-read \App\Models\ProjectRole|null $role
+ * @property-read \App\Models\ModelState|null $modelState
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUser newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUser newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUser query()
@@ -34,6 +37,7 @@ use Illuminate\Database\Eloquent\Model;
 class ProjectHasUser extends Model
 {
     use HasFactory;
+    use StateWorkflow;
 
     public $incrementing = false;
     //protected $primaryKey = null;
@@ -114,5 +118,10 @@ class ProjectHasUser extends Model
             'project_id',
             'project_id'
         )->where('approved', true);
+    }
+
+    public function modelState(): MorphOne
+    {
+        return $this->morphOne(ModelState::class, 'stateable');
     }
 }
