@@ -35,8 +35,7 @@ class ProjectHasUser extends Model
 {
     use HasFactory;
 
-    public $incrementing = false;
-    //protected $primaryKey = null;
+    public $incrementing = true;
 
     protected $table = 'project_has_users';
 

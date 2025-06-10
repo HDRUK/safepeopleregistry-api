@@ -28,9 +28,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectUserCustodianApproval whereUserId($value)
  * @mixin \Eloquent
  */
-class ProjectUserCustodianApproval extends Model
+class ProjectHasUserCustodianApproval extends Model
 {
-    protected $table = 'project_user_has_custodian_approval';
+    protected $table = 'project_has_user_custodian_approval';
 
     public $timestamps = false;
 
@@ -42,27 +42,18 @@ class ProjectUserCustodianApproval extends Model
     public $incrementing = false;
 
     protected $fillable = [
-        'project_id',
-        'user_id',
+        'project_has_user_id',
         'custodian_id',
         'approved',
-        'comment'
+        'comment',
     ];
 
     /**
-     *  @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Project>
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\ProjecHasUser>
      */
-    public function project(): BelongsTo
+    public function projectHasUser(): BelongsTo
     {
-        return $this->belongsTo(Project::class, 'project_id');
-    }
-
-    /**
-     *  @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\User>
-     */
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(ProjectHasUser::class, 'project_has_user_id');
     }
 
     /**
