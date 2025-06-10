@@ -206,9 +206,8 @@ class RegistryManagementController
 
     public static function generateDigitalIdentifierForRegistry(): string
     {
-        $signature = Str::random(64);
         return Hash::make(
-            $signature.
+            Str::random(64) .
             ':' . config('speedi.system.registry_salt_1') .
             ':' . config('speedi.system.registry_salt_2')
         );
@@ -255,9 +254,7 @@ class RegistryManagementController
                     }
                     return $existingUser;
                 }
-                $user = User::create($userData);
-
-                return $user;
+                return User::create($userData);
             }
         } catch (Exception $e) {
             DebugLog::create([
