@@ -26,12 +26,13 @@ class ValidationLogCommentTest extends TestCase
         ProjectHasUser::create([
             'project_id' => $this->project->id,
             'user_digital_ident' => $this->user->registry->digi_ident,
+            'project_role_id' => 1,
         ]);
         ProjectHasCustodian::create([
             'project_id' => $this->project->id,
-            'custodian_id' => $this->custodian->id ,
+            'custodian_id' => $this->custodian->id,
+            'project_role_id' => 1,
         ]);
-
     }
 
     public function setUp(): void
@@ -57,10 +58,10 @@ class ValidationLogCommentTest extends TestCase
         ]);
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . '/' . $comment->id,
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $comment->id,
+            );
 
         $response->assertStatus(200);
         $response->assertJson([
@@ -71,36 +72,34 @@ class ValidationLogCommentTest extends TestCase
                 'comment' => $comment->comment,
             ]
         ]);
-
     }
 
     public function test_it_cannot_find_a_validation_log_comment_via_api()
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . '/1'
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . '/1'
+            );
 
         $response->assertStatus(404);
-
     }
 
     public function test_it_can_create_a_validation_log_comment_via_api()
     {
 
         $payload = [
-             'comment' => 'test comment',
-             'user_id' => $this->user->id,
-             'validation_log_id' => ValidationLog::first()->id
-         ];
+            'comment' => 'test comment',
+            'user_id' => $this->user->id,
+            'validation_log_id' => ValidationLog::first()->id
+        ];
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'POST',
-            self::TEST_URL,
-            $payload
-        );
+            ->json(
+                'POST',
+                self::TEST_URL,
+                $payload
+            );
 
         $response->assertStatus(201);
         $response->assertJson([
@@ -110,7 +109,6 @@ class ValidationLogCommentTest extends TestCase
                 'comment' => $payload['comment']
             ]
         ]);
-
     }
 
     public function test_it_can_update_a_validation_log_comment_via_api()
@@ -123,10 +121,10 @@ class ValidationLogCommentTest extends TestCase
         ]);
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . '/' . $comment->id,
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $comment->id,
+            );
 
         $response->assertStatus(200);
         $response->assertJson([
@@ -143,18 +141,18 @@ class ValidationLogCommentTest extends TestCase
         ];
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'PUT',
-            self::TEST_URL . '/' . $comment->id,
-            $payload
-        );
+            ->json(
+                'PUT',
+                self::TEST_URL . '/' . $comment->id,
+                $payload
+            );
         $response->assertStatus(200);
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . '/' . $comment->id,
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $comment->id,
+            );
 
         $response->assertStatus(200);
 
@@ -178,10 +176,10 @@ class ValidationLogCommentTest extends TestCase
         ]);
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . '/' . $comment->id,
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $comment->id,
+            );
 
         $response->assertStatus(200);
         $response->assertJson([
@@ -195,26 +193,18 @@ class ValidationLogCommentTest extends TestCase
 
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'DELETE',
-            self::TEST_URL . '/' . $comment->id,
-        );
+            ->json(
+                'DELETE',
+                self::TEST_URL . '/' . $comment->id,
+            );
 
         $response->assertStatus(200);
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . '/' . $comment->id,
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $comment->id,
+            );
 
         $response->assertStatus(404);
-
-
-
     }
-
-
-
-
-
 }

@@ -55,6 +55,7 @@ class ValidationLogTest extends TestCase
         ProjectHasUser::create([
             'project_id' => $this->project->id,
             'user_digital_ident' => $this->user->registry->digi_ident,
+            'project_role_id' => 1
         ]);
 
         $this->assertDatabaseEmpty('validation_logs');
@@ -678,6 +679,7 @@ class ValidationLogTest extends TestCase
         ProjectHasUser::create([
             'project_id' => $this->project->id,
             'user_digital_ident' => $this->user->registry->digi_ident,
+            'project_role_id' => 1
         ]);
         ProjectHasCustodian::create([
             'project_id' => $this->project->id,

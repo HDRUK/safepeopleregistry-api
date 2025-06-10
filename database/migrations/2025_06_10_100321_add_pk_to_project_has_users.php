@@ -25,11 +25,12 @@ return new class() extends Migration {
                 ->on('project_roles')
                 ->onDelete('cascade');
 
-            $table->unsignedBigInteger('affiliation_id');
+            $table->unsignedBigInteger('affiliation_id')->nullable();
             $table->foreign('affiliation_id')
                 ->references('id')
                 ->on('affiliations')
                 ->onDelete('cascade');
+
 
             $table->tinyInteger('primary_contact')->default(0);
         });

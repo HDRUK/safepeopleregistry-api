@@ -171,7 +171,6 @@ class ProjectHasUserCustodianApprovalController extends Controller
      *              @OA\Property(
      *                  property="data",
      *                  type="object",
-     *                  ref="#/components/schemas/ProjectHasUserCustodianApproval"
      *              )
      *          )
      *      ),
