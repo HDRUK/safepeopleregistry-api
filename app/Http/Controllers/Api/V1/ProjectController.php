@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\Responses;
+use App\Traits\StateWorkflow;
 use App\Models\Project;
 use App\Models\Registry;
 use App\Models\State;
@@ -23,6 +24,7 @@ class ProjectController extends Controller
     use CommonFunctions;
     use FilterManager;
     use Responses;
+    use StateWorkflow;
 
     /**
      * @OA\Get(
@@ -69,6 +71,46 @@ class ProjectController extends Controller
             200
         );
     }
+
+    /**
+     * @OA\Get(
+     *      path="/api/v1/projects/users/workflow",
+     *      summary="Return transitions for project users",
+     *      description="Return transitions for project users",
+     *      tags={"Project"},
+     *      summary="Project@getUsersWorkflow",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string"),
+     *              @OA\Property(property="data", type="object",
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @OA\Items(
+     *                      type="string"
+     *                  )
+     *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found"),
+     *          )
+     *      )
+     * )
+     */
+    public function getUsersWorkflow(Request $request): JsonResponse
+    {
+        return response()->json(
+            $this->pickTransitions([State::STATE_FORM_RECEIVED, State::STATE_VALIDATION_IN_PROGRESS,State::STATE_VALIDATION_COMPLETE,State::STATE_MORE_USER_INFO_REQ,State::STATE_ESCALATE_VALIDATION]),
+            200
+        );
+    }    
 
     /**
      * @OA\Get(

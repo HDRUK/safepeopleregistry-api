@@ -112,4 +112,14 @@ trait StateWorkflow
         }
         $this->setState($newStateSlug);
     }
+
+    public function pickTransitions(array $states) {
+        $transitions = [];
+
+        foreach($states as $state) {
+            $transitions[$state] = $this->transitions[$state];
+        }
+
+        return $transitions;
+    }
 }

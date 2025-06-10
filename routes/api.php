@@ -262,13 +262,15 @@ Route::middleware('auth:api')
 
         // Project user management
         Route::get('user/{registryId}/approved', 'getApprovedProjects');
-        Route::get('{id}/users', 'getProjectUsers');
+        Route::get('{id}/users', 'getProjectUsers');  
         Route::get('{id}/all_users', 'getAllUsersFlagProject');
         Route::put('{id}/all_users', 'updateAllProjectUsers');
         Route::post('{id}/users', 'addProjectUser');
         Route::put('{projectId}/users/{registryId}', 'updateProjectUser');
         Route::delete('{projectId}/users/{registryId}', 'deleteUserFromProject');
         Route::put('{projectId}/users/{registryId}/primary_contact', 'makePrimaryContact');
+        Route::put('{projectId}/users/{registryId}/affiliations/{affiliationsId}', 'updateUserStatus');
+        Route::get('users/workflow', 'getWorkflowUser');
     });
 
 // --- REGISTRIES ---
