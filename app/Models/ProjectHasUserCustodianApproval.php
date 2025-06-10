@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Traits\StateWorkflow;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 /**
  *
@@ -29,6 +31,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class ProjectHasUserCustodianApproval extends Model
 {
+    use StateWorkflow;
     protected $table = 'project_has_user_custodian_approval';
 
     public $timestamps = false;
@@ -37,15 +40,30 @@ class ProjectHasUserCustodianApproval extends Model
         'created_at' => 'datetime',
     ];
 
-    protected $primaryKey = null;
-    public $incrementing = false;
-
     protected $fillable = [
         'project_has_user_id',
         'custodian_id',
         'approved',
         'comment',
     ];
+
+    /**
+     * The "booted" method of the model.
+     *
+     * @return void
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // When a new ProjectHasUserCustodianApproval record is being created,
+        // automatically set its initial state.
+        static::creating(function ($model) {
+            if (in_array(StateWorkflow::class, class_uses($model))) {
+                $model->setState(State::STATE_FORM_RECEIVED);
+            }
+        });
+    }
 
     /**
      *  @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\ProjecHasUser>
@@ -61,5 +79,10 @@ class ProjectHasUserCustodianApproval extends Model
     public function custodian(): BelongsTo
     {
         return $this->belongsTo(Custodian::class, 'custodian_id');
+    }
+
+    public function modelState(): MorphOne
+    {
+        return $this->morphOne(ModelState::class, 'stateable');
     }
 }
