@@ -12,6 +12,7 @@ use App\Models\WebhookEventTrigger;
 use App\Models\CustodianWebhookReceiver;
 use Spatie\WebhookServer\WebhookCall;
 use App\Traits\ValidationManager;
+use App\Models\State;
 
 class ProjectHasUserObserver
 {
@@ -24,6 +25,8 @@ class ProjectHasUserObserver
      */
     public function created(ProjectHasUser $projectHasUser): void
     {
+        $registryHasAffiliation->setState(State::STATE_FORM_RECEIVED);
+
         $this->updateCustodianProjectUserValidation(
             $projectHasUser->project_id,
             $projectHasUser->user_digital_ident

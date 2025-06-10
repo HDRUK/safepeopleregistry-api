@@ -753,13 +753,13 @@ class ProjectController extends Controller
             if (isset($digi_ident)) {
                 $projectHasUser = ProjectHasUser::where('project_id', $projectId)->where('user_digital_ident', $digi_ident)->where('affiliation_id', $affiliationId)->first();
 
-                // if ($projectHasUser->canTransitionTo($status)) {
-                    $projectHasUser->setState(State::STATE_FORM_RECEIVED);
+                if ($projectHasUser->canTransitionTo($status)) {
+                    $projectHasUser->setState($status);
 
                     return $this->OKResponse($projectHasUser);
-                // } else {
-                //     return $this->BadRequestResponse();
-                // }
+                } else {
+                    return $this->BadRequestResponse();
+                }
             }
 
             return $this->NotFoundResponse();
