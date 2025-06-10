@@ -56,11 +56,10 @@ class ProjectHasUserCustodianApproval extends Model
     {
         parent::boot();
 
-        // When a new ProjectHasUserCustodianApproval record is being created,
-        // automatically set its initial state.
-        static::creating(function ($model) {
+        static::created(function ($model) {
             if (in_array(StateWorkflow::class, class_uses($model))) {
                 $model->setState(State::STATE_FORM_RECEIVED);
+                $model->save();
             }
         });
     }
