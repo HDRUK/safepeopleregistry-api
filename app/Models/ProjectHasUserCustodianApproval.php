@@ -8,14 +8,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  *
  *
- * @property int $project_id
- * @property int $user_id
+ * @property int $project_has_user_id
  * @property int $custodian_id
  * @property int $approved
  * @property string|null $comment
  * @property \Illuminate\Support\Carbon $created_at
  * @property-read \App\Models\Custodian $custodian
- * @property-read \App\Models\Project $project
+ * @property-read \App\Models\ProjectHasUser $projectHasUser
  * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUserCustodianApproval newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUserCustodianApproval newQuery()
