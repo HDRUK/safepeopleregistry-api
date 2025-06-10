@@ -39,7 +39,7 @@ use App\Http\Controllers\Api\V1\CustodianModelConfigController;
 use App\Http\Controllers\Api\V1\OrganisationCustodianApprovalController;
 use App\Http\Controllers\Api\V1\ProjectDetailController;
 use App\Http\Controllers\Api\V1\ProjectRoleController;
-use App\Http\Controllers\Api\V1\ProjectUserCustodianApprovalController;
+use App\Http\Controllers\Api\V1\ProjectHasUserCustodianApprovalController;
 use App\Http\Controllers\Api\V1\VendorWebhookReceiverController;
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
@@ -530,7 +530,7 @@ Route::middleware('auth:api')
 // --- PROJECT USER CUSTODIAN APPROVAL ---
 Route::middleware('auth:api')
     ->prefix('v1/custodian_approvals')
-    ->controller(ProjectUserCustodianApprovalController::class)
+    ->controller(ProjectHasUserCustodianApprovalController::class)
     ->group(function () {
         Route::get('/{custodianId}/projects/{projectId}/registry/{registryId}', 'show');
         Route::post('/{custodianId}/projects/{projectId}/registry/{registryId}', 'store');

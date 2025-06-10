@@ -1928,17 +1928,17 @@ namespace App\Models{
  * @property-read \App\Models\Custodian $custodian
  * @property-read \App\Models\Project $project
  * @property-read \App\Models\User $user
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectUserCustodianApproval newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectUserCustodianApproval newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectUserCustodianApproval query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectUserCustodianApproval whereApproved($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectUserCustodianApproval whereComment($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectUserCustodianApproval whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectUserCustodianApproval whereCustodianId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectUserCustodianApproval whereProjectId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectUserCustodianApproval whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUserCustodianApproval newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUserCustodianApproval newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUserCustodianApproval query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUserCustodianApproval whereApproved($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUserCustodianApproval whereComment($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUserCustodianApproval whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUserCustodianApproval whereCustodianId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUserCustodianApproval whereProjectId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUserCustodianApproval whereUserId($value)
  */
-	class ProjectUserCustodianApproval extends \Eloquent {}
+	class ProjectHasUserCustodianApproval extends \Eloquent {}
 }
 
 namespace App\Models{

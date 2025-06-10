@@ -22,7 +22,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
-use App\Models\ProjectUserCustodianApproval;
+use App\Models\ProjectHasUserCustodianApproval;
 use App\Traits\CommonFunctions;
 use App\Traits\CheckPermissions;
 use Illuminate\Support\Facades\Gate;
@@ -263,7 +263,7 @@ class UserController extends Controller
                 return $this->ForbiddenResponse();
             }
 
-            $approvalLog = ProjectUserCustodianApproval::with('custodian:id,name')->where(['user_id' => $user->id])->get();
+            $approvalLog = ProjectHasUserCustodianApproval::with('custodian:id,name')->where(['user_id' => $user->id])->get();
 
             $approvalHistory = $approvalLog->map(function ($log) {
                 $custodian = $log->custodian->name;

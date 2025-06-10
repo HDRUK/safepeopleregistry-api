@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use Exception;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ApprovalRequest;
-use App\Models\ProjectUserCustodianApproval;
+use App\Models\ProjectHasUserCustodianApproval;
 use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
 use App\Models\ProjectHasCustodian;
@@ -15,7 +15,7 @@ use App\Models\Registry;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Gate;
 
-class ProjectUserCustodianApprovalController extends Controller
+class ProjectHasUserCustodianApprovalController extends Controller
 {
     use Responses;
 
@@ -32,7 +32,8 @@ class ProjectUserCustodianApprovalController extends Controller
                 return $registry;
             }
 
-            $puhca = ProjectUserCustodianApproval::where([
+            dd()
+            $puhca = ProjectHasUserCustodianApproval::where([
                 'project_id' => $projectId,
                 'user_id' => $registry->user->id,
                 'custodian_id' => $custodianId
