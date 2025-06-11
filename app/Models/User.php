@@ -132,7 +132,7 @@ class User extends Authenticatable
     public const GROUP_KC_ADMINS = '\Admins';
 
     public const STATUS_INVITED = 'invited';
-    public const STATUS_REGISTERED = 'registered';
+    public const STATUS_USER_REGISTERED = 'registered';
 
     /**
      * The attributes that are mass assignable.
@@ -217,7 +217,7 @@ class User extends Authenticatable
 
     public function getStatusAttribute(): string
     {
-        return $this->unclaimed === 1 ? self::STATUS_INVITED : self::STATUS_REGISTERED;
+        return $this->unclaimed === 1 ? self::STATUS_INVITED : self::STATUS_USER_REGISTERED;
     }
 
     /**

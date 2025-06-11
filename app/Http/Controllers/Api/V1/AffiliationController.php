@@ -393,8 +393,8 @@ class AffiliationController extends Controller
             }
 
             $statusSlugMap = [
-                'approved' => State::STATE_AFFILIATION_APPROVED,
-                'rejected' => State::STATE_AFFILIATION_REJECTED,
+                'approved' => State::AFFILIATION_APPROVED,
+                'rejected' => State::AFFILIATION_REJECTED,
             ];
 
             if (!array_key_exists($status, $statusSlugMap)) {

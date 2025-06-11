@@ -12,59 +12,58 @@ use App\Models\ModelState;
 trait StateWorkflow
 {
     protected array $transitions = [
-        State::STATE_REGISTERED => [
-            State::STATE_PENDING,
-            State::STATE_FORM_RECEIVED,
+        State::USER_REGISTERED => [
+            State::USER_PENDING,
         ],
-        State::STATE_PENDING => [
-            State::STATE_FORM_RECEIVED,
-            State::STATE_VALIDATION_IN_PROGRESS,
+        State::USER_PENDING => [
+            State::PROJECT_USER_FORM_RECEIVED,
+            State::PROJECT_USER_VALIDATION_IN_PROGRESS,
         ],
-        State::STATE_FORM_RECEIVED => [
-            State::STATE_VALIDATION_IN_PROGRESS,
-            State::STATE_MORE_USER_INFO_REQ,
+        State::PROJECT_USER_FORM_RECEIVED => [
+            State::PROJECT_USER_VALIDATION_IN_PROGRESS,
+            State::PROJECT_USER_MORE_USER_INFO_REQ,
         ],
-        State::STATE_VALIDATION_IN_PROGRESS => [
-            State::STATE_VALIDATION_COMPLETE,
-            State::STATE_MORE_USER_INFO_REQ,
-            State::STATE_ESCALATE_VALIDATION,
-            State::STATE_VALIDATED,
+        State::PROJECT_USER_VALIDATION_IN_PROGRESS => [
+            State::PROJECT_USER_VALIDATION_COMPLETE,
+            State::PROJECT_USER_MORE_USER_INFO_REQ,
+            State::PROJECT_USER_ESCALATE_VALIDATION,
+            State::PROJECT_USER_VALIDATED,
         ],
-        State::STATE_VALIDATION_COMPLETE => [
-            State::STATE_ESCALATE_VALIDATION,
-            State::STATE_VALIDATED,
+        State::PROJECT_USER_VALIDATION_COMPLETE => [
+            State::PROJECT_USER_ESCALATE_VALIDATION,
+            State::PROJECT_USER_VALIDATED,
         ],
-        State::STATE_MORE_USER_INFO_REQ => [
-            State::STATE_ESCALATE_VALIDATION,
-            State::STATE_VALIDATED,
+        State::PROJECT_USER_MORE_USER_INFO_REQ => [
+            State::PROJECT_USER_ESCALATE_VALIDATION,
+            State::PROJECT_USER_VALIDATED,
         ],
-        State::STATE_ESCALATE_VALIDATION => [
-            State::STATE_VALIDATED,
+        State::PROJECT_USER_ESCALATE_VALIDATION => [
+            State::PROJECT_USER_VALIDATED,
         ],
-        State::STATE_VALIDATED => [],
-        State::STATE_PROJECT_PENDING => [
-            State::STATE_PROJECT_PENDING,
-            State::STATE_PROJECT_APPROVED,
+        State::PROJECT_USER_VALIDATED => [],
+        State::PROJECT_PENDING => [
+            State::PROJECT_PENDING,
+            State::PROJECT_APPROVED,
         ],
-        State::STATE_PROJECT_APPROVED => [
-            State::STATE_PROJECT_APPROVED,
-            State::STATE_PROJECT_COMPLETED
+        State::PROJECT_APPROVED => [
+            State::PROJECT_APPROVED,
+            State::PROJECT_COMPLETED
         ],
-        State::STATE_PROJECT_COMPLETED => [
-            State::STATE_PROJECT_COMPLETED
+        State::PROJECT_COMPLETED => [
+            State::PROJECT_COMPLETED
         ],
-        State::STATE_AFFILIATION_INVITED => [
-            State::STATE_AFFILIATION_PENDING
+        State::AFFILIATION_INVITED => [
+            State::AFFILIATION_PENDING
         ],
-        State::STATE_AFFILIATION_PENDING => [
-            State::STATE_AFFILIATION_APPROVED,
-            State::STATE_AFFILIATION_REJECTED
+        State::AFFILIATION_PENDING => [
+            State::AFFILIATION_APPROVED,
+            State::AFFILIATION_REJECTED
         ],
-        State::STATE_AFFILIATION_APPROVED => [
-            State::STATE_AFFILIATION_REJECTED
+        State::AFFILIATION_APPROVED => [
+            State::AFFILIATION_REJECTED
         ],
-        State::STATE_AFFILIATION_REJECTED => [
-            State::STATE_AFFILIATION_APPROVED
+        State::AFFILIATION_REJECTED => [
+            State::AFFILIATION_APPROVED
         ]
     ];
 
@@ -113,7 +112,7 @@ trait StateWorkflow
         $this->setState($newStateSlug);
     }
 
-    public function pickTransitions(array $states)
+    public function pickTransitions(array $states): array
     {
         $transitions = [];
 

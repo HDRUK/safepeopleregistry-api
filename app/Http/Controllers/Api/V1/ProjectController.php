@@ -6,7 +6,7 @@ use App\Models\User;
 use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\Responses;
-use App\Traits\StateWorkflow;
+use App\Traits\ProjectUserStateWorkflow;
 use App\Models\Project;
 use App\Models\Registry;
 use App\Models\State;
@@ -106,7 +106,14 @@ class ProjectController extends Controller
      */
     public function getUsersWorkflow(Request $request): JsonResponse
     {
-        return $this->OKResponse($this->pickTransitions([State::STATE_FORM_RECEIVED, State::STATE_VALIDATION_IN_PROGRESS,State::STATE_VALIDATION_COMPLETE,State::STATE_MORE_USER_INFO_REQ,State::STATE_ESCALATE_VALIDATION]));
+        return $this->OKResponse($this->pickTransitions([
+            State::PROJECT_USER_FORM_RECEIVED,
+            State::PROJECT_USER_VALIDATION_IN_PROGRESS,
+            State::PROJECT_USER_VALIDATION_COMPLETE,
+            State::PROJECT_USER_MORE_USER_INFO_REQ,
+            State::PROJECT_USER_ESCALATE_VALIDATION,
+            State::PROJECT_USER_VALIDATED
+        ]));
     }
 
     /**
@@ -381,7 +388,7 @@ class ProjectController extends Controller
             $project = Project::create($input);
 
             if ($project) {
-                $project->setState(State::STATE_PROJECT_PENDING);
+                $project->setState(State::PROJECT_PENDING);
             }
 
             return response()->json([

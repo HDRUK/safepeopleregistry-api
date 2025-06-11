@@ -167,7 +167,7 @@ Health Research Authority (HRA) Approval as it involves health-related research 
             'end_date' => '2026-01-12',
         ]);
 
-        $org1Proj1->setState(State::STATE_PROJECT_APPROVED);
+        $org1Proj1->setState(State::PROJECT_APPROVED);
 
         ProjectHasCustodian::create([
             'project_id' => $org1Proj1->id,
@@ -196,7 +196,7 @@ National Public Health Ethics Committee for authorization to analyze population 
             'end_date' => '2025-09-01',
         ]);
 
-        $org1Proj2->setState(State::STATE_PROJECT_PENDING);
+        $org1Proj2->setState(State::PROJECT_PENDING);
 
         ProjectHasCustodian::create([
             'project_id' => $org1Proj2->id,
@@ -278,7 +278,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'end_date' => '2026-01-01',
         ]);
 
-        $org2Proj1->setState(State::STATE_PROJECT_PENDING);
+        $org2Proj1->setState(State::PROJECT_PENDING);
 
         ProjectHasCustodian::create([
             'project_id' => $org2Proj1->id,
@@ -357,7 +357,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'end_date' => '2025-12-31',
         ]);
 
-        $proj->setState(State::STATE_PROJECT_COMPLETED);
+        $proj->setState(State::PROJECT_COMPLETED);
 
         ProjectHasCustodian::create([
             'project_id' => $proj->id,

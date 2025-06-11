@@ -15,7 +15,7 @@ class RegistryHasAffiliationObserver
     public function created(RegistryHasAffiliation $registryHasAffiliation): void
     {
         $unclaimed = $registryHasAffiliation->affiliation->organisation->unclaimed;
-        $initialState = $unclaimed ? State::STATE_AFFILIATION_INVITED : State::STATE_AFFILIATION_PENDING;
+        $initialState = $unclaimed ? State::AFFILIATION_INVITED : State::AFFILIATION_PENDING;
         $registryHasAffiliation->setState($initialState);
         $this->updateActionLog($registryHasAffiliation->registry_id);
         $this->updateOrganisationActionLog($registryHasAffiliation);

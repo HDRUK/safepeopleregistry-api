@@ -297,7 +297,7 @@ class UserTest extends TestCase
             // Test that when a user is created, our observer sets the initial
             // entity status for workflows
             $user = User::where('id', $response['data'])->first();
-            $this->assertTrue($user->isInState(State::STATE_REGISTERED));
+            $this->assertTrue($user->isInState(State::USER_REGISTERED));
         });
     }
 
@@ -569,7 +569,7 @@ class UserTest extends TestCase
     {
         // First set a user to a pending state
         $user = User::where('user_group', 'USERS')->first();
-        $user->setState(State::STATE_PENDING);
+        $user->setState(State::USER_PENDING);
 
         $response = $this->actingAs($this->admin)
             ->json(
@@ -609,6 +609,6 @@ class UserTest extends TestCase
 
         $content = $response->decodeResponseJson();
         $this->assertTrue($content['data']['data'][0]['email'] === $user->email);
-        $this->assertTrue($user->getState() === State::STATE_PENDING);
+        $this->assertTrue($user->getState() === State::USER_PENDING);
     }
 }

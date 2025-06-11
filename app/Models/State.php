@@ -35,38 +35,39 @@ class State extends Model
         'slug',
     ];
 
-    public const STATE_REGISTERED = 'registered';
-    public const STATE_PENDING = 'pending';
-    public const STATE_FORM_RECEIVED = 'form_received';
-    public const STATE_VALIDATION_IN_PROGRESS = 'validation_in_progress';
-    public const STATE_VALIDATION_COMPLETE = 'validation_complete';
-    public const STATE_MORE_USER_INFO_REQ = 'more_user_info_req';
-    public const STATE_ESCALATE_VALIDATION = 'escalate_validation';
-    public const STATE_VALIDATED = 'validated';
-    public const STATE_APPROVED = 'approved';
-    public const STATE_PROJECT_PENDING = 'project_pending';
-    public const STATE_PROJECT_COMPLETED = 'project_completed';
-    public const STATE_PROJECT_APPROVED = 'project_approved';
-    public const STATE_AFFILIATION_INVITED = 'affiliation_invited';
-    public const STATE_AFFILIATION_PENDING = 'affiliation_pending';
-    public const STATE_AFFILIATION_APPROVED = 'affiliation_approved';
-    public const STATE_AFFILIATION_REJECTED = 'affiliation_rejected';
+    public const USER_REGISTERED = 'registered';
+    public const USER_PENDING = 'pending';
+    public const USER_APPROVED = 'approved';    
+    public const PROJECT_USER_FORM_RECEIVED = 'form_received';
+    public const PROJECT_USER_VALIDATION_IN_PROGRESS = 'validation_in_progress';
+    public const PROJECT_USER_VALIDATION_COMPLETE = 'validation_complete';
+    public const PROJECT_USER_MORE_USER_INFO_REQ = 'more_user_info_req';
+    public const PROJECT_USER_ESCALATE_VALIDATION = 'escalate_validation';
+    public const PROJECT_USER_VALIDATED = 'validated';
+    public const PROJECT_PENDING = 'project_pending';
+    public const PROJECT_COMPLETED = 'project_completed';
+    public const PROJECT_APPROVED = 'project_approved';
+    public const AFFILIATION_INVITED = 'affiliation_invited';
+    public const AFFILIATION_PENDING = 'affiliation_pending';
+    public const AFFILIATION_APPROVED = 'affiliation_approved';
+    public const AFFILIATION_REJECTED = 'affiliation_rejected';
 
     public const STATES = [
-        self::STATE_REGISTERED,
-        self::STATE_PENDING,
-        self::STATE_FORM_RECEIVED,
-        self::STATE_VALIDATION_IN_PROGRESS,
-        self::STATE_VALIDATION_COMPLETE,
-        self::STATE_MORE_USER_INFO_REQ,
-        self::STATE_ESCALATE_VALIDATION,
-        self::STATE_VALIDATED,
-        self::STATE_PROJECT_APPROVED,
-        self::STATE_PROJECT_COMPLETED,
-        self::STATE_PROJECT_PENDING,
-        self::STATE_AFFILIATION_INVITED,
-        self::STATE_AFFILIATION_PENDING,
-        self::STATE_AFFILIATION_APPROVED,
-        self::STATE_AFFILIATION_REJECTED,
+        self::USER_REGISTERED,
+        self::USER_PENDING,
+        self::USER_APPROVED,
+        self::PROJECT_USER_FORM_RECEIVED,
+        self::PROJECT_USER_VALIDATION_IN_PROGRESS,
+        self::PROJECT_USER_VALIDATION_COMPLETE,
+        self::PROJECT_USER_MORE_USER_INFO_REQ,
+        self::PROJECT_USER_ESCALATE_VALIDATION,
+        self::PROJECT_USER_VALIDATED,
+        self::PROJECT_APPROVED,
+        self::PROJECT_COMPLETED,
+        self::PROJECT_PENDING,
+        self::AFFILIATION_INVITED,
+        self::AFFILIATION_PENDING,
+        self::AFFILIATION_APPROVED,
+        self::AFFILIATION_REJECTED,
     ];
 }

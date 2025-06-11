@@ -422,7 +422,7 @@ class ProjectTest extends TestCase
     public function test_the_application_can_show_project_users_with_filtering(): void
     {
         $user = User::where('user_group', 'USERS')->first();
-        $user->setState(State::STATE_PENDING);
+        $user->setState(State::USER_PENDING);
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
