@@ -71,6 +71,8 @@ class CustodianHasProjectUserController extends Controller
                 return $this->ForbiddenResponse();
             }
 
+            $searchName = $request->input('name');
+
             $records = CustodianHasProjectUser::with([
                 'modelState.state',
                 'projectHasUser.registry.user',
@@ -78,7 +80,26 @@ class CustodianHasProjectUserController extends Controller
                 'projectHasUser.role:id,name',
                 'projectHasUser.affiliation:id,organisation_id',
                 'projectHasUser.affiliation.organisation:id,organisation_name'
-            ])->where('custodian_id', $custodianId)
+            ])
+                ->where('custodian_id', $custodianId)
+                ->when(!empty($searchName), function ($query) use ($searchName) {
+                    $query->where(function ($subQuery) use ($searchName) {
+                        $subQuery->whereHas('projectHasUser.project', function ($q) use ($searchName) {
+                            /** @phpstan-ignore-next-line */
+                            $q->searchViaRequest(['title' => $searchName]);
+                        });
+
+                        $subQuery->orWhereHas('projectHasUser.registry.user', function ($q) use ($searchName) {
+                            /** @phpstan-ignore-next-line */
+                            $q->searchViaRequest(['name' => $searchName]);
+                        });
+
+                        $subQuery->orWhereHas('projectHasUser.affiliation.organisation', function ($q) use ($searchName) {
+                            /** @phpstan-ignore-next-line */
+                            $q->searchViaRequest(['organisation_name' => $searchName]);
+                        });
+                    });
+                })
                 ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
             return $this->OKResponse($records);
