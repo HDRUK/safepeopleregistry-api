@@ -65,7 +65,7 @@ class ProjectHasUserCustodianApproval extends Model
     }
 
     /**
-     *  @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\ProjecHasUser>
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\ProjectHasUser>
      */
     public function projectHasUser(): BelongsTo
     {
