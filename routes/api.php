@@ -532,8 +532,9 @@ Route::middleware('auth:api')
     ->prefix('v1/custodian_approvals/{custodianId}')
     ->controller(CustodianHasProjectUserController::class)
     ->group(function () {
-        Route::get('/projectUser/{projectUserId}', 'show');
-        Route::put('/projectUser/{projectUserId}', 'update');
+        Route::get('/projectUsers', 'index');
+        Route::get('/projectUsers/{projectUserId}', 'show');
+        Route::put('/projectUsers/{projectUserId}', 'update');
     });
 
 // --- ORGANISATION CUSTODIAN APPROVAL ---
