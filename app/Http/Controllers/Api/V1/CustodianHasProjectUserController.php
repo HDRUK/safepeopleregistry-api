@@ -73,6 +73,7 @@ class CustodianHasProjectUserController extends Controller
 
             $records = CustodianHasProjectUser::with([
                 'modelState.state',
+                'projectHasUser.registry.user',
                 'projectHasUser.project:id,title',
                 'projectHasUser.role:id,name',
                 'projectHasUser.affiliation:id,organisation_id',
@@ -148,6 +149,7 @@ class CustodianHasProjectUserController extends Controller
 
             $puhca = CustodianHasProjectUser::with([
                 'modelState.state',
+                'projectHasUser.registry.user',
                 'projectHasUser.project:id,title',
                 'projectHasUser.role:id,name',
                 'projectHasUser.affiliation:id,organisation_id',
