@@ -270,7 +270,6 @@ Route::middleware('auth:api')
         Route::put('{projectId}/users/{registryId}', 'updateProjectUser');
         Route::delete('{projectId}/users/{registryId}', 'deleteUserFromProject');
         Route::put('{projectId}/users/{registryId}/primary_contact', 'makePrimaryContact');
-        Route::get('users/workflow', 'getUsersWorkflow');
     });
 
 // --- PROJECT_HAS_USERS ---
