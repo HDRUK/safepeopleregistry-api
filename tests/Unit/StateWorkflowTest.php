@@ -9,12 +9,14 @@ use App\Models\Organisation;
 use App\Models\Affiliation;
 use App\Models\RegistryHasAffiliation;
 use Tests\TestCase;
+use Illuminate\Support\Facades\Config;
 
 class StateWorkflowTest extends TestCase
 {
     public function setUp(): void
     {
         parent::setUp();
+        Config::set('workflow.transitions_enforced', true);
     }
 
     public function test_the_application_can_track_user_state(): void
@@ -165,6 +167,5 @@ class StateWorkflowTest extends TestCase
         $rha->refresh();
         $this->assertTrue($rha->getState() === State::STATE_AFFILIATION_PENDING);
         */
-
     }
 }
