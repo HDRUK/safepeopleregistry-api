@@ -9,11 +9,12 @@ use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
 use App\Models\Custodian;
 use Illuminate\Support\Facades\Gate;
+use App\Traits\CommonFunctions;
 
 class CustodianHasProjectUserController extends Controller
 {
     use Responses;
-
+    use CommonFunctions;
 
     /**
      * @OA\Get(
@@ -76,7 +77,8 @@ class CustodianHasProjectUserController extends Controller
                 'projectHasUser.role:id,name',
                 'projectHasUser.affiliation:id,organisation_id',
                 'projectHasUser.affiliation.organisation:id,organisation_name'
-            ])->where('custodian_id', $custodianId)->get();
+            ])->where('custodian_id', $custodianId)
+                ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
             return $this->OKResponse($records);
         } catch (Exception $e) {
