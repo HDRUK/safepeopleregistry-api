@@ -40,6 +40,7 @@ use App\Http\Controllers\Api\V1\OrganisationCustodianApprovalController;
 use App\Http\Controllers\Api\V1\ProjectDetailController;
 use App\Http\Controllers\Api\V1\ProjectRoleController;
 use App\Http\Controllers\Api\V1\CustodianHasProjectUserController;
+use App\Http\Controllers\Api\V1\ProjectHasUserController;
 use App\Http\Controllers\Api\V1\VendorWebhookReceiverController;
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
@@ -527,7 +528,18 @@ Route::middleware('auth:api')
         Route::put('{id}', 'update');
     });
 
-// --- PROJECT USER CUSTODIAN APPROVAL ---
+// --- PROJECT USER  ---
+Route::middleware('auth:api')
+    ->prefix('v1/project_users/{projectUserId}')
+    ->controller(ProjectHasUserController::class)
+    ->group(function () {
+        //Route::get('/', 'index');
+        Route::get('/projectUserId}', 'show');
+        //Route::put('/projectUserId}', 'update');
+    });
+
+
+// --- CUSTODIAN PROJECT USERS ---
 Route::middleware('auth:api')
     ->prefix('v1/custodian_approvals/{custodianId}')
     ->controller(CustodianHasProjectUserController::class)
