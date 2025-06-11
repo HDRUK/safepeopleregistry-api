@@ -7,8 +7,19 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Traits\StateWorkflow;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
-/**
- *
+/*
+ * @OA\Schema(
+ *     schema="ProjectHasUserCustodianApproval",
+ *     type="object",
+ *     @OA\Property(property="id", type="integer", example=1),
+ *     @OA\Property(property="project_has_user_id", type="integer", example=1),
+ *     @OA\Property(property="custodian_id", type="integer", example=1),
+ *     @OA\Property(property="approved", type="boolean", example=true),
+ *     @OA\Property(property="comment", type="string", example="Approval comment"),
+ *     @OA\Property(property="created_at", type="string", format="date-time"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time"),
+ *     @OA\Property(property="projectHasUser", ref="#/components/schemas/ProjectHasUser"),
+ * )
  *
  * @property int $project_has_user_id
  * @property int $custodian_id
@@ -29,6 +40,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUserCustodianApproval whereUserId($value)
  * @mixin \Eloquent
  */
+
 class ProjectHasUserCustodianApproval extends Model
 {
     use StateWorkflow;

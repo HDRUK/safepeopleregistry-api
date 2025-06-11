@@ -17,7 +17,7 @@ class ProjectHasUserCustodianApprovalController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/api/v1/custodians/{custodianId}/projecUsers/{projectUserId}",
+     *      path="/api/v1/custodians/{custodianId}/projectUsers/{projectUserId}",
      *      operationId="getProjectUserCustodianApproval",
      *      tags={"Project Custodian Approval"},
      *      summary="Get custodian approval for a project user",
@@ -41,57 +41,16 @@ class ProjectHasUserCustodianApprovalController extends Controller
      *          response=200,
      *          description="Successful operation",
      *          @OA\JsonContent(
+     *              type="object",
      *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(
-     *                  property="data",
-     *                  type="object",
-     *                  @OA\Property(property="id", type="integer", example=1),
-     *                  @OA\Property(property="project_has_user_id", type="integer", example=1),
-     *                  @OA\Property(property="custodian_id", type="integer", example=1),
-     *                  @OA\Property(property="approved", type="boolean", example=true),
-     *                  @OA\Property(property="comment", type="string", example="Approval comment"),
-     *                  @OA\Property(property="created_at", type="string", format="date-time"),
-     *                  @OA\Property(property="updated_at", type="string", format="date-time"),
-     *                  @OA\Property(
-     *                      property="projectHasUser",
-     *                      type="object",
-     *                      @OA\Property(
-     *                          property="project",
-     *                          type="object",
-     *                          @OA\Property(property="id", type="integer"),
-     *                          @OA\Property(property="title", type="string")
-     *                      ),
-     *                      @OA\Property(
-     *                          property="role",
-     *                          type="object",
-     *                          @OA\Property(property="id", type="integer"),
-     *                          @OA\Property(property="name", type="string")
-     *                      ),
-     *                      @OA\Property(
-     *                          property="affiliation",
-     *                          type="object",
-     *                          @OA\Property(property="id", type="integer"),
-     *                          @OA\Property(property="organisation_id", type="integer"),
-     *                          @OA\Property(
-     *                              property="organisation",
-     *                              type="object",
-     *                              @OA\Property(property="id", type="integer"),
-     *                              @OA\Property(property="organisation_name", type="string")
-     *                          )
-     *                      )
-     *                  ),
-     *                  @OA\Property(
-     *                      property="modelState",
-     *                      type="object",
-     *                      @OA\Property(property="state", type="object")
-     *                  )
-     *              )
+     *              @OA\Property(property="data", ref="#/components/schemas/ProjectHasUserCustodianApproval")
      *          )
      *      ),
      *      @OA\Response(
      *          response=403,
      *          description="Forbidden",
      *          @OA\JsonContent(
+     *              type="object",
      *              @OA\Property(property="message", type="string", example="Forbidden")
      *          )
      *      ),
@@ -99,11 +58,13 @@ class ProjectHasUserCustodianApprovalController extends Controller
      *          response=404,
      *          description="Not Found",
      *          @OA\JsonContent(
+     *              type="object",
      *              @OA\Property(property="message", type="string", example="Not found")
      *          )
      *      )
      * )
      */
+
     public function show(
         Request $request,
         int $custodianId,
@@ -158,6 +119,7 @@ class ProjectHasUserCustodianApprovalController extends Controller
      *      @OA\RequestBody(
      *          required=true,
      *          @OA\JsonContent(
+     *              type="object",
      *              @OA\Property(property="approved", type="boolean", example=true, description="Approval status"),
      *              @OA\Property(property="comment", type="string", example="Updated approval comment", description="Optional comment"),
      *              @OA\Property(property="status", type="string", example="approved", description="State machine status")
@@ -167,17 +129,16 @@ class ProjectHasUserCustodianApprovalController extends Controller
      *          response=200,
      *          description="Successful operation",
      *          @OA\JsonContent(
+     *              type="object",
      *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(
-     *                  property="data",
-     *                  type="object",
-     *              )
+     *              @OA\Property(property="data", ref="#/components/schemas/ProjectHasUserCustodianApproval")
      *          )
      *      ),
      *      @OA\Response(
      *          response=400,
      *          description="Bad Request",
      *          @OA\JsonContent(
+     *              type="object",
      *              @OA\Property(property="message", type="string", example="cannot transition to state = [status]")
      *          )
      *      ),
@@ -185,6 +146,7 @@ class ProjectHasUserCustodianApprovalController extends Controller
      *          response=403,
      *          description="Forbidden",
      *          @OA\JsonContent(
+     *              type="object",
      *              @OA\Property(property="message", type="string", example="Forbidden")
      *          )
      *      ),
@@ -192,11 +154,13 @@ class ProjectHasUserCustodianApprovalController extends Controller
      *          response=404,
      *          description="Not Found",
      *          @OA\JsonContent(
+     *              type="object",
      *              @OA\Property(property="message", type="string", example="Not found")
      *          )
      *      )
      * )
      */
+
     public function update(
         Request $request,
         int $custodianId,
@@ -216,9 +180,6 @@ class ProjectHasUserCustodianApprovalController extends Controller
 
             $updateData = $request->only(['approved', 'comment']);
 
-            if (!empty($updateData)) {
-                $phuca->update($updateData);
-            }
             $status = $request->get('status');
 
             if (isset($status)) {

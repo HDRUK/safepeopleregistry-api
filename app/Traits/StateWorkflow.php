@@ -101,6 +101,7 @@ trait StateWorkflow
 
     public function canTransitionTo(string $newStateSlug): bool
     {
+        if (!config('workflow.transitions_enforced')) return true;
         $currentState = $this->getState();
         return (isset($this->transitions[$currentState]) && in_array($newStateSlug, $this->transitions[$currentState]));
     }

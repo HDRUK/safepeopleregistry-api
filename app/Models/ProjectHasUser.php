@@ -8,7 +8,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- *
+ * @OA\Schema(
+ *     schema="ProjectHasUser",
+ *     type="object",
+ *     @OA\Property(property="project", ref="#/components/schemas/Project"),
+ *     @OA\Property(property="role", ref="#/components/schemas/ProjectRole"),
+ *     @OA\Property(property="affiliation", ref="#/components/schemas/Affiliation")
+ * )
  *
  * @property int $project_id
  * @property string $user_digital_ident

@@ -6,8 +6,6 @@ use App\Models\ActionLog;
 use App\Models\Custodian;
 use App\Models\CustodianUser;
 use App\Models\Organisation;
-use App\Models\ProjectHasUser;
-use App\Models\ProjectHasUserCustodianApproval;
 use App\Models\Registry;
 use Tests\TestCase;
 use App\Models\User;
