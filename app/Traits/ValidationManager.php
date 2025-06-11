@@ -50,7 +50,6 @@ trait ValidationManager
                     ]
                 );
 
-
                 $vchecks = CustodianHasValidationCheck::with("validationCheck")
                     ->where([
                         'custodian_id' => $custodian->id
