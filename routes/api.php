@@ -534,7 +534,6 @@ Route::middleware('auth:api')
     ->group(function () {
         Route::get('/projectUser/{projectUserId}', 'show');
         Route::put('/projectUser/{projectUserId}', 'update');
-        //Route::post('/{custodianId}/projects/{projectId}/registry/{registryId}', 'store');
     });
 
 // --- ORGANISATION CUSTODIAN APPROVAL ---
