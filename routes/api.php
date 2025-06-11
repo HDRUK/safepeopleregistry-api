@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\V1\ONSSubmissionController;
 use App\Http\Controllers\Api\V1\OrganisationController;
 use App\Http\Controllers\Api\V1\PermissionController;
 use App\Http\Controllers\Api\V1\ProjectController;
+use App\Http\Controllers\Api\V1\ProjectHasUserController;
 use App\Http\Controllers\Api\V1\QueryController;
 use App\Http\Controllers\Api\V1\RegistryController;
 use App\Http\Controllers\Api\V1\RegistryReadRequestController;
@@ -270,6 +271,15 @@ Route::middleware('auth:api')
         Route::delete('{projectId}/users/{registryId}', 'deleteUserFromProject');
         Route::put('{projectId}/users/{registryId}/primary_contact', 'makePrimaryContact');
         Route::get('users/workflow', 'getUsersWorkflow');
+    });
+
+// --- PROJECT_HAS_USERS ---
+Route::middleware('auth:api')
+    ->prefix('v1/project_has_users')
+    ->controller(ProjectHasUserController::class)
+    ->group(function () {
+        // Project user management
+        Route::get('workflow', 'getWorkflow');
     });
 
 // --- REGISTRIES ---
