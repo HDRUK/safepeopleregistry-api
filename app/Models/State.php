@@ -37,7 +37,7 @@ class State extends Model
 
     public const USER_REGISTERED = 'registered';
     public const USER_PENDING = 'pending';
-    public const USER_APPROVED = 'approved';    
+    public const USER_APPROVED = 'approved';
     public const PROJECT_USER_FORM_RECEIVED = 'form_received';
     public const PROJECT_USER_VALIDATION_IN_PROGRESS = 'validation_in_progress';
     public const PROJECT_USER_VALIDATION_COMPLETE = 'validation_complete';

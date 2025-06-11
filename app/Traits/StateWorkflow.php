@@ -2,9 +2,7 @@
 
 namespace App\Traits;
 
-use Exception;
 use App\Models\State;
-use App\Models\ModelState;
 
 /**
  * @property-read \App\Models\ModelState|null $modelState
