@@ -10,7 +10,7 @@ use App\Models\CustodianHasValidationCheck;
 use App\Models\Project;
 use App\Models\ProjectHasCustodian;
 use App\Models\ProjectHasUser;
-use App\Models\ProjectHasUserCustodianApproval;
+use App\Models\CustodianHasProjectUser;
 use App\Models\Registry;
 use App\Models\Organisation;
 
@@ -43,14 +43,10 @@ trait ValidationManager
             foreach ($phcs as $phc) {
                 $custodian = $phc->custodian;
 
-                ProjectHasUserCustodianApproval::firstOrCreate(
+                CustodianHasProjectUser::firstOrCreate(
                     [
                         'project_has_user_id' => $phu->id,
                         'custodian_id' => $custodian->id,
-                    ],
-                    [
-                        'approved' => 0,
-                        'comment' => ''
                     ]
                 );
 

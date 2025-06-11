@@ -9,7 +9,7 @@ return new class () extends Migration {
     public function up(): void
     {
         $originalTableName = 'project_user_has_custodian_approval';
-        $newTableName = 'project_has_user_custodian_approval';
+        $newTableName = 'custodian_has_project_has_user';
 
         Schema::create($newTableName, function (Blueprint $table) {
             $table->bigIncrements('id');
@@ -18,7 +18,7 @@ return new class () extends Migration {
 
             $table->tinyInteger('approved')->default(0);
             $table->text('comment')->nullable();
-            $table->timestamp('created_at')->useCurrent();
+            $table->timestamps();
 
             $table->foreign('project_has_user_id', 'pucat_phuid_fk')
                 ->references('id')
@@ -61,7 +61,7 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        $originalTableName = 'project_user_has_custodian_approval';
+        $originalTableName = 'custodian_has_project_has_user';
         $newTableName = 'project_has_user_custodian_approval';
 
         Schema::create($originalTableName, function (Blueprint $table) {
