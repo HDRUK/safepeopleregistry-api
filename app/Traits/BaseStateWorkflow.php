@@ -11,7 +11,7 @@ use App\Models\ModelState;
  */
 trait BaseStateWorkflow
 {
-    public function modelState()
+     public function modelState()
     {
         return $this->morphOne(ModelState::class, 'stateable');
     }
@@ -44,6 +44,9 @@ trait BaseStateWorkflow
 
     public function canTransitionTo(string $newStateSlug): bool
     {
+        if (!config('workflow.transitions.enforced')) {
+            return true;
+        }
         $currentState = $this->getState();
         return (isset($this->transitions[$currentState]) && in_array($newStateSlug, $this->transitions[$currentState]));
     }
@@ -54,16 +57,5 @@ trait BaseStateWorkflow
             throw new Exception('invalid state transition');
         }
         $this->setState($newStateSlug);
-    }
-
-    public function pickTransitions(array $states): array
-    {
-        $transitions = [];
-
-        foreach ($states as $state) {
-            $transitions[$state] = $this->transitions[$state];
-        }
-
-        return $transitions;
     }
 }

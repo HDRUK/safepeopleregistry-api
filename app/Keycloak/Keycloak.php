@@ -9,15 +9,13 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Registry;
 use App\Models\CustodianUser;
+use App\Facades\Octane;
 use RegistryManagementController as RMC;
 use Illuminate\Support\Str;
 
 class Keycloak
 {
     public const USERS_URL = '/users';
-    private static ?string $serviceToken = null;
-    private static ?Carbon $tokenCreatedAt = null;
-    private static int $tokenExiprationHours = 4;
 
     public function getUserInfo(string $token)
     {
@@ -195,16 +193,9 @@ class Keycloak
         }
     }
 
-    private static function getServiceToken(): string
+    private static function getOrRefreshServiceToken(): string
     {
         $response = null;
-        $responseData = null;
-
-        if (self::$serviceToken &&
-            self::$tokenCreatedAt &&
-            self::$tokenCreatedAt->diffInHours(Carbon::now()) < self::$tokenExiprationHours) {
-            return self::$serviceToken;
-        }
 
         try {
             $authUrl = config('speedi.system.keycloak_base_url') . '/realms/' . config('speedi.system.keycloak_realm') . '/protocol/openid-connect/token';
@@ -219,25 +210,31 @@ class Keycloak
             $responseData = $response->json();
             $response->close();
 
-            self::$serviceToken = 'Bearer ' . $responseData['access_token'];
-            self::$tokenCreatedAt = Carbon::now();
-
-            return self::$serviceToken;
+            return 'Bearer ' . $responseData['access_token'];
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+            throw $e;
         } finally {
             if ($response) {
                 $response->close();
             }
-
-            unset($response);
-            unset($responseData);
         }
+    }
+
+
+    private static function getServiceToken(): string
+    {
+        if (!app()->bound(Octane::class) || !app(Octane::class)->isRunning()) {
+            return self::getOrRefreshServiceToken();
+        }
+
+        return cache()->remember('keycloak.service_token', 60 * 60 * 4, function () {
+            return self::getOrRefreshServiceToken();
+        });
     }
 
     public static function resetServiceToken(): void
     {
-        self::$serviceToken = null;
+        cache()->forget('keycloak.service_token');
     }
 
     private function makeUrl(string $path): string

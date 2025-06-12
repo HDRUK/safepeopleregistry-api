@@ -935,7 +935,7 @@ class PermissionMatrixTest extends TestCase
         $expectedMatrix = [
             [
                 'method' => 'get',
-                'route' => '/custodian_approvals/1/projects/2/registry/1',
+                'route' => '/custodian_approvals/1/projectUsers/1',
                 'permissions' => [
                     'admin' => 200,
                     'custodian1' => 200,
@@ -948,15 +948,15 @@ class PermissionMatrixTest extends TestCase
                 ],
             ],
             [
-                'method' => 'post',
+                'method' => 'put',
                 'payload' => [
                     'approved' => 1,
                     'comment' => 'approved'
                 ],
-                'route' => '/custodian_approvals/1/projects/2/registry/1',
+                'route' => '/custodian_approvals/1/projectUsers/1',
                 'permissions' => [
-                    'admin' => 201,
-                    'custodian1' => 201,
+                    'admin' => 200,
+                    'custodian1' => 200,
                     'custodian2' => 403,
                     'organisation1' => 403,
                     'organisation2' => 403,

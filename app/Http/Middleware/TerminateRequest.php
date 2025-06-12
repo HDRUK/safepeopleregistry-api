@@ -22,6 +22,9 @@ class TerminateRequest
 
     public function terminate($request, $response)
     {
+        if (is_null($request->route())) {
+            return;
+        }
         DebugLog::create([
             'class' => $request->route()->getActionName(),
             'log' => 'Memory usage after request: ' . round(memory_get_usage(true) / 1024 / 1024, 2) . ' MB',

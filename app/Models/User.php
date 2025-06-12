@@ -333,9 +333,11 @@ class User extends Authenticatable
 
         $records = collect($results)->toArray();
         if (count($records)) {
+            unset($results);
             return $records[0];
         }
 
+        unset($results);
         return null;
     }
 

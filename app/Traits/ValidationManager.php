@@ -10,6 +10,7 @@ use App\Models\CustodianHasValidationCheck;
 use App\Models\Project;
 use App\Models\ProjectHasCustodian;
 use App\Models\ProjectHasUser;
+use App\Models\CustodianHasProjectUser;
 use App\Models\Registry;
 use App\Models\Organisation;
 
@@ -41,6 +42,14 @@ trait ValidationManager
             $registry = $phu->registry;
             foreach ($phcs as $phc) {
                 $custodian = $phc->custodian;
+
+                CustodianHasProjectUser::firstOrCreate(
+                    [
+                        'project_has_user_id' => $phu->id,
+                        'custodian_id' => $custodian->id,
+                    ]
+                );
+
                 $vchecks = CustodianHasValidationCheck::with("validationCheck")
                     ->where([
                         'custodian_id' => $custodian->id
