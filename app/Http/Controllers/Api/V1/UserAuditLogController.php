@@ -1,13 +1,11 @@
 <?php
 
-
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Traits\Responses;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-
 use App\Models\UserAuditLog;
 
 class UserAuditLogController extends Controller
