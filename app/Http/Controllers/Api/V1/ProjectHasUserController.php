@@ -16,21 +16,14 @@ class ProjectHasUserController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/api/v1/custodians/{custodianId}/projectUsers/{projectUserId}",
-     *      operationId="showCustodianProjectUser",
-     *      tags={"Custodian Project Users"},
-     *      summary="Get custodian approval for a project user",
-     *      description="Returns custodian approval details for a specific project user",
+     *      path="/api/v1/project_users/{id}",
+     *      operationId="showProjectUser",
+     *      tags={"Project User"},
+     *      summary="Get project user details",
+     *      description="Returns details for a specific project user",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
-     *          name="custodianId",
-     *          in="path",
-     *          description="ID of the custodian",
-     *          required=true,
-     *          @OA\Schema(type="integer")
-     *      ),
-     *      @OA\Parameter(
-     *          name="projectUserId",
+     *          name="id",
      *          in="path",
      *          description="ID of the project user",
      *          required=true,
@@ -63,6 +56,7 @@ class ProjectHasUserController extends Controller
      *      )
      * )
      */
+
     public function show(
         Request $request,
         int $projectUserId,

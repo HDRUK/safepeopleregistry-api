@@ -534,9 +534,7 @@ Route::middleware('auth:api')
     ->prefix('v1/project_users')
     ->controller(ProjectHasUserController::class)
     ->group(function () {
-        //Route::get('/', 'index');
         Route::get('/{id}', 'show');
-        //Route::put('/projectUserId}', 'update');
     });
 
 
