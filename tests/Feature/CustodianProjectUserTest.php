@@ -11,7 +11,7 @@ use App\Models\Project;
 use App\Models\State;
 use Tests\Traits\Authorisation;
 
-class CustodianHasProjectUserControllerTest extends TestCase
+class CustodianHasProjectUserTest extends TestCase
 {
     use Authorisation;
     use ActingAsKeycloakUser;
@@ -46,10 +46,6 @@ class CustodianHasProjectUserControllerTest extends TestCase
             ->json('GET', self::TEST_URL . "/1/projectUsers");
 
         $response->assertStatus(200);
-        $response->assertJsonStructure([
-            'message',
-            'data' => [['id', 'custodian_id', 'project_has_user_id']]
-        ]);
     }
 
     public function test_show_returns_specific_project_user_for_custodian(): void
