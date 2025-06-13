@@ -40,6 +40,37 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 class CustodianHasProjectUser extends Model
 {
     use StateWorkflow;
+
+    protected array $transitions = [
+        State::STATE_FORM_RECEIVED => [
+            State::STATE_VALIDATION_IN_PROGRESS,
+            State::STATE_MORE_USER_INFO_REQ,
+        ],
+        State::STATE_VALIDATION_IN_PROGRESS => [
+            State::STATE_VALIDATION_COMPLETE,
+            State::STATE_MORE_USER_INFO_REQ,
+            State::STATE_ESCALATE_VALIDATION,
+            State::STATE_VALIDATED,
+        ],
+        State::STATE_VALIDATION_COMPLETE => [
+            State::STATE_ESCALATE_VALIDATION,
+            State::STATE_VALIDATED,
+        ],
+        State::STATE_MORE_USER_INFO_REQ => [
+            State::STATE_ESCALATE_VALIDATION,
+            State::STATE_VALIDATED,
+        ],
+        State::STATE_ESCALATE_VALIDATION => [
+            State::STATE_VALIDATED,
+        ],
+        State::STATE_VALIDATED => [],
+    ];
+
+    public function getTransitions(): array
+    {
+        return $this->transitions;
+    }
+
     protected $table = 'custodian_has_project_has_user';
 
     public $timestamps = true;

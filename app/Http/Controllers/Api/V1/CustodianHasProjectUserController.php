@@ -8,6 +8,7 @@ use App\Models\CustodianHasProjectUser;
 use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
 use App\Models\Custodian;
+use App\Models\UserAuditLog;
 use Illuminate\Support\Facades\Gate;
 use App\Traits\CommonFunctions;
 
@@ -72,6 +73,9 @@ class CustodianHasProjectUserController extends Controller
             }
 
             $searchName = $request->input('name');
+            $perPage = $request->integer('per_page', (int)$this->getSystemConfig('PER_PAGE'));
+
+            $projectId = $request->input('project_id');
 
             $records = CustodianHasProjectUser::with([
                 'modelState.state',
@@ -100,7 +104,12 @@ class CustodianHasProjectUserController extends Controller
                         });
                     });
                 })
-                ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+                ->when(!empty($projectId), function ($query) use ($projectId) {
+                    $query->whereHas('projectHasUser.project', function ($q) use ($projectId) {
+                        $q->where('id', $projectId);
+                    });
+                })
+                ->paginate($perPage);
 
             return $this->OKResponse($records);
         } catch (Exception $e) {
@@ -265,27 +274,42 @@ class CustodianHasProjectUserController extends Controller
                 return $this->ForbiddenResponse();
             }
 
-
             $phuca = CustodianHasProjectUser::where([
                 'project_has_user_id' => $projectUserId,
                 'custodian_id' => $custodianId,
             ])->first();
 
-            $updateData = $request->only(['approved', 'comment']);
-
             $status = $request->get('status');
 
             if (isset($status)) {
+                $originalStatus = $phuca->getState();
                 if ($phuca->canTransitionTo($status)) {
                     $phuca->transitionTo($status);
                 } else {
                     return $this->ErrorResponse('cannot transition to state = ' . $status);
                 }
+
+                $comment = $request->get('comment');
+                if (isset($comment)) {
+                    $log = 'Approval status change to ' . $status . ' from ' . $originalStatus . ' with comment:' . $comment;
+                    $userId = $phuca->projectHasUser->registry->user->id;
+                    UserAuditLog::create([
+                        'user_id' => $userId,
+                        'class'   => CustodianHasProjectUser::class,
+                        'log'     => $log,
+                    ]);
+                };
             }
 
             return $this->OKResponse($phuca);
         } catch (Exception $e) {
             return $this->ErrorResponse($e->getMessage());
         }
+    }
+
+    public function getWorkflowStates(Request $request)
+    {
+        $model = new CustodianHasProjectUser();
+        return $this->OKResponse($model->getAllStates());
     }
 }

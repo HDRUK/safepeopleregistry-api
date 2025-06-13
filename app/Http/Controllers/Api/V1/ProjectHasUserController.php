@@ -76,7 +76,7 @@ class ProjectHasUserController extends Controller
                 'affiliation.organisation:id,organisation_name'
             ])
                 ->where([
-                    'project_has_user_id' => $projectUserId,
+                    'id' => $projectUserId,
                 ])->first();
 
             return $this->OKResponse($phu);

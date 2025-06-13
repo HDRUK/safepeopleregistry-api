@@ -41,6 +41,7 @@ use App\Http\Controllers\Api\V1\ProjectDetailController;
 use App\Http\Controllers\Api\V1\ProjectRoleController;
 use App\Http\Controllers\Api\V1\CustodianHasProjectUserController;
 use App\Http\Controllers\Api\V1\ProjectHasUserController;
+use App\Http\Controllers\Api\V1\UserAuditLogController;
 use App\Http\Controllers\Api\V1\VendorWebhookReceiverController;
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
@@ -70,7 +71,7 @@ Route::middleware(['auth:api'])
         Route::get('/', [UserController::class, 'index']);
         Route::get('/test', [UserController::class, 'fakeEndpointForTesting']);
         Route::get('/{id}', [UserController::class, 'show']);
-        Route::get('/{id}/history', [UserController::class, 'getHistory']);
+        Route::get('/{id}/history', [UserAuditLogController::class, 'show']);
         Route::get('/identifier/{id}', [UserController::class, 'showByUniqueIdentifier']);
         Route::get('/{id}/projects', [UserController::class, 'userProjects']);
 
@@ -530,11 +531,11 @@ Route::middleware('auth:api')
 
 // --- PROJECT USER  ---
 Route::middleware('auth:api')
-    ->prefix('v1/project_users/{projectUserId}')
+    ->prefix('v1/project_users')
     ->controller(ProjectHasUserController::class)
     ->group(function () {
         //Route::get('/', 'index');
-        Route::get('/projectUserId}', 'show');
+        Route::get('/{id}', 'show');
         //Route::put('/projectUserId}', 'update');
     });
 
@@ -548,6 +549,14 @@ Route::middleware('auth:api')
         Route::get('/projectUsers/{projectUserId}', 'show');
         Route::put('/projectUsers/{projectUserId}', 'update');
     });
+
+Route::middleware('auth:api')
+    ->prefix('v1/custodian_approvals')
+    ->controller(CustodianHasProjectUserController::class)
+    ->group(function () {
+        Route::get('/getWorkflowStates', 'getWorkflowStates');
+    });
+
 
 // --- ORGANISATION CUSTODIAN APPROVAL ---
 Route::middleware('auth:api')
