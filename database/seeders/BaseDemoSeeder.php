@@ -27,7 +27,7 @@ use App\Models\ProjectHasCustodian;
 use App\Models\RegistryHasTraining;
 use App\Models\RegistryHasAffiliation;
 use App\Models\OrganisationHasDepartment;
-use App\Models\OrganisationHasCustodianApproval;
+use App\Models\CustodianHasProjectOrganisation;
 use App\Models\State;
 use App\Models\Subsidiary;
 use App\Models\UserHasCustodianApproval;
@@ -91,10 +91,10 @@ class BaseDemoSeeder extends Seeder
             'website' => 'https://www.website1.com/',
         ]);
 
-        OrganisationHasCustodianApproval::create([
+        /*CustodianHasOrganisation::create([
             'organisation_id' => $org1->id,
             'custodian_id' => Custodian::first()->id,
-        ]);
+        ]);*/
 
         Schema::disableForeignKeyConstraints();
         DB::table('organisation_has_charity')->truncate();
@@ -175,10 +175,6 @@ Health Research Authority (HRA) Approval as it involves health-related research 
             'approved' => true
         ]);
 
-        ProjectHasOrganisation::create([
-            'project_id' => $org1Proj1->id,
-            'organisation_id' => $org1->id,
-        ]);
 
         $org1Proj2 = Project::create([
             'unique_id' => Str::random(20),

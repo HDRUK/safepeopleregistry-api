@@ -454,13 +454,13 @@ class Organisation extends Model
     }
 
     /**
-     *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Custodian>
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\CustodianHasProjectOrganisation>
      */
     public function approvals(): BelongsToMany
     {
         return $this->belongsToMany(
             Custodian::class,
-            'organisation_has_custodian_approvals'
+            'custodian_has_project_has_organisation'
         );
     }
 

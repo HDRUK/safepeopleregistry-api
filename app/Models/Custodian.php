@@ -161,20 +161,6 @@ class Custodian extends Model
         return $this->belongsToMany(Project::class, 'project_has_custodians', 'custodian_id', 'project_id');
     }
 
-    /**
-     * Get all approved organisations for this custodian.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Organisation>
-     */
-    public function approvedOrganisations(): BelongsToMany
-    {
-        return $this->belongsToMany(
-            Organisation::class,
-            'organisation_has_custodian_approvals',
-            'custodian_id',
-            'organisation_id'
-        );
-    }
 
     /**
      *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\CustodianHasValidationCheck>

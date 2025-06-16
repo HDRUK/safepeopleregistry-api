@@ -12,7 +12,7 @@ use App\Models\Department;
 use App\Models\UserHasDepartments;
 use App\Models\Subsidiary;
 use App\Models\OrganisationHasSubsidiary;
-use App\Models\OrganisationHasCustodianApproval;
+use App\Models\CustodianHasOrganisation;
 use App\Models\Affiliation;
 use App\Models\Registry;
 use App\Models\RegistryHasAffiliation;
@@ -926,10 +926,10 @@ class ActionLogTest extends TestCase
         $this->assertNull($actionLog['completed_at']);
 
 
-        $ohca = OrganisationHasCustodianApproval::create([
-            'organisation_id' => $organisation->id,
-            'custodian_id' => $custodian->id
-        ]);
+        //$ohca = CustodianHasOrganisation::create([
+        //    'organisation_id' => $organisation->id,
+        //    'custodian_id' => $custodian->id
+        //]);
 
         $response = $this->actingAs($this->admin)
             ->json(

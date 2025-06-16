@@ -41,6 +41,7 @@ class State extends Model
     public const STATE_VALIDATION_IN_PROGRESS = 'validation_in_progress';
     public const STATE_VALIDATION_COMPLETE = 'validation_complete';
     public const STATE_MORE_USER_INFO_REQ = 'more_user_info_req';
+    public const STATE_MORE_ORG_INFO_REQ = 'more_org_info_req';
     public const STATE_ESCALATE_VALIDATION = 'escalate_validation';
     public const STATE_VALIDATED = 'validated';
     public const STATE_APPROVED = 'approved';
@@ -59,6 +60,7 @@ class State extends Model
         self::STATE_VALIDATION_IN_PROGRESS,
         self::STATE_VALIDATION_COMPLETE,
         self::STATE_MORE_USER_INFO_REQ,
+        self::STATE_MORE_ORG_INFO_REQ,
         self::STATE_ESCALATE_VALIDATION,
         self::STATE_VALIDATED,
         self::STATE_PROJECT_APPROVED,

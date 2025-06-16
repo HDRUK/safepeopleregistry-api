@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  *
@@ -29,4 +30,14 @@ class ProjectHasOrganisation extends Model
         'project_id',
         'organisation_id',
     ];
+
+
+    /**
+     * Get the organisation associated with the approval.
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Organisation>
+     */
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class, 'organisation_id');
+    }
 }

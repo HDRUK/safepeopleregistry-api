@@ -60,8 +60,8 @@ class ProjectHasUserObserver
         $user = User::where('registry_id', $registry->id)->first();
 
         $custodianApproval = ProjectHasCustodian::where('project_id', $projectHasUser->project_id)
-           ->where("approved", true)
-           ->first();
+            ->where("approved", true)
+            ->first();
         $whr = CustodianWebhookReceiver::where([
             'custodian_id' => $custodianApproval->custodian_id,
         ])->first();
