@@ -39,7 +39,9 @@ use App\Http\Controllers\Api\V1\CustodianModelConfigController;
 use App\Http\Controllers\Api\V1\OrganisationCustodianApprovalController;
 use App\Http\Controllers\Api\V1\ProjectDetailController;
 use App\Http\Controllers\Api\V1\ProjectRoleController;
-use App\Http\Controllers\Api\V1\ProjectUserCustodianApprovalController;
+use App\Http\Controllers\Api\V1\CustodianHasProjectUserController;
+use App\Http\Controllers\Api\V1\ProjectHasUserController;
+use App\Http\Controllers\Api\V1\UserAuditLogController;
 use App\Http\Controllers\Api\V1\VendorWebhookReceiverController;
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
@@ -69,7 +71,7 @@ Route::middleware(['auth:api'])
         Route::get('/', [UserController::class, 'index']);
         Route::get('/test', [UserController::class, 'fakeEndpointForTesting']);
         Route::get('/{id}', [UserController::class, 'show']);
-        Route::get('/{id}/history', [UserController::class, 'getHistory']);
+        Route::get('/{id}/history', [UserAuditLogController::class, 'show']);
         Route::get('/identifier/{id}', [UserController::class, 'showByUniqueIdentifier']);
         Route::get('/{id}/projects', [UserController::class, 'userProjects']);
 
@@ -527,14 +529,32 @@ Route::middleware('auth:api')
         Route::put('{id}', 'update');
     });
 
-// --- PROJECT USER CUSTODIAN APPROVAL ---
+// --- PROJECT USER  ---
+Route::middleware('auth:api')
+    ->prefix('v1/project_users')
+    ->controller(ProjectHasUserController::class)
+    ->group(function () {
+        Route::get('/{id}', 'show');
+    });
+
+
+// --- CUSTODIAN PROJECT USERS ---
+Route::middleware('auth:api')
+    ->prefix('v1/custodian_approvals/{custodianId}')
+    ->controller(CustodianHasProjectUserController::class)
+    ->group(function () {
+        Route::get('/projectUsers', 'index');
+        Route::get('/projectUsers/{projectUserId}', 'show');
+        Route::put('/projectUsers/{projectUserId}', 'update');
+    });
+
 Route::middleware('auth:api')
     ->prefix('v1/custodian_approvals')
-    ->controller(ProjectUserCustodianApprovalController::class)
+    ->controller(CustodianHasProjectUserController::class)
     ->group(function () {
-        Route::get('/{custodianId}/projects/{projectId}/registry/{registryId}', 'show');
-        Route::post('/{custodianId}/projects/{projectId}/registry/{registryId}', 'store');
+        Route::get('/getWorkflowStates', 'getWorkflowStates');
     });
+
 
 // --- ORGANISATION CUSTODIAN APPROVAL ---
 Route::middleware('auth:api')

@@ -1,4 +1,5 @@
 <?php
+
 // app/Facades/Octane.php
 
 namespace App\Facades;

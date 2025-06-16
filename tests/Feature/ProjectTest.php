@@ -44,7 +44,6 @@ class ProjectTest extends TestCase
 
         $this->assertTrue(count($content['data']) === 1);
         $this->assertTrue($content['data'][0]['title'] === 'Social Media Influence on Mental Health Trends Among Teenagers');
-
     }
 
     public function test_the_application_can_list_projects(): void
@@ -66,17 +65,17 @@ class ProjectTest extends TestCase
                 'POST',
                 self::TEST_URL,
                 [
-                'unique_id' => Str::random(30),
-                'title' => 'This is a Project',
-                'lay_summary' => 'Sample lay summary',
-                'public_benefit' => 'This will benefit the public',
-                'request_category_type' => 'Category type',
-                'technical_summary' => 'Sample technical summary',
-                'other_approval_committees' => 'Bodies on a board panel',
-                'start_date' => Carbon::now(),
-                'end_date' => Carbon::now()->addYears(2),
-                'affiliate_id' => 1,
-            ]
+                    'unique_id' => Str::random(30),
+                    'title' => 'This is a Project',
+                    'lay_summary' => 'Sample lay summary',
+                    'public_benefit' => 'This will benefit the public',
+                    'request_category_type' => 'Category type',
+                    'technical_summary' => 'Sample technical summary',
+                    'other_approval_committees' => 'Bodies on a board panel',
+                    'start_date' => Carbon::now(),
+                    'end_date' => Carbon::now()->addYears(2),
+                    'affiliate_id' => 1,
+                ]
             );
 
         $response->assertStatus(201);
@@ -125,18 +124,18 @@ class ProjectTest extends TestCase
                 'POST',
                 self::TEST_URL,
                 [
-                'unique_id' => Str::random(30),
-                'title' => 'Test Project',
-                'lay_summary' => 'Sample lay summary',
-                'public_benefit' => 'This will benefit the public',
-                'request_category_type' => 'Category type',
-                'technical_summary' => 'Sample technical summary',
-                'other_approval_committees' => 'Bodies on a board panel',
-                'start_date' => Carbon::now(),
-                'end_date' => Carbon::now()->addYears(2),
-                'affiliate_id' => 1,
-                'status' => 'project_pending'
-            ]
+                    'unique_id' => Str::random(30),
+                    'title' => 'Test Project',
+                    'lay_summary' => 'Sample lay summary',
+                    'public_benefit' => 'This will benefit the public',
+                    'request_category_type' => 'Category type',
+                    'technical_summary' => 'Sample technical summary',
+                    'other_approval_committees' => 'Bodies on a board panel',
+                    'start_date' => Carbon::now(),
+                    'end_date' => Carbon::now()->addYears(2),
+                    'affiliate_id' => 1,
+                    'status' => 'project_pending'
+                ]
             );
 
         $response->assertStatus(201);
@@ -151,18 +150,18 @@ class ProjectTest extends TestCase
                 'PUT',
                 self::TEST_URL . '/' . $content['data'],
                 [
-                'unique_id' => Str::random(30),
-                'title' => 'This is an Old Project',
-                'lay_summary' => 'Sample lay summary',
-                'public_benefit' => 'This will benefit the public',
-                'request_category_type' => 'Category type',
-                'technical_summary' => 'Sample technical summary',
-                'other_approval_committees' => 'Bodies on a board panel',
-                'start_date' => Carbon::now(),
-                'end_date' => Carbon::now()->addYears(2),
-                'affiliate_id' => 1,
-                'status' => 'project_approved'
-            ]
+                    'unique_id' => Str::random(30),
+                    'title' => 'This is an Old Project',
+                    'lay_summary' => 'Sample lay summary',
+                    'public_benefit' => 'This will benefit the public',
+                    'request_category_type' => 'Category type',
+                    'technical_summary' => 'Sample technical summary',
+                    'other_approval_committees' => 'Bodies on a board panel',
+                    'start_date' => Carbon::now(),
+                    'end_date' => Carbon::now()->addYears(2),
+                    'affiliate_id' => 1,
+                    'status' => 'project_approved'
+                ]
             );
 
         $response->assertStatus(200);
@@ -181,17 +180,17 @@ class ProjectTest extends TestCase
                 'POST',
                 self::TEST_URL,
                 [
-                'unique_id' => Str::random(30),
-                'title' => 'Test Project',
-                'lay_summary' => 'Sample lay summary',
-                'public_benefit' => 'This will benefit the public',
-                'request_category_type' => 'Category type',
-                'technical_summary' => 'Sample technical summary',
-                'other_approval_committees' => 'Bodies on a board panel',
-                'start_date' => Carbon::now(),
-                'end_date' => Carbon::now()->addYears(2),
-                'affiliate_id' => 1,
-            ]
+                    'unique_id' => Str::random(30),
+                    'title' => 'Test Project',
+                    'lay_summary' => 'Sample lay summary',
+                    'public_benefit' => 'This will benefit the public',
+                    'request_category_type' => 'Category type',
+                    'technical_summary' => 'Sample technical summary',
+                    'other_approval_committees' => 'Bodies on a board panel',
+                    'start_date' => Carbon::now(),
+                    'end_date' => Carbon::now()->addYears(2),
+                    'affiliate_id' => 1,
+                ]
             );
 
         $response->assertStatus(201);
@@ -216,7 +215,11 @@ class ProjectTest extends TestCase
         $project = Project::first();
         $projectId = $project->id;
 
-        ProjectHasUser::create(['project_id' => $projectId, 'user_digital_ident' => $digi_ident, 'project_role_id' => 1]);
+        ProjectHasUser::create([
+            'project_id' => $projectId,
+            'user_digital_ident' => $digi_ident,
+            'project_role_id' => 1
+        ]);
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
@@ -247,21 +250,21 @@ class ProjectTest extends TestCase
         ProjectHasUser::create(['project_id' => $projectId, 'user_digital_ident' => $digi_ident, 'project_role_id' => 1, 'approved' => true]);
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . '/user/' . $registry->id . '/approved'
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . '/user/' . $registry->id . '/approved'
+            );
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
         $this->assertEmpty($response['data']);
 
-        ProjectHasCustodian::create(['project_id' => $projectId,'custodian_id' => $custodianId, 'approved' => true]);
+        ProjectHasCustodian::create(['project_id' => $projectId, 'custodian_id' => $custodianId, 'approved' => true]);
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . '/user/' . $registry->id . '/approved'
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . '/user/' . $registry->id . '/approved'
+            );
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
@@ -381,7 +384,7 @@ class ProjectTest extends TestCase
         ProjectHasUser::truncate();
 
         ProjectHasUser::create([
-            'project_id' => 0,
+            'project_id' => 2,
             'user_digital_ident' => $registry->digi_ident,
             'project_role_id' => 7,
         ]);
@@ -432,7 +435,7 @@ class ProjectTest extends TestCase
 
         $response->assertStatus(200);
         $users = collect($response->decodeResponseJson()['data']['data'])
-        ->map(fn ($item) => $item['registry']['user']);
+            ->map(fn ($item) => $item['registry']['user']);
 
         $this->assertNotNull($users);
         $this->assertEquals($users[0]['id'], $user->id);
@@ -460,5 +463,4 @@ class ProjectTest extends TestCase
         $this->assertEquals($users[1]['email'], $user->email);
         $this->assertNull($users[1]['role']);
     }
-
 }

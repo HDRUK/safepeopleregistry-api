@@ -22,7 +22,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
-use App\Models\ProjectUserCustodianApproval;
+use App\Models\CustodianHasProjectUser;
 use App\Traits\CommonFunctions;
 use App\Traits\CheckPermissions;
 use Illuminate\Support\Facades\Gate;
@@ -263,7 +263,9 @@ class UserController extends Controller
                 return $this->ForbiddenResponse();
             }
 
-            $approvalLog = ProjectUserCustodianApproval::with('custodian:id,name')->where(['user_id' => $user->id])->get();
+            /*
+            // coming in a new ticket to implement a User Audit log properly
+            $approvalLog = CustodianHasProjectUser::with('custodian:id,name')->where(['user_id' => $user->id])->get();
 
             $approvalHistory = $approvalLog->map(function ($log) {
                 $custodian = $log->custodian->name;
@@ -275,6 +277,7 @@ class UserController extends Controller
                     'created_at' => $log->created_at,
                 ];
             });
+            */
 
             // placeholder to give some history
             $data = collect([
@@ -297,7 +300,7 @@ class UserController extends Controller
                             ];
                         })
                 )
-                ->merge($approvalHistory)
+                //->merge($approvalHistory)
                 ->sortByDesc('created_at')
                 ->values()
                 ->toArray();

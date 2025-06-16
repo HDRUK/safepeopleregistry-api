@@ -11,7 +11,7 @@ use App\Models\ModelState;
  */
 trait StateWorkflow
 {
-    protected array $transitions = [
+    protected array $defaultTransitions = [
         State::STATE_REGISTERED => [
             State::STATE_PENDING,
             State::STATE_FORM_RECEIVED,
@@ -101,8 +101,12 @@ trait StateWorkflow
 
     public function canTransitionTo(string $newStateSlug): bool
     {
+        if (!config('workflow.transitions.enforced')) {
+            return true;
+        }
         $currentState = $this->getState();
-        return (isset($this->transitions[$currentState]) && in_array($newStateSlug, $this->transitions[$currentState]));
+        $transitions = $this->getTransitions();
+        return (isset($transitions[$currentState]) && in_array($newStateSlug, $transitions[$currentState]));
     }
 
     public function transitionTo(string $newStateSlug)
@@ -111,5 +115,19 @@ trait StateWorkflow
             throw new Exception('invalid state transition');
         }
         $this->setState($newStateSlug);
+    }
+
+    public function getTransitions(): array
+    {
+        return $this->defaultTransitions;
+    }
+
+    public function getAllStates(): array
+    {
+        $transitions = $this->getTransitions();
+        $keys = array_keys($transitions);
+        $values = array_merge(...array_values($transitions));
+        $allStates = array_unique(array_merge($keys, $values));
+        return $allStates;
     }
 }

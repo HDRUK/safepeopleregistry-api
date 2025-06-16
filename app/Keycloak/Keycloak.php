@@ -5,7 +5,6 @@ namespace App\Keycloak;
 use Http;
 use Hash;
 use Exception;
-use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Registry;
 use App\Models\CustodianUser;

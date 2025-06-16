@@ -24,5 +24,7 @@ composer.lock
 tiltconf.json
 _ide_helper.php
 **/caddy
+clean.sh
 clean.shrr
 rr
+_ide_helper_models.php
