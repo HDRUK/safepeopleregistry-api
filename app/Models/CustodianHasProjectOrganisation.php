@@ -48,7 +48,7 @@ use App\Traits\StateWorkflow;
  *         ref="#/components/schemas/ProjectHasOrganisation"
  *     ),
  *     @OA\Property(
- *         property="custodian",com
+ *         property="custodian",
  *         ref="#/components/schemas/Custodian"
  *     )
  * )
