@@ -115,6 +115,7 @@ trait StateWorkflow
             throw new Exception('invalid state transition');
         }
         $this->setState($newStateSlug);
+        $this->save(); // make sure triggers observers
     }
 
     public function getTransitions(): array

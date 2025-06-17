@@ -48,7 +48,7 @@ use App\Traits\StateWorkflow;
  *         ref="#/components/schemas/ProjectHasOrganisation"
  *     ),
  *     @OA\Property(
- *         property="custodian",
+ *         property="custodian",com
  *         ref="#/components/schemas/Custodian"
  *     )
  * )
@@ -115,7 +115,7 @@ class CustodianHasProjectOrganisation extends Model
 
         static::created(function ($model) {
             if (in_array(StateWorkflow::class, class_uses($model))) {
-                $model->setState(State::STATE_FORM_RECEIVED);
+                $model->setState(State::STATE_PENDING);
                 $model->save();
             }
         });

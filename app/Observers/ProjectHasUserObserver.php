@@ -27,11 +27,14 @@ class ProjectHasUserObserver
     {
 
         $projectId = $projectHasUser->project->id;
-        $organisationId = $projectHasUser->affiliation->organisation->id;
-        ProjectHasOrganisation::firstOrCreate([
-            'project_id' => $projectId,
-            'organisation_id' => $organisationId
-        ]);
+        $affiliation = $projectHasUser->affiliation;
+        if ($affiliation) {
+            $organisationId = $affiliation->organisation->id;
+            ProjectHasOrganisation::firstOrCreate([
+                'project_id' => $projectId,
+                'organisation_id' => $organisationId
+            ]);
+        }
 
         $this->updateCustodianProjectUserValidation(
             $projectHasUser->project_id,
