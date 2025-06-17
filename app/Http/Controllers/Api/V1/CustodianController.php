@@ -1013,7 +1013,7 @@ class CustodianController extends Controller
             'project',
         ])
             ->whereHas('project.custodians', function ($query) use ($custodianId) {
-                //$query->where('custodian_id', $custodianId);
+                $query->where('custodian_id', $custodianId);
             })
             ->when(!empty($searchName), function ($query) use ($searchName) {
                 $query->where(function ($subQuery) use ($searchName) {
