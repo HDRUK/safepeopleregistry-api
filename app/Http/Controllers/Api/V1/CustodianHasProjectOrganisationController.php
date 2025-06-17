@@ -260,6 +260,9 @@ class CustodianHasProjectOrganisationController extends Controller
                 'project_has_organisation_id' => $projectOrganisationId,
                 'custodian_id' => $custodianId,
             ])->first();
+            if (!$cho) {
+                return $this->NotFoundResponse();
+            }
 
             $status = $request->get('status');
 
