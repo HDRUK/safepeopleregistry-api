@@ -19,7 +19,7 @@ class CustodianHasProjectUserController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/api/v1/custodians/{custodianId}/projectUsers",
+     *      path="/api/v1/custodian_approvals/{custodianId}/projectUsers",
      *      operationId="indexCustodianProjectUsers",
      *      tags={"Custodian Project Users"},
      *      summary="List all project users associated with a custodian",
@@ -119,7 +119,7 @@ class CustodianHasProjectUserController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/api/v1/custodians/{custodianId}/projectUsers/{projectUserId}",
+     *      path="/api/v1/custodian_approvals/{custodianId}/projectUsers/{projectUserId}",
      *      operationId="showCustodianProjectUser",
      *      tags={"Custodian Project Users"},
      *      summary="Get custodian approval for a project user",
@@ -198,7 +198,7 @@ class CustodianHasProjectUserController extends Controller
 
     /**
      * @OA\Put(
-     *      path="/api/v1/custodians/{custodianId}/projectUsers/{projectUserId}",
+     *      path="/api/v1/custodian_approvals/{custodianId}/projectUsers/{projectUserId}",
      *      operationId="updateCustodianProjectUser",
      *      tags={"Custodian Project Users"},
      *      summary="Update custodian approval for a project user",

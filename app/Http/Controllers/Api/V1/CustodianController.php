@@ -21,6 +21,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Http\Traits\Responses;
+use App\Models\ProjectHasOrganisation;
 use App\Models\ProjectHasUser;
 use App\Traits\SearchManagerCollection;
 use Illuminate\Support\Facades\Gate;
@@ -995,6 +996,44 @@ class CustodianController extends Controller
 
         return $this->OKResponse($projectUsers);
     }
+
+
+
+    public function getProjectsOrganisations(Request $request, int $custodianId): JsonResponse
+    {
+        $custodian = Custodian::findOrFail($custodianId);
+        if (! Gate::allows('viewDetailed', $custodian)) {
+            return $this->ForbiddenResponse();
+        }
+
+        $searchName = $request->input('name');
+
+        $projectUsers = ProjectHasOrganisation::with([
+            'organisation.sroOfficer',
+            'project',
+        ])
+            ->whereHas('project.custodians', function ($query) use ($custodianId) {
+                //$query->where('custodian_id', $custodianId);
+            })
+            ->when(!empty($searchName), function ($query) use ($searchName) {
+                $query->where(function ($subQuery) use ($searchName) {
+                    $subQuery->whereHas('project', function ($q) use ($searchName) {
+                        /** @phpstan-ignore-next-line */
+                        $q->searchViaRequest(['title' => $searchName]);
+                    });
+
+                    $subQuery->orWhereHas('affiliation.organisation', function ($q) use ($searchName) {
+                        /** @phpstan-ignore-next-line */
+                        $q->searchViaRequest(['organisation_name' => $searchName]);
+                    });
+                });
+            })
+            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+
+        return $this->OKResponse($projectUsers);
+    }
+
+
 
     /**
      * @OA\Get(

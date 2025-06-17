@@ -189,7 +189,7 @@ Route::middleware(['auth:api'])
         Route::get('/identifier/{id}', 'showByUniqueIdentifier');
         Route::get('/{id}/projects', 'getProjects');
         Route::get('/{id}/users/{userId}/projects', 'getUserProjects');
-        Route::get('/{id}/organisations', 'getOrganisations');
+        Route::get('/{id}/organisations', 'getProjectsOrganisations');
         Route::get('/{id}/custodian_users', 'getCustodianUsers');
         Route::get('/{id}/projects_users', 'getProjectsUsers');
         Route::get('/{id}/rules', 'getRules');
@@ -525,9 +525,16 @@ Route::middleware('auth:api')
     ->group(function () {
         Route::get('/{id}', 'show');
     });
+/*
+    Route::middleware('auth:api')
+    ->prefix('v1/project')
+    ->controller(ProjectHasUserController::class)
+    ->group(function () {
+        Route::get('/{id}', 'show');
+    });
+*/
 
-
-// --- CUSTODIAN PROJECT USERS ---
+// --- CUSTODIAN PROJECT USERS VALIDATIONS ---
 Route::middleware('auth:api')
     ->prefix('v1/custodian_approvals/{custodianId}')
     ->controller(CustodianHasProjectUserController::class)
@@ -535,25 +542,30 @@ Route::middleware('auth:api')
         Route::get('/projectUsers', 'index');
         Route::get('/projectUsers/{projectUserId}', 'show');
         Route::put('/projectUsers/{projectUserId}', 'update');
-        Route::get('/projectUsers/getWorkflowStates', 'getWorkflowStates');
     });
 
-// --- ORGANISATION CUSTODIAN APPROVAL ---
+Route::middleware('auth:api')
+    ->get(
+        'v1/custodian_approvals/projectUsers/getWorkflowStates',
+        [CustodianHasProjectUserController::class, 'getWorkflowStates']
+    );
+
+
+// --- ORGANISATION CUSTODIAN VALIDATIONS ---
 Route::middleware('auth:api')
     ->prefix('v1/custodian_approvals/{custodianId}')
     ->controller(CustodianHasProjectOrganisationController::class)
     ->group(function () {
-        Route::get('/organisations', 'index');
-        Route::get('/organisations/{organisationId}', 'show');
-        Route::put('/organisations/{projectUserId}', 'update');
-        Route::get('/organisations/getWorkflowStates', 'getWorkflowStates');
+        Route::get('/projectOrganisations', 'index');
+        Route::get('/projectOrganisations/{projectOrganisationId}', 'show');
+        Route::put('/projectOrganisations/{projectOrganisationId}', 'update');
     });
 
 Route::middleware('auth:api')
-    ->prefix('v1/custodian_approvals')
-    ->controller(CustodianHasProjectUserController::class)
-    ->group(function () {});
-
+    ->get(
+        'v1/custodian_approvals/projectOrganisations/getWorkflowStates',
+        [CustodianHasProjectOrganisationController::class, 'getWorkflowStates']
+    );
 
 
 

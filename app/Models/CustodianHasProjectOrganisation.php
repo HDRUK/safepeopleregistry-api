@@ -28,13 +28,39 @@ use App\Traits\StateWorkflow;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianHasProjectOrganisation whereOrganisationId($value)
  * @mixin \Eloquent
  */
+/**
+ * @OA\Schema(
+ *     schema="CustodianHasProjectOrganisation",
+ *     type="object",
+ *     title="CustodianHasProjectOrganisation",
+ *     description="Custodian approval status for a project organisation",
+ *     required={"project_has_organisation_id", "custodian_id"},
+ *     @OA\Property(property="id", type="integer", readOnly=true, example=1),
+ *     @OA\Property(property="project_has_organisation_id", type="integer", example=42, description="ID of the project organisation"),
+ *     @OA\Property(property="custodian_id", type="integer", example=7, description="ID of the custodian"),
+ *     @OA\Property(property="approved", type="boolean", nullable=true, example=true, description="Approval flag"),
+ *     @OA\Property(property="comment", type="string", nullable=true, example="Approved after review", description="Optional comment"),
+ *     @OA\Property(property="created_at", type="string", format="date-time", example="2024-06-01T12:34:56Z"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time", example="2024-06-01T14:00:00Z"),
+ *
+ *     @OA\Property(
+ *         property="projectOrganisation",
+ *         ref="#/components/schemas/ProjectHasOrganisation"
+ *     ),
+ *     @OA\Property(
+ *         property="custodian",
+ *         ref="#/components/schemas/Custodian"
+ *     )
+ * )
+ */
+
 class CustodianHasProjectOrganisation extends Model
 {
     use HasFactory;
     use StateWorkflow;
 
     protected array $transitions = [
-        State::STATE_FORM_RECEIVED => [
+        State::STATE_PENDING => [
             State::STATE_VALIDATION_IN_PROGRESS,
             State::STATE_MORE_ORG_INFO_REQ,
         ],
@@ -65,7 +91,7 @@ class CustodianHasProjectOrganisation extends Model
 
     protected $table = 'custodian_has_project_has_organisation';
 
-    public $timestamps = false;
+    public $timestamps = true;
 
     protected $fillable = [
         'project_has_organisation_id',

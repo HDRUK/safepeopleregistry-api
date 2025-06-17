@@ -189,7 +189,7 @@ class OrganisationController extends Controller
             'departments',
             'subsidiaries',
             'permissions',
-            'approvals',
+            //'approvals',
             'ceExpiryEvidence',
             'cePlusExpiryEvidence',
             'isoExpiryEvidence',

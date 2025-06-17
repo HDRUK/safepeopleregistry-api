@@ -20,14 +20,12 @@ use App\Models\OrganisationHasSubsidiary;
 use App\Models\Charity;
 use App\Models\Custodian;
 use App\Models\CustodianUser;
-use App\Models\ProjectHasOrganisation;
 use App\Models\ProjectHasUser;
 use App\Models\ProjectRole;
 use App\Models\ProjectHasCustodian;
 use App\Models\RegistryHasTraining;
 use App\Models\RegistryHasAffiliation;
 use App\Models\OrganisationHasDepartment;
-use App\Models\CustodianHasProjectOrganisation;
 use App\Models\State;
 use App\Models\Subsidiary;
 use App\Models\UserHasCustodianApproval;
@@ -200,11 +198,6 @@ National Public Health Ethics Committee for authorization to analyze population 
             'approved' => true
         ]);
 
-        ProjectHasOrganisation::create([
-            'project_id' => $org1Proj2->id,
-            'organisation_id' => $org1->id,
-        ]);
-
         // --------------------------------------------------------------------------------
         // End
         // --------------------------------------------------------------------------------
@@ -282,16 +275,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'approved' => true
         ]);
 
-        ProjectHasOrganisation::create([
-            'project_id' => $org2Proj1->id,
-            'organisation_id' => $org2->id,
-        ]);
 
-        // Add parallel collaborator of org1 to org2's project
-        ProjectHasOrganisation::create([
-            'project_id' => $org2Proj1->id,
-            'organisation_id' => $org1->id,
-        ]);
 
 
         // --------------------------------------------------------------------------------
@@ -361,10 +345,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'approved' => true
         ]);
 
-        ProjectHasOrganisation::create([
-            'project_id' => $proj->id,
-            'organisation_id' => $org3->id,
-        ]);
 
         $orgHDR = Organisation::create([
             'organisation_name' => 'Health Data Research UK',

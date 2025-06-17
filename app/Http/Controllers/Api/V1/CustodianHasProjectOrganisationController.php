@@ -17,6 +17,52 @@ class CustodianHasProjectOrganisationController extends Controller
     use CommonFunctions;
 
 
+    /**
+     * @OA\Get(
+     *      path="/api/v1/custodian_approvals/{custodianId}/projectOrganisations",
+     *      operationId="indexCustodianProjectOrganisations",
+     *      tags={"Custodian Project Organisations"},
+     *      summary="List all project organisations associated with a custodian",
+     *      description="Returns a list of all custodian project organisation approvals for a specific custodian",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *          name="custodianId",
+     *          in="path",
+     *          description="ID of the custodian",
+     *          required=true,
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @OA\Items(ref="#/components/schemas/CustodianHasProjectOrganisation")
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="Forbidden")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Custodian Not Found",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="Custodian not found")
+     *          )
+     *      )
+     * )
+     */
     public function index(Request $request, int $custodianId)
     {
         try {
@@ -33,7 +79,8 @@ class CustodianHasProjectOrganisationController extends Controller
 
             $records = CustodianHasProjectOrganisation::with([
                 'modelState.state',
-                'projectOrganisation.organisation'
+                'projectOrganisation.organisation.sroOfficer',
+                'projectOrganisation.project',
             ])
                 ->where('custodian_id', $custodianId)
                 ->when(!empty($searchName), function ($query) use ($searchName) {
@@ -57,10 +104,59 @@ class CustodianHasProjectOrganisationController extends Controller
         }
     }
 
+    /**
+     * @OA\Get(
+     *      path="/api/v1/custodian_approvals/{custodianId}/projectOrganisations/{projectOrganisationId}",
+     *      operationId="showCustodianProjectOrganisation",
+     *      tags={"Custodian Project Organisations"},
+     *      summary="Get custodian approval for a project organisation",
+     *      description="Returns custodian approval details for a specific project organisation",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *          name="custodianId",
+     *          in="path",
+     *          description="ID of the custodian",
+     *          required=true,
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\Parameter(
+     *          name="projectOrganisationId",
+     *          in="path",
+     *          description="ID of the project organisation",
+     *          required=true,
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", ref="#/components/schemas/CustodianHasProjectOrganisation")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="Forbidden")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not Found",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="Not found")
+     *          )
+     *      )
+     * )
+     */
     public function show(
         Request $request,
         int $custodianId,
-        int $organisationId,
+        int $projectOrganisationId,
     ) {
         try {
             $custodian = Custodian::findOrFail($custodianId);
@@ -70,10 +166,10 @@ class CustodianHasProjectOrganisationController extends Controller
 
             $puhca = CustodianHasProjectOrganisation::with([
                 'modelState.state',
-                'organisation'
+                'projectOrganisation.organisation'
             ])
                 ->where([
-                    'organisation_id' => $organisationId,
+                    'project_has_organisation_id' => $projectOrganisationId,
                     'custodian_id' => $custodianId
                 ])->first();
 
@@ -83,12 +179,76 @@ class CustodianHasProjectOrganisationController extends Controller
         }
     }
 
-
-
+    /**
+     * @OA\Put(
+     *      path="/api/v1/custodian_approvals/{custodianId}/projectOrganisations/{projectOrganisationId}",
+     *      operationId="updateCustodianProjectOrganisation",
+     *      tags={"Custodian Project Organisations"},
+     *      summary="Update custodian approval for a project organisation",
+     *      description="Updates approval status and/or comment for a project organisation",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *          name="custodianId",
+     *          in="path",
+     *          description="ID of the custodian",
+     *          required=true,
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\Parameter(
+     *          name="projectOrganisationId",
+     *          in="path",
+     *          description="ID of the project organisation",
+     *          required=true,
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="approved", type="boolean", example=true, description="Approval status"),
+     *              @OA\Property(property="comment", type="string", example="Updated comment", description="Optional comment"),
+     *              @OA\Property(property="status", type="string", example="approved", description="Workflow state")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", ref="#/components/schemas/CustodianHasProjectOrganisation")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Bad Request",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="cannot transition to state = [status]")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="Forbidden")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not Found",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="Not found")
+     *          )
+     *      )
+     * )
+     */
     public function update(
         Request $request,
         int $custodianId,
-        int $organisationId,
+        int $projectOrganisationId,
     ) {
         try {
             $custodian = Custodian::findOrFail($custodianId);
@@ -97,7 +257,7 @@ class CustodianHasProjectOrganisationController extends Controller
             }
 
             $cho = CustodianHasProjectOrganisation::where([
-                'organisation_id' => $organisationId,
+                'project_has_organisation_id' => $projectOrganisationId,
                 'custodian_id' => $custodianId,
             ])->first();
 
@@ -129,6 +289,29 @@ class CustodianHasProjectOrganisationController extends Controller
         }
     }
 
+    /**
+     * @OA\Get(
+     *      path="/api/v1/custodian_approvals/projectOrganisations/getWorkflowStates",
+     *      operationId="getProjectOrganisationWorkflowStates",
+     *      tags={"Custodian Project Organisations"},
+     *      summary="Get all workflow states for custodian project organisation approvals",
+     *      description="Returns a list of all possible workflow states",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @OA\Items(type="string", example="pending")
+     *              )
+     *          )
+     *      )
+     * )
+     */
     public function getWorkflowStates(Request $request)
     {
         $model = new CustodianHasProjectOrganisation();
