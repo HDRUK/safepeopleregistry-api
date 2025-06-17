@@ -85,14 +85,14 @@ class CustodianHasProjectOrganisationController extends Controller
                 ->where('custodian_id', $custodianId)
                 ->when(!empty($searchName), function ($query) use ($searchName) {
                     $query->where(function ($subQuery) use ($searchName) {
-                        $subQuery->orWhereHas('organisation', function ($q) use ($searchName) {
+                        $subQuery->orWhereHas('projectOrganisation.organisation', function ($q) use ($searchName) {
                             /** @phpstan-ignore-next-line */
                             $q->searchViaRequest(['name' => $searchName]);
                         });
                     });
                 })
                 ->when(!empty($projectId), function ($query) use ($projectId) {
-                    $query->whereHas('projectHasUser.project', function ($q) use ($projectId) {
+                    $query->whereHas('projectOrganisation.project', function ($q) use ($projectId) {
                         $q->where('id', $projectId);
                     });
                 })

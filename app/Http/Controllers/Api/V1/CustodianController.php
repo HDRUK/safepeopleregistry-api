@@ -1022,7 +1022,7 @@ class CustodianController extends Controller
                         $q->searchViaRequest(['title' => $searchName]);
                     });
 
-                    $subQuery->orWhereHas('affiliation.organisation', function ($q) use ($searchName) {
+                    $subQuery->orWhereHas('organisation', function ($q) use ($searchName) {
                         /** @phpstan-ignore-next-line */
                         $q->searchViaRequest(['organisation_name' => $searchName]);
                     });
