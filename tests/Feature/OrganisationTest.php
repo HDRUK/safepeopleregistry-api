@@ -198,7 +198,6 @@ class OrganisationTest extends TestCase
                         'ce_plus_certification_num',
                         'ce_plus_expiry_date',
                         'ce_plus_expiry_evidence',
-                        'approvals',
                         'permissions',
                         'registries',
                         'departments',
@@ -269,7 +268,6 @@ class OrganisationTest extends TestCase
                 'ce_plus_certification_num',
                 'ce_plus_expiry_date',
                 'ce_plus_expiry_evidence',
-                'approvals',
                 'permissions',
                 'registries',
                 'departments',
@@ -656,8 +654,11 @@ class OrganisationTest extends TestCase
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
 
+        $n = ProjectHasOrganisation::where([
+            'organisation_id' => 1
+        ])->count();
 
-        $this->assertCount(3, $response['data']['data']);
+        $this->assertCount($n, $response['data']['data']);
 
 
         $responseWithTitleFilter = $this->actingAs($this->organisation_admin)

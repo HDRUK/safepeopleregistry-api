@@ -93,7 +93,6 @@ class OrganisationController extends Controller
                 ->with([
                     'departments',
                     'subsidiaries',
-                    'approvals',
                     'permissions',
                     'files',
                     'charities',
@@ -189,7 +188,6 @@ class OrganisationController extends Controller
             'departments',
             'subsidiaries',
             'permissions',
-            //'approvals',
             'ceExpiryEvidence',
             'cePlusExpiryEvidence',
             'isoExpiryEvidence',
@@ -869,14 +867,7 @@ class OrganisationController extends Controller
     {
         $projects = Project::searchViaRequest()
             ->applySorting()
-            ->with(['approvals', 'organisations', 'modelState.state'])
-            ->filterWhen('approved', function ($query, $approved) {
-                if ($approved) {
-                    $query->whereHas('approvals');
-                } else {
-                    $query->whereDoesntHave('approvals');
-                }
-            })
+            ->with(['organisations', 'modelState.state'])
             ->whereHas('organisations', function ($query) use ($organisationId) {
                 $query->where('organisations.id', $organisationId);
             })
@@ -1285,7 +1276,7 @@ class OrganisationController extends Controller
         OrganisationHasSubsidiary::where('organisation_id', $organisationId)
             ->get()
             ->each(
-                fn ($ohs) =>
+                fn($ohs) =>
                 OrganisationHasSubsidiary::where([
                     ['organisation_id', '=', $ohs->organisation_id],
                     ['subsidiary_id', '=', $ohs->subsidiary_id]

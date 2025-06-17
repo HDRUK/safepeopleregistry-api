@@ -967,7 +967,7 @@ class PermissionMatrixTest extends TestCase
             ],
             [
                 'method' => 'get',
-                'route' => '/custodian_approvals/1/organisations/1',
+                'route' => '/custodian_approvals/1/projectOrganisations/1',
                 'permissions' => [
                     'admin' => 200,
                     'custodian1' => 200,
@@ -985,7 +985,7 @@ class PermissionMatrixTest extends TestCase
                     'approved' => 1,
                     'comment' => 'approved'
                 ],
-                'route' => '/custodian_approvals/1/organisations/1',
+                'route' => '/custodian_approvals/1/projectOrganisations/1',
                 'permissions' => [
                     'admin' => 201,
                     'custodian1' => 201,
@@ -1003,7 +1003,7 @@ class PermissionMatrixTest extends TestCase
                     'approved' => 1,
                     'comment' => 'approved'
                 ],
-                'route' => '/custodian_approvals/2/organisations/1',
+                'route' => '/custodian_approvals/2/projectOrganisations/1',
                 'permissions' => [
                     'admin' => 201,
                     'custodian1' => 403,
