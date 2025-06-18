@@ -525,14 +525,6 @@ Route::middleware('auth:api')
     ->group(function () {
         Route::get('/{id}', 'show');
     });
-/*
-    Route::middleware('auth:api')
-    ->prefix('v1/project')
-    ->controller(ProjectHasUserController::class)
-    ->group(function () {
-        Route::get('/{id}', 'show');
-    });
-*/
 
 // --- CUSTODIAN PROJECT USERS VALIDATIONS ---
 Route::middleware('auth:api')
