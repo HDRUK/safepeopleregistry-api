@@ -8,6 +8,7 @@ use App\Traits\SearchManager;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Traits\ActionManager;
 use App\Traits\FilterManager;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  *
@@ -110,14 +111,14 @@ class Custodian extends Model
     public const ACTION_ADD_CONTACTS = 'add_contacts_completed';
     public const ACTION_ADD_USERS = 'add_users_completed';
     public const ACTION_ADD_PROJECTS = 'add_projects_completed';
-    public const ACTION_ADD_ORGANISATIONS = 'add_organisations_completed';
+    public const ACTION_APPROVE_AN_ORGANISATION = 'approve_an_organisation_completed';
 
     protected static array $defaultActions = [
         self::ACTION_COMPLETE_CONFIGURATION,
         self::ACTION_ADD_CONTACTS,
         self::ACTION_ADD_USERS,
         self::ACTION_ADD_PROJECTS,
-        self::ACTION_ADD_ORGANISATIONS,
+        self::ACTION_APPROVE_AN_ORGANISATION,
     ];
 
     protected static array $searchableColumns = [
@@ -161,20 +162,6 @@ class Custodian extends Model
         return $this->belongsToMany(Project::class, 'project_has_custodians', 'custodian_id', 'project_id');
     }
 
-    /**
-     * Get all approved organisations for this custodian.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Organisation>
-     */
-    public function approvedOrganisations(): BelongsToMany
-    {
-        return $this->belongsToMany(
-            Organisation::class,
-            'organisation_has_custodian_approvals',
-            'custodian_id',
-            'organisation_id'
-        );
-    }
 
     /**
      *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\CustodianHasValidationCheck>
@@ -186,5 +173,13 @@ class Custodian extends Model
             'custodian_has_validation_check'
         )
             ->using(CustodianHasValidationCheck::class);
+    }
+
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\CustodianHasProjectOrganisation>
+     */
+    public function projectOrganisations(): HasMany
+    {
+        return $this->hasMany(CustodianHasProjectOrganisation::class, 'custodian_id');
     }
 }

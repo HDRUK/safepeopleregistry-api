@@ -10,6 +10,7 @@ use App\Models\ProjectHasUser;
 use App\Models\ProjectHasCustodian;
 use App\Models\WebhookEventTrigger;
 use App\Models\CustodianWebhookReceiver;
+use App\Models\ProjectHasOrganisation;
 use Spatie\WebhookServer\WebhookCall;
 use App\Traits\ValidationManager;
 
@@ -24,6 +25,17 @@ class ProjectHasUserObserver
      */
     public function created(ProjectHasUser $projectHasUser): void
     {
+
+        $projectId = $projectHasUser->project->id;
+        $affiliation = $projectHasUser->affiliation;
+        if ($affiliation) {
+            $organisationId = $affiliation->organisation->id;
+            ProjectHasOrganisation::firstOrCreate([
+                'project_id' => $projectId,
+                'organisation_id' => $organisationId
+            ]);
+        }
+
         $this->updateCustodianProjectUserValidation(
             $projectHasUser->project_id,
             $projectHasUser->user_digital_ident
@@ -60,8 +72,8 @@ class ProjectHasUserObserver
         $user = User::where('registry_id', $registry->id)->first();
 
         $custodianApproval = ProjectHasCustodian::where('project_id', $projectHasUser->project_id)
-           ->where("approved", true)
-           ->first();
+            ->where("approved", true)
+            ->first();
         $whr = CustodianWebhookReceiver::where([
             'custodian_id' => $custodianApproval->custodian_id,
         ])->first();

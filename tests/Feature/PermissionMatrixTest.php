@@ -950,7 +950,7 @@ class PermissionMatrixTest extends TestCase
             [
                 'method' => 'put',
                 'payload' => [
-                    'approved' => 1,
+                    'status' => 'validated',
                     'comment' => 'approved'
                 ],
                 'route' => '/custodian_approvals/1/projectUsers/1',
@@ -967,7 +967,7 @@ class PermissionMatrixTest extends TestCase
             ],
             [
                 'method' => 'get',
-                'route' => '/custodian_approvals/1/organisations/1',
+                'route' => '/custodian_approvals/1/projectOrganisations/1',
                 'permissions' => [
                     'admin' => 200,
                     'custodian1' => 200,
@@ -980,15 +980,15 @@ class PermissionMatrixTest extends TestCase
                 ],
             ],
             [
-                'method' => 'post',
+                'method' => 'put',
                 'payload' => [
-                    'approved' => 1,
+                    'status' => 'validated',
                     'comment' => 'approved'
                 ],
-                'route' => '/custodian_approvals/1/organisations/1',
+                'route' => '/custodian_approvals/1/projectOrganisations/1',
                 'permissions' => [
-                    'admin' => 201,
-                    'custodian1' => 201,
+                    'admin' => 200,
+                    'custodian1' => 200,
                     'custodian2' => 403,
                     'organisation1' => 403,
                     'organisation2' => 403,
@@ -998,16 +998,16 @@ class PermissionMatrixTest extends TestCase
                 ],
             ],
             [
-                'method' => 'post',
+                'method' => 'put',
                 'payload' => [
-                    'approved' => 1,
+                    'status' => 'validated',
                     'comment' => 'approved'
                 ],
-                'route' => '/custodian_approvals/2/organisations/1',
+                'route' => '/custodian_approvals/2/projectOrganisations/1',
                 'permissions' => [
-                    'admin' => 201,
+                    'admin' => 404,
                     'custodian1' => 403,
-                    'custodian2' => 201,
+                    'custodian2' => 404,
                     'organisation1' => 403,
                     'organisation2' => 403,
                     'delegate' => 403,

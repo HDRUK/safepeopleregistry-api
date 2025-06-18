@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Api\V1\AccreditationController;
 use App\Http\Controllers\Api\V1\AffiliationController;
-use App\Http\Controllers\Api\V1\ApprovalController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\EndorsementController;
 use App\Http\Controllers\Api\V1\ExperienceController;
@@ -29,6 +28,7 @@ use App\Http\Controllers\Api\V1\EmailTemplateController;
 use App\Http\Controllers\Api\V1\SectorController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\ActionLogController;
+use App\Http\Controllers\Api\V1\CustodianHasProjectOrganisationController;
 use App\Http\Controllers\Api\V1\ValidationCheckController;
 use App\Http\Controllers\Api\V1\ValidationLogController;
 use App\Http\Controllers\Api\V1\ValidationLogCommentController;
@@ -36,7 +36,6 @@ use App\Http\Controllers\Api\V1\ProfessionalRegistrationController;
 use App\Http\Controllers\Api\V1\DepartmentController;
 use App\Http\Controllers\Api\V1\WebhookController;
 use App\Http\Controllers\Api\V1\CustodianModelConfigController;
-use App\Http\Controllers\Api\V1\OrganisationCustodianApprovalController;
 use App\Http\Controllers\Api\V1\ProjectDetailController;
 use App\Http\Controllers\Api\V1\ProjectRoleController;
 use App\Http\Controllers\Api\V1\CustodianHasProjectUserController;
@@ -44,7 +43,6 @@ use App\Http\Controllers\Api\V1\ProjectHasUserController;
 use App\Http\Controllers\Api\V1\UserAuditLogController;
 use App\Http\Controllers\Api\V1\VendorWebhookReceiverController;
 use Illuminate\Support\Facades\Route;
-use App\Models\User;
 
 /*
 |--------------------------------------------------------------------------
@@ -191,7 +189,7 @@ Route::middleware(['auth:api'])
         Route::get('/identifier/{id}', 'showByUniqueIdentifier');
         Route::get('/{id}/projects', 'getProjects');
         Route::get('/{id}/users/{userId}/projects', 'getUserProjects');
-        Route::get('/{id}/organisations', 'getOrganisations');
+        Route::get('/{id}/organisations', 'getProjectsOrganisations');
         Route::get('/{id}/custodian_users', 'getCustodianUsers');
         Route::get('/{id}/projects_users', 'getProjectsUsers');
         Route::get('/{id}/rules', 'getRules');
@@ -464,15 +462,6 @@ Route::middleware('auth:api')
         Route::get('{id}/download', 'download');
     });
 
-// --- APPROVALS ---
-Route::middleware('auth:api')
-    ->prefix('v1/approvals')
-    ->controller(ApprovalController::class)
-    ->group(function () {
-        Route::post('{entity_type}', 'store');
-        Route::get('{entity_type}/{id}/custodian/{custodian_id}', 'getEntityHasCustodianApproval');
-        Route::delete('{entity_type}/{id}/custodian/{custodian_id}', 'delete');
-    });
 
 // --- REQUEST ACCESS ---
 Route::middleware(['check.custodian.access', 'verify.signed.payload'])
@@ -537,8 +526,7 @@ Route::middleware('auth:api')
         Route::get('/{id}', 'show');
     });
 
-
-// --- CUSTODIAN PROJECT USERS ---
+// --- CUSTODIAN PROJECT USERS VALIDATIONS ---
 Route::middleware('auth:api')
     ->prefix('v1/custodian_approvals/{custodianId}')
     ->controller(CustodianHasProjectUserController::class)
@@ -549,21 +537,29 @@ Route::middleware('auth:api')
     });
 
 Route::middleware('auth:api')
-    ->prefix('v1/custodian_approvals')
-    ->controller(CustodianHasProjectUserController::class)
-    ->group(function () {
-        Route::get('/getWorkflowStates', 'getWorkflowStates');
-    });
+    ->get(
+        'v1/custodian_approvals/projectUsers/getWorkflowStates',
+        [CustodianHasProjectUserController::class, 'getWorkflowStates']
+    );
 
 
-// --- ORGANISATION CUSTODIAN APPROVAL ---
+// --- ORGANISATION CUSTODIAN VALIDATIONS ---
 Route::middleware('auth:api')
     ->prefix('v1/custodian_approvals/{custodianId}')
-    ->controller(OrganisationCustodianApprovalController::class)
+    ->controller(CustodianHasProjectOrganisationController::class)
     ->group(function () {
-        Route::get('/organisations/{organisationId}', 'show');
-        Route::post('/organisations/{organisationId}', 'store');
+        Route::get('/projectOrganisations', 'index');
+        Route::get('/projectOrganisations/{projectOrganisationId}', 'show');
+        Route::put('/projectOrganisations/{projectOrganisationId}', 'update');
     });
+
+Route::middleware('auth:api')
+    ->get(
+        'v1/custodian_approvals/projectOrganisations/getWorkflowStates',
+        [CustodianHasProjectOrganisationController::class, 'getWorkflowStates']
+    );
+
+
 
 // --- SYSTEM CONFIG ---
 Route::middleware('auth:api')

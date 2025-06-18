@@ -296,6 +296,7 @@ class ProjectTest extends TestCase
         ProjectHasUser::create([
             'project_id' => $project->id,
             'user_digital_ident' => $registry->digi_ident,
+            'affiliation_id' => 1,
             'project_role_id' => 7,
         ]);
 
@@ -304,6 +305,7 @@ class ProjectTest extends TestCase
             'project_id' => $project->id,
             'user_digital_ident' => $registry->digi_ident,
             'project_role_id' => 7,
+            'affiliation_id' => 1,
         ])->first();
 
         if ($phu) {

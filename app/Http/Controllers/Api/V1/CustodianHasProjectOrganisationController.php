@@ -4,26 +4,26 @@ namespace App\Http\Controllers\Api\V1;
 
 use Exception;
 use App\Http\Controllers\Controller;
-use App\Models\CustodianHasProjectUser;
 use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
 use App\Models\Custodian;
-use App\Models\UserAuditLog;
+use App\Models\CustodianHasProjectOrganisation;
 use Illuminate\Support\Facades\Gate;
 use App\Traits\CommonFunctions;
 
-class CustodianHasProjectUserController extends Controller
+class CustodianHasProjectOrganisationController extends Controller
 {
     use Responses;
     use CommonFunctions;
 
+
     /**
      * @OA\Get(
-     *      path="/api/v1/custodian_approvals/{custodianId}/projectUsers",
-     *      operationId="indexCustodianProjectUsers",
-     *      tags={"Custodian Project Users"},
-     *      summary="List all project users associated with a custodian",
-     *      description="Returns a list of all custodian project user approvals for a specific custodian",
+     *      path="/api/v1/custodian_approvals/{custodianId}/projectOrganisations",
+     *      operationId="indexCustodianProjectOrganisations",
+     *      tags={"Custodian Project Organisations"},
+     *      summary="List all project organisations associated with a custodian",
+     *      description="Returns a list of all custodian project organisation approvals for a specific custodian",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *          name="custodianId",
@@ -41,7 +41,7 @@ class CustodianHasProjectUserController extends Controller
      *              @OA\Property(
      *                  property="data",
      *                  type="array",
-     *                  @OA\Items(ref="#/components/schemas/CustodianHasProjectUser")
+     *                  @OA\Items(ref="#/components/schemas/CustodianHasProjectOrganisation")
      *              )
      *          )
      *      ),
@@ -77,35 +77,22 @@ class CustodianHasProjectUserController extends Controller
 
             $projectId = $request->input('project_id');
 
-            $records = CustodianHasProjectUser::with([
+            $records = CustodianHasProjectOrganisation::with([
                 'modelState.state',
-                'projectHasUser.registry.user',
-                'projectHasUser.project:id,title',
-                'projectHasUser.role:id,name',
-                'projectHasUser.affiliation:id,organisation_id',
-                'projectHasUser.affiliation.organisation:id,organisation_name'
+                'projectOrganisation.organisation.sroOfficer',
+                'projectOrganisation.project',
             ])
                 ->where('custodian_id', $custodianId)
                 ->when(!empty($searchName), function ($query) use ($searchName) {
                     $query->where(function ($subQuery) use ($searchName) {
-                        $subQuery->whereHas('projectHasUser.project', function ($q) use ($searchName) {
-                            /** @phpstan-ignore-next-line */
-                            $q->searchViaRequest(['title' => $searchName]);
-                        });
-
-                        $subQuery->orWhereHas('projectHasUser.registry.user', function ($q) use ($searchName) {
+                        $subQuery->orWhereHas('projectOrganisation.organisation', function ($q) use ($searchName) {
                             /** @phpstan-ignore-next-line */
                             $q->searchViaRequest(['name' => $searchName]);
-                        });
-
-                        $subQuery->orWhereHas('projectHasUser.affiliation.organisation', function ($q) use ($searchName) {
-                            /** @phpstan-ignore-next-line */
-                            $q->searchViaRequest(['organisation_name' => $searchName]);
                         });
                     });
                 })
                 ->when(!empty($projectId), function ($query) use ($projectId) {
-                    $query->whereHas('projectHasUser.project', function ($q) use ($projectId) {
+                    $query->whereHas('projectOrganisation.project', function ($q) use ($projectId) {
                         $q->where('id', $projectId);
                     });
                 })
@@ -119,11 +106,11 @@ class CustodianHasProjectUserController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/api/v1/custodian_approvals/{custodianId}/projectUsers/{projectUserId}",
-     *      operationId="showCustodianProjectUser",
-     *      tags={"Custodian Project Users"},
-     *      summary="Get custodian approval for a project user",
-     *      description="Returns custodian approval details for a specific project user",
+     *      path="/api/v1/custodian_approvals/{custodianId}/projectOrganisations/{projectOrganisationId}",
+     *      operationId="showCustodianProjectOrganisation",
+     *      tags={"Custodian Project Organisations"},
+     *      summary="Get custodian approval for a project organisation",
+     *      description="Returns custodian approval details for a specific project organisation",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *          name="custodianId",
@@ -133,9 +120,9 @@ class CustodianHasProjectUserController extends Controller
      *          @OA\Schema(type="integer")
      *      ),
      *      @OA\Parameter(
-     *          name="projectUserId",
+     *          name="projectOrganisationId",
      *          in="path",
-     *          description="ID of the project user",
+     *          description="ID of the project organisation",
      *          required=true,
      *          @OA\Schema(type="integer")
      *      ),
@@ -145,7 +132,7 @@ class CustodianHasProjectUserController extends Controller
      *          @OA\JsonContent(
      *              type="object",
      *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data", ref="#/components/schemas/CustodianHasProjectUser")
+     *              @OA\Property(property="data", ref="#/components/schemas/CustodianHasProjectOrganisation")
      *          )
      *      ),
      *      @OA\Response(
@@ -169,7 +156,7 @@ class CustodianHasProjectUserController extends Controller
     public function show(
         Request $request,
         int $custodianId,
-        int $projectUserId,
+        int $projectOrganisationId,
     ) {
         try {
             $custodian = Custodian::findOrFail($custodianId);
@@ -177,16 +164,12 @@ class CustodianHasProjectUserController extends Controller
                 return $this->ForbiddenResponse();
             }
 
-            $puhca = CustodianHasProjectUser::with([
+            $puhca = CustodianHasProjectOrganisation::with([
                 'modelState.state',
-                'projectHasUser.registry.user',
-                'projectHasUser.project:id,title',
-                'projectHasUser.role:id,name',
-                'projectHasUser.affiliation:id,organisation_id',
-                'projectHasUser.affiliation.organisation:id,organisation_name'
+                'projectOrganisation.organisation'
             ])
                 ->where([
-                    'project_has_user_id' => $projectUserId,
+                    'project_has_organisation_id' => $projectOrganisationId,
                     'custodian_id' => $custodianId
                 ])->first();
 
@@ -198,11 +181,11 @@ class CustodianHasProjectUserController extends Controller
 
     /**
      * @OA\Put(
-     *      path="/api/v1/custodian_approvals/{custodianId}/projectUsers/{projectUserId}",
-     *      operationId="updateCustodianProjectUser",
-     *      tags={"Custodian Project Users"},
-     *      summary="Update custodian approval for a project user",
-     *      description="Updates approval status and/or comment for a project user",
+     *      path="/api/v1/custodian_approvals/{custodianId}/projectOrganisations/{projectOrganisationId}",
+     *      operationId="updateCustodianProjectOrganisation",
+     *      tags={"Custodian Project Organisations"},
+     *      summary="Update custodian approval for a project organisation",
+     *      description="Updates approval status and/or comment for a project organisation",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *          name="custodianId",
@@ -212,9 +195,9 @@ class CustodianHasProjectUserController extends Controller
      *          @OA\Schema(type="integer")
      *      ),
      *      @OA\Parameter(
-     *          name="projectUserId",
+     *          name="projectOrganisationId",
      *          in="path",
-     *          description="ID of the project user",
+     *          description="ID of the project organisation",
      *          required=true,
      *          @OA\Schema(type="integer")
      *      ),
@@ -223,8 +206,8 @@ class CustodianHasProjectUserController extends Controller
      *          @OA\JsonContent(
      *              type="object",
      *              @OA\Property(property="approved", type="boolean", example=true, description="Approval status"),
-     *              @OA\Property(property="comment", type="string", example="Updated approval comment", description="Optional comment"),
-     *              @OA\Property(property="status", type="string", example="approved", description="State machine status")
+     *              @OA\Property(property="comment", type="string", example="Updated comment", description="Optional comment"),
+     *              @OA\Property(property="status", type="string", example="approved", description="Workflow state")
      *          )
      *      ),
      *      @OA\Response(
@@ -233,7 +216,7 @@ class CustodianHasProjectUserController extends Controller
      *          @OA\JsonContent(
      *              type="object",
      *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data", ref="#/components/schemas/CustodianHasProjectUser")
+     *              @OA\Property(property="data", ref="#/components/schemas/CustodianHasProjectOrganisation")
      *          )
      *      ),
      *      @OA\Response(
@@ -262,11 +245,10 @@ class CustodianHasProjectUserController extends Controller
      *      )
      * )
      */
-
     public function update(
         Request $request,
         int $custodianId,
-        int $projectUserId,
+        int $projectOrganisationId,
     ) {
         try {
             $custodian = Custodian::findOrFail($custodianId);
@@ -274,17 +256,20 @@ class CustodianHasProjectUserController extends Controller
                 return $this->ForbiddenResponse();
             }
 
-            $phuca = CustodianHasProjectUser::where([
-                'project_has_user_id' => $projectUserId,
+            $cho = CustodianHasProjectOrganisation::where([
+                'project_has_organisation_id' => $projectOrganisationId,
                 'custodian_id' => $custodianId,
             ])->first();
+            if (!$cho) {
+                return $this->NotFoundResponse();
+            }
 
             $status = $request->get('status');
 
             if (isset($status)) {
-                $originalStatus = $phuca->getState();
-                if ($phuca->canTransitionTo($status)) {
-                    $phuca->transitionTo($status);
+                $originalStatus = $cho->getState();
+                if ($cho->canTransitionTo($status)) {
+                    $cho->transitionTo($status);
                 } else {
                     return $this->ErrorResponse('cannot transition to state = ' . $status);
                 }
@@ -292,24 +277,47 @@ class CustodianHasProjectUserController extends Controller
                 $comment = $request->get('comment');
                 if (isset($comment)) {
                     $log = 'Approval status change to ' . $status . ' from ' . $originalStatus . ' with comment:' . $comment;
-                    $userId = $phuca->projectHasUser->registry->user->id;
+                    /*$userId = $cho->projectHasUser->registry->user->id;
                     UserAuditLog::create([
                         'user_id' => $userId,
                         'class'   => CustodianHasProjectUser::class,
                         'log'     => $log,
-                    ]);
+                    ]);*/
                 };
             }
 
-            return $this->OKResponse($phuca);
+            return $this->OKResponse($cho);
         } catch (Exception $e) {
             return $this->ErrorResponse($e->getMessage());
         }
     }
 
+    /**
+     * @OA\Get(
+     *      path="/api/v1/custodian_approvals/projectOrganisations/getWorkflowStates",
+     *      operationId="getProjectOrganisationWorkflowStates",
+     *      tags={"Custodian Project Organisations"},
+     *      summary="Get all workflow states for custodian project organisation approvals",
+     *      description="Returns a list of all possible workflow states",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successful operation",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @OA\Items(type="string", example="pending")
+     *              )
+     *          )
+     *      )
+     * )
+     */
     public function getWorkflowStates(Request $request)
     {
-        $model = new CustodianHasProjectUser();
+        $model = new CustodianHasProjectOrganisation();
         return $this->OKResponse($model->getAllStates());
     }
 }

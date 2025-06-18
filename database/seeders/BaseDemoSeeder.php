@@ -20,14 +20,12 @@ use App\Models\OrganisationHasSubsidiary;
 use App\Models\Charity;
 use App\Models\Custodian;
 use App\Models\CustodianUser;
-use App\Models\ProjectHasOrganisation;
 use App\Models\ProjectHasUser;
 use App\Models\ProjectRole;
 use App\Models\ProjectHasCustodian;
 use App\Models\RegistryHasTraining;
 use App\Models\RegistryHasAffiliation;
 use App\Models\OrganisationHasDepartment;
-use App\Models\OrganisationHasCustodianApproval;
 use App\Models\State;
 use App\Models\Subsidiary;
 use App\Models\UserHasCustodianApproval;
@@ -91,10 +89,10 @@ class BaseDemoSeeder extends Seeder
             'website' => 'https://www.website1.com/',
         ]);
 
-        OrganisationHasCustodianApproval::create([
+        /*CustodianHasOrganisation::create([
             'organisation_id' => $org1->id,
             'custodian_id' => Custodian::first()->id,
-        ]);
+        ]);*/
 
         Schema::disableForeignKeyConstraints();
         DB::table('organisation_has_charity')->truncate();
@@ -175,10 +173,6 @@ Health Research Authority (HRA) Approval as it involves health-related research 
             'approved' => true
         ]);
 
-        ProjectHasOrganisation::create([
-            'project_id' => $org1Proj1->id,
-            'organisation_id' => $org1->id,
-        ]);
 
         $org1Proj2 = Project::create([
             'unique_id' => Str::random(20),
@@ -202,11 +196,6 @@ National Public Health Ethics Committee for authorization to analyze population 
             'project_id' => $org1Proj2->id,
             'custodian_id' => Custodian::first()->id,
             'approved' => true
-        ]);
-
-        ProjectHasOrganisation::create([
-            'project_id' => $org1Proj2->id,
-            'organisation_id' => $org1->id,
         ]);
 
         // --------------------------------------------------------------------------------
@@ -286,16 +275,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'approved' => true
         ]);
 
-        ProjectHasOrganisation::create([
-            'project_id' => $org2Proj1->id,
-            'organisation_id' => $org2->id,
-        ]);
 
-        // Add parallel collaborator of org1 to org2's project
-        ProjectHasOrganisation::create([
-            'project_id' => $org2Proj1->id,
-            'organisation_id' => $org1->id,
-        ]);
 
 
         // --------------------------------------------------------------------------------
@@ -365,10 +345,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'approved' => true
         ]);
 
-        ProjectHasOrganisation::create([
-            'project_id' => $proj->id,
-            'organisation_id' => $org3->id,
-        ]);
 
         $orgHDR = Organisation::create([
             'organisation_name' => 'Health Data Research UK',
