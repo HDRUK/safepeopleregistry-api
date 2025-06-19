@@ -537,10 +537,12 @@ Route::middleware('auth:api')
     });
 
 Route::middleware('auth:api')
-    ->get(
-        'v1/custodian_approvals/projectUsers/getWorkflowStates',
-        [CustodianHasProjectUserController::class, 'getWorkflowStates']
-    );
+    ->prefix('v1/custodian_approvals/projectUsers')
+    ->controller(CustodianHasProjectUserController::class)
+    ->group(function () {
+        Route::get('/workflowStates', 'getWorkflowStates');
+        Route::get('/workflowTransitions', 'getWorkflowTransitions');
+    });
 
 
 // --- ORGANISATION CUSTODIAN VALIDATIONS ---

@@ -312,4 +312,10 @@ class CustodianHasProjectUserController extends Controller
         $model = new CustodianHasProjectUser();
         return $this->OKResponse($model->getAllStates());
     }
+
+    public function getWorkflowTransitions(Request $request)
+    {
+        $model = new CustodianHasProjectUser();
+        return $this->OKResponse($model->getTransitions());
+    }
 }
