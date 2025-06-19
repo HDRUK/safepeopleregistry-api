@@ -540,8 +540,8 @@ Route::middleware('auth:api')
     ->prefix('v1/custodian_approvals/projectUsers')
     ->controller(CustodianHasProjectUserController::class)
     ->group(function () {
-        Route::get('/workflowStates', 'workflowStates');
-        Route::get('/workflowTransitions', 'workflowTransitions');
+        Route::get('/workflowStates', 'getWorkflowStates');
+        Route::get('/workflowTransitions', 'getWorkflowTransitions');
     });
 
 
