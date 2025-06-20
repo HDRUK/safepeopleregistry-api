@@ -1041,6 +1041,8 @@ class PermissionMatrixTest extends TestCase
                     $response = $this->actingAs($user)->{$method}(self::TEST_URL . $route, $payload);
                     $status = $response->status();
 
+                    dump($response->decodeResponseJson());
+
                     $this->assertEquals(
                         $expectedStatus,
                         $response->getStatusCode(),

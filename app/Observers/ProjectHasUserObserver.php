@@ -28,11 +28,11 @@ class ProjectHasUserObserver
      */
     public function created(ProjectHasUser $projectHasUser): void
     {
-        $user = $projectHasUser->user;
+        $user = $projectHasUser->registry->user;
         $project = $projectHasUser->project;
         $affiliation = $projectHasUser->affiliation;
         activity()
-            ->causedBy(Auth::user())
+            ->causedBy(Auth::user() ?? $user)
             ->performedOn($user)
             ->withProperties([
                 'project_id' => $project->id,
@@ -46,7 +46,7 @@ class ProjectHasUserObserver
         if ($affiliation) {
             $organisationId = $affiliation->organisation->id;
             ProjectHasOrganisation::firstOrCreate([
-                'project_id' => $projectId,
+                'project_id' => $project->id,
                 'organisation_id' => $organisationId
             ]);
         }
@@ -74,7 +74,7 @@ class ProjectHasUserObserver
     public function deleted(ProjectHasUser $projectHasUser): void
     {
 
-        $user = $projectHasUser->user;
+        $user = $projectHasUser->registry->user;
         $project = $projectHasUser->project;
 
         activity()
