@@ -8,7 +8,6 @@ use App\Models\CustodianHasProjectUser;
 use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
 use App\Models\Custodian;
-use App\Models\UserAuditLog;
 use Illuminate\Support\Facades\Gate;
 use App\Traits\CommonFunctions;
 use Illuminate\Support\Facades\Auth;
@@ -313,13 +312,6 @@ class CustodianHasProjectUserController extends Controller
                         ->event('status_changed')
                         ->useLog('custodian_project_validation_status')
                         ->log($comment);
-
-                    /*UserAuditLog::create([
-                        'user_id' => $userId,
-                        'entity'   => CustodianHasProjectUser::class,
-                        'entity_id' => $phuca->id,
-                        'details' => $details,
-                    ]);*/
                 };
             }
 

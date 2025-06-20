@@ -8,9 +8,9 @@ use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
 use App\Models\Custodian;
 use App\Models\CustodianHasProjectOrganisation;
-use App\Models\UserAuditLog;
 use Illuminate\Support\Facades\Gate;
 use App\Traits\CommonFunctions;
+use Illuminate\Support\Facades\Auth;
 
 class CustodianHasProjectOrganisationController extends Controller
 {
@@ -283,7 +283,7 @@ class CustodianHasProjectOrganisationController extends Controller
                     $organisationId = $organisation->id;
                     $orgName = $organisation->organisation_name;
 
-                    // find all project users that have this affiliation
+
                     $filteredProjectUsers = $project->projectUsers()
                         ->whereHas('affiliation', function ($query) use ($organisationId) {
                             $query->where('organisation_id', $organisationId);
@@ -291,17 +291,13 @@ class CustodianHasProjectOrganisationController extends Controller
                         ->with('registry.user')
                         ->get();
 
-                    // find their User ID
-                    $userIds = $filteredProjectUsers
-                        ->map(function ($projectUser) {
-                            return optional($projectUser->registry->user)->id;
-                        })
-                        ->filter()
-                        ->unique()
-                        ->values()
-                        ->all();
 
-                    foreach ($userIds as $userId) {
+                    foreach ($filteredProjectUsers as $projectUser) {
+                        $user = optional($projectUser->registry)->user;
+                        if (!$user) {
+                            continue;
+                        }
+
                         $details = [
                             'organisation_name' => $orgName,
                             'original_status' => $originalStatus,
@@ -309,12 +305,13 @@ class CustodianHasProjectOrganisationController extends Controller
                             'comment' => $comment
                         ];
 
-                        UserAuditLog::create([
-                            'user_id' => $userId,
-                            'entity'   => CustodianHasProjectOrganisation::class,
-                            'entity_id' =>  $cho->id,
-                            'details' => $details,
-                        ]);
+                        activity()
+                            ->causedBy(Auth::user())
+                            ->performedOn($user)
+                            ->withProperties($details)
+                            ->event('status_changed')
+                            ->useLog('custodian_project_validation_status')
+                            ->log($comment);
                     }
                 };
             }
