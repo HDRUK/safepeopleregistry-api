@@ -36,7 +36,7 @@ class ProjectHasUserObserver
             ->performedOn($user)
             ->withProperties([
                 'project_id' => $project->id,
-                'project_name' => $project->name,
+                'project_title' => $project->title,
             ])
             ->event('created')
             ->useLog('project_has_user')
@@ -82,7 +82,7 @@ class ProjectHasUserObserver
             ->performedOn($user)
             ->withProperties([
                 'project_id' => $project->id,
-                'project_name' => $project->name,
+                'project_title' => $project->title,
             ])
             ->event('created')
             ->useLog('project_has_user')
