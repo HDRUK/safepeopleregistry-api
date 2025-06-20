@@ -158,6 +158,11 @@ class ValidationLog extends Model
         return $this->morphTo();
     }
 
+    public function tertiaryEntity(): MorphTo
+    {
+        return $this->morphTo(__FUNCTION__, 'tertiary_entity_type', 'tertiary_entity_id');
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\ValidationLogComment>
      */

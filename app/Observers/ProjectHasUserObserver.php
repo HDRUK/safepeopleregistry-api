@@ -13,6 +13,9 @@ use App\Models\CustodianWebhookReceiver;
 use App\Models\ProjectHasOrganisation;
 use Spatie\WebhookServer\WebhookCall;
 use App\Traits\ValidationManager;
+use Illuminate\Support\Facades\Auth;
+
+use function activity;
 
 class ProjectHasUserObserver
 {
@@ -25,9 +28,21 @@ class ProjectHasUserObserver
      */
     public function created(ProjectHasUser $projectHasUser): void
     {
-
-        $projectId = $projectHasUser->project->id;
+        $user = $projectHasUser->user;
+        $project = $projectHasUser->project;
         $affiliation = $projectHasUser->affiliation;
+        activity()
+            ->causedBy(Auth::user())
+            ->performedOn($user)
+            ->withProperties([
+                'project_id' => $project->id,
+                'project_name' => $project->name,
+            ])
+            ->event('created')
+            ->useLog('project_has_user')
+            ->log('user added to project');
+
+
         if ($affiliation) {
             $organisationId = $affiliation->organisation->id;
             ProjectHasOrganisation::firstOrCreate([
@@ -58,6 +73,22 @@ class ProjectHasUserObserver
      */
     public function deleted(ProjectHasUser $projectHasUser): void
     {
+
+        $user = $projectHasUser->user;
+        $project = $projectHasUser->project;
+
+        activity()
+            ->causedBy(Auth::user())
+            ->performedOn($user)
+            ->withProperties([
+                'project_id' => $project->id,
+                'project_name' => $project->name,
+            ])
+            ->event('created')
+            ->useLog('project_has_user')
+            ->log('user removed from project');
+
+
         $this->deleteCustodianProjectUserValidation(
             $projectHasUser->project_id,
             $projectHasUser->user_digital_ident

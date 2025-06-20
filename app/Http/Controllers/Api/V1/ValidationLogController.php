@@ -15,6 +15,9 @@ use App\Models\ProjectHasCustodian;
 use App\Models\Registry;
 use Carbon\Carbon;
 use App\Http\Traits\Responses;
+use Illuminate\Support\Facades\Auth;
+
+use function activity;
 
 class ValidationLogController extends Controller
 {
@@ -388,6 +391,12 @@ class ValidationLogController extends Controller
             return $this->NotFoundResponse();
         }
 
+        $user = null;
+        $tertiary = $log->tertiaryEntity;
+        if ($tertiary instanceof Registry) {
+            $user = $tertiary->user;
+        }
+
         if ($request->has('complete')) {
             $log->completed_at = Carbon::now();
         } elseif ($request->has('incomplete')) {
@@ -397,9 +406,23 @@ class ValidationLogController extends Controller
         if ($request->has('pass')) {
             $log->completed_at = Carbon::now();
             $log->manually_confirmed = 1;
+
+            activity()
+                ->causedBy(Auth::user())
+                ->performedOn($user ?? $log)
+                ->event('passed')
+                ->useLog('validation_check')
+                ->log($log->validationCheck->name);
         } elseif ($request->has('fail')) {
             $log->completed_at = Carbon::now();
             $log->manually_confirmed = 0;
+
+            activity()
+                ->causedBy(Auth::user())
+                ->performedOn($user ?? $log)
+                ->event('failed')
+                ->useLog('validation_check')
+                ->log($log->validationCheck->name);
         }
 
         if ($request->has('enable')) {

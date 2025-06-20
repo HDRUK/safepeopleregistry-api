@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  *
@@ -31,13 +34,38 @@ class UserAuditLog extends Model
     protected $table = 'user_audit_logs';
 
     protected $fillable = [
+        'auditor_user_id',
         'user_id',
-        'class',
-        'log',
+        'entity',
+        'entity_id',
+        'details',
     ];
 
-    public function user()
+    protected $casts = [
+        'details' => 'array',
+    ];
+
+    protected static function booted()
     {
-        return $this->belongsTo(User::class);
+        static::creating(function ($model) {
+            if (Auth::check() && !$model->auditor_user_id) {
+                $model->auditor_user_id = Auth::id();
+            }
+        });
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function auditorUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'audit_user_id');
+    }
+
+    public function entity(): MorphTo
+    {
+        return $this->morphTo();
     }
 }

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
 use App\Models\Custodian;
 use App\Models\CustodianHasProjectOrganisation;
+use App\Models\UserAuditLog;
 use Illuminate\Support\Facades\Gate;
 use App\Traits\CommonFunctions;
 
@@ -276,13 +277,45 @@ class CustodianHasProjectOrganisationController extends Controller
 
                 $comment = $request->get('comment');
                 if (isset($comment)) {
-                    $log = 'Approval status change to ' . $status . ' from ' . $originalStatus . ' with comment:' . $comment;
-                    /*$userId = $cho->projectHasUser->registry->user->id;
-                    UserAuditLog::create([
-                        'user_id' => $userId,
-                        'class'   => CustodianHasProjectUser::class,
-                        'log'     => $log,
-                    ]);*/
+                    $pho = $cho->projectOrganisation;
+                    $organisation = $pho->organisation;
+                    $project = $pho->project;
+                    $organisationId = $organisation->id;
+                    $orgName = $organisation->organisation_name;
+
+                    // find all project users that have this affiliation
+                    $filteredProjectUsers = $project->projectUsers()
+                        ->whereHas('affiliation', function ($query) use ($organisationId) {
+                            $query->where('organisation_id', $organisationId);
+                        })
+                        ->with('registry.user')
+                        ->get();
+
+                    // find their User ID
+                    $userIds = $filteredProjectUsers
+                        ->map(function ($projectUser) {
+                            return optional($projectUser->registry->user)->id;
+                        })
+                        ->filter()
+                        ->unique()
+                        ->values()
+                        ->all();
+
+                    foreach ($userIds as $userId) {
+                        $details = [
+                            'organisation_name' => $orgName,
+                            'original_status' => $originalStatus,
+                            'new_status' => $status,
+                            'comment' => $comment
+                        ];
+
+                        UserAuditLog::create([
+                            'user_id' => $userId,
+                            'entity'   => CustodianHasProjectOrganisation::class,
+                            'entity_id' =>  $cho->id,
+                            'details' => $details,
+                        ]);
+                    }
                 };
             }
 

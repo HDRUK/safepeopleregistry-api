@@ -11,6 +11,9 @@ use App\Models\Custodian;
 use App\Models\UserAuditLog;
 use Illuminate\Support\Facades\Gate;
 use App\Traits\CommonFunctions;
+use Illuminate\Support\Facades\Auth;
+
+use function activity;
 
 class CustodianHasProjectUserController extends Controller
 {
@@ -291,13 +294,32 @@ class CustodianHasProjectUserController extends Controller
 
                 $comment = $request->get('comment');
                 if (isset($comment)) {
-                    $log = 'Approval status change to ' . $status . ' from ' . $originalStatus . ' with comment:' . $comment;
-                    $userId = $phuca->projectHasUser->registry->user->id;
-                    UserAuditLog::create([
+                    $phu = $phuca->projectHasUser;
+                    $user = $phu->registry->user;
+                    $project = $phu->project;
+                    $projectId = $project->id;
+                    $projectName = $project->title;
+
+                    activity()
+                        ->causedBy(Auth::user())
+                        ->performedOn($user)
+                        ->withProperties([
+                            'custodian_id' => $custodianId,
+                            'project_id' => $projectId,
+                            'project_name' => $projectName,
+                            'original_status' => $originalStatus,
+                            'new_status' => $status,
+                        ])
+                        ->event('status_changed')
+                        ->useLog('custodian_project_validation_status')
+                        ->log($comment);
+
+                    /*UserAuditLog::create([
                         'user_id' => $userId,
-                        'class'   => CustodianHasProjectUser::class,
-                        'log'     => $log,
-                    ]);
+                        'entity'   => CustodianHasProjectUser::class,
+                        'entity_id' => $phuca->id,
+                        'details' => $details,
+                    ]);*/
                 };
             }
 
