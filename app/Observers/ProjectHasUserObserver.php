@@ -40,7 +40,7 @@ class ProjectHasUserObserver
             ])
             ->event('created')
             ->useLog('project_has_user')
-            ->log('user added to project');
+            ->log('user_added_to_project');
 
 
         if ($affiliation) {
@@ -86,7 +86,7 @@ class ProjectHasUserObserver
             ])
             ->event('created')
             ->useLog('project_has_user')
-            ->log('user removed from project');
+            ->log('user_removed_from_project');
 
 
         $this->deleteCustodianProjectUserValidation(
