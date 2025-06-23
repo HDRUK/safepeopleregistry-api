@@ -15,6 +15,8 @@ use App\Traits\SearchManager;
 use App\Traits\ActionManager;
 use App\Traits\StateWorkflow;
 use App\Traits\FilterManager;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 /**
  * @OA\Schema (
@@ -120,6 +122,7 @@ class User extends Authenticatable
     use ActionManager;
     use StateWorkflow;
     use FilterManager;
+    use LogsActivity;
 
     public const GROUP_USERS = 'USERS';
     public const GROUP_ORGANISATIONS = 'ORGANISATIONS';
@@ -165,6 +168,14 @@ class User extends Authenticatable
         'uksa_registered',
         'is_sro',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly($this->fillable)
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
 
     protected static array $searchableColumns = [
         'name',
