@@ -174,6 +174,7 @@ class User extends Authenticatable
         return LogOptions::defaults()
             ->logOnly($this->fillable)
             ->logOnlyDirty()
+            ->useLogName('user')
             ->dontSubmitEmptyLogs();
     }
 
