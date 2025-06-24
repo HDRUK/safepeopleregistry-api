@@ -32,4 +32,50 @@ class ProjectHasOrganisationController extends Controller
             return $this->ErrorResponse($e->getMessage());
         }
     }
+
+    /**
+     * @OA\Delete(
+     *      path="/api/v1/project_organisations/{id}",
+     *      summary="Delete a organisation from a project",
+     *      description="Delete a organisation from a project",
+     *      tags={"Projects"},
+     *      summary="ProjectHasOrganisation@delete",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="ID",
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="success",
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="not found",
+     *      )
+     * )
+     */
+    public function delete(Request $request, int $id)
+    {
+        try {
+            $data = ProjectHasOrganisation::where('id', $id);
+
+            if ($data->first() !== null) {
+                $data->delete();
+
+                return $this->OKResponse(null);
+            }
+
+            return $this->NotFoundResponse();
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
 }
