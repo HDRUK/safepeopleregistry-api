@@ -899,10 +899,9 @@ class ProjectController extends Controller
         return $this->OKResponse($projectUser);
     }
 
-
     /**
      * @OA\Delete(
-     *      path="/api/v1/projects/{projectId}/users/{registryId}",
+     *      path="/api/v1/projects/{projectId}/users/registry/{registryId}",
      *      summary="Delete a user from a project",
      *      description="Delete a user from a project",
      *      tags={"Projects"},
@@ -945,6 +944,63 @@ class ProjectController extends Controller
         try {
             $digi_ident = optional(Registry::where('id', $registryId)->first())->digi_ident;
             $data = ProjectHasUser::where('project_id', $projectId)->where('user_digital_ident', $digi_ident);
+
+            if ($data->first() !== null) {
+                $data->delete();
+
+                return $this->OKResponse(null);
+            }
+
+            return $this->NotFoundResponse();
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    /**
+     * @OA\Delete(
+     *      path="/api/v1/projects/{projectId}/organisations/{organisationId}",
+     *      summary="Delete an from a project",
+     *      description="Delete an organisation from a project",
+     *      tags={"Projects"},
+     *      summary="Project@deleteOrganisationFromProject",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="projectId",
+     *         in="path",
+     *         description="Project ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Project ID",
+     *         ),
+     *      ),
+     *      @OA\Parameter(
+     *         name="organisationId",
+     *         in="path",
+     *         description="Organisation ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Organisation ID",
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="success",
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="failed",
+     *      )
+     * )
+     */
+    public function deleteOrganisationFromProject(Request $request, int $projectId, int $organisationId): JsonResponse
+    {
+        try {
+            $data = ProjectHasOrganisation::where('project_id', $projectId)->where('organisation_id', $organisationId);
 
             if ($data->first() !== null) {
                 $data->delete();

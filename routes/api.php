@@ -267,7 +267,8 @@ Route::middleware('auth:api')
         Route::put('{id}/all_users', 'updateAllProjectUsers');
         Route::post('{id}/users', 'addProjectUser');
         Route::put('{projectId}/users/{registryId}', 'updateProjectUser');
-        Route::delete('{projectId}/users/{registryId}', 'deleteUserFromProject');
+        Route::delete('{projectId}/users/registry/{registryId}', 'deleteUserFromProject');
+        Route::delete('{projectId}/organisations/{organisationId}', 'deleteOrganisationFromProject');
         Route::put('{projectId}/users/{registryId}/primary_contact', 'makePrimaryContact');
     });
 
