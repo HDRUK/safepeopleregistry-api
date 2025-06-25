@@ -96,7 +96,6 @@ use App\Traits\StateWorkflow;
  * @property-read mixed $registry_affiliation_state
  * @property-read \App\Models\Organisation|null $organisation
  * @property-read \App\Models\Registry|null $registry
- * @property-read int|null $registry_has_affiliations_count
  * @method static \Database\Factories\AffiliationFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation newQuery()

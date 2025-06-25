@@ -149,7 +149,7 @@ class Registry extends Model
     {
         return $this->belongsToMany(
             Affiliation::class,
-            'registry_has_affiliations',
+            'affiliation',
             'registry_id',
             'affiliation_id',
         );
