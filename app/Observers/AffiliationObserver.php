@@ -52,10 +52,9 @@ class AffiliationObserver
 
     protected function handleChange(Affiliation $affiliation): void
     {
-
+        $this->emailDelegates($affiliation);
         $this->updateActionLog($affiliation->registry_id);
         $this->updateOrganisationActionLog($affiliation);
-        //$this->emailDelegates($affiliation);
     }
 
     protected function emailDelegates(Affiliation $affiliation)
@@ -81,6 +80,7 @@ class AffiliationObserver
         if (is_null($userId)) {
             return;
         }
+
         foreach ($delegateIds as $delegateId) {
             $input = [
                 'type' => 'USER_DELEGATE',
@@ -90,7 +90,10 @@ class AffiliationObserver
                 'identifier' => 'delegate_sponsor'
             ];
 
-            TriggerEmail::spawnEmail($input);
+            // dont start emailing delegates when seeding
+            if (!(app()->bound('seeding') && app()->make('seeding') === true)) {
+                TriggerEmail::spawnEmail($input);
+            }
         }
     }
 

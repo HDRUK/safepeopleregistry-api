@@ -41,6 +41,8 @@ class BaseDemoSeeder extends Seeder
      */
     public function run(): void
     {
+        app()->instance('seeding', true);
+
         $this->call([
             SectorSeeder::class,
             StateSeeder::class,
