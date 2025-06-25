@@ -73,6 +73,9 @@ class CustodianHasProjectUser extends Model
         return $this->transitions;
     }
 
+    protected $searchableColumns = [];
+    protected $sortableColumns = [];
+
     protected $table = 'custodian_has_project_has_user';
 
     public $timestamps = true;
