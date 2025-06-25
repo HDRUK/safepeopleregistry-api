@@ -84,10 +84,7 @@ class CustodianHasProjectUserController extends Controller
                 'projectHasUser.registry.user:id,registry_id,first_name,last_name,email',
                 'projectHasUser.project:id,title',
                 'projectHasUser.role:id,name',
-                'projectHasUser.affiliation' => function ($query) {
-                    $query->with('registryHasAffiliations.modelState.state')
-                        ->select(['id', 'organisation_id']);
-                },
+                'projectHasUser.affiliation:id,organisation_id',
                 'projectHasUser.affiliation.organisation:id,organisation_name'
             ])
                 ->where('custodian_id', $custodianId)
