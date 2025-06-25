@@ -27,8 +27,6 @@ class AffiliationObserver
         $unclaimed = $affiliation->organisation->unclaimed;
         $initialState = $unclaimed ? State::STATE_AFFILIATION_INVITED : State::STATE_AFFILIATION_PENDING;
         $affiliation->setState($initialState);
-        $this->updateActionLog($affiliation->registry_id);
-        $this->updateOrganisationActionLog($affiliation);
     }
 
     public function updated(Affiliation $affiliation): void
@@ -40,9 +38,6 @@ class AffiliationObserver
         $oldAffiliation = new Affiliation($affiliation->getOriginal());
 
         Notification::send($orgAdmins, new AffiliationChanged($user, $oldAffiliation, $affiliation));
-
-        $this->updateActionLog($affiliation->registry_id);
-        $this->updateOrganisationActionLog($affiliation);
     }
 
     public function deleted(Affiliation $affiliation): void
@@ -53,16 +48,14 @@ class AffiliationObserver
         $orgAdmins = $this->getOrgAdmins($affiliation);
 
         Notification::send($orgAdmins, new AffiliationDeleted($user, $affiliation));
-
-        $this->updateActionLog($affiliation->registry_id);
-        $this->updateOrganisationActionLog($affiliation);
     }
 
     protected function handleChange(Affiliation $affiliation): void
     {
 
         $this->updateActionLog($affiliation->registry_id);
-        $this->emailDelegates($affiliation);
+        $this->updateOrganisationActionLog($affiliation);
+        //$this->emailDelegates($affiliation);
     }
 
     protected function emailDelegates(Affiliation $affiliation)
