@@ -143,7 +143,7 @@ class Registry extends Model
     }
 
     /**
-     *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Affiliation>
+     *  @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Affiliation>
      */
     public function affiliations(): HasMany
     {
