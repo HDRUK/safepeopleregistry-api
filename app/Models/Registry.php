@@ -145,14 +145,9 @@ class Registry extends Model
     /**
      *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Affiliation>
      */
-    public function affiliations(): BelongsToMany
+    public function affiliations(): HasMany
     {
-        return $this->belongsToMany(
-            Affiliation::class,
-            'affiliation',
-            'registry_id',
-            'affiliation_id',
-        );
+        return $this->hasMany(Affiliation::class, 'registry_id');
     }
 
     /**

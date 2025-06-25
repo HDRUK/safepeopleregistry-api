@@ -72,10 +72,6 @@ class AffiliationController extends Controller
             ->paginate((int) $this->getSystemConfig('PER_PAGE'));
 
 
-        $affiliations->getCollection()->transform(function ($affiliation) {
-            return $affiliation->append('registryAffiliationState');
-        });
-
         return response()->json([
             'message' => 'success',
             'data' => $affiliations,

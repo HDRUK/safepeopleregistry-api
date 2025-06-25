@@ -583,7 +583,7 @@ class Organisation extends Model
         return $this->hasManyThrough(
             Registry::class,
             Affiliation::class,
-            'affiliation_id',
+            'organisation_id',
             'id',
             'id',
             'registry_id'
