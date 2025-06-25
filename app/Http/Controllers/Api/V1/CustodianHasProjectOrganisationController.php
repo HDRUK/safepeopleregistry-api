@@ -78,6 +78,7 @@ class CustodianHasProjectOrganisationController extends Controller
 
             $projectId = $request->input('project_id');
 
+            // candidate for eloquent optimisation by switching to raw SQL
             $records = CustodianHasProjectOrganisation::with([
                 'modelState.state',
                 'projectOrganisation.organisation.sroOfficer',
@@ -105,6 +106,7 @@ class CustodianHasProjectOrganisationController extends Controller
                 })
                 ->join('project_has_organisations', 'custodian_has_project_has_organisation.project_has_organisation_id', '=', 'project_has_organisations.id')
                 ->join('projects', 'project_has_organisations.project_id', '=', 'projects.id')
+                ->join('organisations', 'project_has_organisations.organisation_id', '=', 'organisations.id')
                 ->applySorting()
                 ->select('custodian_has_project_has_organisation.*')
                 ->paginate($perPage);

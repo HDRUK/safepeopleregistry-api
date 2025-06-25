@@ -105,9 +105,15 @@ class CustodianHasProjectOrganisation extends Model
         'updated_at' => 'datetime',
     ];
 
-    protected static array  $searchableColumns = ['projects.title'];
-    protected static array  $sortableColumns = ['projects.title'];
+    protected static array  $searchableColumns = [
+        'projects.title',
+        'organisations.organisation_name'
+    ];
 
+    protected static array  $sortableColumns = [
+        'projects.title',
+        'organisations.organisation_name'
+    ];
 
     /**
      * The "booted" method of the model.
