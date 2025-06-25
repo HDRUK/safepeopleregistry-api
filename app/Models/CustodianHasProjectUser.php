@@ -73,8 +73,8 @@ class CustodianHasProjectUser extends Model
         return $this->transitions;
     }
 
-    protected $searchableColumns = [];
-    protected $sortableColumns = [];
+    protected static array  $searchableColumns = ['projects.title'];
+    protected static array  $sortableColumns = ['projects.title'];
 
     protected $table = 'custodian_has_project_has_user';
 
