@@ -15,7 +15,6 @@ use App\Models\OrganisationHasSubsidiary;
 use App\Models\Affiliation;
 use App\Models\CustodianHasProjectOrganisation;
 use App\Models\Registry;
-use App\Models\RegistryHasAffiliation;
 use App\Models\Rules;
 use App\Models\CustodianHasRule;
 use App\Models\Project;
@@ -245,11 +244,6 @@ class ActionLogTest extends TestCase
             'registry_id' => $this->user->registry_id,
         ]);
 
-        RegistryHasAffiliation::create([
-            'registry_id' => $this->user->registry_id,
-            'affiliation_id' => $affiliation->id,
-        ]);
-
         $response = $this->actingAs($this->admin)
             ->json(
                 'GET',
@@ -267,11 +261,8 @@ class ActionLogTest extends TestCase
         );
 
         // add a complete affiliation
-        $affiliation = Affiliation::factory()->create();
-        RegistryHasAffiliation::create([
-            'registry_id' => $this->user->registry_id,
-            'affiliation_id' => $affiliation->id,
-        ]);
+        $affiliation = Affiliation::factory()->create(['registry_id' => $this->user->registry_id]);
+
 
         $response = $this->actingAs($this->admin)
             ->json(
@@ -711,14 +702,9 @@ class ActionLogTest extends TestCase
             'registry_id' => $newRegistry->id,
         ]);
 
-        $affiliation = Affiliation::factory()->create([
+        Affiliation::factory()->create([
             'organisation_id' => $org->id,
             'registry_id' => $newRegistry->id,
-        ]);
-
-        RegistryHasAffiliation::create([
-            'registry_id' => $newUser->registry_id,
-            'affiliation_id' => $affiliation->id,
         ]);
 
         $response = $this->actingAs($this->admin)

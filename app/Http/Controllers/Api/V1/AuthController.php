@@ -10,7 +10,6 @@ use App\Models\OrganisationDelegate;
 use App\Models\PendingInvite;
 use App\Models\User;
 use App\Models\Affiliation;
-use App\Models\RegistryHasAffiliation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -25,9 +24,7 @@ class AuthController extends Controller
      *
      * @return void
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     public function registerKeycloakUser(Request $request): JsonResponse
     {
@@ -57,11 +54,6 @@ class AuthController extends Controller
                         'role' => null,
                         'email' => $unclaimedUser->email,
                         'ror' => null,
-                        'registry_id' => $registryId,
-                    ]);
-
-                    RegistryHasAffiliation::create([
-                        'affiliation_id' => $aff->id,
                         'registry_id' => $registryId,
                     ]);
 

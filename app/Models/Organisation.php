@@ -560,11 +560,8 @@ class Organisation extends Model
 
     public function scopeGetCurrentRegistries($query, $id)
     {
-        return RegistryHasAffiliation::with('affiliation')
-            ->whereHas('affiliation', function ($query) use ($id) {
-                $query->where('organisation_id', $id)->where('to', '=', '')
-                    ->orWhereNull('to');
-            });
+        return Affiliation::where('organisation_id', $id)->where('to', '=', '')
+            ->orWhereNull('to');
     }
 
     /**
@@ -579,13 +576,13 @@ class Organisation extends Model
     }
 
     /**
-     *  @return \Illuminate\Database\Eloquent\Relations\HasManyThrough<\App\Models\Registry, \App\Models\RegistryHasAffiliation, static>
+     *  @return \Illuminate\Database\Eloquent\Relations\HasManyThrough<\App\Models\Registry, \App\Models\Affiliation, static>
      */
     public function registries(): HasManyThrough
     {
         return $this->hasManyThrough(
             Registry::class,
-            RegistryHasAffiliation::class,
+            Affiliation::class,
             'affiliation_id',
             'id',
             'id',

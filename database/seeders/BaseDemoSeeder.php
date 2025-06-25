@@ -24,7 +24,6 @@ use App\Models\ProjectHasUser;
 use App\Models\ProjectRole;
 use App\Models\ProjectHasCustodian;
 use App\Models\RegistryHasTraining;
-use App\Models\RegistryHasAffiliation;
 use App\Models\OrganisationHasDepartment;
 use App\Models\State;
 use App\Models\Subsidiary;
@@ -934,11 +933,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                     'role' => $e['role'],
                     'email' => $e['email'],
                     'ror' => $e['ror'],
-                    'registry_id' => $user->registry_id,
-                ]);
-
-                RegistryHasAffiliation::create([
-                    'affiliation_id' => $aff->id,
                     'registry_id' => $user->registry_id,
                 ]);
             }

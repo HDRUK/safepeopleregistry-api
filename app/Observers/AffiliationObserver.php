@@ -5,7 +5,7 @@ namespace App\Observers;
 use TriggerEmail;
 use App\Models\User;
 use App\Models\Affiliation;
-use App\Models\RegistryHasAffiliation;
+use App\Models\State;
 use App\Traits\AffiliationCompletionManager;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\Affiliations\AffiliationCreated;
@@ -23,6 +23,12 @@ class AffiliationObserver
         $orgAdmins = $this->getOrgAdmins($affiliation);
 
         Notification::send($orgAdmins, new AffiliationCreated($user, $affiliation));
+
+        $unclaimed = $affiliation->organisation->unclaimed;
+        $initialState = $unclaimed ? State::STATE_AFFILIATION_INVITED : State::STATE_AFFILIATION_PENDING;
+        $affiliation->setState($initialState);
+        $this->updateActionLog($affiliation->registry_id);
+        $this->updateOrganisationActionLog($affiliation);
     }
 
     public function updated(Affiliation $affiliation): void
@@ -35,11 +41,8 @@ class AffiliationObserver
 
         Notification::send($orgAdmins, new AffiliationChanged($user, $oldAffiliation, $affiliation));
 
-        // note - need to handle if the affiliation organisation has been changed?
-        // - this would need to send a create notification to do the new organisation?
-        // - should they be allowed to change the affiliation anyway?!
-        // - it would be much better for them to just create a new one
-
+        $this->updateActionLog($affiliation->registry_id);
+        $this->updateOrganisationActionLog($affiliation);
     }
 
     public function deleted(Affiliation $affiliation): void
@@ -50,19 +53,15 @@ class AffiliationObserver
         $orgAdmins = $this->getOrgAdmins($affiliation);
 
         Notification::send($orgAdmins, new AffiliationDeleted($user, $affiliation));
+
+        $this->updateActionLog($affiliation->registry_id);
+        $this->updateOrganisationActionLog($affiliation);
     }
 
     protected function handleChange(Affiliation $affiliation): void
     {
-        $registryIds = RegistryHasAffiliation::where('affiliation_id', $affiliation->id)
-            ->distinct()
-            ->select('registry_id')
-            ->pluck('registry_id');
 
-        foreach ($registryIds as $registryId) {
-            $this->updateActionLog($registryId);
-        }
-
+        $this->updateActionLog($affiliation->registry_id);
         $this->emailDelegates($affiliation);
     }
 
@@ -85,8 +84,7 @@ class AffiliationObserver
             'is_delegate' => 1
         ])->select('id')->pluck('id');
 
-        $firstRha = $affiliation->registryHasAffiliations()->first();
-        $userId = optional($firstRha)?->registry?->user?->id;
+        $userId = $affiliation->registry?->user?->id;
         if (is_null($userId)) {
             return;
         }
