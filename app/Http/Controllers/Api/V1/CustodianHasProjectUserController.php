@@ -79,7 +79,7 @@ class CustodianHasProjectUserController extends Controller
 
             $projectId = $request->input('project_id');
 
-            // candidate for eloquent optimisation with raw SQL
+            // candidate for eloquent optimisation by switching to raw SQL
             $records = CustodianHasProjectUser::with([
                 'modelState.state',
                 'projectHasUser.registry.user:id,registry_id,first_name,last_name,email',
