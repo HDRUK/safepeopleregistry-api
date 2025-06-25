@@ -15,8 +15,7 @@ trait AffiliationCompletionManager
         $registryAffiliations = Affiliation::where('registry_id', $registryId)->get();
 
         $isComplete = $registryAffiliations->contains(function ($a) {
-            return $a &&
-                !empty($a->member_id) &&
+            return !empty($a->member_id) &&
                 !empty($a->relationship) &&
                 !empty($a->from);
         });
@@ -34,7 +33,7 @@ trait AffiliationCompletionManager
 
     private function updateOrganisationActionLog(Affiliation $affiliation): void
     {
-        $organisation = $affiliation?->organisation;
+        $organisation = $affiliation->organisation;
 
         if (!$organisation) {
             return;
