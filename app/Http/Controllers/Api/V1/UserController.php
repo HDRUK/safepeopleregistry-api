@@ -22,7 +22,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
-use App\Models\CustodianHasProjectUser;
 use App\Traits\CommonFunctions;
 use App\Traits\CheckPermissions;
 use Illuminate\Support\Facades\Gate;
@@ -248,66 +247,6 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'success',
                 'data' => $user
-            ], 200);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
-    }
-
-    public function getHistory(Request $request, int $id): JsonResponse
-    {
-        try {
-            // Post-MVP - this should be an audit log for the user...
-            $user = User::findOrFail($id);
-            if (!Gate::allows('view', $user)) {
-                return $this->ForbiddenResponse();
-            }
-
-            /*
-            // coming in a new ticket to implement a User Audit log properly
-            $approvalLog = CustodianHasProjectUser::with('custodian:id,name')->where(['user_id' => $user->id])->get();
-
-            $approvalHistory = $approvalLog->map(function ($log) {
-                $custodian = $log->custodian->name;
-                return [
-                    'message' => $log->approved ? 'custodian_approved' : 'custodian_rejected',
-                    'details' => $log->approved
-                        ? $custodian . ' approved user: ' . ($log->comment ?? 'No comment')
-                        : $custodian . ' rejected user: ' . ($log->comment ?? 'No comment'),
-                    'created_at' => $log->created_at,
-                ];
-            });
-            */
-
-            // placeholder to give some history
-            $data = collect([
-                [
-                    'message' => 'profile_created',
-                    'created_at' => $user->created_at,
-                ],
-            ])
-                ->merge(
-                    $user->actionLogs
-                        ->whereNotNull("completed_at")
-                        // LS - PHPStan doesn't like the dynamic property access here, but it's fine.
-                        /** @phpstan-ignore-next-line */
-                        ->map(function ($log) {
-                            return [
-                                /** @phpstan-ignore-next-line */
-                                'message' => $log->action,
-                                /** @phpstan-ignore-next-line */
-                                'created_at' => $log->completed_at,
-                            ];
-                        })
-                )
-                //->merge($approvalHistory)
-                ->sortByDesc('created_at')
-                ->values()
-                ->toArray();
-
-            return response()->json([
-                'message' => 'success',
-                'data' => $data,
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());

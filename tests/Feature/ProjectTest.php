@@ -289,7 +289,7 @@ class ProjectTest extends TestCase
 
         ProjectHasCustodian::create([
             'project_id' => $project->id,
-            'custodian_id' => 1,
+            'custodian_id' => $custodian->id,
             'approved' => true
         ]);
 

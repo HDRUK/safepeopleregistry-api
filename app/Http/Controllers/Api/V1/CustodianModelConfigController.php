@@ -122,7 +122,6 @@ class CustodianModelConfigController extends Controller
             ]);
 
             return $this->CreatedResponse($conf->id);
-
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -252,14 +251,13 @@ class CustodianModelConfigController extends Controller
             ]);
 
             return $this->OKResponse(null);
-
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
     }
     /**
      * @OA\Get(
-     *      path="/api/v1/entity_models",
+     *      path="/api/v1/custodian_config/{custodianId}/entity_models",
      *      summary="Get entity models for custodian config",
      *      description="Retrieve entity models associated with custodian config based on the specified entity_model_type",
      *      tags={"CustodianModelConfig"},
@@ -303,7 +301,7 @@ class CustodianModelConfigController extends Controller
      *      )
      * )
      */
-    public function getEntityModels(GetEntityModelsRequest $request, int $id): JsonResponse
+    public function getEntityModels(GetEntityModelsRequest $request, int $custodianId): JsonResponse
     {
         $entityModelType = $request->input('entity_model_type');
 
@@ -313,14 +311,14 @@ class CustodianModelConfigController extends Controller
             return $this->NotFoundResponse();
         }
 
-        $entityModels = DecisionModel::with(['custodianModelConfig' => function ($query) use ($id) {
-            $query->where('custodian_id', $id);
+        $entityModels = DecisionModel::with(['custodianModelConfig' => function ($query) use ($custodianId) {
+            $query->where('custodian_id', $custodianId);
         }])
-        ->whereHas('custodianModelConfig', function ($query) use ($id) {
-            $query->where('custodian_id', $id);
-        })
-        ->where('entity_model_type_id', $entityModelTypeId)
-        ->get();
+            ->whereHas('custodianModelConfig', function ($query) use ($custodianId) {
+                $query->where('custodian_id', $custodianId);
+            })
+            ->where('entity_model_type_id', $entityModelTypeId)
+            ->get();
 
         if ($entityModels->isEmpty()) {
             return $this->NotFoundResponse();
@@ -338,92 +336,96 @@ class CustodianModelConfigController extends Controller
         return $this->OKResponse($entityModels);
     }
     /**
-      * @OA\Put(
-      *      path="/api/v1/custodian_config/update-active/{id}",
-      *      summary="Update active status of custodian model configs",
-      *      description="Update the active status of specified custodian model configs for a given custodian",
-      *      tags={"CustodianModelConfig"},
-      *      security={{"bearerAuth":{}}},
-      *      @OA\Parameter(
-      *          name="id",
-      *          in="path",
-      *          required=true,
-      *          description="ID of the custodian",
-      *          @OA\Schema(type="integer")
-      *      ),
-      *      @OA\RequestBody(
-      *          required=true,
-      *          @OA\JsonContent(
-      *              @OA\Property(
-      *                  property="configs",
-      *                  type="array",
-      *                  @OA\Items(
-      *                      type="object",
-      *                      @OA\Property(property="entity_model_id", type="integer", example=1),
-      *                      @OA\Property(property="active", type="boolean", example=true)
-      *                  )
-      *              )
-      *          )
-      *      ),
-      *      @OA\Response(
-      *          response=200,
-      *          description="Success",
-      *          @OA\JsonContent(
-      *              @OA\Property(property="message", type="string", example="Custodian model configs updated successfully"),
-      *              @OA\Property(property="data", type="array",
-      *                  @OA\Items(
-      *                      type="object",
-      *                      @OA\Property(property="entity_model_id", type="integer", example=1),
-      *                      @OA\Property(property="active", type="boolean", example=true)
-      *                  )
-      *              )
-      *          )
-      *      ),
-      *      @OA\Response(
-      *          response=400,
-      *          description="Bad Request",
-      *          @OA\JsonContent(
-      *              @OA\Property(property="message", type="string", example="Invalid input")
-      *          )
-      *      ),
-      *      @OA\Response(
-      *          response=404,
-      *          description="Not Found",
-      *          @OA\JsonContent(
-      *              @OA\Property(property="message", type="string", example="Custodian or one or more entity models not found")
-      *          )
-      *      )
-      * )
-      */
-    public function updateCustodianModelConfigsActive(Request $request, int $id): JsonResponse
+     * @OA\Put(
+     *      path="/api/v1/custodian_config/{custodianId}/entity_models",
+     *      summary="Update a custodian's entity models",
+     *      description="Update the active status of specified custodian model configs for a given custodian",
+     *      tags={"CustodianModelConfig"},
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          required=true,
+     *          description="ID of the custodian",
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              @OA\Property(
+     *                  property="configs",
+     *                  type="array",
+     *                  @OA\Items(
+     *                      type="object",
+     *                      @OA\Property(property="entity_model_id", type="integer", example=1),
+     *                      @OA\Property(property="active", type="boolean", example=true)
+     *                  )
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Custodian model configs updated successfully"),
+     *              @OA\Property(property="data", type="array",
+     *                  @OA\Items(
+     *                      type="object",
+     *                      @OA\Property(property="entity_model_id", type="integer", example=1),
+     *                      @OA\Property(property="active", type="boolean", example=true)
+     *                  )
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Bad Request",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid input")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not Found",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Custodian or one or more entity models not found")
+     *          )
+     *      )
+     * )
+     */
+    public function updateEntityModels(Request $request, int $custodianId): JsonResponse
     {
-        $request->validate([
-            'configs' => 'required|array',
-            'configs.*.entity_model_id' => 'required|integer|exists:entity_models,id',
-            'configs.*.active' => 'required|boolean',
-        ]);
+        try {
+            $request->validate([
+                'configs' => 'required|array',
+                'configs.*.entity_model_id' => 'required|integer|exists:decision_models,id',
+                'configs.*.active' => 'required|boolean',
+            ]);
 
-        $configs = $request->input('configs');
-        $updatedConfigs = [];
+            $configs = $request->input('configs');
+            $updatedConfigs = [];
 
-        foreach ($configs as $config) {
-            $custodianModelConfig = CustodianModelConfig::where('custodian_id', $id)
-                ->where('entity_model_id', $config['entity_model_id'])
-                ->first();
+            foreach ($configs as $config) {
+                $custodianModelConfig = CustodianModelConfig::where('custodian_id', $custodianId)
+                    ->where('entity_model_id', $config['entity_model_id'])
+                    ->first();
 
-            if ($custodianModelConfig) {
-                $custodianModelConfig->active = $config['active'];
-                $custodianModelConfig->save();
-                $updatedConfigs[] = [
-                    'entity_model_id' => $custodianModelConfig->entity_model_id,
-                    'active' => $custodianModelConfig->active,
-                ];
+                if ($custodianModelConfig) {
+                    $custodianModelConfig->active = $config['active'];
+                    $custodianModelConfig->save();
+                    $updatedConfigs[] = [
+                        'entity_model_id' => $custodianModelConfig->entity_model_id,
+                        'active' => $custodianModelConfig->active,
+                    ];
+                }
             }
-        }
 
-        if (count($updatedConfigs) !== count($configs)) {
-            return $this->NotFoundResponse();
+            if (count($updatedConfigs) !== count($configs)) {
+                return $this->NotFoundResponse();
+            }
+            return $this->OKResponse($updatedConfigs);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         }
-        return $this->OKResponse($updatedConfigs);
     }
 }

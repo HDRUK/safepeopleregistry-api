@@ -42,6 +42,7 @@ use App\Http\Controllers\Api\V1\CustodianHasProjectUserController;
 use App\Http\Controllers\Api\V1\ProjectHasUserController;
 use App\Http\Controllers\Api\V1\ProjectHasOrganisationController;
 use App\Http\Controllers\Api\V1\UserAuditLogController;
+use App\Http\Controllers\Api\V1\AuditLogController;
 use App\Http\Controllers\Api\V1\VendorWebhookReceiverController;
 use Illuminate\Support\Facades\Route;
 
@@ -70,7 +71,7 @@ Route::middleware(['auth:api'])
         Route::get('/', [UserController::class, 'index']);
         Route::get('/test', [UserController::class, 'fakeEndpointForTesting']);
         Route::get('/{id}', [UserController::class, 'show']);
-        Route::get('/{id}/history', [UserAuditLogController::class, 'show']);
+        Route::get('/{id}/history', [AuditLogController::class, 'showUserHistory']);
         Route::get('/identifier/{id}', [UserController::class, 'showByUniqueIdentifier']);
         Route::get('/{id}/projects', [UserController::class, 'userProjects']);
 
@@ -488,12 +489,12 @@ Route::middleware('auth:api')
     ->prefix('v1/custodian_config')
     ->controller(CustodianModelConfigController::class)
     ->group(function () {
-        Route::put('update-active/{id}', 'updateCustodianModelConfigsActive');
         Route::post('/', 'store');
         Route::get('{id}', 'getByCustodianID');
         Route::put('{id}', 'update');
         Route::delete('{id}', 'destroy');
         Route::get('{id}/entity_models', 'getEntityModels');
+        Route::put('{id}/entity_models', 'updateEntityModels');
     });
 
 // --- PROJECT DETAILS ---
