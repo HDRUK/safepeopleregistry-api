@@ -9,6 +9,7 @@ use Tests\Traits\RefreshDatabaseLite;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Support\Facades\Queue;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -32,6 +33,8 @@ abstract class TestCase extends BaseTestCase
 
         Keycloak::shouldReceive('determineUserGroup')
             ->andReturn('USERS');
+
+        Queue::fake();
     }
 
     protected function withUsers(): void

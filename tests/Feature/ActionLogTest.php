@@ -232,7 +232,7 @@ class ActionLogTest extends TestCase
 
 
         //create an incomplete affiliation
-        $affiliation = Affiliation::create([
+        Affiliation::create([
             'organisation_id' => 1,
             'member_id' => '',
             'relationship' => null,
@@ -261,7 +261,7 @@ class ActionLogTest extends TestCase
         );
 
         // add a complete affiliation
-        $affiliation = Affiliation::factory()->create(['registry_id' => $this->user->registry_id]);
+        Affiliation::factory()->create(['registry_id' => $this->user->registry_id]);
 
 
         $response = $this->actingAs($this->admin)
