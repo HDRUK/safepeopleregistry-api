@@ -21,6 +21,8 @@ abstract class TestCase extends BaseTestCase
     protected $organisation_admin = null;
     protected $organisation_delegate = null;
 
+    protected bool $shouldFakeQueue = true;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -34,7 +36,9 @@ abstract class TestCase extends BaseTestCase
         Keycloak::shouldReceive('determineUserGroup')
             ->andReturn('USERS');
 
-        Queue::fake();
+        if ($this->shouldFakeQueue) {
+            Queue::fake();
+        }
     }
 
     protected function withUsers(): void
