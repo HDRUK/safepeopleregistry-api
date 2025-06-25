@@ -81,10 +81,13 @@ class CustodianHasProjectUserController extends Controller
 
             $records = CustodianHasProjectUser::with([
                 'modelState.state',
-                'projectHasUser.registry.user',
+                'projectHasUser.registry.user:id,registry_id,first_name,last_name,email',
                 'projectHasUser.project:id,title',
                 'projectHasUser.role:id,name',
-                'projectHasUser.affiliation:id,organisation_id',
+                'projectHasUser.affiliation' => function ($query) {
+                    $query->with('registryHasAffiliations.modelState.state')
+                        ->select(['id', 'organisation_id']);
+                },
                 'projectHasUser.affiliation.organisation:id,organisation_name'
             ])
                 ->where('custodian_id', $custodianId)
@@ -111,6 +114,10 @@ class CustodianHasProjectUserController extends Controller
                         $q->where('id', $projectId);
                     });
                 })
+                ->join('project_has_users', 'custodian_has_project_has_user.project_has_user_id', '=', 'project_has_users.id')
+                ->join('projects', 'project_has_users.project_id', '=', 'projects.id')
+                ->applySorting()
+                ->select('custodian_has_project_has_user.*')
                 ->paginate($perPage);
 
             return $this->OKResponse($records);
