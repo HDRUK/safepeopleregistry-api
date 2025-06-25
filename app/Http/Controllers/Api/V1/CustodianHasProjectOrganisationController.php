@@ -10,6 +10,7 @@ use App\Models\Custodian;
 use App\Models\CustodianHasProjectOrganisation;
 use Illuminate\Support\Facades\Gate;
 use App\Traits\CommonFunctions;
+use Illuminate\Support\Facades\Auth;
 
 class CustodianHasProjectOrganisationController extends Controller
 {
@@ -276,13 +277,42 @@ class CustodianHasProjectOrganisationController extends Controller
 
                 $comment = $request->get('comment');
                 if (isset($comment)) {
-                    $log = 'Approval status change to ' . $status . ' from ' . $originalStatus . ' with comment:' . $comment;
-                    /*$userId = $cho->projectHasUser->registry->user->id;
-                    UserAuditLog::create([
-                        'user_id' => $userId,
-                        'class'   => CustodianHasProjectUser::class,
-                        'log'     => $log,
-                    ]);*/
+                    $pho = $cho->projectOrganisation;
+                    $organisation = $pho->organisation;
+                    $project = $pho->project;
+                    $organisationId = $organisation->id;
+                    $orgName = $organisation->organisation_name;
+
+
+                    $filteredProjectUsers = $project->projectUsers()
+                        ->whereHas('affiliation', function ($query) use ($organisationId) {
+                            $query->where('organisation_id', $organisationId);
+                        })
+                        ->with('registry.user')
+                        ->get();
+
+
+                    foreach ($filteredProjectUsers as $projectUser) {
+                        $user = optional($projectUser->registry)->user;
+                        if (!$user) {
+                            continue;
+                        }
+
+                        $details = [
+                            'organisation_name' => $orgName,
+                            'original_status' => $originalStatus,
+                            'new_status' => $status,
+                            'comment' => $comment
+                        ];
+
+                        activity()
+                            ->causedBy(Auth::user())
+                            ->performedOn($user)
+                            ->withProperties($details)
+                            ->event('status_changed')
+                            ->useLog('custodian_project_validation_status')
+                            ->log($comment);
+                    }
                 };
             }
 

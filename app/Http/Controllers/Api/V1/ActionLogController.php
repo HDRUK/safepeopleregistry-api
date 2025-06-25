@@ -11,6 +11,9 @@ use App\Models\Custodian;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Traits\Responses;
+use Illuminate\Support\Facades\Auth;
+
+use function activity;
 
 class ActionLogController extends Controller
 {
@@ -163,6 +166,12 @@ class ActionLogController extends Controller
 
         if ($request->has('complete')) {
             $log->completed_at = Carbon::now();
+            activity()
+                ->causedBy(Auth::user())
+                ->performedOn($log)
+                ->event('action_log_completed')
+                ->useLog('action_log')
+                ->log($log->action);
         } elseif ($request->has('incomplete')) {
             $log->completed_at = null;
         }
