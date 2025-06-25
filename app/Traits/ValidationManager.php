@@ -159,18 +159,4 @@ trait ValidationManager
             $this->updateCustodianProjectUserValidation($projectId, null, $custodianId);
         }
     }
-
-    public function deleteCustodianProjectOrganisationValidation(
-        int $projectId,
-        int $custodianId,
-        int $organisationId,
-    ): void {
-        ValidationLog::where('secondary_entity_id', $projectId)
-            ->when(function ($query) use ($custodianId) {
-                return $query->where('entity_id', $custodianId);
-            }, function ($query) use ($organisationId) {
-                return $query->where('tertiary_entity_id', $organisationId);
-            })
-            ->delete();
-    }
 }

@@ -535,7 +535,6 @@ Route::middleware('auth:api')
     ->controller(ProjectHasOrganisationController::class)
     ->group(function () {
         Route::get('/{id}', 'show');
-        Route::delete('/{id}', 'delete');
     });
 
 // --- CUSTODIAN PROJECT USERS VALIDATIONS ---
