@@ -33,7 +33,6 @@ class ProjectHasCustodian extends Model
     protected $fillable = [
         'project_id',
         'custodian_id',
-        'approved',
     ];
 
     /**
