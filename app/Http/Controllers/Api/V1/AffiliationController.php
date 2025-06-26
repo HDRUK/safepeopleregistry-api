@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\V1;
 use Exception;
 use App\Models\Affiliation;
 use App\Models\State;
-use App\Models\RegistryHasAffiliation;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -59,6 +58,7 @@ class AffiliationController extends Controller
     {
         $affiliations = Affiliation::with(
             [
+                'modelState.state',
                 'organisation' => function ($query) {
                     $query->select(
                         'id',
@@ -69,18 +69,9 @@ class AffiliationController extends Controller
                 },
             ]
         )
-            ->whereHas(
-                'registryHasAffiliations',
-                function ($query) use ($registryId) {
-                    $query->where('registry_id', $registryId);
-                }
-            )
+            ->where(['registry_id' => $registryId])
             ->paginate((int) $this->getSystemConfig('PER_PAGE'));
 
-
-        $affiliations->getCollection()->transform(function ($affiliation) {
-            return $affiliation->append('registryAffiliationState');
-        });
 
         return response()->json([
             'message' => 'success',
@@ -156,11 +147,6 @@ class AffiliationController extends Controller
                 'email' => $input['email'],
                 'ror' => $input['ror'],
                 'registry_id' => $registryId,
-            ]);
-
-            RegistryHasAffiliation::create([
-                'registry_id' => $registryId,
-                'affiliation_id' => $affiliation->id,
             ]);
 
             return response()->json([
@@ -358,11 +344,6 @@ class AffiliationController extends Controller
         try {
             Affiliation::where('id', $id)->first()->delete();
 
-            RegistryHasAffiliation::where(
-                'affiliation_id',
-                $id
-            )->delete();
-
             return response()->json([
                 'message' => 'success',
                 'data' => null,
@@ -382,13 +363,13 @@ class AffiliationController extends Controller
 
             $status = strtolower($validated['status']);
 
-            $rha = RegistryHasAffiliation::where(
+            $affiliation = Affiliation::where(
                 [
                     'registry_id' => $registryId,
-                    'affiliation_id' => $affiliationId
+                    'id' => $affiliationId
                 ]
             )->first();
-            if (!$rha) {
+            if (!$affiliation) {
                 return $this->NotFoundResponse();
             }
 
@@ -403,17 +384,17 @@ class AffiliationController extends Controller
 
             $newStateSlug = $statusSlugMap[$status];
 
-            if (!$rha->canTransitionTo($newStateSlug)) {
+            if (!$affiliation->canTransitionTo($newStateSlug)) {
                 return $this->ErrorResponse(
                     'Invalid state transition. ' .
-                        $rha->getState() .
+                        $affiliation->getState() .
                         ' => ' . $newStateSlug
                 );
             }
 
-            $rha->transitionTo($newStateSlug);
+            $affiliation->transitionTo($newStateSlug);
 
-            return $this->OKResponse($rha->getState());
+            return $this->OKResponse($affiliation->getState());
         } catch (Exception $e) {
             return $this->ErrorResponse($e->getMessage());
         }

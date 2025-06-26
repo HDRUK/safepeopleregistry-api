@@ -7,19 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- *
- *
- * @property int $project_id
- * @property int $organisation_id
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasOrganisation newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasOrganisation newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasOrganisation query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasOrganisation whereOrganisationId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasOrganisation whereProjectId($value)
- * @mixin \Eloquent
- */
-/**
- * @OA\Schema(
+ *  @OA\Schema(
  *     schema="ProjectHasOrganisation",
  *     type="object",
  *     title="ProjectHasOrganisation",
@@ -37,6 +25,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *         ref="#/components/schemas/Project"
  *     )
  * )
+ * 
+ * @property int $project_id
+ * @property int $organisation_id
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasOrganisation newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasOrganisation newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasOrganisation query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasOrganisation whereOrganisationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasOrganisation whereProjectId($value)
+ * @mixin \Eloquent
  */
 class ProjectHasOrganisation extends Model
 {

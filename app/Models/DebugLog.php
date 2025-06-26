@@ -6,8 +6,45 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- *
- *
+ * @OA\Schema(
+ *     schema="DebugLog",
+ *     type="object",
+ *     title="DebugLog",
+ *     description="Model representing debug logs",
+ *     @OA\Property(
+ *         property="id",
+ *         type="integer",
+ *         example=1,
+ *         description="Unique identifier for the debug log"
+ *     ),
+ *     @OA\Property(
+ *         property="class",
+ *         type="string",
+ *         example="App\Http\Controllers\Api\V1\CustodianController",
+ *         description="Class name where the log was generated"
+ *     ),
+ *     @OA\Property(
+ *         property="log",
+ *         type="string",
+ *         example="An error occurred while processing the request.",
+ *         description="Log message"
+ *     ),
+ *     @OA\Property(
+ *         property="created_at",
+ *         type="string",
+ *         format="date-time",
+ *         example="2025-06-25T12:00:00Z",
+ *         description="Timestamp when the log was created"
+ *     ),
+ *     @OA\Property(
+ *         property="updated_at",
+ *         type="string",
+ *         format="date-time",
+ *         example="2025-06-25T12:00:00Z",
+ *         description="Timestamp when the log was last updated"
+ *     )
+ * )
+ * 
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

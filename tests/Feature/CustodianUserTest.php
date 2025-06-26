@@ -156,25 +156,24 @@ class CustodianUserTest extends TestCase
 
     public function test_the_application_can_invite_a_user_for_custodian(): void
     {
-        Queue::fake();
         Queue::assertNothingPushed();
 
         CustodianUser::truncate();
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'POST',
-            self::TEST_URL,
-            [
-                'first_name' => fake()->firstname(),
-                'last_name' => fake()->lastname(),
-                'email' => fake()->email(),
-                'password' => Str::random(12),
-                'provider' => fake()->word(),
-                'keycloak_id' => '',
-                'custodian_id' => 1,
-            ]
-        );
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
+                    'first_name' => fake()->firstname(),
+                    'last_name' => fake()->lastname(),
+                    'email' => fake()->email(),
+                    'password' => Str::random(12),
+                    'provider' => fake()->word(),
+                    'keycloak_id' => '',
+                    'custodian_id' => 1,
+                ]
+            );
 
         $response->assertStatus(201);
 
@@ -206,7 +205,9 @@ class CustodianUserTest extends TestCase
                     'keycloak_id' => '',
                     'custodian_id' => 1,
                     'permissions' => [
-                        1, 3, 5,
+                        1,
+                        3,
+                        5,
                     ],
                 ]
             );

@@ -21,7 +21,6 @@ use App\Models\OrganisationHasSubsidiary;
 use App\Models\Subsidiary;
 use App\Models\User;
 use App\Models\UserHasDepartments;
-use App\Models\RegistryHasAffiliation;
 use App\Models\PendingInvite;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
@@ -29,6 +28,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\Organisations\EditOrganisation;
 use TriggerEmail;
 use App\Http\Traits\Responses;
+use App\Models\Affiliation;
 use Illuminate\Support\Facades\Gate;
 
 class OrganisationController extends Controller
@@ -1052,13 +1052,7 @@ class OrganisationController extends Controller
     public function countUsers(Request $request, int $id): JsonResponse
     {
         try {
-            $count = RegistryHasAffiliation::whereHas(
-                'affiliation',
-                function ($query) use ($id) {
-                    $query->where('organisation_id', $id);
-                }
-            )->count();
-
+            $count = Affiliation::where('organisation_id', $id)->count();
 
             if ($count && $count > 0) {
                 return response()->json([

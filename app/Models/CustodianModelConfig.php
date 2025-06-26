@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- *
- *
  * @OA\Schema (
  *      schema="CustodianModelConfig",
  *      title="CustodianModelConfig",
@@ -36,8 +34,9 @@ use Illuminate\Database\Eloquent\Model;
  *      @OA\Property(property="custodian_id",
  *          type="integer",
  *          example=12
- *      ),
+ *      )
  * )
+ * 
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

@@ -6,8 +6,25 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- *
- *
+ * @OA\Schema(
+ *     schema="RegistryHasTraining",
+ *     type="object",
+ *     title="RegistryHasTraining",
+ *     description="Pivot model representing the relationship between registries and trainings",
+ *     @OA\Property(
+ *         property="registry_id",
+ *         type="integer",
+ *         example=42,
+ *         description="ID of the registry"
+ *     ),
+ *     @OA\Property(
+ *         property="training_id",
+ *         type="integer",
+ *         example=24,
+ *         description="ID of the training"
+ *     )
+ * )
+ * 
  * @property int $registry_id
  * @property int $training_id
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RegistryHasTraining newModelQuery()

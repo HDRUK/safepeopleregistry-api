@@ -28,6 +28,8 @@ class ValidationLogTest extends TestCase
     protected $custodian;
     protected $project;
 
+    protected bool $shouldFakeQueue = false;
+
     public function setUp(): void
     {
         parent::setUp();

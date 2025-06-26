@@ -7,7 +7,24 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- *
+ * @OA\Schema(
+ *     schema="CustodianUserHasPermission",
+ *     type="object",
+ *     title="CustodianUserHasPermission",
+ *     description="Model representing the relationship between Custodian Users and Permissions",
+ *     @OA\Property(
+ *         property="custodian_user_id",
+ *         type="integer",
+ *         example=1,
+ *         description="ID of the custodian user"
+ *     ),
+ *     @OA\Property(
+ *         property="permission_id",
+ *         type="integer",
+ *         example=2,
+ *         description="ID of the permission"
+ *     )
+ * )
  *
  * @property-read \App\Models\Permission $permission
  * @property int $custodian_user_id

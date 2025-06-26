@@ -581,7 +581,6 @@ class OrganisationTest extends TestCase
 
     public function test_the_application_can_invite_a_user_for_organisations(): void
     {
-        Queue::fake();
         Queue::assertNothingPushed();
 
         $email = fake()->email();
@@ -627,7 +626,6 @@ class OrganisationTest extends TestCase
             'user_group' => User::GROUP_ADMINS
         ]);
 
-        Queue::fake();
         Queue::assertNothingPushed();
 
         $response = $this->actingAs($user)

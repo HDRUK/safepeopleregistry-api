@@ -7,8 +7,25 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- *
- *
+ * @OA\Schema(
+ *     schema="OrganisationHasSubsidiary",
+ *     type="object",
+ *     title="OrganisationHasSubsidiary",
+ *     description="Pivot model representing the relationship between organisations and subsidiaries",
+ *     @OA\Property(
+ *         property="organisation_id",
+ *         type="integer",
+ *         example=42,
+ *         description="ID of the organisation"
+ *     ),
+ *     @OA\Property(
+ *         property="subsidiary_id",
+ *         type="integer",
+ *         example=24,
+ *         description="ID of the subsidiary"
+ *     )
+ * )
+ * 
  * @property int $organisation_id
  * @property int $subsidiary_id
  * @property-read \App\Models\Organisation|null $organisation

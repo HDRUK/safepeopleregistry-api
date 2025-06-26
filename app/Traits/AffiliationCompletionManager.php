@@ -2,8 +2,8 @@
 
 namespace App\Traits;
 
-use App\Models\RegistryHasAffiliation;
 use App\Models\ActionLog;
+use App\Models\Affiliation;
 use App\Models\User;
 use App\Models\Organisation;
 use Carbon\Carbon;
@@ -12,14 +12,10 @@ trait AffiliationCompletionManager
 {
     public function updateActionLog(int $registryId): void
     {
-        $registryAffiliations = RegistryHasAffiliation::with('affiliation')
-            ->where('registry_id', $registryId)
-            ->get();
+        $registryAffiliations = Affiliation::where('registry_id', $registryId)->get();
 
-        $isComplete = $registryAffiliations->contains(function ($rha) {
-            $a = $rha->affiliation;
-            return $a &&
-                !empty($a->member_id) &&
+        $isComplete = $registryAffiliations->contains(function ($a) {
+            return !empty($a->member_id) &&
                 !empty($a->relationship) &&
                 !empty($a->from);
         });
@@ -35,21 +31,16 @@ trait AffiliationCompletionManager
         );
     }
 
-    private function updateOrganisationActionLog(RegistryHasAffiliation $registryHasAffiliation): void
+    private function updateOrganisationActionLog(Affiliation $affiliation): void
     {
-        $affiliation = $registryHasAffiliation->affiliation;
-        $organisation = $affiliation?->organisation;
+        $organisation = $affiliation->organisation;
 
         if (!$organisation) {
             return;
         }
 
-        $hasAssociations = RegistryHasAffiliation::whereHas(
-            'affiliation',
-            function ($query) use ($organisation) {
-                $query->where('organisation_id', $organisation->id);
-            }
-        )->exists();
+        $hasAffiliations = Affiliation::where('organisation_id', $organisation->id)
+            ->exists();
 
         ActionLog::updateOrCreate(
             [
@@ -57,9 +48,7 @@ trait AffiliationCompletionManager
                 'entity_type' => Organisation::class,
                 'action' => Organisation::ACTION_AFFILIATE_EMPLOYEES_COMPLETED,
             ],
-            ['completed_at' => $hasAssociations ? Carbon::now() : null]
+            ['completed_at' => $hasAffiliations ? Carbon::now() : null]
         );
     }
-
-
 }

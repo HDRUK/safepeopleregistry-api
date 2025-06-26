@@ -10,7 +10,17 @@ use App\Traits\StateWorkflow;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 /**
- *
+ * @OA\Schema(
+ *     schema="CustodianHasProjectUser",
+ *     title="Custodian Has Project User",
+ *     @OA\Property(property="id", type="integer", example=1),
+ *     @OA\Property(property="project_has_user_id", type="integer", example=1),
+ *     @OA\Property(property="custodian_id", type="integer", example=1),
+ *     @OA\Property(property="created_at", type="string", format="date-time"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time"),
+ *     @OA\Property(property="projectHasUser", ref="#/components/schemas/ProjectHasUser"),
+ * )
+ * 
  * @property int $project_has_user_id
  * @property int $custodian_id
  * @property int $approved
@@ -26,17 +36,6 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianHasProjectUser whereCustodianId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianHasProjectUser whereProjectUserId($value)
  * @mixin \Eloquent
- *
- * @OA\Schema(
- *     schema="CustodianHasProjectUser",
- *     title="Custodian Has Project User",
- *     @OA\Property(property="id", type="integer", example=1),
- *     @OA\Property(property="project_has_user_id", type="integer", example=1),
- *     @OA\Property(property="custodian_id", type="integer", example=1),
- *     @OA\Property(property="created_at", type="string", format="date-time"),
- *     @OA\Property(property="updated_at", type="string", format="date-time"),
- *     @OA\Property(property="projectHasUser", ref="#/components/schemas/ProjectHasUser"),
- * )
  */
 
 class CustodianHasProjectUser extends Model

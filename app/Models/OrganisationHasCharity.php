@@ -6,8 +6,31 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- *
- *
+ * @OA\Schema(
+ *     schema="OrganisationHasCharity",
+ *     type="object",
+ *     title="OrganisationHasCharity",
+ *     description="Pivot model representing the relationship between organisations and charities",
+ *     @OA\Property(
+ *         property="id",
+ *         type="integer",
+ *         example=1,
+ *         description="Unique identifier for the organisation-charity relationship"
+ *     ),
+ *     @OA\Property(
+ *         property="organisation_id",
+ *         type="integer",
+ *         example=42,
+ *         description="ID of the organisation"
+ *     ),
+ *     @OA\Property(
+ *         property="charity_id",
+ *         type="integer",
+ *         example=24,
+ *         description="ID of the charity"
+ *     )
+ * )
+ * 
  * @property int $id
  * @property int $organisation_id
  * @property int $charity_id

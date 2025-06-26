@@ -6,8 +6,25 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
- *
- *
+ *@OA\Schema(
+ *     schema="CustodianHasValidationCheck",
+ *     type="object",
+ *     title="CustodianHasValidationCheck",
+ *     description="Pivot model representing the relationship between Custodians and Validation Checks",
+ *     @OA\Property(
+ *         property="custodian_id",
+ *         type="integer",
+ *         example=1,
+ *         description="ID of the custodian"
+ *     ),
+ *     @OA\Property(
+ *         property="validation_check_id",
+ *         type="integer",
+ *         example=2,
+ *         description="ID of the validation check"
+ *     )
+ * )
+ * 
  * @property int $custodian_id
  * @property int $validation_check_id
  * @property-read \App\Models\Custodian $custodian

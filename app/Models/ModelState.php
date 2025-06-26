@@ -7,8 +7,51 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- *
- *
+ *  @OA\Schema(
+ *     schema="ModelState",
+ *     type="object",
+ *     title="ModelState",
+ *     description="Model representing the state of a model",
+ *     @OA\Property(
+ *         property="id",
+ *         type="integer",
+ *         example=1,
+ *         description="Unique identifier for the model state"
+ *     ),
+ *     @OA\Property(
+ *         property="state_id",
+ *         type="integer",
+ *         example=42,
+ *         description="ID of the state associated with the model state"
+ *     ),
+ *     @OA\Property(
+ *         property="stateable_type",
+ *         type="string",
+ *         example="App\Models\Project",
+ *         description="Type of the model associated with the state"
+ *     ),
+ *     @OA\Property(
+ *         property="stateable_id",
+ *         type="integer",
+ *         example=100,
+ *         description="ID of the model associated with the state"
+ *     ),
+ *     @OA\Property(
+ *         property="created_at",
+ *         type="string",
+ *         format="date-time",
+ *         example="2025-06-25T12:00:00Z",
+ *         description="Timestamp when the model state was created"
+ *     ),
+ *     @OA\Property(
+ *         property="updated_at",
+ *         type="string",
+ *         format="date-time",
+ *         example="2025-06-25T12:00:00Z",
+ *         description="Timestamp when the model state was last updated"
+ *     )
+ * )
+ * 
  * @property-read \App\Models\State $state
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
