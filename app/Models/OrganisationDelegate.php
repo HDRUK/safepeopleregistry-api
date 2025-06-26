@@ -6,8 +6,75 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- *
- *
+ *  @OA\Schema(
+ *     schema="OrganisationDelegate",
+ *     type="object",
+ *     title="OrganisationDelegate",
+ *     description="Model representing organisation delegates",
+ *     @OA\Property(
+ *         property="id",
+ *         type="integer",
+ *         example=1,
+ *         description="Unique identifier for the organisation delegate"
+ *     ),
+ *     @OA\Property(
+ *         property="first_name",
+ *         type="string",
+ *         example="John",
+ *         description="First name of the delegate"
+ *     ),
+ *     @OA\Property(
+ *         property="last_name",
+ *         type="string",
+ *         example="Doe",
+ *         description="Last name of the delegate"
+ *     ),
+ *     @OA\Property(
+ *         property="is_dpo",
+ *         type="integer",
+ *         example=1,
+ *         description="Indicates if the delegate is a Data Protection Officer (1 for yes, 0 for no)"
+ *     ),
+ *     @OA\Property(
+ *         property="is_hr",
+ *         type="integer",
+ *         example=0,
+ *         description="Indicates if the delegate is part of HR (1 for yes, 0 for no)"
+ *     ),
+ *     @OA\Property(
+ *         property="email",
+ *         type="string",
+ *         example="john.doe@example.com",
+ *         description="Email address of the delegate"
+ *     ),
+ *     @OA\Property(
+ *         property="priority_order",
+ *         type="integer",
+ *         example=1,
+ *         description="Priority order of the delegate"
+ *     ),
+ *     @OA\Property(
+ *         property="organisation_id",
+ *         type="integer",
+ *         example=42,
+ *         description="ID of the organisation associated with the delegate"
+ *     ),
+ *     @OA\Property(
+ *         property="created_at",
+ *         type="string",
+ *         format="date-time",
+ *         example="2025-06-25T12:00:00Z",
+ *         description="Timestamp when the delegate record was created"
+ *     ),
+ *     @OA\Property(
+ *         property="updated_at",
+ *         type="string",
+ *         format="date-time",
+ *         example="2025-06-25T12:00:00Z",
+ *         description="Timestamp when the delegate record was last updated"
+ *     )
+ * )
+ * 
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

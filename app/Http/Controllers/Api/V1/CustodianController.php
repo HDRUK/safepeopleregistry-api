@@ -26,6 +26,12 @@ use App\Models\ProjectHasUser;
 use App\Traits\SearchManagerCollection;
 use Illuminate\Support\Facades\Gate;
 
+/**
+ * @OA\Tag(
+ *     name="Custodian",
+ *     description="API endpoints for managing Custodians"
+ * )
+ */
 class CustodianController extends Controller
 {
     use CommonFunctions;

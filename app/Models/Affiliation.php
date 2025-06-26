@@ -78,6 +78,7 @@ use App\Traits\StateWorkflow;
  *          description="The Registry primary key associated with this affiliation"
  *      )
  * )
+ * 
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

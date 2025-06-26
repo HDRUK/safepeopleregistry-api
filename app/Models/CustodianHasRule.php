@@ -6,8 +6,25 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- *
- *
+ *  @OA\Schema(
+ *     schema="CustodianHasRule",
+ *     type="object",
+ *     title="CustodianHasRule",
+ *     description="Pivot model representing the relationship between Custodians and Rules",
+ *     @OA\Property(
+ *         property="custodian_id",
+ *         type="integer",
+ *         example=1,
+ *         description="ID of the custodian"
+ *     ),
+ *     @OA\Property(
+ *         property="rule_id",
+ *         type="integer",
+ *         example=2,
+ *         description="ID of the rule"
+ *     )
+ * )
+ * 
  * @property int $custodian_id
  * @property int $rule_id
  * @property-read \App\Models\Custodian $custodian

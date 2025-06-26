@@ -7,8 +7,37 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- *
- *
+ * @OA\Schema(
+ *     schema="Rules",
+ *     type="object",
+ *     title="Rules",
+ *     description="Model representing rules",
+ *     @OA\Property(
+ *         property="id",
+ *         type="integer",
+ *         example=1,
+ *         description="Unique identifier for the rule"
+ *     ),
+ *     @OA\Property(
+ *         property="name",
+ *         type="string",
+ *         example="Data Access Rule",
+ *         description="Name of the rule"
+ *     ),
+ *     @OA\Property(
+ *         property="title",
+ *         type="string",
+ *         example="Access Control",
+ *         description="Title of the rule"
+ *     ),
+ *     @OA\Property(
+ *         property="description",
+ *         type="string",
+ *         example="Defines access control policies",
+ *         description="Description of the rule"
+ *     )
+ * )
+ * 
  * @property int $id
  * @property string $name
  * @property string $title
@@ -35,13 +64,15 @@ class Rules extends Model
     protected $fillable = [
         'name',
         'title',
-        'description'
+        'description',
     ];
 
     protected $hidden = ['pivot'];
 
     /**
-     *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Custodian>
+     * Get the custodians associated with this rule.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Custodian>
      */
     public function custodians(): BelongsToMany
     {

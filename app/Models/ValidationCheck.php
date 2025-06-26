@@ -8,26 +8,63 @@ use Illuminate\Database\Eloquent\Model;
 use App\Traits\SearchManager;
 
 /**
- *
- *
- * @OA\Schema (
+ * @OA\Schema(
  *     schema="ValidationCheck",
  *     type="object",
  *     title="Validation Check",
+ *     description="Model representing validation checks",
  *     required={"name", "description", "applies_to"},
- *     @OA\Property(property="id", type="integer", example=1),
- *     @OA\Property(property="name", type="string", example="Check format"),
- *     @OA\Property(property="description", type="string", example="Ensures proper formatting of input"),
- *     @OA\Property(property="applies_to", type="string", example="user"),
- *     @OA\Property(property="enabled", type="boolean", example=true),
- *     @OA\Property(property="created_at", type="string", format="date-time", example="2024-01-01T00:00:00Z"),
- *     @OA\Property(property="updated_at", type="string", format="date-time", example="2024-01-01T00:00:00Z")
+ *     @OA\Property(
+ *         property="id",
+ *         type="integer",
+ *         example=1,
+ *         description="Unique identifier for the validation check"
+ *     ),
+ *     @OA\Property(
+ *         property="name",
+ *         type="string",
+ *         example="Check format",
+ *         description="Name of the validation check"
+ *     ),
+ *     @OA\Property(
+ *         property="description",
+ *         type="string",
+ *         example="Ensures proper formatting of input",
+ *         description="Description of the validation check"
+ *     ),
+ *     @OA\Property(
+ *         property="applies_to",
+ *         type="string",
+ *         example="user",
+ *         description="Context to which the validation check applies"
+ *     ),
+ *     @OA\Property(
+ *         property="enabled",
+ *         type="boolean",
+ *         example=true,
+ *         description="Indicates whether the validation check is enabled"
+ *     ),
+ *     @OA\Property(
+ *         property="created_at",
+ *         type="string",
+ *         format="date-time",
+ *         example="2024-01-01T00:00:00Z",
+ *         description="Timestamp when the validation check was created"
+ *     ),
+ *     @OA\Property(
+ *         property="updated_at",
+ *         type="string",
+ *         format="date-time",
+ *         example="2024-01-01T00:00:00Z",
+ *         description="Timestamp when the validation check was last updated"
+ *     )
  * )
+ * 
  * @property int $id
  * @property string $name
  * @property string|null $description
  * @property ValidationCheckAppliesTo $applies_to
- * @property int $enabled
+ * @property bool $enabled
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Custodian> $custodians
@@ -54,11 +91,15 @@ class ValidationCheck extends Model
     use HasFactory;
     use SearchManager;
 
+    protected $table = 'validation_checks';
+
+    public $timestamps = true;
+
     protected $fillable = [
         'name',
         'description',
         'applies_to',
-        'enabled'
+        'enabled',
     ];
 
     protected static array $searchableColumns = [
@@ -77,6 +118,8 @@ class ValidationCheck extends Model
     ];
 
     /**
+     * Get the custodians associated with this validation check.
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Custodian>
      */
     public function custodians()
@@ -85,6 +128,13 @@ class ValidationCheck extends Model
             ->withTimestamps();
     }
 
+    /**
+     * Scope a query to filter validation checks by context.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param ValidationCheckAppliesTo $context
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     public function scopeForContext($query, ValidationCheckAppliesTo $context)
     {
         return $query->where('applies_to', $context);

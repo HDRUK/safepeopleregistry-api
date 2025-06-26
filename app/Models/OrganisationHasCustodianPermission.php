@@ -6,8 +6,31 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- *
- *
+ * @OA\Schema(
+ *     schema="OrganisationHasCustodianPermission",
+ *     type="object",
+ *     title="OrganisationHasCustodianPermission",
+ *     description="Pivot model representing the relationship between organisations, custodians, and permissions",
+ *     @OA\Property(
+ *         property="organisation_id",
+ *         type="integer",
+ *         example=42,
+ *         description="ID of the organisation"
+ *     ),
+ *     @OA\Property(
+ *         property="permission_id",
+ *         type="integer",
+ *         example=24,
+ *         description="ID of the permission"
+ *     ),
+ *     @OA\Property(
+ *         property="custodian_id",
+ *         type="integer",
+ *         example=12,
+ *         description="ID of the custodian"
+ *     )
+ * )
+ * 
  * @property int $organisation_id
  * @property int $permission_id
  * @property int $custodian_id

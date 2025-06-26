@@ -8,8 +8,81 @@ use App\Traits\SearchManager;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
- *
- *
+ *  @OA\Schema(
+ *     schema="EntityModel",
+ *     type="object",
+ *     title="EntityModel",
+ *     description="Model representing entity models",
+ *     @OA\Property(
+ *         property="id",
+ *         type="integer",
+ *         example=1,
+ *         description="Unique identifier for the entity model"
+ *     ),
+ *     @OA\Property(
+ *         property="name",
+ *         type="string",
+ *         example="Data Processing Model",
+ *         description="Name of the entity model"
+ *     ),
+ *     @OA\Property(
+ *         property="description",
+ *         type="string",
+ *         example="This model processes data based on predefined rules.",
+ *         description="Description of the entity model"
+ *     ),
+ *     @OA\Property(
+ *         property="entity_model_type_id",
+ *         type="integer",
+ *         example=2,
+ *         description="ID of the entity model type associated with this model"
+ *     ),
+ *     @OA\Property(
+ *         property="calls_file",
+ *         type="boolean",
+ *         example=true,
+ *         description="Indicates whether the model calls a file"
+ *     ),
+ *     @OA\Property(
+ *         property="file_path",
+ *         type="string",
+ *         example="/path/to/file",
+ *         description="Path to the file called by the model"
+ *     ),
+ *     @OA\Property(
+ *         property="calls_operation",
+ *         type="boolean",
+ *         example=false,
+ *         description="Indicates whether the model calls an operation"
+ *     ),
+ *     @OA\Property(
+ *         property="operation",
+ *         type="string",
+ *         example="processData",
+ *         description="Operation called by the model"
+ *     ),
+ *     @OA\Property(
+ *         property="active",
+ *         type="integer",
+ *         example=1,
+ *         description="Indicates whether the model is active (1 for active, 0 for inactive)"
+ *     ),
+ *     @OA\Property(
+ *         property="created_at",
+ *         type="string",
+ *         format="date-time",
+ *         example="2025-06-25T12:00:00Z",
+ *         description="Timestamp when the entity model was created"
+ *     ),
+ *     @OA\Property(
+ *         property="updated_at",
+ *         type="string",
+ *         format="date-time",
+ *         example="2025-06-25T12:00:00Z",
+ *         description="Timestamp when the entity model was last updated"
+ *     )
+ * )
+ * 
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

@@ -7,8 +7,75 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
- *
- *
+ *  @OA\Schema(
+ *     schema="History",
+ *     type="object",
+ *     title="History",
+ *     description="Model representing historical records",
+ *     @OA\Property(
+ *         property="id",
+ *         type="integer",
+ *         example=1,
+ *         description="Unique identifier for the history record"
+ *     ),
+ *     @OA\Property(
+ *         property="affiliation_id",
+ *         type="integer",
+ *         example=42,
+ *         description="ID of the affiliation associated with the history record"
+ *     ),
+ *     @OA\Property(
+ *         property="endorsement_id",
+ *         type="integer",
+ *         example=24,
+ *         description="ID of the endorsement associated with the history record"
+ *     ),
+ *     @OA\Property(
+ *         property="infringement_id",
+ *         type="integer",
+ *         example=12,
+ *         description="ID of the infringement associated with the history record"
+ *     ),
+ *     @OA\Property(
+ *         property="project_id",
+ *         type="integer",
+ *         example=100,
+ *         description="ID of the project associated with the history record"
+ *     ),
+ *     @OA\Property(
+ *         property="access_key_id",
+ *         type="integer",
+ *         example=5,
+ *         description="ID of the access key associated with the history record"
+ *     ),
+ *     @OA\Property(
+ *         property="custodian_identifier",
+ *         type="string",
+ *         example="CUST12345",
+ *         description="Identifier for the custodian associated with the history record"
+ *     ),
+ *     @OA\Property(
+ *         property="ledger_hash",
+ *         type="string",
+ *         example="abc123hash",
+ *         description="Hash of the ledger associated with the history record"
+ *     ),
+ *     @OA\Property(
+ *         property="created_at",
+ *         type="string",
+ *         format="date-time",
+ *         example="2025-06-25T12:00:00Z",
+ *         description="Timestamp when the history record was created"
+ *     ),
+ *     @OA\Property(
+ *         property="updated_at",
+ *         type="string",
+ *         format="date-time",
+ *         example="2025-06-25T12:00:00Z",
+ *         description="Timestamp when the history record was last updated"
+ *     )
+ * )
+ * 
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

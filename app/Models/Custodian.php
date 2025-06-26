@@ -11,8 +11,6 @@ use App\Traits\FilterManager;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- *
- *
  * @OA\Schema (
  *      schema="Custodian",
  *      title="Custodian",
