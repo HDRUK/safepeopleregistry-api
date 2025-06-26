@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\SearchManager;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -58,6 +59,7 @@ class CustodianHasProjectOrganisation extends Model
 {
     use HasFactory;
     use StateWorkflow;
+    use SearchManager;
 
     protected array $transitions = [
         State::STATE_PENDING => [
@@ -103,6 +105,15 @@ class CustodianHasProjectOrganisation extends Model
         'updated_at' => 'datetime',
     ];
 
+    protected static array  $searchableColumns = [
+        'projects.title',
+        'organisations.organisation_name'
+    ];
+
+    protected static array  $sortableColumns = [
+        'projects.title',
+        'organisations.organisation_name'
+    ];
 
     /**
      * The "booted" method of the model.

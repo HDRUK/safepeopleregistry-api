@@ -78,4 +78,50 @@ class ProjectHasUserController extends Controller
             return $this->ErrorResponse($e->getMessage());
         }
     }
+
+    /**
+     * @OA\Delete(
+     *      path="/api/v1/project_users/{id}",
+     *      summary="Delete a user from a project",
+     *      description="Delete a user from a project",
+     *      tags={"Projects"},
+     *      summary="ProjectHasUser@delete",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="ID",
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="success",
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="failed",
+     *      )
+     * )
+     */
+    public function delete(Request $request, int $id)
+    {
+        try {
+            $data = ProjectHasUser::where('id', $id);
+
+            if ($data->first() !== null) {
+                $data->delete();
+
+                return $this->OKResponse(null);
+            }
+
+            return $this->NotFoundResponse();
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
 }

@@ -78,6 +78,7 @@ class CustodianHasProjectOrganisationController extends Controller
 
             $projectId = $request->input('project_id');
 
+            // candidate for eloquent optimisation by switching to raw SQL
             $records = CustodianHasProjectOrganisation::with([
                 'modelState.state',
                 'projectOrganisation.organisation.sroOfficer',
@@ -86,9 +87,15 @@ class CustodianHasProjectOrganisationController extends Controller
                 ->where('custodian_id', $custodianId)
                 ->when(!empty($searchName), function ($query) use ($searchName) {
                     $query->where(function ($subQuery) use ($searchName) {
+
+                        $subQuery->whereHas('projectOrganisation.project', function ($q) use ($searchName) {
+                            /** @phpstan-ignore-next-line */
+                            $q->searchViaRequest(['title' => $searchName]);
+                        });
+
                         $subQuery->orWhereHas('projectOrganisation.organisation', function ($q) use ($searchName) {
                             /** @phpstan-ignore-next-line */
-                            $q->searchViaRequest(['name' => $searchName]);
+                            $q->searchViaRequest(['organisation_name' => $searchName]);
                         });
                     });
                 })
@@ -97,6 +104,11 @@ class CustodianHasProjectOrganisationController extends Controller
                         $q->where('id', $projectId);
                     });
                 })
+                ->join('project_has_organisations', 'custodian_has_project_has_organisation.project_has_organisation_id', '=', 'project_has_organisations.id')
+                ->join('projects', 'project_has_organisations.project_id', '=', 'projects.id')
+                ->join('organisations', 'project_has_organisations.organisation_id', '=', 'organisations.id')
+                ->applySorting()
+                ->select('custodian_has_project_has_organisation.*')
                 ->paginate($perPage);
 
             return $this->OKResponse($records);
@@ -349,5 +361,11 @@ class CustodianHasProjectOrganisationController extends Controller
     {
         $model = new CustodianHasProjectOrganisation();
         return $this->OKResponse($model->getAllStates());
+    }
+
+    public function getWorkflowTransitions(Request $request)
+    {
+        $model = new CustodianHasProjectOrganisation();
+        return $this->OKResponse($model->getTransitions());
     }
 }

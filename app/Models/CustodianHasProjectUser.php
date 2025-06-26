@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\SearchManager;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Traits\StateWorkflow;
@@ -40,6 +41,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 class CustodianHasProjectUser extends Model
 {
     use StateWorkflow;
+    use SearchManager;
 
     protected array $transitions = [
         State::STATE_FORM_RECEIVED => [
@@ -70,6 +72,9 @@ class CustodianHasProjectUser extends Model
     {
         return $this->transitions;
     }
+
+    protected static array  $searchableColumns = ['projects.title'];
+    protected static array  $sortableColumns = ['projects.title'];
 
     protected $table = 'custodian_has_project_has_user';
 
