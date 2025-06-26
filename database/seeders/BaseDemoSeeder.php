@@ -28,7 +28,6 @@ use App\Models\RegistryHasAffiliation;
 use App\Models\OrganisationHasDepartment;
 use App\Models\State;
 use App\Models\Subsidiary;
-use App\Models\UserHasCustodianApproval;
 use App\Traits\CommonFunctions;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Schema;
@@ -1108,15 +1107,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                     'registry_id' => $reg->id,
                     'training_id' => $training->id,
                 ]);
-            }
-
-            if (isset($u['custodian_approvals'])) {
-                foreach ($u['custodian_approvals'] as $approval) {
-                    $uhca = UserHasCustodianApproval::create([
-                        'user_id' => $user->id,
-                        'custodian_id' => $approval,
-                    ]);
-                }
             }
         }
 

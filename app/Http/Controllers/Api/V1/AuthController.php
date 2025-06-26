@@ -5,8 +5,6 @@ namespace App\Http\Controllers\Api\V1;
 use Keycloak;
 use RegistryManagementController as RMC;
 use Carbon\Carbon;
-use App\Models\Organisation;
-use App\Models\OrganisationDelegate;
 use App\Models\PendingInvite;
 use App\Models\User;
 use App\Models\Affiliation;
@@ -14,7 +12,6 @@ use App\Models\RegistryHasAffiliation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 
@@ -29,7 +26,6 @@ class AuthController extends Controller
 
     public function registerKeycloakUser(Request $request): JsonResponse
     {
-        $token = explode('Bearer ', $request->headers->get('Authorization'));
 
         $response = Keycloak::getUserInfo($request->headers->get('Authorization'));
         $payload = $response->json();
