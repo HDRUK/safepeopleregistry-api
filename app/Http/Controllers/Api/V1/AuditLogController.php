@@ -24,7 +24,7 @@ class AuditLogController extends Controller
         $user = User::find($id);
 
         if (!$user) {
-            return $this->NotFoundResponse('User not found');
+            return $this->NotFoundResponse();
         }
 
         $logs = Activity::query()

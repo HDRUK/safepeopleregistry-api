@@ -34,6 +34,8 @@ parameters:
         - '#Method App\\Models\\.*::.*\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo<.*> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo<.*>#'
         - '#Method App\\Models\\.*::.*\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany<.*> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany<.*>#'
         - '#Method App\\Models\\Organisation::registries\(\) should return Illuminate\\Database\\Eloquent\\Relations\\HasManyThrough<.*,.*,.*> but returns Illuminate\\Database\\Eloquent\\Relations\\HasManyThrough<.*,.*,.*>\.#'
+        - '#Generic type Illuminate\\Database\\Eloquent\\Relations\\MorphOne<App\\Models\\ModelState> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\MorphOne: TRelatedModel, TDeclaringModel#'
+        - '#Method App\\Models\\RegistryHasAffiliation::modelState\(\) should return Illuminate\\Database\\Eloquent\\Relations\\MorphOne<App\\Models\\ModelState> but returns Illuminate\\Database\\Eloquent\\Relations\\MorphOne<App\\Models\\ModelState, .*?>\.#'
 #
 #    excludePaths:
 #        - ./*/*/FileToBeExcluded.php
