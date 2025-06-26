@@ -13,9 +13,9 @@ use App\Models\Sector;
 use Carbon\Carbon;
 use App\Models\PendingInvite;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
+use Illuminate\Support\Facades\Queue;
 
 class CustodianTest extends TestCase
 {
@@ -92,7 +92,6 @@ class CustodianTest extends TestCase
     public function test_the_application_can_invite_a_custodian(): void
     {
 
-        Queue::fake();
         Queue::assertNothingPushed();
 
         $custodianId = $this->custodian_admin->custodian_user->custodian_id;
@@ -114,7 +113,6 @@ class CustodianTest extends TestCase
     public function test_the_application_cannot_invite_a_user_for_a_custodian_they_dont_administer(): void
     {
 
-        Queue::fake();
         Queue::assertNothingPushed();
 
         $response = $this->actingAs($this->custodian_admin)

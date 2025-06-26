@@ -277,8 +277,6 @@ class ProjectTest extends TestCase
     {
         $this->enableObservers();
 
-        Queue::fake();
-
         // Flush and create anew
         ProjectHasUser::truncate();
         ProjectHasCustodian::truncate();

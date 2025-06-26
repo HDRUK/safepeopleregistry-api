@@ -24,7 +24,6 @@ class EmailSendTest extends TestCase
 
     public function test_the_application_can_send_emails(): void
     {
-        Queue::fake();
         Queue::assertNothingPushed();
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
@@ -44,7 +43,6 @@ class EmailSendTest extends TestCase
 
     public function test_the_application_adds_pending_invites(): void
     {
-        Queue::fake();
         Queue::assertNothingPushed();
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())

@@ -763,10 +763,8 @@ class UserController extends Controller
                     o.id AS organisation_id,
                     o.organisation_name AS organisation_name
                 FROM users u
-                JOIN registry_has_affiliations rha
-                    ON rha.registry_id = u.registry_id
-                LEFT JOIN affiliations a
-                    ON a.id = rha.affiliation_id
+                JOIN affiliations a
+                    ON a.registry_id = u.registry_id
                 JOIN organisations o
                     ON o.id = a.organisation_id
                 WHERE

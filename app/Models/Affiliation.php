@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
+use App\Traits\StateWorkflow;
 
 /**
  *
@@ -95,8 +97,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read mixed $registry_affiliation_state
  * @property-read \App\Models\Organisation|null $organisation
  * @property-read \App\Models\Registry|null $registry
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RegistryHasAffiliation> $registryHasAffiliations
- * @property-read int|null $registry_has_affiliations_count
  * @method static \Database\Factories\AffiliationFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation newQuery()
@@ -122,6 +122,23 @@ use Illuminate\Database\Eloquent\Model;
 class Affiliation extends Model
 {
     use HasFactory;
+    use StateWorkflow;
+
+    protected array $transitions = [
+        State::STATE_AFFILIATION_INVITED => [
+            State::STATE_AFFILIATION_PENDING
+        ],
+        State::STATE_AFFILIATION_PENDING => [
+            State::STATE_AFFILIATION_APPROVED,
+            State::STATE_AFFILIATION_REJECTED
+        ],
+        State::STATE_AFFILIATION_APPROVED => [
+            State::STATE_AFFILIATION_REJECTED
+        ],
+        State::STATE_AFFILIATION_REJECTED => [
+            State::STATE_AFFILIATION_APPROVED
+        ]
+    ];
 
     public $table = 'affiliations';
 
@@ -143,11 +160,6 @@ class Affiliation extends Model
         'verdict_outcome',
     ];
 
-    public function getRegistryAffiliationStateAttribute()
-    {
-        return optional($this->registryHasAffiliations->first())->getState();
-    }
-
     /**
      * Get the organisation related to the affiliation.
      *
@@ -163,7 +175,7 @@ class Affiliation extends Model
     }
 
     /**
-     * Get the organisation related to the affiliation.
+     * Get the registry related to the affiliation.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Registry>
      */
@@ -176,16 +188,8 @@ class Affiliation extends Model
         );
     }
 
-    /**
-     * Get the organisation related to the affiliation.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function registryHasAffiliations()
+    public function modelState(): MorphOne
     {
-        return $this->hasMany(
-            RegistryHasAffiliation::class,
-            'affiliation_id'
-        );
+        return $this->morphOne(ModelState::class, 'stateable');
     }
 }

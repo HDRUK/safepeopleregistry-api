@@ -157,13 +157,10 @@ class OrganisationObserver
             $unclaimed = $organisation->unclaimed;
             $state = $unclaimed ? State::STATE_AFFILIATION_INVITED : State::STATE_AFFILIATION_PENDING;
             $affiliations = Affiliation::where("organisation_id", $organisation->id)
-                ->with("registryHasAffiliations")
                 ->get();
 
             foreach ($affiliations as $affiliation) {
-                foreach ($affiliation->registryHasAffiliations as $rha) {
-                    $rha->setState($state);
-                }
+                $affiliation->setState($state);
             }
         }
     }
