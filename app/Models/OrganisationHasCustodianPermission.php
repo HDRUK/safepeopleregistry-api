@@ -30,7 +30,7 @@ use Illuminate\Database\Eloquent\Model;
  *         description="ID of the custodian"
  *     )
  * )
- * 
+ *
  * @property int $organisation_id
  * @property int $permission_id
  * @property int $custodian_id

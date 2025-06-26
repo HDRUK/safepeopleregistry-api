@@ -24,7 +24,7 @@ use Illuminate\Database\Eloquent\Model;
  *         description="ID of the history"
  *     )
  * )
- * 
+ *
  * @property int $registry_id
  * @property int $history_id
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RegistryHasHistory newModelQuery()

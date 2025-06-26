@@ -23,7 +23,7 @@ use Illuminate\Database\Eloquent\Model;
  *         description="ID of the file"
  *     )
  * )
- * 
+ *
  * @property int $training_id
  * @property int $file_id
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TrainingHasFile newModelQuery()

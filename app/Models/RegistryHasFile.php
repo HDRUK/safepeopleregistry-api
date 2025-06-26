@@ -24,7 +24,7 @@ use Illuminate\Database\Eloquent\Model;
  *         description="ID of the file"
  *     )
  * )
- * 
+ *
  * @property int $registry_id
  * @property string $file_id
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RegistryHasFile newModelQuery()

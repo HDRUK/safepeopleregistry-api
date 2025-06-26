@@ -46,7 +46,7 @@ use App\Traits\SearchManager;
  *         description="Timestamp when the sector was deleted"
  *     )
  * )
- * 
+ *
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at

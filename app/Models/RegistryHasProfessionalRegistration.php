@@ -30,7 +30,7 @@ use Illuminate\Database\Eloquent\Model;
  *         description="ID of the professional registration"
  *     )
  * )
- * 
+ *
  * @property int $id
  * @property int $professional_registration_id
  * @property int $registry_id

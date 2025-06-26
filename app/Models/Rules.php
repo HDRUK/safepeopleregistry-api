@@ -37,7 +37,7 @@ use Illuminate\Database\Eloquent\Model;
  *         description="Description of the rule"
  *     )
  * )
- * 
+ *
  * @property int $id
  * @property string $name
  * @property string $title

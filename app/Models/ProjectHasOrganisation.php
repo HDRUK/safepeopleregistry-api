@@ -25,7 +25,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *         ref="#/components/schemas/Project"
  *     )
  * )
- * 
+ *
  * @property int $project_id
  * @property int $organisation_id
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasOrganisation newModelQuery()

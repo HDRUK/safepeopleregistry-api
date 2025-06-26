@@ -44,7 +44,7 @@ use App\Enums\ActionLogType;
  *         description="Timestamp when the action was completed (nullable)"
  *     ),
  * )
- * 
+ *
  * @property int $id
  * @property ActionLogType $entity_type
  * @property int $entity_id

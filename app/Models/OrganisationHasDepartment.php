@@ -24,7 +24,7 @@ use Illuminate\Database\Eloquent\Model;
  *         description="ID of the department"
  *     )
  * )
- * 
+ *
  * @property int $organisation_id
  * @property int $department_id
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganisationHasDepartment newModelQuery()

@@ -60,7 +60,7 @@ use Illuminate\Database\Eloquent\Model;
  *         description="Postcode of the subsidiary"
  *     )
  * )
- * 
+ *
  * @property int $id
  * @property string $name
  * @property string|null $address_1

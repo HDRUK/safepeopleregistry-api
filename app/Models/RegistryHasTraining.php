@@ -24,7 +24,7 @@ use Illuminate\Database\Eloquent\Model;
  *         description="ID of the training"
  *     )
  * )
- * 
+ *
  * @property int $registry_id
  * @property int $training_id
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RegistryHasTraining newModelQuery()

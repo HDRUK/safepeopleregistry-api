@@ -24,7 +24,7 @@ use Illuminate\Database\Eloquent\Model;
  *         description="ID of the employment"
  *     )
  * )
- * 
+ *
  * @property int $registry_id
  * @property int $employment_id
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RegistryHasEmployment newModelQuery()

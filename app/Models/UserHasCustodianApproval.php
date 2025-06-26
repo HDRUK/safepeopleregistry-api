@@ -24,7 +24,7 @@ use Illuminate\Database\Eloquent\Model;
  *         description="ID of the custodian"
  *     )
  * )
- * 
+ *
  * @property int $user_id
  * @property int $custodian_id
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserHasCustodianApproval newModelQuery()
