@@ -58,6 +58,7 @@ class AffiliationController extends Controller
     {
         $affiliations = Affiliation::with(
             [
+                'modelState.state',
                 'organisation' => function ($query) {
                     $query->select(
                         'id',
