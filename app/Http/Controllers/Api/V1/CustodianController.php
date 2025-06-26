@@ -705,7 +705,6 @@ class CustodianController extends Controller
             $input = $request->only(app(Project::class)->getFillable());
 
             $project = Project::create($input);
-            $project->setState(State::STATE_PROJECT_PENDING);
 
             ProjectHasCustodian::create([
                 'custodian_id' => $custodianId,

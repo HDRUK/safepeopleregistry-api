@@ -120,6 +120,7 @@ class Project extends Model
     use SoftDeletes;
     use SearchManager;
     use SearchProject;
+    use StateWorkflow;
     use FilterManager;
 
     protected $table = 'projects';
@@ -191,5 +192,11 @@ class Project extends Model
             'project_id',
             'custodian_id'
         );
+    }
+
+
+    public function modelState(): MorphOne
+    {
+        return $this->morphOne(ModelState::class, 'stateable');
     }
 }
