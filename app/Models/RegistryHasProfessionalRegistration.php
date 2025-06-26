@@ -6,8 +6,31 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- *
- *
+ * @OA\Schema(
+ *     schema="RegistryHasProfessionalRegistration",
+ *     type="object",
+ *     title="RegistryHasProfessionalRegistration",
+ *     description="Pivot model representing the relationship between registries and professional registrations",
+ *     @OA\Property(
+ *         property="id",
+ *         type="integer",
+ *         example=1,
+ *         description="Unique identifier for the registry-professional registration relationship"
+ *     ),
+ *     @OA\Property(
+ *         property="registry_id",
+ *         type="integer",
+ *         example=42,
+ *         description="ID of the registry"
+ *     ),
+ *     @OA\Property(
+ *         property="professional_registration_id",
+ *         type="integer",
+ *         example=24,
+ *         description="ID of the professional registration"
+ *     )
+ * )
+ * 
  * @property int $id
  * @property int $professional_registration_id
  * @property int $registry_id

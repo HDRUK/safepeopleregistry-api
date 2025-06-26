@@ -6,8 +6,45 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- *
- *
+ * @OA\Schema(
+ *     schema="State",
+ *     type="object",
+ *     title="State",
+ *     description="Model representing states",
+ *     @OA\Property(
+ *         property="id",
+ *         type="integer",
+ *         example=1,
+ *         description="Unique identifier for the state"
+ *     ),
+ *     @OA\Property(
+ *         property="name",
+ *         type="string",
+ *         example="Registered",
+ *         description="Name of the state"
+ *     ),
+ *     @OA\Property(
+ *         property="slug",
+ *         type="string",
+ *         example="registered",
+ *         description="Slug identifier for the state"
+ *     ),
+ *     @OA\Property(
+ *         property="created_at",
+ *         type="string",
+ *         format="date-time",
+ *         example="2025-06-25T12:00:00Z",
+ *         description="Timestamp when the state was created"
+ *     ),
+ *     @OA\Property(
+ *         property="updated_at",
+ *         type="string",
+ *         format="date-time",
+ *         example="2025-06-26T12:00:00Z",
+ *         description="Timestamp when the state was last updated"
+ *     )
+ * )
+ * 
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -28,6 +65,7 @@ class State extends Model
     use HasFactory;
 
     protected $table = 'states';
+
     public $timestamps = true;
 
     protected $fillable = [

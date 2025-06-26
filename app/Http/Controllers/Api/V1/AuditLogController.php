@@ -9,12 +9,54 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Spatie\Activitylog\Models\Activity;
 
+/**
+ * @OA\Tag(
+ *     name="AuditLog",
+ *     description="API endpoints for managing audit logs"
+ * )
+ */
 class AuditLogController extends Controller
 {
     use Responses;
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/users/{id}/audit-logs",
+     *     tags={"AuditLog"},
+     *     summary="Get audit logs for a specific user",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the user",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Success",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(ref="#/components/schemas/Activity")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="User not found",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="User not found")
+     *         )
+     *     )
+     * )
+     */
     public function showUserHistory(Request $request, int $id): JsonResponse
     {
         $user = User::find($id);
+
+        if (!$user) {
+            return $this->NotFoundResponse('User not found');
+        }
+
         $logs = Activity::query()
             ->where(function ($query) use ($user) {
                 $query->where(function ($q) use ($user) {

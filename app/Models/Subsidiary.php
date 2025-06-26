@@ -6,8 +6,61 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- *
- *
+ * @OA\Schema(
+ *     schema="Subsidiary",
+ *     type="object",
+ *     title="Subsidiary",
+ *     description="Model representing subsidiaries",
+ *     @OA\Property(
+ *         property="id",
+ *         type="integer",
+ *         example=1,
+ *         description="Unique identifier for the subsidiary"
+ *     ),
+ *     @OA\Property(
+ *         property="name",
+ *         type="string",
+ *         example="Subsidiary Name",
+ *         description="Name of the subsidiary"
+ *     ),
+ *     @OA\Property(
+ *         property="address_1",
+ *         type="string",
+ *         example="123 Main Street",
+ *         description="Primary address line of the subsidiary"
+ *     ),
+ *     @OA\Property(
+ *         property="address_2",
+ *         type="string",
+ *         example="Suite 456",
+ *         description="Secondary address line of the subsidiary"
+ *     ),
+ *     @OA\Property(
+ *         property="town",
+ *         type="string",
+ *         example="Townsville",
+ *         description="Town where the subsidiary is located"
+ *     ),
+ *     @OA\Property(
+ *         property="county",
+ *         type="string",
+ *         example="Countyshire",
+ *         description="County where the subsidiary is located"
+ *     ),
+ *     @OA\Property(
+ *         property="country",
+ *         type="string",
+ *         example="United Kingdom",
+ *         description="Country where the subsidiary is located"
+ *     ),
+ *     @OA\Property(
+ *         property="postcode",
+ *         type="string",
+ *         example="AB12 3CD",
+ *         description="Postcode of the subsidiary"
+ *     )
+ * )
+ * 
  * @property int $id
  * @property string $name
  * @property string|null $address_1
@@ -47,5 +100,4 @@ class Subsidiary extends Model
         'country',
         'postcode',
     ];
-
 }

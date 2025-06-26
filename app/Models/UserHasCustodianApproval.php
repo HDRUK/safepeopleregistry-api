@@ -6,8 +6,25 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- *
- *
+ * @OA\Schema(
+ *     schema="UserHasCustodianApproval",
+ *     type="object",
+ *     title="UserHasCustodianApproval",
+ *     description="Pivot model representing the relationship between users and custodians for approval",
+ *     @OA\Property(
+ *         property="user_id",
+ *         type="integer",
+ *         example=42,
+ *         description="ID of the user"
+ *     ),
+ *     @OA\Property(
+ *         property="custodian_id",
+ *         type="integer",
+ *         example=24,
+ *         description="ID of the custodian"
+ *     )
+ * )
+ * 
  * @property int $user_id
  * @property int $custodian_id
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserHasCustodianApproval newModelQuery()

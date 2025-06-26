@@ -10,27 +10,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 use App\Traits\StateWorkflow;
 
 /**
- *
- *
- * @property int $organisation_id
- * @property int $custodian_id
- * @property int $approved
- * @property string|null $comment
- * @property \Illuminate\Support\Carbon $created_at
- * @property-read \App\Models\Custodian|null $custodian
- * @property-read \App\Models\Organisation|null $organisation
- * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianHasProjectOrganisation newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianHasProjectOrganisation newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianHasProjectOrganisation query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianHasProjectOrganisation whereApproved($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianHasProjectOrganisation whereComment($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianHasProjectOrganisation whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianHasProjectOrganisation whereCustodianId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianHasProjectOrganisation whereOrganisationId($value)
- * @mixin \Eloquent
- */
-/**
- * @OA\Schema(
+ *  @OA\Schema(
  *     schema="CustodianHasProjectOrganisation",
  *     type="object",
  *     title="CustodianHasProjectOrganisation",
@@ -53,8 +33,24 @@ use App\Traits\StateWorkflow;
  *         ref="#/components/schemas/Custodian"
  *     )
  * )
+ * 
+ * @property int $organisation_id
+ * @property int $custodian_id
+ * @property int $approved
+ * @property string|null $comment
+ * @property \Illuminate\Support\Carbon $created_at
+ * @property-read \App\Models\Custodian|null $custodian
+ * @property-read \App\Models\Organisation|null $organisation
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianHasProjectOrganisation newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianHasProjectOrganisation newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianHasProjectOrganisation query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianHasProjectOrganisation whereApproved($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianHasProjectOrganisation whereComment($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianHasProjectOrganisation whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianHasProjectOrganisation whereCustodianId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianHasProjectOrganisation whereOrganisationId($value)
+ * @mixin \Eloquent
  */
-
 class CustodianHasProjectOrganisation extends Model
 {
     use HasFactory;

@@ -10,69 +10,58 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- *
- *
  * @OA\Schema (
  *     schema="ValidationLog",
  *     title="Validation Log",
  *     description="Validation Log model",
- *
  *     @OA\Property(
  *         property="id",
  *         type="integer",
  *         example=1,
  *         description="Model primary key"
  *     ),
- *
  *     @OA\Property(
  *         property="entity_type",
  *         type="string",
  *         example="App\\Models\\Custodian",
  *         description="Type of the primary entity associated with the validation log"
  *     ),
- *
  *     @OA\Property(
  *         property="entity_id",
  *         type="integer",
  *         example=1,
  *         description="ID of the primary entity associated with the validation log"
  *     ),
- *
  *     @OA\Property(
  *         property="secondary_entity_type",
  *         type="string",
  *         example="App\\Models\\Project",
  *         description="Type of the secondary entity associated with the validation log"
  *     ),
- *
  *     @OA\Property(
  *         property="secondary_entity_id",
  *         type="integer",
  *         example=2,
  *         description="ID of the secondary entity associated with the validation log"
  *     ),
- *
  *     @OA\Property(
  *         property="tertiary_entity_type",
  *         type="string",
  *         example="App\\Models\\Registry",
  *         description="Type of the tertiary entity associated with the validation log"
  *     ),
- *
  *     @OA\Property(
  *         property="tertiary_entity_id",
  *         type="integer",
  *         example=3,
  *         description="ID of the tertiary entity associated with the validation log"
  *     ),
- *
  *     @OA\Property(
  *         property="name",
  *         type="string",
  *         example="Validation Check 1",
  *         description="Name of the validation log entry"
  *     ),
- *
  *     @OA\Property(
  *         property="completed_at",
  *         type="string",
@@ -80,14 +69,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *         example="2023-10-10T15:43:00Z",
  *         description="Timestamp when the validation was completed (nullable)"
  *     ),
- *
  *     @OA\Property(
  *         property="manually_confirmed",
  *         type="boolean",
  *         example=true,
  *         description="Whether the validation was manually confirmed"
- *     ),
+ *     )
  * )
+ * 
  * @property int $id
  * @property string $entity_type
  * @property int|null $validation_check_id

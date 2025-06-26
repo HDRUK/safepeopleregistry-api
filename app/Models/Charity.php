@@ -7,8 +7,73 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
- *
- *
+ *  @OA\Schema(
+ *     schema="Charity",
+ *     type="object",
+ *     title="Charity",
+ *     description="Charity model",
+ *     @OA\Property(
+ *         property="id",
+ *         type="integer",
+ *         example=1,
+ *         description="Unique identifier for the charity"
+ *     ),
+ *     @OA\Property(
+ *         property="registration_id",
+ *         type="string",
+ *         example="123456",
+ *         description="Registration ID of the charity"
+ *     ),
+ *     @OA\Property(
+ *         property="name",
+ *         type="string",
+ *         example="Health Pathways Charity",
+ *         description="Name of the charity"
+ *     ),
+ *     @OA\Property(
+ *         property="website",
+ *         type="string",
+ *         example="https://healthpathways.org",
+ *         description="Website URL of the charity"
+ *     ),
+ *     @OA\Property(
+ *         property="address_1",
+ *         type="string",
+ *         example="123 Charity Lane",
+ *         description="First line of the charity's address"
+ *     ),
+ *     @OA\Property(
+ *         property="address_2",
+ *         type="string",
+ *         example="Suite 456",
+ *         description="Second line of the charity's address"
+ *     ),
+ *     @OA\Property(
+ *         property="town",
+ *         type="string",
+ *         example="Charity Town",
+ *         description="Town where the charity is located"
+ *     ),
+ *     @OA\Property(
+ *         property="county",
+ *         type="string",
+ *         example="Charity County",
+ *         description="County where the charity is located"
+ *     ),
+ *     @OA\Property(
+ *         property="country",
+ *         type="string",
+ *         example="UK",
+ *         description="Country where the charity is located"
+ *     ),
+ *     @OA\Property(
+ *         property="postcode",
+ *         type="string",
+ *         example="CH12 3AR",
+ *         description="Postcode of the charity's address"
+ *     )
+ * )
+ * 
  * @property int $id
  * @property string $registration_id
  * @property string $name

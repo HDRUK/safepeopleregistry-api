@@ -6,8 +6,51 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- *
- *
+ *  @OA\Schema(
+ *     schema="ONSFile",
+ *     type="object",
+ *     title="ONSFile",
+ *     description="Model representing ONS files",
+ *     @OA\Property(
+ *         property="id",
+ *         type="integer",
+ *         example=1,
+ *         description="Unique identifier for the ONS file"
+ *     ),
+ *     @OA\Property(
+ *         property="name",
+ *         type="string",
+ *         example="ONS Data File",
+ *         description="Name of the ONS file"
+ *     ),
+ *     @OA\Property(
+ *         property="path",
+ *         type="string",
+ *         example="/uploads/ons_data.csv",
+ *         description="Path to the ONS file"
+ *     ),
+ *     @OA\Property(
+ *         property="status",
+ *         type="string",
+ *         example="processed",
+ *         description="Status of the ONS file"
+ *     ),
+ *     @OA\Property(
+ *         property="created_at",
+ *         type="string",
+ *         format="date-time",
+ *         example="2025-06-25T12:00:00Z",
+ *         description="Timestamp when the ONS file was created"
+ *     ),
+ *     @OA\Property(
+ *         property="updated_at",
+ *         type="string",
+ *         format="date-time",
+ *         example="2025-06-25T12:00:00Z",
+ *         description="Timestamp when the ONS file was last updated"
+ *     )
+ * )
+ * 
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
