@@ -50,7 +50,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *         description="Timestamp when the comment was last updated"
  *     )
  * )
- * 
+ *
  * @property int $id
  * @property int $validation_log_id
  * @property int $user_id

@@ -25,7 +25,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *         description="ID of the project role"
  *     )
  * )
- * 
+ *
  * @property int $project_id
  * @property int $project_role_id
  * @property-read \App\Models\ProjectRole|null $role

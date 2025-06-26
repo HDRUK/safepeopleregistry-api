@@ -24,7 +24,7 @@ use Illuminate\Database\Eloquent\Model;
  *         description="ID of the education"
  *     )
  * )
- * 
+ *
  * @property int $registry_id
  * @property int $education_id
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RegistryHasEducation newModelQuery()

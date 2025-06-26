@@ -8,7 +8,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Traits\Responses;
 use App\Models\CustodianHasProjectUser;
 use App\Models\Project;
-use App\Models\ProjectHasCustodian;
 use App\Models\Registry;
 use App\Models\State;
 use App\Models\ProjectHasUser;

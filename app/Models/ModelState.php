@@ -51,7 +51,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *         description="Timestamp when the model state was last updated"
  *     )
  * )
- * 
+ *
  * @property-read \App\Models\State $state
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at

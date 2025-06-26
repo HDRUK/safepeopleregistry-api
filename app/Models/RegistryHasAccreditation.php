@@ -24,7 +24,7 @@ use Illuminate\Database\Eloquent\Model;
  *         description="ID of the accreditation"
  *     )
  * )
- * 
+ *
  * @property int $registry_id
  * @property int $accreditation_id
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RegistryHasAccreditation newModelQuery()

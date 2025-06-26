@@ -33,7 +33,7 @@ use App\Traits\StateWorkflow;
  *         description="ID of the affiliation"
  *     )
  * )
- * 
+ *
  * @property int $id
  * @property int $registry_id
  * @property int $affiliation_id

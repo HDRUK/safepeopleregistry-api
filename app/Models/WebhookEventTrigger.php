@@ -51,7 +51,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *         description="Timestamp when the webhook event trigger was last updated"
  *     )
  * )
- * 
+ *
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

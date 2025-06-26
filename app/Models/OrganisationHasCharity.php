@@ -30,7 +30,7 @@ use Illuminate\Database\Eloquent\Model;
  *         description="ID of the charity"
  *     )
  * )
- * 
+ *
  * @property int $id
  * @property int $organisation_id
  * @property int $charity_id

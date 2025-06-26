@@ -44,7 +44,7 @@ use App\Traits\SearchManager;
  *          example="First name"
  *      )
  * )
- * 
+ *
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

@@ -24,7 +24,7 @@ use Illuminate\Database\Eloquent\Model;
  *         description="ID of the file"
  *     )
  * )
- * 
+ *
  * @property int $organisation_id
  * @property int $file_id
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganisationHasFile newModelQuery()

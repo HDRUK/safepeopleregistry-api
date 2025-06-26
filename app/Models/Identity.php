@@ -171,7 +171,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *         description="Timestamp when the identity record was deleted"
  *     )
  * )
- * 
+ *
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

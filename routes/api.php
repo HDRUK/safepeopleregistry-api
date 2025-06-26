@@ -41,7 +41,6 @@ use App\Http\Controllers\Api\V1\ProjectRoleController;
 use App\Http\Controllers\Api\V1\CustodianHasProjectUserController;
 use App\Http\Controllers\Api\V1\ProjectHasUserController;
 use App\Http\Controllers\Api\V1\ProjectHasOrganisationController;
-use App\Http\Controllers\Api\V1\UserAuditLogController;
 use App\Http\Controllers\Api\V1\AuditLogController;
 use App\Http\Controllers\Api\V1\VendorWebhookReceiverController;
 use Illuminate\Support\Facades\Route;

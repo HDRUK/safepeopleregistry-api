@@ -24,7 +24,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  *         description="ID of the validation check"
  *     )
  * )
- * 
+ *
  * @property int $custodian_id
  * @property int $validation_check_id
  * @property-read \App\Models\Custodian $custodian

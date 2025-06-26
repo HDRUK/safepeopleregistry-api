@@ -24,7 +24,7 @@ use Illuminate\Database\Eloquent\Model;
  *         description="ID of the resolution"
  *     )
  * )
- * 
+ *
  * @property int $infringement_id
  * @property int $resolution_id
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InfringementHasResolution newModelQuery()

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use DB;
 use Exception;
 use Hash;
 use RegistryManagementController as RMC;

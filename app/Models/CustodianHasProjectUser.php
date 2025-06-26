@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
  *     @OA\Property(property="updated_at", type="string", format="date-time"),
  *     @OA\Property(property="projectHasUser", ref="#/components/schemas/ProjectHasUser"),
  * )
- * 
+ *
  * @property int $project_has_user_id
  * @property int $custodian_id
  * @property int $approved

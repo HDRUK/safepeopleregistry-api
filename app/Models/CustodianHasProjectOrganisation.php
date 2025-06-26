@@ -33,7 +33,7 @@ use App\Traits\StateWorkflow;
  *         ref="#/components/schemas/Custodian"
  *     )
  * )
- * 
+ *
  * @property int $organisation_id
  * @property int $custodian_id
  * @property int $approved

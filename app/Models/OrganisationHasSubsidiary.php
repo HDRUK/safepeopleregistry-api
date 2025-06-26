@@ -25,7 +25,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *         description="ID of the subsidiary"
  *     )
  * )
- * 
+ *
  * @property int $organisation_id
  * @property int $subsidiary_id
  * @property-read \App\Models\Organisation|null $organisation

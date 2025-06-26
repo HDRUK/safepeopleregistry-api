@@ -37,7 +37,7 @@ use Illuminate\Database\Eloquent\Model;
  *         description="Indicates whether the custodian is approved for the project (1 for approved, 0 for not approved)"
  *     )
  * )
- * 
+ *
  * @property int $id
  * @property int $project_id
  * @property int $custodian_id

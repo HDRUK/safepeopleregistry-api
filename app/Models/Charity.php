@@ -73,7 +73,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  *         description="Postcode of the charity's address"
  *     )
  * )
- * 
+ *
  * @property int $id
  * @property string $registration_id
  * @property string $name

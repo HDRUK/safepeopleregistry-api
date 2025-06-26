@@ -24,7 +24,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *         description="ID of the rule"
  *     )
  * )
- * 
+ *
  * @property int $custodian_id
  * @property int $rule_id
  * @property-read \App\Models\Custodian $custodian

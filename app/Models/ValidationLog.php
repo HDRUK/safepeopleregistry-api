@@ -76,7 +76,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *         description="Whether the validation was manually confirmed"
  *     )
  * )
- * 
+ *
  * @property int $id
  * @property string $entity_type
  * @property int|null $validation_check_id

@@ -59,7 +59,7 @@ use App\Traits\SearchManager;
  *         description="Timestamp when the validation check was last updated"
  *     )
  * )
- * 
+ *
  * @property int $id
  * @property string $name
  * @property string|null $description

@@ -428,7 +428,7 @@ class ProjectTest extends TestCase
 
         $response->assertStatus(200);
         $users = collect($response->decodeResponseJson()['data']['data'])
-            ->map(fn($item) => $item['registry']['user']);
+            ->map(fn ($item) => $item['registry']['user']);
 
         $this->assertNotNull($users);
         $this->assertEquals($users[0]['id'], $user->id);
