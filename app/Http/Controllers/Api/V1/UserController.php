@@ -806,7 +806,7 @@ class UserController extends Controller
 
         $projects = Project::whereIn('id', $projectIds)
             ->withCount('projectUsers')
-            ->with(['organisations', 'modelState.state'])
+            ->with(['organisations'])
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
         return $this->OKResponse($projects);
     }
