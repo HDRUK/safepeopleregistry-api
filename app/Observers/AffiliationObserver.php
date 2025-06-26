@@ -52,6 +52,8 @@ class AffiliationObserver
 
     protected function handleChange(Affiliation $affiliation): void
     {
+        // NOTE - should we be doing this - emailing delegates??
+        // - should be taken care of by the notification system?
         $this->emailDelegates($affiliation);
         $this->updateActionLog($affiliation->registry_id);
         $this->updateOrganisationActionLog($affiliation);
