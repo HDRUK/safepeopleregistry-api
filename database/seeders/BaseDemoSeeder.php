@@ -539,9 +539,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                         'registry_id' => -1,
                     ],
                 ],
-                'custodian_approvals' => [
-                    1,
-                ],
             ],
             [
                 'first_name' => 'Sigourney',

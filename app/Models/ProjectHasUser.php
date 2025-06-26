@@ -22,8 +22,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $primary_contact
  * @property int|null $affiliation_id
  * @property-read \App\Models\Affiliation|null $affiliation
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ProjectHasCustodian> $approvals
- * @property-read int|null $approvals_count
  * @property-read \App\Models\Project|null $project
  * @property-read \App\Models\Registry|null $registry
  * @property-read \App\Models\ProjectRole|null $role
@@ -107,17 +105,5 @@ class ProjectHasUser extends Model
     public function affiliation(): BelongsTo
     {
         return $this->belongsTo(Affiliation::class, 'affiliation_id', 'id');
-    }
-
-    public function approvals(): HasManyThrough
-    {
-        return $this->hasManyThrough(
-            ProjectHasCustodian::class,
-            Project::class,
-            'id',
-            'id',
-            'project_id',
-            'project_id'
-        )->where('approved', true);
     }
 }

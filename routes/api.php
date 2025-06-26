@@ -195,7 +195,6 @@ Route::middleware(['auth:api'])
         Route::get('/{id}/custodian_users', 'getCustodianUsers');
         Route::get('/{id}/projects_users', 'getProjectsUsers');
         Route::get('/{id}/rules', 'getRules');
-        Route::get('/{id}/users', 'usersWithCustodianApprovals');
         Route::get('/{id}/organisations/{organisationId}/users', 'getOrganisationUsers');
 
         // Write

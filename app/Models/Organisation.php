@@ -240,8 +240,6 @@ use App\Traits\FilterManager;
  * @property-read int|null $action_logs_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Affiliation> $affiliations
  * @property-read int|null $affiliations_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Custodian> $approvals
- * @property-read int|null $approvals_count
  * @property-read \App\Models\File|null $ceExpiryEvidence
  * @property-read \App\Models\File|null $cePlusExpiryEvidence
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Charity> $charities
