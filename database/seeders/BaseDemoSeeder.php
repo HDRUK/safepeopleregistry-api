@@ -169,7 +169,6 @@ Health Research Authority (HRA) Approval as it involves health-related research 
         ProjectHasCustodian::create([
             'project_id' => $org1Proj1->id,
             'custodian_id' => Custodian::first()->id,
-            'approved' => true
         ]);
 
 
@@ -194,7 +193,6 @@ National Public Health Ethics Committee for authorization to analyze population 
         ProjectHasCustodian::create([
             'project_id' => $org1Proj2->id,
             'custodian_id' => Custodian::first()->id,
-            'approved' => true
         ]);
 
         // --------------------------------------------------------------------------------
@@ -271,7 +269,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         ProjectHasCustodian::create([
             'project_id' => $org2Proj1->id,
             'custodian_id' => Custodian::first()->id,
-            'approved' => true
         ]);
 
 
@@ -341,7 +338,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         ProjectHasCustodian::create([
             'project_id' => $proj->id,
             'custodian_id' => Custodian::first()->id,
-            'approved' => true
         ]);
 
 

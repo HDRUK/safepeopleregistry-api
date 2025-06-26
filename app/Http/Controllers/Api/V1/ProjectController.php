@@ -6,7 +6,9 @@ use App\Models\User;
 use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\Responses;
+use App\Models\CustodianHasProjectUser;
 use App\Models\Project;
+use App\Models\ProjectHasCustodian;
 use App\Models\Registry;
 use App\Models\State;
 use App\Models\ProjectHasUser;
@@ -803,11 +805,11 @@ class ProjectController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/api/v1/projects/user/{registryId}/approved",
+     *      path="/api/v1/projects/user/{registryId}/validated",
      *      summary="Return (approved) projects for a registry (user)",
      *      description="Return (approved) projects for a registry (user)",
      *      tags={"Projects"},
-     *      summary="Project@getApprovedProjects",
+     *      summary="Project@getValidatedProjects",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *         name="id",
@@ -846,7 +848,7 @@ class ProjectController extends Controller
      *      )
      * )
      */
-    public function getApprovedProjects(Request $request, int $registryId): JsonResponse
+    public function getValidatedProjects(Request $request, int $registryId): JsonResponse
     {
         $digi_ident = optional(Registry::where('id', $registryId)->first())->digi_ident;
 
@@ -858,13 +860,16 @@ class ProjectController extends Controller
             ], 404);
         }
 
-        $projects = ProjectHasUser::where('user_digital_ident', $digi_ident)
-            ->with('project')
-            ->whereHas('project.custodians', function ($query) {
-                $query->where('approved', true);
-            })
+        request()->merge(['filter' => 'validated']);
+        $projects = CustodianHasProjectUser::with(
+            ['projectHasUser.project', 'modelState.state']
+        )
+            ->filterByState()
             ->get()
-            ->pluck('project');
+            ->pluck('projectHasUser.project')
+            ->filter()
+            ->unique('id')
+            ->values();
 
         return response()->json([
             'message' => 'success',

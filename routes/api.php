@@ -262,7 +262,7 @@ Route::middleware('auth:api')
         Route::delete('{id}', 'destroy');
 
         // Project user management
-        Route::get('user/{registryId}/approved', 'getApprovedProjects');
+        Route::get('user/{registryId}/validated', 'getValidatedProjects');
         Route::get('{id}/users', 'getProjectUsers');
         Route::get('{id}/all_users', 'getAllUsersFlagProject');
         Route::put('{id}/all_users', 'updateAllProjectUsers');

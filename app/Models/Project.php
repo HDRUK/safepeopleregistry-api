@@ -191,7 +191,7 @@ class Project extends Model
             'project_has_custodians',
             'project_id',
             'custodian_id'
-        )->withPivot('approved');
+        );
     }
 
 

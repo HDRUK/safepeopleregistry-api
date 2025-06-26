@@ -8,6 +8,7 @@ use App\Models\State;
 use App\Models\User;
 use App\Models\Registry;
 use App\Models\Custodian;
+use App\Models\CustodianHasProjectUser;
 use App\Models\Project;
 use App\Models\ProjectHasUser;
 use App\Models\ProjectHasCustodian;
@@ -236,6 +237,7 @@ class ProjectTest extends TestCase
 
     public function test_the_application_can_show_user_approved_projects(): void
     {
+        $this->enableObservers();
 
         ProjectHasUser::truncate();
         ProjectHasCustodian::truncate();
@@ -247,23 +249,54 @@ class ProjectTest extends TestCase
         $projectId = $project->id;
         $custodianId = Custodian::first()->id;
 
-        ProjectHasUser::create(['project_id' => $projectId, 'user_digital_ident' => $digi_ident, 'project_role_id' => 1, 'approved' => true]);
+        $phu = ProjectHasUser::create([
+            'project_id' => $projectId,
+            'user_digital_ident' => $digi_ident,
+            'project_role_id' => 1,
+        ]);
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'GET',
-                self::TEST_URL . '/user/' . $registry->id . '/approved'
+                self::TEST_URL . '/user/' . $registry->id . '/validated'
             );
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
         $this->assertEmpty($response['data']);
 
-        ProjectHasCustodian::create(['project_id' => $projectId, 'custodian_id' => $custodianId, 'approved' => true]);
+        ProjectHasCustodian::create(
+            [
+                'project_id' => $projectId,
+                'custodian_id' => $custodianId,
+            ]
+        );
+
+        $chpu = CustodianHasProjectUser::where([
+            'project_has_user_id' => $phu->id,
+            'custodian_id' => $custodianId
+        ])->first();
+
+        $this->assertTrue(!is_null($chpu));
+
+
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'GET',
-                self::TEST_URL . '/user/' . $registry->id . '/approved'
+                self::TEST_URL . '/user/' . $registry->id . '/validated'
+            );
+
+        $response->assertStatus(200);
+        $this->assertArrayHasKey('data', $response);
+        $this->assertEmpty($response['data']);
+
+
+        $chpu->setState(STATE::STATE_VALIDATED);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/user/' . $registry->id . '/validated'
             );
 
         $response->assertStatus(200);
@@ -397,7 +430,7 @@ class ProjectTest extends TestCase
 
         $response->assertStatus(200);
         $users = collect($response->decodeResponseJson()['data']['data'])
-            ->map(fn ($item) => $item['registry']['user']);
+            ->map(fn($item) => $item['registry']['user']);
 
         $this->assertNotNull($users);
         $this->assertEquals($users[0]['id'], $user->id);

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\FilterManager;
 use App\Traits\SearchManager;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -42,6 +43,7 @@ class CustodianHasProjectUser extends Model
 {
     use StateWorkflow;
     use SearchManager;
+    use FilterManager;
 
     protected array $transitions = [
         State::STATE_FORM_RECEIVED => [
