@@ -102,27 +102,31 @@ class ProjectHasUserObserver
         $registry = Registry::where('digi_ident', $projectHasUser->user_digital_ident)->first();
         $user = User::where('registry_id', $registry->id)->first();
 
-        $custodianApproval = ProjectHasCustodian::where('project_id', $projectHasUser->project_id)
-            ->where("approved", true)
-            ->first();
-        $whr = CustodianWebhookReceiver::where([
-            'custodian_id' => $custodianApproval->custodian_id,
-        ])->first();
 
-        if ($whr) {
-            if (WebhookEventTrigger::where('name', 'user-left-project')->first()->id === $whr->webhook_event) {
-                WebhookCall::create()
-                    ->url($whr->url)
-                    ->payload([
-                        'type' => 'user-left-project',
-                        'user' => $user->registry->digi_ident,
-                        'project' => Project::where('id', $projectHasUser->project_id)->first()->unique_id,
-                    ])
-                    // Uses has_hmac with sha256 to encode payload with custodian
-                    // unique identifier, thus custodian's known that the payload
-                    // hasn't been tampered with in transit.
-                    ->useSecret(Custodian::where('id', $custodianApproval->custodian_id)->first()->unique_identifier)
-                    ->dispatch();
+        // find all custodians on this project and notifying them of the user leaving
+        $custodianIds = ProjectHasCustodian::where('project_id', $projectHasUser->project_id)
+            ->pluck('custodian_id');
+
+        foreach ($custodianIds as $custodianId) {
+            $whr = CustodianWebhookReceiver::where([
+                'custodian_id' => $custodianId,
+            ])->first();
+
+            if ($whr) {
+                if (WebhookEventTrigger::where('name', 'user-left-project')->first()->id === $whr->webhook_event) {
+                    WebhookCall::create()
+                        ->url($whr->url)
+                        ->payload([
+                            'type' => 'user-left-project',
+                            'user' => $user->registry->digi_ident,
+                            'project' => Project::where('id', $projectHasUser->project_id)->first()->unique_id,
+                        ])
+                        // Uses has_hmac with sha256 to encode payload with custodian
+                        // unique identifier, thus custodian's known that the payload
+                        // hasn't been tampered with in transit.
+                        ->useSecret(Custodian::where('id', $custodianId)->first()->unique_identifier)
+                        ->dispatch();
+                }
             }
         }
     }

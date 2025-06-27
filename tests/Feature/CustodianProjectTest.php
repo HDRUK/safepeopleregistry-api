@@ -35,7 +35,6 @@ class CustodianProjectTest extends TestCase
                 [
                     'project_id' => $project->id,
                     'custodian_id' => $this->custodian->id,
-                    'approved' => (bool)rand(0, 1),
                 ]
             );
         }
@@ -54,34 +53,5 @@ class CustodianProjectTest extends TestCase
         $this->assertArrayHasKey('data', $response['data']);
 
         $this->assertTrue(count($response['data']['data']) === $nTotal);
-    }
-
-    public function test_the_application_can_list_approved_custodian_projects(): void
-    {
-        $nApproved = ProjectHasCustodian::where("approved", 1)->count();
-        $response = $this->actingAs($this->custodian_admin)
-            ->json(
-                'GET',
-                self::TEST_URL . '/' . $this->custodian->id . '/projects?approved=1',
-            );
-        $response->assertStatus(200);
-        $this->assertArrayHasKey('data', $response);
-        $this->assertArrayHasKey('data', $response['data']);
-        $this->assertTrue(count($response['data']['data']) === $nApproved);
-    }
-
-    public function test_the_application_can_list_unapproved_custodian_projects(): void
-    {
-        $nUnapproved = ProjectHasCustodian::where("approved", 0)->count();
-        $response = $this->actingAs($this->custodian_admin)
-            ->json(
-                'GET',
-                self::TEST_URL . '/' . $this->custodian->id . '/projects?approved=0',
-            );
-
-        $response->assertStatus(200);
-        $this->assertArrayHasKey('data', $response);
-        $this->assertArrayHasKey('data', $response['data']);
-        $this->assertTrue(count($response['data']['data']) === $nUnapproved);
     }
 }

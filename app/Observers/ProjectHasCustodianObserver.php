@@ -17,7 +17,6 @@ class ProjectHasCustodianObserver
     public function created(ProjectHasCustodian $projectHasCustodian): void
     {
         $this->updateActionLog($projectHasCustodian);
-
         $this->updateCustodianProjectUserValidation(
             $projectHasCustodian->project_id,
             null,

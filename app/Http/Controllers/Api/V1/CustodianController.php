@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use DB;
 use Exception;
 use Hash;
 use RegistryManagementController as RMC;
@@ -14,7 +13,6 @@ use App\Models\Organisation;
 use App\Models\CustodianHasRule;
 use App\Models\Project;
 use App\Models\CustodianUser;
-use App\Models\State;
 use App\Models\ProjectHasCustodian;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
@@ -618,15 +616,7 @@ class CustodianController extends Controller
      *                  @OA\Property(property="total", type="integer", example=24),
      *                  @OA\Property(property="data", type="array",
      *                      @OA\Items(
-     *                          ref="#/components/schemas/Custodian",
-     *                          @OA\Property(property="approvals", type="array",
-     *                              @OA\Items(
-     *                                  @OA\Property(property="id", type="integer", example=1),
-     *                                  @OA\Property(property="name", type="string", example="SAIL Databank"),
-     *                                  @OA\Property(property="contact_email", type="string", example="sail@email.com"),
-     *                                  @OA\Property(property="enabled", type="boolean", example=true)
-     *                              )
-     *                          )
+     *                          ref="#/components/schemas/Custodian"
      *                      )
      *                  ),
      *                  @OA\Property(property="first_page_url", type="string", example="http://localhost:8100/api/v1/custodians/1/projects?page=1"),
@@ -654,7 +644,7 @@ class CustodianController extends Controller
 
         $projects = Project::searchViaRequest()
             ->applySorting()
-            ->with(['approvals', 'organisations', 'modelState.state'])
+            ->with(['organisations', 'modelState.state'])
             ->filterByCommon()
             ->filterByState()
             ->whereHas('custodians', function ($query) use ($custodianId) {
@@ -714,7 +704,6 @@ class CustodianController extends Controller
             $input = $request->only(app(Project::class)->getFillable());
 
             $project = Project::create($input);
-            $project->setState(State::STATE_PROJECT_PENDING);
 
             ProjectHasCustodian::create([
                 'custodian_id' => $custodianId,
@@ -1317,52 +1306,6 @@ class CustodianController extends Controller
             ], 201);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
-        }
-    }
-
-    public function usersWithCustodianApprovals(Request $request, int $id): JsonResponse
-    {
-        try {
-            $results = DB::select(
-                "
-                SELECT
-                    u.id AS user_id,
-                    GROUP_CONCAT(p.id) AS project_id
-                FROM users u
-                INNER JOIN user_has_custodian_approvals uhca
-                    ON uhca.user_id = u.id
-                    AND uhca.custodian_id = ?
-                INNER JOIN registries r
-                    ON r.id = u.registry_id
-                INNER JOIN project_has_users phu
-                    ON phu.user_digital_ident = r.digi_ident
-                INNER JOIN projects p
-                    ON phu.project_id = p.id
-                INNER JOIN project_has_custodians phc 
-                	ON phc.custodian_id  = uhca.custodian_id 
-                	AND phc.project_id = p.id
-                GROUP BY u.id;
-                ",
-                [
-                    $id,
-                ]
-            );
-
-            $users = [];
-
-            foreach ($results as $u) {
-                $tmpUser = User::where('id', $u->user_id)->first()->toArray();
-                foreach (explode(',', $u->project_id) as $p) {
-                    $tmpUser['projects'][] = Project::where('id', $p)->first();
-                }
-
-                $users[] = $tmpUser;
-                unset($tmpUser);
-            }
-
-            return $this->OKResponse($users);
-        } catch (Exception $e) {
-            return $this->ErrorResponse();
         }
     }
 }

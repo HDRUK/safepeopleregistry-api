@@ -99,7 +99,6 @@ class OrganisationController extends Controller
                     'registries',
                     'registries.user',
                     'registries.user.permissions',
-                    'registries.user.approvals',
                     'delegates'
                 ])
                 ->filterWhen('has_delegates', function ($query, $hasDelegates) {
@@ -196,7 +195,6 @@ class OrganisationController extends Controller
             'registries',
             'registries.user',
             'registries.user.permissions',
-            'registries.user.approvals',
             'sector'
         ])->findOrFail($id);
         if ($organisation) {

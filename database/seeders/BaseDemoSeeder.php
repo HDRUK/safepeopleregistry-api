@@ -27,7 +27,6 @@ use App\Models\RegistryHasTraining;
 use App\Models\OrganisationHasDepartment;
 use App\Models\State;
 use App\Models\Subsidiary;
-use App\Models\UserHasCustodianApproval;
 use App\Traits\CommonFunctions;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Schema;
@@ -171,7 +170,6 @@ Health Research Authority (HRA) Approval as it involves health-related research 
         ProjectHasCustodian::create([
             'project_id' => $org1Proj1->id,
             'custodian_id' => Custodian::first()->id,
-            'approved' => true
         ]);
 
 
@@ -196,7 +194,6 @@ National Public Health Ethics Committee for authorization to analyze population 
         ProjectHasCustodian::create([
             'project_id' => $org1Proj2->id,
             'custodian_id' => Custodian::first()->id,
-            'approved' => true
         ]);
 
         // --------------------------------------------------------------------------------
@@ -273,7 +270,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         ProjectHasCustodian::create([
             'project_id' => $org2Proj1->id,
             'custodian_id' => Custodian::first()->id,
-            'approved' => true
         ]);
 
 
@@ -343,7 +339,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         ProjectHasCustodian::create([
             'project_id' => $proj->id,
             'custodian_id' => Custodian::first()->id,
-            'approved' => true
         ]);
 
 
@@ -540,9 +535,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                         'ror' => $this->generateRorID(),
                         'registry_id' => -1,
                     ],
-                ],
-                'custodian_approvals' => [
-                    1,
                 ],
             ],
             [
@@ -1104,15 +1096,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                     'registry_id' => $reg->id,
                     'training_id' => $training->id,
                 ]);
-            }
-
-            if (isset($u['custodian_approvals'])) {
-                foreach ($u['custodian_approvals'] as $approval) {
-                    $uhca = UserHasCustodianApproval::create([
-                        'user_id' => $user->id,
-                        'custodian_id' => $approval,
-                    ]);
-                }
             }
         }
 
