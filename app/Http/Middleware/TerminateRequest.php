@@ -25,13 +25,9 @@ class TerminateRequest
         if (is_null($request->route())) {
             return;
         }
-
-        \Log::info('Request: ' . $request->route()->getActionName());
-        \Log::info('Memory usage before manual GC: ' . round(memory_get_usage(true) / 1024 / 1024, 2) . ' MB');
-
-        $collected = gc_collect_cycles();
-        \Log::info('Collected: ' . $collected);
-
-        \Log::info('Memory usage after manual GC: ' . round(memory_get_usage(true) / 1024 / 1024, 2) . ' MB');
+        DebugLog::create([
+            'class' => $request->route()->getActionName(),
+            'log' => 'Memory usage after request: ' . round(memory_get_usage(true) / 1024 / 1024, 2) . ' MB',
+        ]);
     }
 }
