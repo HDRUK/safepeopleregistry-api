@@ -15,9 +15,11 @@ use App\Traits\CommonFunctions;
 use App\Traits\FilterManager;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
+
+use function activity;
 
 class ProjectController extends Controller
 {
@@ -657,57 +659,76 @@ class ProjectController extends Controller
                 'users' => 'required|array',
             ]);
 
-            $registryIds = collect($validated['users'])->pluck('registry_id')->unique();
+            $users = collect($validated['users']);
+            $registryIds = $users->pluck('registry_id')->unique();
             $registries = Registry::with('user')->whereIn('id', $registryIds)->get()->keyBy('id');
 
             $results = [];
-            $deletes = [];
 
-            foreach ($validated['users'] as $entry) {
-
+            foreach ($users as $entry) {
                 $registry = $registries->get($entry['registry_id']);
-                if (!$registry || !$registry->user) {
+
+                $user = $registry->user;
+                if (!$registry || !$user) {
                     continue;
                 }
 
                 $digiIdent = $registry->digi_ident;
                 $affiliationId = $entry['affiliation_id'];
-                $roleId = isset($entry['role']) ? $entry['role']['id'] ?? null : null;
+                $roleId = $entry['role']['id'] ?? null;
+                $primaryContact = $entry['primary_contact'] ?? false;
 
-                // Refactor candidate..
-                // - code is really slow
-                // - should be cleaner with firstOrNew and/or updateOrCreate
-                // - laravel doesnt like this though as it's a pivot table
-                // - dont think ProjectHasUser should be a pivot table as it's
-                //   a three-way pivot between project/registry/affiliation
-                $projectUserQuery = ProjectHasUser::where([
+                $phuAttributes = [
                     'project_id' => $projectId,
                     'user_digital_ident' => $digiIdent,
                     'affiliation_id' => $affiliationId,
-                ]);
+                ];
 
-                if (!$projectUserQuery->exists()) {
-                    $projectUser = ProjectHasUser::create([
-                        'project_id' => $projectId,
-                        'user_digital_ident' => $digiIdent,
-                        'affiliation_id' => $affiliationId,
-                    ]);
-                }
+                $phuValues = [
+                    'project_role_id' => $roleId,
+                    'primary_contact' => $primaryContact,
+                ];
+
+                $project = Project::findOrFail($projectId);
+
+                $logAttributes = array_merge(
+                    $phuAttributes,
+                    $phuValues,
+                    [
+                        'project_name' => $project->title,
+                    ]
+                );
 
                 if (is_null($roleId)) {
-                    $projectUserQuery->delete();
-                } else {
-                    $updateData = [
-                        'project_role_id' => $roleId,
-                    ];
-                    if (isset($entry['primary_contact'])) {
-                        $updateData['primary_contact'] = $entry['primary_contact'];
-                    }
+                    // refactor candidate for a soft-delete
+                    ProjectHasUser::where($phuAttributes)->delete();
 
-                    $projectUserQuery->update($updateData);
+                    activity()
+                        ->causedBy(Auth::user())
+                        ->performedOn($user)
+                        ->event('deleted')
+                        ->useLog('project_users')
+                        ->withProperties($logAttributes)
+                        ->log('project_has_user_removed');
 
-                    $results[] = $projectUserQuery->get();
+                    continue;
                 }
+
+                $projectUser = ProjectHasUser::updateOrCreate($phuAttributes, $phuValues);
+                $results[] = $projectUser;
+
+                $event = $projectUser->wasRecentlyCreated ? 'created' : 'updated';
+                $logMsg = $projectUser->wasRecentlyCreated
+                    ? 'project_has_user_created'
+                    : 'project_has_user_updated';
+
+                activity()
+                    ->causedBy(Auth::user())
+                    ->performedOn($user)
+                    ->event($event)
+                    ->useLog('project_users')
+                    ->withProperties($logAttributes)
+                    ->log($logMsg);
             }
 
             return $this->OKResponse($results);
@@ -715,6 +736,7 @@ class ProjectController extends Controller
             return $this->ErrorResponse($e->getMessage());
         }
     }
+
 
 
     public function addProjectUser(Request $request, int $projectId, int $registryId): JsonResponse
