@@ -12,10 +12,8 @@ use App\Models\User;
 use App\Models\Registry;
 use App\Models\Project;
 use App\Models\ProjectHasUser;
-use App\Models\UserHasCustodianApproval;
 use App\Models\UserHasCustodianPermission;
 use App\Models\UserHasDepartments;
-use App\Models\Organisation;
 use App\Http\Requests\Users\CreateUser;
 use App\Http\Traits\Responses;
 use Illuminate\Http\JsonResponse;
@@ -729,7 +727,6 @@ class UserController extends Controller
             $user->delete();
 
             UserHasCustodianPermission::where('user_id', $id)->delete();
-            UserHasCustodianApproval::where('user_id', $id)->delete();
 
             return response()->json([
                 'message' => 'success',
@@ -809,7 +806,7 @@ class UserController extends Controller
 
         $projects = Project::whereIn('id', $projectIds)
             ->withCount('projectUsers')
-            ->with(['organisations', 'modelState.state'])
+            ->with(['organisations'])
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
         return $this->OKResponse($projects);
     }

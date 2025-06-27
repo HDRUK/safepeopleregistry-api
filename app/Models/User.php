@@ -244,17 +244,6 @@ class User extends Authenticatable
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Custodian, \App\Models\User>
-     */
-    public function approvals(): BelongsToMany
-    {
-        return $this->belongsToMany(
-            Custodian::class,
-            'user_has_custodian_approvals',
-        );
-    }
-
-    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Registry, \App\Models\User>
      */
     public function registry(): BelongsTo

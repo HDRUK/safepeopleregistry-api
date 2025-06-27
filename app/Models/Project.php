@@ -80,8 +80,6 @@ use App\Traits\FilterManager;
  * @property string|null $other_approval_committees
  * @property string|null $start_date
  * @property string|null $end_date
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Custodian> $approvals
- * @property-read int|null $approvals_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Custodian> $custodians
  * @property-read int|null $custodians_count
  * @property-read \App\Models\ModelState|null $modelState
@@ -193,21 +191,9 @@ class Project extends Model
             'project_has_custodians',
             'project_id',
             'custodian_id'
-        )->withPivot('approved');
+        );
     }
 
-    /**
-     *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Custodian>
-     */
-    public function approvals(): BelongsToMany
-    {
-        return $this->belongsToMany(
-            Custodian::class,
-            'project_has_custodians',
-            'project_id',
-            'custodian_id'
-        )->wherePivot('approved', true);
-    }
 
     public function modelState(): MorphOne
     {

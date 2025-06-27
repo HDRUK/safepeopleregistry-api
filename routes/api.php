@@ -194,7 +194,6 @@ Route::middleware(['auth:api'])
         Route::get('/{id}/custodian_users', 'getCustodianUsers');
         Route::get('/{id}/projects_users', 'getProjectsUsers');
         Route::get('/{id}/rules', 'getRules');
-        Route::get('/{id}/users', 'usersWithCustodianApprovals');
         Route::get('/{id}/organisations/{organisationId}/users', 'getOrganisationUsers');
 
         // Write
@@ -262,7 +261,7 @@ Route::middleware('auth:api')
         Route::delete('{id}', 'destroy');
 
         // Project user management
-        Route::get('user/{registryId}/approved', 'getApprovedProjects');
+        Route::get('user/{registryId}/validated', 'getValidatedProjects');
         Route::get('{id}/users', 'getProjectUsers');
         Route::get('{id}/all_users', 'getAllUsersFlagProject');
         Route::put('{id}/all_users', 'updateAllProjectUsers');
