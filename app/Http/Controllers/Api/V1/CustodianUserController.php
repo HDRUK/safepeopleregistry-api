@@ -23,46 +23,22 @@ class CustodianUserController extends Controller
      *      description="Return a list of Custodian Users",
      *      tags={"CustodianUsers"},
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="first_name", type="string", example="David"),
-     *                  @OA\Property(property="last_name", type="string", example="Davidson"),
-     *                  @OA\Property(property="email", type="string", example="david@davidson.com"),
-     *                  @OA\Property(property="provider", type="string", example=""),
-     *                  @OA\Property(property="custodian_id", type="integer", example=1),
-     *                  @OA\Property(property="user_permissions", type="array",
-     *                      @OA\Items(
-     *                          @OA\Property(property="custodian_user_id", type="integer", example=1),
-     *                          @OA\Property(property="permission_id", type="integer", example=10),
-     *                          @OA\Property(property="permission", type="object",
-     *                              @OA\Property(property="id", type="integer", example=10),
-     *                              @OA\Property(property="created_at", type="string", format="date-time", example="2025-01-08T09:37:59.000000Z"),
-     *                              @OA\Property(property="updated_at", type="string", format="date-time", example="2025-01-08T09:37:59.000000Z"),
-     *                              @OA\Property(property="name", type="string", example="CUSTODIAN_ADMIN"),
-     *                              @OA\Property(property="enabled", type="boolean", example=true)
-     *                          )
-     *                      )
-     *                  )
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="object",
+     *                  ref="#/components/schemas/CustodianUser"
      *              ),
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -102,25 +78,19 @@ class CustodianUserController extends Controller
      *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="first_name", type="string", example="David"),
-     *                  @OA\Property(property="last_name", type="string", example="Davidson"),
-     *                  @OA\Property(property="email", type="string", example="david@davidson.com"),
-     *                  @OA\Property(property="custodian_id", type="integer", example="1"),
-     *                  @OA\Property(property="user_permissions", type="array",
-     *                      @OA\Items(
-     *                          @OA\Property(property="custodian_user_id", type="integer", example=1),
-     *                          @OA\Property(property="permission_id", type="integer", example=10),
-     *                          @OA\Property(property="permission", type="object",
-     *                              @OA\Property(property="id", type="integer", example=10),
-     *                              @OA\Property(property="created_at", type="string", format="date-time", example="2025-01-08T09:37:59.000000Z"),
-     *                              @OA\Property(property="updated_at", type="string", format="date-time", example="2025-01-08T09:37:59.000000Z"),
-     *                              @OA\Property(property="name", type="string", example="CUSTODIAN_ADMIN"),
-     *                              @OA\Property(property="enabled", type="boolean", example=true)
-     *                          )
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="object",
+     *                  ref="#/components/schemas/CustodianUser"
+     *              ),
+     *              @OA\Property(property="user_permissions", type="array",
+     *                  @OA\Items(
+     *                      @OA\Property(property="custodian_user_id", type="integer", example=1),
+     *                      @OA\Property(property="permission_id", type="integer", example=10),
+     *                      @OA\Property(
+     *                          property="permission",
+     *                          type="object",
+     *                          ref="#/components/schemas/Permission"
      *                      )
      *                  )
      *              )
@@ -164,11 +134,7 @@ class CustodianUserController extends Controller
      *          required=true,
      *          description="CustodianUser definition",
      *          @OA\JsonContent(
-     *              @OA\Property(property="custodian_id", type="integer", example="1"),
-     *              @OA\Property(property="first_name", type="string", example="First"),
-     *              @OA\Property(property="last_name", type="string", example="Last"),
-     *              @OA\Property(property="email", type="string", example="first@last.com"),
-     *              @OA\Property(property="password", type="string", example="SomeP4ssw0rd!")
+     *              ref="#/components/schemas/CustodianUser"
      *          ),
      *      ),
      *      @OA\Response(
@@ -241,56 +207,34 @@ class CustodianUserController extends Controller
      *      tags={"CustodianUser"},
      *      summary="CustodianUser@update",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="CustodianUser definition",
-     *
      *          @OA\JsonContent(
-     *
-     *              @OA\Property(property="custodian_id", type="integer", example="1"),
-     *              @OA\Property(property="first_name", type="string", example="First"),
-     *              @OA\Property(property="last_name", type="string", example="Last"),
-     *              @OA\Property(property="email", type="string", example="first@last.com"),
-     *              @OA\Property(property="password", type="string", example="SomeP4ssw0rd!")
+     *              ref="#/components/schemas/CustodianUser"
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=201,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="first_name", type="string", example="David"),
-     *                  @OA\Property(property="last_name", type="string", example="Davidson"),
-     *                  @OA\Property(property="email", type="string", example="david@davidson.com"),
-     *                  @OA\Property(property="custodian_id", type="integer", example="1")
+     *                  ref="#/components/schemas/CustodianUser"
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -349,55 +293,33 @@ class CustodianUserController extends Controller
      *      tags={"CustodianUser"},
      *      summary="CustodianUser@edit",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\RequestBody(
      *          description="CustodianUser definition",
-     *
      *          @OA\JsonContent(
-     *
-     *              @OA\Property(property="custodian_id", type="integer", example="1"),
-     *              @OA\Property(property="first_name", type="string", example="First"),
-     *              @OA\Property(property="last_name", type="string", example="Last"),
-     *              @OA\Property(property="email", type="string", example="first@last.com"),
-     *              @OA\Property(property="password", type="string", example="SomeP4ssw0rd!")
+     *              ref="#/components/schemas/CustodianUser"
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=201,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="first_name", type="string", example="David"),
-     *                  @OA\Property(property="last_name", type="string", example="Davidson"),
-     *                  @OA\Property(property="email", type="string", example="david@davidson.com"),
-     *                  @OA\Property(property="custodian_id", type="integer", example="1")
+     *                  ref="#/components/schemas/CustodianUser"
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -493,46 +415,35 @@ class CustodianUserController extends Controller
      *      tags={"CustodianUser"},
      *      summary="CustodianUser@destroy",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="CustodianUser entry ID",
      *         required=true,
      *         example="1",
-     *
      *         @OA\Schema(
      *            type="integer",
      *            description="CustodianUser entry ID",
      *         ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found")
      *           ),
      *      ),
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="success")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
