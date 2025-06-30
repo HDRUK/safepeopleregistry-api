@@ -3,7 +3,6 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use App\Models\DebugLog;
 use Illuminate\Contracts\Foundation\Application;
 
 class TerminateRequest
