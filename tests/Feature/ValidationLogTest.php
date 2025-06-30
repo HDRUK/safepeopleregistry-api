@@ -630,13 +630,9 @@ class ValidationLogTest extends TestCase
         $newCustodian->validationChecks()
             ->syncWithoutDetaching(ValidationCheck::pluck('id')->all());
 
-        $newOrganisation = Organisation::factory()->create();
-
+        Organisation::factory()->create();
 
         $expectedLogCount = count($defaultChecks) * Custodian::count() * Organisation::count();
-        $temp = ValidationLog::where('entity_type', Custodian::class)
-            ->where('secondary_entity_type', Organisation::class)
-            ->count();
 
         $this->assertEquals(
             $expectedLogCount,

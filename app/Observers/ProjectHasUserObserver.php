@@ -62,8 +62,8 @@ class ProjectHasUserObserver
             ->withProperties([
                 'project_id' => $project->id,
                 'project_title' => $project->title,
-                'affiliation_id' => $affiliation->id,
-                'affiliation_name' => $affiliation->organisation->organisation_name,
+                'affiliation_id' => $affiliation?->id,
+                'affiliation_name' => $affiliation?->organisation->organisation_name,
                 'role_id' => $role->id,
                 'role_name' => $role->name,
             ])
