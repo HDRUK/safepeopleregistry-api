@@ -19,12 +19,8 @@ class UpdateCustodianValidation implements ShouldQueue
     use ValidationManager;
 
     protected int $custodianId;
+    protected int $projectId;
     protected ValidationCheckAppliesTo $appliesTo;
-
-    public function uniqueId(): string
-    {
-        return 'update_custodian_validation_' . $this->custodianId . '_' . $this->appliesTo->value;
-    }
 
 
     public function __construct(int $custodianId, ValidationCheckAppliesTo $appliesTo)

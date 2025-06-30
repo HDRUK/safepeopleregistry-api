@@ -271,6 +271,7 @@ class ProjectController extends Controller
 
                 return [
                     'id' => $idCounter++,
+                    'project_user_id' => $matchingProjectUser?->id,
                     'user_id' => $user->id,
                     'registry_id' => $user->registry_id,
                     'first_name' => $user->first_name,
@@ -654,10 +655,65 @@ class ProjectController extends Controller
 
     public function updateAllProjectUsers(Request $request, int $projectId): JsonResponse
     {
+
+        $validated = $request->validate(['users' => 'required|array']);
+        $users = collect($validated['users']);
+
+        $registryIds = $users->pluck('registry_id')->unique();
+        $registries = Registry::with('user')->whereIn('id', $registryIds)->get()->keyBy('id');
+
+        foreach ($users as $entry) {
+            $registry = $registries->get($entry['registry_id']);
+            $user = $registry->user;
+            if (!$registry || !$user) {
+                continue;
+            }
+
+            $digiIdent = $registry->digi_ident;
+            $affiliationId = $entry['affiliation_id'];
+            $roleId = $entry['role']['id'] ?? null;
+            $primaryContact = $entry['primary_contact'] ?? 0;
+
+
+            $roleId = $entry['role']['id'] ?? null;
+            $phu = ProjectHasUser::where('id', $entry['project_user_id'])->first();
+
+            if ($phu) {
+                if (is_null($roleId)) {
+                    $phu->delete();
+                } else {
+                    $phu->update(
+                        [
+                            'project_role_id' => $roleId,
+                            'primary_contact' => $primaryContact,
+                            'affiliation_id' => $affiliationId,
+                        ]
+                    );
+                }
+            } elseif ($roleId) {
+                ProjectHasUser::updateOrCreate([
+                    'project_id' => $projectId,
+                    'user_digital_ident' => $digiIdent, // index
+                    'affiliation_id' => $affiliationId,
+                ], [
+                    'project_role_id' => $roleId,
+                    'primary_contact' => $primaryContact,
+                ]);
+            }
+        }
+
+        return $this->OKResponse(true);
+    }
+
+
+    public function updateAllProjectUsersOld(Request $request, int $projectId): JsonResponse
+    {
         try {
             $validated = $request->validate([
                 'users' => 'required|array',
             ]);
+
+            $project = Project::select('id', 'title')->findOrFail($projectId);
 
             $users = collect($validated['users']);
             $registryIds = $users->pluck('registry_id')->unique();
@@ -672,6 +728,7 @@ class ProjectController extends Controller
                 if (!$registry || !$user) {
                     continue;
                 }
+
 
                 $digiIdent = $registry->digi_ident;
                 $affiliationId = $entry['affiliation_id'];
@@ -689,7 +746,6 @@ class ProjectController extends Controller
                     'primary_contact' => $primaryContact,
                 ];
 
-                $project = Project::findOrFail($projectId);
 
                 $logAttributes = array_merge(
                     $phuAttributes,
@@ -715,20 +771,23 @@ class ProjectController extends Controller
                 }
 
                 $projectUser = ProjectHasUser::updateOrCreate($phuAttributes, $phuValues);
+
                 $results[] = $projectUser;
 
-                $event = $projectUser->wasRecentlyCreated ? 'created' : 'updated';
-                $logMsg = $projectUser->wasRecentlyCreated
-                    ? 'project_has_user_created'
-                    : 'project_has_user_updated';
+                if ($projectUser->wasRecentlyCreated || $projectUser->wasChanged()) {
+                    $event = $projectUser->wasRecentlyCreated ? 'created' : 'updated';
+                    $logMsg = $projectUser->wasRecentlyCreated
+                        ? 'project_has_user_created'
+                        : 'project_has_user_updated';
 
-                activity()
-                    ->causedBy(Auth::user())
-                    ->performedOn($user)
-                    ->event($event)
-                    ->useLog('project_users')
-                    ->withProperties($logAttributes)
-                    ->log($logMsg);
+                    activity()
+                        ->causedBy(Auth::user())
+                        ->performedOn($user)
+                        ->event($event)
+                        ->useLog('project_users')
+                        ->withProperties($logAttributes)
+                        ->log($logMsg);
+                }
             }
 
             return $this->OKResponse($results);
