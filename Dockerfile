@@ -47,7 +47,7 @@ RUN curl https://frankenphp.dev/install.sh | sh \
 
 # Composer & laravel
 RUN composer install \
-    && php artisan octane:install --server=frakenphp \
+    && php artisan octane:install \
     && php artisan storage:link \
     && php artisan optimize:clear \
     && php artisan optimize \
