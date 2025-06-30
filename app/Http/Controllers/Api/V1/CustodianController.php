@@ -587,7 +587,6 @@ class CustodianController extends Controller
         }
     }
 
-
     /**
      * @OA\Get(
      *      path="/api/v1/custodian/{custodianId}/projects",

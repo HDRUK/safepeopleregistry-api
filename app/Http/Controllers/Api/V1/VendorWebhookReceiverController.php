@@ -10,11 +10,63 @@ use App\Services\WebhookTranslators\TranslatorFactory;
 use App\Http\Traits\Responses;
 use Illuminate\Http\JsonResponse;
 
+/**
+ * @OA\Tag(
+ *     name="VendorWebhookReceiver",
+ *     description="API endpoints for receiving vendor webhook callbacks"
+ * )
+ */
 class VendorWebhookReceiverController extends Controller
 {
     use HmacSigning;
     use Responses;
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/vendor-webhooks/{provider}",
+     *     tags={"VendorWebhookReceiver"},
+     *     summary="Receive a webhook callback from a vendor",
+     *     @OA\Parameter(
+     *         name="provider",
+     *         in="path",
+     *         required=true,
+     *         description="Name of the vendor providing the webhook",
+     *         @OA\Schema(type="string", example="example-provider")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             example={"event": "user.created", "data": {"id": 123, "name": "John Doe"}}
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Webhook processed successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="success"),
+     *             @OA\Property(property="data", type="array", @OA\Items(type="object"))
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid signature",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="Invalid signature")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal server error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="An error occurred")
+     *         )
+     *     )
+     * )
+     */
     public function receive(Request $request, string $provider): JsonResponse
     {
         DebugLog::create([
