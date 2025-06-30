@@ -12,10 +12,31 @@ use Illuminate\Http\Request;
 use App\Traits\CommonFunctions;
 use App\Http\Controllers\Controller;
 
+/**
+ * @OA\Tag(
+ *     name="Department",
+ *     description="API endpoints for managing departments"
+ * )
+ */
 class DepartmentController extends Controller
 {
     use CommonFunctions;
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/departments",
+     *     tags={"Department"},
+     *     summary="Get a list of departments",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Success",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(ref="#/components/schemas/Department")
+     *         )
+     *     )
+     * )
+     */
     public function index(Request $request): JsonResponse
     {
         $deps = Department::paginate((int)$this->getSystemConfig('PER_PAGE'));
@@ -25,6 +46,33 @@ class DepartmentController extends Controller
         ], 200);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/departments/{id}",
+     *     tags={"Department"},
+     *     summary="Get a specific department by ID",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the department",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Success",
+     *         @OA\JsonContent(ref="#/components/schemas/Department")
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Department not found",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="Department not found")
+     *         )
+     *     )
+     * )
+     */
     public function show(Request $request, int $id): JsonResponse
     {
         $dep = Department::findOrFail($id);
@@ -38,6 +86,34 @@ class DepartmentController extends Controller
         throw new NotFoundException();
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/departments",
+     *     tags={"Department"},
+     *     summary="Create a new department",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/Department")
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Created",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="success"),
+     *             @OA\Property(property="data", type="integer", example=1)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Validation error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="Validation error")
+     *         )
+     *     )
+     * )
+     */
     public function store(CreateDepartment $request): JsonResponse
     {
         try {
@@ -57,6 +133,37 @@ class DepartmentController extends Controller
         }
     }
 
+    /**
+     * @OA\Put(
+     *     path="/api/v1/departments/{id}",
+     *     tags={"Department"},
+     *     summary="Update an existing department",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the department",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/Department")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Updated",
+     *         @OA\JsonContent(ref="#/components/schemas/Department")
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Department not found",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="Department not found")
+     *         )
+     *     )
+     * )
+     */
     public function update(UpdateDepartment $request, int $id): JsonResponse
     {
         try {
@@ -74,6 +181,36 @@ class DepartmentController extends Controller
         }
     }
 
+    /**
+     * @OA\Delete(
+     *     path="/api/v1/departments/{id}",
+     *     tags={"Department"},
+     *     summary="Delete a department",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the department",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Deleted",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="success")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Department not found",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="Department not found")
+     *         )
+     *     )
+     * )
+     */
     public function destroy(Request $request, int $id): JsonResponse
     {
         try {

@@ -10,8 +10,36 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
+/**
+ * @OA\Tag(
+ *     name="Education",
+ *     description="API endpoints for managing education records"
+ * )
+ */
 class EducationController extends Controller
 {
+    /**
+     * @OA\Get(
+     *     path="/api/v1/registries/{registryId}/educations",
+     *     tags={"Education"},
+     *     summary="Get education records by registry ID",
+     *     @OA\Parameter(
+     *         name="registryId",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the registry",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Success",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(ref="#/components/schemas/Education")
+     *         )
+     *     )
+     * )
+     */
     public function indexByRegistryId(Request $request, int $registryId): JsonResponse
     {
         $educations = Education::where('registry_id', $registryId)->get();
@@ -22,6 +50,40 @@ class EducationController extends Controller
         ], 200);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/registries/{registryId}/educations/{id}",
+     *     tags={"Education"},
+     *     summary="Get a specific education record by ID and registry ID",
+     *     @OA\Parameter(
+     *         name="registryId",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the registry",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the education record",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Success",
+     *         @OA\JsonContent(ref="#/components/schemas/Education")
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Education record not found",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="Education record not found")
+     *         )
+     *     )
+     * )
+     */
     public function showByRegistryId(Request $request, int $id, int $registryId): JsonResponse
     {
         try {
@@ -39,6 +101,42 @@ class EducationController extends Controller
         }
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/registries/{registryId}/educations",
+     *     tags={"Education"},
+     *     summary="Create a new education record for a registry",
+     *     @OA\Parameter(
+     *         name="registryId",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the registry",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/Education")
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Created",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="success"),
+     *             @OA\Property(property="data", type="integer", example=1)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Registry not found",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="failed"),
+     *             @OA\Property(property="error", type="string", example="registry not found")
+     *         )
+     *     )
+     * )
+     */
     public function storeByRegistryId(Request $request, int $registryId): JsonResponse
     {
         try {
@@ -73,6 +171,45 @@ class EducationController extends Controller
         }
     }
 
+    /**
+     * @OA\Put(
+     *     path="/api/v1/registries/{registryId}/educations/{id}",
+     *     tags={"Education"},
+     *     summary="Update an existing education record",
+     *     @OA\Parameter(
+     *         name="registryId",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the registry",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the education record",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/Education")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Updated",
+     *         @OA\JsonContent(ref="#/components/schemas/Education")
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Unable to save education",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="failed"),
+     *             @OA\Property(property="error", type="string", example="unable to save education")
+     *         )
+     *     )
+     * )
+     */
     public function updateByRegistryId(Request $request, int $id, int $registryId): JsonResponse
     {
         try {
@@ -109,6 +246,45 @@ class EducationController extends Controller
         }
     }
 
+    /**
+     * @OA\Patch(
+     *     path="/api/v1/registries/{registryId}/educations/{id}",
+     *     tags={"Education"},
+     *     summary="Edit an existing education record",
+     *     @OA\Parameter(
+     *         name="registryId",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the registry",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the education record",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\RequestBody(
+     *         required=false,
+     *         @OA\JsonContent(ref="#/components/schemas/Education")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Edited",
+     *         @OA\JsonContent(ref="#/components/schemas/Education")
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Unable to save education",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="failed"),
+     *             @OA\Property(property="error", type="string", example="unable to save education")
+     *         )
+     *     )
+     * )
+     */
     public function editByRegistryId(Request $request, int $id, int $registryId): JsonResponse
     {
         try {
@@ -153,6 +329,36 @@ class EducationController extends Controller
         }
     }
 
+    /**
+     * @OA\Delete(
+     *     path="/api/v1/registries/{registryId}/educations/{id}",
+     *     tags={"Education"},
+     *     summary="Delete an education record",
+     *     @OA\Parameter(
+     *         name="registryId",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the registry",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the education record",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Deleted",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="success"),
+     *             @OA\Property(property="data", type="null", example=null)
+     *         )
+     *     )
+     * )
+     */
     public function destroyByRegistryId(Request $request, int $id, int $registryId): JsonResponse
     {
         try {

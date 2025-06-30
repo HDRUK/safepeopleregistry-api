@@ -10,10 +10,55 @@ use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @OA\Tag(
+ *     name="ONSSubmission",
+ *     description="API endpoints for managing ONS submissions"
+ * )
+ */
 class ONSSubmissionController extends Controller
 {
     use CommonFunctions;
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/ons-submissions/csv",
+     *     tags={"ONSSubmission"},
+     *     summary="Upload a CSV file for ONS submission",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="file",
+     *                     type="string",
+     *                     format="binary",
+     *                     description="CSV file to upload"
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="File uploaded successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="success"),
+     *             @OA\Property(property="data", type="boolean", example=true)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="File upload failed",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="failed"),
+     *             @OA\Property(property="data", type="string", example="file upload failed - please contact support")
+     *         )
+     *     )
+     * )
+     */
     public function receiveCSV(Request $request): JsonResponse
     {
         $input = $request->all();
