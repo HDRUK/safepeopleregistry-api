@@ -175,10 +175,6 @@ class Affiliation extends Model
             ->dontSubmitEmptyLogs();
     }
 
-    public function tapActivity(Activity $activity, string $eventName)
-    {
-        dd($eventName);
-    }
 
     /**
      * Get the organisation related to the affiliation.
