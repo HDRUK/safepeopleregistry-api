@@ -18,7 +18,7 @@ class TerminateRequest
         $action = $route ? $route->getActionName() : null;
 
         if (is_null($request->route())) {
-            return;
+            return Log::info('Memory usage request without route :: ' . json_encode($request->all()));
         }
 
         $memory = memory_get_usage(true) / 1024 / 1024;
