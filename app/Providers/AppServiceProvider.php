@@ -41,8 +41,6 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
-use Spatie\Activitylog\Facades\Activity;
 
 class AppServiceProvider extends ServiceProvider
 {
