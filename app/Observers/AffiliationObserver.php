@@ -52,7 +52,9 @@ class AffiliationObserver
 
         // Not sure we should be ever sending delegates emails upon changes like this
         // - we have a notification system for it
-        //$this->emailDelegatesIfNowComplete($affiliation);
+        if (config('enable_email')) {
+            $this->emailDelegatesIfNowComplete($affiliation);
+        }
         $this->updateActionLog($affiliation->registry_id);
         $this->updateOrganisationActionLog($affiliation);
     }
