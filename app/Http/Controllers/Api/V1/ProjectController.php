@@ -15,9 +15,11 @@ use App\Traits\CommonFunctions;
 use App\Traits\FilterManager;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
+
+use function activity;
 
 class ProjectController extends Controller
 {
@@ -269,6 +271,7 @@ class ProjectController extends Controller
 
                 return [
                     'id' => $idCounter++,
+                    'project_user_id' => $matchingProjectUser?->id,
                     'user_id' => $user->id,
                     'registry_id' => $user->registry_id,
                     'first_name' => $user->first_name,
@@ -653,66 +656,55 @@ class ProjectController extends Controller
     public function updateAllProjectUsers(Request $request, int $projectId): JsonResponse
     {
         try {
-            $validated = $request->validate([
-                'users' => 'required|array',
-            ]);
+            $validated = $request->validate(['users' => 'required|array']);
+            $users = collect($validated['users']);
 
-            $registryIds = collect($validated['users'])->pluck('registry_id')->unique();
+            $registryIds = $users->pluck('registry_id')->unique();
             $registries = Registry::with('user')->whereIn('id', $registryIds)->get()->keyBy('id');
 
-            $results = [];
-            $deletes = [];
-
-            foreach ($validated['users'] as $entry) {
-
+            foreach ($users as $entry) {
                 $registry = $registries->get($entry['registry_id']);
-                if (!$registry || !$registry->user) {
+                $user = $registry->user;
+                if (!$registry || !$user) {
                     continue;
                 }
 
                 $digiIdent = $registry->digi_ident;
                 $affiliationId = $entry['affiliation_id'];
-                $roleId = isset($entry['role']) ? $entry['role']['id'] ?? null : null;
+                $roleId = $entry['role']['id'] ?? null;
+                $primaryContact = $entry['primary_contact'] ?? 0;
 
-                // Refactor candidate..
-                // - code is really slow
-                // - should be cleaner with firstOrNew and/or updateOrCreate
-                // - laravel doesnt like this though as it's a pivot table
-                // - dont think ProjectHasUser should be a pivot table as it's
-                //   a three-way pivot between project/registry/affiliation
-                $projectUserQuery = ProjectHasUser::where([
-                    'project_id' => $projectId,
-                    'user_digital_ident' => $digiIdent,
-                    'affiliation_id' => $affiliationId,
-                ]);
 
-                if (!$projectUserQuery->exists()) {
-                    $projectUser = ProjectHasUser::create([
-                        'project_id' => $projectId,
-                        'user_digital_ident' => $digiIdent,
-                        'affiliation_id' => $affiliationId,
-                    ]);
-                }
+                $roleId = $entry['role']['id'] ?? null;
+                $phu = ProjectHasUser::where('id', $entry['project_user_id'])->first();
 
-                if (is_null($roleId)) {
-                    $projectUserQuery->delete();
-                } else {
-                    $updateData = [
-                        'project_role_id' => $roleId,
-                    ];
-                    if (isset($entry['primary_contact'])) {
-                        $updateData['primary_contact'] = $entry['primary_contact'];
+                if ($phu) {
+                    if (is_null($roleId)) {
+                        $phu->delete();
+                    } else {
+                        $phu->update(
+                            [
+                                'project_role_id' => $roleId,
+                                'primary_contact' => $primaryContact,
+                                'affiliation_id' => $affiliationId,
+                            ]
+                        );
                     }
-
-                    $projectUserQuery->update($updateData);
-
-                    $results[] = $projectUserQuery->get();
+                } elseif ($roleId) {
+                    ProjectHasUser::updateOrCreate([
+                        'project_id' => $projectId,
+                        'user_digital_ident' => $digiIdent, // index
+                        'affiliation_id' => $affiliationId,
+                    ], [
+                        'project_role_id' => $roleId,
+                        'primary_contact' => $primaryContact,
+                    ]);
                 }
             }
 
-            return $this->OKResponse($results);
+            return $this->OKResponse(true);
         } catch (Exception $e) {
-            return $this->ErrorResponse($e->getMessage());
+            return $this->ErrorResponse();
         }
     }
 

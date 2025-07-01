@@ -14,6 +14,9 @@ use App\Models\ProjectHasOrganisation;
 use Spatie\WebhookServer\WebhookCall;
 use App\Traits\ValidationManager;
 use Illuminate\Support\Facades\Auth;
+use App\Jobs\UpdateProjectUserValidation;
+use App\Models\CustodianHasProjectUser;
+use Carbon\Carbon;
 
 use function activity;
 
@@ -31,16 +34,103 @@ class ProjectHasUserObserver
         $user = $projectHasUser->registry->user;
         $project = $projectHasUser->project;
         $affiliation = $projectHasUser->affiliation;
+        $role = $projectHasUser->role;
+
+        if ($affiliation) {
+            $organisationId = $affiliation->organisation->id;
+            ProjectHasOrganisation::firstOrCreate([
+                'project_id' => $project->id,
+                'organisation_id' => $organisationId
+            ]);
+        }
+
+        $custodianIds = ProjectHasCustodian::where('project_id', $project->id)
+            ->pluck('custodian_id');
+
+        foreach ($custodianIds as $custodianId) {
+            CustodianHasProjectUser::firstOrCreate(
+                [
+                    'project_has_user_id' => $projectHasUser->id,
+                    'custodian_id' => $custodianId,
+                ]
+            );
+        }
+
         activity()
-            ->causedBy(Auth::user() ?? $user)
+            ->causedBy(Auth::user())
             ->performedOn($user)
             ->withProperties([
                 'project_id' => $project->id,
                 'project_title' => $project->title,
+                'affiliation_id' => $affiliation?->id,
+                'affiliation_name' => $affiliation?->organisation->organisation_name,
+                'role_id' => $role->id,
+                'role_name' => $role->name,
             ])
             ->event('created')
             ->useLog('project_has_user')
             ->log('user_added_to_project');
+
+        UpdateProjectUserValidation::dispatch(
+            $projectHasUser
+        );
+    }
+
+    /**
+     * Handle the ProjectHasUser "updated" event.
+     */
+    public function updated(ProjectHasUser $projectHasUser): void
+    {
+        $changes = $projectHasUser->getChanges();
+        if (empty($changes)) {
+            return;
+        }
+
+        $original = $projectHasUser->getOriginal();
+        $oldValues = array_intersect_key($original, $changes);
+
+        $user = $projectHasUser->registry->user;
+        $project = $projectHasUser->project;
+        $projectId = $projectHasUser->project_id;
+        $projectHasUserId = $projectHasUser->id;
+        $affiliation = $projectHasUser->affiliation;
+        $role = $projectHasUser->role;
+
+        if (array_key_exists('project_role_id', $changes)) {
+            $changes['role'] = $role->name;
+            unset($changes['project_role_id']);
+        }
+        if (array_key_exists('affiliation_id', $changes)) {
+            $changes['affiliation'] = $affiliation->organisation->organisation_name;
+            unset($changes['affiliation_id']);
+        }
+
+        $custodianIds = ProjectHasCustodian::where('project_id', $projectId)
+            ->select('custodian_id')
+            ->pluck('custodian_id');
+
+        $existing = CustodianHasProjectUser::where('project_has_user_id', $projectHasUserId)
+            ->whereIn('custodian_id', $custodianIds)
+            ->select('custodian_id')
+            ->pluck('custodian_id')
+            ->toArray();
+
+        $insertData = [];
+
+        foreach ($custodianIds as $custodianId) {
+            if (!in_array($custodianId, $existing)) {
+                $insertData[] = [
+                    'project_has_user_id' => $projectHasUserId,
+                    'custodian_id' => $custodianId,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ];
+            }
+        }
+
+        if (!empty($insertData)) {
+            CustodianHasProjectUser::insert($insertData);
+        }
 
 
         if ($affiliation) {
@@ -51,20 +141,25 @@ class ProjectHasUserObserver
             ]);
         }
 
-        $this->updateCustodianProjectUserValidation(
-            $projectHasUser->project_id,
-            $projectHasUser->user_digital_ident
-        );
-    }
+        activity()
+            ->causedBy(Auth::user())
+            ->performedOn($user)
+            ->withProperties([
+                'project_id' => $project->id,
+                'project_title' => $project->title,
+                'affiliation_id' => $affiliation->id,
+                'affiliation_name' => $affiliation->organisation->organisation_name,
+                'role_id' => $role->id,
+                'role_name' => $role->name,
+                'attributes' => $changes,
+                'old' => $oldValues,
+            ])
+            ->event('updated')
+            ->useLog('project_has_user')
+            ->log('user_updated_on_project');
 
-    /**
-     * Handle the ProjectHasUser "updated" event.
-     */
-    public function updated(ProjectHasUser $projectHasUser): void
-    {
-        $this->updateCustodianProjectUserValidation(
-            $projectHasUser->project_id,
-            $projectHasUser->user_digital_ident
+        UpdateProjectUserValidation::dispatch(
+            $projectHasUser
         );
     }
 
@@ -84,15 +179,10 @@ class ProjectHasUserObserver
                 'project_id' => $project->id,
                 'project_title' => $project->title,
             ])
-            ->event('created')
+            ->event('deleted')
             ->useLog('project_has_user')
             ->log('user_removed_from_project');
 
-
-        $this->deleteCustodianProjectUserValidation(
-            $projectHasUser->project_id,
-            $projectHasUser->user_digital_ident
-        );
 
         // In this instance, we're intercepting the delete event of a user
         // being removed from a project. As such, when this happens, and
