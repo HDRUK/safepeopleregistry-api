@@ -9,6 +9,7 @@ class TerminateRequest
 {
     public function handle($request, Closure $next)
     {
+        $request->attributes->set('start_time', microtime(true));
         return $next($request);
     }
 
@@ -24,12 +25,14 @@ class TerminateRequest
         $memory = memory_get_usage(true) / 1024 / 1024;
         $peak = memory_get_peak_usage(true) / 1024 / 1024;
         $collected = gc_collect_cycles();
+        $duration = round(microtime(true) - $request->attributes->get('start_time', microtime(true)) * 1000, 2);
 
         Log::info('Memory usage after request', [
-            'memory_MB' => round($memory, 2) . ' MB',
-            'peak_MB' => round($peak, 2) . ' MB',
+            'memory_usage' => round($memory, 2) . ' MB',
+            'memory_peak_usage' => round($peak, 2) . ' MB',
             'action' => $action,
             'collected_cycles' => $collected,
+            'response_time_ms' => $duration,
         ]);
     }
 }
