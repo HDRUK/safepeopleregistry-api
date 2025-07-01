@@ -19,7 +19,7 @@ class TerminateRequest
 
         if (is_null($request->route())) {
             gc_collect_cycles();
-            Log::info('Memory usage request without route :: ' . json_encode($request));
+            Log::info('Memory usage request without route :: ' . json_encode($request) . ' :: response :: ' . json_encode($response));
             return null;
         }
 
