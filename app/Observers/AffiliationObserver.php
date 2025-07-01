@@ -18,100 +18,115 @@ class AffiliationObserver
 
     public function created(Affiliation $affiliation): void
     {
+        $this->setInitialState($affiliation);
         $this->handleChange($affiliation);
-        $user = $affiliation->registry->user;
-        $orgAdmins = $this->getOrgAdmins($affiliation);
-
-        Notification::send($orgAdmins, new AffiliationCreated($user, $affiliation));
-
-        $unclaimed = $affiliation->organisation->unclaimed;
-        $initialState = $unclaimed ? State::STATE_AFFILIATION_INVITED : State::STATE_AFFILIATION_PENDING;
-        $affiliation->setState($initialState);
+        $this->notifyAdmins(new AffiliationCreated(
+            $this->getUser($affiliation),
+            $affiliation
+        ), $affiliation);
     }
 
     public function updated(Affiliation $affiliation): void
     {
         $this->handleChange($affiliation);
+        $old = new Affiliation($affiliation->getOriginal());
 
-        $user = $affiliation->registry->user;
-        $orgAdmins = $this->getOrgAdmins($affiliation);
-        $oldAffiliation = new Affiliation($affiliation->getOriginal());
-
-        Notification::send($orgAdmins, new AffiliationChanged($user, $oldAffiliation, $affiliation));
+        $this->notifyAdmins(new AffiliationChanged(
+            $this->getUser($affiliation),
+            $old,
+            $affiliation
+        ), $affiliation);
     }
 
     public function deleted(Affiliation $affiliation): void
     {
         $this->handleChange($affiliation);
-
-        $user = $affiliation->registry->user;
-        $orgAdmins = $this->getOrgAdmins($affiliation);
-
-        Notification::send($orgAdmins, new AffiliationDeleted($user, $affiliation));
+        $this->notifyAdmins(new AffiliationDeleted(
+            $this->getUser($affiliation),
+            $affiliation
+        ), $affiliation);
     }
 
     protected function handleChange(Affiliation $affiliation): void
     {
-        // NOTE - should we be doing this - emailing delegates??
-        // - should be taken care of by the notification system?
-        $this->emailDelegates($affiliation);
+
+        // Not sure we should be ever sending delegates emails upon changes like this
+        // - we have a notification system for it
+        if (config('enable_email')) {
+            $this->emailDelegatesIfNowComplete($affiliation);
+        }
         $this->updateActionLog($affiliation->registry_id);
         $this->updateOrganisationActionLog($affiliation);
     }
 
-    protected function emailDelegates(Affiliation $affiliation)
+    private function emailDelegatesIfNowComplete(Affiliation $affiliation): void
     {
-        $isComplete = $this->checkComplete($affiliation);
-
-        $originalAttributes = $affiliation->getOriginal();
-        $originalAffiliation = new Affiliation($originalAttributes);
-        $wasIncomplete = !$this->checkComplete($originalAffiliation);
-
-        if (!($isComplete && $wasIncomplete)) {
+        if (!$this->isNowComplete($affiliation)) {
             return;
         }
 
-        $orgId = $affiliation->organisation_id;
+        if (!(app()->bound('seeding') && app()->make('seeding') === true)) {
+            $this->sendDelegateEmails($affiliation);
+        }
+    }
 
+    private function isNowComplete(Affiliation $affiliation): bool
+    {
+        return $this->checkComplete($affiliation)
+            && !$this->checkComplete(new Affiliation($affiliation->getOriginal()));
+    }
+
+    private function checkComplete(Affiliation $affiliation): bool
+    {
+        return filled($affiliation->member_id)
+            && filled($affiliation->relationship)
+            && filled($affiliation->from);
+    }
+
+    private function sendDelegateEmails(Affiliation $affiliation): void
+    {
         $delegateIds = User::where([
-            'organisation_id' => $orgId,
+            'organisation_id' => $affiliation->organisation_id,
             'is_delegate' => 1
-        ])->select('id')->pluck('id');
+        ])->pluck('id');
 
         $userId = $affiliation->registry?->user?->id;
-        if (is_null($userId)) {
-            return;
-        }
+        if (!$userId) return;
 
         foreach ($delegateIds as $delegateId) {
-            $input = [
+            TriggerEmail::spawnEmail([
                 'type' => 'USER_DELEGATE',
                 'to' => $delegateId,
-                'by' => $orgId,
+                'by' => $affiliation->organisation_id,
                 'for' => $userId,
                 'identifier' => 'delegate_sponsor'
-            ];
-
-            // dont start emailing delegates when seeding
-            if (!(app()->bound('seeding') && app()->make('seeding') === true)) {
-                TriggerEmail::spawnEmail($input);
-            }
+            ]);
         }
     }
 
-    protected function checkComplete(Affiliation $affiliation)
+    private function setInitialState(Affiliation $affiliation): void
     {
-        return !empty($affiliation->member_id) &&
-            !empty($affiliation->relationship) &&
-            !empty($affiliation->from);
+        $unclaimed = $affiliation->organisation->unclaimed;
+        $affiliation->setState($unclaimed
+            ? State::STATE_AFFILIATION_INVITED
+            : State::STATE_AFFILIATION_PENDING);
     }
 
-    private function getOrgAdmins(Affiliation $affiliation)
+    private function notifyAdmins($notification, Affiliation $affiliation): void
     {
-        $organisation = $affiliation->organisation;
+        Notification::send($this->getOrgAdminsAndDelegates($affiliation), $notification);
+    }
+
+    private function getUser(Affiliation $affiliation): ?User
+    {
+        return $affiliation->registry?->user;
+    }
+
+    private function getOrgAdminsAndDelegates(Affiliation $affiliation)
+    {
         return User::where([
-            'organisation_id' => $organisation->id,
-            'user_group' => User::GROUP_ORGANISATIONS
+            'organisation_id' => $affiliation->organisation->id,
+            'user_group' => User::GROUP_ORGANISATIONS,
         ])->get();
     }
 }
