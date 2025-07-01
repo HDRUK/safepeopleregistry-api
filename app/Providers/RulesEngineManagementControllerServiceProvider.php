@@ -9,7 +9,7 @@ class RulesEngineManagementControllerServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->bind(RulesEngineManagementController::class, function () {
+        $this->app->bind(RulesEngineManagementController::class, function ($app) {
             return new RulesEngineManagementController();
         });
     }

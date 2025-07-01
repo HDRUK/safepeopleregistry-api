@@ -3,6 +3,7 @@
 namespace App\RulesEngineManagementController;
 
 use Illuminate\Support\Facades\Facade;
+use App\RulesEngineManagementController\RulesEngineManagementController;
 
 class RulesEngineManagementControllerFacade extends Facade
 {
