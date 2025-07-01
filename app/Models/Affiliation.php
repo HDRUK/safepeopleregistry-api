@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use App\Traits\StateWorkflow;
+use Illuminate\Support\Facades\Auth;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\Contracts\Activity;
+use Spatie\Activitylog\LogOptions;
 
 /**
  *
@@ -124,6 +128,7 @@ class Affiliation extends Model
 {
     use HasFactory;
     use StateWorkflow;
+    use LogsActivity;
 
     protected array $transitions = [
         State::STATE_AFFILIATION_INVITED => [
@@ -160,6 +165,20 @@ class Affiliation extends Model
         'verdict_date_actioned',
         'verdict_outcome',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly($this->fillable)
+            ->logOnlyDirty()
+            ->useLogName('affiliation')
+            ->dontSubmitEmptyLogs();
+    }
+
+    public function tapActivity(Activity $activity, string $eventName)
+    {
+        dd($eventName);
+    }
 
     /**
      * Get the organisation related to the affiliation.

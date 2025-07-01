@@ -632,6 +632,7 @@ class ValidationLogTest extends TestCase
 
         Organisation::factory()->create();
 
+
         $expectedLogCount = count($defaultChecks) * Custodian::count() * Organisation::count();
 
         $this->assertEquals(
