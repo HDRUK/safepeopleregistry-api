@@ -38,15 +38,20 @@ RUN curl -sS https://getcomposer.org/installer | php -- \
 # Send update for php.ini
 COPY ./init/php.development.ini /usr/local/etc/php/php.ini
 
-# Copy the application
-COPY . /var/www
+# RUN curl https://frankenphp.dev/install.sh | sh \
+#     && mv frankenphp /usr/local/bin/frankenphp \
+#     && chmod +x /usr/local/bin/frankenphp
 
-RUN curl https://frankenphp.dev/install.sh | sh \
-    && mv frankenphp /usr/local/bin/frankenphp \
+# Install FrankenPHP
+RUN curl -sSL https://frankenphp.dev/install.sh | sh \
     && chmod +x /usr/local/bin/frankenphp
 
+# Copy the application
+COPY . /var/www
+COPY ./frankenphp.yaml /var/www/frankenphp.yaml
+
 # Composer & laravel
-RUN composer install \
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader \
     && php artisan octane:install \
     && php artisan storage:link \
     && php artisan optimize:clear \

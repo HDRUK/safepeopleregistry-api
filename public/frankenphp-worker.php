@@ -11,3 +11,7 @@ $_SERVER['APP_PUBLIC_PATH'] = $_ENV['APP_PUBLIC_PATH'] ?? $_SERVER['APP_BASE_PAT
 echo "Reached worker\n";
 
 require __DIR__.'/../vendor/laravel/octane/bin/frankenphp-worker.php';
+
+use Illuminate\Support\Facades\Log;
+
+Log::info('FrankenPHP worker has started and Laravel has booted.');
