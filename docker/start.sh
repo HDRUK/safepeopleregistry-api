@@ -7,7 +7,7 @@ fi
 echo "===> Starting Laravel setup..."
 
 # base_command="php artisan octane:frankenphp --max-requests=250 --host=0.0.0.0 --port=8100"
-base_command="php artisan octane:frankenphp --max-requests=250 --host=0.0.0.0 --port=8100 --workers=4 --task-workers=2 --task-worker-queue=default"
+base_command="php artisan octane:frankenphp --max-requests=250 --host=0.0.0.0 --port=8100"
 
 if [ $APP_ENV = 'local' ] || [ $APP_ENV = 'dev' ]; then
     echo "Running in development mode with watch enabled"

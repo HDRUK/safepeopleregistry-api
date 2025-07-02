@@ -44,13 +44,8 @@ RUN curl https://frankenphp.dev/install.sh | sh \
     && mv frankenphp /usr/local/bin/frankenphp \
     && chmod +x /usr/local/bin/frankenphp
 
-# RUN curl -sSL https://frankenphp.dev/install.sh | sh \
-#     && chmod +x /usr/local/bin/frankenphp
-# RUN curl -fsSL https://frankenphp.dev/install.sh | sh && frankenphp --version
-
 # Copy the application
 COPY . /var/www
-COPY ./frankenphp.yaml /var/www/frankenphp.yaml
 
 # Composer & laravel
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader \
