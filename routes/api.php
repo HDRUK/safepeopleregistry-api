@@ -204,7 +204,6 @@ Route::middleware(['auth:api'])
 
         // Update
         Route::put('/{id}', 'update');
-        Route::patch('/{id}', 'edit');
         Route::patch('/{id}/rules', 'updateCustodianRules');
 
         // Delete
@@ -221,7 +220,6 @@ Route::middleware('auth:api')
         Route::get('{id}', 'show');
         Route::post('/', 'store');
         Route::put('{id}', 'update');
-        Route::patch('{id}', 'edit');
         Route::delete('{id}', 'destroy');
         Route::post('invite/{id}', 'invite');
     });
@@ -257,7 +255,6 @@ Route::middleware('auth:api')
         Route::get('{id}', 'show');
         Route::post('/', 'store');
         Route::put('{id}', 'update');
-        Route::patch('{id}', 'edit');
         Route::delete('{id}', 'destroy');
 
         // Project user management
@@ -281,7 +278,6 @@ Route::middleware('auth:api')
         Route::get('{id}', 'show');
         Route::post('/', 'store');
         Route::put('{id}', 'update');
-        Route::patch('{id}', 'edit');
         Route::delete('{id}', 'destroy');
     });
 
@@ -294,7 +290,6 @@ Route::middleware('auth:api')
         Route::get('{id}', 'show');
         Route::post('/', 'store');
         Route::put('{id}', 'update');
-        Route::patch('{id}', 'edit');
         Route::delete('{id}', 'destroy');
     });
 
@@ -307,7 +302,6 @@ Route::middleware('auth:api')
         Route::get('{id}', 'show');
         Route::post('/', 'store');
         Route::put('{id}', 'update');
-        Route::patch('{id}', 'edit');
         Route::delete('{id}', 'destroy');
     });
 
@@ -341,7 +335,6 @@ Route::middleware('auth:api')
 
             // Update
             Route::put('/{id}', 'update');
-            Route::patch('/{id}', 'edit');
 
             // Delete
             Route::delete('/{id}', 'destroy');
@@ -372,7 +365,6 @@ Route::middleware('auth:api')
         Route::get('{registryId}', 'indexByRegistryId');
         Route::post('{registryId}', 'storeByRegistryId');
         Route::put('{id}', 'update');
-        Route::patch('{id}', 'edit');
         Route::delete('{id}', 'destroy');
         Route::put('{registryId}/affiliation/{id}', 'updateRegistryAffiliation');
     });
@@ -385,7 +377,6 @@ Route::middleware('auth:api')
         Route::get('registry/{registryId}', 'indexByRegistryId');
         Route::post('registry/{registryId}', 'storeByRegistryId');
         Route::put('{id}', 'update');
-        Route::patch('{id}', 'edit');
         Route::delete('{id}', 'destroy');
     });
 
@@ -411,7 +402,6 @@ Route::middleware('auth:api')
         Route::get('{id}', 'show');
         Route::post('/', 'store');
         Route::put('{id}', 'update');
-        Route::patch('{id}', 'edit');
         Route::delete('{id}', 'destroy');
     });
 

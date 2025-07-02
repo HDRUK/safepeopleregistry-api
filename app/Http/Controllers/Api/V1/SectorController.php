@@ -190,61 +190,6 @@ class SectorController extends Controller
     }
 
     /**
-     * @OA\Patch(
-     *     path="/api/v1/sectors/{id}",
-     *     tags={"Sector"},
-     *     summary="Edit an existing sector",
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         description="ID of the sector",
-     *         @OA\Schema(type="integer", example=1)
-     *     ),
-     *     @OA\RequestBody(
-     *         required=false,
-     *         @OA\JsonContent(ref="#/components/schemas/Sector")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Edited",
-     *         @OA\JsonContent(ref="#/components/schemas/Sector")
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="Sector not found",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="message", type="string", example="Sector not found")
-     *         )
-     *     )
-     * )
-     */
-    public function edit(Request $request, int $id): JsonResponse
-    {
-        try {
-            $input = $request->all();
-
-            $sector = Sector::where('id', $id)->first();
-            $sector->name = isset($input['name']) ? $input['name'] : $sector->name;
-
-            if ($sector->save()) {
-                return response()->json([
-                    'message' => 'success',
-                    'data' => $sector,
-                ], 200);
-            }
-
-            return response()->json([
-                'message' => 'failed',
-                'data' => null,
-            ], 400);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
-    }
-
-    /**
      * @OA\Delete(
      *     path="/api/v1/sectors/{id}",
      *     tags={"Sector"},

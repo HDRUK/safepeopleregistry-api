@@ -25,7 +25,6 @@ use App\Models\PendingInvite;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Http\Requests\Organisations\EditOrganisation;
 use TriggerEmail;
 use App\Http\Traits\Responses;
 use App\Models\Affiliation;
@@ -617,107 +616,6 @@ class OrganisationController extends Controller
             throw new Exception($e->getMessage());
         }
     }
-
-    /**
-     * @OA\Patch(
-     *      path="/api/v1/organisations/{id}",
-     *      summary="Edit an organisation's entry",
-     *      description="Edit specific fields of an organisation's entry",
-     *      tags={"organisations"},
-     *      security={{"bearerAuth":{}}},
-     *
-     *      @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="Organisation entry ID",
-     *         required=true,
-     *         example="1",
-     *         @OA\Schema(
-     *            type="integer",
-     *            description="Organisation entry ID",
-     *         ),
-     *      ),
-     *
-     *      @OA\RequestBody(
-     *          required=true,
-     *          description="Fields to update",
-     *          @OA\JsonContent(
-     *              ref="#/components/schemas/Organisation",
-     *              @OA\Property(property="charities", type="array",
-     *                  @OA\Items(
-     *                      @OA\Property(property="id", type="integer", example="1"),
-     *                      @OA\Property(property="registration_id", type="string", example="1186569"),
-     *                      @OA\Property(property="name", type="string", example="Health Pathways UK Charity"),
-     *                      @OA\Property(property="website", type="string", example="https://www.website1.com/"),
-     *                      @OA\Property(property="address_1", type="string", example="3 WATERHOUSE SQUARE"),
-     *                      @OA\Property(property="address_2", type="string", example="138-142 HOLBORN"),
-     *                      @OA\Property(property="town", type="string", example="LONDON"),
-     *                      @OA\Property(property="county", type="string", example="GREATER LONDON"),
-     *                      @OA\Property(property="country", type="string", example="UNITED KINGDOM"),
-     *                      @OA\Property(property="postcode", type="string", example="EC1N 2SW"),
-     *                  ),
-     *             )
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Success",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data", type="object")
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=404,
-     *          description="Not Found",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=500,
-     *          description="Error",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="error")
-     *          ),
-     *      )
-     * )
-     */
-    public function edit(EditOrganisation $request, int $id): JsonResponse
-    {
-        try {
-            $organisation = Organisation::find($id);
-            if (!Gate::allows('update', $organisation)) {
-                return $this->ForbiddenResponse();
-            }
-
-            if (!$organisation) {
-                return $this->NotFoundResponse();
-            }
-
-            $updated = $organisation->update($request->validated());
-
-            if ($updated) {
-
-                if ($request->has('charities')) {
-                    $this->updateOrganisationCharities($id, $request->input('charities'));
-                }
-
-                if ($request->has('subsidiaries')) {
-                    $this->cleanSubsidiaries($id);
-                    foreach ($request->input('subsidiaries') as $subsidiary) {
-                        $this->addSubsidiary($id, $subsidiary);
-                    }
-                }
-                return $this->OKResponse($updated);
-            } else {
-                return $this->ErrorResponse();
-            }
-        } catch (Exception $e) {
-            return $this->ErrorResponse();
-        }
-    }
-
 
     /**
      * @OA\Delete(
