@@ -109,36 +109,6 @@ class EducationTest extends TestCase
         $this->assertEquals($content['registry_id'], $this->registry->id);
     }
 
-    public function test_the_application_can_edit_educations(): void
-    {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-            ->json(
-                'POST',
-                self::TEST_URL . '/' . $this->registry->id,
-                $this->getEducationPayload()
-            );
-
-        $response->assertStatus(201);
-        $this->assertArrayHasKey('data', $response);
-
-        $content = $response->decodeResponseJson();
-
-
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-            ->json(
-                'PATCH',
-                self::TEST_URL . '/' . $content['data'] . '/' . $this->registry->id,
-                $this->getEditedEducationPayload()
-            );
-
-        $response->assertStatus(200);
-        $this->assertArrayHasKey('data', $response);
-
-        $content = $response->decodeResponseJson()['data'];
-
-        $this->assertEquals($content['title'], $this->getEditedEducationPayload()['title']);
-    }
-
     public function test_the_application_can_delete_educations(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())

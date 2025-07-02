@@ -41,17 +41,19 @@ COPY ./init/php.development.ini /usr/local/etc/php/php.ini
 # Copy the application
 COPY . /var/www
 
+RUN curl https://frankenphp.dev/install.sh | sh \
+    && mv frankenphp /usr/local/bin/frankenphp \
+    && chmod +x /usr/local/bin/frankenphp
+
 # Composer & laravel
 RUN composer install \
     && php artisan octane:install \
-    && ./vendor/bin/rr get \
     && php artisan storage:link \
     && php artisan optimize:clear \
     && php artisan optimize \
     && php artisan config:clear \
     && chmod -R 777 storage bootstrap/cache \
     && chown -R www-data:www-data storage \
-    && chmod +x rr \
     && composer dumpautoload
 
 # Generate Swagger

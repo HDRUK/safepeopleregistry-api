@@ -134,8 +134,7 @@ class AffiliationController extends Controller
     public function storeByRegistryId(Request $request, int $registryId): JsonResponse
     {
         try {
-            $input = $request->all();
-
+            $input = $request->only(app(Affiliation::class)->getFillable());
             $affiliation = Affiliation::create([
                 'organisation_id' => $input['organisation_id'],
                 'member_id' => $request['member_id'],
@@ -217,76 +216,6 @@ class AffiliationController extends Controller
             $affiliation = Affiliation::findOrFail($id);
             $affiliation->update($input);
 
-
-            return response()->json([
-                'message' => 'success',
-                'data' => $affiliation,
-            ], 200);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
-    }
-
-    /**
-     * @OA\Patch(
-     *      path="/api/v1/affiliations/{id}",
-     *      summary="Edit an Affiliation entry",
-     *      description="Edit an Affiliation entry",
-     *      tags={"Affiliations"},
-     *      summary="Affiliations@edit",
-     *      security={{"bearerAuth":{}}},
-     *      @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="Affiliation entry ID",
-     *         required=true,
-     *         example="1",
-     *         @OA\Schema(
-     *            type="integer",
-     *            description="Affiliation entry ID",
-     *         ),
-     *      ),
-     *      @OA\RequestBody(
-     *          required=true,
-     *          description="Affiliation definition",
-     *          @OA\JsonContent(
-     *              ref="#/components/schemas/Affiliation"
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Success",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data",
-     *                  ref="#/components/schemas/Affiliation"
-     *              )
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=500,
-     *          description="Error",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="error")
-     *          )
-     *      )
-     * )
-     */
-    public function edit(Request $request, int $id): JsonResponse
-    {
-        try {
-
-            $affiliation = Affiliation::where('id', $id)->first();
-
-            $input = $request->only(app(Affiliation::class)->getFillable());
-            $affiliation->update($input);
 
             return response()->json([
                 'message' => 'success',

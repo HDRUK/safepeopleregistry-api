@@ -239,7 +239,7 @@ class CustodianController extends Controller
         }
 
         try {
-            $input = $request->all();
+            $input = $request->only(app(Custodian::class)->getFillable());
 
             $signature = Str::random(40);
             $uuid = Str::uuid()->toString();
@@ -334,95 +334,6 @@ class CustodianController extends Controller
             $custodian->update($input);
 
             if ($custodian) {
-                return response()->json([
-                    'message' => 'success',
-                    'data' => $custodian,
-                ], 200);
-            }
-
-            return response()->json([
-                'message' => 'failed',
-                'data' => null,
-                'error' => 'unable to save custodian',
-            ], 400);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
-    }
-
-    /**
-     * @OA\Patch(
-     *      path="/api/v1/custodians/{id}",
-     *      summary="Edit a Custodian entry",
-     *      description="Edit a Custodian entry",
-     *      tags={"Custodian"},
-     *      summary="Custodian@edit",
-     *      security={{"bearerAuth":{}}},
-     *      @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="Custodian ID",
-     *         required=true,
-     *         example="1",
-     *         @OA\Schema(
-     *            type="integer",
-     *            description="Custodian ID",
-     *         ),
-     *      ),
-     *      @OA\RequestBody(
-     *          required=true,
-     *          description="Custodian definition",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="name", type="string", example="A Custodian"),
-     *              @OA\Property(property="enabled", type="boolean", example="true")
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Success",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data",
-     *                  ref="#/components/schemas/Custodian"
-     *              )
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=500,
-     *          description="Error",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="error")
-     *          )
-     *      )
-     * )
-     */
-    public function edit(Request $request, int $id): JsonResponse
-    {
-        try {
-            $input = $request->all();
-
-            $custodian = Custodian::where('id', $id)->first();
-
-            if (!Gate::allows('update', $custodian)) {
-                return $this->ForbiddenResponse();
-            }
-
-            $custodian->invite_accepted_at = isset($input['invite_accepted_at']) ? $input['invite_accepted_at'] : $custodian->invite_accepted_at;
-            $custodian->name = isset($input['name']) ? $input['name'] : $custodian->name;
-            $custodian->contact_email = isset($input['contact_email']) ? $input['contact_email'] : $custodian->contact_email;
-            $custodian->enabled = isset($input['enabled']) ? $input['enabled'] : $custodian->enabled;
-            $custodian->idvt_required = isset($input['idvt_required']) ? $input['idvt_required'] : $custodian->idvt_required;
-            $custodian->gateway_app_id = isset($input['gateway_app_id']) ? $input['gateway_app_id'] : $custodian->gateway_app_id;
-            $custodian->gateway_client_id = isset($input['gateway_client_id']) ? $input['gateway_client_id'] : $custodian->gateway_client_id;
-
-            if ($custodian->save()) {
                 return response()->json([
                     'message' => 'success',
                     'data' => $custodian,
@@ -586,7 +497,6 @@ class CustodianController extends Controller
             throw new Exception($e->getMessage());
         }
     }
-
 
     /**
      * @OA\Get(

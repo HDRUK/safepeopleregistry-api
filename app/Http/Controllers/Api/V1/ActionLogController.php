@@ -32,7 +32,6 @@ class ActionLogController extends Controller
      *         description="The entity type (e.g., users, organisations)",
      *         @OA\Schema(type="string")
      *     ),
-     *
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -40,7 +39,6 @@ class ActionLogController extends Controller
      *         description="The ID of the entity",
      *         @OA\Schema(type="integer")
      *     ),
-     *
      *     @OA\Response(
      *         response=200,
      *         description="Successful response with action logs",
@@ -53,7 +51,6 @@ class ActionLogController extends Controller
      *             )
      *         )
      *     ),
-     *
      *     @OA\Response(
      *         response=404,
      *         description="No action logs found for this entity",
@@ -65,7 +62,6 @@ class ActionLogController extends Controller
      *             )
      *         )
      *     ),
-     *
      *     @OA\Response(
      *         response=400,
      *         description="Invalid entity type",

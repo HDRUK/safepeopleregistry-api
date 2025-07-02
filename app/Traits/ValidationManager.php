@@ -26,6 +26,7 @@ trait ValidationManager
         ?string $userDigitalIdent = null,
         ?int $custodianId = null
     ): void {
+
         $phus = ProjectHasUser::where('project_id', $projectId)
             ->when($userDigitalIdent, function ($query, $userDigitalIdent) {
                 return $query->where('user_digital_ident', $userDigitalIdent);
@@ -91,6 +92,7 @@ trait ValidationManager
             );
         }
 
+        //soft delete candidate
         ValidationLog::where('secondary_entity_id', $projectId)
             ->when($userDigitalIdent, function ($query, $udi) {
                 $registry = Registry::where('digi_ident', $udi)->first();
@@ -153,7 +155,6 @@ trait ValidationManager
     public function updateAllCustodianProjectUserValidation(
         int $custodianId
     ): void {
-
         $projectIds = ProjectHasCustodian::pluck('project_id');
         foreach ($projectIds as $projectId) {
             $this->updateCustodianProjectUserValidation($projectId, null, $custodianId);
