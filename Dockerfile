@@ -8,6 +8,7 @@ WORKDIR /var/www
 COPY composer.* /var/www/
 
 RUN apt-get update && apt-get install -y \
+    unzip \
     nodejs \
     npm \
     libfreetype6-dev \
@@ -38,14 +39,18 @@ RUN curl -sS https://getcomposer.org/installer | php -- \
 # Send update for php.ini
 COPY ./init/php.development.ini /usr/local/etc/php/php.ini
 
+# Install FrankenPHP
 # RUN curl https://frankenphp.dev/install.sh | sh \
 #     && mv frankenphp /usr/local/bin/frankenphp \
 #     && chmod +x /usr/local/bin/frankenphp
 
-# Install FrankenPHP
 # RUN curl -sSL https://frankenphp.dev/install.sh | sh \
 #     && chmod +x /usr/local/bin/frankenphp
-RUN curl -fsSL https://frankenphp.dev/install.sh | sh && frankenphp --version
+# RUN curl -fsSL https://frankenphp.dev/install.sh | sh && frankenphp --version
+RUN curl -fsSL https://frankenphp.dev/install.sh -o install.sh && \
+    chmod +x install.sh && \
+    ./install.sh && \
+    frankenphp --version
 
 # Copy the application
 COPY . /var/www
