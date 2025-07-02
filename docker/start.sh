@@ -7,9 +7,11 @@ fi
 echo "===> Starting Laravel setup..."
 
 # base_command="php artisan octane:frankenphp --max-requests=250 --host=0.0.0.0 --port=8100"
+base_command="php artisan octane:frankenphp --host=0.0.0.0 --port=8100 --max-requests=500 --workers=4 --watch"
 
 if [[ "$APP_ENV" == "local" || "$APP_ENV" == "dev" ]]; then
     echo "Running in development mode with watch enabled"
+    # base_command="$base_command --watch"
 
     if [[ "$REBUILD_DB" == "1" ]; then
         # Completely clear down the data in local/dev envs
@@ -31,7 +33,4 @@ else
 fi
 
 php artisan horizon &
-
-# Start FrankenPHP using the YAML config
-echo "===> Launching FrankenPHP with frankenphp.yaml"
-exec frankenphp --config /var/www/frankenphp.yaml
+$base_command
