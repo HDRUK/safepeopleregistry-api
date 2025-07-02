@@ -43,8 +43,9 @@ COPY ./init/php.development.ini /usr/local/etc/php/php.ini
 #     && chmod +x /usr/local/bin/frankenphp
 
 # Install FrankenPHP
-RUN curl -sSL https://frankenphp.dev/install.sh | sh \
-    && chmod +x /usr/local/bin/frankenphp
+# RUN curl -sSL https://frankenphp.dev/install.sh | sh \
+#     && chmod +x /usr/local/bin/frankenphp
+RUN curl -fsSL https://frankenphp.dev/install.sh | sh && frankenphp --version
 
 # Copy the application
 COPY . /var/www
