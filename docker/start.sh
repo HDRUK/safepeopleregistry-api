@@ -30,5 +30,8 @@ php artisan view:cache
 
 php artisan horizon &
 
-# ✅ Let FrankenPHP manage Octane via YAML config
-frankenphp run --config=/etc/frankenphp.yaml --adapter=yaml
+php artisan octane:frankenphp \
+  --host=0.0.0.0 \
+  --port=8100 \
+  --max-requests=250 \
+  --workers=auto
