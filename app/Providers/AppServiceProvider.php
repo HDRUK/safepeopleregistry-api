@@ -86,8 +86,6 @@ class AppServiceProvider extends ServiceProvider
                 'memory_usage' => memory_get_usage(true),
                 'peak_memory' => memory_get_peak_usage(true),
             ]);
-
-            DB::disconnect();
         });
     }
     /**
