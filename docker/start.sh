@@ -38,6 +38,11 @@ else
     php artisan validation:generate-logs
 fi
 
+# Laravel caching for performance
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
 php artisan horizon &
 
 # Launch Octane + FrankenPHP
@@ -45,4 +50,6 @@ php artisan octane:frankenphp \
   --host=0.0.0.0 \
   --port=8100 \
   --max-requests=500 \
-  --workers=auto
+  --workers=auto \
+  --max-requests=10000 \
+  --garbage-collect-threshold=500
