@@ -37,4 +37,4 @@ php artisan horizon &
 #   --max-requests=250 \
 #   --workers=auto
 
-php artisan octane:start --server=frankenphp --host=0.0.0.0 --port=8100 --workers=auto --max-requests=250 --watch
+php artisan octane:start --server=frankenphp --host=0.0.0.0 --port=8100 --workers=auto --max-requests=50
