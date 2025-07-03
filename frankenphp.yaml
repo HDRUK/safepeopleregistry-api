@@ -1,9 +1,9 @@
 # frankenphp.yaml
-workers:
-  command: php
-  max_requests: 500 # recycle worker after N requests
-  memory_limit: 256M # restart worker if exceeds this
-  reload_on_change: true
+# workers:
+#   command: php
+#   max_requests: 500 # recycle worker after N requests
+#   memory_limit: 256M # restart worker if exceeds this
+#   reload_on_change: true
 
 # listen: ":8100"
 
@@ -16,3 +16,13 @@ workers:
 #   reload_on_change: true
 #   max_requests: 500
 #   memory_limit: 256M
+
+app:
+  listen: ":8100"
+  root: public
+  bootstrap: frankenphp-worker.php
+
+logs:
+  default:
+    level: INFO
+    output: stdout

@@ -20,6 +20,7 @@ RUN apt-get update && apt-get install -y \
     wget \
     zlib1g-dev \
     zip \
+    pcntl \
     default-mysql-client \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd pdo pdo_mysql soap zip iconv bcmath \
@@ -46,6 +47,7 @@ RUN curl https://frankenphp.dev/install.sh | sh \
 
 # Copy the application
 COPY . /var/www
+COPY frankenphp.yaml /etc/frankenphp.yaml
 
 # Composer & laravel
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader \
