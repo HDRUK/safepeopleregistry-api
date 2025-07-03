@@ -8,12 +8,12 @@ echo "===> Starting Laravel setup..."
 
 # base_command="php artisan octane:frankenphp --max-requests=250 --host=0.0.0.0 --port=8100"
 # base_command="php artisan octane:frankenphp --max-requests=250 --host=0.0.0.0 --port=8100"
-base_command="php artisan octane:frankenphp \
-  --host=0.0.0.0 \
-  --port=8100 \
-  --max-requests=500 \
-  --workers=auto \
-  --frankenphp-config=/etc/frankenphp.yaml"
+# base_command="php artisan octane:frankenphp \
+#   --host=0.0.0.0 \
+#   --port=8100 \
+#   --max-requests=500 \
+#   --workers=auto \
+#   --frankenphp-config=/etc/frankenphp.yaml"
 
 if [ "$APP_ENV" = "local" ] || [ "$APP_ENV" = "dev" ]; then
     echo "Running in development mode with watch enabled"
@@ -41,4 +41,8 @@ fi
 php artisan horizon &
 
 # Launch Octane + FrankenPHP
-eval "$base_command"
+php artisan octane:frankenphp \
+  --host=0.0.0.0 \
+  --port=8100 \
+  --max-requests=500 \
+  --workers=auto
