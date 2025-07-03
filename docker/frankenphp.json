@@ -2,7 +2,10 @@
     "frankenphp": {
         "worker": {
             "fileName": "public/index.php",
-            "num": 4
+            "num": 2,
+            "env": {
+                "OCTANE_MAX_REQUESTS": "1000"
+            }
         }
     },
     "apps": {
