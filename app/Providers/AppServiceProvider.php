@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use DB;
 use App\Models\File;
 use App\Models\User;
 use App\Models\ONSFile;
@@ -59,13 +60,19 @@ class AppServiceProvider extends ServiceProvider
             }
         });
 
-        if (app()->runningInOctane()) {
+        if (Octane::running()) {
             Octane::tick(function () {
-                // Run garbage collection manually
+                // Run garbage collection after every request
                 gc_collect_cycles();
 
-                // Optional: Log GC events for debugging
-                Log::info('Garbage collection run after request.');
+                // Optional: Log GC trigger
+                Log::info('Octane GC triggered', [
+                    'memory_usage' => memory_get_usage(true),
+                    'peak_memory'  => memory_get_peak_usage(true)
+                ]);
+
+                // Clean up persistent DB connections
+                DB::disconnect();
             });
         }
     }
