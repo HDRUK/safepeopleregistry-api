@@ -21,7 +21,7 @@ return new class () extends Migration {
     public function down(): void
     {
         Schema::table('project_details', function (Blueprint $table) {
-            $table->tinyInteger('access_type')->nullable(false)->change();
+            $table->tinyInteger('access_type')->nullable()->change();
         });
     }
 };
