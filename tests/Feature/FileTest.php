@@ -50,10 +50,10 @@ class FileTest extends TestCase
             'path' => 'testfile.txt',
             'name' => 'testfile.txt',
         ]);
-        Storage::disk('local_scan.scanned')->put('testfile.txt', 'test file content');
-        Storage::disk('local_scan.scanned')->assertExists('testfile.txt');
+        Storage::disk('local_scan_scanned')->put('testfile.txt', 'test file content');
+        Storage::disk('local_scan_scanned')->assertExists('testfile.txt');
 
-        $fullPath = Storage::disk('local_scan.scanned')->path('testfile.txt');
+        $fullPath = Storage::disk('local_scan_scanned')->path('testfile.txt');
 
         $this->assertTrue(file_exists($fullPath));
 

@@ -5,8 +5,12 @@ namespace App\Observers;
 use TriggerEmail;
 use App\Models\User;
 use App\Models\Affiliation;
-use App\Models\RegistryHasAffiliation;
+use App\Models\State;
 use App\Traits\AffiliationCompletionManager;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\Affiliations\AffiliationCreated;
+use App\Notifications\Affiliations\AffiliationDeleted;
+use App\Notifications\Affiliations\AffiliationChanged;
 
 class AffiliationObserver
 {
@@ -14,76 +18,115 @@ class AffiliationObserver
 
     public function created(Affiliation $affiliation): void
     {
+        $this->setInitialState($affiliation);
         $this->handleChange($affiliation);
+        $this->notifyAdmins(new AffiliationCreated(
+            $this->getUser($affiliation),
+            $affiliation
+        ), $affiliation);
     }
 
     public function updated(Affiliation $affiliation): void
     {
         $this->handleChange($affiliation);
+        $old = new Affiliation($affiliation->getOriginal());
+
+        $this->notifyAdmins(new AffiliationChanged(
+            $this->getUser($affiliation),
+            $old,
+            $affiliation
+        ), $affiliation);
     }
 
     public function deleted(Affiliation $affiliation): void
     {
         $this->handleChange($affiliation);
+        $this->notifyAdmins(new AffiliationDeleted(
+            $this->getUser($affiliation),
+            $affiliation
+        ), $affiliation);
     }
 
     protected function handleChange(Affiliation $affiliation): void
     {
-        $registryIds = RegistryHasAffiliation::where('affiliation_id', $affiliation->id)
-            ->distinct()
-            ->select('registry_id')
-            ->pluck('registry_id');
 
-        foreach ($registryIds as $registryId) {
-            $this->updateActionLog($registryId);
+        // Not sure we should be ever sending delegates emails upon changes like this
+        // - we have a notification system for it
+        if (config('enable_email')) {
+            $this->emailDelegatesIfNowComplete($affiliation);
         }
-
-        $this->emailDelegates($affiliation);
-
+        $this->updateActionLog($affiliation->registry_id);
+        $this->updateOrganisationActionLog($affiliation);
     }
 
-    protected function emailDelegates(Affiliation $affiliation)
+    private function emailDelegatesIfNowComplete(Affiliation $affiliation): void
     {
-        $isComplete = $this->checkComplete($affiliation);
-
-        $originalAttributes = $affiliation->getOriginal();
-        $originalAffiliation = new Affiliation($originalAttributes);
-        $wasIncomplete = !$this->checkComplete($originalAffiliation);
-
-        if (!($isComplete && $wasIncomplete)) {
+        if (!$this->isNowComplete($affiliation)) {
             return;
         }
 
-        $orgId = $affiliation->organisation_id;
+        if (!(app()->bound('seeding') && app()->make('seeding') === true)) {
+            $this->sendDelegateEmails($affiliation);
+        }
+    }
 
+    private function isNowComplete(Affiliation $affiliation): bool
+    {
+        return $this->checkComplete($affiliation)
+            && !$this->checkComplete(new Affiliation($affiliation->getOriginal()));
+    }
+
+    private function checkComplete(Affiliation $affiliation): bool
+    {
+        return filled($affiliation->member_id)
+            && filled($affiliation->relationship)
+            && filled($affiliation->from);
+    }
+
+    private function sendDelegateEmails(Affiliation $affiliation): void
+    {
         $delegateIds = User::where([
-            'organisation_id' => $orgId,
+            'organisation_id' => $affiliation->organisation_id,
             'is_delegate' => 1
-        ])->select('id')->pluck('id');
+        ])->pluck('id');
 
-        $firstRha = $affiliation->registryHasAffiliations()->first();
-        $userId = optional($firstRha)?->registry?->user?->id;
-        if (is_null($userId)) {
-            return;
-        }
+        $userId = $affiliation->registry?->user?->id;
+        if (!$userId) return;
+
         foreach ($delegateIds as $delegateId) {
-            $input = [
+            TriggerEmail::spawnEmail([
                 'type' => 'USER_DELEGATE',
                 'to' => $delegateId,
-                'by' => $orgId,
+                'by' => $affiliation->organisation_id,
                 'for' => $userId,
                 'identifier' => 'delegate_sponsor'
-            ];
-
-            TriggerEmail::spawnEmail($input);
+            ]);
         }
     }
 
-    protected function checkComplete(Affiliation $affiliation)
+    private function setInitialState(Affiliation $affiliation): void
     {
-        return !empty($affiliation->member_id) &&
-            !empty($affiliation->relationship) &&
-            !empty($affiliation->from);
+        $unclaimed = $affiliation->organisation->unclaimed;
+        $affiliation->setState($unclaimed
+            ? State::STATE_AFFILIATION_INVITED
+            : State::STATE_AFFILIATION_PENDING);
     }
 
+    private function notifyAdmins($notification, Affiliation $affiliation): void
+    {
+        Notification::send($this->getOrgAdminsAndDelegates($affiliation), $notification);
+    }
+
+    private function getUser(Affiliation $affiliation): ?User
+    {
+        return $affiliation->registry?->user;
+    }
+
+    private function getOrgAdminsAndDelegates(Affiliation $affiliation)
+    {
+        return User::where([
+            'organisation_id' => $affiliation->organisation->id,
+            'user_group' => User::GROUP_ORGANISATIONS,
+        ])->get();
+    }
 }

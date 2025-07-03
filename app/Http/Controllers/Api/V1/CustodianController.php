@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use DB;
 use Exception;
 use Hash;
 use RegistryManagementController as RMC;
@@ -12,20 +11,25 @@ use App\Models\User;
 use App\Models\Custodian;
 use App\Models\Organisation;
 use App\Models\CustodianHasRule;
-use App\Models\Rules;
 use App\Models\Project;
-use App\Models\Registry;
 use App\Models\CustodianUser;
-use App\Models\State;
 use App\Models\ProjectHasCustodian;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Http\Traits\Responses;
+use App\Models\ProjectHasOrganisation;
+use App\Models\ProjectHasUser;
 use App\Traits\SearchManagerCollection;
 use Illuminate\Support\Facades\Gate;
 
+/**
+ * @OA\Tag(
+ *     name="Custodian",
+ *     description="API endpoints for managing Custodians"
+ * )
+ */
 class CustodianController extends Controller
 {
     use CommonFunctions;
@@ -235,14 +239,14 @@ class CustodianController extends Controller
         }
 
         try {
-            $input = $request->all();
+            $input = $request->only(app(Custodian::class)->getFillable());
 
             $signature = Str::random(40);
             $uuid = Str::uuid()->toString();
             $calculatedHash = Hash::make(
                 $uuid .
-                    ':' . env('CUSTODIAN_SALT_1') .
-                    ':' . env('CUSTODIAN_SALT_2')
+                    ':' . config('speedi.system.custodian_salt_1') .
+                    ':' . config('speedi.system.custodian_salt_2')
             );
 
             $custodian = Custodian::create([
@@ -330,95 +334,6 @@ class CustodianController extends Controller
             $custodian->update($input);
 
             if ($custodian) {
-                return response()->json([
-                    'message' => 'success',
-                    'data' => $custodian,
-                ], 200);
-            }
-
-            return response()->json([
-                'message' => 'failed',
-                'data' => null,
-                'error' => 'unable to save custodian',
-            ], 400);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
-    }
-
-    /**
-     * @OA\Patch(
-     *      path="/api/v1/custodians/{id}",
-     *      summary="Edit a Custodian entry",
-     *      description="Edit a Custodian entry",
-     *      tags={"Custodian"},
-     *      summary="Custodian@edit",
-     *      security={{"bearerAuth":{}}},
-     *      @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="Custodian ID",
-     *         required=true,
-     *         example="1",
-     *         @OA\Schema(
-     *            type="integer",
-     *            description="Custodian ID",
-     *         ),
-     *      ),
-     *      @OA\RequestBody(
-     *          required=true,
-     *          description="Custodian definition",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="name", type="string", example="A Custodian"),
-     *              @OA\Property(property="enabled", type="boolean", example="true")
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Success",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data",
-     *                  ref="#/components/schemas/Custodian"
-     *              )
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=500,
-     *          description="Error",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="error")
-     *          )
-     *      )
-     * )
-     */
-    public function edit(Request $request, int $id): JsonResponse
-    {
-        try {
-            $input = $request->all();
-
-            $custodian = Custodian::where('id', $id)->first();
-
-            if (!Gate::allows('update', $custodian)) {
-                return $this->ForbiddenResponse();
-            }
-
-            $custodian->invite_accepted_at = isset($input['invite_accepted_at']) ? $input['invite_accepted_at'] : $custodian->invite_accepted_at;
-            $custodian->name = isset($input['name']) ? $input['name'] : $custodian->name;
-            $custodian->contact_email = isset($input['contact_email']) ? $input['contact_email'] : $custodian->contact_email;
-            $custodian->enabled = isset($input['enabled']) ? $input['enabled'] : $custodian->enabled;
-            $custodian->idvt_required = isset($input['idvt_required']) ? $input['idvt_required'] : $custodian->idvt_required;
-            $custodian->gateway_app_id = isset($input['gateway_app_id']) ? $input['gateway_app_id'] : $custodian->gateway_app_id;
-            $custodian->gateway_client_id = isset($input['gateway_client_id']) ? $input['gateway_client_id'] : $custodian->gateway_client_id;
-
-            if ($custodian->save()) {
                 return response()->json([
                     'message' => 'success',
                     'data' => $custodian,
@@ -583,7 +498,6 @@ class CustodianController extends Controller
         }
     }
 
-
     /**
      * @OA\Get(
      *      path="/api/v1/custodian/{custodianId}/projects",
@@ -612,15 +526,7 @@ class CustodianController extends Controller
      *                  @OA\Property(property="total", type="integer", example=24),
      *                  @OA\Property(property="data", type="array",
      *                      @OA\Items(
-     *                          ref="#/components/schemas/Custodian",
-     *                          @OA\Property(property="approvals", type="array",
-     *                              @OA\Items(
-     *                                  @OA\Property(property="id", type="integer", example=1),
-     *                                  @OA\Property(property="name", type="string", example="SAIL Databank"),
-     *                                  @OA\Property(property="contact_email", type="string", example="sail@email.com"),
-     *                                  @OA\Property(property="enabled", type="boolean", example=true)
-     *                              )
-     *                          )
+     *                          ref="#/components/schemas/Custodian"
      *                      )
      *                  ),
      *                  @OA\Property(property="first_page_url", type="string", example="http://localhost:8100/api/v1/custodians/1/projects?page=1"),
@@ -648,7 +554,7 @@ class CustodianController extends Controller
 
         $projects = Project::searchViaRequest()
             ->applySorting()
-            ->with(['approvals', 'organisations', 'modelState.state'])
+            ->with(['organisations', 'modelState.state'])
             ->filterByCommon()
             ->filterByState()
             ->whereHas('custodians', function ($query) use ($custodianId) {
@@ -708,7 +614,6 @@ class CustodianController extends Controller
             $input = $request->only(app(Project::class)->getFillable());
 
             $project = Project::create($input);
-            $project->setState(State::STATE_PROJECT_PENDING);
 
             ProjectHasCustodian::create([
                 'custodian_id' => $custodianId,
@@ -860,6 +765,7 @@ class CustodianController extends Controller
         $results = Organisation::searchViaRequest()
             ->applySorting()
             ->with(['sroOfficer', 'projects' => function ($query) {
+                /** @var \Illuminate\Database\Eloquent\Builder<\App\Models\Organisation> $query */
                 $query->filterByState()
                     ->with("modelState.state");
             }])
@@ -867,6 +773,8 @@ class CustodianController extends Controller
                 $query->where('custodians.id', $custodianId);
             })
             ->whereHas('projects', function ($query) {
+                // LS - Model relation too deep on whereHas, so we have to ignore it here
+                /** @phpstan-ignore-next-line */
                 $query->filterByState();
             })->getOrganisationsProjects();
 
@@ -876,50 +784,65 @@ class CustodianController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/custodians/{custodianId}/projects_users",
-     *      summary="Return all users associated to all projects associated with a custodian",
-     *      description="Fetch a list of users for all projects along with pagination details for a specified custodian.",
+     *      summary="Get all users associated with custodian's projects",
+     *      description="Returns paginated users for all projects under a specific custodian.",
      *      tags={"custodian"},
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *          name="custodianId",
      *          in="path",
-     *          description="The ID of the custodian whose projects are to be retrieved",
      *          required=true,
-     *          example="1",
-     *          @OA\Schema(
-     *              type="integer"
-     *          ),
+     *          description="Custodian ID",
+     *          @OA\Schema(type="integer")
      *      ),
      *      @OA\Response(
      *          response=200,
-     *          description="Success",
+     *          description="List of users",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="current_page", type="integer", example=1),
      *                  @OA\Property(property="per_page", type="integer", example=25),
-     *                  @OA\Property(property="total", type="integer", example=24),
+     *                  @OA\Property(property="total", type="integer", example=3),
      *                  @OA\Property(property="data", type="array",
      *                      @OA\Items(
-     *                          @OA\Property(property="first_name", type="string", example="Dan"),
-     *                          @OA\Property(property="last_name", type="string", example="Ackroyd"),
-     *                          @OA\Property(property="user_id", type="int", example=10),
-     *                          @OA\Property(property="digi_ident", type="string", example="$2y$12$3Pu4jwByHs7p2dGLecNtFO7v2B1ftGxMqAFD5AvmvFwlX.7CgD2pW"),
-     *                          @OA\Property(property="registry_id", type="int", example=10),
-     *                          @OA\Property(property="project_id", type="int", example=10),
-     *                          @OA\Property(property="project_name", type="string", example="This is a project name"),
-     *                          @OA\Property(property="project_role", type="string", example="Principal Investigator (PI)"),
-     *                          @OA\Property(property="organisation_id", type="int", example=10),
-     *                          @OA\Property(property="organisation_name", type="string", example="SAIL Databank"),
-     *                          @OA\Property(property="model_state", type="object",
-     *                              @OA\Property(property="state", type="object",
-     *                                  @OA\Property(property="slug", type="string", example="registered")
+     *                          @OA\Property(property="project_id", type="integer", example=1),
+     *                          @OA\Property(property="user_digital_ident", type="string", example="$2y$12..."),
+     *                          @OA\Property(property="project_role_id", type="integer", example=7),
+     *                          @OA\Property(property="primary_contact", type="boolean", example=false),
+     *                          @OA\Property(property="affiliation_id", type="integer", example=1),
+     *                          @OA\Property(property="role", type="object",
+     *                              @OA\Property(property="id", type="integer", example=8),
+     *                              @OA\Property(property="name", type="string", example="Student")
+     *                          ),
+     *                          @OA\Property(property="affiliation", type="object",
+     *                              @OA\Property(property="id", type="integer", example=1),
+     *                              @OA\Property(property="organisation_id", type="integer", example=1),
+     *                              @OA\Property(property="organisation", type="object",
+     *                                  @OA\Property(property="id", type="integer", example=1),
+     *                                  @OA\Property(property="organisation_name", type="string", example="Health Pathways (UK) Limited")
      *                              )
+     *                          ),
+     *                          @OA\Property(property="registry", type="object",
+     *                              @OA\Property(property="id", type="integer", example=1),
+     *                              @OA\Property(property="digi_ident", type="string", example="$2y$12..."),
+     *                              @OA\Property(property="verified", type="boolean", example=false),
+     *                              @OA\Property(property="user", type="object",
+     *                                  @OA\Property(property="id", type="integer", example=10),
+     *                                  @OA\Property(property="first_name", type="string", example="Dan"),
+     *                                  @OA\Property(property="last_name", type="string", example="Ackroyd"),
+     *                                  @OA\Property(property="email", type="string", example="dan@example.com"),
+     *                                  @OA\Property(property="status", type="string", example="registered")
+     *                              )
+     *                          ),
+     *                          @OA\Property(property="project", type="object",
+     *                              @OA\Property(property="id", type="integer", example=2),
+     *                              @OA\Property(property="title", type="string", example="Assessing Air Quality Impact...")
      *                          )
      *                      )
      *                  ),
-     *                  @OA\Property(property="first_page_url", type="string", example="http://localhost:8100/api/v1/custodians/{custodianId}/projects_users?page=1"),
-     *                  @OA\Property(property="last_page_url", type="string", example="http://localhost:8100/api/v1/custodians/{custodianId}/projects_users?page=1"),
+     *                  @OA\Property(property="first_page_url", type="string", example="http://localhost/api/v1/custodians/1/projects_users?page=1"),
+     *                  @OA\Property(property="last_page_url", type="string", example="http://localhost/api/v1/custodians/1/projects_users?page=1"),
      *                  @OA\Property(property="next_page_url", type="string", example=null),
      *                  @OA\Property(property="prev_page_url", type="string", example=null)
      *              )
@@ -934,69 +857,88 @@ class CustodianController extends Controller
      *      )
      * )
      */
+
     public function getProjectsUsers(Request $request, int $custodianId): JsonResponse
     {
         $custodian = Custodian::findOrFail($custodianId);
         if (! Gate::allows('viewDetailed', $custodian)) {
             return $this->ForbiddenResponse();
         }
-        $results = DB::table('registries as r')
-            ->join('project_has_users as phu', 'phu.user_digital_ident', '=', 'r.digi_ident')
-            ->join('projects as p', 'p.id', '=', 'phu.project_id')
-            ->join('project_has_custodians as phc', 'phc.project_id', '=', 'p.id')
-            ->join('users as u', 'u.registry_id', '=', 'r.id')
-            ->join('project_roles as pr', 'phu.project_id', '=', 'pr.id')
-            ->join('registry_has_affiliations as rha', 'rha.registry_id', '=', 'r.id')
-            ->leftJoin('affiliations as a', 'a.id', '=', 'rha.affiliation_id')
-            ->whereNull('a.to')
-            ->orWhere('a.to', '=', '')
-            ->leftJoin('organisations as o', 'o.id', '=', 'a.organisation_id')
-            ->where('phc.custodian_id', $custodianId)
-            ->join('model_states as ms', function ($join) {
-                $join->on('u.id', '=', 'ms.stateable_id')
-                    ->where('ms.stateable_type', '=', 'App\Models\User');
+
+        $searchName = $request->input('name');
+
+        $projectUsers = ProjectHasUser::with([
+            'registry.user',
+            'role',
+            'affiliation:id,organisation_id',
+            'affiliation.organisation:id,organisation_name',
+            'project:id,title',
+        ])
+            // to be implemented in some way - more discussions and tickets incoming
+            //->filterByState();
+            ->whereHas('project.custodians', function ($query) use ($custodianId) {
+                $query->where('custodian_id', $custodianId);
             })
-            ->join('states as s', 's.id', '=', 'ms.state_id')
-            ->select(
-                'u.first_name',
-                'u.last_name',
-                'u.id AS user_id',
-                'r.digi_ident',
-                'r.id AS registry_id',
-                'p.id AS project_id',
-                'p.title AS project_name',
-                'pr.name AS project_role',
-                'a.organisation_id AS organisation_id',
-                'o.organisation_name',
-                's.slug AS model_state_slug',
-            )
+            ->when(!empty($searchName), function ($query) use ($searchName) {
+                $query->where(function ($subQuery) use ($searchName) {
+                    $subQuery->whereHas('project', function ($q) use ($searchName) {
+                        /** @phpstan-ignore-next-line */
+                        $q->searchViaRequest(['title' => $searchName]);
+                    });
+
+                    $subQuery->orWhereHas('registry.user', function ($q) use ($searchName) {
+                        /** @phpstan-ignore-next-line */
+                        $q->searchViaRequest(['name' => $searchName]);
+                    });
+
+                    $subQuery->orWhereHas('affiliation.organisation', function ($q) use ($searchName) {
+                        /** @phpstan-ignore-next-line */
+                        $q->searchViaRequest(['organisation_name' => $searchName]);
+                    });
+                });
+            })
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
-        // Ignore this phpstan error because it actually works fine.
-        // phpstan doesn't like us iterating over a non-iterable LengthAwarePaginator.
-        // Working around it would require way too much jiggery-pokery.
-        // @phpstan-ignore foreach.nonIterable
-        foreach ($results as $result) {
-            $result->model_state = [
-                "state" => [
-                    "slug" => $result->model_state_slug
-                ]
-            ];
-            unset($result->model_state_slug);
-        }
-
-        if ($results) {
-            return response()->json([
-                'message' => 'success',
-                'data' => $results,
-            ], 200);
-        }
-
-        return response()->json([
-            'message' => 'not found',
-            'data' => null,
-        ], 404);
+        return $this->OKResponse($projectUsers);
     }
+
+
+
+    public function getProjectsOrganisations(Request $request, int $custodianId): JsonResponse
+    {
+        $custodian = Custodian::findOrFail($custodianId);
+        if (! Gate::allows('viewDetailed', $custodian)) {
+            return $this->ForbiddenResponse();
+        }
+
+        $searchName = $request->input('name');
+
+        $projectUsers = ProjectHasOrganisation::with([
+            'organisation.sroOfficer',
+            'project',
+        ])
+            ->whereHas('project.custodians', function ($query) use ($custodianId) {
+                $query->where('custodian_id', $custodianId);
+            })
+            ->when(!empty($searchName), function ($query) use ($searchName) {
+                $query->where(function ($subQuery) use ($searchName) {
+                    $subQuery->whereHas('project', function ($q) use ($searchName) {
+                        /** @phpstan-ignore-next-line */
+                        $q->searchViaRequest(['title' => $searchName]);
+                    });
+
+                    $subQuery->orWhereHas('organisation', function ($q) use ($searchName) {
+                        /** @phpstan-ignore-next-line */
+                        $q->searchViaRequest(['organisation_name' => $searchName]);
+                    });
+                });
+            })
+            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+
+        return $this->OKResponse($projectUsers);
+    }
+
+
 
     /**
      * @OA\Get(
@@ -1274,52 +1216,6 @@ class CustodianController extends Controller
             ], 201);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
-        }
-    }
-
-    public function usersWithCustodianApprovals(Request $request, int $id): JsonResponse
-    {
-        try {
-            $results = DB::select(
-                "
-                SELECT
-                    u.id AS user_id,
-                    GROUP_CONCAT(p.id) AS project_id
-                FROM users u
-                INNER JOIN user_has_custodian_approvals uhca
-                    ON uhca.user_id = u.id
-                    AND uhca.custodian_id = ?
-                INNER JOIN registries r
-                    ON r.id = u.registry_id
-                INNER JOIN project_has_users phu
-                    ON phu.user_digital_ident = r.digi_ident
-                INNER JOIN projects p
-                    ON phu.project_id = p.id
-                INNER JOIN project_has_custodians phc 
-                	ON phc.custodian_id  = uhca.custodian_id 
-                	AND phc.project_id = p.id
-                GROUP BY u.id;
-                ",
-                [
-                    $id,
-                ]
-            );
-
-            $users = [];
-
-            foreach ($results as $u) {
-                $tmpUser = User::where('id', $u->user_id)->first()->toArray();
-                foreach (explode(',', $u->project_id) as $p) {
-                    $tmpUser['projects'][] = Project::where('id', $p)->first();
-                }
-
-                $users[] = $tmpUser;
-                unset($tmpUser);
-            }
-
-            return $this->OKResponse($users);
-        } catch (Exception $e) {
-            return $this->ErrorResponse();
         }
     }
 }

@@ -12,7 +12,6 @@ use App\Models\RegistryHasFile;
 use App\Models\User;
 use App\Models\Accreditation;
 use App\Models\RegistryHasAccreditation;
-use App\Models\UserHasCustodianApproval;
 use App\Models\UserHasCustodianPermission;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -25,14 +24,13 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         User::truncate();
-        UserHasCustodianApproval::truncate();
         UserHasCustodianPermission::truncate();
 
         $signature = Str::random(64);
         $digiIdent = Hash::make(
-            $signature.
-            ':'.env('REGISTRY_SALT_1').
-            ':'.env('REGISTRY_SALT_2')
+            $signature .
+                ':' . env('REGISTRY_SALT_1') .
+                ':' . env('REGISTRY_SALT_2')
         );
 
         $registry = Registry::create([
@@ -77,11 +75,6 @@ class UserSeeder extends Seeder
                     'permission_id' => $p->id,
                 ]);
             }
-
-            UserHasCustodianApproval::create([
-                'user_id' => $user->id,
-                'custodian_id' => $i->id,
-            ]);
         }
 
         $awardedDate = Carbon::parse(fake()->date());

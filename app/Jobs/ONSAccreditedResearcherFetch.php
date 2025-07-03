@@ -25,8 +25,8 @@ class ONSAccreditedResearcherFetch implements ShouldQueue
 
     public function __construct()
     {
-        $this->baseUrlTemplate = env('ONS_ACCREDITED_RESEARCHER_LIST_URL');
-        $this->onsAccreditedResearcherListUrl = env('ONS_ACCREDITED_RESEARCHER_LIST_PAGE_URL');
+        $this->baseUrlTemplate = config('speedi.system.ons_acredited_researcher_list_url');
+        $this->onsAccreditedResearcherListUrl = config('speedi.system.ons_accredited_researcher_list_page_url');
     }
 
     public function handle(): void
@@ -110,8 +110,8 @@ class ONSAccreditedResearcherFetch implements ShouldQueue
 
         // Get header row
         $headers = [];
-        $colStartIndex = env('ONS_COLUMN_START_INDEX', 1);
-        $rowStartIndex = env('ONS_ROW_START_INDEX', 6);
+        $colStartIndex = config('speedi.system.ons_column_start_index', 1);
+        $rowStartIndex = config('speedi.system.ons_row_start_index', 6);
 
         for ($col = $colStartIndex; $col <= $highestColumnIndex; $col++) {
             $columnLetter = Coordinate::stringFromColumnIndex($col);

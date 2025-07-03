@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Api\V1\AccreditationController;
 use App\Http\Controllers\Api\V1\AffiliationController;
-use App\Http\Controllers\Api\V1\ApprovalController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\EndorsementController;
 use App\Http\Controllers\Api\V1\ExperienceController;
@@ -29,6 +28,7 @@ use App\Http\Controllers\Api\V1\EmailTemplateController;
 use App\Http\Controllers\Api\V1\SectorController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\ActionLogController;
+use App\Http\Controllers\Api\V1\CustodianHasProjectOrganisationController;
 use App\Http\Controllers\Api\V1\ValidationCheckController;
 use App\Http\Controllers\Api\V1\ValidationLogController;
 use App\Http\Controllers\Api\V1\ValidationLogCommentController;
@@ -36,13 +36,14 @@ use App\Http\Controllers\Api\V1\ProfessionalRegistrationController;
 use App\Http\Controllers\Api\V1\DepartmentController;
 use App\Http\Controllers\Api\V1\WebhookController;
 use App\Http\Controllers\Api\V1\CustodianModelConfigController;
-use App\Http\Controllers\Api\V1\OrganisationCustodianApprovalController;
 use App\Http\Controllers\Api\V1\ProjectDetailController;
 use App\Http\Controllers\Api\V1\ProjectRoleController;
-use App\Http\Controllers\Api\V1\ProjectUserCustodianApprovalController;
+use App\Http\Controllers\Api\V1\CustodianHasProjectUserController;
+use App\Http\Controllers\Api\V1\ProjectHasUserController;
+use App\Http\Controllers\Api\V1\ProjectHasOrganisationController;
+use App\Http\Controllers\Api\V1\AuditLogController;
 use App\Http\Controllers\Api\V1\VendorWebhookReceiverController;
 use Illuminate\Support\Facades\Route;
-use App\Models\User;
 
 /*
 |--------------------------------------------------------------------------
@@ -69,7 +70,7 @@ Route::middleware(['auth:api'])
         Route::get('/', [UserController::class, 'index']);
         Route::get('/test', [UserController::class, 'fakeEndpointForTesting']);
         Route::get('/{id}', [UserController::class, 'show']);
-        Route::get('/{id}/history', [UserController::class, 'getHistory']);
+        Route::get('/{id}/history', [AuditLogController::class, 'showUserHistory']);
         Route::get('/identifier/{id}', [UserController::class, 'showByUniqueIdentifier']);
         Route::get('/{id}/projects', [UserController::class, 'userProjects']);
 
@@ -189,11 +190,10 @@ Route::middleware(['auth:api'])
         Route::get('/identifier/{id}', 'showByUniqueIdentifier');
         Route::get('/{id}/projects', 'getProjects');
         Route::get('/{id}/users/{userId}/projects', 'getUserProjects');
-        Route::get('/{id}/organisations', 'getOrganisations');
+        Route::get('/{id}/organisations', 'getProjectsOrganisations');
         Route::get('/{id}/custodian_users', 'getCustodianUsers');
         Route::get('/{id}/projects_users', 'getProjectsUsers');
         Route::get('/{id}/rules', 'getRules');
-        Route::get('/{id}/users', 'usersWithCustodianApprovals');
         Route::get('/{id}/organisations/{organisationId}/users', 'getOrganisationUsers');
 
         // Write
@@ -204,7 +204,6 @@ Route::middleware(['auth:api'])
 
         // Update
         Route::put('/{id}', 'update');
-        Route::patch('/{id}', 'edit');
         Route::patch('/{id}/rules', 'updateCustodianRules');
 
         // Delete
@@ -221,7 +220,6 @@ Route::middleware('auth:api')
         Route::get('{id}', 'show');
         Route::post('/', 'store');
         Route::put('{id}', 'update');
-        Route::patch('{id}', 'edit');
         Route::delete('{id}', 'destroy');
         Route::post('invite/{id}', 'invite');
     });
@@ -257,17 +255,17 @@ Route::middleware('auth:api')
         Route::get('{id}', 'show');
         Route::post('/', 'store');
         Route::put('{id}', 'update');
-        Route::patch('{id}', 'edit');
         Route::delete('{id}', 'destroy');
 
         // Project user management
-        Route::get('user/{registryId}/approved', 'getApprovedProjects');
+        Route::get('user/{registryId}/validated', 'getValidatedProjects');
         Route::get('{id}/users', 'getProjectUsers');
         Route::get('{id}/all_users', 'getAllUsersFlagProject');
         Route::put('{id}/all_users', 'updateAllProjectUsers');
         Route::post('{id}/users', 'addProjectUser');
         Route::put('{projectId}/users/{registryId}', 'updateProjectUser');
-        Route::delete('{projectId}/users/{registryId}', 'deleteUserFromProject');
+        Route::delete('{projectId}/users/registry/{registryId}', 'deleteUserFromProject');
+        Route::delete('{projectId}/organisations/{organisationId}', 'deleteOrganisationFromProject');
         Route::put('{projectId}/users/{registryId}/primary_contact', 'makePrimaryContact');
     });
 
@@ -280,7 +278,6 @@ Route::middleware('auth:api')
         Route::get('{id}', 'show');
         Route::post('/', 'store');
         Route::put('{id}', 'update');
-        Route::patch('{id}', 'edit');
         Route::delete('{id}', 'destroy');
     });
 
@@ -293,7 +290,6 @@ Route::middleware('auth:api')
         Route::get('{id}', 'show');
         Route::post('/', 'store');
         Route::put('{id}', 'update');
-        Route::patch('{id}', 'edit');
         Route::delete('{id}', 'destroy');
     });
 
@@ -306,7 +302,6 @@ Route::middleware('auth:api')
         Route::get('{id}', 'show');
         Route::post('/', 'store');
         Route::put('{id}', 'update');
-        Route::patch('{id}', 'edit');
         Route::delete('{id}', 'destroy');
     });
 
@@ -334,13 +329,12 @@ Route::middleware('auth:api')
 
             // Create
             Route::post('/', 'store');
-            Route::post('/unclaimed', 'storeUnclaimed');
+            Route::post('/unclaimed', 'inviteOrganisationSimple');
             Route::post('/{id}/invite', 'invite');
             Route::post('/{id}/invite_user', 'inviteUser');
 
             // Update
             Route::put('/{id}', 'update');
-            Route::patch('/{id}', 'edit');
 
             // Delete
             Route::delete('/{id}', 'destroy');
@@ -371,7 +365,6 @@ Route::middleware('auth:api')
         Route::get('{registryId}', 'indexByRegistryId');
         Route::post('{registryId}', 'storeByRegistryId');
         Route::put('{id}', 'update');
-        Route::patch('{id}', 'edit');
         Route::delete('{id}', 'destroy');
         Route::put('{registryId}/affiliation/{id}', 'updateRegistryAffiliation');
     });
@@ -384,7 +377,6 @@ Route::middleware('auth:api')
         Route::get('registry/{registryId}', 'indexByRegistryId');
         Route::post('registry/{registryId}', 'storeByRegistryId');
         Route::put('{id}', 'update');
-        Route::patch('{id}', 'edit');
         Route::delete('{id}', 'destroy');
     });
 
@@ -410,7 +402,6 @@ Route::middleware('auth:api')
         Route::get('{id}', 'show');
         Route::post('/', 'store');
         Route::put('{id}', 'update');
-        Route::patch('{id}', 'edit');
         Route::delete('{id}', 'destroy');
     });
 
@@ -462,15 +453,6 @@ Route::middleware('auth:api')
         Route::get('{id}/download', 'download');
     });
 
-// --- APPROVALS ---
-Route::middleware('auth:api')
-    ->prefix('v1/approvals')
-    ->controller(ApprovalController::class)
-    ->group(function () {
-        Route::post('{entity_type}', 'store');
-        Route::get('{entity_type}/{id}/custodian/{custodian_id}', 'getEntityHasCustodianApproval');
-        Route::delete('{entity_type}/{id}/custodian/{custodian_id}', 'delete');
-    });
 
 // --- REQUEST ACCESS ---
 Route::middleware(['check.custodian.access', 'verify.signed.payload'])
@@ -495,12 +477,12 @@ Route::middleware('auth:api')
     ->prefix('v1/custodian_config')
     ->controller(CustodianModelConfigController::class)
     ->group(function () {
-        Route::put('update-active/{id}', 'updateCustodianModelConfigsActive');
         Route::post('/', 'store');
         Route::get('{id}', 'getByCustodianID');
         Route::put('{id}', 'update');
         Route::delete('{id}', 'destroy');
         Route::get('{id}/entity_models', 'getEntityModels');
+        Route::put('{id}/entity_models', 'updateEntityModels');
     });
 
 // --- PROJECT DETAILS ---
@@ -527,23 +509,61 @@ Route::middleware('auth:api')
         Route::put('{id}', 'update');
     });
 
-// --- PROJECT USER CUSTODIAN APPROVAL ---
+// --- PROJECT USER  ---
 Route::middleware('auth:api')
-    ->prefix('v1/custodian_approvals')
-    ->controller(ProjectUserCustodianApprovalController::class)
+    ->prefix('v1/project_users')
+    ->controller(ProjectHasUserController::class)
     ->group(function () {
-        Route::get('/{custodianId}/projects/{projectId}/registry/{registryId}', 'show');
-        Route::post('/{custodianId}/projects/{projectId}/registry/{registryId}', 'store');
+        Route::get('/{id}', 'show');
+        Route::delete('/{id}', 'delete');
     });
 
-// --- ORGANISATION CUSTODIAN APPROVAL ---
+// --- PROJECT ORGANISATION  ---
+Route::middleware('auth:api')
+    ->prefix('v1/project_organisations')
+    ->controller(ProjectHasOrganisationController::class)
+    ->group(function () {
+        Route::get('/{id}', 'show');
+    });
+
+// --- CUSTODIAN PROJECT USERS VALIDATIONS ---
 Route::middleware('auth:api')
     ->prefix('v1/custodian_approvals/{custodianId}')
-    ->controller(OrganisationCustodianApprovalController::class)
+    ->controller(CustodianHasProjectUserController::class)
     ->group(function () {
-        Route::get('/organisations/{organisationId}', 'show');
-        Route::post('/organisations/{organisationId}', 'store');
+        Route::get('/projectUsers', 'index');
+        Route::get('/projectUsers/{projectUserId}', 'show');
+        Route::put('/projectUsers/{projectUserId}', 'update');
     });
+
+Route::middleware('auth:api')
+    ->prefix('v1/custodian_approvals/projectUsers')
+    ->controller(CustodianHasProjectUserController::class)
+    ->group(function () {
+        Route::get('/workflowStates', 'getWorkflowStates');
+        Route::get('/workflowTransitions', 'getWorkflowTransitions');
+    });
+
+
+// --- ORGANISATION CUSTODIAN VALIDATIONS ---
+Route::middleware('auth:api')
+    ->prefix('v1/custodian_approvals/{custodianId}')
+    ->controller(CustodianHasProjectOrganisationController::class)
+    ->group(function () {
+        Route::get('/projectOrganisations', 'index');
+        Route::get('/projectOrganisations/{projectOrganisationId}', 'show');
+        Route::put('/projectOrganisations/{projectOrganisationId}', 'update');
+    });
+
+Route::middleware('auth:api')
+    ->prefix('v1/custodian_approvals/projectOrganisations')
+    ->controller(CustodianHasProjectOrganisationController::class)
+    ->group(function () {
+        Route::get('/workflowStates', 'getWorkflowStates');
+        Route::get('/workflowTransitions', 'getWorkflowTransitions');
+    });
+
+
 
 // --- SYSTEM CONFIG ---
 Route::middleware('auth:api')

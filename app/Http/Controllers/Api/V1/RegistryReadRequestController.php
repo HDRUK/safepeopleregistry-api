@@ -16,51 +16,45 @@ use App\Http\Traits\Responses;
 class RegistryReadRequestController extends Controller
 {
     use Responses;
+
+    // LS - For some reason, the OA annotations are being flagged as invalid by PHPStan in later versions.
+    /** @phpstan-ignore-next-line */
     /**
      * @OA\Post(
      *      path="/api/v1/request_access",
      *      summary="Create a RegistryReadRequest entry",
      *      description="Create a RegistryReadRequest entry",
      *      tags={"Registry"},
-     *      summary="RegistryReadRequest@request",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="RegistryReadRequest definition",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="custodian_identifier", type="string", example="AJKHDFEUHE329482kds"),
      *              @OA\Property(property="digital_identifier", type="string", example="HSJFY785615630X99123")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
-     *          description="Not found response",*
+     *          description="Not found response",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=201,
      *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
+     *                  @OA\Property(property="id", type="integer", example="123")
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -84,7 +78,7 @@ class RegistryReadRequestController extends Controller
         ]);
 
         // TODO: remove this when the system is in production
-        if (env('APP_ENV') === 'local' || env('APP_ENV') === 'dev') {
+        if (config('speedi.system.app_env') === 'local' || config('speedi.system.app_env') === 'dev') {
             if ($request->has('debug_approve_access') && $request->input('debug_approve_access') === 'true') {
                 $rrr->update([
                     'status' => RegistryReadRequest::READ_REQUEST_STATUS_APPROVED,
@@ -131,7 +125,7 @@ class RegistryReadRequestController extends Controller
      *
      *      @OA\Response(
      *          response=404,
-     *          description="Not found response",*
+     *          description="Not found response",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),

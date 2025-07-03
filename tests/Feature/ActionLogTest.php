@@ -12,15 +12,16 @@ use App\Models\Department;
 use App\Models\UserHasDepartments;
 use App\Models\Subsidiary;
 use App\Models\OrganisationHasSubsidiary;
-use App\Models\OrganisationHasCustodianApproval;
 use App\Models\Affiliation;
+use App\Models\CustodianHasProjectOrganisation;
 use App\Models\Registry;
-use App\Models\RegistryHasAffiliation;
 use App\Models\Rules;
 use App\Models\CustodianHasRule;
 use App\Models\Project;
 use App\Models\ProjectHasCustodian;
 use App\Models\File;
+use App\Models\ProjectHasOrganisation;
+use App\Models\State;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 use Carbon\Carbon;
@@ -231,7 +232,7 @@ class ActionLogTest extends TestCase
 
 
         //create an incomplete affiliation
-        $affiliation = Affiliation::create([
+        Affiliation::create([
             'organisation_id' => 1,
             'member_id' => '',
             'relationship' => null,
@@ -241,11 +242,6 @@ class ActionLogTest extends TestCase
             'role' => null,
             'ror' => null,
             'registry_id' => $this->user->registry_id,
-        ]);
-
-        RegistryHasAffiliation::create([
-            'registry_id' => $this->user->registry_id,
-            'affiliation_id' => $affiliation->id,
         ]);
 
         $response = $this->actingAs($this->admin)
@@ -265,11 +261,8 @@ class ActionLogTest extends TestCase
         );
 
         // add a complete affiliation
-        $affiliation = Affiliation::factory()->create();
-        RegistryHasAffiliation::create([
-            'registry_id' => $this->user->registry_id,
-            'affiliation_id' => $affiliation->id,
-        ]);
+        Affiliation::factory()->create(['registry_id' => $this->user->registry_id]);
+
 
         $response = $this->actingAs($this->admin)
             ->json(
@@ -709,14 +702,9 @@ class ActionLogTest extends TestCase
             'registry_id' => $newRegistry->id,
         ]);
 
-        $affiliation = Affiliation::factory()->create([
+        Affiliation::factory()->create([
             'organisation_id' => $org->id,
             'registry_id' => $newRegistry->id,
-        ]);
-
-        RegistryHasAffiliation::create([
-            'registry_id' => $newUser->registry_id,
-            'affiliation_id' => $affiliation->id,
         ]);
 
         $response = $this->actingAs($this->admin)
@@ -921,13 +909,18 @@ class ActionLogTest extends TestCase
         $response->assertStatus(200);
         $responseData = $response['data'];
         $actionLog = collect($responseData)
-            ->firstWhere('action', Custodian::ACTION_ADD_ORGANISATIONS);
+            ->firstWhere('action', Custodian::ACTION_APPROVE_AN_ORGANISATION);
 
         $this->assertNull($actionLog['completed_at']);
 
 
-        $ohca = OrganisationHasCustodianApproval::create([
+        $pho = ProjectHasOrganisation::create([
+            'project_id' => Project::first()->id,
             'organisation_id' => $organisation->id,
+        ]);
+
+        $ohca = CustodianHasProjectOrganisation::create([
+            'project_has_organisation_id' => $pho->id,
             'custodian_id' => $custodian->id
         ]);
 
@@ -940,7 +933,23 @@ class ActionLogTest extends TestCase
         $response->assertStatus(200);
         $responseData = $response['data'];
         $actionLog = collect($responseData)
-            ->firstWhere('action', Custodian::ACTION_ADD_ORGANISATIONS);
+            ->firstWhere('action', Custodian::ACTION_APPROVE_AN_ORGANISATION);
+        $this->assertNull($actionLog['completed_at']);
+
+        $ohca->setState(State::STATE_VALIDATED);
+        $ohca->save();
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "custodians/{$custodian->id}/action_log",
+            );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', Custodian::ACTION_APPROVE_AN_ORGANISATION);
+
 
         $this->assertEquals(
             Carbon::now()->format('Y-m-d H:i:s'),
@@ -958,9 +967,8 @@ class ActionLogTest extends TestCase
         $response->assertStatus(200);
         $responseData = $response['data'];
         $actionLog = collect($responseData)
-            ->firstWhere('action', Custodian::ACTION_ADD_ORGANISATIONS);
+            ->firstWhere('action', Custodian::ACTION_APPROVE_AN_ORGANISATION);
 
-        // LS - Leaving this to Calum, not entirely sure what the test is doing to fix
-        //$this->assertNull($actionLog['completed_at']);
+        $this->assertNull($actionLog['completed_at']);
     }
 }

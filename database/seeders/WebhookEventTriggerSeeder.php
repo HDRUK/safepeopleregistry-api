@@ -27,7 +27,7 @@ class WebhookEventTriggerSeeder extends Seeder
             [
                 'name' => 'user-rejected-read-request',
                 'description' => 'Event trigger for when a user rejects a read request',
-            ],
+            ]
         ];
 
         foreach ($triggers as $t) {

@@ -12,17 +12,14 @@ use App\Models\User;
 use App\Models\Registry;
 use App\Models\Project;
 use App\Models\ProjectHasUser;
-use App\Models\UserHasCustodianApproval;
 use App\Models\UserHasCustodianPermission;
 use App\Models\UserHasDepartments;
-use App\Models\Organisation;
 use App\Http\Requests\Users\CreateUser;
 use App\Http\Traits\Responses;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
-use App\Models\ProjectUserCustodianApproval;
 use App\Traits\CommonFunctions;
 use App\Traits\CheckPermissions;
 use Illuminate\Support\Facades\Gate;
@@ -248,59 +245,6 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'success',
                 'data' => $user
-            ], 200);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
-    }
-
-    public function getHistory(Request $request, int $id): JsonResponse
-    {
-        try {
-            // Post-MVP - this should be an audit log for the user...
-            $user = User::findOrFail($id);
-            if (!Gate::allows('view', $user)) {
-                return $this->ForbiddenResponse();
-            }
-
-            $approvalLog = ProjectUserCustodianApproval::with('custodian:id,name')->where(['user_id' => $user->id])->get();
-
-            $approvalHistory = $approvalLog->map(function ($log) {
-                $custodian = $log->custodian->name;
-                return [
-                    'message' => $log->approved ? 'custodian_approved' : 'custodian_rejected',
-                    'details' => $log->approved
-                        ? $custodian . ' approved user: ' . ($log->comment ?? 'No comment')
-                        : $custodian . ' rejected user: ' . ($log->comment ?? 'No comment'),
-                    'created_at' => $log->created_at,
-                ];
-            });
-
-            // placeholder to give some history
-            $data = collect([
-                [
-                    'message' => 'profile_created',
-                    'created_at' => $user->created_at,
-                ],
-            ])
-                ->merge(
-                    $user->actionLogs
-                        ->whereNotNull("completed_at")
-                        ->map(function ($log) {
-                            return [
-                                'message' => $log->action,
-                                'created_at' => $log->completed_at,
-                            ];
-                        })
-                )
-                ->merge($approvalHistory)
-                ->sortByDesc('created_at')
-                ->values()
-                ->toArray();
-
-            return response()->json([
-                'message' => 'success',
-                'data' => $data,
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -548,6 +492,14 @@ class UserController extends Controller
                 return $this->ForbiddenResponse();
             }
 
+            if (isset($input['department_id']) && $input['department_id'] !== 0 && $input['department_id'] != null) {
+                UserHasDepartments::where('user_id', $user->id)->delete();
+                UserHasDepartments::create([
+                    'user_id' => $user->id,
+                    'department_id' => $request['department_id'],
+                ]);
+            };
+
             $user->first_name = isset($input['first_name']) ? $input['first_name'] : $user->first_name;
             $user->last_name = isset($input['last_name']) ? $input['last_name'] : $user->last_name;
             $user->email = isset($input['email']) ? $input['email'] : $user->email;
@@ -570,147 +522,6 @@ class UserController extends Controller
                 return response()->json([
                     'message' => 'success',
                     'data' => $user,
-                ], 200);
-            }
-
-            return response()->json([
-                'message' => 'failed',
-                'data' => null,
-                'error' => 'unable to save user',
-            ], 409);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
-    }
-
-    /**
-     * @OA\Patch(
-     *      path="/api/v1/users/{id}",
-     *      summary="Edit a User entry",
-     *      description="Edit a User entry",
-     *      tags={"User"},
-     *      summary="User@edit",
-     *      security={{"bearerAuth":{}}},
-     *
-     *      @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="User ID",
-     *         required=true,
-     *         example="1",
-     *
-     *         @OA\Schema(
-     *            type="integer",
-     *            description="User ID",
-     *         ),
-     *      ),
-     *
-     *      @OA\RequestBody(
-     *          required=true,
-     *          description="User definition",
-     *
-     *          @OA\JsonContent(
-     *
-     *              @OA\Property(property="first_name", type="string", example="A"),
-     *              @OA\Property(property="last_name", type="string", example="Researcher"),
-     *              @OA\Property(property="email", type="string", example="someone@somewhere.com"),
-     *              @OA\Property(property="password", type="string", example="str0ng12P4ssword?"),
-     *              @OA\Property(property="orc_id", type="string", example="0000-0000-0000-0000"),
-     *          ),
-     *      ),
-     *
-     *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *
-     *          @OA\JsonContent(
-     *
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          ),
-     *      ),
-     *
-     *      @OA\Response(
-     *          response=200,
-     *          description="Success",
-     *
-     *          @OA\JsonContent(
-     *
-     *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="first_name", type="string", example="A"),
-     *                  @OA\Property(property="last_name", type="string", example="Researcher"),
-     *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
-     *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
-     *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
-     *                  @OA\Property(property="declaration_signed", type="boolean", example="true"),
-     *                  @OA\Property(property="organisation_id", type="integer", example="123"),
-     *                  @OA\Property(property="orc_id", type="string", example="0000-0000-0000-0000"),
-     *                  @OA\Property(property="orcid_scanning", type="integer", example="1"),
-     *                  @OA\Property(property="orcid_scanning_completed_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="location", type="string", example="United Kingdom"),
-     *                  @OA\Property(property="t_and_c_agreed", type="boolean", example="true"),
-     *                  @OA\Property(property="t_and_c_agreement_date", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="status", type="string", example="registered"),
-     *                  @OA\Property(property="uksa_registered", type="boolean", example="true"),
-     *                  @OA\Property(property="is_sro", type="boolean", example="false")
-     *              )
-     *          ),
-     *      ),
-     *
-     *      @OA\Response(
-     *          response=500,
-     *          description="Error",
-     *
-     *          @OA\JsonContent(
-     *
-     *              @OA\Property(property="message", type="string", example="error")
-     *          )
-     *      )
-     * )
-     */
-    public function edit(Request $request, int $id): JsonResponse
-    {
-        try {
-            $input = $request->all();
-            $user = User::find($id);
-
-            if (!Gate::allows('update', $user)) {
-                return $this->ForbiddenResponse();
-            }
-
-            $originalUser = clone $user;
-
-            if (!$user) {
-                return response()->json([
-                    'message' => 'User not found'
-                ], 404);
-            }
-
-            if (isset($input['department_id']) && $input['department_id'] !== 0 && $input['department_id'] !== null) {
-                UserHasDepartments::where('user_id', $user->id)->delete();
-                UserHasDepartments::create([
-                    'user_id' => $user->id,
-                    'department_id' => $request['department_id'],
-                ]);
-            };
-
-            $input = $request->only(app(User::class)->getFillable());
-
-            if (isset($input['password'])) {
-                $input['password'] = Hash::make($input['password']);
-            }
-
-            $updated = $user->update($input);
-
-            if ($updated) {
-
-                return response()->json([
-                    'message' => 'success',
-                    'data' => User::find($id)
                 ], 200);
             }
 
@@ -785,7 +596,6 @@ class UserController extends Controller
             $user->delete();
 
             UserHasCustodianPermission::where('user_id', $id)->delete();
-            UserHasCustodianApproval::where('user_id', $id)->delete();
 
             return response()->json([
                 'message' => 'success',
@@ -819,10 +629,8 @@ class UserController extends Controller
                     o.id AS organisation_id,
                     o.organisation_name AS organisation_name
                 FROM users u
-                JOIN registry_has_affiliations rha
-                    ON rha.registry_id = u.registry_id
-                LEFT JOIN affiliations a
-                    ON a.id = rha.affiliation_id
+                JOIN affiliations a
+                    ON a.registry_id = u.registry_id
                 JOIN organisations o
                     ON o.id = a.organisation_id
                 WHERE
@@ -867,9 +675,8 @@ class UserController extends Controller
 
         $projects = Project::whereIn('id', $projectIds)
             ->withCount('projectUsers')
-            ->with(['organisations', 'modelState.state'])
+            ->with(['organisations'])
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
-        ;
         return $this->OKResponse($projects);
     }
 

@@ -6,6 +6,37 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @OA\Schema(
+ *     schema="UserHasDepartments",
+ *     type="object",
+ *     title="UserHasDepartments",
+ *     description="Pivot model representing the relationship between users and departments",
+ *     @OA\Property(
+ *         property="user_id",
+ *         type="integer",
+ *         example=42,
+ *         description="ID of the user"
+ *     ),
+ *     @OA\Property(
+ *         property="department_id",
+ *         type="integer",
+ *         example=24,
+ *         description="ID of the department"
+ *     )
+ * )
+ *
+ * @property int $user_id
+ * @property int $department_id
+ * @property-read \App\Models\Department|null $department
+ * @property-read \App\Models\User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|UserHasDepartments newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|UserHasDepartments newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|UserHasDepartments query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|UserHasDepartments whereDepartmentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|UserHasDepartments whereUserId($value)
+ * @mixin \Eloquent
+ */
 class UserHasDepartments extends Model
 {
     use HasFactory;
@@ -21,6 +52,8 @@ class UserHasDepartments extends Model
 
     /**
      * Get the user that belongs to this relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\User>
      */
     public function user(): BelongsTo
     {
@@ -29,6 +62,8 @@ class UserHasDepartments extends Model
 
     /**
      * Get the department that belongs to this relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Department>
      */
     public function department(): BelongsTo
     {

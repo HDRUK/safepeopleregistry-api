@@ -5,6 +5,8 @@ parameters:
     paths:
         - app/
     reportUnmatchedIgnoredErrors: false
+    stubFiles:
+        - phpstan-stubs/laravel-octane.php
 
     # Level 9 is the highest level
     level: 5
@@ -18,6 +20,22 @@ parameters:
         - '#Access to an undefined property Illuminate\\Database\\Eloquent\\Model::\$file_path#'
         - '#Access to an undefined property App\\Models\\User::\$evaluation#'
         - '#Deprecated in PHP 8\.4: Parameter \#1 \$user \(App\\Models\\User\) is implicitly nullable via default value null#'
+        - '#Access to an undefined property Illuminate\\Contracts\\Auth\\Authenticatable::\$id#'
+        - '#should return Illuminate\\Database\\Eloquent\\Relations\\HasOne<.+?> but returns Illuminate\\Database\\Eloquent\\Relations\\HasOne<.+?>\.#'
+        - '#should return Illuminate\\Database\\Eloquent\\Relations\\HasMany<.+?> but returns Illuminate\\Database\\Eloquent\\Relations\\HasMany<.+?>\.#'
+        - '#should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo<.+?> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo<.+?>\.#'
+        - '#Generic type Illuminate\\Database\\Eloquent\\Relations\\HasOne<.+?> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\HasOne: TRelatedModel, TDeclaringModel#'
+        - '#Generic type Illuminate\\Database\\Eloquent\\Relations\\HasMany<.+?> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\HasMany: TRelatedModel, TDeclaringModel#'
+        - '#Generic type Illuminate\\Database\\Eloquent\\Relations\\HasManyThrough<.+?> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\HasManyThrough: TRelatedModel, TIntermediateModel, TDeclaringModel#'
+        - '#Generic type Illuminate\\Database\\Eloquent\\Relations\\BelongsTo<.+?> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo: TRelatedModel, TDeclaringModel#'
+        - '#Type string in generic type Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany<.+?, Illuminate\\Database\\Eloquent\\Relations\\Pivot, string> in PHPDoc tag @return is not subtype of template type TPivotModel of Illuminate\\Database\\Eloquent\\Relations\\Pivot = Illuminate\\Database\\Eloquent\\Relations\\Pivot of class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany.#'
+        - '#Method App\\Models\\.*::.*\(\) should return Illuminate\\Database\\Eloquent\\Relations\\HasOne<.*> but returns Illuminate\\Database\\Eloquent\\Relations\\HasOne<.*>#'
+        - '#Method App\\Models\\.*::.*\(\) should return Illuminate\\Database\\Eloquent\\Relations\\HasMany<.*> but returns Illuminate\\Database\\Eloquent\\Relations\\HasMany<.*>#'
+        - '#Method App\\Models\\.*::.*\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsTo<.*> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsTo<.*>#'
+        - '#Method App\\Models\\.*::.*\(\) should return Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany<.*> but returns Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany<.*>#'
+        - '#Method App\\Models\\Organisation::registries\(\) should return Illuminate\\Database\\Eloquent\\Relations\\HasManyThrough<.*,.*,.*> but returns Illuminate\\Database\\Eloquent\\Relations\\HasManyThrough<.*,.*,.*>\.#'
+        - '#Generic type Illuminate\\Database\\Eloquent\\Relations\\MorphOne<App\\Models\\ModelState> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\MorphOne: TRelatedModel, TDeclaringModel#'
+        - '#Method App\\Models\\RegistryHasAffiliation::modelState\(\) should return Illuminate\\Database\\Eloquent\\Relations\\MorphOne<App\\Models\\ModelState> but returns Illuminate\\Database\\Eloquent\\Relations\\MorphOne<App\\Models\\ModelState, .*?>\.#'
 #
 #    excludePaths:
 #        - ./*/*/FileToBeExcluded.php

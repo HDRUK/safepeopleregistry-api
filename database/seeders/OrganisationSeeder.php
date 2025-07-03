@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Custodian;
 use App\Models\Organisation;
-use App\Models\OrganisationHasCustodianApproval;
+use App\Models\CustodianHasOrganisation;
 use App\Models\OrganisationHasCustodianPermission;
 use App\Models\Permission;
 use Illuminate\Database\Seeder;
@@ -31,7 +31,7 @@ class OrganisationSeeder extends Seeder
             'custodian_id' => $custodian['id'],
         ]);
 
-        OrganisationHasCustodianApproval::create([
+        CustodianHasOrganisation::create([
             'organisation_id' => $org->id,
             'custodian_id' => $custodian['id'],
         ]);

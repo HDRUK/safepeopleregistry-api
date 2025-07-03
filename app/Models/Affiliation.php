@@ -4,9 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
+use App\Traits\StateWorkflow;
+use Illuminate\Support\Facades\Auth;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\Contracts\Activity;
+use Spatie\Activitylog\LogOptions;
 
 /**
- * @OA\Schema(
+ *
+ *
+ * @OA\Schema (
  *      schema="Affiliation",
  *      title="Affiliation",
  *      description="Affiliation model",
@@ -74,10 +82,69 @@ use Illuminate\Database\Eloquent\Model;
  *          description="The Registry primary key associated with this affiliation"
  *      )
  * )
+ *
+ * @property int $id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int $organisation_id
+ * @property string $member_id
+ * @property string|null $relationship
+ * @property string|null $from
+ * @property string|null $to
+ * @property string|null $department
+ * @property string|null $role
+ * @property string|null $email
+ * @property string|null $ror
+ * @property int $registry_id
+ * @property int|null $verdict_user_id
+ * @property string|null $verdict_date_actioned
+ * @property int|null $verdict_outcome
+ * @property-read mixed $registry_affiliation_state
+ * @property-read \App\Models\Organisation|null $organisation
+ * @property-read \App\Models\Registry|null $registry
+ * @method static \Database\Factories\AffiliationFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereDepartment($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereFrom($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereMemberId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereOrganisationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereRegistryId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereRelationship($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereRole($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereRor($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereTo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereVerdictDateActioned($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereVerdictOutcome($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Affiliation whereVerdictUserId($value)
+ * @mixin \Eloquent
  */
 class Affiliation extends Model
 {
     use HasFactory;
+    use StateWorkflow;
+    use LogsActivity;
+
+    protected array $transitions = [
+        State::STATE_AFFILIATION_INVITED => [
+            State::STATE_AFFILIATION_PENDING
+        ],
+        State::STATE_AFFILIATION_PENDING => [
+            State::STATE_AFFILIATION_APPROVED,
+            State::STATE_AFFILIATION_REJECTED
+        ],
+        State::STATE_AFFILIATION_APPROVED => [
+            State::STATE_AFFILIATION_REJECTED
+        ],
+        State::STATE_AFFILIATION_REJECTED => [
+            State::STATE_AFFILIATION_APPROVED
+        ]
+    ];
 
     public $table = 'affiliations';
 
@@ -99,18 +166,20 @@ class Affiliation extends Model
         'verdict_outcome',
     ];
 
-    protected $appends = ['registryAffiliationState'];
-    protected $hidden = ['registryHasAffiliations'];
-
-    public function getRegistryAffiliationStateAttribute()
+    public function getActivitylogOptions(): LogOptions
     {
-        return optional($this->registryHasAffiliations->first())->getState();
+        return LogOptions::defaults()
+            ->logOnly($this->fillable)
+            ->logOnlyDirty()
+            ->useLogName('affiliation')
+            ->dontSubmitEmptyLogs();
     }
+
 
     /**
      * Get the organisation related to the affiliation.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Organisation>
      */
     public function organisation()
     {
@@ -122,15 +191,21 @@ class Affiliation extends Model
     }
 
     /**
-     * Get the organisation related to the affiliation.
+     * Get the registry related to the affiliation.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Registry>
      */
-    public function registryHasAffiliations()
+    public function registry()
     {
-        return $this->hasMany(
-            RegistryHasAffiliation::class,
-            'affiliation_id'
+        return $this->belongsTo(
+            Registry::class,
+            'registry_id',
+            'id'
         );
+    }
+
+    public function modelState(): MorphOne
+    {
+        return $this->morphOne(ModelState::class, 'stateable');
     }
 }

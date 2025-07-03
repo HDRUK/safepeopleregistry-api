@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\Responses;
+use App\Models\CustodianHasProjectUser;
 use App\Models\Project;
 use App\Models\Registry;
 use App\Models\State;
@@ -14,9 +15,11 @@ use App\Traits\CommonFunctions;
 use App\Traits\FilterManager;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
+
+use function activity;
 
 class ProjectController extends Controller
 {
@@ -227,6 +230,7 @@ class ProjectController extends Controller
         ])
             ->where('project_id', $projectId)
             ->whereHas('registry.user', function ($query) {
+                /** @phpstan-ignore-next-line */
                 $query->searchViaRequest()
                     ->filterByState()
                     ->with("modelState");
@@ -252,7 +256,10 @@ class ProjectController extends Controller
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         $idCounter = 1;
+        /** @phpstan-ignore-next-line */
         $expandedUsers = $users->flatMap(function ($user) use ($projectId, &$idCounter) {
+            // LS - Even though the return types match, phpstan sees them as not covariant.
+            /** @phpstan-ignore-next-line */
             return $user->registry->affiliations->map(function ($affiliation) use ($user, $projectId, &$idCounter) {
 
                 $matchingProjectUser = $user->registry->projectUsers
@@ -264,6 +271,7 @@ class ProjectController extends Controller
 
                 return [
                     'id' => $idCounter++,
+                    'project_user_id' => $matchingProjectUser?->id,
                     'user_id' => $user->id,
                     'registry_id' => $user->registry_id,
                     'first_name' => $user->first_name,
@@ -443,85 +451,6 @@ class ProjectController extends Controller
     }
 
     /**
-     * @OA\Patch(
-     *      path="/api/v1/projects/{id}",
-     *      summary="Update a Project entry",
-     *      description="Update a Project entry",
-     *      tags={"Project"},
-     *      summary="Project@edit",
-     *      security={{"bearerAuth":{}}},
-     *      @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="Project entry ID",
-     *         required=true,
-     *         example="1",
-     *         @OA\Schema(
-     *            type="integer",
-     *            description="Project entry ID",
-     *         ),
-     *      ),
-     *      @OA\RequestBody(
-     *          required=true,
-     *          description="Project definition",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="id", type="integer", example="123"),
-     *              @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *              @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *              @OA\Property(property="name", type="string", example="My First Research Project"),
-     *              @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
-     *              @OA\Property(property="runs_to", type="string", example="2026-02-04")
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Success",
-     *          @OA\JsonContent(
-     *                  @OA\Property(property="message", type="string", example="success"),
-     *                  @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="name", type="string", example="My First Research Project"),
-     *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
-     *                  @OA\Property(property="runs_to", type="string", example="2026-02-04"),
-     *                  @OA\Property(property="status", type="string", example="approved")
-     *              ),
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=500,
-     *          description="Error",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="error")
-     *          )
-     *      )
-     * )
-     */
-    public function edit(Request $request, int $id): JsonResponse
-    {
-        try {
-            $input = $request->only(app(Project::class)->getFillable());
-            $project = Project::findOrFail($id);
-            $project->update($input);
-
-            return response()->json([
-                'message' => 'success',
-                'data' => Project::where('id', $id)->first(),
-            ], 200);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
-    }
-
-    /**
      * @OA\Put(
      *      path="/api/v1/projects/{id}/users/{registryId}/primary_contact",
      *      summary="Make user a primary contact",
@@ -648,66 +577,55 @@ class ProjectController extends Controller
     public function updateAllProjectUsers(Request $request, int $projectId): JsonResponse
     {
         try {
-            $validated = $request->validate([
-                'users' => 'required|array',
-            ]);
+            $validated = $request->validate(['users' => 'required|array']);
+            $users = collect($validated['users']);
 
-            $registryIds = collect($validated['users'])->pluck('registry_id')->unique();
+            $registryIds = $users->pluck('registry_id')->unique();
             $registries = Registry::with('user')->whereIn('id', $registryIds)->get()->keyBy('id');
 
-            $results = [];
-            $deletes = [];
-
-            foreach ($validated['users'] as $entry) {
-
+            foreach ($users as $entry) {
                 $registry = $registries->get($entry['registry_id']);
-                if (!$registry || !$registry->user) {
+                $user = $registry->user;
+                if (!$registry || !$user) {
                     continue;
                 }
 
                 $digiIdent = $registry->digi_ident;
                 $affiliationId = $entry['affiliation_id'];
-                $roleId = isset($entry['role']) ? $entry['role']['id'] ?? null : null;
+                $roleId = $entry['role']['id'] ?? null;
+                $primaryContact = $entry['primary_contact'] ?? 0;
 
-                // Refactor candidate..
-                // - code is really slow
-                // - should be cleaner with firstOrNew and/or updateOrCreate
-                // - laravel doesnt like this though as it's a pivot table
-                // - dont think ProjectHasUser should be a pivot table as it's
-                //   a three-way pivot between project/registry/affiliation
-                $projectUserQuery = ProjectHasUser::where([
-                    'project_id' => $projectId,
-                    'user_digital_ident' => $digiIdent,
-                    'affiliation_id' => $affiliationId,
-                ]);
 
-                if (!$projectUserQuery->exists()) {
-                    $projectUser = ProjectHasUser::create([
-                        'project_id' => $projectId,
-                        'user_digital_ident' => $digiIdent,
-                        'affiliation_id' => $affiliationId,
-                    ]);
-                }
+                $roleId = $entry['role']['id'] ?? null;
+                $phu = ProjectHasUser::where('id', $entry['project_user_id'])->first();
 
-                if (is_null($roleId)) {
-                    $projectUserQuery->delete();
-                } else {
-                    $updateData = [
-                        'project_role_id' => $roleId,
-                    ];
-                    if (isset($entry['primary_contact'])) {
-                        $updateData['primary_contact'] = $entry['primary_contact'];
+                if ($phu) {
+                    if (is_null($roleId)) {
+                        $phu->delete();
+                    } else {
+                        $phu->update(
+                            [
+                                'project_role_id' => $roleId,
+                                'primary_contact' => $primaryContact,
+                                'affiliation_id' => $affiliationId,
+                            ]
+                        );
                     }
-
-                    $projectUserQuery->update($updateData);
-
-                    $results[] = $projectUserQuery->get();
+                } elseif ($roleId) {
+                    ProjectHasUser::updateOrCreate([
+                        'project_id' => $projectId,
+                        'user_digital_ident' => $digiIdent, // index
+                        'affiliation_id' => $affiliationId,
+                    ], [
+                        'project_role_id' => $roleId,
+                        'primary_contact' => $primaryContact,
+                    ]);
                 }
             }
 
-            return $this->OKResponse($results);
+            return $this->OKResponse(true);
         } catch (Exception $e) {
-            return $this->ErrorResponse($e->getMessage());
+            return $this->ErrorResponse();
         }
     }
 
@@ -799,11 +717,11 @@ class ProjectController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/api/v1/projects/user/{registryId}/approved",
+     *      path="/api/v1/projects/user/{registryId}/validated",
      *      summary="Return (approved) projects for a registry (user)",
      *      description="Return (approved) projects for a registry (user)",
      *      tags={"Projects"},
-     *      summary="Project@getApprovedProjects",
+     *      summary="Project@getValidatedProjects",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *         name="id",
@@ -842,7 +760,7 @@ class ProjectController extends Controller
      *      )
      * )
      */
-    public function getApprovedProjects(Request $request, int $registryId): JsonResponse
+    public function getValidatedProjects(Request $request, int $registryId): JsonResponse
     {
         $digi_ident = optional(Registry::where('id', $registryId)->first())->digi_ident;
 
@@ -854,13 +772,16 @@ class ProjectController extends Controller
             ], 404);
         }
 
-        $projects = ProjectHasUser::where('user_digital_ident', $digi_ident)
-            ->with('project')
-            ->whereHas('project.custodians', function ($query) {
-                $query->where('approved', true);
-            })
+        request()->merge(['filter' => 'validated']);
+        $projects = CustodianHasProjectUser::with(
+            ['projectHasUser.project', 'modelState.state']
+        )
+            ->filterByState()
             ->get()
-            ->pluck('project');
+            ->pluck('projectHasUser.project')
+            ->filter()
+            ->unique('id')
+            ->values();
 
         return response()->json([
             'message' => 'success',
@@ -893,64 +814,5 @@ class ProjectController extends Controller
         $projectUser->update($validated);
 
         return $this->OKResponse($projectUser);
-    }
-
-
-    /**
-     * @OA\Delete(
-     *      path="/api/v1/projects/{projectId}/users/{registryId}",
-     *      summary="Delete a user from a project",
-     *      description="Delete a user from a project",
-     *      tags={"Projects"},
-     *      summary="Project@deleteUserFromProject",
-     *      security={{"bearerAuth":{}}},
-     *      @OA\Parameter(
-     *         name="projectId",
-     *         in="path",
-     *         description="Project ID",
-     *         required=true,
-     *         example="1",
-     *         @OA\Schema(
-     *            type="integer",
-     *            description="Project ID",
-     *         ),
-     *      ),
-     *      @OA\Parameter(
-     *         name="registryId",
-     *         in="path",
-     *         description="Registry ID",
-     *         required=true,
-     *         example="1",
-     *         @OA\Schema(
-     *            type="integer",
-     *            description="Registry ID",
-     *         ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="success",
-     *      ),
-     *      @OA\Response(
-     *          response=404,
-     *          description="failed",
-     *      )
-     * )
-     */
-    public function deleteUserFromProject(Request $request, int $projectId, int $registryId): JsonResponse
-    {
-        try {
-            $digi_ident = optional(Registry::where('id', $registryId)->first())->digi_ident;
-            $data = ProjectHasUser::where('project_id', $projectId)->where('user_digital_ident', $digi_ident);
-
-            if ($data->first() !== null) {
-                $data->delete();
-
-                return $this->OKResponse(null);
-            }
-
-            return $this->NotFoundResponse();
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
     }
 }

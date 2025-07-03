@@ -2,17 +2,16 @@
 
 namespace App\Models;
 
-use App\Observers\CustodianObserver;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\SearchManager;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use App\Traits\ActionManager;
 use App\Traits\FilterManager;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * @OA\Schema(
+ * @OA\Schema (
  *      schema="Custodian",
  *      title="Custodian",
  *      description="Custodian model",
@@ -72,7 +71,6 @@ use App\Traits\FilterManager;
  *      )
  * )
  */
-#[ObservedBy([CustodianObserver::class])]
 class Custodian extends Model
 {
     use HasFactory;
@@ -111,14 +109,14 @@ class Custodian extends Model
     public const ACTION_ADD_CONTACTS = 'add_contacts_completed';
     public const ACTION_ADD_USERS = 'add_users_completed';
     public const ACTION_ADD_PROJECTS = 'add_projects_completed';
-    public const ACTION_ADD_ORGANISATIONS = 'add_organisations_completed';
+    public const ACTION_APPROVE_AN_ORGANISATION = 'approve_an_organisation_completed';
 
     protected static array $defaultActions = [
         self::ACTION_COMPLETE_CONFIGURATION,
         self::ACTION_ADD_CONTACTS,
         self::ACTION_ADD_USERS,
         self::ACTION_ADD_PROJECTS,
-        self::ACTION_ADD_ORGANISATIONS,
+        self::ACTION_APPROVE_AN_ORGANISATION,
     ];
 
     protected static array $searchableColumns = [
@@ -131,6 +129,11 @@ class Custodian extends Model
         'contact_email',
     ];
 
+    /**
+     * Get all rules that belong to this custodian.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\DecisionModel>
+     */
     public function rules(): BelongsToMany
     {
         // LS - TODO - this needs renaming.
@@ -140,7 +143,7 @@ class Custodian extends Model
     /**
      * Get all custodian users that belong to this custodian.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\CustodianUser>
      */
     public function custodianUsers()
     {
@@ -150,28 +153,17 @@ class Custodian extends Model
     /**
      * Get all custodian users that belong to this custodian.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Project>
      */
     public function projects(): BelongsToMany
     {
         return $this->belongsToMany(Project::class, 'project_has_custodians', 'custodian_id', 'project_id');
     }
 
-    /**
-     * Get all approved organisations for this custodian.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function approvedOrganisations(): BelongsToMany
-    {
-        return $this->belongsToMany(
-            Organisation::class,
-            'organisation_has_custodian_approvals',
-            'custodian_id',
-            'organisation_id'
-        );
-    }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\CustodianHasValidationCheck>
+     */
     public function validationChecks(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -179,5 +171,13 @@ class Custodian extends Model
             'custodian_has_validation_check'
         )
             ->using(CustodianHasValidationCheck::class);
+    }
+
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\CustodianHasProjectOrganisation>
+     */
+    public function projectOrganisations(): HasMany
+    {
+        return $this->hasMany(CustodianHasProjectOrganisation::class, 'custodian_id');
     }
 }

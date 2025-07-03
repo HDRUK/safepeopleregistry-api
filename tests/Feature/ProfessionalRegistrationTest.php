@@ -102,38 +102,6 @@ class ProfessionalRegistrationTest extends TestCase
         $response->assertStatus(400);
     }
 
-    public function test_the_application_can_edit_an_professional_registration(): void
-    {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'POST',
-            self::TEST_URL . '/registry/1',
-            [
-                'member_id' => fake()->uuid(),
-                'name' => fake()->name(),
-            ]
-        );
-
-        $response->assertStatus(201);
-        $content = $response->decodeResponseJson()['data'];
-
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'PATCH',
-            self::TEST_URL . '/' . $content['id'],
-            [
-                'member_id' =>  'A1234567',
-            ]
-        );
-
-        $response->assertStatus(200);
-        $this->assertArrayHasKey('data', $response);
-
-        $content = $response->decodeResponseJson()['data'];
-
-        $this->assertEquals($content['member_id'], 'A1234567');
-    }
-
     public function test_the_application_can_delete_an_professional_registration(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())

@@ -22,7 +22,7 @@ class VeriffTranslator implements WebhookTranslationInterface
     {
         $verdict = $this->verifySignature(
             $request->getContent(),
-            env('IDVT_SUPPLIER_SECRET_KEY'),
+            config('speedi.system.idvt_supplier_secret_key'),
             $request->header('x-hmac-signature')
         );
 
@@ -79,18 +79,27 @@ class VeriffTranslator implements WebhookTranslationInterface
         }
 
         $identity = Identity::where('registry_id', $registry->id)->first();
+
         if (!$identity) {
             DebugLog::create([
                 'class' => VeriffTranslator::class,
-                'log' => 'Attempt to save veriff context with unknown identity - ' . json_encode($data) . ' for registry_id - ' . $registry->id,
+                'log' => 'Creating new identity for registry_id - ' . $registry->id,
             ]);
 
-            return;
+            $identity = Identity::create([
+                'registry_id' => $registry->id,
+            ]);
         }
 
         Log::debug('VeriffTranslator::saveContext - ' . json_encode($data));
 
         if (isset($data['action']) && $data['action'] === self::ACTION_STARTED) {
+
+            DebugLog::create([
+                'class' => VeriffTranslator::class,
+                'log' => 'Attempt started for veriff for ' . $registry->id,
+            ]);
+
             $identity->update([
                 'idvt_started_at' => Carbon::now(),
                 'idvt_attempt_id' => $data['attempt_id'] ?? null,
@@ -101,7 +110,11 @@ class VeriffTranslator implements WebhookTranslationInterface
 
         Log::debug('VeriffTranslator::saveContext - ' . json_encode($data));
         if (isset($data['action']) && $data['action'] === self::ACTION_DECISION) {
-            Log::info('here with ' . json_encode($data));
+
+            DebugLog::create([
+                'class' => VeriffTranslator::class,
+                'log' => 'Attempt descion ' . json_encode($data) . ' ' . $registry->id,
+            ]);
 
             $identity->update([
                 'idvt_success' => $data['verification']['status'] === 'approved' ? 1 : 0,

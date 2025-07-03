@@ -44,7 +44,7 @@ class TriggerEmail
 
                 $replacements = [
                     '[[users.first_name]]' => $user->first_name,
-                    '[[env(SUPPORT_EMAIL)]]' => env('SUPPORT_EMAIL'),
+                    '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
                 ];
                 break;
             case 'USER_WITHOUT_ORGANISATION':
@@ -83,7 +83,7 @@ class TriggerEmail
                     '[[users.first_name]]' => $user->first_name,
                     '[[users.last_name]]' => $user->last_name,
                     '[[users.created_at]]' => $user->created_at,
-                    '[[env(SUPPORT_EMAIL)]]' => env('SUPPORT_EMAIL'),
+                    '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
                 ];
 
                 PendingInvite::create([
@@ -113,9 +113,9 @@ class TriggerEmail
                     '[[organisation_name]]' => $organisation->organisation_name,
                     '[[delegate_first_name]]' => $delegate->first_name,
                     '[[delegate_last_name]]' => $delegate->last_name,
-                    '[[env(AP_NAME)]]' => env('APP_NAME'),
-                    '[[env(INVITE_TIME_HOURS)]]' => env('INVITE_TIME_HOURS'),
-                    '[[env(SUPPORT_EMAIL)]]' => env('SUPPORT_EMAIL'),
+                    '[[env(AP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[env(INVITE_TIME_HOURS)]]' => config('speedi.system.invite_time_hours'),
+                    '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
                     '[[organisations.id]]' => $organisation->id,
                 ];
 
@@ -137,7 +137,7 @@ class TriggerEmail
 
                 $replacements = [
                     '[[custodian.name]]' => $custodian->name,
-                    '[[env(SUPPORT_EMAIL)]]' => env('SUPPORT_EMAIL'),
+                    '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
                 ];
 
                 PendingInvite::create([
@@ -155,7 +155,6 @@ class TriggerEmail
 
                 if (count($custodianUser->userPermissions) > 0) {
                     $permission = Permission::where('id', $custodianUser->userPermissions[0]->permission_id)->first();
-
                     $role_description = "as an $permission->description";
                 }
 
@@ -173,7 +172,7 @@ class TriggerEmail
                     '[[custodian.name]]' => $custodian->name,
                     '[[custodian.id]]' => $custodian->id,
                     '[[role_description]]' => $role_description,
-                    '[[env(SUPPORT_EMAIL)]]' => env('SUPPORT_EMAIL'),
+                    '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
                 ];
 
                 PendingInvite::create([
@@ -194,7 +193,7 @@ class TriggerEmail
 
                 $replacements = [
                     '[[organisation.organisation_name]]' => $organisation->organisation_name,
-                    '[[env(SUPPORT_EMAIL)]]' => env('SUPPORT_EMAIL'),
+                    '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
                 ];
 
                 PendingInvite::create([
@@ -204,10 +203,24 @@ class TriggerEmail
                 ]);
 
                 break;
+            case 'ORGANISATION_INVITE_SIMPLE':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $newRecipients = [
+                    'id' => $to,
+                    'email' => $input['address'],
+                ];
+                $user = User::where('id', $by)->first();
+                $replacements = [
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
+                    '[[USER_FIRST_NAME]]' => $user->first_name,
+                    '[[USER_LAST_NAME]]' => $user->last_name,
+                ];
+                // no break
             default: // Unknown type.
                 break;
         }
 
-        SendEmailJob::dispatch($newRecipients, $template, $replacements);
+        SendEmailJob::dispatch($newRecipients, $template, $replacements, $newRecipients['email']);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use DB;
 use Http;
+use Auth;
 use Exception;
 use RegistryManagementController as RMC;
 use App\Services\DecisionEvaluatorService as DES;
@@ -20,14 +21,13 @@ use App\Models\OrganisationHasSubsidiary;
 use App\Models\Subsidiary;
 use App\Models\User;
 use App\Models\UserHasDepartments;
-use App\Models\RegistryHasAffiliation;
 use App\Models\PendingInvite;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Http\Requests\Organisations\EditOrganisation;
 use TriggerEmail;
 use App\Http\Traits\Responses;
+use App\Models\Affiliation;
 use Illuminate\Support\Facades\Gate;
 
 class OrganisationController extends Controller
@@ -92,14 +92,12 @@ class OrganisationController extends Controller
                 ->with([
                     'departments',
                     'subsidiaries',
-                    'approvals',
                     'permissions',
                     'files',
                     'charities',
                     'registries',
                     'registries.user',
                     'registries.user.permissions',
-                    'registries.user.approvals',
                     'delegates'
                 ])
                 ->filterWhen('has_delegates', function ($query, $hasDelegates) {
@@ -188,7 +186,6 @@ class OrganisationController extends Controller
             'departments',
             'subsidiaries',
             'permissions',
-            'approvals',
             'ceExpiryEvidence',
             'cePlusExpiryEvidence',
             'isoExpiryEvidence',
@@ -197,7 +194,6 @@ class OrganisationController extends Controller
             'registries',
             'registries.user',
             'registries.user.permissions',
-            'registries.user.approvals',
             'sector'
         ])->findOrFail($id);
         if ($organisation) {
@@ -436,7 +432,7 @@ class OrganisationController extends Controller
 
 
             // Run automated IDVT
-            if (!in_array(env('APP_ENV'), ['testing', 'ci'])) {
+            if (!in_array(config('speedi.system.app_env'), ['testing', 'ci'])) {
                 OrganisationIDVT::dispatchSync($organisation);
             }
 
@@ -446,52 +442,86 @@ class OrganisationController extends Controller
         }
     }
 
-    //Hide from swagger
-    public function storeUnclaimed(Request $request): JsonResponse
+    public function inviteOrganisationSimple(Request $request): JsonResponse
     {
-        try {
-            $input = $request->all();
-            $organisation = Organisation::create([
-                'organisation_name' => $input['organisation_name'],
-                'address_1' => '',
-                'address_2' => '',
-                'town' => '',
-                'county' => '',
-                'country' => '',
-                'postcode' => '',
-                'lead_applicant_organisation_name' => '',
-                'lead_applicant_email' => $input['lead_applicant_email'],
-                'organisation_unique_id' => '',
-                'applicant_names' => '',
-                'funders_and_sponsors' => '',
-                'sub_license_arrangements' => '',
-                'verified' => 0,
-                'companies_house_no' => '',
-                'sector_id' => 0,
-                'dsptk_certified' => 0,
-                'dsptk_ods_code' => '',
-                'dsptk_expiry_date' => null,
-                'iso_27001_certified' => 0,
-                'iso_27001_certification_num' => '',
-                'iso_expiry_date' => null,
-                'ce_certified' => 0,
-                'ce_certification_num' => '',
-                'ce_expiry_date' => null,
-                'ce_plus_certified' => 0,
-                'ce_plus_certification_num' => '',
-                'ce_plus_expiry_date' => null,
-                'ror_id' => '',
-                'website' => '',
-                'smb_status' => 0,
-                'organisation_size' => null,
-                'unclaimed' => isset($input['unclaimed']) ? $input['unclaimed'] : 1
-            ]);
+        $input = [
+            'type' => 'ORGANISATION_INVITE_SIMPLE',
+            'to' => -1,
+            'address' => $request->get('lead_applicant_email'),
+            'by' => Auth::user()->id,
+            'identifier' => 'organisation_invite_new',
+        ];
 
-            return $this->CreatedResponse($organisation->id);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
+        TriggerEmail::spawnEmail($input);
+
+        return $this->OKResponse(null);
     }
+
+    //Hide from swagger
+    // public function storeUnclaimed(Request $request): JsonResponse
+    // {
+    //     // We don't need to create a new organisation, nor do we need to create
+    //     // an unclaimed user. Just fire an invite email instead and defer
+    //     // to whatever user the email ends up being sent to within the
+    //     // organisation.
+    //     //
+    //     $input = [
+    //         'type' => 'ORGANISATION_INVITE',
+    //         'to' => -1,
+    //         'address' => $request->get('lead_applicant_email'),
+    //         'by' => Auth::user()->id,
+    //         'identifier' => 'organisation_invite',
+    //     ];
+
+    //     TriggerEmail::dispatch($input);
+
+    //     return $this->OKResponse(null);
+
+    //     // TriggerEmail::dispatch($input);
+
+    //     // try {
+    //     //     $input = $request->all();
+    //     //     $organisation = Organisation::create([
+    //     //         'organisation_name' => $input['organisation_name'],
+    //     //         'address_1' => '',
+    //     //         'address_2' => '',t
+    //     //         'town' => '',
+    //     //         'county' => '',
+    //     //         'country' => '',
+    //     //         'postcode' => '',
+    //     //         'lead_applicant_organisation_name' => '',
+    //     //         'lead_applicant_email' => $input['lead_applicant_email'],
+    //     //         'organisation_unique_id' => '',
+    //     //         'applicant_names' => '',
+    //     //         'funders_and_sponsors' => '',
+    //     //         'sub_license_arrangements' => '',
+    //     //         'verified' => 0,
+    //     //         'companies_house_no' => '',
+    //     //         'sector_id' => 0,
+    //     //         'dsptk_certified' => 0,
+    //     //         'dsptk_ods_code' => '',
+    //     //         'dsptk_expiry_date' => null,
+    //     //         'iso_27001_certified' => 0,
+    //     //         'iso_27001_certification_num' => '',
+    //     //         'iso_expiry_date' => null,
+    //     //         'ce_certified' => 0,
+    //     //         'ce_certification_num' => '',
+    //     //         'ce_expiry_date' => null,
+    //     //         'ce_plus_certified' => 0,
+    //     //         'ce_plus_certification_num' => '',
+    //     //         'ce_plus_expiry_date' => null,
+    //     //         'ror_id' => '',
+    //     //         'website' => '',
+    //     //         'smb_status' => 0,
+    //     //         'organisation_size' => null,
+    //     //         'unclaimed' => isset($input['unclaimed']) ? $input['unclaimed'] : 1
+    //     //     ]);
+
+    //     //     return $this->CreatedResponse($organisation->id);
+    //     // } catch (Exception $e) {
+    //     //     throw new Exception($e->getMessage());
+    //     // }
+    // }
 
 
     /**
@@ -586,107 +616,6 @@ class OrganisationController extends Controller
             throw new Exception($e->getMessage());
         }
     }
-
-    /**
-     * @OA\Patch(
-     *      path="/api/v1/organisations/{id}",
-     *      summary="Edit an organisation's entry",
-     *      description="Edit specific fields of an organisation's entry",
-     *      tags={"organisations"},
-     *      security={{"bearerAuth":{}}},
-     *
-     *      @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="Organisation entry ID",
-     *         required=true,
-     *         example="1",
-     *         @OA\Schema(
-     *            type="integer",
-     *            description="Organisation entry ID",
-     *         ),
-     *      ),
-     *
-     *      @OA\RequestBody(
-     *          required=true,
-     *          description="Fields to update",
-     *          @OA\JsonContent(
-     *              ref="#/components/schemas/Organisation",
-     *              @OA\Property(property="charities", type="array",
-     *                  @OA\Items(
-     *                      @OA\Property(property="id", type="integer", example="1"),
-     *                      @OA\Property(property="registration_id", type="string", example="1186569"),
-     *                      @OA\Property(property="name", type="string", example="Health Pathways UK Charity"),
-     *                      @OA\Property(property="website", type="string", example="https://www.website1.com/"),
-     *                      @OA\Property(property="address_1", type="string", example="3 WATERHOUSE SQUARE"),
-     *                      @OA\Property(property="address_2", type="string", example="138-142 HOLBORN"),
-     *                      @OA\Property(property="town", type="string", example="LONDON"),
-     *                      @OA\Property(property="county", type="string", example="GREATER LONDON"),
-     *                      @OA\Property(property="country", type="string", example="UNITED KINGDOM"),
-     *                      @OA\Property(property="postcode", type="string", example="EC1N 2SW"),
-     *                  ),
-     *             )
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Success",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data", type="object")
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=404,
-     *          description="Not Found",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=500,
-     *          description="Error",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="error")
-     *          ),
-     *      )
-     * )
-     */
-    public function edit(EditOrganisation $request, int $id): JsonResponse
-    {
-        try {
-            $organisation = Organisation::find($id);
-            if (!Gate::allows('update', $organisation)) {
-                return $this->ForbiddenResponse();
-            }
-
-            if (!$organisation) {
-                return $this->NotFoundResponse();
-            }
-
-            $updated = $organisation->update($request->validated());
-
-            if ($updated) {
-
-                if ($request->has('charities')) {
-                    $this->updateOrganisationCharities($id, $request->input('charities'));
-                }
-
-                if ($request->has('subsidiaries')) {
-                    $this->cleanSubsidiaries($id);
-                    foreach ($request->input('subsidiaries') as $subsidiary) {
-                        $this->addSubsidiary($id, $subsidiary);
-                    }
-                }
-                return $this->OKResponse($updated);
-            } else {
-                return $this->ErrorResponse();
-            }
-        } catch (Exception $e) {
-            return $this->ErrorResponse();
-        }
-    }
-
 
     /**
      * @OA\Delete(
@@ -834,14 +763,7 @@ class OrganisationController extends Controller
     {
         $projects = Project::searchViaRequest()
             ->applySorting()
-            ->with(['approvals', 'organisations', 'modelState.state'])
-            ->filterWhen('approved', function ($query, $approved) {
-                if ($approved) {
-                    $query->whereHas('approvals');
-                } else {
-                    $query->whereDoesntHave('approvals');
-                }
-            })
+            ->with(['organisations', 'modelState.state'])
             ->whereHas('organisations', function ($query) use ($organisationId) {
                 $query->where('organisations.id', $organisationId);
             })
@@ -1028,13 +950,7 @@ class OrganisationController extends Controller
     public function countUsers(Request $request, int $id): JsonResponse
     {
         try {
-            $count = RegistryHasAffiliation::whereHas(
-                'affiliation',
-                function ($query) use ($id) {
-                    $query->where('organisation_id', $id);
-                }
-            )->count();
-
+            $count = Affiliation::where('organisation_id', $id)->count();
 
             if ($count && $count > 0) {
                 return response()->json([
@@ -1119,7 +1035,7 @@ class OrganisationController extends Controller
                 'role' => isset($input['role']) ? $input['role'] : null,
             ]);
 
-            if (isset($input['department_id']) && $input['department_id'] !== 0 && $input['department_id'] !== null) {
+            if (isset($input['department_id']) && $input['department_id'] !== 0 && $input['department_id'] != null) {
                 UserHasDepartments::create([
                     'user_id' => $unclaimedUser->id,
                     'department_id' => $request['department_id'],
@@ -1318,7 +1234,7 @@ class OrganisationController extends Controller
 
     public function validateRor(Request $request, string $ror): JsonResponse
     {
-        $response = Http::get(env('ROR_API_URL') . '/' . $ror);
+        $response = Http::get(config('speedi.system.ror_api_url') . '/' . $ror);
         if ($response->status() === 200) {
             $payload = $response->json();
             $response->close();

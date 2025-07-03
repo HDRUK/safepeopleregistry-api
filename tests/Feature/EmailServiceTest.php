@@ -49,7 +49,7 @@ class EmailServiceTest extends TestCase
 
         Bus::assertNothingDispatched();
 
-        SendEmailJob::dispatch($to, $template, $replacements);
+        SendEmailJob::dispatch($to, $template, $replacements, null);
 
         Bus::assertDispatched(SendEmailJob::class);
     }

@@ -2,20 +2,43 @@
 
 namespace App\Models;
 
-use App\Observers\ProjectHasUserObserver;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
-#[ObservedBy([ProjectHasUserObserver::class])]
+/**
+ * @OA\Schema(
+ *     schema="ProjectHasUser",
+ *     type="object",
+ *     @OA\Property(property="project", ref="#/components/schemas/Project"),
+ *     @OA\Property(property="role", ref="#/components/schemas/ProjectRole"),
+ *     @OA\Property(property="affiliation", ref="#/components/schemas/Affiliation")
+ * )
+ *
+ * @property int $project_id
+ * @property string $user_digital_ident
+ * @property int|null $project_role_id
+ * @property int $primary_contact
+ * @property int|null $affiliation_id
+ * @property-read \App\Models\Affiliation|null $affiliation
+ * @property-read \App\Models\Project|null $project
+ * @property-read \App\Models\Registry|null $registry
+ * @property-read \App\Models\ProjectRole|null $role
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUser newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUser newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUser query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUser whereAffiliationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUser wherePrimaryContact($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUser whereProjectId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUser whereProjectRoleId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProjectHasUser whereUserDigitalIdent($value)
+ * @mixin \Eloquent
+ */
 class ProjectHasUser extends Model
 {
     use HasFactory;
 
-    public $incrementing = false;
-    //protected $primaryKey = null;
+    public $incrementing = true;
 
     protected $table = 'project_has_users';
 
@@ -51,35 +74,35 @@ class ProjectHasUser extends Model
         ];
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\ProjectRole>
+     */
     public function role(): BelongsTo
     {
         return $this->belongsTo(ProjectRole::class, 'project_role_id', 'id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Registry>
+     */
     public function registry(): BelongsTo
     {
         return $this->belongsTo(Registry::class, 'user_digital_ident', 'digi_ident');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Project>
+     */
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class, 'project_id', 'id');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Affiliation>
+     */
     public function affiliation(): BelongsTo
     {
         return $this->belongsTo(Affiliation::class, 'affiliation_id', 'id');
-    }
-
-    public function approvals(): HasManyThrough
-    {
-        return $this->hasManyThrough(
-            ProjectHasCustodian::class,
-            Project::class,
-            'id',
-            'id',
-            'project_id',
-            'project_id'
-        )->where('approved', true);
     }
 }

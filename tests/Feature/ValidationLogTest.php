@@ -28,6 +28,8 @@ class ValidationLogTest extends TestCase
     protected $custodian;
     protected $project;
 
+    protected bool $shouldFakeQueue = false;
+
     public function setUp(): void
     {
         parent::setUp();
@@ -55,6 +57,7 @@ class ValidationLogTest extends TestCase
         ProjectHasUser::create([
             'project_id' => $this->project->id,
             'user_digital_ident' => $this->user->registry->digi_ident,
+            'project_role_id' => 1
         ]);
 
         $this->assertDatabaseEmpty('validation_logs');
@@ -627,13 +630,9 @@ class ValidationLogTest extends TestCase
         $newCustodian->validationChecks()
             ->syncWithoutDetaching(ValidationCheck::pluck('id')->all());
 
-        $newOrganisation = Organisation::factory()->create();
-
+        Organisation::factory()->create();
 
         $expectedLogCount = count($defaultChecks) * Custodian::count() * Organisation::count();
-        $temp = ValidationLog::where('entity_type', Custodian::class)
-            ->where('secondary_entity_type', Organisation::class)
-            ->count();
 
         $this->assertEquals(
             $expectedLogCount,
@@ -650,16 +649,13 @@ class ValidationLogTest extends TestCase
 
         $expectedLogCount = count($defaultChecks) * Custodian::count() * Organisation::count();
 
-        $temp = ValidationLog::where('entity_type', Custodian::class)
+        $actualCount = ValidationLog::where('entity_type', Custodian::class)
             ->where('secondary_entity_type', Organisation::class)
             ->count();
 
-
         $this->assertEquals(
             $expectedLogCount,
-            ValidationLog::where('entity_type', Custodian::class)
-                ->where('secondary_entity_type', Organisation::class)
-                ->count()
+            $actualCount
         );
 
         // Add a second organisation
@@ -681,6 +677,7 @@ class ValidationLogTest extends TestCase
         ProjectHasUser::create([
             'project_id' => $this->project->id,
             'user_digital_ident' => $this->user->registry->digi_ident,
+            'project_role_id' => 1
         ]);
         ProjectHasCustodian::create([
             'project_id' => $this->project->id,

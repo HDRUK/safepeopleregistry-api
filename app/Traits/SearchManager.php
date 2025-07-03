@@ -10,11 +10,16 @@ namespace App\Traits;
  * the incoming request (from query string) parameters
  * and search for them against the db record
  */
+/**
+ * Trait SearchManager
+ *
+ * @method static Builder searchViaRequest(array|null $input = null)
+ */
 trait SearchManager
 {
-    public function scopeSearchViaRequest($query): mixed
+    public function scopeSearchViaRequest($query, ?array $input = null): mixed
     {
-        $input = \request()->all();
+        $input = $input ?? request()->all();
 
         $orGroups = [];
         $andGroups = [];
@@ -55,8 +60,12 @@ trait SearchManager
             if (!empty($orGroups)) {
                 $outerQuery->where(function ($q) use ($orGroups) {
                     foreach ($orGroups as $field => $terms) {
-                        foreach ($terms as $term) {
-                            $q->orWhere($field, 'LIKE', '%' . $term . '%');
+                        if (is_array($terms)) { // Singular term was causing a 500.
+                            foreach ($terms as $term) {
+                                $q->orWhere($field, 'LIKE', '%' . $term . '%');
+                            }
+                        } else {
+                            $q->orWhere($field, 'LIKE', '%' . $terms . '%');
                         }
                     }
                 });

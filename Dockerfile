@@ -45,9 +45,9 @@ RUN curl https://frankenphp.dev/install.sh | sh \
     && mv frankenphp /usr/local/bin/frankenphp \
     && chmod +x /usr/local/bin/frankenphp
 
-
 # Composer & laravel
 RUN composer install \
+    && php artisan octane:install \
     && php artisan storage:link \
     && php artisan optimize:clear \
     && php artisan optimize \

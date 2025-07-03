@@ -22,13 +22,10 @@ class EndorsementController extends Controller
      *      tags={"Endorsement"},
      *      summary="Endorsement@index",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -36,18 +33,15 @@ class EndorsementController extends Controller
      *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
      *                  @OA\Property(property="reported_by", type="integer", example="1"),
      *                  @OA\Property(property="comment", type="string", example="Endorsement given"),
-     *                  @OA\Property(property="raised_against", type="integer", example="12"),
+     *                  @OA\Property(property="raised_against", type="integer", example="12")
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
-     *              @OA\Property(property="message", type="string", example="not found"),
+     *              @OA\Property(property="message", type="string", example="not found")
      *          )
      *      )
      * )

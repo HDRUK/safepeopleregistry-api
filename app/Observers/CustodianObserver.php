@@ -4,6 +4,8 @@ namespace App\Observers;
 
 use App\Models\DecisionModel;
 use App\Models\Custodian;
+use App\Models\CustodianHasOrganisation;
+use App\Models\Organisation;
 use App\Models\CustodianModelConfig;
 use App\Models\ActionLog;
 use App\Traits\ValidationManager;
@@ -33,6 +35,16 @@ class CustodianObserver
                 'completed_at' => null,
             ]);
         }
+
+        /*
+        $organisationIds = Organisation::pluck('id');
+        foreach ($organisationIds as $organisationId) {
+            CustodianHasOrganisation::create([
+                'custodian_id' => $custodian->id,
+                'organisation_id' =>  $organisationId
+            ]);
+        }
+        */
 
         $this->updateAllCustodianOrganisationValidation(
             $custodian->id,

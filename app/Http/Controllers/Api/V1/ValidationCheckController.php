@@ -238,6 +238,8 @@ class ValidationCheckController extends Controller
             if (!$custodian) {
                 return $this->NotFoundResponse();
             }
+            // LS - For some reason PHPStan does not recognise the searchViaRequest method.
+            /** @phpstan-ignore-next-line */
             $checks = $custodian->validationChecks()
                 ->searchViaRequest()
                 ->get();
@@ -265,7 +267,7 @@ class ValidationCheckController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"name", "type"}, 
+     *             required={"name", "type"},
      *             @OA\Property(property="name", type="string", example="Check format"),
      *             @OA\Property(property="type", type="string", example="format"),
      *             @OA\Property(property="description", type="string", example="Ensures proper formatting of input")

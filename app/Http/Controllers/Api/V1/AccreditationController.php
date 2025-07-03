@@ -11,10 +11,43 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Traits\CommonFunctions;
 
+/**
+ * @OA\Tag(
+ *     name="Accreditation",
+ *     description="API endpoints for managing accreditations"
+ * )
+ */
 class AccreditationController extends Controller
 {
     use CommonFunctions;
 
+    /**
+     * @OA\Get(
+     *     path="/api/v1/registries/{registryId}/accreditations",
+     *     tags={"Accreditation"},
+     *     summary="Get accreditations by registry ID",
+     *     @OA\Parameter(
+     *         name="registryId",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the registry",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Success",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="success"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/Accreditation")
+     *             )
+     *         )
+     *     )
+     * )
+     */
     public function indexByRegistryId(Request $request, int $registryId): JsonResponse
     {
         $rha = RegistryHasAccreditation::where('registry_id', $registryId)
@@ -30,6 +63,33 @@ class AccreditationController extends Controller
         ], 200);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/registries/{registryId}/accreditations",
+     *     tags={"Accreditation"},
+     *     summary="Create accreditation for a registry",
+     *     @OA\Parameter(
+     *         name="registryId",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the registry",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/Accreditation")
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Created",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="success"),
+     *             @OA\Property(property="data", type="integer", example=1)
+     *         )
+     *     )
+     * )
+     */
     public function storeByRegistryId(Request $request, int $registryId): JsonResponse
     {
         try {
@@ -59,6 +119,40 @@ class AccreditationController extends Controller
         }
     }
 
+    /**
+     * @OA\Put(
+     *     path="/api/v1/registries/{registryId}/accreditations/{id}",
+     *     tags={"Accreditation"},
+     *     summary="Update accreditation for a registry",
+     *     @OA\Parameter(
+     *         name="registryId",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the registry",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the accreditation",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/Accreditation")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Updated",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="success"),
+     *             @OA\Property(property="data", ref="#/components/schemas/Accreditation")
+     *         )
+     *     )
+     * )
+     */
     public function updateByRegistryId(Request $request, int $id, int $registryId): JsonResponse
     {
         try {
@@ -84,36 +178,9 @@ class AccreditationController extends Controller
         }
     }
 
-    public function editByRegistryId(Request $request, int $id, int $registryId): JsonResponse
-    {
-        try {
-            $input = $request->all();
-            $accreditation = Accreditation::where('id', $id)->first();
-
-            $accreditation->awarded_at = isset($input['awarded_at']) ?
-                Carbon::parse($input['awarded_at'])->toDateString() : $accreditation->awarded_at;
-            $accreditation->awarding_body_name = isset($input['awarding_body_name']) ?
-                $input['awarding_body_name'] : $accreditation->awarding_body_name;
-            $accreditation->awarding_body_ror = isset($input['awarding_body_ror']) ?
-                $input['awarding_body_ror'] : $accreditation->awarding_body_ror;
-            $accreditation->title = isset($input['title']) ?
-                $input['title'] : $accreditation->title;
-            $accreditation->expires_at = isset($input['expires_at']) ?
-                Carbon::parse($input['expires_at'])->toDateString() : $accreditation->expires_at;
-            $accreditation->awarded_locale = isset($input['awarded_locale']) ?
-                $input['awarded_locale'] : $accreditation->awarded_locale;
-
-            $accreditation->save();
-
-            return response()->json([
-                'message' => 'success',
-                'data' => $accreditation,
-            ], 200);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
-    }
-
+    /**
+     * Hidden from Swagger documentation
+     */
     public function destroyByRegistryId(Request $request, int $id, int $registryId): JsonResponse
     {
         try {

@@ -2,12 +2,14 @@
 
 namespace Tests;
 
+use Closure;
 use Keycloak;
 use App\Models\User;
 use Tests\Traits\RefreshDatabaseLite;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Support\Facades\Queue;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -18,6 +20,8 @@ abstract class TestCase extends BaseTestCase
     protected $custodian_admin = null;
     protected $organisation_admin = null;
     protected $organisation_delegate = null;
+
+    protected bool $shouldFakeQueue = true;
 
     protected function setUp(): void
     {
@@ -31,6 +35,10 @@ abstract class TestCase extends BaseTestCase
 
         Keycloak::shouldReceive('determineUserGroup')
             ->andReturn('USERS');
+
+        if ($this->shouldFakeQueue) {
+            Queue::fake();
+        }
     }
 
     protected function withUsers(): void
@@ -65,5 +73,16 @@ abstract class TestCase extends BaseTestCase
     protected function enableObservers()
     {
         Model::setEventDispatcher(app('events'));
+    }
+
+    protected function withTemporaryObservers(Closure $callback)
+    {
+        $this->enableObservers();
+
+        try {
+            return $callback();
+        } finally {
+            $this->disableObservers();
+        }
     }
 }

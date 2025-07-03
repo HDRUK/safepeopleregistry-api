@@ -3,9 +3,6 @@
 namespace App\Models;
 
 use DB;
-use App\Observers\UserObserver;
-use Illuminate\Database\Eloquent\Attributes\ObservedBy;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -18,16 +15,11 @@ use App\Traits\SearchManager;
 use App\Traits\ActionManager;
 use App\Traits\StateWorkflow;
 use App\Traits\FilterManager;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 /**
- * App\Models\User
- *
- * @property \Illuminate\Database\Eloquent\Collection|\Illuminate\Notifications\DatabaseNotification[] $unreadNotifications
- * @method \Illuminate\Notifications\DatabaseNotification[] unreadNotifications()
- */
-/**
- * @OA\Components(
- * @OA\Schema(
+ * @OA\Schema (
  *      schema="User",
  *      title="User",
  *      description="User model",
@@ -110,11 +102,18 @@ use App\Traits\FilterManager;
  *          property="t_and_c_agreement_date",
  *          type="string",
  *          example="2024-02-04 12:00:00"
- *     )
+ *      )
  * )
- * )
+ *
+ * @property \Illuminate\Database\Eloquent\Collection|\Illuminate\Notifications\DatabaseNotification[] $unreadNotifications
+ * @property-read \App\Models\ModelState|null $modelState
+ * @method \Illuminate\Notifications\DatabaseNotification[] unreadNotifications()
+ * @property-read string $status
+ * @property-read mixed $evaluation
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User searchViaRequest(array|null $input = null)
+ *
+ * @mixin \Eloquent
  */
-#[ObservedBy([UserObserver::class])]
 class User extends Authenticatable
 {
     use HasFactory;
@@ -123,6 +122,7 @@ class User extends Authenticatable
     use ActionManager;
     use StateWorkflow;
     use FilterManager;
+    use LogsActivity;
 
     public const GROUP_USERS = 'USERS';
     public const GROUP_ORGANISATIONS = 'ORGANISATIONS';
@@ -139,8 +139,6 @@ class User extends Authenticatable
 
     /**
      * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
      */
     protected $fillable = [
         'first_name',
@@ -171,6 +169,15 @@ class User extends Authenticatable
         'is_sro',
     ];
 
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly($this->fillable)
+            ->logOnlyDirty()
+            ->useLogName('user')
+            ->dontSubmitEmptyLogs();
+    }
+
     protected static array $searchableColumns = [
         'name',
         'first_name',
@@ -199,8 +206,6 @@ class User extends Authenticatable
 
     /**
      * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
      */
     protected $hidden = [
         'provider',
@@ -211,8 +216,6 @@ class User extends Authenticatable
 
     /**
      * The attributes that should be cast.
-     *
-     * @var array<string, string>
      */
     protected $casts = [
         'consent_scrape' => 'boolean',
@@ -224,13 +227,14 @@ class User extends Authenticatable
 
     protected $appends = ['status', 'evaluation'];
 
-    public function status(): Attribute
+    public function getStatusAttribute(): string
     {
-        return new Attribute(
-            get: fn () => $this->unclaimed === 1 ? self::STATUS_INVITED : self::STATUS_REGISTERED
-        );
+        return $this->unclaimed === 1 ? self::STATUS_INVITED : self::STATUS_REGISTERED;
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Permission, \App\Models\User>
+     */
     public function permissions(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -239,14 +243,9 @@ class User extends Authenticatable
         );
     }
 
-    public function approvals(): BelongsToMany
-    {
-        return $this->belongsToMany(
-            Custodian::class,
-            'user_has_custodian_approvals',
-        );
-    }
-
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Registry, \App\Models\User>
+     */
     public function registry(): BelongsTo
     {
         return $this->belongsTo(
@@ -254,11 +253,19 @@ class User extends Authenticatable
         );
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\PendingInvite, \App\Models\User>
+     */
     public function pendingInvites(): HasMany
     {
         return $this->hasMany(PendingInvite::class);
     }
 
+    /**
+     * Get the organisation related to the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Organisation, \App\Models\User>
+     */
     public function organisation(): BelongsTo
     {
         return $this->belongsTo(
@@ -266,6 +273,11 @@ class User extends Authenticatable
         );
     }
 
+    /**
+     * Get the custodian related to the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Custodian, \App\Models\User>
+     */
     public function custodian(): BelongsTo
     {
         return $this->belongsTo(
@@ -273,6 +285,11 @@ class User extends Authenticatable
         );
     }
 
+    /**
+     * Get the custodian user related to the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\CustodianUser, \App\Models\User>
+     */
     public function custodian_user(): BelongsTo
     {
         return $this->belongsTo(
@@ -280,6 +297,11 @@ class User extends Authenticatable
         );
     }
 
+    /**
+     * Get the organisation related to the affiliation.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Department, \App\Models\User>
+     */
     public function departments(): BelongsToMany
     {
         return $this->belongsToMany(
@@ -312,9 +334,11 @@ class User extends Authenticatable
 
         $records = collect($results)->toArray();
         if (count($records)) {
+            unset($results);
             return $records[0];
         }
 
+        unset($results);
         return null;
     }
 

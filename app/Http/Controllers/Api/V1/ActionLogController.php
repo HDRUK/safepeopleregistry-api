@@ -11,6 +11,9 @@ use App\Models\Custodian;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Traits\Responses;
+use Illuminate\Support\Facades\Auth;
+
+use function activity;
 
 class ActionLogController extends Controller
 {
@@ -29,7 +32,6 @@ class ActionLogController extends Controller
      *         description="The entity type (e.g., users, organisations)",
      *         @OA\Schema(type="string")
      *     ),
-     *
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -37,7 +39,6 @@ class ActionLogController extends Controller
      *         description="The ID of the entity",
      *         @OA\Schema(type="integer")
      *     ),
-     *
      *     @OA\Response(
      *         response=200,
      *         description="Successful response with action logs",
@@ -50,7 +51,6 @@ class ActionLogController extends Controller
      *             )
      *         )
      *     ),
-     *
      *     @OA\Response(
      *         response=404,
      *         description="No action logs found for this entity",
@@ -62,7 +62,6 @@ class ActionLogController extends Controller
      *             )
      *         )
      *     ),
-     *
      *     @OA\Response(
      *         response=400,
      *         description="Invalid entity type",
@@ -163,6 +162,12 @@ class ActionLogController extends Controller
 
         if ($request->has('complete')) {
             $log->completed_at = Carbon::now();
+            activity()
+                ->causedBy(Auth::user())
+                ->performedOn($log)
+                ->event('action_log_completed')
+                ->useLog('action_log')
+                ->log($log->action);
         } elseif ($request->has('incomplete')) {
             $log->completed_at = null;
         }

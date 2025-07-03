@@ -103,7 +103,6 @@ class OrganisationObserver
         );
 
         $this->manageAffiliationStates($organisation);
-
     }
 
     /**
@@ -134,12 +133,12 @@ class OrganisationObserver
     {
         if ($organisation->isDirty($fields)) {
             $isProfileComplete = collect($fields)
-            ->every(function ($field) use ($organisation) {
-                if ($this->isDateField($field)) {
-                    return $this->isDateValid($organisation->$field);
-                }
-                return !empty($organisation->$field);
-            });
+                ->every(function ($field) use ($organisation) {
+                    if ($this->isDateField($field)) {
+                        return $this->isDateValid($organisation->$field);
+                    }
+                    return !empty($organisation->$field);
+                });
 
             ActionLog::updateOrCreate(
                 [
@@ -158,15 +157,11 @@ class OrganisationObserver
             $unclaimed = $organisation->unclaimed;
             $state = $unclaimed ? State::STATE_AFFILIATION_INVITED : State::STATE_AFFILIATION_PENDING;
             $affiliations = Affiliation::where("organisation_id", $organisation->id)
-                            ->with("registryHasAffiliations")
-                            ->get();
+                ->get();
 
             foreach ($affiliations as $affiliation) {
-                foreach ($affiliation->registryHasAffiliations as $rha) {
-                    $rha->setState($state);
-                }
+                $affiliation->setState($state);
             }
-
         }
     }
 
@@ -191,5 +186,4 @@ class OrganisationObserver
         $expiryDate = Carbon::parse($date);
         return $expiryDate->isFuture();
     }
-
 }

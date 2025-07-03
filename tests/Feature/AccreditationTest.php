@@ -63,35 +63,6 @@ class AccreditationTest extends TestCase
         $this->assertNotNull($content['data']);
     }
 
-    public function test_the_application_can_edit_accreditations_by_registry_id(): void
-    {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-            ->json(
-                'POST',
-                self::TEST_URL . '/' . $this->registry->id,
-                $this->prepareAccreditationPayload()
-            );
-
-        $content = $response->decodeResponseJson();
-
-        $response->assertStatus(201);
-        $this->assertEquals($content['message'], 'success');
-
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-            ->json(
-                'PATCH',
-                self::TEST_URL . '/' . $content['data'] . '/' . $this->registry->id,
-                $this->prepareEditedAccreditationPayload()
-            );
-
-        $content = $response->decodeResponseJson();
-
-        $response->assertStatus(200);
-
-        $this->assertEquals($content['data']['title'], 'Safe Researcher Training - The Sequel!');
-        $this->assertEquals($content['data']['awarded_locale'], 'GB');
-    }
-
     public function test_the_application_can_update_accreditations_by_registry_id(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())

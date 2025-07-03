@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\V1;
 use Exception;
 use App\Models\Affiliation;
 use App\Models\State;
-use App\Models\RegistryHasAffiliation;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -57,12 +56,9 @@ class AffiliationController extends Controller
      */
     public function indexByRegistryId(Request $request, int $registryId): JsonResponse
     {
-        $rha = RegistryHasAffiliation::where('registry_id', $registryId)
-            ->get()
-            ->select('affiliation_id');
-
         $affiliations = Affiliation::with(
             [
+                'modelState.state',
                 'organisation' => function ($query) {
                     $query->select(
                         'id',
@@ -73,13 +69,9 @@ class AffiliationController extends Controller
                 },
             ]
         )
-        ->whereHas(
-            'registryHasAffiliations',
-            function ($query) use ($registryId) {
-                $query->where('registry_id', $registryId);
-            }
-        )
-        ->paginate((int) $this->getSystemConfig('PER_PAGE'));
+            ->where(['registry_id' => $registryId])
+            ->paginate((int) $this->getSystemConfig('PER_PAGE'));
+
 
         return response()->json([
             'message' => 'success',
@@ -142,8 +134,7 @@ class AffiliationController extends Controller
     public function storeByRegistryId(Request $request, int $registryId): JsonResponse
     {
         try {
-            $input = $request->all();
-
+            $input = $request->only(app(Affiliation::class)->getFillable());
             $affiliation = Affiliation::create([
                 'organisation_id' => $input['organisation_id'],
                 'member_id' => $request['member_id'],
@@ -155,11 +146,6 @@ class AffiliationController extends Controller
                 'email' => $input['email'],
                 'ror' => $input['ror'],
                 'registry_id' => $registryId,
-            ]);
-
-            RegistryHasAffiliation::create([
-                'registry_id' => $registryId,
-                'affiliation_id' => $affiliation->id,
             ]);
 
             return response()->json([
@@ -235,77 +221,6 @@ class AffiliationController extends Controller
                 'message' => 'success',
                 'data' => $affiliation,
             ], 200);
-
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
-    }
-
-    /**
-     * @OA\Patch(
-     *      path="/api/v1/affiliations/{id}",
-     *      summary="Edit an Affiliation entry",
-     *      description="Edit an Affiliation entry",
-     *      tags={"Affiliations"},
-     *      summary="Affiliations@edit",
-     *      security={{"bearerAuth":{}}},
-     *      @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="Affiliation entry ID",
-     *         required=true,
-     *         example="1",
-     *         @OA\Schema(
-     *            type="integer",
-     *            description="Affiliation entry ID",
-     *         ),
-     *      ),
-     *      @OA\RequestBody(
-     *          required=true,
-     *          description="Affiliation definition",
-     *          @OA\JsonContent(
-     *              ref="#/components/schemas/Affiliation"
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Success",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data",
-     *                  ref="#/components/schemas/Affiliation"
-     *              )
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=500,
-     *          description="Error",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="error")
-     *          )
-     *      )
-     * )
-     */
-    public function edit(Request $request, int $id): JsonResponse
-    {
-        try {
-
-            $affiliation = Affiliation::where('id', $id)->first();
-
-            $input = $request->only(app(Affiliation::class)->getFillable());
-            $affiliation->update($input);
-
-            return response()->json([
-                'message' => 'success',
-                'data' => $affiliation,
-            ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -358,11 +273,6 @@ class AffiliationController extends Controller
         try {
             Affiliation::where('id', $id)->first()->delete();
 
-            RegistryHasAffiliation::where(
-                'affiliation_id',
-                $id
-            )->delete();
-
             return response()->json([
                 'message' => 'success',
                 'data' => null,
@@ -382,13 +292,13 @@ class AffiliationController extends Controller
 
             $status = strtolower($validated['status']);
 
-            $rha = RegistryHasAffiliation::where(
+            $affiliation = Affiliation::where(
                 [
                     'registry_id' => $registryId,
-                    'affiliation_id' => $affiliationId
-                    ]
+                    'id' => $affiliationId
+                ]
             )->first();
-            if (!$rha) {
+            if (!$affiliation) {
                 return $this->NotFoundResponse();
             }
 
@@ -403,21 +313,19 @@ class AffiliationController extends Controller
 
             $newStateSlug = $statusSlugMap[$status];
 
-            if (!$rha->canTransitionTo($newStateSlug)) {
+            if (!$affiliation->canTransitionTo($newStateSlug)) {
                 return $this->ErrorResponse(
                     'Invalid state transition. ' .
-                    $rha->getState() .
-                    ' => ' . $newStateSlug
+                        $affiliation->getState() .
+                        ' => ' . $newStateSlug
                 );
             }
 
-            $rha->transitionTo($newStateSlug);
+            $affiliation->transitionTo($newStateSlug);
 
-            return $this->OKResponse($rha->getState());
+            return $this->OKResponse($affiliation->getState());
         } catch (Exception $e) {
             return $this->ErrorResponse($e->getMessage());
         }
     }
-
-
 }

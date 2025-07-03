@@ -2,19 +2,20 @@
 
 namespace Tests\Unit;
 
+use App\Models\Affiliation;
 use App\Models\User;
 use App\Models\State;
 use App\Models\Project;
 use App\Models\Organisation;
-use App\Models\Affiliation;
-use App\Models\RegistryHasAffiliation;
 use Tests\TestCase;
+use Illuminate\Support\Facades\Config;
 
 class StateWorkflowTest extends TestCase
 {
     public function setUp(): void
     {
         parent::setUp();
+        Config::set('workflow.transitions.enforced', true);
     }
 
     public function test_the_application_can_track_user_state(): void
@@ -121,50 +122,21 @@ class StateWorkflowTest extends TestCase
 
     public function test_the_application_can_track_affiliation_state(): void
     {
-        $rha = RegistryHasAffiliation::where('id', 1)->first();
-        $registryId = $rha->registry_id;
+        $affiliation = Affiliation::where('id', 1)->first();
 
-        $this->assertTrue($rha->getState() === State::STATE_AFFILIATION_PENDING);
-        $this->assertTrue($rha->canTransitionTo(State::STATE_AFFILIATION_APPROVED) === true);
-        $this->assertTrue($rha->canTransitionTo(State::STATE_AFFILIATION_REJECTED) === true);
+        $this->assertTrue($affiliation->getState() === State::STATE_AFFILIATION_PENDING);
+        $this->assertTrue($affiliation->canTransitionTo(State::STATE_AFFILIATION_APPROVED) === true);
+        $this->assertTrue($affiliation->canTransitionTo(State::STATE_AFFILIATION_REJECTED) === true);
 
-        $rha->transitionTo(State::STATE_AFFILIATION_APPROVED);
+        $affiliation->transitionTo(State::STATE_AFFILIATION_APPROVED);
 
         $this->assertDatabaseHas('model_states', [
             'state_id' => State::where('slug', State::STATE_AFFILIATION_APPROVED)->first()->id,
-            'stateable_id' => $rha->id,
+            'stateable_id' => $affiliation->id,
         ]);
 
-        $this->assertTrue($rha->canTransitionTo(State::STATE_AFFILIATION_APPROVED) === false);
-        $this->assertTrue($rha->canTransitionTo(State::STATE_AFFILIATION_PENDING) === false);
-        $this->assertTrue($rha->canTransitionTo(State::STATE_AFFILIATION_REJECTED) === true);
-
-
-        /*
-
-        - This test is working locally but failing on the CI
-        - For some unexplained reason, on the GitHub CI RegistryHasAffiliation::create(..)
-          is not triggereing the observer which is setting the state...
-        - On the CI $aff->getState() is null
-        - Locally it is not...
-
-
-        $org = Organisation::factory()->create(["unclaimed" => 1]);
-        $aff = Affiliation::factory()->create(['organisation_id' => $org->id]);
-        $rha = RegistryHasAffiliation::create([
-            'registry_id' => $registryId, 'affiliation_id' => $aff->id
-        ]);
-
-
-        $this->assertTrue($rha->getState() === State::STATE_AFFILIATION_INVITED);
-        $this->assertTrue($rha->canTransitionTo(State::STATE_AFFILIATION_PENDING) === true);
-        $this->assertTrue($rha->canTransitionTo(State::STATE_AFFILIATION_APPROVED) === false);
-        $this->assertTrue($rha->canTransitionTo(State::STATE_AFFILIATION_REJECTED) === false);
-
-        $org->update(["unclaimed" => 0]);
-        $rha->refresh();
-        $this->assertTrue($rha->getState() === State::STATE_AFFILIATION_PENDING);
-        */
-
+        $this->assertTrue($affiliation->canTransitionTo(State::STATE_AFFILIATION_APPROVED) === false);
+        $this->assertTrue($affiliation->canTransitionTo(State::STATE_AFFILIATION_PENDING) === false);
+        $this->assertTrue($affiliation->canTransitionTo(State::STATE_AFFILIATION_REJECTED) === true);
     }
 }

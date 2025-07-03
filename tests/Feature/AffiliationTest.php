@@ -25,10 +25,10 @@ class AffiliationTest extends TestCase
     public function test_the_application_can_show_affiliations_by_registry_id(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'GET',
-            self::TEST_URL . '/1'
-        );
+            ->json(
+                'GET',
+                self::TEST_URL . '/1'
+            );
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
@@ -62,38 +62,19 @@ class AffiliationTest extends TestCase
     public function test_the_application_can_update_an_affiliation(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'PUT',
-            self::TEST_URL . '/1',
-            [
-                'member_id' => 'A1234567',
-                'organisation_id' => 1,
-                'current_employer' => 1,
-                'relationship' => 'employee'
-            ]
-        );
+            ->json(
+                'PUT',
+                self::TEST_URL . '/1',
+                [
+                    'member_id' => 'A1234567',
+                    'organisation_id' => 1,
+                    'current_employer' => 1,
+                    'relationship' => 'employee'
+                ]
+            );
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
-    }
-
-    public function test_the_application_can_edit_an_affiliation(): void
-    {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'PATCH',
-            self::TEST_URL . '/1',
-            [
-                'member_id' => 'A1234567',
-            ]
-        );
-
-        $response->assertStatus(200);
-        $this->assertArrayHasKey('data', $response);
-
-        $content = $response->decodeResponseJson()['data'];
-
-        $this->assertEquals($content['member_id'], 'A1234567');
     }
 
     public function test_the_application_can_delete_an_affiliation(): void
@@ -124,26 +105,25 @@ class AffiliationTest extends TestCase
         $response->assertStatus(200);
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'PUT',
-            self::TEST_URL . '/1/affiliation/1?status=rejected'
-        );
+            ->json(
+                'PUT',
+                self::TEST_URL . '/1/affiliation/1?status=rejected'
+            );
         $response->assertStatus(200);
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'PUT',
-            self::TEST_URL . '/1/affiliation/1?status=rejected'
-        );
-        $response->assertStatus(500);
+            ->json(
+                'PUT',
+                self::TEST_URL . '/1/affiliation/1?status=rejected'
+            );
+        $response->assertStatus(config('workflow.transitions.enforced') ? 500 : 200);
 
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-        ->json(
-            'PUT',
-            self::TEST_URL . '/1/affiliation/999?status=rejected'
-        );
+            ->json(
+                'PUT',
+                self::TEST_URL . '/1/affiliation/999?status=rejected'
+            );
         $response->assertStatus(404);
-
     }
 }

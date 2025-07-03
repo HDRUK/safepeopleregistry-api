@@ -10,6 +10,7 @@ use App\Models\CustodianHasValidationCheck;
 use App\Models\Project;
 use App\Models\ProjectHasCustodian;
 use App\Models\ProjectHasUser;
+use App\Models\CustodianHasProjectUser;
 use App\Models\Registry;
 use App\Models\Organisation;
 
@@ -25,6 +26,7 @@ trait ValidationManager
         ?string $userDigitalIdent = null,
         ?int $custodianId = null
     ): void {
+
         $phus = ProjectHasUser::where('project_id', $projectId)
             ->when($userDigitalIdent, function ($query, $userDigitalIdent) {
                 return $query->where('user_digital_ident', $userDigitalIdent);
@@ -41,6 +43,14 @@ trait ValidationManager
             $registry = $phu->registry;
             foreach ($phcs as $phc) {
                 $custodian = $phc->custodian;
+
+                CustodianHasProjectUser::firstOrCreate(
+                    [
+                        'project_has_user_id' => $phu->id,
+                        'custodian_id' => $custodian->id,
+                    ]
+                );
+
                 $vchecks = CustodianHasValidationCheck::with("validationCheck")
                     ->where([
                         'custodian_id' => $custodian->id
@@ -82,6 +92,7 @@ trait ValidationManager
             );
         }
 
+        //soft delete candidate
         ValidationLog::where('secondary_entity_id', $projectId)
             ->when($userDigitalIdent, function ($query, $udi) {
                 $registry = Registry::where('digi_ident', $udi)->first();
@@ -144,7 +155,6 @@ trait ValidationManager
     public function updateAllCustodianProjectUserValidation(
         int $custodianId
     ): void {
-
         $projectIds = ProjectHasCustodian::pluck('project_id');
         foreach ($projectIds as $projectId) {
             $this->updateCustodianProjectUserValidation($projectId, null, $custodianId);

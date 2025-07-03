@@ -12,7 +12,7 @@ class Gateway
     public function getDataUsesByProjectID(int $custodianId, int $projectId): array
     {
         try {
-            $durUrl = env('GATEWAY_API_URL') . '/dur?project_id=';
+            $durUrl = config('speedi.system.gateway_api_url') . '/dur?project_id=';
 
             $custodian = Custodian::where('id', $custodianId)->first();
             $project = Project::where('id', $projectId)->first();
