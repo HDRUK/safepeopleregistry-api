@@ -1,3 +1,48 @@
+## [1.6.0](https://github.com/HDRUK/soursd-api/compare/v1.5.1...v1.6.0) (2025-07-03)
+
+### ✨ Features
+
+* **SOURSD-1007:** add string when registering new organisation (#323) ([9d77061](https://github.com/HDRUK/soursd-api/commit/9d770614e69b3ee92b7f42529ded2bb99f16b3eb))
+* **SOURSD-1018:** Stop notifications firing twice (#324) ([9020c10](https://github.com/HDRUK/soursd-api/commit/9020c1033897a081be376cbfd9388434051145f9))
+* **SOURSD-1023:** create identity when doing veriff (#328) ([a9fecac](https://github.com/HDRUK/soursd-api/commit/a9fecac64f9823aad24cf680c23534ad02f1e35d))
+* **SOURSD-1292:** workflow endpoint ([fdf12a2](https://github.com/HDRUK/soursd-api/commit/fdf12a2755be37db879da51d427cc469eaccac7e))
+* **SOURSD-1292:** workflow endpoint (#334) ([71a6918](https://github.com/HDRUK/soursd-api/commit/71a691887787c20c8a32478a8e617689601df5cb))
+* **SOURSD-1293:** org transitions (#338) ([f274923](https://github.com/HDRUK/soursd-api/commit/f274923cf036209b80e2316ea90ec4f20a443e89))
+* **SOURSD-1322:** Factors in simple emailing mode for invites to not always create unclaimed accounts ([55e09f7](https://github.com/HDRUK/soursd-api/commit/55e09f731e0ed49d3f041da14b1fbf3250831da4))
+* **SOURSD-1322:** Factors in simple emailing mode for invites to not… (#325) ([7a747c8](https://github.com/HDRUK/soursd-api/commit/7a747c8e3542ed7d3eaf976f8a62fabbd446006b))
+* **SOURSD-1350:** Refactoring project user custodian approval (#332) ([432b523](https://github.com/HDRUK/soursd-api/commit/432b52369bfdef00af87f4096c502dfe31f05d35))
+* **SOURSD-1371:** Replace UserAuditLog with ActivityLog (#335) ([b0d65b2](https://github.com/HDRUK/soursd-api/commit/b0d65b24391e2403896a4ae2c039281e304ed0a3))
+* **SOURSD-1373:** Rework organisation approvals (#333) ([020e50d](https://github.com/HDRUK/soursd-api/commit/020e50d2c483006006429144382a3db5c4746552))
+* **SOURSD-1408:** Bug fixes for list views of project users and project organisations (#340) ([f577d71](https://github.com/HDRUK/soursd-api/commit/f577d7155108fa49df6e8db4b81466bb275e5da0))
+* **SOURSD-1409:** optimisation of logging (#344) ([e796f7e](https://github.com/HDRUK/soursd-api/commit/e796f7e27717a2299408a4ffce45954e6805bd33))
+* **SOURSD-1415:** Adds in feature flags to system_config table to co… (#336) ([32e9532](https://github.com/HDRUK/soursd-api/commit/32e9532cd4d7c6cd6d7b992635229f26fb730e1b))
+* **SOURSD-1415:** Adds in feature flags to system_config table to control what is made available in the FE - Temporary fix ([cb2480e](https://github.com/HDRUK/soursd-api/commit/cb2480e8c1ba2b6ffd46d5be49a057c81b5d611c))
+* **SOURSD-1416:** Changes needed for activity  (#337) ([1a3ffe6](https://github.com/HDRUK/soursd-api/commit/1a3ffe69812ec966839cdbc798bbbe61f935c7eb))
+* **SOURSD-1425:**  Removing old code (#342) ([56b013e](https://github.com/HDRUK/soursd-api/commit/56b013ecc6060fa4cd5c87d63080b7ace900b2f3))
+* **SOURSD-1426:** Further swagger annotation updates (#345) ([512033e](https://github.com/HDRUK/soursd-api/commit/512033e7630f60f556d08691e58fd433fe05e0dc))
+* **SOURSD-1426:** update swagger annotations 1 ([07b3553](https://github.com/HDRUK/soursd-api/commit/07b3553b15175ff7df81f4c37494ae2164eb6692))
+* **SOURSD-1426:** Updates models to make consistent use of Swagger schemas (#343) ([e0c01b5](https://github.com/HDRUK/soursd-api/commit/e0c01b549e09a48594ffe84ebc958d204d0a9809))
+* **SOURSD-1433:** Remove registry has affiliation (#341) ([67edb37](https://github.com/HDRUK/soursd-api/commit/67edb375d79d845116fa04fb24b4e6230a9cf77f))
+* **SOURSD-1435:** Affiliation notifications and activity (#347) ([7af77d0](https://github.com/HDRUK/soursd-api/commit/7af77d06d0891d180296a1e0fd813f544c4aa582))
+* **SOURSD-826:** Notification on affiliation create/update/delete (#322) ([3315684](https://github.com/HDRUK/soursd-api/commit/33156842d71c55f9247240f1fd3ab6ab469b0cd0))
+* **SOURSD-876-2:** Upgrading to Laravel v12 - first commit ([4c0c876](https://github.com/HDRUK/soursd-api/commit/4c0c8760017d67ce5f42233ffe90f7d8a41aa7a6))
+* **SOURSD-876:** Migrate to Laravel v12 ([084e159](https://github.com/HDRUK/soursd-api/commit/084e159f622e4b93f6ded309ce3a99e8422007aa))
+* **SOURSD-876:** Migrates Registry to Laravel v12.x (#329) ([c5c29f0](https://github.com/HDRUK/soursd-api/commit/c5c29f09756f622c8ddc559111baffe56fb03701))
+* **SOURSD-876:** Upgrades to Laravel v11.x (#326) ([2c593fb](https://github.com/HDRUK/soursd-api/commit/2c593fb7df3494b604c6103876c264ddf884d467))
+* **SOURSD-970:** Fixes for custodian project users (#327) ([11d16a2](https://github.com/HDRUK/soursd-api/commit/11d16a2b7162422099a50aa9bcab12f1fe74eb0f))
+
+### 🐛 Bug Fixes
+
+* **SOURSD-1058:** migration null (#349) ([8d70852](https://github.com/HDRUK/soursd-api/commit/8d708524c0d67935935dcfb3f6525be6e95d16b4))
+* **SOURSD-1343:** Fix saving of rules  (#339) ([2341afa](https://github.com/HDRUK/soursd-api/commit/2341afa8f97a32d10a22265798342220803176eb))
+* **SOURSD-1426:** Removes old edit methods as no longer supported in … (#346) ([5790b96](https://github.com/HDRUK/soursd-api/commit/5790b967d4b23cdf1a216e88e667600b1b85cc92))
+* **SOURSD-1426:** Removes old edit methods as no longer supported in Lv12 - BREAKING CHANGEgit add . ([c5332ed](https://github.com/HDRUK/soursd-api/commit/c5332edeeb53ac3fc553461ea4a3222555000049))
+* **SOURSD-876:** Updates laravel to v11 ([83338b5](https://github.com/HDRUK/soursd-api/commit/83338b58e5b40662bc52b2f6080f977ef2b9e68c))
+* **SOURSD-880:** ClamAV service path was calling incorrect var ([0fa4360](https://github.com/HDRUK/soursd-api/commit/0fa4360c2cbac26d4afbd025c0835c6fe547dbe5))
+* **SOURSD-880:** ClamAV service path was calling incorrect var (#320) ([7d1e557](https://github.com/HDRUK/soursd-api/commit/7d1e55709da62e542653159e23ee513e6cd99549))
+* **SOURSD-880:** replaces frankenphp with roadrunner for finer tuning of resource limits ([353981c](https://github.com/HDRUK/soursd-api/commit/353981c1e07d06bd7447c02880e15f3ef2c3587a))
+* **SOURSD-880:** replaces frankenphp with roadrunner for finer tuning… (#330) ([fe65012](https://github.com/HDRUK/soursd-api/commit/fe65012e98e7b8b1de7f4bf72b069248b7406e33))
+
 ## [1.5.1](https://github.com/HDRUK/soursd-api/compare/v1.5.0...v1.5.1) (2025-05-22)
 
 ### 🐛 Bug Fixes
