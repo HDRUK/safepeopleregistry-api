@@ -32,21 +32,38 @@ RUN apt-get update && apt-get install -y \
 RUN mkdir -p /etc/pki/tls/certs && \
     ln -s /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt
 
+# Install Redis extension
+RUN pecl install redis && docker-php-ext-enable redis
+
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- \
     --install-dir=/usr/local/bin --filename=composer
 
 # Send update for php.ini
-COPY ./init/php.development.ini /usr/local/etc/php/php.ini
+# COPY ./docker/php.development.ini /usr/local/etc/php/php.ini
+RUN echo 'memory_limit = 256M\n\
+max_execution_time = 300\n\
+upload_max_filesize = 50M\n\
+post_max_size = 50M\n\
+opcache.enable = 1\n\
+opcache.memory_consumption = 128\n\
+opcache.max_accelerated_files = 10000\n\
+opcache.revalidate_freq = 2\n\
+opcache.save_comments = 1\n\
+opcache.enable_file_override = 0\n\
+realpath_cache_size = 10M\n\
+realpath_cache_ttl = 120' > /usr/local/etc/php/conf.d/production.ini
 
 # Install FrankenPHP
-RUN curl https://frankenphp.dev/install.sh | sh \
-    && mv frankenphp /usr/local/bin/frankenphp \
+# RUN curl https://frankenphp.dev/install.sh | sh \
+#     && mv frankenphp /usr/local/bin/frankenphp \
+#     && chmod +x /usr/local/bin/frankenphp
+RUN curl -L https://github.com/dunglas/frankenphp/releases/latest/download/frankenphp-linux-x86_64 -o /usr/local/bin/frankenphp \
     && chmod +x /usr/local/bin/frankenphp
 
 # Copy the application
 COPY . /var/www
-# COPY frankenphp.yaml /etc/frankenphp.yaml
+COPY ./docker/frankenphp.json /etc/frankenphp/Caddyfile.json
 
 # Composer & laravel
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader \

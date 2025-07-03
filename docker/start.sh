@@ -27,11 +27,14 @@ fi
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
+php artisan event:cache
 
 php artisan horizon &
 
-php artisan octane:frankenphp \
-  --host=0.0.0.0 \
-  --port=8100 \
-  --max-requests=250 \
-  --workers=auto
+# php artisan octane:frankenphp \
+#   --host=0.0.0.0 \
+#   --port=8100 \
+#   --max-requests=250 \
+#   --workers=auto
+
+php artisan octane:start --server=frankenphp --host=0.0.0.0 --port=8100 --workers=auto --max-requests=250 --watch

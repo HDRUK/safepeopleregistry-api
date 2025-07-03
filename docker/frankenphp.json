@@ -1,0 +1,28 @@
+{
+    "frankenphp": {
+        "worker": {
+            "fileName": "public/index.php",
+            "num": 4
+        }
+    },
+    "apps": {
+        "http": {
+            "servers": {
+                "srv0": {
+                    "listen": [":8100"],
+                    "routes": [
+                        {
+                            "match": [{"path": ["/*"]}],
+                            "handle": [
+                                {
+                                    "handler": "php",
+                                    "root": "/var/www/html/public"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}
