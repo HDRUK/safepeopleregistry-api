@@ -46,7 +46,7 @@ RUN curl https://frankenphp.dev/install.sh | sh \
 
 # Copy the application
 COPY . /var/www
-COPY frankenphp.yaml /etc/frankenphp.yaml
+# COPY frankenphp.yaml /etc/frankenphp.yaml
 
 # Composer & laravel
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader \
