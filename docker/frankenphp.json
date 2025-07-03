@@ -1,4 +1,20 @@
 {
+    "logging": {
+        "logs": {
+                "default": {
+                    "level": "INFO",
+                    "writer": {
+                    "output": "stdout"
+                }
+            },
+            "error": {
+                "level": "ERROR",
+                "writer": {
+                    "output": "stderr"
+                }
+            }
+        }
+    },
     "frankenphp": {
         "worker": {
             "fileName": "public/index.php",
