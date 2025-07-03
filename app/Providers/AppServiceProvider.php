@@ -62,18 +62,24 @@ class AppServiceProvider extends ServiceProvider
         });
 
         if (app()->providerIsLoaded(OctaneServiceProvider::class)) {
-            Octane::tick(function () {
-                // Run garbage collection after every request
-                gc_collect_cycles();
+            Octane::tick('gc', function () {
 
-                // Optional: Log GC trigger
-                Log::info('Octane GC triggered', [
-                    'memory_usage' => memory_get_usage(true),
-                    'peak_memory'  => memory_get_peak_usage(true)
-                ]);
+                static $noRequests = 0;
+                $noRequests++;
 
-                // Clean up persistent DB connections
-                DB::disconnect();
+                if ($noRequests >= 25) {
+                    // Run garbage collection after every request
+                    gc_collect_cycles();
+
+                    // Optional: Log GC trigger
+                    Log::info('Octane GC triggered', [
+                        'memory_usage' => memory_get_usage(true),
+                        'peak_memory'  => memory_get_peak_usage(true)
+                    ]);
+
+                    // Clean up persistent DB connections
+                    DB::disconnect();
+                }
             });
         }
     }
