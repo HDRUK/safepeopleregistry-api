@@ -221,4 +221,18 @@ return [
 
     'max_execution_time' => 30,
 
+    'garbage_collection' => [
+        'threshold' => 50.0,
+    ],
+
+    'frankenphp' => [
+        'host' => env('OCTANE_HOST', '0.0.0.0'),
+        'port' => env('OCTANE_PORT', 8100),
+        'workers' => env('OCTANE_WORKERS', 2),
+        'task_workers' => env('OCTANE_TASK_WORKERS', 2),
+        'max_requests' => env('OCTANE_MAX_REQUESTS', 1000),
+        'worker_timeout' => 60,
+        'https' => env('OCTANE_HTTPS', false),
+    ],
+
 ];
