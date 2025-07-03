@@ -62,7 +62,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         if (app()->providerIsLoaded(OctaneServiceProvider::class)) {
-            Octane::afterRequest(function () {
+            Octane::tick('gc', function () {
                 // Run garbage collection after every request
                 gc_collect_cycles();
 
@@ -74,7 +74,7 @@ class AppServiceProvider extends ServiceProvider
 
                 // Clean up persistent DB connections
                 DB::disconnect();
-            });
+            })->seconds(5);
         }
     }
     /**
