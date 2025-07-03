@@ -50,6 +50,4 @@ php artisan octane:frankenphp \
   --host=0.0.0.0 \
   --port=8100 \
   --max-requests=500 \
-  --workers=auto \
-  --max-requests=10000 \
-  --garbage-collect-threshold=500
+  --workers=auto
