@@ -43,6 +43,7 @@ use App\Observers\RegistryReadRequestObserver;
 use App\Models\CustodianHasProjectOrganisation;
 use App\Observers\ProjectHasOrganisationObserver;
 use App\Observers\OrganisationHasSubsidiaryObserver;
+use Illuminate\Foundation\Http\Events\RequestHandled;
 use App\Observers\CustodianHasValidationCheckObserver;
 use App\Observers\CustodianHasProjectOrganisationObserver;
 
@@ -61,21 +62,33 @@ class AppServiceProvider extends ServiceProvider
             }
         });
 
-        if (app()->providerIsLoaded(OctaneServiceProvider::class)) {
-            Octane::tick('gc', function () {
-                // Run garbage collection after every request
-                gc_collect_cycles();
+        // if (app()->providerIsLoaded(OctaneServiceProvider::class)) {
+        //     Octane::tick('gc', function () {
+        //         // Run garbage collection after every request
+        //         gc_collect_cycles();
 
-                // Optional: Log GC trigger
-                Log::info('Octane GC triggered', [
-                    'memory_usage' => memory_get_usage(true),
-                    'peak_memory'  => memory_get_peak_usage(true)
-                ]);
+        //         // Optional: Log GC trigger
+        //         Log::info('Octane GC triggered', [
+        //             'memory_usage' => memory_get_usage(true),
+        //             'peak_memory'  => memory_get_peak_usage(true)
+        //         ]);
 
-                // Clean up persistent DB connections
-                DB::disconnect();
-            })->seconds(5);
-        }
+        //         // Clean up persistent DB connections
+        //         DB::disconnect();
+        //     })->seconds(5);
+        // }
+
+        Event::listen(RequestHandled::class, function () {
+            // Safe to use Laravel services here
+            gc_collect_cycles();
+
+            Log::info('Garbage collection after request', [
+                'memory_usage' => memory_get_usage(true),
+                'peak_memory' => memory_get_peak_usage(true),
+            ]);
+
+            DB::disconnect();
+        });
     }
     /**
      * Bootstrap any application services.
