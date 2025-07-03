@@ -34,6 +34,7 @@ use Illuminate\Support\ServiceProvider;
 use App\Observers\CustodianUserObserver;
 use App\Models\OrganisationHasSubsidiary;
 use App\Observers\ProjectHasUserObserver;
+use Laravel\Octane\OctaneServiceProvider;
 use App\Models\CustodianHasValidationCheck;
 use App\Observers\CustodianHasRuleObserver;
 use App\Observers\UserHasDepartmentsObserver;
@@ -60,7 +61,7 @@ class AppServiceProvider extends ServiceProvider
             }
         });
 
-        if (Octane::running()) {
+        if (app()->providerIsLoaded(OctaneServiceProvider::class)) {
             Octane::tick(function () {
                 // Run garbage collection after every request
                 gc_collect_cycles();
