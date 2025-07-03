@@ -17,12 +17,8 @@
 #   max_requests: 500
 #   memory_limit: 256M
 
-app:
-  listen: ":8100"
-  root: public
-  bootstrap: frankenphp-worker.php
-
-logs:
-  default:
-    level: INFO
-    output: stdout
+workers:
+  command: php artisan octane:frankenphp --host=0.0.0.0 --port=8100
+  max_requests: 250
+  memory_limit: 256M
+  reload_on_change: false
