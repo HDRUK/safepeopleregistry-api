@@ -20,7 +20,6 @@ RUN apt-get update && apt-get install -y \
     wget \
     zlib1g-dev \
     zip \
-    pcntl \
     default-mysql-client \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd pdo pdo_mysql soap zip iconv bcmath \
