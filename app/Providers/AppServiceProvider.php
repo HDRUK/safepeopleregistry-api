@@ -2,45 +2,47 @@
 
 namespace App\Providers;
 
+use Octane;
 use App\Models\File;
+use App\Models\User;
 use App\Models\ONSFile;
 use App\Models\Registry;
 use App\Models\Custodian;
-use App\Models\CustodianUser;
-use App\Models\CustodianHasRule;
-use App\Models\ProjectHasUser;
-use App\Models\User;
-use App\Models\UserHasDepartments;
-use App\Models\Organisation;
-use App\Models\OrganisationHasSubsidiary;
 use App\Models\Affiliation;
-use App\Models\ProjectHasOrganisation;
-use App\Models\ProjectHasCustodian;
-use App\Models\CustodianHasProjectOrganisation;
-use App\Models\RegistryReadRequest;
-use App\Models\CustodianHasValidationCheck;
+use App\Models\Organisation;
+use App\Models\CustodianUser;
+use App\Models\ProjectHasUser;
 use App\Observers\FileObserver;
-use App\Observers\ONSFileObserver;
-use App\Observers\RegistryObserver;
-use App\Observers\CustodianObserver;
-use App\Observers\CustodianHasRuleObserver;
-use App\Observers\ProjectHasUserObserver;
-use App\Observers\ProjectHasOrganisationObserver;
 use App\Observers\UserObserver;
-use App\Observers\UserHasDepartmentsObserver;
-use App\Observers\OrganisationObserver;
-use App\Observers\OrganisationHasSubsidiaryObserver;
-use App\Observers\CustodianUserObserver;
-use App\Observers\AffiliationObserver;
-use App\Observers\ProjectHasCustodianObserver;
+use App\Models\CustodianHasRule;
+use App\Models\UserHasDepartments;
+use App\Observers\ONSFileObserver;
+use App\Models\ProjectHasCustodian;
+use App\Models\RegistryReadRequest;
+use App\Observers\RegistryObserver;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Log;
+use App\Observers\CustodianObserver;
 use App\Observers\AuditModelObserver;
+use Illuminate\Support\Facades\Event;
+use App\Models\ProjectHasOrganisation;
+use App\Observers\AffiliationObserver;
+use App\Observers\OrganisationObserver;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\ServiceProvider;
+use App\Observers\CustodianUserObserver;
+use App\Models\OrganisationHasSubsidiary;
+use App\Observers\ProjectHasUserObserver;
+use App\Models\CustodianHasValidationCheck;
+use App\Observers\CustodianHasRuleObserver;
+use App\Observers\UserHasDepartmentsObserver;
+use App\Observers\ProjectHasCustodianObserver;
 use App\Observers\RegistryReadRequestObserver;
+use App\Models\CustodianHasProjectOrganisation;
+use App\Observers\ProjectHasOrganisationObserver;
+use App\Observers\OrganisationHasSubsidiaryObserver;
 use App\Observers\CustodianHasValidationCheckObserver;
 use App\Observers\CustodianHasProjectOrganisationObserver;
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Database\Eloquent\Model;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -56,6 +58,14 @@ class AppServiceProvider extends ServiceProvider
                 App::make(AuditModelObserver::class)->handle($eventName, $model);
             }
         });
+
+        Octane::tick('gc', function () {
+            Log::info('[Worker Memory]', [
+                'pid' => getmypid(),
+                'memory_kb' => round(memory_get_usage(true) / 1024),
+                'peak_memory_kb' => round(memory_get_peak_usage(true) / 1024),
+            ]);
+        })->seconds(10);
     }
     /**
      * Bootstrap any application services.

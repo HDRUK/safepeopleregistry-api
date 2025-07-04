@@ -32,5 +32,6 @@ class TerminateRequest
         \Log::info('Collected: ' . $collected);
 
         \Log::info('Memory usage after manual GC: ' . round(memory_get_usage(true) / 1024 / 1024, 2) . ' MB');
+        \Log::info('pid: ' . getmypid());
     }
 }
