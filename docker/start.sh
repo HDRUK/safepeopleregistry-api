@@ -4,7 +4,7 @@ if [ -e /var/www/.env ]; then
     source /var/www/.env
 fi
 
-base_command="php artisan octane:start --server=swoole --host=0.0.0.0 --port=8100 --max-requests=100"
+base_command="php artisan octane:start --server=swoole --host=0.0.0.0 --port=8100 --workers=4 --max-requests=100"
 # base_command="php artisan octane:start --server=swoole --host=0.0.0.0 --port=8100"
 # base_command="./rr serve --config=.rr.yaml"
 # base_command="php artisan serve --host=0.0.0.0 --port=8100"
