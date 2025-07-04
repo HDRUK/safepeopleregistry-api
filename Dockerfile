@@ -52,12 +52,9 @@ COPY ./init/php.development.ini /usr/local/etc/php/php.ini
 # Copy the application
 COPY . /var/www
 
-# RUN curl https://frankenphp.dev/install.sh | sh \
-#     && mv frankenphp /usr/local/bin/frankenphp \
-#     && chmod +x /usr/local/bin/frankenphp
-
 # Composer & laravel
-RUN composer install \
+RUN composer install --optimize-autoloader \
+    && npm install --save-dev chokidar \
     && php artisan octane:install \
     && php artisan storage:link \
     && php artisan optimize:clear \
