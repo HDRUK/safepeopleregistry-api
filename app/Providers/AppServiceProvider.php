@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-// use Octane;
 use App\Models\File;
 use App\Models\User;
 use App\Models\ONSFile;
@@ -60,14 +59,6 @@ class AppServiceProvider extends ServiceProvider
                 App::make(AuditModelObserver::class)->handle($eventName, $model);
             }
         });
-
-        // Octane::tick('gc', function () {
-        //     Log::info('[Worker Memory]', [
-        //         'pid' => getmypid(),
-        //         'memory_kb' => round(memory_get_usage(true) / 1024),
-        //         'peak_memory_kb' => round(memory_get_peak_usage(true) / 1024),
-        //     ]);
-        // })->seconds(10);
     }
     
     /**
