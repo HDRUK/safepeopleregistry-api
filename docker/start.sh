@@ -5,9 +5,12 @@ if [ -e /var/www/.env ]; then
 fi
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 # base_command="php artisan octane:start --server=swoole --host=0.0.0.0 --port=8100 --workers=4 --max-requests=100"
 # base_command="php artisan octane:start --server=swoole --host=0.0.0.0 --port=8100 --max-requests=1000"
 =======
+=======
+>>>>>>> 151ca5c (update)
 base_command="php artisan octane:start --server=swoole --host=0.0.0.0 --port=8100 --workers=4 --max-requests=100"
 # base_command="php artisan octane:start --server=swoole --host=0.0.0.0 --port=8100"
 >>>>>>> f93760e (update)
