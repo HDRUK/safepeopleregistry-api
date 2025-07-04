@@ -39,8 +39,8 @@ RUN wget -O redis-5.3.7.tgz 'https://pecl.php.net/get/redis-5.3.7.tgz' \
     && docker-php-ext-enable redis
 
 # Install OpenSwoole
-RUN pecl install OpenSwoole \
-    && docker-php-ext-enable OpenSwoole
+RUN pecl install openswoole \
+    && docker-php-ext-enable openswoole
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- \
