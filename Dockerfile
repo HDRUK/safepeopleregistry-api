@@ -39,8 +39,8 @@ RUN wget -O redis-5.3.7.tgz 'https://pecl.php.net/get/redis-5.3.7.tgz' \
     && docker-php-ext-enable redis
 
 # Install OpenSwoole
-RUN pecl install openswoole \
-    && docker-php-ext-enable openswoole
+RUN pecl install swoole \
+    && docker-php-ext-enable swoole
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- \
@@ -66,7 +66,7 @@ RUN composer install \
     && php artisan octane:install --server=swoole \
     && chmod -R 777 storage bootstrap/cache \
     && chown -R www-data:www-data storage \
-    && php artisan octane:install --server=swoole \
+    # && php artisan octane:install --server=swoole \
     && composer dumpautoload
 
 # Generate Swagger
