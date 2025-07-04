@@ -22,6 +22,7 @@ use App\Models\RegistryReadRequest;
 use App\Observers\RegistryObserver;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
+use App\Models\CustodianModelConfig;
 use App\Observers\CustodianObserver;
 use App\Observers\AuditModelObserver;
 use Illuminate\Support\Facades\Event;
@@ -40,6 +41,7 @@ use App\Observers\ProjectHasCustodianObserver;
 use App\Observers\RegistryHasTrainingObserver;
 use App\Observers\RegistryReadRequestObserver;
 use App\Models\CustodianHasProjectOrganisation;
+use App\Observers\CustodianModelConfigObserver;
 use App\Observers\ProjectHasOrganisationObserver;
 use App\Observers\OrganisationHasSubsidiaryObserver;
 use App\Observers\CustodianHasValidationCheckObserver;
@@ -59,6 +61,14 @@ class AppServiceProvider extends ServiceProvider
                 App::make(AuditModelObserver::class)->handle($eventName, $model);
             }
         });
+
+        // Octane::tick('gc', function () {
+        //     Log::info('[Worker Memory]', [
+        //         'pid' => getmypid(),
+        //         'memory_kb' => round(memory_get_usage(true) / 1024),
+        //         'peak_memory_kb' => round(memory_get_peak_usage(true) / 1024),
+        //     ]);
+        // })->seconds(10);
     }
     /**
      * Bootstrap any application services.
