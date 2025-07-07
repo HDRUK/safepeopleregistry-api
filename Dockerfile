@@ -68,6 +68,14 @@ RUN composer install --optimize-autoloader \
 # Generate Swagger
 RUN php artisan l5-swagger:generate
 
+# Tune PHP-FPM for more workers
+RUN echo "pm = dynamic\n\
+pm.max_children = 50\n\
+pm.start_servers = 10\n\
+pm.min_spare_servers = 5\n\
+pm.max_spare_servers = 20" > /usr/local/etc/php-fpm.d/zz-custom.conf
+
+# Copy Nginx config
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expose port
