@@ -1166,7 +1166,7 @@ class OrganisationController extends Controller
         OrganisationHasSubsidiary::where('organisation_id', $organisationId)
             ->get()
             ->each(
-                fn ($ohs) =>
+                fn($ohs) =>
                 OrganisationHasSubsidiary::where([
                     ['organisation_id', '=', $ohs->organisation_id],
                     ['subsidiary_id', '=', $ohs->subsidiary_id]
@@ -1325,7 +1325,7 @@ class OrganisationController extends Controller
 
             $users = User::searchViaRequest()
                 ->applySorting()
-                ->with(['registry.affiliations'])
+                ->with(['registry.affiliations', 'modelState.state'])
                 ->where(function ($query) use ($registryIds, $showPending, $id) {
                     $query->whereIn('registry_id', $registryIds);
 
