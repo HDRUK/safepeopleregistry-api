@@ -7,6 +7,10 @@ WORKDIR /var/www
 
 COPY composer.* /var/www/
 
+# Install Supervisor and other dependencies
+RUN apt-get update && apt-get install -y supervisor \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN apt-get update && apt-get install -y \
     curl \
     nodejs \
@@ -28,10 +32,6 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install exif \
     && docker-php-ext-configure pcntl --enable-pcntl \
     && docker-php-ext-install pcntl
-
-# Install Supervisor and other dependencies
-RUN apt-get update && apt-get install -y supervisor \
-    && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /etc/pki/tls/certs && \
     ln -s /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt
@@ -60,21 +60,16 @@ COPY . /var/www
 # Composer & laravel
 RUN composer install --optimize-autoloader \
     && npm install --save-dev chokidar \
-    # && php artisan octane:install \
     && php artisan storage:link \
     && php artisan optimize:clear \
     && php artisan optimize \
     && php artisan config:clear \
-    # && php artisan octane:install --server=swoole \
     && chmod -R 777 storage bootstrap/cache \
     && chown -R www-data:www-data storage \
     && composer dumpautoload
 
 # Generate Swagger
 RUN php artisan l5-swagger:generate
-
-# Copy Nginx config
-# COPY ./docker/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expose port
 # EXPOSE 8100
