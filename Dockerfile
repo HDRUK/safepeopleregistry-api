@@ -19,6 +19,8 @@ RUN apt-get update && apt-get install -y \
     wget \
     zlib1g-dev \
     zip \
+    nginx \ 
+    supervisor \
     default-mysql-client \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd pdo pdo_mysql soap zip iconv bcmath \
@@ -50,7 +52,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- \
 COPY ./init/php.development.ini /usr/local/etc/php/php.ini
 
 # Tune PHP-FPM for more workers
-# COPY ./init/php.custom.conf /usr/local/etc/php-fpm.d/zz-custom.conf
+COPY ./init/php.custom.conf /usr/local/etc/php-fpm.d/zz-custom.conf
 
 # Copy the application
 COPY . /var/www
