@@ -73,9 +73,13 @@ RUN php artisan l5-swagger:generate
 # COPY ./docker/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expose port
-EXPOSE 8100
+# EXPOSE 8100
 
-RUN chmod +x /var/www/docker/start.sh
+# RUN chmod +x /var/www/docker/start.sh
+
+# Copy Supervisor configuration file
+COPY ./docker/supervisord.conf /etc/supervisor/supervisord.conf
 
 # Starts both, laravel server and job queue
-CMD ["/var/www/docker/start.sh"]
+# CMD ["/var/www/docker/start.sh"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
