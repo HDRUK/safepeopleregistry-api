@@ -25,11 +25,10 @@ class RegistryHasTrainingObserver
     {
         $registry = Registry::with('user')->find($model->registry_id);
 
-        if (!$registry || !$registry->user) {
+        $user = $registry->user;
+        if (!$registry || !$user) {
             return;
         }
-
-        $user = $registry->user;
 
         // note: should check the expiry date of the training?
         // - future improvement to check this too

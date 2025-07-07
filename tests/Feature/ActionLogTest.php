@@ -21,7 +21,9 @@ use App\Models\Project;
 use App\Models\ProjectHasCustodian;
 use App\Models\File;
 use App\Models\ProjectHasOrganisation;
+use App\Models\RegistryHasTraining;
 use App\Models\State;
+use App\Models\Training;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 use Carbon\Carbon;
@@ -39,7 +41,10 @@ class ActionLogTest extends TestCase
         parent::setUp();
         $this->enableObservers();
         $this->withUsers();
-        $this->user = User::factory()->create(); // fresh user needed
+        $registry = Registry::factory()->create();
+        $this->user = User::factory()->create([
+            'registry_id' => $registry->id,
+        ]);
         $this->file = File::create([
             'name' => 'temp',
             'type' => 'CERTIFICATION',
@@ -354,6 +359,50 @@ class ActionLogTest extends TestCase
             ->firstWhere('action', User::ACTION_PROJECTS_REVIEW);
 
         $this->assertNull(
+            $actionLog['completed_at']
+        );
+    }
+
+    public function test_it_can_log_user_training_complete()
+    {
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "users/{$this->user->id}/action_log",
+            );
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+
+        $actionLog = collect($responseData)
+            ->firstWhere('action', User::ACTION_TRAINING_COMPLETE);
+
+        $this->assertNull(
+            $actionLog['completed_at']
+        );
+
+        Carbon::setTestNow(Carbon::now());
+
+
+        $training = Training::factory()->create();
+        RegistryHasTraining::create([
+            'registry_id' => $this->user->registry->id,
+            'training_id' => $training->id
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "users/{$this->user->id}/action_log",
+            );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', User::ACTION_TRAINING_COMPLETE);
+
+
+        $this->assertEquals(
+            Carbon::now()->format('Y-m-d H:i:s'),
             $actionLog['completed_at']
         );
     }
