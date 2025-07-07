@@ -79,6 +79,37 @@ class AffiliationController extends Controller
         ], 200);
     }
 
+
+    public function getOrganisationAffiliation(Request $request, int $registryId, int $organisationId): JsonResponse
+    {
+        $affiliation = Affiliation::with(
+            [
+                'modelState.state',
+                'organisation' => function ($query) {
+                    $query->select(
+                        'id',
+                        'organisation_name',
+                        'unclaimed',
+                        'lead_applicant_email'
+                    );
+                },
+            ]
+        )
+            ->where(
+                [
+                    'registry_id' => $registryId,
+                    'organisation_id' => $organisationId
+                ]
+            )
+            ->first();
+
+
+        return response()->json([
+            'message' => 'success',
+            'data' => $affiliation,
+        ], 200);
+    }
+
     /**
      * @OA\Post(
      *      path="/api/v1/affiliations/{registryId}",

@@ -363,6 +363,7 @@ Route::middleware('auth:api')
     ->controller(AffiliationController::class)
     ->group(function () {
         Route::get('{registryId}', 'indexByRegistryId');
+        Route::get('{registryId}/organisation/{organisationId}', 'getOrganisationAffiliation');
         Route::post('{registryId}', 'storeByRegistryId');
         Route::put('{id}', 'update');
         Route::delete('{id}', 'destroy');
