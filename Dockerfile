@@ -68,8 +68,10 @@ RUN composer install --optimize-autoloader \
 # Generate Swagger
 RUN php artisan l5-swagger:generate
 
-# Starts both, laravel server and job queue
-CMD ["/var/www/docker/start.sh"]
+COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expose port
 EXPOSE 8100
+
+# Starts both, laravel server and job queue
+CMD ["/var/www/docker/start.sh"]
