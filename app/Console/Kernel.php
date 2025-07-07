@@ -14,9 +14,9 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly();
-        // $schedule->call(function () {
-        //     UpdateActionNotifications::dispatch();
-        // })->everyMinute();
+        $schedule->call(function () {
+            UpdateActionNotifications::dispatch();
+        })->everyMinute();
 
     }
 
