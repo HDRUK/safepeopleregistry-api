@@ -121,4 +121,4 @@ RUN chown -R www-data:www-data /var/www \
 EXPOSE 8100
 
 # Start supervisord
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
+CMD ["sh", "-c", "/usr/bin/supervisord -c /etc/supervisor/supervisord.conf"]
