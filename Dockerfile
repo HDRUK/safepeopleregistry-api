@@ -74,7 +74,7 @@ COPY . /var/www
 
 # Install Node.js dependencies and build assets
 RUN npm install --save-dev chokidar \
-    && npm run build 2>/dev/null || npm run production 2>/dev/null || echo "No build script found"
+    && npm run build 2>/dev/null || npm run production 2>/dev/null
 
 # Laravel setup
 RUN composer install \
@@ -91,7 +91,14 @@ RUN composer install \
     && composer dumpautoload --optimize
 
 # Generate Swagger documentation
-RUN php artisan l5-swagger:generate || echo "Swagger generation failed or not available"
+RUN php artisan l5-swagger:generate
+
+# Install Google Fluentd for logging to Google Cloud Logging
+RUN curl -sSO https://dl.google.com/cloudagents/add-google-cloud-logging-agent-repo.sh \
+    && bash add-google-cloud-logging-agent-repo.sh --disable-repo \
+    && apt-get update \
+    && apt-get install -y google-fluentd \
+    && rm -rf /var/lib/apt/lists/*
 
 # Create supervisor directories and log files
 RUN mkdir -p /var/log/supervisor /var/run/supervisor \
