@@ -20,7 +20,6 @@ RUN apt-get update && apt-get install -y \
     wget \
     zlib1g-dev \
     zip \
-    nginx \ 
     default-mysql-client \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd pdo pdo_mysql soap zip iconv bcmath \
@@ -62,7 +61,7 @@ RUN composer install --optimize-autoloader \
     && php artisan optimize:clear \
     && php artisan optimize \
     && php artisan config:clear \
-    && php artisan octane:install --server=swoole \
+    # && php artisan octane:install --server=swoole \
     && chmod -R 777 storage bootstrap/cache \
     && chown -R www-data:www-data storage \
     && composer dumpautoload
