@@ -44,20 +44,25 @@ class UpdateActionNotifications implements ShouldQueue
 
     private function processUsers(string $group, $query): void
     {
+        // $query->where("user_group", $group)
+        //     ->chunk($this->chunkSize, function ($users) use ($group) {
+        //         foreach ($users as $user) {
+        //             $this->processNotifications($user, $group);
+        //             // trying this as it could be causing unboard memory growth
+        //             // as in the called function, we do both:
+        //             // $user->notify(new ActionPendingNotification($group, $incompleteActions));
+        //             // and
+        //             // $user->notifications()->where...blah
+        //             //
+        //             // both aren't light touches against eloquent, and possible
+        //             // candidates for raw queries, if _this_ works.
+        //             unset($user);
+        //         }
+        //     });
         $query->where("user_group", $group)
-            ->chunk($this->chunkSize, function ($users) use ($group) {
-                foreach ($users as $user) {
-                    $this->processNotifications($user, $group);
-                    // trying this as it could be causing unboard memory growth
-                    // as in the called function, we do both:
-                    // $user->notify(new ActionPendingNotification($group, $incompleteActions));
-                    // and
-                    // $user->notifications()->where...blah
-                    //
-                    // both aren't light touches against eloquent, and possible
-                    // candidates for raw queries, if _this_ works.
-                    unset($user);
-                }
+            ->cursor()
+            ->each(function ($user) use ($group) {
+                $this->processNotifications($user, $group);
             });
     }
 
