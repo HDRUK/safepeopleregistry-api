@@ -52,9 +52,6 @@ RUN curl -sS https://getcomposer.org/installer | php -- \
 # Send update for php.ini
 COPY ./init/php.development.ini /usr/local/etc/php/php.ini
 
-# Tune PHP-FPM for more workers
-# COPY ./init/php.custom.conf /usr/local/etc/php-fpm.d/zz-custom.conf
-
 # Copy the application
 COPY . /var/www
 
@@ -76,12 +73,6 @@ RUN php artisan l5-swagger:generate
 
 # Copy Nginx config
 COPY ./docker/nginx.conf /etc/nginx/conf.d/default.conf
-
-RUN echo "pm = dynamic\n\
-pm.max_children = 50\n\
-pm.start_servers = 10\n\
-pm.min_spare_servers = 5\n\
-pm.max_spare_servers = 20" > /usr/local/etc/php-fpm.d/zz-custom.conf
 
 # Expose port
 EXPOSE 8100
