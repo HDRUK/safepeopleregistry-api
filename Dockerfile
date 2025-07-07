@@ -78,6 +78,7 @@ COPY ./init/php.development.ini /usr/local/etc/php/php.ini
 # Copy the application
 COPY . /var/www
 
+<<<<<<< HEAD
 # Install Node.js dependencies and build assets
 RUN npm install --save-dev chokidar \
     && npm run build 2>/dev/null || npm run production 2>/dev/null || echo "No build script found"
@@ -85,16 +86,29 @@ RUN npm install --save-dev chokidar \
 # Laravel setup
 RUN composer install \
     && php artisan octane:install --server=swoole --no-interaction \
+=======
+# Composer & laravel
+RUN composer install --optimize-autoloader \
+    && npm install --save-dev chokidar \
+    # && php artisan octane:install \
+>>>>>>> e53d699 (update)
     && php artisan storage:link \
     && php artisan optimize:clear \
     && php artisan optimize \
     && php artisan config:clear \
+<<<<<<< HEAD
     && php artisan config:cache \
     && php artisan route:cache \
     && php artisan view:cache \
     && chmod -R 755 storage bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache \
     && composer dumpautoload --optimize
+=======
+    # && php artisan octane:install --server=swoole \
+    && chmod -R 777 storage bootstrap/cache \
+    && chown -R www-data:www-data storage \
+    && composer dumpautoload
+>>>>>>> e53d699 (update)
 
 # Generate Swagger documentation
 RUN php artisan l5-swagger:generate
