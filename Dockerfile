@@ -55,12 +55,12 @@ COPY . /var/www
 # Composer & laravel
 RUN composer install --optimize-autoloader \
     && npm install --save-dev chokidar \
-    && php artisan octane:install \
+    # && php artisan octane:install \
     && php artisan storage:link \
     && php artisan optimize:clear \
     && php artisan optimize \
     && php artisan config:clear \
-    && php artisan octane:install --server=swoole \
+    # && php artisan octane:install --server=swoole \
     && chmod -R 777 storage bootstrap/cache \
     && chown -R www-data:www-data storage \
     && composer dumpautoload

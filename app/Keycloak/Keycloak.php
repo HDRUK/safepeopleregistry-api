@@ -8,7 +8,7 @@ use Exception;
 use App\Models\User;
 use App\Models\Registry;
 use App\Models\CustodianUser;
-use App\Facades\Octane;
+// use App\Facades\Octane;
 use RegistryManagementController as RMC;
 use Illuminate\Support\Str;
 
@@ -222,9 +222,9 @@ class Keycloak
 
     private static function getServiceToken(): string
     {
-        if (!app()->bound(Octane::class) || !app(Octane::class)->isRunning()) {
-            return self::getOrRefreshServiceToken();
-        }
+        // if (!app()->bound(Octane::class) || !app(Octane::class)->isRunning()) {
+        //     return self::getOrRefreshServiceToken();
+        // }
 
         return cache()->remember('keycloak.service_token', 60 * 60 * 4, function () {
             return self::getOrRefreshServiceToken();
