@@ -50,7 +50,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- \
 COPY ./init/php.development.ini /usr/local/etc/php/php.ini
 
 # Tune PHP-FPM for more workers
-COPY ./init/php.custom.conf /usr/local/etc/php-fpm.d/zz-custom.conf
+# COPY ./init/php.custom.conf /usr/local/etc/php-fpm.d/zz-custom.conf
 
 # Copy the application
 COPY . /var/www
