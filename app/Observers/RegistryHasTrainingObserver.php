@@ -11,6 +11,7 @@ use Carbon\Carbon;
 class RegistryHasTrainingObserver
 {
 
+
     public function created(RegistryHasTraining $model): void
     {
         $this->updateTrainingActionLog($model);
