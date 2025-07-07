@@ -10,8 +10,6 @@ use Carbon\Carbon;
 
 class RegistryHasTrainingObserver
 {
-
-
     public function created(RegistryHasTraining $model): void
     {
         $this->updateTrainingActionLog($model);
@@ -26,12 +24,10 @@ class RegistryHasTrainingObserver
     {
         $registry = Registry::with('user')->find($model->registry_id);
 
-
-        if (!$registry || !$registry->user) {
-            return; // Defensive check
-        }
-
         $user = $registry->user;
+        if (!$registry || !$user) {
+            return;
+        }
 
         $hasTrainings = $registry->trainings()
             ->when($isDeleting, function ($query) use ($model) {
