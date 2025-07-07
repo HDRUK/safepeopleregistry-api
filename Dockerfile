@@ -7,10 +7,6 @@ WORKDIR /var/www
 
 COPY composer.* /var/www/
 
-# Install Supervisor and other dependencies
-RUN apt-get update && apt-get install -y supervisor \
-    && rm -rf /var/lib/apt/lists/*
-
 RUN apt-get update && apt-get install -y \
     curl \
     nodejs \
@@ -25,6 +21,7 @@ RUN apt-get update && apt-get install -y \
     zlib1g-dev \
     zip \
     default-mysql-client \
+    supervisor \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd pdo pdo_mysql soap zip iconv bcmath \
     && docker-php-ext-configure pdo_mysql --with-pdo-mysql=mysqlnd \
@@ -60,10 +57,12 @@ COPY . /var/www
 # Composer & laravel
 RUN composer install --optimize-autoloader \
     && npm install --save-dev chokidar \
+    # && php artisan octane:install \
     && php artisan storage:link \
     && php artisan optimize:clear \
     && php artisan optimize \
     && php artisan config:clear \
+    # && php artisan octane:install --server=swoole \
     && chmod -R 777 storage bootstrap/cache \
     && chown -R www-data:www-data storage \
     && composer dumpautoload
