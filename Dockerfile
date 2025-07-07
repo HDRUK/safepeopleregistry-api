@@ -24,6 +24,7 @@ RUN apt-get update && apt-get install -y \
     default-mysql-client \
     supervisor \
     procps \
+    psmisc \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
