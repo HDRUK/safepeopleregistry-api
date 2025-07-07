@@ -64,9 +64,6 @@ RUN curl -sS https://getcomposer.org/installer | php -- \
 # Copy composer files first for better caching
 COPY composer.* /var/www/
 
-# Install PHP dependencies
-RUN composer install
-
 # Copy PHP configuration
 COPY ./init/php.development.ini /usr/local/etc/php/php.ini
 
@@ -78,7 +75,8 @@ RUN npm install --save-dev chokidar \
     && npm run build 2>/dev/null || npm run production 2>/dev/null || echo "No build script found"
 
 # Laravel setup
-RUN php artisan octane:install --server=swoole --no-interaction \
+RUN composer install \
+    && php artisan octane:install --server=swoole --no-interaction \
     && php artisan storage:link \
     && php artisan optimize:clear \
     && php artisan optimize \
