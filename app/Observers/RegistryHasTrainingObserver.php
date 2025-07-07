@@ -25,6 +25,7 @@ class RegistryHasTrainingObserver
     {
         $registry = Registry::with('user')->find($model->registry_id);
 
+<<<<<<< HEAD
         $user = $registry->user;
         if (!$registry || !$user) {
             return;
@@ -38,6 +39,8 @@ class RegistryHasTrainingObserver
 
         $user = $registry->user;
 
+=======
+>>>>>>> b97e17d (add training check observer)
         if (!$registry || !$registry->user) {
             return; // Defensive check
         }
