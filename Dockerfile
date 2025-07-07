@@ -1,8 +1,11 @@
+# Use PHP 8.3.3 FPM as base image
 FROM php:8.3.3-fpm
 
+# Set environment variables
 ENV COMPOSER_PROCESS_TIMEOUT=600
 ENV REBUILD_DB=1
 
+# Set working directory
 WORKDIR /var/www
 
 # Install system dependencies
@@ -25,6 +28,9 @@ RUN apt-get update && apt-get install -y \
     supervisor \
     procps \
     psmisc \
+    apt-transport-https \
+    gnupg \
+    lsb-release \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -122,5 +128,4 @@ RUN chown -R www-data:www-data /var/www \
 EXPOSE 8100
 
 # Start supervisord
-# CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
 CMD ["sh", "-c", "google-fluentd --log-opt mode=non-blocking -q & /usr/bin/supervisord -c /etc/supervisor/supervisord.conf"]
