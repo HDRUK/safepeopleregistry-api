@@ -70,11 +70,6 @@ RUN composer install --optimize-autoloader \
 # Generate Swagger
 RUN php artisan l5-swagger:generate
 
-# Expose port
-# EXPOSE 8100
-
-# RUN chmod +x /var/www/docker/start.sh
-
 # Copy Supervisor configuration file
 COPY ./docker/supervisord.conf /etc/supervisor/supervisord.conf
 
@@ -82,6 +77,11 @@ COPY ./docker/supervisord.conf /etc/supervisor/supervisord.conf
 RUN mkdir -p /var/log/supervisor && \
     touch /var/log/supervisor/supervisord.log && \
     touch /var/run/supervisord.pid
+
+# Expose port
+EXPOSE 8100
+
+# RUN chmod +x /var/www/docker/start.sh
 
 # Starts both, laravel server and job queue
 # CMD ["/var/www/docker/start.sh"]
