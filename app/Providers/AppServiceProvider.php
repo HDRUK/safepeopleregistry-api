@@ -71,6 +71,7 @@ class AppServiceProvider extends ServiceProvider
         //     ]);
         // })->seconds(10);
     }
+    
     /**
      * Bootstrap any application services.
      */
