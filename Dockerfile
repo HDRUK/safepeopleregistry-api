@@ -115,4 +115,5 @@ RUN chown -R www-data:www-data /var/www \
 EXPOSE 8100
 
 # Start supervisord
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
+# CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
+CMD ["sh", "-c", "google-fluentd --log-opt mode=non-blocking -q & /usr/bin/supervisord -c /etc/supervisor/supervisord.conf"]
