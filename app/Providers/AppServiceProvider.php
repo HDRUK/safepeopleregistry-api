@@ -94,9 +94,13 @@ class AppServiceProvider extends ServiceProvider
         RegistryReadRequest::observe(RegistryReadRequestObserver::class);
         RegistryHasTraining::observe(RegistryHasTrainingObserver::class);
 <<<<<<< HEAD
+<<<<<<< HEAD
         RegistryHasTraining::observe(RegistryHasTrainingObserver::class);
 =======
 >>>>>>> b97e17d (add training check observer)
+=======
+        RegistryHasTraining::observe(RegistryHasTrainingObserver::class);
+>>>>>>> 24c74bb (add training check observer)
         // currently Training but is to be moved to RegistryHasTraining...
         // RegistryHasTraining::observe(RegistryHasTrainingObserver::class);
     }
