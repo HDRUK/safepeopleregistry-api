@@ -29,6 +29,10 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure pcntl --enable-pcntl \
     && docker-php-ext-install pcntl
 
+# Install Supervisor and other dependencies
+RUN apt-get update && apt-get install -y supervisor \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN mkdir -p /etc/pki/tls/certs && \
     ln -s /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt
 
@@ -79,6 +83,11 @@ RUN php artisan l5-swagger:generate
 
 # Copy Supervisor configuration file
 COPY ./docker/supervisord.conf /etc/supervisor/supervisord.conf
+
+# Install Supervisor (if not already installed)
+RUN mkdir -p /var/log/supervisor && \
+    touch /var/log/supervisor/supervisord.log && \
+    touch /var/run/supervisord.pid
 
 # Starts both, laravel server and job queue
 # CMD ["/var/www/docker/start.sh"]
