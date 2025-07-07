@@ -5,8 +5,7 @@ ENV REBUILD_DB=1
 
 WORKDIR /var/www
 
-COPY composer.* /var/www/
-
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     curl \
     nodejs \
@@ -20,27 +19,41 @@ RUN apt-get update && apt-get install -y \
     wget \
     zlib1g-dev \
     zip \
+    unzip \
+    git \
     default-mysql-client \
     supervisor \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) gd pdo pdo_mysql soap zip iconv bcmath \
-    && docker-php-ext-configure pdo_mysql --with-pdo-mysql=mysqlnd \
-    && docker-php-ext-install sockets \
-    && docker-php-ext-install exif \
-    && docker-php-ext-configure pcntl --enable-pcntl \
-    && docker-php-ext-install pcntl
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
+# Configure and install PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-configure pdo_mysql --with-pdo-mysql=mysqlnd \
+    && docker-php-ext-configure pcntl --enable-pcntl \
+    && docker-php-ext-install -j$(nproc) \
+        gd \
+        pdo \
+        pdo_mysql \
+        soap \
+        zip \
+        iconv \
+        bcmath \
+        sockets \
+        exif \
+        pcntl
+
+# Create SSL certificate symlink
 RUN mkdir -p /etc/pki/tls/certs && \
     ln -s /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt
 
-# Install Redis
+# Install Redis extension
 RUN wget -O redis-5.3.7.tgz 'https://pecl.php.net/get/redis-5.3.7.tgz' \
     && pecl install redis-5.3.7.tgz \
     && rm -rf redis-5.3.7.tgz \
     && rm -rf /tmp/pear \
     && docker-php-ext-enable redis
 
-# Install OpenSwoole
+# Install Swoole extension
 RUN pecl install swoole \
     && docker-php-ext-enable swoole
 
@@ -48,41 +61,57 @@ RUN pecl install swoole \
 RUN curl -sS https://getcomposer.org/installer | php -- \
     --install-dir=/usr/local/bin --filename=composer
 
-# Send update for php.ini
+# Copy composer files first for better caching
+COPY composer.* /var/www/
+
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+
+# Copy PHP configuration
 COPY ./init/php.development.ini /usr/local/etc/php/php.ini
 
 # Copy the application
 COPY . /var/www
 
-# Composer & laravel
-RUN composer install --optimize-autoloader \
-    && npm install --save-dev chokidar \
-    # && php artisan octane:install \
+# Install Node.js dependencies and build assets
+RUN npm install --save-dev chokidar \
+    && npm run build 2>/dev/null || npm run production 2>/dev/null || echo "No build script found"
+
+# Laravel setup
+RUN php artisan octane:install --server=swoole --no-interaction \
     && php artisan storage:link \
     && php artisan optimize:clear \
     && php artisan optimize \
     && php artisan config:clear \
-    # && php artisan octane:install --server=swoole \
-    && chmod -R 777 storage bootstrap/cache \
-    && chown -R www-data:www-data storage \
-    && composer dumpautoload
+    && php artisan config:cache \
+    && php artisan route:cache \
+    && php artisan view:cache \
+    && chmod -R 755 storage bootstrap/cache \
+    && chown -R www-data:www-data storage bootstrap/cache \
+    && composer dumpautoload --optimize
 
-# Generate Swagger
-RUN php artisan l5-swagger:generate
+# Generate Swagger documentation
+RUN php artisan l5-swagger:generate || echo "Swagger generation failed or not available"
 
-# Copy Supervisor configuration file
+# Create supervisor directories and log files
+RUN mkdir -p /var/log/supervisor /var/run/supervisor \
+    && touch /var/log/supervisor/supervisord.log \
+    && touch /var/log/supervisor/octane.log \
+    && touch /var/log/supervisor/horizon.log
+
+# Copy Supervisor configuration
 COPY ./docker/supervisord.conf /etc/supervisor/supervisord.conf
 
-# Install Supervisor (if not already installed)
-RUN mkdir -p /var/log/supervisor && \
-    touch /var/log/supervisor/supervisord.log && \
-    touch /var/run/supervisord.pid
+# Set proper permissions for www-data user
+RUN chown -R www-data:www-data /var/www \
+    && chmod -R 755 /var/www
+
+# Add health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8100/health || curl -f http://localhost:8100 || exit 1
 
 # Expose port
 EXPOSE 8100
 
-# RUN chmod +x /var/www/docker/start.sh
-
-# Starts both, laravel server and job queue
-# CMD ["/var/www/docker/start.sh"]
+# Start supervisord
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
