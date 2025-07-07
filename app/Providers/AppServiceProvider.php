@@ -18,6 +18,7 @@ use App\Models\CustodianHasRule;
 use App\Models\UserHasDepartments;
 use App\Observers\ONSFileObserver;
 use App\Models\ProjectHasCustodian;
+use App\Models\RegistryHasTraining;
 use App\Models\RegistryReadRequest;
 use App\Observers\RegistryObserver;
 use Illuminate\Support\Facades\App;
@@ -37,6 +38,7 @@ use App\Models\CustodianHasValidationCheck;
 use App\Observers\CustodianHasRuleObserver;
 use App\Observers\UserHasDepartmentsObserver;
 use App\Observers\ProjectHasCustodianObserver;
+use App\Observers\RegistryHasTrainingObserver;
 use App\Observers\RegistryReadRequestObserver;
 use App\Models\CustodianHasProjectOrganisation;
 use App\Observers\ProjectHasOrganisationObserver;
@@ -67,6 +69,7 @@ class AppServiceProvider extends ServiceProvider
         //     ]);
         // })->seconds(10);
     }
+    
     /**
      * Bootstrap any application services.
      */
@@ -90,6 +93,7 @@ class AppServiceProvider extends ServiceProvider
         CustodianHasProjectOrganisation::observe(CustodianHasProjectOrganisationObserver::class);
         CustodianHasValidationCheck::observe(CustodianHasValidationCheckObserver::class);
         RegistryReadRequest::observe(RegistryReadRequestObserver::class);
+        RegistryHasTraining::observe(RegistryHasTrainingObserver::class);
         // currently Training but is to be moved to RegistryHasTraining...
         // RegistryHasTraining::observe(RegistryHasTrainingObserver::class);
     }
