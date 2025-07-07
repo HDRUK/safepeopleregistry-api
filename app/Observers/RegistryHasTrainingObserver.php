@@ -25,6 +25,7 @@ class RegistryHasTrainingObserver
     {
         $registry = Registry::with('user')->find($model->registry_id);
 
+<<<<<<< HEAD
         $user = $registry->user;
         if (!$registry || !$user) {
             return;
@@ -32,6 +33,14 @@ class RegistryHasTrainingObserver
 
         // note: should check the expiry date of the training?
         // - future improvement to check this too
+=======
+        if (!$registry || !$registry->user) {
+            return; // Defensive check
+        }
+
+        $user = $registry->user;
+
+>>>>>>> b97e17d (add training check observer)
         $hasTrainings = $registry->trainings()
             ->when($isDeleting, function ($query) use ($model) {
                 return $query->where('trainings.id', '!=', $model->training_id);
