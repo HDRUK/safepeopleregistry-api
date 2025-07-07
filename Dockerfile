@@ -21,7 +21,6 @@ RUN apt-get update && apt-get install -y \
     zlib1g-dev \
     zip \
     nginx \ 
-    supervisor \
     default-mysql-client \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd pdo pdo_mysql soap zip iconv bcmath \
@@ -78,7 +77,6 @@ COPY ./docker/nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 8100
 
 RUN chmod +x /var/www/docker/start.sh
-
 
 # Starts both, laravel server and job queue
 CMD ["/var/www/docker/start.sh"]
