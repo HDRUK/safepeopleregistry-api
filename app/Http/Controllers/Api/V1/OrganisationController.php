@@ -1325,7 +1325,13 @@ class OrganisationController extends Controller
 
             $users = User::searchViaRequest()
                 ->applySorting()
-                ->with(['registry.affiliations', 'modelState.state'])
+                ->with([
+                    'registry.affiliations' => function ($query) use ($id) {
+                        $query->where('organisation_id', $id)->limit(1);
+                    },
+                    'registry.affiliations.modelState.state',
+                    'modelState.state'
+                ])
                 ->where(function ($query) use ($registryIds, $showPending, $id) {
                     $query->whereIn('registry_id', $registryIds);
 
