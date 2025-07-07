@@ -108,11 +108,6 @@ RUN mkdir -p /var/log/supervisor /var/run/supervisor \
 # Copy Supervisor configuration
 COPY ./docker/supervisord.conf /etc/supervisor/supervisord.conf
 
-# Make scheduler script executable
-COPY ./docker/scheduler.sh /var/www/docker/scheduler.sh
-RUN chmod +x /var/www/docker/scheduler.sh \
-    && chown www-data:www-data /var/www/docker/scheduler.sh
-
 # Set proper permissions for www-data user
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www
