@@ -84,7 +84,10 @@ class AppServiceProvider extends ServiceProvider
         CustodianHasValidationCheck::observe(CustodianHasValidationCheckObserver::class);
         RegistryReadRequest::observe(RegistryReadRequestObserver::class);
         RegistryHasTraining::observe(RegistryHasTrainingObserver::class);
+<<<<<<< HEAD
         RegistryHasTraining::observe(RegistryHasTrainingObserver::class);
+=======
+>>>>>>> b97e17d (add training check observer)
         // currently Training but is to be moved to RegistryHasTraining...
         // RegistryHasTraining::observe(RegistryHasTrainingObserver::class);
     }
