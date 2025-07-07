@@ -101,13 +101,12 @@ RUN mkdir -p /var/log/supervisor /var/run/supervisor \
 # Copy Supervisor configuration
 COPY ./docker/supervisord.conf /etc/supervisor/supervisord.conf
 
+# Make scheduler script executable
+RUN chmod +x /var/www/docker/scheduler.sh
+
 # Set proper permissions for www-data user
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www
-
-# Add health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:8100/health || curl -f http://localhost:8100 || exit 1
 
 # Expose port
 EXPOSE 8100
