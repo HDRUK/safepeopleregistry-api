@@ -31,9 +31,9 @@ else
     echo "running in prod mode"
 fi
 
-# if [ -n "$OCTANE_WORKERS" ]; then
-#     base_command="$base_command --workers=${OCTANE_WORKERS}"
-# fi
+if [ -n "$OCTANE_WORKERS" ]; then
+    base_command="$base_command --workers=${OCTANE_WORKERS}"
+fi
 
 php artisan horizon &
 $base_command
