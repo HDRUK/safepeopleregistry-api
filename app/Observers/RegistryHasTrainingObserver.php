@@ -10,6 +10,7 @@ use Carbon\Carbon;
 
 class RegistryHasTrainingObserver
 {
+
     public function created(RegistryHasTraining $model): void
     {
         $this->updateTrainingActionLog($model);
@@ -29,6 +30,8 @@ class RegistryHasTrainingObserver
             return;
         }
 
+        // note: should check the expiry date of the training?
+        // - future improvement to check this too
         $hasTrainings = $registry->trainings()
             ->when($isDeleting, function ($query) use ($model) {
                 return $query->where('trainings.id', '!=', $model->training_id);
