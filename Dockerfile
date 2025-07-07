@@ -66,7 +66,7 @@ RUN pecl install swoole \
     && docker-php-ext-enable swoole
 
 # Install Google Fluentd for logging to Google Cloud Logging
-RUN curl -sSO https://dl.google.com/cloudagents/add-google-cloud-logging-agent-repo.sh \
+RUN curl -sS https://dl.google.com/cloudagents/add-google-cloud-logging-agent-repo.sh \
     && bash add-google-cloud-logging-agent-repo.sh --disable-repo \
     && apt-get update \
     && apt-get install -y google-fluentd \
