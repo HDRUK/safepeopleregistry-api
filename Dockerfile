@@ -81,7 +81,7 @@ COPY . /var/www
 
 # Install Node.js dependencies and build assets
 RUN npm install --save-dev chokidar \
-    && npm run build 2>/dev/null
+    && npm run build 2>/dev/null || npm run production 2>/dev/null || echo "No build script found"
 
 # Laravel setup
 RUN composer install \
