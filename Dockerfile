@@ -65,13 +65,6 @@ RUN wget -O redis-5.3.7.tgz 'https://pecl.php.net/get/redis-5.3.7.tgz' \
 RUN pecl install swoole \
     && docker-php-ext-enable swoole
 
-# Install Google Fluentd for logging to Google Cloud Logging
-RUN curl -sS https://dl.google.com/cloudagents/add-google-cloud-logging-agent-repo.sh \
-    && bash add-google-cloud-logging-agent-repo.sh --disable-repo \
-    && apt-get update \
-    && apt-get install -y google-fluentd \
-    && rm -rf /var/lib/apt/lists/*
-
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- \
     --install-dir=/usr/local/bin --filename=composer
@@ -128,4 +121,4 @@ RUN chown -R www-data:www-data /var/www \
 EXPOSE 8100
 
 # Start supervisord
-CMD ["sh", "-c", "google-fluentd --log-opt mode=non-blocking -q & /usr/bin/supervisord -c /etc/supervisor/supervisord.conf"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
