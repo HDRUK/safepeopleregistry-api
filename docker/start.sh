@@ -11,7 +11,7 @@ base_command="php artisan serve --host=0.0.0.0 --port=8100"
 
 if [ $APP_ENV = 'local' ] || [ $APP_ENV = 'dev' ]; then
     echo 'running in dev mode - with watch'
-    base_command="$base_command --watch"
+    # base_command="$base_command --watch"
 
     if [ $REBUILD_DB = 1 ]; then
         # Completely clear down the data in local/dev envs
