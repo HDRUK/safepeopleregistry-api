@@ -65,7 +65,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- \
 COPY composer.* /var/www/
 
 # Install PHP dependencies
-RUN composer install --optimize-autoloader
+RUN composer install
 
 # Copy PHP configuration
 COPY ./init/php.development.ini /usr/local/etc/php/php.ini
