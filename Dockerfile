@@ -41,8 +41,8 @@ RUN wget -O redis-5.3.7.tgz 'https://pecl.php.net/get/redis-5.3.7.tgz' \
     && docker-php-ext-enable redis
 
 # Install OpenSwoole
-# RUN pecl install swoole \
-#     && docker-php-ext-enable swoole
+RUN pecl install openswoole \
+    && docker-php-ext-enable openswoole
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- \
@@ -62,7 +62,7 @@ RUN composer install --optimize-autoloader \
     && php artisan optimize:clear \
     && php artisan optimize \
     && php artisan config:clear \
-    # && php artisan octane:install --server=swoole \
+    && php artisan octane:install --server=swoole \
     && chmod -R 777 storage bootstrap/cache \
     && chown -R www-data:www-data storage \
     && composer dumpautoload
@@ -71,7 +71,7 @@ RUN composer install --optimize-autoloader \
 RUN php artisan l5-swagger:generate
 
 # Copy Nginx config
-COPY ./docker/nginx.conf /etc/nginx/conf.d/default.conf
+# COPY ./docker/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expose port
 EXPOSE 8100
