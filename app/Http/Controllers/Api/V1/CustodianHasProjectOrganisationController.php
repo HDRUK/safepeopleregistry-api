@@ -85,7 +85,6 @@ class CustodianHasProjectOrganisationController extends Controller
                 'projectOrganisation.organisation.sroOfficer',
                 'projectOrganisation.project',
             ])
-                ->filterByState()
                 ->where('custodian_id', $custodianId)
                 ->when(!empty($searchName), function ($query) use ($searchName) {
                     $query->where(function ($subQuery) use ($searchName) {
