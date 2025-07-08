@@ -11,12 +11,13 @@ use App\Models\CustodianHasProjectOrganisation;
 use Illuminate\Support\Facades\Gate;
 use App\Traits\CommonFunctions;
 use Illuminate\Support\Facades\Auth;
+use App\Traits\FilterManager;
 
 class CustodianHasProjectOrganisationController extends Controller
 {
     use Responses;
     use CommonFunctions;
-
+    use FilterManager;
 
     /**
      * @OA\Get(
@@ -84,6 +85,7 @@ class CustodianHasProjectOrganisationController extends Controller
                 'projectOrganisation.organisation.sroOfficer',
                 'projectOrganisation.project',
             ])
+                ->filterByState()
                 ->where('custodian_id', $custodianId)
                 ->when(!empty($searchName), function ($query) use ($searchName) {
                     $query->where(function ($subQuery) use ($searchName) {
@@ -107,6 +109,7 @@ class CustodianHasProjectOrganisationController extends Controller
                 ->join('project_has_organisations', 'custodian_has_project_has_organisation.project_has_organisation_id', '=', 'project_has_organisations.id')
                 ->join('projects', 'project_has_organisations.project_id', '=', 'projects.id')
                 ->join('organisations', 'project_has_organisations.organisation_id', '=', 'organisations.id')
+                ->filterByState()
                 ->applySorting()
                 ->select('custodian_has_project_has_organisation.*')
                 ->paginate($perPage);
