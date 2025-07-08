@@ -49,6 +49,14 @@ class UpdateActionNotifications implements ShouldQueue
         $query->where("user_group", $group)
             ->chunk($this->chunkSize, function ($users) use ($group) {
                 foreach ($users as $user) {
+                    $entityType = $this->getEntityType($group);
+                    $entityId = $this->getEntityId($user, $group);
+
+                    if ($entityType === null || $entityId === null) {
+                        Log::warning("Skipping user {$user->id} due to missing entity type or ID.");
+                        continue;
+                    }
+                    
                     $this->processNotifications($user, $group);
                     // trying this as it could be causing unboard memory growth
                     // as in the called function, we do both:
@@ -67,8 +75,8 @@ class UpdateActionNotifications implements ShouldQueue
     {
         $entityType = $this->getEntityType($group);
         $entityId = $this->getEntityId($user, $group);
-        if ($entityId === 0) {
-            Log::error("Failed to get entity ID for user {$user->id} in group {$group}");
+        if ($entityType === null || $entityId === null) {
+            Log::warning("Skipping notifications for user {$user->id} due to missing entity type or ID.");
             return;
         }
 
@@ -89,17 +97,22 @@ class UpdateActionNotifications implements ShouldQueue
         }
     }
 
-    private function getEntityType(string $group): string
+    private function getEntityType(string $group): ?string
     {
-        return match ($group) {
-            User::GROUP_USERS => User::class,
-            User::GROUP_ORGANISATIONS => Organisation::class,
-            User::GROUP_CUSTODIANS => Custodian::class,
-            default => throw new InvalidArgumentException("Invalid user group: {$group}"),
-        };
+        try {
+            return match ($group) {
+                User::GROUP_USERS => User::class,
+                User::GROUP_ORGANISATIONS => Organisation::class,
+                User::GROUP_CUSTODIANS => Custodian::class,
+                default => throw new InvalidArgumentException("Invalid user group: {$group}"),
+            };
+        } catch (Exception $e) {
+            Log::error("Failed to get entity type for group {$group}: " . $e->getMessage());
+            return null;
+        }
     }
 
-    private function getEntityId(User $user, string $group): int
+    private function getEntityId(User $user, string $group): ?int
     {
         try {
             $return = match ($group) {
@@ -111,13 +124,13 @@ class UpdateActionNotifications implements ShouldQueue
 
             if (is_null($return)) {
                 Log::error("Failed to get entity ID for user {$user->id} and group {$group}: " . $e->getMessage());
-                return 0;
+                return null;
             }
 
             return $return;
         } catch (Exception $e) {
             Log::error("Failed to get entity ID for user {$user->id} and group {$group}: " . $e->getMessage());
-            return 0;
+            return null;
         }
     }
 }
