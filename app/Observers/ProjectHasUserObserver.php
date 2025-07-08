@@ -171,6 +171,26 @@ class ProjectHasUserObserver
 
         $user = $projectHasUser->registry->user;
         $project = $projectHasUser->project;
+        $affiliation = $projectHasUser->affiliation;
+
+        if ($affiliation) {
+            $organisationId = $affiliation->organisation->id;
+
+            $otherUsersWithSameAffiliation = ProjectHasUser::where('project_id', $project->id)
+                ->whereHas('affiliation', function ($query) use ($organisationId) {
+                    $query->where('organisation_id', $organisationId);
+                })
+                ->where('id', '!=', $projectHasUser->id)
+                ->exists();
+
+            if (!$otherUsersWithSameAffiliation) {
+                ProjectHasOrganisation::where([
+                    'project_id' => $project->id,
+                    'organisation_id' => $organisationId
+                ])->delete();
+            }
+        }
+
 
         activity()
             ->causedBy(Auth::user())
