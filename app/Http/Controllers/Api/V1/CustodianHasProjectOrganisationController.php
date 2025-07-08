@@ -17,7 +17,6 @@ class CustodianHasProjectOrganisationController extends Controller
     use Responses;
     use CommonFunctions;
 
-
     /**
      * @OA\Get(
      *      path="/api/v1/custodian_approvals/{custodianId}/projectOrganisations",
@@ -107,6 +106,7 @@ class CustodianHasProjectOrganisationController extends Controller
                 ->join('project_has_organisations', 'custodian_has_project_has_organisation.project_has_organisation_id', '=', 'project_has_organisations.id')
                 ->join('projects', 'project_has_organisations.project_id', '=', 'projects.id')
                 ->join('organisations', 'project_has_organisations.organisation_id', '=', 'organisations.id')
+                ->filterByState()
                 ->applySorting()
                 ->select('custodian_has_project_has_organisation.*')
                 ->paginate($perPage);
