@@ -123,7 +123,7 @@ class UpdateActionNotifications implements ShouldQueue
             };
 
             if (is_null($return)) {
-                Log::error("Failed to get entity ID for user {$user->id} and group {$group}: " . $e->getMessage());
+                Log::error("Failed to get entity ID for user {$user->id} and group {$group}");
                 return null;
             }
 
