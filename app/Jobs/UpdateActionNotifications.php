@@ -40,39 +40,39 @@ class UpdateActionNotifications implements ShouldQueue
      */
     public function handle(): void
     {
-        // Check if the job is already locked
-        if ($this->isLocked()) {
-            return;
-        }
+        // // Check if the job is already locked
+        // if ($this->isLocked()) {
+        //     return;
+        // }
 
-         // Lock the job
-        $this->lockJob();
+        //  // Lock the job
+        // $this->lockJob();
 
-        try {
+        // try {
             $this->processUsers(User::GROUP_USERS, User::query());
             $this->processUsers(User::GROUP_ORGANISATIONS, User::where("is_org_admin", 1));
             $this->processUsers(User::GROUP_CUSTODIANS, User::query());
-        } catch (Exception $e) {
-            Log::error("Error in UpdateActionNotifications: " . $e->getMessage());
-        } finally {
-            $this->unlockJob(); // Unlock the job
-        }
+        // } catch (Exception $e) {
+        //     Log::error("Error in UpdateActionNotifications: " . $e->getMessage());
+        // } finally {
+        //     $this->unlockJob(); // Unlock the job
+        // }
     }
 
-    protected function isLocked(): bool
-    {
-        return Redis::exists('update_action_notifications_lock');
-    }
+    // protected function isLocked(): bool
+    // {
+    //     return Redis::exists('update_action_notifications_lock');
+    // }
 
-    protected function lockJob(): void
-    {
-        Redis::set('update_action_notifications_lock', true, 'EX', 30); // Lock for 30 seconds
-    }
+    // protected function lockJob(): void
+    // {
+    //     Redis::set('update_action_notifications_lock', true, 'EX', 30); // Lock for 30 seconds
+    // }
 
-    protected function unlockJob(): void
-    {
-        Redis::del('update_action_notifications_lock');
-    }
+    // protected function unlockJob(): void
+    // {
+    //     Redis::del('update_action_notifications_lock');
+    // }
 
     private function processUsers(string $group, $query): void
     {
