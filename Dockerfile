@@ -114,6 +114,10 @@ COPY ./docker/resource-monitor.sh /var/www/docker/resource-monitor.sh
 RUN chmod +x /var/www/docker/resource-monitor.sh \
     && chown www-data:www-data /var/www/docker/resource-monitor.sh
 
+COPY ./docker/run-scheduler.sh /var/www/docker/run-scheduler.sh
+RUN chmod +x /var/www/docker/run-scheduler.sh \
+    && chown www-data:www-data /var/www/docker/run-scheduler.sh
+
 # Set proper permissions for www-data user
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www
