@@ -61,9 +61,10 @@ RUN wget -O redis-5.3.7.tgz 'https://pecl.php.net/get/redis-5.3.7.tgz' \
     && rm -rf /tmp/pear \
     && docker-php-ext-enable redis
 
-# Install Swoole extension
-RUN pecl install swoole \
-    && docker-php-ext-enable swoole
+# Install FrankenPHP extension
+RUN curl https://frankenphp.dev/install.sh | sh \
+    && mv frankenphp /usr/local/bin/frankenphp \
+    && chmod +x /usr/local/bin/frankenphp
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- \
@@ -78,37 +79,18 @@ COPY ./init/php.development.ini /usr/local/etc/php/php.ini
 # Copy the application
 COPY . /var/www
 
-<<<<<<< HEAD
-# Install Node.js dependencies and build assets
-RUN npm install --save-dev chokidar \
-    && npm run build 2>/dev/null || npm run production 2>/dev/null || echo "No build script found"
-
-# Laravel setup
-RUN composer install \
-    && php artisan octane:install --server=swoole --no-interaction \
-=======
 # Composer & laravel
 RUN composer install --optimize-autoloader \
     && npm install --save-dev chokidar \
     # && php artisan octane:install \
->>>>>>> e53d699 (update)
     && php artisan storage:link \
     && php artisan optimize:clear \
     && php artisan optimize \
     && php artisan config:clear \
-<<<<<<< HEAD
-    && php artisan config:cache \
-    && php artisan route:cache \
-    && php artisan view:cache \
-    && chmod -R 755 storage bootstrap/cache \
-    && chown -R www-data:www-data storage bootstrap/cache \
-    && composer dumpautoload --optimize
-=======
-    # && php artisan octane:install --server=swoole \
+    && php artisan octane:install --server=frankenphp \
     && chmod -R 777 storage bootstrap/cache \
     && chown -R www-data:www-data storage \
     && composer dumpautoload
->>>>>>> e53d699 (update)
 
 # Generate Swagger documentation
 RUN php artisan l5-swagger:generate
