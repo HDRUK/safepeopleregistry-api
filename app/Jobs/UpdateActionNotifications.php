@@ -2,18 +2,20 @@
 
 namespace App\Jobs;
 
+use Exception;
+use Carbon\Carbon;
+use App\Models\User;
+use App\Models\ActionLog;
+use App\Models\Custodian;
+use App\Models\Organisation;
 use Illuminate\Bus\Queueable;
+use InvalidArgumentException;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use App\Models\ActionLog;
-use App\Models\User;
-use App\Models\Organisation;
-use App\Models\Custodian;
 use App\Notifications\ActionPendingNotification;
-use Carbon\Carbon;
-use InvalidArgumentException;
 
 class UpdateActionNotifications implements ShouldQueue
 {
@@ -65,6 +67,10 @@ class UpdateActionNotifications implements ShouldQueue
     {
         $entityType = $this->getEntityType($group);
         $entityId = $this->getEntityId($user, $group);
+        if ($entityId === 0) {
+            Log::error("Failed to get entity ID for user {$user->id} in group {$group}");
+            return;
+        }
 
         $incompleteActions = ActionLog::where('entity_type', $entityType)
             ->where('entity_id', $entityId)
@@ -95,17 +101,23 @@ class UpdateActionNotifications implements ShouldQueue
 
     private function getEntityId(User $user, string $group): int
     {
-        $return = match ($group) {
-            User::GROUP_USERS => $user->id,
-            User::GROUP_ORGANISATIONS => $user->organisation_id,
-            User::GROUP_CUSTODIANS => $user->custodian_id ? $user->custodian_user->custodian_id : null,
-            default => throw new InvalidArgumentException("Invalid user group: {$group}"),
-        };
+        try {
+            $return = match ($group) {
+                User::GROUP_USERS => $user->id,
+                User::GROUP_ORGANISATIONS => $user->organisation_id,
+                User::GROUP_CUSTODIANS => $user->custodian_id ? $user->custodian_user->custodian_id : null,
+                default => throw new InvalidArgumentException("Invalid user group: {$group}"),
+            };
 
-        if (is_null($return)) {
-            throw new InvalidArgumentException("Entity ID for group {$group} is null for user ID {$user->id}");
+            if (is_null($return)) {
+                Log::error("Failed to get entity ID for user {$user->id} and group {$group}: " . $e->getMessage());
+                return 0;
+            }
+
+            return $return;
+        } catch (Exception $e) {
+            Log::error("Failed to get entity ID for user {$user->id} and group {$group}: " . $e->getMessage());
+            return 0;
         }
-        return $return;
     }
-
 }
