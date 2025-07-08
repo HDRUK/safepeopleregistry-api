@@ -95,12 +95,17 @@ class UpdateActionNotifications implements ShouldQueue
 
     private function getEntityId(User $user, string $group): int
     {
-        return match ($group) {
+        $return = match ($group) {
             User::GROUP_USERS => $user->id,
             User::GROUP_ORGANISATIONS => $user->organisation_id,
-            User::GROUP_CUSTODIANS => $user->custodian_id ?? $user->custodian_user->custodian_id,
+            User::GROUP_CUSTODIANS => $user->custodian_id ? $user->custodian_user->custodian_id : null,
             default => throw new InvalidArgumentException("Invalid user group: {$group}"),
         };
+
+        if (is_null($return)) {
+            throw new InvalidArgumentException("Entity ID for group {$group} is null for user ID {$user->id}");
+        }
+        return $return;
     }
 
 }
