@@ -91,7 +91,9 @@ class AffiliationObserver
         ])->pluck('id');
 
         $userId = $affiliation->registry?->user?->id;
-        if (!$userId) return;
+        if (!$userId) {
+            return;
+        }
 
         foreach ($delegateIds as $delegateId) {
             TriggerEmail::spawnEmail([
