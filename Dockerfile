@@ -106,6 +106,8 @@ RUN mkdir -p /var/log/supervisor /var/run/supervisor \
     && touch /var/log/supervisor/horizon.log
 
 # Copy Supervisor configuration
+RUN groupadd -r supervisor || true
+RUN usermod -a -G supervisor www-data || true
 COPY ./docker/supervisord.conf /etc/supervisor/supervisord.conf
 
 COPY ./docker/resource-monitor.sh /var/www/docker/resource-monitor.sh

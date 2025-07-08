@@ -1,46 +1,42 @@
 #!/bin/bash
 set -e
 
-echo "[STATUS-MONITOR] Starting status monitoring..."
+echo "[STATUS-MONITOR] Starting status monitoring (no supervisor socket required)..."
+
+check_service() {
+    local service_name=$1
+    local process_pattern=$2
+    
+    if pgrep -f "$process_pattern" >/dev/null 2>&1; then
+        local pid=$(pgrep -f "$process_pattern" | head -1)
+        echo "  ✓ $service_name: RUNNING (PID: $pid)"
+        return 0
+    else
+        echo "  ✗ $service_name: STOPPED"
+        return 1
+    fi
+}
 
 while true; do
     TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
-    echo "[$TIMESTAMP] [STATUS] === Process Status ==="
+    echo "[$TIMESTAMP] [STATUS] === Laravel Services Status ==="
     
-    # Check if supervisord is running
-    if pgrep supervisord >/dev/null 2>&1; then
-        echo "  ✓ supervisord is running (PID: $(pgrep supervisord))"
-    else
-        echo "  ✗ supervisord is not running"
+    # Check each service
+    check_service "Octane" "octane:start"
+    check_service "Horizon" "artisan horizon"
+    check_service "Scheduler" "schedule:run"
+    
+    # Show resource usage
+    if [ -f /proc/meminfo ]; then
+        TOTAL_MEM=$(grep MemTotal /proc/meminfo | awk '{print int($2/1024)}')
+        AVAIL_MEM=$(grep MemAvailable /proc/meminfo | awk '{print int($2/1024)}')
+        USED_MEM=$((TOTAL_MEM - AVAIL_MEM))
+        echo "  Memory: ${USED_MEM}MB / ${TOTAL_MEM}MB used"
     fi
     
-    # Check Laravel processes
-    if pgrep -f "octane:start" >/dev/null 2>&1; then
-        echo "  ✓ Laravel Octane is running (PID: $(pgrep -f 'octane:start'))"
-    else
-        echo "  ✗ Laravel Octane is not running"
-    fi
-    
-    if pgrep -f "horizon" >/dev/null 2>&1; then
-        echo "  ✓ Laravel Horizon is running (PID: $(pgrep -f 'horizon'))"
-    else
-        echo "  ✗ Laravel Horizon is not running"
-    fi
-    
-    if pgrep -f "schedule:run" >/dev/null 2>&1; then
-        echo "  ✓ Laravel Scheduler is running (PID: $(pgrep -f 'schedule:run'))"
-    else
-        echo "  ✗ Laravel Scheduler is not running"
-    fi
-    
-    # Show total process count
-    TOTAL_PROCESSES=$(ps aux | wc -l)
-    echo "  Total processes: $TOTAL_PROCESSES"
-    
-    # Try supervisorctl if available
-    if command -v supervisorctl >/dev/null 2>&1; then
-        echo "  Supervisor status:"
-        supervisorctl -c /etc/supervisor/supervisord.conf status 2>/dev/null | sed 's/^/    /' || echo "    Unable to get supervisor status"
+    if [ -f /proc/loadavg ]; then
+        LOAD=$(cut -d' ' -f1 /proc/loadavg)
+        echo "  Load: $LOAD"
     fi
     
     echo ""
