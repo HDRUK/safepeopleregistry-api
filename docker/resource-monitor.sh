@@ -1,33 +1,48 @@
 #!/bin/bash
-# /var/www/docker/resource-monitor.sh
-
 set -e
-trap '' PIPE
 
-echo "[RESOURCE-MONITOR] Starting resource monitoring..."
+echo "[STATUS-MONITOR] Starting status monitoring..."
 
 while true; do
-    # Memory from /proc/meminfo
-    if [ -f /proc/meminfo ]; then
-        TOTAL_MEM=$(grep MemTotal /proc/meminfo | awk '{print $2}')
-        AVAIL_MEM=$(grep MemAvailable /proc/meminfo | awk '{print $2}')
-        USED_MEM=$((TOTAL_MEM - AVAIL_MEM))
-        MEMORY_PERCENT=$(awk "BEGIN {printf \"%.1f\", $USED_MEM/$TOTAL_MEM*100}")
-        MEMORY_INFO="${MEMORY_PERCENT}% ($(($USED_MEM/1024))MB/$(($TOTAL_MEM/1024))MB)"
-    else
-        MEMORY_INFO="N/A"
-    fi
-    
-    # CPU from /proc/loadavg
-    if [ -f /proc/loadavg ]; then
-        LOAD_AVG=$(cut -d' ' -f1 /proc/loadavg)
-        CPU_INFO="Load: $LOAD_AVG"
-    else
-        CPU_INFO="N/A"
-    fi
-    
     TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
-    echo "[$TIMESTAMP] [RESOURCE] Memory: $MEMORY_INFO CPU: $CPU_INFO"
+    echo "[$TIMESTAMP] [STATUS] === Process Status ==="
     
-    sleep 30
+    # Check if supervisord is running
+    if pgrep supervisord >/dev/null 2>&1; then
+        echo "  ✓ supervisord is running (PID: $(pgrep supervisord))"
+    else
+        echo "  ✗ supervisord is not running"
+    fi
+    
+    # Check Laravel processes
+    if pgrep -f "octane:start" >/dev/null 2>&1; then
+        echo "  ✓ Laravel Octane is running (PID: $(pgrep -f 'octane:start'))"
+    else
+        echo "  ✗ Laravel Octane is not running"
+    fi
+    
+    if pgrep -f "horizon" >/dev/null 2>&1; then
+        echo "  ✓ Laravel Horizon is running (PID: $(pgrep -f 'horizon'))"
+    else
+        echo "  ✗ Laravel Horizon is not running"
+    fi
+    
+    if pgrep -f "schedule:run" >/dev/null 2>&1; then
+        echo "  ✓ Laravel Scheduler is running (PID: $(pgrep -f 'schedule:run'))"
+    else
+        echo "  ✗ Laravel Scheduler is not running"
+    fi
+    
+    # Show total process count
+    TOTAL_PROCESSES=$(ps aux | wc -l)
+    echo "  Total processes: $TOTAL_PROCESSES"
+    
+    # Try supervisorctl if available
+    if command -v supervisorctl >/dev/null 2>&1; then
+        echo "  Supervisor status:"
+        supervisorctl -c /etc/supervisor/supervisord.conf status 2>/dev/null | sed 's/^/    /' || echo "    Unable to get supervisor status"
+    fi
+    
+    echo ""
+    sleep 60
 done
