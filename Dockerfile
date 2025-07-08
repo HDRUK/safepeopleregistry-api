@@ -108,6 +108,10 @@ RUN mkdir -p /var/log/supervisor /var/run/supervisor \
 # Copy Supervisor configuration
 COPY ./docker/supervisord.conf /etc/supervisor/supervisord.conf
 
+COPY ./docker/resource-monitor.sh /var/www/docker/resource-monitor.sh
+RUN chmod +x /var/www/docker/resource-monitor.sh \
+    && chown www-data:www-data /var/www/docker/resource-monitor.sh
+
 # Set proper permissions for www-data user
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www
