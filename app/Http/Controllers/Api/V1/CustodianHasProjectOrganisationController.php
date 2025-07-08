@@ -11,13 +11,11 @@ use App\Models\CustodianHasProjectOrganisation;
 use Illuminate\Support\Facades\Gate;
 use App\Traits\CommonFunctions;
 use Illuminate\Support\Facades\Auth;
-use App\Traits\FilterManager;
 
 class CustodianHasProjectOrganisationController extends Controller
 {
     use Responses;
     use CommonFunctions;
-    use FilterManager;
 
     /**
      * @OA\Get(
