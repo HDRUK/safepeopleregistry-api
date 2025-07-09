@@ -17,6 +17,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Notifications\ActionPendingNotification;
+use Illuminate\Database\Eloquent\Collection;
 
 class UpdateActionNotifications implements ShouldQueue
 {
@@ -25,7 +26,7 @@ class UpdateActionNotifications implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    protected $chunkSize = 50;
+    protected $chunkSize = 500;
 
     /**
      * Create a new job instance.
@@ -40,54 +41,30 @@ class UpdateActionNotifications implements ShouldQueue
      */
     public function handle(): void
     {
-        // // Check if the job is already locked
-        // if ($this->isLocked()) {
-        //     return;
-        // }
-
-        //  // Lock the job
-        // $this->lockJob();
-
-        // try {
-            $this->processUsers(User::GROUP_USERS, User::query());
-            $this->processUsers(User::GROUP_ORGANISATIONS, User::where("is_org_admin", 1));
-            $this->processUsers(User::GROUP_CUSTODIANS, User::query());
-        // } catch (Exception $e) {
-        //     Log::error("Error in UpdateActionNotifications: " . $e->getMessage());
-        // } finally {
-        //     $this->unlockJob(); // Unlock the job
-        // }
+        $this->processUsers(User::GROUP_USERS, User::query());
+        $this->processUsers(User::GROUP_ORGANISATIONS, User::where("is_org_admin", 1));
+        $this->processUsers(User::GROUP_CUSTODIANS, User::query());
     }
-
-    // protected function isLocked(): bool
-    // {
-    //     return Redis::exists('update_action_notifications_lock');
-    // }
-
-    // protected function lockJob(): void
-    // {
-    //     Redis::set('update_action_notifications_lock', true, 'EX', 30); // Lock for 30 seconds
-    // }
-
-    // protected function unlockJob(): void
-    // {
-    //     Redis::del('update_action_notifications_lock');
-    // }
 
     private function processUsers(string $group, $query): void
     {
-        $query->where("user_group", $group)
-            ->chunk($this->chunkSize, function ($users) use ($group) {
+        $entityType = $this->getEntityType($group);
+        if ($entityType === null) {
+            Log::error("Skipping group '{$group}' due to invalid entity type.");
+            return;
+        }
+
+        $query->where('user_group', $group)
+            ->chunk($this->chunkSize, function ($users) use ($group, $entityType) {
                 foreach ($users as $user) {
-                    $entityType = $this->getEntityType($group);
                     $entityId = $this->getEntityId($user, $group);
 
-                    if ($entityType === null || $entityId === null) {
+                    if ($entityId === null) {
                         Log::warning("Skipping user {$user->id} due to missing entity type or ID.");
                         continue;
                     }
                     
-                    $this->processNotifications($user, $group);
+                    $this->processNotifications($user, $group, $entityType);
                     // trying this as it could be causing unboard memory growth
                     // as in the called function, we do both:
                     // $user->notify(new ActionPendingNotification($group, $incompleteActions));
@@ -102,12 +79,11 @@ class UpdateActionNotifications implements ShouldQueue
         unset($query);
     }
 
-    private function processNotifications(User $user, string $group): void
+    private function processNotifications(User $user, string $group, string $entityType): void
     {
-        $entityType = $this->getEntityType($group);
         $entityId = $this->getEntityId($user, $group);
-        if ($entityType === null || $entityId === null) {
-            Log::warning("Skipping notifications for user {$user->id} due to missing entity type or ID.");
+        if ($entityId === null) {
+            Log::warning("Skipping notifications for user {$user->id} due to missing entity ID.");
             return;
         }
 
