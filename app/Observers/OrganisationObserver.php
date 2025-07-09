@@ -63,10 +63,33 @@ class OrganisationObserver
         }
 
         // Force completeness checks on creation
-        $this->checkIsComplete($organisation, $this->nameAndAddressFields, Organisation::ACTION_NAME_ADDRESS_COMPLETED, true);
-        $this->checkIsComplete($organisation, $this->digitalIdentifiers, Organisation::ACTION_DIGITAL_ID_COMPLETED, true);
-        $this->checkIsComplete($organisation, $this->sectorSize, Organisation::ACTION_SECTOR_SIZE_COMPLETED, true);
-        $this->checkIsComplete($organisation, $this->securityCompliance, Organisation::ACTION_DATA_SECURITY_COMPLETED, true);
+        $this->checkIsComplete(
+            $organisation,
+            $this->nameAndAddressFields,
+            Organisation::ACTION_NAME_ADDRESS_COMPLETED,
+            true
+        );
+
+        $this->checkIsComplete(
+            $organisation,
+            $this->digitalIdentifiers,
+            Organisation::ACTION_DIGITAL_ID_COMPLETED,
+            true
+        );
+
+        $this->checkIsComplete(
+            $organisation,
+            $this->sectorSize,
+            Organisation::ACTION_SECTOR_SIZE_COMPLETED,
+            true
+        );
+
+        $this->checkIsComplete(
+            $organisation,
+            $this->securityCompliance,
+            Organisation::ACTION_DATA_SECURITY_COMPLETED,
+            true
+        );
 
         $this->manageAffiliationStates($organisation);
 
@@ -84,10 +107,31 @@ class OrganisationObserver
      */
     public function updated(Organisation $organisation): void
     {
-        $this->checkIsComplete($organisation, $this->nameAndAddressFields, Organisation::ACTION_NAME_ADDRESS_COMPLETED);
-        $this->checkIsComplete($organisation, $this->digitalIdentifiers, Organisation::ACTION_DIGITAL_ID_COMPLETED);
-        $this->checkIsComplete($organisation, $this->sectorSize, Organisation::ACTION_SECTOR_SIZE_COMPLETED);
-        $this->checkIsComplete($organisation, $this->securityCompliance, Organisation::ACTION_DATA_SECURITY_COMPLETED);
+        $this->checkIsComplete(
+            $organisation,
+            $this->nameAndAddressFields,
+            Organisation::ACTION_NAME_ADDRESS_COMPLETED
+        );
+
+        $this->checkIsComplete(
+            $organisation,
+            $this->digitalIdentifiers,
+            Organisation::ACTION_DIGITAL_ID_COMPLETED
+        );
+
+        $this->checkIsComplete(
+            $organisation,
+            $this->sectorSize,
+            Organisation::ACTION_SECTOR_SIZE_COMPLETED
+        );
+
+        // note - future improvement to also check the date is not expired
+        $this->checkIsComplete(
+            $organisation,
+            $this->securityCompliance,
+            Organisation::ACTION_DATA_SECURITY_COMPLETED
+        );
+
         $this->manageAffiliationStates($organisation);
     }
 
@@ -125,11 +169,17 @@ class OrganisationObserver
         }
     }
 
+    /**
+     * Helper function to check if a field is an expiry date.
+     */
     private function isDateField(string $field): bool
     {
         return str_contains($field, '_expiry_date');
     }
 
+    /**
+     * Helper function to check if a date is valid (not expired).
+     */
     private function isDateValid(?string $date): bool
     {
         if (!$date) {
