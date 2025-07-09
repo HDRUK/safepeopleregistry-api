@@ -826,13 +826,6 @@ class ActionLogTest extends TestCase
         );
     }
 
-    /* Not implemented yet
-    public function test_it_can_log_custodian_add_contacts_complete()
-    {
-
-    }*/
-
-
     public function test_it_can_log_custodian_add_team_members_complete()
     {
         Carbon::setTestNow(Carbon::now());
