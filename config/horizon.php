@@ -195,9 +195,7 @@ return [
             'tries' => 3,
             'timeout' => 60,
             // 'nice' => 0,
-            // 'memory' => '512',
-            'max_jobs' => 500, // Process 500 jobs then restart
-            'max_time' => 3600, // Restart after 1 hour (3600 seconds)
+            'memory' => '512',
         ],
     ],
 
