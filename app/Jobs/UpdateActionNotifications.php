@@ -79,7 +79,7 @@ class UpdateActionNotifications implements ShouldQueue
 
         $query->where('user_group', $group)
             ->cursor()
-            ->each($this->chunkSize, function ($user) use ($group, $entityType) {
+            ->each(function ($user) use ($group, $entityType) {
                 $entityId = $this->getEntityId($user, $group);
 
                 if ($entityId === null) {
