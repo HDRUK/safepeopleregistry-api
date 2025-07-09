@@ -25,7 +25,6 @@ class CustodianHasValidationCheckObserver
     public function updated(CustodianHasValidationCheck $model): void
     {
         $custodian = $model->custodian;
-        dump('seedng...');
 
         ActionLog::where([
             'entity_id' => $custodian->id,
