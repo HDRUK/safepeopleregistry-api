@@ -61,6 +61,36 @@ class OrganisationObserver
                 'completed_at' => null,
             ]);
         }
+
+        // Force completeness checks on creation
+        $this->checkIsComplete(
+            $organisation,
+            $this->nameAndAddressFields,
+            Organisation::ACTION_NAME_ADDRESS_COMPLETED,
+            true
+        );
+
+        $this->checkIsComplete(
+            $organisation,
+            $this->digitalIdentifiers,
+            Organisation::ACTION_DIGITAL_ID_COMPLETED,
+            true
+        );
+
+        $this->checkIsComplete(
+            $organisation,
+            $this->sectorSize,
+            Organisation::ACTION_SECTOR_SIZE_COMPLETED,
+            true
+        );
+
+        $this->checkIsComplete(
+            $organisation,
+            $this->securityCompliance,
+            Organisation::ACTION_DATA_SECURITY_COMPLETED,
+            true
+        );
+
         $this->manageAffiliationStates($organisation);
 
         $custodianIds = Custodian::select("id")->pluck("id");
@@ -105,40 +135,15 @@ class OrganisationObserver
         $this->manageAffiliationStates($organisation);
     }
 
-    /**
-     * Handle the Organisation "deleted" event.
-     */
-    public function deleted(Organisation $organisation): void
+    private function checkIsComplete(Organisation $organisation, array $fields, string $action, bool $force = false): void
     {
-        //
-    }
-
-    /**
-     * Handle the Organisation "restored" event.
-     */
-    public function restored(Organisation $organisation): void
-    {
-        //
-    }
-
-    /**
-     * Handle the Organisation "force deleted" event.
-     */
-    public function forceDeleted(Organisation $organisation): void
-    {
-        //
-    }
-
-    private function checkIsComplete(Organisation $organisation, array $fields, string $action): void
-    {
-        if ($organisation->isDirty($fields)) {
-            $isProfileComplete = collect($fields)
-                ->every(function ($field) use ($organisation) {
-                    if ($this->isDateField($field)) {
-                        return $this->isDateValid($organisation->$field);
-                    }
-                    return !empty($organisation->$field);
-                });
+        if ($force || $organisation->isDirty($fields)) {
+            $isProfileComplete = collect($fields)->every(function ($field) use ($organisation) {
+                if ($this->isDateField($field)) {
+                    return $this->isDateValid($organisation->$field);
+                }
+                return !empty($organisation->$field);
+            });
 
             ActionLog::updateOrCreate(
                 [
@@ -151,20 +156,18 @@ class OrganisationObserver
         }
     }
 
-    private function manageAffiliationStates(Organisation $organisation)
+    private function manageAffiliationStates(Organisation $organisation): void
     {
         if ($organisation->isDirty('unclaimed')) {
             $unclaimed = $organisation->unclaimed;
             $state = $unclaimed ? State::STATE_AFFILIATION_INVITED : State::STATE_AFFILIATION_PENDING;
-            $affiliations = Affiliation::where("organisation_id", $organisation->id)
-                ->get();
+            $affiliations = Affiliation::where("organisation_id", $organisation->id)->get();
 
             foreach ($affiliations as $affiliation) {
                 $affiliation->setState($state);
             }
         }
     }
-
 
     /**
      * Helper function to check if a field is an expiry date.
