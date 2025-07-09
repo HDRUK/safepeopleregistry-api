@@ -54,28 +54,50 @@ class UpdateActionNotifications implements ShouldQueue
             return;
         }
 
-        $query->where('user_group', $group)
-            ->chunk($this->chunkSize, function ($users) use ($group, $entityType) {
-                foreach ($users as $user) {
-                    $entityId = $this->getEntityId($user, $group);
+        // $query->where('user_group', $group)
+        //     ->chunk($this->chunkSize, function ($users) use ($group, $entityType) {
+        //         foreach ($users as $user) {
+        //             $entityId = $this->getEntityId($user, $group);
 
-                    if ($entityId === null) {
-                        Log::warning("Skipping user {$user->id} due to missing entity type or ID.");
-                        continue;
-                    }
+        //             if ($entityId === null) {
+        //                 Log::warning("Skipping user {$user->id} due to missing entity type or ID.");
+        //                 continue;
+        //             }
                     
-                    $this->processNotifications($user, $group, $entityType);
-                    // trying this as it could be causing unboard memory growth
-                    // as in the called function, we do both:
-                    // $user->notify(new ActionPendingNotification($group, $incompleteActions));
-                    // and
-                    // $user->notifications()->where...blah
-                    //
-                    // both aren't light touches against eloquent, and possible
-                    // candidates for raw queries, if _this_ works.
-                    unset($user);
+        //             $this->processNotifications($user, $group, $entityType);
+        //             // trying this as it could be causing unboard memory growth
+        //             // as in the called function, we do both:
+        //             // $user->notify(new ActionPendingNotification($group, $incompleteActions));
+        //             // and
+        //             // $user->notifications()->where...blah
+        //             //
+        //             // both aren't light touches against eloquent, and possible
+        //             // candidates for raw queries, if _this_ works.
+        //             unset($user);
+        //         }
+        //     });
+
+        $query->where('user_group', $group)
+            ->cursor()
+            ->each($this->chunkSize, function ($user) use ($group, $entityType) {
+                $entityId = $this->getEntityId($user, $group);
+
+                if ($entityId === null) {
+                    Log::warning("Skipping user {$user->id} due to missing entity type or ID.");
+                    return true;
                 }
+                
+                $this->processNotifications($user, $group, $entityType);
+                // trying this as it could be causing unboard memory growth
+                // as in the called function, we do both:
+                // $user->notify(new ActionPendingNotification($group, $incompleteActions));
+                // and
+                // $user->notifications()->where...blah
+                //
+                // both aren't light touches against eloquent, and possible
+                // candidates for raw queries, if _this_ works.
             });
+
         unset($query);
     }
 
