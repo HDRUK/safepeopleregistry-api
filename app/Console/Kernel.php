@@ -17,7 +17,7 @@ class Kernel extends ConsoleKernel
         // $schedule->call(function () {
         //     UpdateActionNotifications::dispatch();
         // })->everyMinute();
-        $schedule->job(new UpdateActionNotifications)->everyMinute();
+        // $schedule->job(new UpdateActionNotifications)->everyMinute();
 
     }
 
