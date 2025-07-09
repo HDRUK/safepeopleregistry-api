@@ -24,7 +24,6 @@ while true; do
     # Check each service
     check_service "Octane" "octane:start"
     check_service "Horizon" "artisan horizon"
-    check_service "Scheduler" "schedule:run"
     
     # Show resource usage
     if [ -f /proc/meminfo ]; then
