@@ -1310,7 +1310,7 @@ class OrganisationController extends Controller
     public function getRegistries(Request $request, int $id): JsonResponse
     {
         try {
-            $affiliationIds = Organisation::getCurrentRegistries($id)->filterByState()->pluck('id');
+            $affiliationIds = Organisation::getCurrentAffiliations($id)->filterByState()->pluck('id');
 
             $users = User::searchViaRequest()
                 ->applySorting()
