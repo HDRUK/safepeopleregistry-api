@@ -826,14 +826,7 @@ class ActionLogTest extends TestCase
         );
     }
 
-    /* Not implemented yet
-    public function test_it_can_log_custodian_add_contacts_complete()
-    {
-
-    }*/
-
-
-    public function test_it_can_log_custodian_add_users_complete()
+    public function test_it_can_log_custodian_add_team_members_complete()
     {
         Carbon::setTestNow(Carbon::now());
 
@@ -848,7 +841,7 @@ class ActionLogTest extends TestCase
         $response->assertStatus(200);
         $responseData = $response['data'];
         $actionLog = collect($responseData)
-            ->firstWhere('action', Custodian::ACTION_ADD_USERS);
+            ->firstWhere('action', Custodian::ACTION_ADD_CONTACTS);
 
         $this->assertNull($actionLog['completed_at']);
 
@@ -863,7 +856,7 @@ class ActionLogTest extends TestCase
         $response->assertStatus(200);
         $responseData = $response['data'];
         $actionLog = collect($responseData)
-            ->firstWhere('action', Custodian::ACTION_ADD_USERS);
+            ->firstWhere('action', Custodian::ACTION_ADD_CONTACTS);
 
         $this->assertEquals(
             Carbon::now()->format('Y-m-d H:i:s'),
@@ -881,7 +874,7 @@ class ActionLogTest extends TestCase
         $response->assertStatus(200);
         $responseData = $response['data'];
         $actionLog = collect($responseData)
-            ->firstWhere('action', Custodian::ACTION_ADD_USERS);
+            ->firstWhere('action', Custodian::ACTION_ADD_CONTACTS);
 
         $this->assertNull($actionLog['completed_at']);
     }
