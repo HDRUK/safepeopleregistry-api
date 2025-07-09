@@ -99,6 +99,7 @@ class UpdateActionNotifications implements ShouldQueue
                     unset($user);
                 }
             });
+        unset($query);
     }
 
     private function processNotifications(User $user, string $group): void
