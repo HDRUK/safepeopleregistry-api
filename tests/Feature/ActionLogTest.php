@@ -14,6 +14,7 @@ use App\Models\Subsidiary;
 use App\Models\OrganisationHasSubsidiary;
 use App\Models\Affiliation;
 use App\Models\CustodianHasProjectOrganisation;
+use App\Models\CustodianModelConfig;
 use App\Models\Registry;
 use App\Models\Project;
 use App\Models\ProjectHasCustodian;
@@ -797,6 +798,10 @@ class ActionLogTest extends TestCase
 
         $this->assertNull($actionLog['completed_at']);
 
+        $conf = CustodianModelConfig::where('custodian_id', $custodian->id)->first();
+        $conf->update([
+            'active' => 0,
+        ]);
 
         $response = $this->actingAs($this->admin)
             ->json(
