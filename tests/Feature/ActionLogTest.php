@@ -81,7 +81,6 @@ class ActionLogTest extends TestCase
                 'entity_id' => $org->id,
                 'entity_type' => Organisation::class,
                 'action' => $action,
-                'completed_at' => null,
             ]);
         }
     }
@@ -129,6 +128,7 @@ class ActionLogTest extends TestCase
     public function test_it_returns_organisation_action_logs_via_api()
     {
         $org = Organisation::factory()->create();
+        ActionLog::query()->update(['completed_at' => null]);
 
         $response = $this->actingAs($this->admin)
             ->json(
@@ -412,6 +412,7 @@ class ActionLogTest extends TestCase
     {
         Carbon::setTestNow(Carbon::now());
         $org = Organisation::factory()->create();
+        ActionLog::query()->update(['completed_at' => null]);
 
         $response = $this->actingAs($this->admin)
             ->json(
@@ -456,7 +457,7 @@ class ActionLogTest extends TestCase
     {
         Carbon::setTestNow(Carbon::now());
         $org = Organisation::factory()->create();
-
+        ActionLog::query()->update(['completed_at' => null]);
 
         $response = $this->actingAs($this->admin)
             ->json(
@@ -499,6 +500,7 @@ class ActionLogTest extends TestCase
     {
         Carbon::setTestNow(Carbon::now());
         $org = Organisation::factory()->create();
+        ActionLog::query()->update(['completed_at' => null]);
 
         $response = $this->actingAs($this->admin)
             ->json(
@@ -541,6 +543,7 @@ class ActionLogTest extends TestCase
     {
         Carbon::setTestNow(Carbon::now());
         $org = Organisation::factory()->create();
+        ActionLog::query()->update(['completed_at' => null]);
 
         $response = $this->actingAs($this->admin)
             ->json(
@@ -613,6 +616,7 @@ class ActionLogTest extends TestCase
         Carbon::setTestNow(Carbon::now());
         $org = Organisation::factory()->create();
         $sub = Subsidiary::factory()->create();
+        ActionLog::query()->update(['completed_at' => null]);
 
         $response = $this->actingAs($this->admin)
             ->json(
@@ -676,6 +680,7 @@ class ActionLogTest extends TestCase
         Carbon::setTestNow(Carbon::now());
         $org = Organisation::factory()->create();
         $dep = Department::create(['name' => fake()->company()]);
+        ActionLog::query()->update(['completed_at' => null]);
 
         $response = $this->actingAs($this->admin)
             ->json(
@@ -730,6 +735,7 @@ class ActionLogTest extends TestCase
         $this->user->refresh();
 
         $org = Organisation::factory()->create();
+        ActionLog::query()->update(['completed_at' => null]);
 
         $response = $this->actingAs($this->admin)
             ->json(

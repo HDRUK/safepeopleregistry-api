@@ -10,6 +10,7 @@ use App\Models\Project;
 use App\Models\Organisation;
 use App\Models\Subsidiary;
 use App\Jobs\SendEmailJob;
+use App\Models\ActionLog;
 use App\Models\PendingInvite;
 use App\Models\ProjectHasOrganisation;
 use App\Models\OrganisationHasDepartment;
@@ -357,6 +358,7 @@ class OrganisationTest extends TestCase
 
     public function test_the_application_can_update_organisations(): void
     {
+        ActionLog::query()->update(['completed_at' => null]);
         Carbon::setTestNow(Carbon::now());
         $isoCertified = fake()->randomElement([1, 0]);
         $ceCertified = fake()->randomElement([1, 0]);
