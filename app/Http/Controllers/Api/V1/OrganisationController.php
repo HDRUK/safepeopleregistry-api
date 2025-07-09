@@ -1310,9 +1310,7 @@ class OrganisationController extends Controller
     public function getRegistries(Request $request, int $id): JsonResponse
     {
         try {
-            $showPending = $request->boolean("show_pending");
-
-            $registryIds = Organisation::getCurrentRegistries($id)->pluck('registry_id');
+            $affiliationIds = Organisation::getCurrentRegistries($id)->filterByState()->pluck('id');
 
             $users = User::searchViaRequest()
                 ->applySorting()
@@ -1323,17 +1321,8 @@ class OrganisationController extends Controller
                     'registry.affiliations.modelState.state',
                     'modelState.state'
                 ])
-                ->where(function ($query) use ($registryIds, $showPending, $id) {
-                    $query->whereIn('registry_id', $registryIds);
-
-                    if ($showPending) {
-                        $pendingInviteUserIds = PendingInvite::where([
-                            'organisation_id' => $id,
-                            'status' => config('speedi.invite_status.PENDING')
-                        ])->pluck('user_id');
-
-                        $query->orWhereIn('id', $pendingInviteUserIds);
-                    }
+                ->whereHas('registry.affiliations', function($query) use ($affiliationIds) {
+                    $query->whereIn('id', $affiliationIds);
                 })
                 ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
