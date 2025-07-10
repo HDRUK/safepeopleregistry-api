@@ -133,13 +133,17 @@ class FileUploadController extends Controller
             }
 
             $filePath = $file->path;
+            \Log::info('File path for download: ' . $filePath);
             $fileSystem = config('speedi.system.scanning_filesystem_disk');
+            \Log::info('File system for download: ' . $fileSystem);
 
-            if ($fileSystem !== 'local_scan') {
-                return $this->NotImplementedResponse();
-            }
+            // if ($fileSystem !== 'local_scan') {
+            //     return $this->NotImplementedResponse();
+            // }
 
             $scannedFileSystem = $fileSystem . '_scanned';
+
+            \Log::info('Downloading file: ' . $filePath . ' from filesystem: ' . $scannedFileSystem);
 
             if (!Storage::disk($scannedFileSystem)->exists($filePath)) {
                 return $this->NotFoundResponse();
