@@ -14,9 +14,8 @@ use App\Models\Subsidiary;
 use App\Models\OrganisationHasSubsidiary;
 use App\Models\Affiliation;
 use App\Models\CustodianHasProjectOrganisation;
+use App\Models\CustodianModelConfig;
 use App\Models\Registry;
-use App\Models\Rules;
-use App\Models\CustodianHasRule;
 use App\Models\Project;
 use App\Models\ProjectHasCustodian;
 use App\Models\File;
@@ -799,14 +798,9 @@ class ActionLogTest extends TestCase
 
         $this->assertNull($actionLog['completed_at']);
 
-        $rule = Rules::create([
-            'name' => fake()->name(),
-            'title' => fake()->sentence(),
-            'description' => fake()->sentence()
-        ]);
-        CustodianHasRule::create([
-            'rule_id' => $rule->id,
-            'custodian_id' => $custodian->id
+        $conf = CustodianModelConfig::where('custodian_id', $custodian->id)->first();
+        $conf->update([
+            'active' => 0,
         ]);
 
         $response = $this->actingAs($this->admin)
