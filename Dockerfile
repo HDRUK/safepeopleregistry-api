@@ -106,6 +106,8 @@ RUN groupadd -r supervisor || true
 RUN usermod -a -G supervisor www-data || true
 COPY ./docker/supervisord.conf /etc/supervisor/supervisord.conf
 
+COPY ./docker/Caddyfile /var/www/docker/Caddyfile
+
 COPY ./docker/resource-monitor.sh /var/www/docker/resource-monitor.sh
 RUN chmod +x /var/www/docker/resource-monitor.sh \
     && chown www-data:www-data /var/www/docker/resource-monitor.sh
