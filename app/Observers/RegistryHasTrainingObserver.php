@@ -44,4 +44,8 @@ class RegistryHasTrainingObserver
             ['completed_at' => $hasTrainings ? Carbon::now() : null]
         );
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> refs/remotes/origin/bugfix/test-for-memory-leaks-rto
