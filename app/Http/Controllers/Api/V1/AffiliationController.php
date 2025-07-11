@@ -80,6 +80,96 @@ class AffiliationController extends Controller
     }
 
     /**
+     * @OA\Get(
+     *      path="/api/v1/affiliations/{registryId}/organisation/{organisationId}",
+     *      operationId="getOrganisationAffiliation",
+     *      summary="Return a specific organisation's affiliation by registry ID and organisation ID",
+     *      description="Get a specific organisation's affiliation for a given registry",
+     *      tags={"Affiliations"},
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *          name="registryId",
+     *          in="path",
+     *          required=true,
+     *          description="Registry ID",
+     *          example=1,
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\Parameter(
+     *          name="organisationId",
+     *          in="path",
+     *          required=true,
+     *          description="Organisation ID",
+     *          example=100,
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="object",
+     *                  @OA\Property(property="id", type="integer", example=123),
+     *                  @OA\Property(property="registry_id", type="integer", example=1),
+     *                  @OA\Property(property="organisation_id", type="integer", example=100),
+     *                  @OA\Property(property="model_state_id", type="integer", example=2),
+     *                  @OA\Property(property="model_state", type="object",
+     *                      @OA\Property(property="id", type="integer", example=2),
+     *                      @OA\Property(property="state_id", type="integer", example=5),
+     *                      @OA\Property(property="state", type="object",
+     *                          @OA\Property(property="id", type="integer", example=5),
+     *                          @OA\Property(property="name", type="string", example="Approved")
+     *                      )
+     *                  ),
+     *                  @OA\Property(property="organisation", type="object",
+     *                      @OA\Property(property="id", type="integer", example=100),
+     *                      @OA\Property(property="organisation_name", type="string", example="Example Org"),
+     *                      @OA\Property(property="unclaimed", type="boolean", example=false),
+     *                      @OA\Property(property="lead_applicant_email", type="string", example="lead@example.org")
+     *                  )
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Affiliation not found",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Affiliation not found")
+     *          )
+     *      )
+     * )
+     */
+    public function getOrganisationAffiliation(Request $request, int $registryId, int $organisationId): JsonResponse
+    {
+        $affiliation = Affiliation::with(
+            [
+                'modelState.state',
+                'organisation' => function ($query) {
+                    $query->select(
+                        'id',
+                        'organisation_name',
+                        'unclaimed',
+                        'lead_applicant_email'
+                    );
+                },
+            ]
+        )
+            ->where(
+                [
+                    'registry_id' => $registryId,
+                    'organisation_id' => $organisationId
+                ]
+            )
+            ->first();
+
+
+        return response()->json([
+            'message' => 'success',
+            'data' => $affiliation,
+        ], 200);
+    }
+
+    /**
      * @OA\Post(
      *      path="/api/v1/affiliations/{registryId}",
      *      summary="Create an Affiliation entry",
@@ -327,5 +417,17 @@ class AffiliationController extends Controller
         } catch (Exception $e) {
             return $this->ErrorResponse($e->getMessage());
         }
+    }
+
+    public function getWorkflowStates(Request $request)
+    {
+        $model = new Affiliation();
+        return $this->OKResponse($model->getAllStates());
+    }
+
+    public function getWorkflowTransitions(Request $request)
+    {
+        $model = new Affiliation();
+        return $this->OKResponse($model->getTransitions());
     }
 }

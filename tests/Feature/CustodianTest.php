@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\DecisionModel;
 use App\Models\CustodianModelConfig;
-use App\Models\CustodianHasRule;
 use App\Models\ProjectHasCustodian;
 use App\Models\User;
 use App\Models\Custodian;
@@ -565,40 +564,6 @@ class CustodianTest extends TestCase
         $response->assertStatus(404);
     }
 
-
-    public function test_can_update_rules_for_existing_custodian(): void
-    {
-        CustodianHasRule::truncate();
-        $newRuleIds = [1, 3, 4];
-
-        $response = $this->actingAs($this->custodian_admin)
-            ->json(
-                'PATCH',
-                '/api/v1/custodians/1/rules',
-                [
-                    'rule_ids' => $newRuleIds,
-                ]
-            );
-
-        $response->assertStatus(200);
-        $response->assertJson([
-            'message' => 'success',
-            'data' => true,
-        ]);
-
-        $this->assertEquals(
-            count($newRuleIds),
-            \DB::table('custodian_has_rules')
-                ->where('custodian_id', 1)
-                ->count()
-        );
-        foreach ($newRuleIds as $ruleId) {
-            $this->assertDatabaseHas('custodian_has_rules', [
-                'custodian_id' => 1,
-                'rule_id' => $ruleId
-            ]);
-        }
-    }
 
     public function test_custodian_can_get_project_users(): void
     {

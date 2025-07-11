@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\FilterManager;
 use App\Traits\SearchManager;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -56,6 +57,7 @@ class CustodianHasProjectOrganisation extends Model
     use HasFactory;
     use StateWorkflow;
     use SearchManager;
+    use FilterManager;
 
     protected array $transitions = [
         State::STATE_PENDING => [

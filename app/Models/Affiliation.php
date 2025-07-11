@@ -6,9 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use App\Traits\StateWorkflow;
-use Illuminate\Support\Facades\Auth;
+use App\Traits\FilterManager;
 use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\Contracts\Activity;
 use Spatie\Activitylog\LogOptions;
 
 /**
@@ -129,6 +128,7 @@ class Affiliation extends Model
     use HasFactory;
     use StateWorkflow;
     use LogsActivity;
+    use FilterManager;
 
     protected array $transitions = [
         State::STATE_AFFILIATION_INVITED => [
@@ -165,6 +165,11 @@ class Affiliation extends Model
         'verdict_date_actioned',
         'verdict_outcome',
     ];
+
+    public function getTransitions(): array
+    {
+        return $this->transitions;
+    }
 
     public function getActivitylogOptions(): LogOptions
     {

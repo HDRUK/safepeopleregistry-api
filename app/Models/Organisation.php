@@ -274,7 +274,7 @@ use App\Traits\FilterManager;
  * @method static \Database\Factories\OrganisationFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation filterByState()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation filterWhen(string $filter, $callback)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation getCurrentRegistries($id)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation getCurrentAffiliations($id)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation getOrganisationsProjects()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation newQuery()
@@ -556,7 +556,7 @@ class Organisation extends Model
     }
 
 
-    public function scopeGetCurrentRegistries($query, $id)
+    public function scopeGetCurrentAffiliations($query, $id)
     {
         return Affiliation::where('organisation_id', $id)->where('to', '=', '')
             ->orWhereNull('to');

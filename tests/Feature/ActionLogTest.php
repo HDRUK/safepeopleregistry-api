@@ -14,14 +14,15 @@ use App\Models\Subsidiary;
 use App\Models\OrganisationHasSubsidiary;
 use App\Models\Affiliation;
 use App\Models\CustodianHasProjectOrganisation;
+use App\Models\CustodianModelConfig;
 use App\Models\Registry;
-use App\Models\Rules;
-use App\Models\CustodianHasRule;
 use App\Models\Project;
 use App\Models\ProjectHasCustodian;
 use App\Models\File;
 use App\Models\ProjectHasOrganisation;
+use App\Models\RegistryHasTraining;
 use App\Models\State;
+use App\Models\Training;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 use Carbon\Carbon;
@@ -39,7 +40,10 @@ class ActionLogTest extends TestCase
         parent::setUp();
         $this->enableObservers();
         $this->withUsers();
-        $this->user = User::factory()->create(); // fresh user needed
+        $registry = Registry::factory()->create();
+        $this->user = User::factory()->create([
+            'registry_id' => $registry->id,
+        ]);
         $this->file = File::create([
             'name' => 'temp',
             'type' => 'CERTIFICATION',
@@ -76,7 +80,6 @@ class ActionLogTest extends TestCase
                 'entity_id' => $org->id,
                 'entity_type' => Organisation::class,
                 'action' => $action,
-                'completed_at' => null,
             ]);
         }
     }
@@ -124,6 +127,7 @@ class ActionLogTest extends TestCase
     public function test_it_returns_organisation_action_logs_via_api()
     {
         $org = Organisation::factory()->create();
+        ActionLog::query()->update(['completed_at' => null]);
 
         $response = $this->actingAs($this->admin)
             ->json(
@@ -358,11 +362,56 @@ class ActionLogTest extends TestCase
         );
     }
 
+    public function test_it_can_log_user_training_complete()
+    {
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "users/{$this->user->id}/action_log",
+            );
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+
+        $actionLog = collect($responseData)
+            ->firstWhere('action', User::ACTION_TRAINING_COMPLETE);
+
+        $this->assertNull(
+            $actionLog['completed_at']
+        );
+
+        Carbon::setTestNow(Carbon::now());
+
+
+        $training = Training::factory()->create();
+        RegistryHasTraining::create([
+            'registry_id' => $this->user->registry->id,
+            'training_id' => $training->id
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "users/{$this->user->id}/action_log",
+            );
+
+        $response->assertStatus(200);
+        $responseData = $response['data'];
+        $actionLog = collect($responseData)
+            ->firstWhere('action', User::ACTION_TRAINING_COMPLETE);
+
+
+        $this->assertEquals(
+            Carbon::now()->format('Y-m-d H:i:s'),
+            $actionLog['completed_at']
+        );
+    }
+
 
     public function test_it_can_log_organisation_name_addess_complete()
     {
         Carbon::setTestNow(Carbon::now());
         $org = Organisation::factory()->create();
+        ActionLog::query()->update(['completed_at' => null]);
 
         $response = $this->actingAs($this->admin)
             ->json(
@@ -407,7 +456,7 @@ class ActionLogTest extends TestCase
     {
         Carbon::setTestNow(Carbon::now());
         $org = Organisation::factory()->create();
-
+        ActionLog::query()->update(['completed_at' => null]);
 
         $response = $this->actingAs($this->admin)
             ->json(
@@ -450,6 +499,7 @@ class ActionLogTest extends TestCase
     {
         Carbon::setTestNow(Carbon::now());
         $org = Organisation::factory()->create();
+        ActionLog::query()->update(['completed_at' => null]);
 
         $response = $this->actingAs($this->admin)
             ->json(
@@ -492,6 +542,7 @@ class ActionLogTest extends TestCase
     {
         Carbon::setTestNow(Carbon::now());
         $org = Organisation::factory()->create();
+        ActionLog::query()->update(['completed_at' => null]);
 
         $response = $this->actingAs($this->admin)
             ->json(
@@ -564,6 +615,7 @@ class ActionLogTest extends TestCase
         Carbon::setTestNow(Carbon::now());
         $org = Organisation::factory()->create();
         $sub = Subsidiary::factory()->create();
+        ActionLog::query()->update(['completed_at' => null]);
 
         $response = $this->actingAs($this->admin)
             ->json(
@@ -627,6 +679,7 @@ class ActionLogTest extends TestCase
         Carbon::setTestNow(Carbon::now());
         $org = Organisation::factory()->create();
         $dep = Department::create(['name' => fake()->company()]);
+        ActionLog::query()->update(['completed_at' => null]);
 
         $response = $this->actingAs($this->admin)
             ->json(
@@ -681,6 +734,7 @@ class ActionLogTest extends TestCase
         $this->user->refresh();
 
         $org = Organisation::factory()->create();
+        ActionLog::query()->update(['completed_at' => null]);
 
         $response = $this->actingAs($this->admin)
             ->json(
@@ -744,14 +798,9 @@ class ActionLogTest extends TestCase
 
         $this->assertNull($actionLog['completed_at']);
 
-        $rule = Rules::create([
-            'name' => fake()->name(),
-            'title' => fake()->sentence(),
-            'description' => fake()->sentence()
-        ]);
-        CustodianHasRule::create([
-            'rule_id' => $rule->id,
-            'custodian_id' => $custodian->id
+        $conf = CustodianModelConfig::where('custodian_id', $custodian->id)->first();
+        $conf->update([
+            'active' => 0,
         ]);
 
         $response = $this->actingAs($this->admin)
@@ -771,14 +820,7 @@ class ActionLogTest extends TestCase
         );
     }
 
-    /* Not implemented yet
-    public function test_it_can_log_custodian_add_contacts_complete()
-    {
-
-    }*/
-
-
-    public function test_it_can_log_custodian_add_users_complete()
+    public function test_it_can_log_custodian_add_team_members_complete()
     {
         Carbon::setTestNow(Carbon::now());
 
@@ -793,7 +835,7 @@ class ActionLogTest extends TestCase
         $response->assertStatus(200);
         $responseData = $response['data'];
         $actionLog = collect($responseData)
-            ->firstWhere('action', Custodian::ACTION_ADD_USERS);
+            ->firstWhere('action', Custodian::ACTION_ADD_CONTACTS);
 
         $this->assertNull($actionLog['completed_at']);
 
@@ -808,7 +850,7 @@ class ActionLogTest extends TestCase
         $response->assertStatus(200);
         $responseData = $response['data'];
         $actionLog = collect($responseData)
-            ->firstWhere('action', Custodian::ACTION_ADD_USERS);
+            ->firstWhere('action', Custodian::ACTION_ADD_CONTACTS);
 
         $this->assertEquals(
             Carbon::now()->format('Y-m-d H:i:s'),
@@ -826,7 +868,7 @@ class ActionLogTest extends TestCase
         $response->assertStatus(200);
         $responseData = $response['data'];
         $actionLog = collect($responseData)
-            ->firstWhere('action', Custodian::ACTION_ADD_USERS);
+            ->firstWhere('action', Custodian::ACTION_ADD_CONTACTS);
 
         $this->assertNull($actionLog['completed_at']);
     }

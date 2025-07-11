@@ -7,7 +7,7 @@ use App\Models\ONSFile;
 use App\Models\Registry;
 use App\Models\Custodian;
 use App\Models\CustodianUser;
-use App\Models\CustodianHasRule;
+use App\Models\CustodianModelConfig;
 use App\Models\ProjectHasUser;
 use App\Models\User;
 use App\Models\UserHasDepartments;
@@ -19,11 +19,12 @@ use App\Models\ProjectHasCustodian;
 use App\Models\CustodianHasProjectOrganisation;
 use App\Models\RegistryReadRequest;
 use App\Models\CustodianHasValidationCheck;
+use App\Models\RegistryHasTraining;
 use App\Observers\FileObserver;
 use App\Observers\ONSFileObserver;
 use App\Observers\RegistryObserver;
 use App\Observers\CustodianObserver;
-use App\Observers\CustodianHasRuleObserver;
+use App\Observers\CustodianModelConfigObserver;
 use App\Observers\ProjectHasUserObserver;
 use App\Observers\ProjectHasOrganisationObserver;
 use App\Observers\UserObserver;
@@ -37,6 +38,7 @@ use App\Observers\AuditModelObserver;
 use App\Observers\RegistryReadRequestObserver;
 use App\Observers\CustodianHasValidationCheckObserver;
 use App\Observers\CustodianHasProjectOrganisationObserver;
+use App\Observers\RegistryHasTrainingObserver;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Event;
@@ -67,7 +69,7 @@ class AppServiceProvider extends ServiceProvider
         Registry::observe(RegistryObserver::class);
         ProjectHasUser::observe(ProjectHasUserObserver::class);
         Custodian::observe(CustodianObserver::class);
-        CustodianHasRule::observe(CustodianHasRuleObserver::class);
+        CustodianModelConfig::observe(CustodianModelConfigObserver::class);
         CustodianUser::observe(CustodianUserObserver::class);
         User::observe(UserObserver::class);
         UserHasDepartments::observe(UserHasDepartmentsObserver::class);
@@ -80,6 +82,7 @@ class AppServiceProvider extends ServiceProvider
         CustodianHasProjectOrganisation::observe(CustodianHasProjectOrganisationObserver::class);
         CustodianHasValidationCheck::observe(CustodianHasValidationCheckObserver::class);
         RegistryReadRequest::observe(RegistryReadRequestObserver::class);
+        RegistryHasTraining::observe(RegistryHasTrainingObserver::class);
         // currently Training but is to be moved to RegistryHasTraining...
         // RegistryHasTraining::observe(RegistryHasTrainingObserver::class);
     }

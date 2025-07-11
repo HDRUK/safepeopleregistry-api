@@ -62,7 +62,7 @@ class CustodianUserObserver
             [
                 'entity_id' => $custodian->id,
                 'entity_type' => Custodian::class,
-                'action' => Custodian::ACTION_ADD_USERS,
+                'action' => Custodian::ACTION_ADD_CONTACTS,
             ],
             ['completed_at' => $hasCustodianUsers ? Carbon::now() : null]
         );

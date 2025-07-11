@@ -329,7 +329,8 @@ Route::middleware('auth:api')
 
             // Create
             Route::post('/', 'store');
-            Route::post('/unclaimed', 'inviteOrganisationSimple');
+            //Route::post('/unclaimed', 'inviteOrganisationSimple');
+            Route::post('/unclaimed', 'storeUnclaimed');
             Route::post('/{id}/invite', 'invite');
             Route::post('/{id}/invite_user', 'inviteUser');
 
@@ -362,7 +363,10 @@ Route::middleware('auth:api')
     ->prefix('v1/affiliations')
     ->controller(AffiliationController::class)
     ->group(function () {
+        Route::get('workflowStates', 'getWorkflowStates');
+        Route::get('workflowTransitions', 'getWorkflowTransitions');
         Route::get('{registryId}', 'indexByRegistryId');
+        Route::get('{registryId}/organisation/{organisationId}', 'getOrganisationAffiliation');
         Route::post('{registryId}', 'storeByRegistryId');
         Route::put('{id}', 'update');
         Route::delete('{id}', 'destroy');
