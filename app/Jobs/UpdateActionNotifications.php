@@ -44,6 +44,8 @@ class UpdateActionNotifications implements ShouldQueue
         $this->processUsers(User::GROUP_USERS, User::query());
         $this->processUsers(User::GROUP_ORGANISATIONS, User::where("is_org_admin", 1));
         $this->processUsers(User::GROUP_CUSTODIANS, User::query());
+
+        app('queue.worker')->shouldQuit = 1;
     }
 
     private function processUsers(string $group, $query): void
