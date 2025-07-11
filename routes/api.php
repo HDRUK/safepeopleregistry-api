@@ -204,6 +204,7 @@ Route::middleware(['auth:api'])
 
         // Update
         Route::put('/{id}', 'update');
+        Route::put('/{id}/subsidiaries/{subsidiaryId}', 'updateSubsidiary');
         Route::patch('/{id}/rules', 'updateCustodianRules');
 
         // Delete
@@ -333,9 +334,11 @@ Route::middleware('auth:api')
             Route::post('/unclaimed', 'storeUnclaimed');
             Route::post('/{id}/invite', 'invite');
             Route::post('/{id}/invite_user', 'inviteUser');
+            Route::post('/{id}/subsidiaries', 'createSubsidiary');
 
             // Update
             Route::put('/{id}', 'update');
+            Route::put('/{id}/subsidiaries/{subsidiaryId}', 'updateSubsidiary');
 
             // Delete
             Route::delete('/{id}', 'destroy');
