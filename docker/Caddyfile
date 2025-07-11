@@ -8,7 +8,7 @@
     }
     # Tell FrankenPHP how many workers to start
     frankenphp {
-        num_threads 4 # Example: Set the number of threads/workers
+        num_threads 2 # Set the number of threads/workers
     }
 }
 

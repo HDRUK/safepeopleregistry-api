@@ -64,8 +64,7 @@ RUN wget -O redis-5.3.7.tgz 'https://pecl.php.net/get/redis-5.3.7.tgz' \
 # Install FrankenPHP extension
 RUN curl https://frankenphp.dev/install.sh | sh \
     && mv frankenphp /usr/local/bin/frankenphp \
-    && chmod +x /usr/local/bin/frankenphp \
-    && /usr/local/bin/frankenphp version
+    && chmod +x /usr/local/bin/frankenphp 
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- \
