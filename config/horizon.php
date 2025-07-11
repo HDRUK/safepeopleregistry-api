@@ -196,6 +196,8 @@ return [
             'timeout' => 60,
             // 'nice' => 0,
             'memory' => '512',
+            'maxTime' => 60,
+            'maxJobs' => 10,
         ],
     ],
 
