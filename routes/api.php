@@ -363,6 +363,8 @@ Route::middleware('auth:api')
     ->prefix('v1/affiliations')
     ->controller(AffiliationController::class)
     ->group(function () {
+        Route::get('workflowStates', 'getWorkflowStates');
+        Route::get('workflowTransitions', 'getWorkflowTransitions');
         Route::get('{registryId}', 'indexByRegistryId');
         Route::get('{registryId}/organisation/{organisationId}', 'getOrganisationAffiliation');
         Route::post('{registryId}', 'storeByRegistryId');

@@ -1311,8 +1311,7 @@ class OrganisationController extends Controller
     {
         try {
             $showPending = $request->boolean("show_pending");
-
-            $registryIds = Organisation::getCurrentRegistries($id)->pluck('registry_id');
+            $affiliationIds = Organisation::getCurrentAffiliations($id)->filterByState()->pluck('id');
 
             $users = User::searchViaRequest()
                 ->applySorting()
@@ -1323,9 +1322,10 @@ class OrganisationController extends Controller
                     'registry.affiliations.modelState.state',
                     'modelState.state'
                 ])
-                ->where(function ($query) use ($registryIds, $showPending, $id) {
-                    $query->whereIn('registry_id', $registryIds);
-
+                ->whereHas('registry.affiliations', function($query) use ($affiliationIds) {
+                    $query->whereIn('id', $affiliationIds);
+                })
+                ->where(function ($query) use ($showPending, $id) {
                     if ($showPending) {
                         $pendingInviteUserIds = PendingInvite::where([
                             'organisation_id' => $id,
