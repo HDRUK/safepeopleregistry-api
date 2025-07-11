@@ -1,0 +1,21 @@
+{
+    storage file_system {
+        root /tmp/caddy_data 
+    }
+    log {
+        output file /dev/stderr
+        level INFO
+    }
+    # Tell FrankenPHP how many workers to start
+    frankenphp {
+        num_threads 2 # Set the number of threads/workers
+    }
+}
+
+:8100 { # Use the PORT environment variable provided by Cloud Run
+    root /var/www/public
+    # Define the PHP worker and let FrankenPHP manage it
+    php_server {
+        root /var/www/public
+    }
+}

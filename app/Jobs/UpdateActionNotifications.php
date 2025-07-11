@@ -2,18 +2,22 @@
 
 namespace App\Jobs;
 
+use Exception;
+use Carbon\Carbon;
+use App\Models\User;
+use App\Models\ActionLog;
+use App\Models\Custodian;
+use App\Models\Organisation;
 use Illuminate\Bus\Queueable;
+use InvalidArgumentException;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redis;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use App\Models\ActionLog;
-use App\Models\User;
-use App\Models\Organisation;
-use App\Models\Custodian;
 use App\Notifications\ActionPendingNotification;
-use Carbon\Carbon;
-use InvalidArgumentException;
+use Illuminate\Database\Eloquent\Collection;
 
 class UpdateActionNotifications implements ShouldQueue
 {
@@ -22,7 +26,7 @@ class UpdateActionNotifications implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    protected $chunkSize = 50;
+    protected $chunkSize = 500;
 
     /**
      * Create a new job instance.
@@ -40,31 +44,72 @@ class UpdateActionNotifications implements ShouldQueue
         $this->processUsers(User::GROUP_USERS, User::query());
         $this->processUsers(User::GROUP_ORGANISATIONS, User::where("is_org_admin", 1));
         $this->processUsers(User::GROUP_CUSTODIANS, User::query());
+
+        app('queue.worker')->shouldQuit = true;
     }
 
     private function processUsers(string $group, $query): void
     {
-        $query->where("user_group", $group)
-            ->chunk($this->chunkSize, function ($users) use ($group) {
-                foreach ($users as $user) {
-                    $this->processNotifications($user, $group);
-                    // trying this as it could be causing unboard memory growth
-                    // as in the called function, we do both:
-                    // $user->notify(new ActionPendingNotification($group, $incompleteActions));
-                    // and
-                    // $user->notifications()->where...blah
-                    //
-                    // both aren't light touches against eloquent, and possible
-                    // candidates for raw queries, if _this_ works.
-                    unset($user);
+        $entityType = $this->getEntityType($group);
+        if ($entityType === null) {
+            Log::error("Skipping group '{$group}' due to invalid entity type.");
+            return;
+        }
+
+        // $query->where('user_group', $group)
+        //     ->chunk($this->chunkSize, function ($users) use ($group, $entityType) {
+        //         foreach ($users as $user) {
+        //             $entityId = $this->getEntityId($user, $group);
+
+        //             if ($entityId === null) {
+        //                 Log::warning("Skipping user {$user->id} due to missing entity type or ID.");
+        //                 continue;
+        //             }
+                    
+        //             $this->processNotifications($user, $group, $entityType);
+        //             // trying this as it could be causing unboard memory growth
+        //             // as in the called function, we do both:
+        //             // $user->notify(new ActionPendingNotification($group, $incompleteActions));
+        //             // and
+        //             // $user->notifications()->where...blah
+        //             //
+        //             // both aren't light touches against eloquent, and possible
+        //             // candidates for raw queries, if _this_ works.
+        //             unset($user);
+        //         }
+        //     });
+
+        $query->where('user_group', $group)
+            ->cursor()
+            ->each(function ($user) use ($group, $entityType) {
+                $entityId = $this->getEntityId($user, $group);
+
+                if ($entityId === null) {
+                    Log::warning("Skipping user {$user->id} due to missing entity type or ID.");
+                    return true;
                 }
+                
+                $this->processNotifications($user, $group, $entityType);
+                // trying this as it could be causing unboard memory growth
+                // as in the called function, we do both:
+                // $user->notify(new ActionPendingNotification($group, $incompleteActions));
+                // and
+                // $user->notifications()->where...blah
+                //
+                // both aren't light touches against eloquent, and possible
+                // candidates for raw queries, if _this_ works.
             });
+
+        unset($query);
     }
 
-    private function processNotifications(User $user, string $group): void
+    private function processNotifications(User $user, string $group, string $entityType): void
     {
-        $entityType = $this->getEntityType($group);
         $entityId = $this->getEntityId($user, $group);
+        if ($entityId === null) {
+            Log::warning("Skipping notifications for user {$user->id} due to missing entity ID.");
+            return;
+        }
 
         $incompleteActions = ActionLog::where('entity_type', $entityType)
             ->where('entity_id', $entityId)
@@ -83,24 +128,40 @@ class UpdateActionNotifications implements ShouldQueue
         }
     }
 
-    private function getEntityType(string $group): string
+    private function getEntityType(string $group): ?string
     {
-        return match ($group) {
-            User::GROUP_USERS => User::class,
-            User::GROUP_ORGANISATIONS => Organisation::class,
-            User::GROUP_CUSTODIANS => Custodian::class,
-            default => throw new InvalidArgumentException("Invalid user group: {$group}"),
-        };
+        try {
+            return match ($group) {
+                User::GROUP_USERS => User::class,
+                User::GROUP_ORGANISATIONS => Organisation::class,
+                User::GROUP_CUSTODIANS => Custodian::class,
+                default => throw new InvalidArgumentException("Invalid user group: {$group}"),
+            };
+        } catch (Exception $e) {
+            Log::error("Failed to get entity type for group {$group}: " . $e->getMessage());
+            return null;
+        }
     }
 
-    private function getEntityId(User $user, string $group): int
+    private function getEntityId(User $user, string $group): ?int
     {
-        return match ($group) {
-            User::GROUP_USERS => $user->id,
-            User::GROUP_ORGANISATIONS => $user->organisation_id,
-            User::GROUP_CUSTODIANS => $user->custodian_id ?? $user->custodian_user->custodian_id,
-            default => throw new InvalidArgumentException("Invalid user group: {$group}"),
-        };
-    }
+        try {
+            $return = match ($group) {
+                User::GROUP_USERS => $user->id,
+                User::GROUP_ORGANISATIONS => $user->organisation_id,
+                User::GROUP_CUSTODIANS => $user->custodian_id ? $user->custodian_user->custodian_id : null,
+                default => throw new InvalidArgumentException("Invalid user group: {$group}"),
+            };
 
+            if (is_null($return)) {
+                Log::error("Failed to get entity ID for user {$user->id} and group {$group}");
+                return null;
+            }
+
+            return $return;
+        } catch (Exception $e) {
+            Log::error("Failed to get entity ID for user {$user->id} and group {$group}: " . $e->getMessage());
+            return null;
+        }
+    }
 }
