@@ -341,6 +341,7 @@ Route::middleware('auth:api')
             Route::put('/{id}/subsidiaries/{subsidiaryId}', 'updateSubsidiary');
 
             // Delete
+            Route::delete('/{id}/subsidiaries/{subsidiaryId}', 'destroySubsidiary');
             Route::delete('/{id}', 'destroy');
         });
 

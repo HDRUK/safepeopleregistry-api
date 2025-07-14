@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class UpdateOrganisationHasSubsidiariesCasecadeDelete extends Migration
+class UpdateOrganisationHasSubsidiariesCascadeDelete extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,9 @@ class UpdateOrganisationHasSubsidiariesCasecadeDelete extends Migration
     public function up()
     {
         Schema::table('organisation_has_subsidiaries', function (Blueprint $table) {
-            $table->foreign('subsidiary_id')->references('id')->on('subsidiaries')->onDelete('cascade');
+            $table->unsignedBigInteger('subsidiary_id')->change();
+
+            $table->foreign('subsidiary_id')->references('id')->on('subsidiaries')->onDelete('cascade')->change();
         });
     }
 
@@ -27,6 +29,7 @@ class UpdateOrganisationHasSubsidiariesCasecadeDelete extends Migration
     {
         Schema::table('organisation_has_subsidiaries', function (Blueprint $table) {
             $table->dropForeign(['subsidiary_id']);
+            $table->bigInteger('subsidiary_id')->change();
         });
     }
 }

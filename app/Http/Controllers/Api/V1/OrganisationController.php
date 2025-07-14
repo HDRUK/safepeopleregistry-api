@@ -644,12 +644,13 @@ class OrganisationController extends Controller
         }
     }
 
-    public function deleteSubsidiary(Request $request, int $id): JsonResponse
+    public function destroySubsidiary(Request $request, int $id, int $subsidiaryId): JsonResponse
     {
         try {
-            $subsidiary = Subsidiary::findOrFail($id);
+            $subsidiary = Subsidiary::findOrFail($subsidiaryId);
+            $org = Organisation::findOrFail($id);
 
-            if (!Gate::allows('delete', Organisation::class)) {
+            if (!Gate::allows('delete', $org)) {
                 return $this->ForbiddenResponse();
             }
 
