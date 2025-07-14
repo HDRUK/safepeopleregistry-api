@@ -614,13 +614,13 @@ class OrganisationController extends Controller
             $input = $request->only(app(Subsidiary::class)->getFillable());
             $org = Organisation::findOrFail($id);
 
-            // if (!Gate::allows('create', Organisation::class)) {
-            //     return $this->ForbiddenResponse();
-            // }
+            if (!Gate::allows('create', $org)) {
+                return $this->ForbiddenResponse();
+            }
 
             $subsidiary = $this->addSubsidiary($id, $input);
    
-            return $this->OKResponse($subsidiary);
+            return $this->CreatedResponse($subsidiary);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
