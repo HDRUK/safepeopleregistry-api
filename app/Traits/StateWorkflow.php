@@ -11,7 +11,7 @@ use App\Models\ModelState;
  */
 trait StateWorkflow
 {
-    protected array $defaultTransitions = [
+    protected static array $defaultTransitions = [
         State::STATE_REGISTERED => [
             State::STATE_PENDING,
             State::STATE_FORM_RECEIVED,
@@ -118,14 +118,14 @@ trait StateWorkflow
         $this->save(); // make sure triggers observers
     }
 
-    public function getTransitions(): array
+    public static function getTransitions(): array
     {
-        return $this->defaultTransitions;
+        return static::$defaultTransitions;
     }
 
-    public function getAllStates(): array
+    public static function getAllStates(): array
     {
-        $transitions = $this->getTransitions();
+        $transitions = static::getTransitions();
         $keys = array_keys($transitions);
         $values = array_merge(...array_values($transitions));
         $allStates = array_unique(array_merge($keys, $values));
