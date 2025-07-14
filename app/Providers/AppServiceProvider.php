@@ -76,7 +76,6 @@ class AppServiceProvider extends ServiceProvider
         Organisation::observe(OrganisationObserver::class);
         OrganisationHasSubsidiary::observe(OrganisationHasSubsidiaryObserver::class);
         Affiliation::observe(AffiliationObserver::class);
-        Affiliation::observe(AffiliationObserver::class);
         ProjectHasCustodian::observe(ProjectHasCustodianObserver::class);
         ProjectHasOrganisation::observe(ProjectHasOrganisationObserver::class);
         CustodianHasProjectOrganisation::observe(CustodianHasProjectOrganisationObserver::class);
