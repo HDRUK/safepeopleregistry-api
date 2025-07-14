@@ -1319,6 +1319,8 @@ class OrganisationController extends Controller
                 ->with([
                     'registry.affiliations' => function ($query) use ($id) {
                         $query->where('organisation_id', $id)->limit(1);
+                        $query->filterByState()
+                            ->with("modelState.state");
                     },
                     'registry.affiliations.modelState.state',
                     'modelState.state'
