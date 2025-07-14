@@ -84,7 +84,7 @@ class ActionLogController extends Controller
         ];
 
         if (!isset($entityClassMap[$entity])) {
-            return response()->json(['message' => 'Invalid entity type'], 400);
+            return $this->BadRequestResponse();
         }
 
         $logs = ActionLog::where('entity_type', $entityClassMap[$entity])
