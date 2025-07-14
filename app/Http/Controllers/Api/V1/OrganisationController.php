@@ -514,7 +514,6 @@ class OrganisationController extends Controller
         }
     }
 
-
     /**
      * @OA\Put(
      *      path="/api/v1/organisations/{id}",
@@ -608,6 +607,58 @@ class OrganisationController extends Controller
         }
     }
 
+    /**
+     * @OA\Post(
+     *      path="/api/v1/organisations/{id}/subsidiaries",
+     *      summary="Create a subsidiary entry",
+     *      description="Create a subsidiary entry",
+     *      tags={"organisations"},
+     *      summary="organisations@createSubsidiary",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="organisations entry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="organisations entry ID",
+     *         ),
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="subsidiary definition",
+     *          @OA\JsonContent(
+     *                  ref="#/components/schemas/Subsidiary",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data",
+     *                  ref="#/components/schemas/Subsidiary",
+     *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=500,
+     *          description="Error",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="error")
+     *          )
+     *      )
+     * )
+     */
     public function createSubsidiary(Request $request, int $id): JsonResponse
     {
         try {
@@ -626,6 +677,69 @@ class OrganisationController extends Controller
         }
     }
 
+    /**
+     * @OA\Put(
+     *      path="/api/v1/organisations/{id}/subsidiaries/{subsidiaryId}",
+     *      summary="Update an subsidiary entry",
+     *      description="Update a subsidiary entry",
+     *      tags={"organisations"},
+     *      summary="organisations@updateSubsidiary",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="organisations entry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="organisations entry ID",
+     *         ),
+     *      ),
+     *      @OA\Parameter(
+     *         name="subsidiaryId",
+     *         in="path",
+     *         description="subsidiary entry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="subsidiary entry ID",
+     *         ),
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="subsidiary definition",
+     *          @OA\JsonContent(
+     *                  ref="#/components/schemas/Subsidiary",
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data",
+     *                  ref="#/components/schemas/Subsidiary",
+     *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=500,
+     *          description="Error",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="error")
+     *          )
+     *      )
+     * )
+     */
     public function updateSubsidiary(Request $request, int $id, int $subsidiaryId): JsonResponse
     {
         try {
@@ -644,6 +758,60 @@ class OrganisationController extends Controller
         }
     }
 
+
+    /**
+     * @OA\Delete(
+     *      path="/api/v1/organisations/{id}/subsidiaries/{subsidiaryId}",
+     *      summary="Delete an subsidiary entry from the system by ID",
+     *      description="Delete an subsidiary entry from the system",
+     *      tags={"organisations"},
+     *      summary="organisations@destroySubsidiary",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="organisations entry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="organisations entry ID",
+     *         ),
+     *      ),
+     *      @OA\Parameter(
+     *         name="subsidiaryId",
+     *         in="path",
+     *         description="subsidiary entry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="subsidiary entry ID",
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *           ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=500,
+     *          description="Error",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="error")
+     *          )
+     *      )
+     * )
+     */
     public function destroySubsidiary(Request $request, int $id, int $subsidiaryId): JsonResponse
     {
         try {
