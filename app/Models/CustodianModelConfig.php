@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @OA\Schema (
@@ -43,6 +44,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $entity_model_id
  * @property int $active
  * @property int $custodian_id
+ * @property-read \App\Models\Custodian|null $custodian
  * @method static \Database\Factories\CustodianModelConfigFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianModelConfig newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianModelConfig newQuery()
@@ -68,4 +70,14 @@ class CustodianModelConfig extends Model
         'active',
         'custodian_id',
     ];
+
+    /**
+     * Get the custodian 
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Custodian>
+     */
+    public function custodian(): BelongsTo
+    {
+        return $this->belongsTo(Custodian::class, 'custodian_id', 'id');
+    }
 }

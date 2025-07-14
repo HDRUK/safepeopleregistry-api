@@ -14,9 +14,8 @@ use App\Models\Subsidiary;
 use App\Models\OrganisationHasSubsidiary;
 use App\Models\Affiliation;
 use App\Models\CustodianHasProjectOrganisation;
+use App\Models\CustodianModelConfig;
 use App\Models\Registry;
-use App\Models\Rules;
-use App\Models\CustodianHasRule;
 use App\Models\Project;
 use App\Models\ProjectHasCustodian;
 use App\Models\File;
@@ -799,14 +798,9 @@ class ActionLogTest extends TestCase
 
         $this->assertNull($actionLog['completed_at']);
 
-        $rule = Rules::create([
-            'name' => fake()->name(),
-            'title' => fake()->sentence(),
-            'description' => fake()->sentence()
-        ]);
-        CustodianHasRule::create([
-            'rule_id' => $rule->id,
-            'custodian_id' => $custodian->id
+        $conf = CustodianModelConfig::where('custodian_id', $custodian->id)->first();
+        $conf->update([
+            'active' => 0,
         ]);
 
         $response = $this->actingAs($this->admin)
@@ -826,14 +820,7 @@ class ActionLogTest extends TestCase
         );
     }
 
-    /* Not implemented yet
-    public function test_it_can_log_custodian_add_contacts_complete()
-    {
-
-    }*/
-
-
-    public function test_it_can_log_custodian_add_users_complete()
+    public function test_it_can_log_custodian_add_team_members_complete()
     {
         Carbon::setTestNow(Carbon::now());
 
@@ -848,7 +835,7 @@ class ActionLogTest extends TestCase
         $response->assertStatus(200);
         $responseData = $response['data'];
         $actionLog = collect($responseData)
-            ->firstWhere('action', Custodian::ACTION_ADD_USERS);
+            ->firstWhere('action', Custodian::ACTION_ADD_CONTACTS);
 
         $this->assertNull($actionLog['completed_at']);
 
@@ -863,7 +850,7 @@ class ActionLogTest extends TestCase
         $response->assertStatus(200);
         $responseData = $response['data'];
         $actionLog = collect($responseData)
-            ->firstWhere('action', Custodian::ACTION_ADD_USERS);
+            ->firstWhere('action', Custodian::ACTION_ADD_CONTACTS);
 
         $this->assertEquals(
             Carbon::now()->format('Y-m-d H:i:s'),
@@ -881,7 +868,7 @@ class ActionLogTest extends TestCase
         $response->assertStatus(200);
         $responseData = $response['data'];
         $actionLog = collect($responseData)
-            ->firstWhere('action', Custodian::ACTION_ADD_USERS);
+            ->firstWhere('action', Custodian::ACTION_ADD_CONTACTS);
 
         $this->assertNull($actionLog['completed_at']);
     }

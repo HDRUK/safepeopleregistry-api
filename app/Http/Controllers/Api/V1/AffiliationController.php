@@ -418,4 +418,16 @@ class AffiliationController extends Controller
             return $this->ErrorResponse($e->getMessage());
         }
     }
+
+    public function getWorkflowStates(Request $request)
+    {
+        $model = new Affiliation();
+        return $this->OKResponse($model->getAllStates());
+    }
+
+    public function getWorkflowTransitions(Request $request)
+    {
+        $model = new Affiliation();
+        return $this->OKResponse($model->getTransitions());
+    }
 }

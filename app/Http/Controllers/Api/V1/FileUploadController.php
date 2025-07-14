@@ -135,10 +135,6 @@ class FileUploadController extends Controller
             $filePath = $file->path;
             $fileSystem = config('speedi.system.scanning_filesystem_disk');
 
-            if ($fileSystem !== 'local_scan') {
-                return $this->NotImplementedResponse();
-            }
-
             $scannedFileSystem = $fileSystem . '_scanned';
 
             if (!Storage::disk($scannedFileSystem)->exists($filePath)) {
