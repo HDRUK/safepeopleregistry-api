@@ -105,7 +105,7 @@ trait StateWorkflow
             return true;
         }
         $currentState = $this->getState();
-        $transitions = $this->getTransitions();
+        $transitions = static::getTransitions();
         return (isset($transitions[$currentState]) && in_array($newStateSlug, $transitions[$currentState]));
     }
 
