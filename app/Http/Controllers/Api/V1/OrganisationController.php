@@ -537,7 +537,7 @@ class OrganisationController extends Controller
      *          required=true,
      *          description="organisations definition",
      *          @OA\JsonContent(
-     *                  ref="#/components/schemas/Organisation",
+     *              ref="#/components/schemas/Organisation",
      *          ),
      *      ),
      *      @OA\Response(
@@ -630,7 +630,7 @@ class OrganisationController extends Controller
      *          required=true,
      *          description="subsidiary definition",
      *          @OA\JsonContent(
-     *                  ref="#/components/schemas/Subsidiary",
+     *              ref="#/components/schemas/Subsidiary",
      *          ),
      *      ),
      *      @OA\Response(
@@ -665,7 +665,7 @@ class OrganisationController extends Controller
             $input = $request->only(app(Subsidiary::class)->getFillable());
             $org = Organisation::findOrFail($id);
 
-            if (!Gate::allows('create', $org)) {
+            if (!Gate::allows('update', $org)) {
                 return $this->ForbiddenResponse();
             }
 
@@ -757,7 +757,6 @@ class OrganisationController extends Controller
             throw new Exception($e->getMessage());
         }
     }
-
 
     /**
      * @OA\Delete(
@@ -1413,6 +1412,8 @@ class OrganisationController extends Controller
                 'subsidiary_id' => $subsidiary->id
             ]
         );
+
+        return $subsidiary;
     }
 
 

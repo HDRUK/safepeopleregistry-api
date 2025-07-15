@@ -204,7 +204,6 @@ Route::middleware(['auth:api'])
 
         // Update
         Route::put('/{id}', 'update');
-        Route::put('/{id}/subsidiaries/{subsidiaryId}', 'updateSubsidiary');
         Route::patch('/{id}/rules', 'updateCustodianRules');
 
         // Delete
