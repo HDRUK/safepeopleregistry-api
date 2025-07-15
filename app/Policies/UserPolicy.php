@@ -40,11 +40,12 @@ class UserPolicy
             return true;
         }
 
+
+
         // Organisation admins can update themselves
         if (
             $user->user_group === User::GROUP_ORGANISATIONS &&
-            $model->user_group === User::GROUP_ORGANISATIONS &&
-            $user->organisation_id === $model->organisation_id
+            $model->user_group === User::GROUP_ORGANISATIONS
         ) {
             // Org admins can update anyone in the same org
             if (!$user->is_delegate) {
