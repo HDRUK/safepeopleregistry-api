@@ -123,6 +123,27 @@ class Project extends Model
     use StateWorkflow;
     use FilterManager;
 
+
+    protected static array $transitions = [
+        State::STATE_PROJECT_PENDING => [
+            State::STATE_PROJECT_PENDING,
+            State::STATE_PROJECT_APPROVED,
+        ],
+        State::STATE_PROJECT_APPROVED => [
+            State::STATE_PROJECT_APPROVED,
+            State::STATE_PROJECT_COMPLETED
+        ],
+        State::STATE_PROJECT_COMPLETED => [
+            State::STATE_PROJECT_COMPLETED
+        ]
+    ];
+
+    public static function getTransitions(): array
+    {
+        return static::$transitions;
+    }
+
+
     protected $table = 'projects';
 
     public $timestamps = true;
