@@ -61,7 +61,7 @@ class UpdateActionNotifications implements ShouldQueue
                         Log::warning("Skipping user {$user->id} due to missing entity type or ID.");
                         return true;
                     }
-                    
+
                     $this->processNotifications($user, $group, $entityType, $entityId);
                     // trying this as it could be causing unboard memory growth
                     // as in the called function, we do both:
