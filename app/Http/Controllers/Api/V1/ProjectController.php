@@ -235,7 +235,7 @@ class ProjectController extends Controller
             })
             ->whereHas('affiliation.organisation', function ($query) {
                 /** @phpstan-ignore-next-line */
-                //$query->searchViaRequest();
+                $query->searchViaRequest();
             })
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
