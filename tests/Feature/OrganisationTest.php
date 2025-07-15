@@ -423,8 +423,8 @@ class OrganisationTest extends TestCase
             );
 
         $subsidiaryId = Subsidiary::where('id', 1)->first();
-        $ohsId = OrganisationHasSubsidiary::where('subsidiary_id', 1)->first();       
-        
+        $ohsId = OrganisationHasSubsidiary::where('subsidiary_id', 1)->first();
+
         $this->assertNull($subsidiaryId);
         $this->assertNull($ohsId);
 
