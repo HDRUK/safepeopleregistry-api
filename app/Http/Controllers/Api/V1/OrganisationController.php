@@ -1402,6 +1402,7 @@ class OrganisationController extends Controller
             'county' => $subsidiary['county'] ?? null,
             'country' => $subsidiary['country'] ?? null,
             'postcode' => $subsidiary['postcode'] ?? null,
+            'website' => $subsidiary['website'] ?? null,
         ];
 
         $subsidiary = Subsidiary::updateOrCreate($subsidiaryData, $subsidiaryValues);
