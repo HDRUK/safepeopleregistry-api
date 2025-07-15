@@ -484,6 +484,8 @@ class UserController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         try {
+
+
             $input = $request->all();
 
             $user = User::where('id', $id)->first();
@@ -517,6 +519,7 @@ class UserController extends Controller
             $user->t_and_c_agreement_date = isset($input['lt_and_c_agreement_date']) ? $input['t_and_c_agreement_date'] : $user->t_and_c_agreement_date;
             $user->uksa_registered = isset($input['uksa_registered']) ? $input['uksa_registered'] : $user->uksa_registered;
             $user->is_sro = isset($input['is_sro']) ? $input['is_sro'] : $user->is_sro;
+            $user->is_delegate = isset($input['is_delegate']) ? $input['is_delegate'] : $user->is_delegate;
 
             if ($user->save()) {
                 return response()->json([

@@ -1020,7 +1020,7 @@ class OrganisationController extends Controller
                 'firstname' => $input['first_name'],
                 'lastname' => $input['last_name'],
                 'email' => $input['email'],
-                'organisation_id' => (isset($input['user_group']) && $input['user_group'] === 'ORGANISATION') ? $id : 0,
+                'organisation_id' => (isset($input['user_group']) && $input['user_group'] === User::GROUP_ORGANISATIONS) ? $id : 0,
                 'is_delegate' => isset($input['is_delegate']) ? $input['is_delegate'] : 0,
                 'user_group' => isset($input['user_group']) ? $input['user_group'] : 'USERS',
                 'role' => isset($input['role']) ? $input['role'] : null,
@@ -1078,7 +1078,7 @@ class OrganisationController extends Controller
                 'firstname' => '',
                 'lastname' => '',
                 'email' => $organisation['lead_applicant_email'],
-                'user_group' => 'ORGANISATIONS',
+                'user_group' => User::GROUP_ORGANISATIONS,
                 'organisation_id' => $id
             ]);
 
@@ -1157,7 +1157,7 @@ class OrganisationController extends Controller
         OrganisationHasSubsidiary::where('organisation_id', $organisationId)
             ->get()
             ->each(
-                fn($ohs) =>
+                fn ($ohs) =>
                 OrganisationHasSubsidiary::where([
                     ['organisation_id', '=', $ohs->organisation_id],
                     ['subsidiary_id', '=', $ohs->subsidiary_id]
@@ -1322,7 +1322,7 @@ class OrganisationController extends Controller
                     'registry.affiliations.modelState.state',
                     'modelState.state'
                 ])
-                ->whereHas('registry.affiliations', function($query) use ($affiliationIds) {
+                ->whereHas('registry.affiliations', function ($query) use ($affiliationIds) {
                     $query->whereIn('id', $affiliationIds);
                 })
                 ->where(function ($query) use ($showPending, $id) {
