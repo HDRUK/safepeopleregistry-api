@@ -33,6 +33,8 @@ class OrganisationController extends Controller
     use CommonFunctions;
     use Responses;
 
+    protected $decisionEvaluator = null;
+
     /**
      * @OA\Get(
      *      path="/api/v1/organisations",

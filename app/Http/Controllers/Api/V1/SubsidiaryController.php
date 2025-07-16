@@ -18,8 +18,6 @@ class SubsidiaryController extends Controller
     use CommonFunctions;
     use Responses;
 
-    protected $decisionEvaluator = null;
-
     /**
      * @OA\Post(
      *      path="/api/v1/subsidiaries/organisations/{id}",
