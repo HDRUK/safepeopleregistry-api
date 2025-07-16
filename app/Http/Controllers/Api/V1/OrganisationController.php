@@ -1008,7 +1008,7 @@ class OrganisationController extends Controller
                 'firstname' => $input['first_name'],
                 'lastname' => $input['last_name'],
                 'email' => $input['email'],
-                'organisation_id' => (isset($input['user_group']) && $input['user_group'] === 'ORGANISATION') ? $id : 0,
+                'organisation_id' => (isset($input['user_group']) && $input['user_group'] === User::GROUP_ORGANISATIONS) ? $id : 0,
                 'is_delegate' => isset($input['is_delegate']) ? $input['is_delegate'] : 0,
                 'user_group' => isset($input['user_group']) ? $input['user_group'] : 'USERS',
                 'role' => isset($input['role']) ? $input['role'] : null,
@@ -1066,7 +1066,7 @@ class OrganisationController extends Controller
                 'firstname' => '',
                 'lastname' => '',
                 'email' => $organisation['lead_applicant_email'],
-                'user_group' => 'ORGANISATIONS',
+                'user_group' => User::GROUP_ORGANISATIONS,
                 'organisation_id' => $id
             ]);
 

@@ -84,7 +84,7 @@ class ActionLogController extends Controller
         ];
 
         if (!isset($entityClassMap[$entity])) {
-            return response()->json(['message' => 'Invalid entity type'], 400);
+            return $this->BadRequestResponse();
         }
 
         $logs = ActionLog::where('entity_type', $entityClassMap[$entity])
@@ -99,12 +99,11 @@ class ActionLogController extends Controller
             return $this->ForbiddenResponse();
         }
 
-
         if ($logs->isEmpty()) {
-            return response()->json(['message' => 'No action logs found for this entity'], 404);
+            return $this->NotFoundResponse();
         }
 
-        return response()->json(['data' => $logs]);
+        return $this->OKResponse($logs);
     }
 
     /**
@@ -174,9 +173,6 @@ class ActionLogController extends Controller
         $log->save();
         $log->refresh();
 
-        return response()->json([
-            'message' => 'Action status updated successfully',
-            'data' => $log
-        ]);
+        return $this->OKResponse($log);
     }
 }

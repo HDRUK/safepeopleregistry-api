@@ -1,3 +1,26 @@
+## [1.7.0](https://github.com/HDRUK/soursd-api/compare/v1.6.0...v1.7.0) (2025-07-11)
+
+### ✨ Features
+
+* **SOURSD-1254:** Temp seed fix (#321) ([6539e76](https://github.com/HDRUK/soursd-api/commit/6539e765c084ecc54bd463d9644fad1b98075690))
+* **SOURSD-1301:** new route for org affiliations (#354) ([a7be9e9](https://github.com/HDRUK/soursd-api/commit/a7be9e9958f461d62d0a64a60333dffe6b389573))
+* **SOURSD-1585:** Organisations | Profile | Data security compliance - upload and download file (#365) ([829f099](https://github.com/HDRUK/soursd-api/commit/829f0994137349a84fbe3db6f4bb5ea24e68f364))
+* **SOURSD-1590:** filter by affiliation status (#364) ([8769e94](https://github.com/HDRUK/soursd-api/commit/8769e9412afca71addf7727db1a35ed10eb28e88))
+
+### 🐛 Bug Fixes
+
+* **GAT-1234:** add redis in docker (#351) ([39d895c](https://github.com/HDRUK/soursd-api/commit/39d895c1693aae3abfe0cdc5cd64e6b2dc103c9d)), closes [GAT-1234](GAT-1234)
+* **SOURSD-1462:** Fixes for getting organisation users (#355) ([4c402f6](https://github.com/HDRUK/soursd-api/commit/4c402f6149ba9fbff4e05d74883c314f9fec23c6))
+* **SOURSD-1471:** Update actions when training complete (#353) ([1de5333](https://github.com/HDRUK/soursd-api/commit/1de53338da2bece1fcd48c85af2e01fc8b57f237))
+* **SOURSD-1478:** update completion upon seeding.. (#361) ([2a8936b](https://github.com/HDRUK/soursd-api/commit/2a8936be5b86dac857b1451aba00deb4680bc84e))
+* **SOURSD-1490:** Remove old rules and change action logs   (#363) ([6e8ec09](https://github.com/HDRUK/soursd-api/commit/6e8ec09a57482d64e323b868ce78fb1f0f846c5e))
+* **SOURSD-1563:** fix for adding contacts (#362) ([a888cc5](https://github.com/HDRUK/soursd-api/commit/a888cc5ca421bbbebcd1a3cd58774746372f6b54))
+* **SOURSD-1566:** filter project users (#359) ([22d85b5](https://github.com/HDRUK/soursd-api/commit/22d85b58aa3e68eb29f283597e2d4cbd3c7013de))
+* **SOURSD-1568:** Fix filtering on dates  (#357) ([f47620e](https://github.com/HDRUK/soursd-api/commit/f47620e66624ece790de9d1c343ce7a2487f7914))
+* **SOURSD-1571:** remove PHO if no others on the project with that affiliation (#358) ([ffa6ab8](https://github.com/HDRUK/soursd-api/commit/ffa6ab8f6d86c0ef6f92264eefaa459b190344db))
+* **SOURSD-1577:** filter (#360) ([b0df6f6](https://github.com/HDRUK/soursd-api/commit/b0df6f672acdc218616aeca0aa9c4898843f0a32))
+* **SOURSD-1592:** fix for getting spawing emails working again (#356) ([a1199c0](https://github.com/HDRUK/soursd-api/commit/a1199c02f6a50121d39faec68d7b8d01133b897c))
+
 ## [1.6.0](https://github.com/HDRUK/soursd-api/compare/v1.5.1...v1.6.0) (2025-07-03)
 
 ### ✨ Features

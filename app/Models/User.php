@@ -184,6 +184,7 @@ class User extends Authenticatable
         'last_name',
         'email',
         'user_group',
+        'registry_id'
     ];
 
     protected static array $sortableColumns = [
