@@ -357,80 +357,6 @@ class OrganisationTest extends TestCase
         }
     }
 
-    public function test_the_application_can_create_a_subsidiary(): void
-    {
-        $payload = [
-            "name" => "test sub",
-            "address_1" => "Building 1",
-            "address_2" => "10 Euston Rd",
-            "town" => "London",
-            "county" => "None",
-            "country" => "United Kingdom",
-            "postcode" => "SG5 4PF"
-        ];
-
-        $response = $this->actingAs($this->admin)
-            ->json(
-                'POST',
-                self::TEST_URL . '/1/subsidiaries',
-                $payload
-            );
-
-        $this->assertDatabaseHas('subsidiaries', $payload);
-
-        $subsidiaryId = Subsidiary::where('name', 'test sub')->first()->id;
-
-        $this->assertDatabaseHas('organisation_has_subsidiaries', [
-            'organisation_id' => 1,
-            'subsidiary_id' => $subsidiaryId,
-        ]);
-
-        $response->assertStatus(201);
-    }
-
-    public function test_the_application_can_update_a_subsidiary(): void
-    {
-        $payload = [
-            "name" => "renamed test sub",
-            "address_1" => "Building 1",
-            "address_2" => "10 Euston Rd",
-            "town" => "London",
-            "county" => "None",
-            "country" => "United Kingdom",
-            "postcode" => "SG5 4PF"
-        ];
-
-        $response = $this->actingAs($this->admin)
-            ->json(
-                'PUT',
-                self::TEST_URL . '/1/subsidiaries/1',
-                $payload
-            );
-
-        $this->assertDatabaseHas('subsidiaries', $payload);
-
-        $subsidiaryId = Subsidiary::where('name', 'renamed test sub')->first()->id;
-
-        $response->assertStatus(200);
-    }
-
-    public function test_the_application_can_delete_a_subsidiary(): void
-    {
-        $response = $this->actingAs($this->admin)
-            ->json(
-                'DELETE',
-                self::TEST_URL . '/1/subsidiaries/1'
-            );
-
-        $subsidiaryId = Subsidiary::where('id', 1)->first();
-        $ohsId = OrganisationHasSubsidiary::where('subsidiary_id', 1)->first();
-
-        $this->assertNull($subsidiaryId);
-        $this->assertNull($ohsId);
-
-        $response->assertStatus(200);
-    }
-
     public function test_the_application_can_update_organisations(): void
     {
         ActionLog::query()->update(['completed_at' => null]);
@@ -482,14 +408,6 @@ class OrganisationTest extends TestCase
                     'smb_status' => false,
                     'organisation_size' => 2,
                     'website' => 'https://www.website.com/',
-                    'subsidiaries' => [
-                        [
-                            'name' => 'test sub',
-                            'address_1' => '123 Fake St',
-                            'county' => 'Springfield',
-                            'postcode' => '6789'
-                        ]
-                    ]
                 ]
             );
 
@@ -498,21 +416,6 @@ class OrganisationTest extends TestCase
 
         $this->assertDatabaseHas('organisations', [
             'verified' => true,
-        ]);
-
-        $this->assertDatabaseHas('subsidiaries', [
-            'name' => 'test sub',
-            'address_1' => '123 Fake St',
-            'county' => 'Springfield',
-            'postcode' => '6789',
-        ]);
-
-        $organisationId = Organisation::where('organisation_name', 'Test Organisation')->first()->id;
-        $subsidiaryId = Subsidiary::where('name', 'test sub')->first()->id;
-
-        $this->assertDatabaseHas('organisation_has_subsidiaries', [
-            'organisation_id' => $organisationId,
-            'subsidiary_id' => $subsidiaryId,
         ]);
 
         $response = $this->actingAs($this->organisation_admin)

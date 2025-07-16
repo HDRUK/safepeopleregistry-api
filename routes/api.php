@@ -43,6 +43,7 @@ use App\Http\Controllers\Api\V1\ProjectHasUserController;
 use App\Http\Controllers\Api\V1\ProjectHasOrganisationController;
 use App\Http\Controllers\Api\V1\AuditLogController;
 use App\Http\Controllers\Api\V1\VendorWebhookReceiverController;
+use App\Http\Controllers\Api\V1\SubsidiaryController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -333,14 +334,11 @@ Route::middleware('auth:api')
             Route::post('/unclaimed', 'storeUnclaimed');
             Route::post('/{id}/invite', 'invite');
             Route::post('/{id}/invite_user', 'inviteUser');
-            Route::post('/{id}/subsidiaries', 'createSubsidiary');
 
             // Update
             Route::put('/{id}', 'update');
-            Route::put('/{id}/subsidiaries/{subsidiaryId}', 'updateSubsidiary');
 
             // Delete
-            Route::delete('/{id}/subsidiaries/{subsidiaryId}', 'destroySubsidiary');
             Route::delete('/{id}', 'destroy');
         });
 
@@ -348,6 +346,19 @@ Route::middleware('auth:api')
             Route::post('/permissions', 'assignOrganisationPermissionsToFrom');
         });
     });
+
+// --- SUBSIDIARIES ---
+Route::middleware('auth:api')
+    ->prefix('v1/subsidiaries')
+    ->group(function () {
+        Route::controller(SubsidiaryController::class)->group(function () {
+            Route::post('organisations/{orgId}', 'create');
+            Route::put('{id}/organisations/{orgId}', 'update');
+            Route::delete('{id}/organisations/{orgId}', 'destroy');
+        });
+    });
+
+// --- ACCREDITATIONS ---
 
 // --- ACCREDITATIONS ---
 Route::middleware('auth:api')

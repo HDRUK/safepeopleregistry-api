@@ -17,8 +17,6 @@ use App\Models\DebugLog;
 use App\Models\Organisation;
 use App\Models\Charity;
 use App\Models\OrganisationHasDepartment;
-use App\Models\OrganisationHasSubsidiary;
-use App\Models\Subsidiary;
 use App\Models\User;
 use App\Models\UserHasDepartments;
 use App\Models\PendingInvite;
@@ -34,8 +32,6 @@ class OrganisationController extends Controller
 {
     use CommonFunctions;
     use Responses;
-
-    protected $decisionEvaluator = null;
 
     /**
      * @OA\Get(
@@ -590,240 +586,11 @@ class OrganisationController extends Controller
             }
             $org->update($input);
 
-            if ($request->has('subsidiaries')) {
-                $this->cleanSubsidiaries($id);
-                foreach ($request->input('subsidiaries') as $subsidiary) {
-                    $this->addSubsidiary($id, $subsidiary);
-                }
-            }
-
             if ($request->has('charities')) {
                 $this->updateOrganisationCharities($id, $request->input('charities'));
             }
 
             return $this->OKResponse($org);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
-    }
-
-    /**
-     * @OA\Post(
-     *      path="/api/v1/organisations/{id}/subsidiaries",
-     *      summary="Create a subsidiary entry",
-     *      description="Create a subsidiary entry",
-     *      tags={"organisations"},
-     *      summary="organisations@createSubsidiary",
-     *      security={{"bearerAuth":{}}},
-     *      @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="organisations entry ID",
-     *         required=true,
-     *         example="1",
-     *         @OA\Schema(
-     *            type="integer",
-     *            description="organisations entry ID",
-     *         ),
-     *      ),
-     *      @OA\RequestBody(
-     *          required=true,
-     *          description="subsidiary definition",
-     *          @OA\JsonContent(
-     *              ref="#/components/schemas/Subsidiary",
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=201,
-     *          description="Success",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data",
-     *                  ref="#/components/schemas/Subsidiary",
-     *              )
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=500,
-     *          description="Error",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="error")
-     *          )
-     *      )
-     * )
-     */
-    public function createSubsidiary(Request $request, int $id): JsonResponse
-    {
-        try {
-            $input = $request->only(app(Subsidiary::class)->getFillable());
-            $org = Organisation::findOrFail($id);
-
-            if (!Gate::allows('update', $org)) {
-                return $this->ForbiddenResponse();
-            }
-
-            $subsidiary = $this->addSubsidiary($id, $input);
-
-            return $this->CreatedResponse($subsidiary);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
-    }
-
-    /**
-     * @OA\Put(
-     *      path="/api/v1/organisations/{id}/subsidiaries/{subsidiaryId}",
-     *      summary="Update an subsidiary entry",
-     *      description="Update a subsidiary entry",
-     *      tags={"organisations"},
-     *      summary="organisations@updateSubsidiary",
-     *      security={{"bearerAuth":{}}},
-     *      @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="organisations entry ID",
-     *         required=true,
-     *         example="1",
-     *         @OA\Schema(
-     *            type="integer",
-     *            description="organisations entry ID",
-     *         ),
-     *      ),
-     *      @OA\Parameter(
-     *         name="subsidiaryId",
-     *         in="path",
-     *         description="subsidiary entry ID",
-     *         required=true,
-     *         example="1",
-     *         @OA\Schema(
-     *            type="integer",
-     *            description="subsidiary entry ID",
-     *         ),
-     *      ),
-     *      @OA\RequestBody(
-     *          required=true,
-     *          description="subsidiary definition",
-     *          @OA\JsonContent(
-     *                  ref="#/components/schemas/Subsidiary",
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Success",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data",
-     *                  ref="#/components/schemas/Subsidiary",
-     *              )
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=500,
-     *          description="Error",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="error")
-     *          )
-     *      )
-     * )
-     */
-    public function updateSubsidiary(Request $request, int $id, int $subsidiaryId): JsonResponse
-    {
-        try {
-            $input = $request->only(app(Subsidiary::class)->getFillable());
-            $org = Organisation::findOrFail($id);
-
-            if (!Gate::allows('update', $org)) {
-                return $this->ForbiddenResponse();
-            }
-
-            $subsidiary = $this->addSubsidiary($id, $input);
-
-            return $this->OKResponse($subsidiary);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
-    }
-
-    /**
-     * @OA\Delete(
-     *      path="/api/v1/organisations/{id}/subsidiaries/{subsidiaryId}",
-     *      summary="Delete an subsidiary entry from the system by ID",
-     *      description="Delete an subsidiary entry from the system",
-     *      tags={"organisations"},
-     *      summary="organisations@destroySubsidiary",
-     *      security={{"bearerAuth":{}}},
-     *      @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="organisations entry ID",
-     *         required=true,
-     *         example="1",
-     *         @OA\Schema(
-     *            type="integer",
-     *            description="organisations entry ID",
-     *         ),
-     *      ),
-     *      @OA\Parameter(
-     *         name="subsidiaryId",
-     *         in="path",
-     *         description="subsidiary entry ID",
-     *         required=true,
-     *         example="1",
-     *         @OA\Schema(
-     *            type="integer",
-     *            description="subsidiary entry ID",
-     *         ),
-     *      ),
-     *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *           ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Success",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="success")
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=500,
-     *          description="Error",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="error")
-     *          )
-     *      )
-     * )
-     */
-    public function destroySubsidiary(Request $request, int $id, int $subsidiaryId): JsonResponse
-    {
-        try {
-            $subsidiary = Subsidiary::findOrFail($subsidiaryId);
-            $org = Organisation::findOrFail($id);
-
-            if (!Gate::allows('delete', $org)) {
-                return $this->ForbiddenResponse();
-            }
-
-            $subsidiary->delete();
-
-            return $this->OKResponse(null);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -1371,52 +1138,6 @@ class OrganisationController extends Controller
             throw new Exception($e->getMessage());
         }
     }
-
-    public function cleanSubsidiaries(int $organisationId)
-    {
-        // done like this to for the observer class to see the delete
-        OrganisationHasSubsidiary::where('organisation_id', $organisationId)
-            ->get()
-            ->each(
-                fn ($ohs) =>
-                OrganisationHasSubsidiary::where([
-                    ['organisation_id', '=', $ohs->organisation_id],
-                    ['subsidiary_id', '=', $ohs->subsidiary_id]
-                ])->delete()
-            );
-    }
-
-    public function addSubsidiary(int $organisationId, array $subsidiary)
-    {
-        if (is_null($subsidiary['name'])) {
-            return;
-        }
-        $subsidiaryData = [
-            'name' => $subsidiary['name'],
-        ];
-
-        $subsidiaryValues = [
-            'address_1' => $subsidiary['address_1'] ?? null,
-            'address_2' => $subsidiary['address_2'] ?? null,
-            'town' => $subsidiary['town'] ?? null,
-            'county' => $subsidiary['county'] ?? null,
-            'country' => $subsidiary['country'] ?? null,
-            'postcode' => $subsidiary['postcode'] ?? null,
-            'website' => $subsidiary['website'] ?? null,
-        ];
-
-        $subsidiary = Subsidiary::updateOrCreate($subsidiaryData, $subsidiaryValues);
-
-        OrganisationHasSubsidiary::updateOrCreate(
-            [
-                'organisation_id' => $organisationId,
-                'subsidiary_id' => $subsidiary->id
-            ]
-        );
-
-        return $subsidiary;
-    }
-
 
     private function updateOrganisationCharities(int $organisationId, array $charities)
     {
