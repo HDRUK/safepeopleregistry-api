@@ -8,7 +8,6 @@ use App\Models\User;
 use App\Models\Sector;
 use App\Models\Project;
 use App\Models\Organisation;
-use App\Models\Subsidiary;
 use App\Jobs\SendEmailJob;
 use App\Models\ActionLog;
 use App\Models\PendingInvite;
@@ -407,16 +406,6 @@ class OrganisationTest extends TestCase
                     'smb_status' => false,
                     'organisation_size' => 2,
                     'website' => 'https://www.website.com/',
-                    'subsidiaries' => [
-                        [
-                            'name' => 'test sub',
-                            'address' => [
-                                'address_1' => '123 Fake St',
-                                'county' => 'Springfield',
-                                'postcode' => '6789'
-                            ]
-                        ]
-                    ]
                 ]
             );
 
@@ -425,21 +414,6 @@ class OrganisationTest extends TestCase
 
         $this->assertDatabaseHas('organisations', [
             'verified' => true,
-        ]);
-
-        $this->assertDatabaseHas('subsidiaries', [
-            'name' => 'test sub',
-            'address_1' => '123 Fake St',
-            'county' => 'Springfield',
-            'postcode' => '6789',
-        ]);
-
-        $organisationId = Organisation::where('organisation_name', 'Test Organisation')->first()->id;
-        $subsidiaryId = Subsidiary::where('name', 'test sub')->first()->id;
-
-        $this->assertDatabaseHas('organisation_has_subsidiaries', [
-            'organisation_id' => $organisationId,
-            'subsidiary_id' => $subsidiaryId,
         ]);
 
         $response = $this->actingAs($this->organisation_admin)

@@ -43,6 +43,7 @@ use App\Http\Controllers\Api\V1\ProjectHasUserController;
 use App\Http\Controllers\Api\V1\ProjectHasOrganisationController;
 use App\Http\Controllers\Api\V1\AuditLogController;
 use App\Http\Controllers\Api\V1\VendorWebhookReceiverController;
+use App\Http\Controllers\Api\V1\SubsidiaryController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -345,6 +346,19 @@ Route::middleware('auth:api')
             Route::post('/permissions', 'assignOrganisationPermissionsToFrom');
         });
     });
+
+// --- SUBSIDIARIES ---
+Route::middleware('auth:api')
+    ->prefix('v1/subsidiaries')
+    ->group(function () {
+        Route::controller(SubsidiaryController::class)->group(function () {
+            Route::post('organisations/{orgId}', 'store');
+            Route::put('{id}/organisations/{orgId}', 'update');
+            Route::delete('{id}/organisations/{orgId}', 'destroy');
+        });
+    });
+
+// --- ACCREDITATIONS ---
 
 // --- ACCREDITATIONS ---
 Route::middleware('auth:api')
