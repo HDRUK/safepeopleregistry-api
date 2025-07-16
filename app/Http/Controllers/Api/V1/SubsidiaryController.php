@@ -26,7 +26,7 @@ class SubsidiaryController extends Controller
      *      summary="Create a subsidiary entry",
      *      description="Create a subsidiary entry",
      *      tags={"organisations"},
-     *      summary="organisations@createSubsidiary",
+     *      summary="organisations@store",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *         name="orgId",
@@ -72,7 +72,7 @@ class SubsidiaryController extends Controller
      *      )
      * )
      */
-    public function create(Request $request, int $orgId): JsonResponse
+    public function store(Request $request, int $orgId): JsonResponse
     {
         try {
             $input = $request->only(app(Subsidiary::class)->getFillable());
@@ -96,7 +96,7 @@ class SubsidiaryController extends Controller
      *      summary="Update a subsidiary entry",
      *      description="Update a subsidiary entry",
      *      tags={"organisations"},
-     *      summary="organisations@updateSubsidiary",
+     *      summary="organisations@update",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *         name="orgId",
@@ -177,7 +177,7 @@ class SubsidiaryController extends Controller
      *      summary="Delete an subsidiary entry from the system by ID",
      *      description="Delete an subsidiary entry from the system",
      *      tags={"organisations"},
-     *      summary="organisations@destroySubsidiary",
+     *      summary="organisations@destroy",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *         name="orgId",
