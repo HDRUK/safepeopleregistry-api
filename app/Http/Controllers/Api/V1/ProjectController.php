@@ -223,6 +223,7 @@ class ProjectController extends Controller
         $projectUsers = ProjectHasUser::with([
             'registry.user',
             'role',
+            'project',
             'affiliation.organisation:id,organisation_name',
         ])
             ->where('project_id', $projectId)
@@ -231,6 +232,10 @@ class ProjectController extends Controller
                 $query->searchViaRequest()
                     ->filterByState()
                     ->with("modelState");
+            })
+            ->whereHas('affiliation.organisation', function ($query) {
+                /** @phpstan-ignore-next-line */
+                $query->searchViaRequest();
             })
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 

@@ -59,7 +59,7 @@ class CustodianHasProjectOrganisation extends Model
     use SearchManager;
     use FilterManager;
 
-    protected array $transitions = [
+    protected static array $transitions = [
         State::STATE_PENDING => [
             State::STATE_VALIDATION_IN_PROGRESS,
             State::STATE_MORE_ORG_INFO_REQ,
@@ -84,9 +84,9 @@ class CustodianHasProjectOrganisation extends Model
         State::STATE_VALIDATED => [],
     ];
 
-    public function getTransitions(): array
+    public static function getTransitions(): array
     {
-        return $this->transitions;
+        return static::$transitions;
     }
 
     protected $table = 'custodian_has_project_has_organisation';

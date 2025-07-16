@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Affiliation;
 use KeycloakGuard\ActingAsKeycloakUser;
 use Carbon\Carbon;
 use App\Models\State;
@@ -9,6 +10,7 @@ use App\Models\User;
 use App\Models\Registry;
 use App\Models\Custodian;
 use App\Models\CustodianHasProjectUser;
+use App\Models\Organisation;
 use App\Models\Project;
 use App\Models\ProjectHasUser;
 use App\Models\ProjectHasCustodian;
@@ -219,7 +221,8 @@ class ProjectTest extends TestCase
         ProjectHasUser::create([
             'project_id' => $projectId,
             'user_digital_ident' => $digi_ident,
-            'project_role_id' => 1
+            'project_role_id' => 6,
+            'affiliation_id' => Affiliation::where('organisation_id', 2)->first()->id
         ]);
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
@@ -233,6 +236,37 @@ class ProjectTest extends TestCase
         $this->assertArrayHasKey('data', $response['data']);
         $this->assertCount(5, $response['data']['data']);
         $this->assertArrayHasKey('registry', $response['data']['data'][0]);
+
+        $orgName = Organisation::first()->organisation_name;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/users?organisation_name=' . $orgName,
+            );
+
+        $response->assertStatus(200);
+        $this->assertCount(2, $response['data']['data']);
+
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/users?registry_id=' . $registry->id,
+            );
+
+        $response->assertStatus(200);
+        $this->assertCount(2, $response['data']['data']);
+
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/users?registry_id=999'
+            );
+
+        $response->assertStatus(200);
+        $this->assertCount(0, $response['data']['data']);
     }
 
     public function test_the_application_can_show_user_approved_projects(): void
