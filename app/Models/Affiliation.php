@@ -130,7 +130,7 @@ class Affiliation extends Model
     use LogsActivity;
     use FilterManager;
 
-    protected array $transitions = [
+    protected static array $transitions = [
         State::STATE_AFFILIATION_INVITED => [
             State::STATE_AFFILIATION_PENDING
         ],
@@ -166,9 +166,9 @@ class Affiliation extends Model
         'verdict_outcome',
     ];
 
-    public function getTransitions(): array
+    public static function getTransitions(): array
     {
-        return $this->transitions;
+        return static::$transitions;
     }
 
     public function getActivitylogOptions(): LogOptions
