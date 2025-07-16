@@ -25,8 +25,8 @@ class SubsidiaryController extends Controller
      *      path="/api/v1/subsidiaries/organisations/{id}",
      *      summary="Create a subsidiary entry",
      *      description="Create a subsidiary entry",
-     *      tags={"organisations"},
-     *      summary="organisations@store",
+     *      tags={"subsidiaries"},
+     *      summary="subsidiaries@store",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *         name="orgId",
@@ -95,8 +95,8 @@ class SubsidiaryController extends Controller
      *      path="/api/v1/subsidiaries/{subsidiaryId}/organisations/{orgId}",
      *      summary="Update a subsidiary entry",
      *      description="Update a subsidiary entry",
-     *      tags={"organisations"},
-     *      summary="organisations@update",
+     *      tags={"subsidiaries"},
+     *      summary="subsidiaries@update",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *         name="orgId",
@@ -176,8 +176,8 @@ class SubsidiaryController extends Controller
      *      path="/api/v1/subsidiaries/{subsidiaryId}/organisations/{orgId}",
      *      summary="Delete an subsidiary entry from the system by ID",
      *      description="Delete an subsidiary entry from the system",
-     *      tags={"organisations"},
-     *      summary="organisations@destroy",
+     *      tags={"subsidiaries"},
+     *      summary="subsidiaries@destroy",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *         name="orgId",
