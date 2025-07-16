@@ -123,7 +123,7 @@ class Project extends Model
     use StateWorkflow;
     use FilterManager;
 
-    protected array $defaultTransitions = [
+    protected array $transitions = [
         State::STATE_PROJECT_PENDING => [
             State::STATE_PROJECT_PENDING,
             State::STATE_PROJECT_APPROVED,
@@ -217,5 +217,10 @@ class Project extends Model
             'project_id',
             'custodian_id'
         );
+    }
+
+    public function getTransitions(): array
+    {
+        return $this->transitions;
     }
 }
