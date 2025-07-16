@@ -56,6 +56,14 @@ class ProjectHasUserObserver
             );
         }
 
+        UpdateProjectUserValidation::dispatch(
+            $projectHasUser
+        );
+
+        if ((app()->bound('seeding') && app()->make('seeding') === true)) {
+            return;
+        }
+
         activity()
             ->causedBy(Auth::user())
             ->performedOn($user)
@@ -70,10 +78,6 @@ class ProjectHasUserObserver
             ->event('created')
             ->useLog('project_has_user')
             ->log('user_added_to_project');
-
-        UpdateProjectUserValidation::dispatch(
-            $projectHasUser
-        );
     }
 
     /**
