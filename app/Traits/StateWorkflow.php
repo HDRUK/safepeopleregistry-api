@@ -42,20 +42,6 @@ trait StateWorkflow
             State::STATE_VALIDATED,
         ],
         State::STATE_VALIDATED => [],
-
-        State::STATE_AFFILIATION_INVITED => [
-            State::STATE_AFFILIATION_PENDING
-        ],
-        State::STATE_AFFILIATION_PENDING => [
-            State::STATE_AFFILIATION_APPROVED,
-            State::STATE_AFFILIATION_REJECTED
-        ],
-        State::STATE_AFFILIATION_APPROVED => [
-            State::STATE_AFFILIATION_REJECTED
-        ],
-        State::STATE_AFFILIATION_REJECTED => [
-            State::STATE_AFFILIATION_APPROVED
-        ]
     ];
 
     public function modelState()
