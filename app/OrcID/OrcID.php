@@ -31,6 +31,12 @@ class OrcID
         try {
             $ch = curl_init();
 
+            Log::info('OrcID public token request :: ' . json_encode([
+                'url' => config('speedi.system.orcid_auth_url') . 'oauth/token',
+                'client_id' => config('speedi.system.client_id'),
+                'client_secret' => config('speedi.system.client_secret'),
+            ]));
+
             curl_setopt($ch, CURLOPT_URL, config('speedi.system.orcid_auth_url') . 'oauth/token');
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_POST, true);
@@ -56,8 +62,8 @@ class OrcID
             }
 
             curl_close($ch);
-            
-            Log::info('OrcID public token', ['result' => $result]);
+
+            Log::info('OrcID public token :: ' . json_encode($result));
 
             return $result;
         } catch (Exception $e) {
