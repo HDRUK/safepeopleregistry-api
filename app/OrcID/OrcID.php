@@ -33,8 +33,8 @@ class OrcID
 
             Log::info('OrcID public token request :: ' . json_encode([
                 'url' => config('speedi.system.orcid_auth_url') . 'oauth/token',
-                'client_id' => config('speedi.system.client_id'),
-                'client_secret' => config('speedi.system.client_secret'),
+                'client_id' => config('speedi.system.orcid_app_id'),
+                'client_secret' => config('speedi.system.orcid_client_secret'),
             ]));
 
             curl_setopt($ch, CURLOPT_URL, config('speedi.system.orcid_auth_url') . 'oauth/token');
@@ -43,8 +43,8 @@ class OrcID
             curl_setopt(
                 $ch,
                 CURLOPT_POSTFIELDS,
-                'client_id=' . config('speedi.system.client_id') . '&' .
-                'client_secret=' . config('speedi.system.client_secret') . '&' .
+                'client_id=' . config('speedi.system.orcid_app_id') . '&' .
+                'client_secret=' . config('speedi.system.orcid_client_secret') . '&' .
                 'scope=/read-public&' .
                 'grant_type=client_credentials'
             );
