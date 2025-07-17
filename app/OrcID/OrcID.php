@@ -132,7 +132,7 @@ class OrcID
         ]));
         if ($response->status() === 200) {
             $response->close();
-            return json_decode($response->body(), true);
+            return is_array($response->json()) ? $response->json() : [];
         }
 
         $response->close();
