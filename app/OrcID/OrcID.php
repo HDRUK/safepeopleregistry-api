@@ -113,6 +113,12 @@ class OrcID
         ];
 
         $response = Http::withHeaders($headers)->get($url);
+        Log::info('Fetched ORCiD record :: ' . json_encode([
+            'orcid' => $orcid, 
+            'record' => $record,
+            'status' => $response->status(),
+            'body' => $response->body()
+        ]));
         if ($response->status() === 200) {
             $response->close();
             return json_decode($response->body(), true);
