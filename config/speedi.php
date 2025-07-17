@@ -49,6 +49,7 @@ return [
         'orcid_url' => env('ORCID_URL'),
         'orcid_app_id' => env('ORCID_APP_ID'),
         'orcid_redirect_url' => env('ORCID_REDIRECT_URL'),
+        'orcid_public_url' => env('ORCID_PUBLIC_URL', 'https://pub.orcid.org/'),
         'orcid_auth_url' => env('ORCID_AUTH_URL', 'https://orcid.org/'),
         'orcid_client_id' => env('ORCID_CLIENT_ID'),
         'orcid_client_secret' => env('ORCID_CLIENT_SECRET'),
