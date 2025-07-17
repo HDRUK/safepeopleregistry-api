@@ -110,10 +110,11 @@ class OrcID
         $url = Config::get('speedi.system.orcid_auth_url') . 'v3.0/'.$orcid.'/'.$record;
         $headers = [
             'Authorization' => 'Bearer '.$token,
-            'Accept' => 'application/orcid+json',
+            // 'Accept' => 'application/orcid+json',
+            'Accept' => 'application/json',
         ];
 
-        Log::info('Fetching ORCiD record :: ' . json_encode([
+        Log::info('Data for fetching ORCiD record :: ' . json_encode([
             'token' => $token,
             'orcid' => $orcid,
             'record' => $record,
