@@ -14,9 +14,9 @@ class OrcID
 {
     public function getAuthoriseUrl(): string
     {
-        $url = config('speedi.system.orcid_url') . 'oauth/authorize?client_id=' .
-        config('speedi.system.orcid_app_id') . '&response_type=token&' .
-            'scope=openid&redirect_uri=' . config('speedi.system.orcid_redirect_url');
+        $url = Config::get('speedi.system.orcid_auth_url') . 'oauth/authorize?client_id=' .
+        Config::get('speedi.system.orcid_app_id') . '&response_type=token&' .
+            'scope=openid&redirect_uri=' . Config::get('speedi.system.orcid_redirect_url');
 
         return $url;
     }
@@ -107,11 +107,19 @@ class OrcID
 
     public function getOrcIDRecord(string $token, string $orcid, string $record): array
     {
-        $url = config('speedi.system.orcid_url') . 'v3.0/'.$orcid.'/'.$record;
+        $url = Config::get('speedi.system.orcid_auth_url') . 'v3.0/'.$orcid.'/'.$record;
         $headers = [
             'Authorization' => 'Bearer '.$token,
             'Accept' => 'application/orcid+json',
         ];
+
+        Log::info('Fetching ORCiD record :: ' . json_encode([
+            'token' => $token,
+            'orcid' => $orcid,
+            'record' => $record,
+            'url' => $url,
+            'headers' => $headers,
+        ]));
 
         $response = Http::withHeaders($headers)->get($url);
         Log::info('Fetched ORCiD record :: ' . json_encode([
