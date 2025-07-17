@@ -62,6 +62,7 @@ RUN composer install \
     && php artisan config:clear \
     && chmod -R 777 storage bootstrap/cache \
     && chown -R www-data:www-data storage \
+    && php artisan telescope:prune \
     && composer dumpautoload
 
 # Generate Swagger
