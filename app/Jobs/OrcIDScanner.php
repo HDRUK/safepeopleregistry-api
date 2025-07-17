@@ -2,19 +2,21 @@
 
 namespace App\Jobs;
 
+use Throwable;
 use OrcID;
 use Carbon\Carbon;
-use App\Models\Accreditation;
+use App\Models\User;
 use App\Models\Education;
 use App\Models\Affiliation;
-use App\Models\RegistryHasAccreditation;
-use App\Models\User;
 use App\Models\Organisation;
+use App\Models\Accreditation;
 use Illuminate\Bus\Queueable;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Queue\SerializesModels;
+use App\Models\RegistryHasAccreditation;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
 class OrcIDScanner implements ShouldQueue
 {
@@ -40,21 +42,31 @@ class OrcIDScanner implements ShouldQueue
      */
     public function handle(): void
     {
-        if ($this->user->consent_scrape && $this->user->orc_id !== null && $this->user->user_group === User::GROUP_USERS) {
-            $this->user->orcid_scanning = 1;
-            $this->user->save();
+        try {
+            if ($this->user->consent_scrape && $this->user->orc_id !== null && $this->user->user_group === User::GROUP_USERS) {
+                $this->user->orcid_scanning = 1;
+                $this->user->save();
 
-            $token = json_decode(OrcID::getPublicToken($this->user), true);
+                $token = json_decode(OrcID::getPublicToken($this->user), true);
+                Log::info('OrcID token retrieved', ['token' => $token]);
 
-            $this->accessToken = $token['access_token'];
+                $this->accessToken = $token['access_token'];
 
-            $this->getEducations();
-            $this->getQualifications();
-            $this->getEmployers();
+                $this->getEducations();
+                $this->getQualifications();
+                $this->getEmployers();
 
-            $this->user->orcid_scanning = 0;
-            $this->user->orcid_scanning_completed_at = Carbon::now();
-            $this->user->save();
+                $this->user->orcid_scanning = 0;
+                $this->user->orcid_scanning_completed_at = Carbon::now();
+                $this->user->save();
+            }
+        } catch (Throwable $e) {
+            Log::error('OrcID Scanner failed', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
         }
 
         // Nothing to do - either no consent to scrape data, or
