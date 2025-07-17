@@ -11,9 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::disableForeignKeyConstraints();
+
         Schema::table('telescope_entries_tags', function (Blueprint $table) {
-            $table->mediumText('tag')->nullable()->change();
+            $table->string('tag', 500)->change();
         });
+
+        DB::statement('CREATE INDEX telescope_tag_index ON telescope_entries_tags (tag(191))');
+
+        Schema::enableForeignKeyConstraints();
     }
 
     /**
@@ -21,8 +27,12 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::disableForeignKeyConstraints();
+
         Schema::table('telescope_entries_tags', function (Blueprint $table) {
-            $table->string('tag')->nullable()->change();
+            $table->string('tag')->change();
         });
+
+        Schema::enableForeignKeyConstraints();
     }
 };
