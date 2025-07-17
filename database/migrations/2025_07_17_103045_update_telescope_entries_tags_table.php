@@ -17,8 +17,6 @@ return new class extends Migration
             $table->string('tag', 500)->change();
         });
 
-        DB::statement('CREATE INDEX telescope_tag_index ON telescope_entries_tags (tag(191))');
-
         Schema::enableForeignKeyConstraints();
     }
 
