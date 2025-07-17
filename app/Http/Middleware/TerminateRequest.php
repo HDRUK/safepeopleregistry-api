@@ -3,17 +3,10 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Support\Facades\Log;
 
 class TerminateRequest
 {
-    protected Application $app;
-
-    public function __construct(Application $app)
-    {
-        $this->app = $app;
-    }
-
     public function handle($request, Closure $next)
     {
         return $next($request);
@@ -25,12 +18,13 @@ class TerminateRequest
             return;
         }
 
-        \Log::info('Request: ' . $request->route()->getActionName());
-        \Log::info('Memory usage before manual GC: ' . round(memory_get_usage(true) / 1024 / 1024, 2) . ' MB');
-
         $collected = gc_collect_cycles();
-        \Log::info('Collected: ' . $collected);
 
-        \Log::info('Memory usage after manual GC: ' . round(memory_get_usage(true) / 1024 / 1024, 2) . ' MB');
+        Log::info('TerminateRequest', [
+            'request' => $request->route()->getActionName(),
+            'memory_before' => round(memory_get_usage(true) / 1024 / 1024, 2) . ' MB',
+            'collected' => $collected,
+            'memory_after' => round(memory_get_usage(true) / 1024 / 1024, 2) . ' MB',
+        ]);
     }
 }

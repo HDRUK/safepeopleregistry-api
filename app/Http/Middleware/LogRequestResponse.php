@@ -20,23 +20,28 @@ class LogRequestResponse
         $body = $this->truncateBody($body);
 
         // Log the incoming request
-        Log::info('Request', [
+        $incoming = [
             'method' => $request->getMethod(),
             'url' => $request->fullUrl(),
             'headers' => $this->maskSensitive($request->headers->all()),
             'body' => $body,
             'user_id' => optional($request->user())->id,
-        ]);
+        ];
 
         $response = $next($request);
 
         // Log the outgoing response
         $responseBody = method_exists($response, 'getContent') ? $response->getContent() : null;
         $responseBody = $this->truncateBody($responseBody);
-        Log::info('Response', [
+        $outgoing = [
             'status' => $response->getStatusCode(),
             'headers' => $response->headers->all(),
             'body' => $responseBody,
+        ];
+
+        Log::info('LogRequestResponse', [
+            'request' => $incoming,
+            'response' => $outgoing,
         ]);
 
         return $response;

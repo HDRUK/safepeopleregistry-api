@@ -42,6 +42,30 @@ trait StateWorkflow
             State::STATE_VALIDATED,
         ],
         State::STATE_VALIDATED => [],
+
+        // project
+        State::STATE_PROJECT_PENDING => [
+            State::STATE_PROJECT_PENDING,
+            State::STATE_PROJECT_APPROVED,
+        ],
+
+        State::STATE_PROJECT_APPROVED => [
+            State::STATE_PROJECT_APPROVED,
+            State::STATE_PROJECT_DECLINED_APPROVAL,
+            State::STATE_PROJECT_IN_PROGRESS,
+        ],
+
+        State::STATE_PROJECT_IN_PROGRESS => [
+            State::STATE_PROJECT_IN_PROGRESS,
+            State::STATE_PROJECT_COMPLETED,
+        ],
+
+        State::STATE_PROJECT_DECLINED_APPROVAL => [
+            State::STATE_PROJECT_APPROVED,
+        ],
+
+        State::STATE_PROJECT_COMPLETED => [
+        ],
     ];
 
     public function modelState()
