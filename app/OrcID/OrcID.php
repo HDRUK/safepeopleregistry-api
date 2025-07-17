@@ -8,6 +8,7 @@ use Exception;
 use App\Models\User;
 use App\Jobs\OrcIDScanner;
 use App\Models\UserApiToken;
+use Illuminate\Support\Facades\Log;
 
 class OrcID
 {
@@ -30,6 +31,12 @@ class OrcID
         // differences.
         try {
             $ch = curl_init();
+
+            Log::info('OrcID public token request :: ' . json_encode([
+                'url' => Config::get('speedi.system.orcid_auth_url') . 'oauth/token',
+                'client_id' => Config::get('speedi.system.orcid_app_id'),
+                'client_secret' => Config::get('speedi.system.orcid_client_secret'),
+            ]));
 
             curl_setopt($ch, CURLOPT_URL, Config::get('speedi.system.orcid_auth_url') . 'oauth/token');
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -56,6 +63,8 @@ class OrcID
             }
 
             curl_close($ch);
+
+            Log::info('OrcID public token :: ' . json_encode($result));
 
             return $result;
         } catch (Exception $e) {
@@ -98,16 +107,31 @@ class OrcID
 
     public function getOrcIDRecord(string $token, string $orcid, string $record): array
     {
-        $url = Config::get('speedi.system.orcid_public_url') . 'v3.0/'.$orcid.'/'.$record;
+        $url = Config::get('speedi.system.orcid_auth_url') . 'v3.0/'.$orcid.'/'.$record;
         $headers = [
             'Authorization' => 'Bearer '.$token,
             'Accept' => 'application/json',
         ];
 
+        Log::info('Data for fetching ORCiD record :: ' . json_encode([
+            'token' => $token,
+            'orcid' => $orcid,
+            'record' => $record,
+            'url' => $url,
+            'headers' => $headers,
+        ]));
+
         $response = Http::withHeaders($headers)->get($url);
-        if ($response->status() === 200) {
+        Log::info('Fetched ORCiD record :: ' . json_encode([
+            'orcid' => $orcid, 
+            'record' => $record,
+            'status' => $response->status(),
+            'body' => $response->json()
+        ]));
+        if ($response->ok()) {
+            $data = $response->json();
             $response->close();
-            return is_array($response->json()) ? $response->json() : [];
+            return is_array($data) ? $data : [];
         }
 
         $response->close();

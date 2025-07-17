@@ -48,6 +48,7 @@ class OrcIDScanner implements ShouldQueue
                 $this->user->save();
 
                 $token = json_decode(OrcID::getPublicToken($this->user), true);
+                Log::info('OrcID token retrieved', ['token' => $token]);
 
                 $this->accessToken = $token['access_token'];
 
@@ -60,7 +61,12 @@ class OrcIDScanner implements ShouldQueue
                 $this->user->save();
             }
         } catch (Throwable $e) {
-            Log::error('OrcID Scanner failed :: ' . $e->getMessage());
+            Log::error('OrcID Scanner failed', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
         }
 
         // Nothing to do - either no consent to scrape data, or
