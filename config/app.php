@@ -176,6 +176,7 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\HorizonServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        App\Providers\TelescopeServiceProvider::class,
         Laravel\Socialite\SocialiteServiceProvider::class,
         \SocialiteProviders\Manager\ServiceProvider::class,
         Hdruk\LaravelMjml\Providers\LaravelMjmlServiceProvider::class,
@@ -185,6 +186,7 @@ return [
         App\Providers\RegistryManagementControllerServiceProvider::class,
         App\Providers\RulesEngineManagementControllerServiceProvider::class,
         App\Providers\GatewayServiceProvider::class,
+        App\Providers\TelescopeServiceProvider::class,
     ])->toArray(),
 
     /*

@@ -2,10 +2,12 @@
 
 namespace App\OrcID;
 
-use App\Jobs\OrcIDScanner;
-use App\Models\User;
-use App\Models\UserApiToken;
 use Http;
+use Exception;
+use App\Models\User;
+use App\Jobs\OrcIDScanner;
+use App\Models\UserApiToken;
+use Illuminate\Support\Facades\Log;
 
 class OrcID
 {
@@ -26,35 +28,42 @@ class OrcID
         // security context policies. Yet, under curl, it
         // works. Needs further investigation as to the
         // differences.
-        $ch = curl_init();
+        try {
+            $ch = curl_init();
 
-        curl_setopt($ch, CURLOPT_URL, config('speedi.system.orcid_auth_url') . 'oauth/token');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt(
-            $ch,
-            CURLOPT_POSTFIELDS,
-            'client_id=' . config('speedi.system.client_id') . '&' .
-            'client_secret=' . config('speedi.system.client_secret') . '&' .
-            'scope=/read-public&' .
-            'grant_type=client_credentials'
-        );
+            curl_setopt($ch, CURLOPT_URL, config('speedi.system.orcid_auth_url') . 'oauth/token');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt(
+                $ch,
+                CURLOPT_POSTFIELDS,
+                'client_id=' . config('speedi.system.client_id') . '&' .
+                'client_secret=' . config('speedi.system.client_secret') . '&' .
+                'scope=/read-public&' .
+                'grant_type=client_credentials'
+            );
 
-        $headers = [
-            'Accept: application/json',
-            'Content-Type: application/x-www-form-urlencoded',
-        ];
+            $headers = [
+                'Accept: application/json',
+                'Content-Type: application/x-www-form-urlencoded',
+            ];
 
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-        $result = curl_exec($ch);
-        if (curl_errno($ch)) {
-            return curl_error($ch);
+            $result = curl_exec($ch);
+            if (curl_errno($ch)) {
+                return curl_error($ch);
+            }
+
+            curl_close($ch);
+            
+            Log::info('OrcID public token', ['result' => $result]);
+
+            return $result;
+        } catch (Exception $e) {
+            throw new Exception('Error fetching ORCiD public token: ' . $e->getMessage());
         }
-
-        curl_close($ch);
-
-        return $result;
+        
     }
 
     public function storeOrcIDTokenDetails(array $input): bool
