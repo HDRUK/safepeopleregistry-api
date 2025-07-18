@@ -1022,23 +1022,37 @@ class OrganisationController extends Controller
                     'department_id' => $request['department_id'],
                 ]);
             };
+            $email = [];
             if (isset($input['is_delegate'])) {
-                $input = [
+                $email = [
                     'type' => 'USER_DELEGATE',
                     'to' => $unclaimedUser->id,
                     'by' => $id,
                     'identifier' => 'delegate_invite'
                 ];
             } else {
-                $input = [
+                $email = [
                     'type' => 'USER',
                     'to' => $unclaimedUser->id,
                     'by' => $id,
                     'identifier' => 'researcher_invite'
                 ];
+
+                Affiliation::create([
+                    'organisation_id' => $id,
+                    'member_id' => '',
+                    'relationship' => '',
+                    'from' => '',
+                    'to' => '',
+                    'department' => '',
+                    'role' => '',
+                    'email' => $input['email'],
+                    'ror' => '',
+                    'registry_id' => $unclaimedUser->registry_id,
+                ]);
             }
 
-            TriggerEmail::spawnEmail($input);
+            TriggerEmail::spawnEmail($email);
 
             return response()->json([
                 'message' => 'success',
