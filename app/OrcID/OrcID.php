@@ -106,7 +106,7 @@ class OrcID
 
     public function getOrcIDRecord(string $token, string $orcid, string $record): array
     {
-        $url = Config::get('speedi.system.orcid_auth_url') . 'v3.0/'.$orcid.'/'.$record;
+        $url = Config::get('speedi.system.orcid_public_url') . 'v3.0/'.$orcid.'/'.$record;
         $headers = [
             'Authorization' => 'Bearer '.$token,
             'Accept' => 'application/json',
