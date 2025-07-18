@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use OrcID;
 use Throwable;
+use Exception;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Education;
@@ -51,7 +52,14 @@ class OrcIDScanner implements ShouldQueue
                 $token = json_decode(OrcID::getPublicToken($this->user), true);
                 Log::info('OrcID token retrieved', ['token' => $token]);
 
-                $this->accessToken = $token['access_token'];
+                $this->accessToken = '';
+                // if (isset($token['access_token'])) {
+                //     $this->accessToken = Arr::get($token, 'access_token', '');
+                // } else {
+                //     Log::error('OrcID token is empty', ['user_id' => $this->user->id]);
+                // }
+
+                // $this->accessToken = $token['access_token'];
 
                 $this->getEducations();
                 $this->getQualifications();
