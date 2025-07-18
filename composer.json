@@ -14,7 +14,6 @@
         "laravel/horizon": "^5.29",
         "laravel/octane": "^2.8.1",
         "laravel/socialite": "^5.14",
-        "laravel/telescope": "^5.10",
         "laravel/tinker": "^2.8",
         "phpoffice/phpspreadsheet": "^4.1",
         "predis/predis": "^1.1",

@@ -58,9 +58,6 @@ class AppServiceProvider extends ServiceProvider
                 App::make(AuditModelObserver::class)->handle($eventName, $model);
             }
         });
-        // if ($this->app->environment('dev') || $this->app->environment('staging')) {
-            $this->app->register(TelescopeServiceProvider::class);
-        // }
     }
     /**
      * Bootstrap any application services.

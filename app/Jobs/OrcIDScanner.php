@@ -50,16 +50,13 @@ class OrcIDScanner implements ShouldQueue
                 $this->user->save();
 
                 $token = json_decode(OrcID::getPublicToken($this->user), true);
-                Log::info('OrcID token retrieved', ['token' => $token]);
 
                 $this->accessToken = '';
-                // if (isset($token['access_token'])) {
-                //     $this->accessToken = Arr::get($token, 'access_token', '');
-                // } else {
-                //     Log::error('OrcID token is empty', ['user_id' => $this->user->id]);
-                // }
-
-                // $this->accessToken = $token['access_token'];
+                if (isset($token['access_token'])) {
+                    $this->accessToken = Arr::get($token, 'access_token', '');
+                } else {
+                    Log::error('OrcID token is empty', ['user_id' => $this->user->id]);
+                }
 
                 $this->getEducations();
                 $this->getQualifications();
@@ -72,9 +69,6 @@ class OrcIDScanner implements ShouldQueue
         } catch (Throwable $e) {
             Log::error('OrcID Scanner failed', [
                 'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString(),
             ]);
         }
 

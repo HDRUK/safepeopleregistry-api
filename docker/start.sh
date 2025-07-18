@@ -16,7 +16,6 @@ if [ $APP_ENV = 'local' ] || [ $APP_ENV = 'dev' ]; then
         # Completely clear down the data in local/dev envs
         php artisan migrate:fresh
         php artisan db:seed --class=BaseDemoSeeder
-        php artisan telescope:prune
     else
         php artisan migrate
     fi

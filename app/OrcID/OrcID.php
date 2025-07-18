@@ -32,12 +32,6 @@ class OrcID
         try {
             $ch = curl_init();
 
-            Log::info('OrcID public token request :: ' . json_encode([
-                'url' => Config::get('speedi.system.orcid_auth_url') . 'oauth/token',
-                'client_id' => Config::get('speedi.system.orcid_app_id'),
-                'client_secret' => Config::get('speedi.system.orcid_client_secret'),
-            ]));
-
             curl_setopt($ch, CURLOPT_URL, Config::get('speedi.system.orcid_auth_url') . 'oauth/token');
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_POST, true);
@@ -63,8 +57,6 @@ class OrcID
             }
 
             curl_close($ch);
-
-            Log::info('OrcID public token :: ' . json_encode($result));
 
             return $result;
         } catch (Exception $e) {
@@ -112,17 +104,9 @@ class OrcID
             'Accept' => 'application/json',
         ];
 
-        Log::info('Data for fetching ORCiD record :: ' . json_encode([
-            'token' => $token,
-            'orcid' => $orcid,
-            'record' => $record,
-            'url' => $url,
-            'headers' => $headers,
-        ]));
-
         try {
             $response = Http::withHeaders($headers)->get($url);
-            Log::info('Fetched ORCiD record :: ' . json_encode([
+            Log::info('Fetched ORCiD :: ' . json_encode([
                 'orcid' => $orcid, 
                 'record' => $record,
                 'status' => $response->status(),
@@ -142,7 +126,6 @@ class OrcID
                 'record' => $record,
                 'orcid' => $orcid,
                 'message' => $e->getMessage(),
-                'headers' => $headers,
             ]));
             return [];
         }
