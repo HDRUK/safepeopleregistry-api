@@ -17,8 +17,6 @@ use App\Models\DebugLog;
 use App\Models\Organisation;
 use App\Models\Charity;
 use App\Models\OrganisationHasDepartment;
-use App\Models\OrganisationHasSubsidiary;
-use App\Models\Subsidiary;
 use App\Models\User;
 use App\Models\UserHasDepartments;
 use App\Models\PendingInvite;
@@ -514,7 +512,6 @@ class OrganisationController extends Controller
         }
     }
 
-
     /**
      * @OA\Put(
      *      path="/api/v1/organisations/{id}",
@@ -538,7 +535,7 @@ class OrganisationController extends Controller
      *          required=true,
      *          description="organisations definition",
      *          @OA\JsonContent(
-     *                  ref="#/components/schemas/Organisation",
+     *              ref="#/components/schemas/Organisation",
      *          ),
      *      ),
      *      @OA\Response(
@@ -590,13 +587,6 @@ class OrganisationController extends Controller
                 return $this->ForbiddenResponse();
             }
             $org->update($input);
-
-            if ($request->has('subsidiaries')) {
-                $this->cleanSubsidiaries($id);
-                foreach ($request->input('subsidiaries') as $subsidiary) {
-                    $this->addSubsidiary($id, $subsidiary);
-                }
-            }
 
             if ($request->has('charities')) {
                 $this->updateOrganisationCharities($id, $request->input('charities'));
