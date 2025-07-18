@@ -1155,49 +1155,6 @@ class OrganisationController extends Controller
         }
     }
 
-    public function cleanSubsidiaries(int $organisationId)
-    {
-        // done like this to for the observer class to see the delete
-        OrganisationHasSubsidiary::where('organisation_id', $organisationId)
-            ->get()
-            ->each(
-                fn($ohs) =>
-                OrganisationHasSubsidiary::where([
-                    ['organisation_id', '=', $ohs->organisation_id],
-                    ['subsidiary_id', '=', $ohs->subsidiary_id]
-                ])->delete()
-            );
-    }
-
-    public function addSubsidiary(int $organisationId, array $subsidiary)
-    {
-        if (is_null($subsidiary['name'])) {
-            return;
-        }
-        $subsidiaryData = [
-            'name' => $subsidiary['name'],
-        ];
-
-        $subsidiaryValues = [
-            'address_1' => $subsidiary['address']['address_1'] ?? null,
-            'address_2' => $subsidiary['address']['address_2'] ?? null,
-            'town' => $subsidiary['address']['town'] ?? null,
-            'county' => $subsidiary['address']['county'] ?? null,
-            'country' => $subsidiary['address']['country'] ?? null,
-            'postcode' => $subsidiary['address']['postcode'] ?? null,
-        ];
-
-        $subsidiary = Subsidiary::updateOrCreate($subsidiaryData, $subsidiaryValues);
-
-        OrganisationHasSubsidiary::updateOrCreate(
-            [
-                'organisation_id' => $organisationId,
-                'subsidiary_id' => $subsidiary->id
-            ]
-        );
-    }
-
-
     private function updateOrganisationCharities(int $organisationId, array $charities)
     {
         $organisation = Organisation::findOrFail($organisationId);
