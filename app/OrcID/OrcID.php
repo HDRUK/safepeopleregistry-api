@@ -98,7 +98,6 @@ class OrcID
 
         if ($token->update(['api_details' => json_decode($input['payload'])])) {
             OrcIDScanner::dispatch($user);
-
             return true;
         }
 
@@ -121,20 +120,31 @@ class OrcID
             'headers' => $headers,
         ]));
 
-        $response = Http::withHeaders($headers)->get($url);
-        Log::info('Fetched ORCiD record :: ' . json_encode([
-            'orcid' => $orcid, 
-            'record' => $record,
-            'status' => $response->status(),
-            'body' => $response->json()
-        ]));
-        if ($response->ok()) {
-            $data = $response->json();
-            $response->close();
-            return is_array($data) ? $data : [];
-        }
+        try {
+            $response = Http::withHeaders($headers)->get($url);
+            Log::info('Fetched ORCiD record :: ' . json_encode([
+                'orcid' => $orcid, 
+                'record' => $record,
+                'status' => $response->status(),
+                'body' => $response->json()
+            ]));
+            if ($response->ok()) {
+                $data = $response->json();
+                $response->close();
+                return is_array($data) ? $data : [];
+            }
 
-        $response->close();
-        return [];
+            $response->close();
+            return [];
+        } catch (Exception $e) {
+            Log::error('Error fetching ORCiD record :: ' . json_encode([
+                'url' => $url,
+                'record' => $record,
+                'orcid' => $orcid,
+                'message' => $e->getMessage(),
+                'headers' => $headers,
+            ]));
+            return [];
+        }
     }
 }
