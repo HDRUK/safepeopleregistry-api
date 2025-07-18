@@ -194,6 +194,7 @@ class TriggerEmail
                 $replacements = [
                     '[[organisation.organisation_name]]' => $organisation->organisation_name,
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
+                    '[[digi_ident]]' => User::where('id', $unclaimedUserId)->first()->registry->digi_ident,
                 ];
 
                 PendingInvite::create([
