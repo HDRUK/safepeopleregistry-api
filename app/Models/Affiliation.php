@@ -136,14 +136,17 @@ class Affiliation extends Model
         ],
         State::STATE_AFFILIATION_PENDING => [
             State::STATE_AFFILIATION_APPROVED,
-            State::STATE_AFFILIATION_REJECTED
+            State::STATE_AFFILIATION_REJECTED,
+            State::STATE_AFFILIATION_LEFT,
         ],
         State::STATE_AFFILIATION_APPROVED => [
-            State::STATE_AFFILIATION_REJECTED
+            State::STATE_AFFILIATION_REJECTED,
+            State::STATE_AFFILIATION_LEFT,
         ],
         State::STATE_AFFILIATION_REJECTED => [
             State::STATE_AFFILIATION_APPROVED
-        ]
+        ],
+        State::STATE_AFFILIATION_LEFT => []
     ];
 
     public $table = 'affiliations';
@@ -180,7 +183,6 @@ class Affiliation extends Model
             ->dontSubmitEmptyLogs();
     }
 
-
     /**
      * Get the organisation related to the affiliation.
      *
@@ -209,6 +211,11 @@ class Affiliation extends Model
         );
     }
 
+    /**
+     * Get the model state associated with this registry-affiliation relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphOne<\App\Models\ModelState>
+     */
     public function modelState(): MorphOne
     {
         return $this->morphOne(ModelState::class, 'stateable');
