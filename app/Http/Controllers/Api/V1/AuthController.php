@@ -21,9 +21,7 @@ class AuthController extends Controller
      *
      * @return void
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     public function registerKeycloakUser(Request $request): JsonResponse
     {
@@ -77,6 +75,29 @@ class AuthController extends Controller
             'message' => 'failed',
             'data' => null,
         ], 400);
+    }
+
+    public function claimUser(Request $request): JsonResponse
+    {
+        $response = Keycloak::getUserInfo($request->headers->get('Authorization'));
+        $input = $response->json();
+        $registryId = $request->input('registry_id');
+
+        $userToReplace = User::where('registry_id', $registryId)->first();
+        $userToReplace->first_name = $input['given_name'];
+        $userToReplace->last_name = $input['family_name'];
+        $userToReplace->email = $input['email'];
+        $userToReplace->keycloak_id = $input['sub'];
+        $userToReplace->unclaimed = 0;
+        $userToReplace->t_and_c_agreed = 1;
+        $userToReplace->t_and_c_agreement_date = now();
+
+        $userToReplace->save();
+
+        return response()->json([
+            'message' => 'success',
+            'data' => $userToReplace
+        ], 201);
     }
 
     public function me(Request $request): JsonResponse

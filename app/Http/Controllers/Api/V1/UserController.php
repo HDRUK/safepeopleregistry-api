@@ -250,6 +250,31 @@ class UserController extends Controller
             throw new Exception($e->getMessage());
         }
     }
+    public function showByUniqueIdentifier(Request $request): JsonResponse
+    {
+        $digiIdent = $request->query('digi_ident');
+
+        $user = User::whereHas('registry', function ($query) use ($digiIdent) {
+            $query->where('digi_ident', $digiIdent);
+        })
+            ->with("organisation:id,organisation_name")
+            ->select(
+                [
+                    'id',
+                    'unclaimed',
+                    'email',
+                    'registry_id',
+                    'user_group',
+                    'organisation_id'
+                ]
+            )->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        return $this->OKResponse($user);
+    }
 
     /**
      * @OA\Post(

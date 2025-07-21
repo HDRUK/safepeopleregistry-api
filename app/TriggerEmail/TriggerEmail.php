@@ -194,6 +194,8 @@ class TriggerEmail
                 $replacements = [
                     '[[organisation.organisation_name]]' => $organisation->organisation_name,
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),
                     '[[digi_ident]]' => User::where('id', $unclaimedUserId)->first()->registry->digi_ident,
                 ];
 
