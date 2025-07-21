@@ -84,6 +84,29 @@ class AuthController extends Controller
         $registryId = $request->input('registry_id');
 
         $userToReplace = User::where('registry_id', $registryId)->first();
+
+        if (!$userToReplace) {
+            return response()->json([
+                'message' => 'user not found',
+                'data' => null,
+            ], 400);
+        }
+
+        if (!$userToReplace->user_group !== User::GROUP_ORGANISATIONS) {
+            return response()->json([
+                'message' => 'only works for organisation admins',
+                'data' => null,
+            ], 400);
+        }
+
+        if ($userToReplace->unclaimed === 0) {
+            return response()->json([
+                'message' => 'account already claimed',
+                'data' => null,
+            ], 400);
+        }
+
+
         $userToReplace->first_name = $input['given_name'];
         $userToReplace->last_name = $input['family_name'];
         $userToReplace->email = $input['email'];
