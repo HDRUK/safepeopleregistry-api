@@ -92,9 +92,9 @@ class AuthController extends Controller
             ], 400);
         }
 
-        if (!$userToReplace->user_group !== User::GROUP_ORGANISATIONS) {
+        if ($userToReplace->user_group !== User::GROUP_ORGANISATIONS) {
             return response()->json([
-                'message' => 'only works for organisation admins',
+                'message' => 'only works for organisation admins ' . $userToReplace->user_group,
                 'data' => null,
             ], 400);
         }
