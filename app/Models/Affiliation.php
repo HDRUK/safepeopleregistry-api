@@ -211,11 +211,6 @@ class Affiliation extends Model
         );
     }
 
-    /**
-     * Get the model state associated with this registry-affiliation relationship.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphOne<\App\Models\ModelState>
-     */
     public function modelState(): MorphOne
     {
         return $this->morphOne(ModelState::class, 'stateable');
