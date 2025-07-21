@@ -39,20 +39,27 @@ class AuthController extends Controller
 
                     $registryId = $unclaimedUser->registry_id;
                     $organisationId = $pendingInvite->organisation_id;
+                    $email = $unclaimedUser->email;
 
-                    $aff = Affiliation::create([
-                        'organisation_id' => $organisationId,
-                        'member_id' => '',
-                        'relationship' => null,
-                        'from' => null,
-                        'to' => null,
-                        'department' => null,
-                        'role' => null,
-                        'email' => $unclaimedUser->email,
-                        'ror' => null,
-                        'registry_id' => $registryId,
-                    ]);
+                    $existingAffiliation = Affiliation::where('organisation_id', $organisationId)
+                        ->where('email', $email)
+                        ->where('registry_id', $registryId)
+                        ->first();
 
+                    if (!$existingAffiliation) {
+                        Affiliation::create([
+                            'organisation_id' => $organisationId,
+                            'member_id' => '',
+                            'relationship' => null,
+                            'from' => null,
+                            'to' => null,
+                            'department' => null,
+                            'role' => null,
+                            'email' => $email,
+                            'ror' => null,
+                            'registry_id' => $registryId,
+                        ]);
+                    }
                     $pendingInvite->invite_accepted_at = Carbon::now();
                     $pendingInvite->status = config('speedi.invite_status.COMPLETE');
                     $pendingInvite->save();

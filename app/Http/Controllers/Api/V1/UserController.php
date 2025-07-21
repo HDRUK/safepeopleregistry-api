@@ -257,7 +257,7 @@ class UserController extends Controller
         $user = User::whereHas('registry', function ($query) use ($digiIdent) {
             $query->where('digi_ident', $digiIdent);
         })
-            ->with("organisation:id,organisation_name")
+            ->with(['organisation:id,organisation_name', 'registry', 'registry.affiliations'])
             ->select(
                 [
                     'id',
