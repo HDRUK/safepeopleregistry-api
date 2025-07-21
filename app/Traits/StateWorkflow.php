@@ -11,62 +11,7 @@ use App\Models\ModelState;
  */
 trait StateWorkflow
 {
-    protected static array $defaultTransitions = [
-        State::STATE_REGISTERED => [
-            State::STATE_PENDING,
-            State::STATE_FORM_RECEIVED,
-        ],
-        State::STATE_PENDING => [
-            State::STATE_FORM_RECEIVED,
-            State::STATE_VALIDATION_IN_PROGRESS,
-        ],
-        State::STATE_FORM_RECEIVED => [
-            State::STATE_VALIDATION_IN_PROGRESS,
-            State::STATE_MORE_USER_INFO_REQ,
-        ],
-        State::STATE_VALIDATION_IN_PROGRESS => [
-            State::STATE_VALIDATION_COMPLETE,
-            State::STATE_MORE_USER_INFO_REQ,
-            State::STATE_ESCALATE_VALIDATION,
-            State::STATE_VALIDATED,
-        ],
-        State::STATE_VALIDATION_COMPLETE => [
-            State::STATE_ESCALATE_VALIDATION,
-            State::STATE_VALIDATED,
-        ],
-        State::STATE_MORE_USER_INFO_REQ => [
-            State::STATE_ESCALATE_VALIDATION,
-            State::STATE_VALIDATED,
-        ],
-        State::STATE_ESCALATE_VALIDATION => [
-            State::STATE_VALIDATED,
-        ],
-        State::STATE_VALIDATED => [],
-        State::STATE_PROJECT_PENDING => [
-            State::STATE_PROJECT_PENDING,
-            State::STATE_PROJECT_APPROVED,
-        ],
-        State::STATE_PROJECT_APPROVED => [
-            State::STATE_PROJECT_APPROVED,
-            State::STATE_PROJECT_COMPLETED
-        ],
-        State::STATE_PROJECT_COMPLETED => [
-            State::STATE_PROJECT_COMPLETED
-        ],
-        State::STATE_AFFILIATION_INVITED => [
-            State::STATE_AFFILIATION_PENDING
-        ],
-        State::STATE_AFFILIATION_PENDING => [
-            State::STATE_AFFILIATION_APPROVED,
-            State::STATE_AFFILIATION_REJECTED
-        ],
-        State::STATE_AFFILIATION_APPROVED => [
-            State::STATE_AFFILIATION_REJECTED
-        ],
-        State::STATE_AFFILIATION_REJECTED => [
-            State::STATE_AFFILIATION_APPROVED
-        ]
-    ];
+    protected static array $defaultTransitions = [];
 
     public function modelState()
     {
