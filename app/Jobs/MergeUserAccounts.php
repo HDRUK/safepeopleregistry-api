@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\Affiliation;
 use App\Models\DebugLog;
 use App\Models\ProjectHasUser;
+use App\Models\Registry;
 use App\Models\User;
 use App\Models\ValidationLog;
 use App\Traits\CommonFunctions;
@@ -67,8 +68,11 @@ class MergeUserAccounts implements ShouldQueue
                 'user_digital_ident' => $registry->digi_ident
             ]);
 
-        //update any validation logs
-        ValidationLog::where('tertiary_entity_id', $existingUnclaimedUser->registry->id)
+        //update any validation logs 
+        ValidationLog::where([
+            'tertiary_entity_id' => $existingUnclaimedUser->registry->id,
+            'tertiary_entity_type' => Registry::class,
+        ])
             ->update(['tertiary_entity_id' => $registry->id]);
 
 
