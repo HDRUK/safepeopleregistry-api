@@ -62,7 +62,7 @@ class OrcID
         } catch (Exception $e) {
             throw new Exception('Error fetching ORCiD public token: ' . $e->getMessage());
         }
-        
+
     }
 
     public function storeOrcIDTokenDetails(array $input): bool
@@ -107,7 +107,7 @@ class OrcID
         try {
             $response = Http::withHeaders($headers)->get($url);
             Log::info('Fetched ORCiD :: ' . json_encode([
-                'orcid' => $orcid, 
+                'orcid' => $orcid,
                 'record' => $record,
                 'status' => $response->status(),
                 'body' => $response->json()

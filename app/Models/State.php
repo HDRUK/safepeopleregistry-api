@@ -96,7 +96,7 @@ class State extends Model
 
     public const STATE_AFFILIATION_LEFT = 'affiliation_left'; // left organisation
 
-    public const STATE_MORE_USER_INFO_REQ_ESCALATION_MANAGER = 'more_user_info_req_escalation_manager'; // Escalation [to Validation Manager] 
+    public const STATE_MORE_USER_INFO_REQ_ESCALATION_MANAGER = 'more_user_info_req_escalation_manager'; // Escalation [to Validation Manager]
     public const STATE_MORE_ORG_INFO_REQ_ESCALATION_MANAGER = 'more_org_info_req_escalation_manager'; // Escalation [to Validation Manager]
 
     public const STATE_MORE_USER_INFO_REQ_ESCALATION_COMMITTEE = 'more_user_info_req_escalation_committee'; // Escalation [to Validation Committee]';
