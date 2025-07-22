@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Jobs\MergeUserAccounts;
 use TriggerEmail;
 use App\Models\User;
 use App\Models\Affiliation;
@@ -57,6 +58,8 @@ class AffiliationObserver
         }
         $this->updateActionLog($affiliation->registry_id);
         $this->updateOrganisationActionLog($affiliation);
+
+        MergeUserAccounts::dispatch($affiliation);
     }
 
     private function emailDelegatesIfNowComplete(Affiliation $affiliation): void

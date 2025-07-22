@@ -4,7 +4,6 @@ namespace App\Jobs;
 
 use OrcID;
 use Throwable;
-use Exception;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Education;

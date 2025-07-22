@@ -218,7 +218,7 @@ class Project extends Model
             'custodian_id'
         );
     }
-  
+
     public function modelState(): MorphOne
     {
         return $this->morphOne(ModelState::class, 'stateable');
