@@ -359,12 +359,11 @@ class CustodianHasProjectOrganisationController extends Controller
      */
     public function getWorkflowStates(Request $request)
     {
-        return $this->OKResponse(CustodianHasProjectOrganisation::getAllStates());
+        return $this->OKResponse(array_values(CustodianHasProjectOrganisation::getAllStates()));
     }
 
     public function getWorkflowTransitions(Request $request)
     {
-        $model = new CustodianHasProjectOrganisation();
         return $this->OKResponse(CustodianHasProjectOrganisation::getTransitions());
     }
 }
