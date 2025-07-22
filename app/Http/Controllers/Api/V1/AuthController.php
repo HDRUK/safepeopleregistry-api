@@ -94,21 +94,21 @@ class AuthController extends Controller
 
         if (!$userToReplace) {
             return response()->json([
-                'message' => 'user not found',
+                'message' => 'User not found',
                 'data' => null,
             ], 400);
         }
 
         if ($userToReplace->user_group !== User::GROUP_ORGANISATIONS) {
             return response()->json([
-                'message' => 'only works for organisation admins ' . $userToReplace->user_group,
+                'message' => 'Only works for organisation admins ',
                 'data' => null,
             ], 400);
         }
 
         if ($userToReplace->unclaimed === 0) {
             return response()->json([
-                'message' => 'account already claimed',
+                'message' => 'Account already claimed',
                 'data' => null,
             ], 400);
         }
