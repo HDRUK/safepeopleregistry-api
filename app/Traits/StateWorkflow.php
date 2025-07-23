@@ -74,6 +74,6 @@ trait StateWorkflow
         $keys = array_keys($transitions);
         $values = array_merge(...array_values($transitions));
         $allStates = array_unique(array_merge($keys, $values));
-        return $allStates;
+        return array_values($allStates);
     }
 }
