@@ -86,6 +86,8 @@ class CustodianHasProjectUserController extends Controller
                 'projectHasUser.project:id,title',
                 'projectHasUser.role:id,name',
                 'projectHasUser.affiliation:id,organisation_id',
+                'projectHasUser.affiliation.modelState.state',
+
                 'projectHasUser.affiliation.organisation:id,organisation_name'
             ])
                 ->where('custodian_id', $custodianId)

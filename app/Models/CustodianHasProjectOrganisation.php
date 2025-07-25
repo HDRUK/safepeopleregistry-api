@@ -69,27 +69,23 @@ class CustodianHasProjectOrganisation extends Model
             State::STATE_MORE_ORG_INFO_REQ_ESCALATION_MANAGER,
             State::STATE_MORE_ORG_INFO_REQ_ESCALATION_COMMITTEE,
             State::STATE_ORG_VALIDATION_DECLINED,
-            State::STATE_VALIDATED,
         ],
         State::STATE_VALIDATION_COMPLETE => [
             State::STATE_ORG_VALIDATION_DECLINED,
-            State::STATE_VALIDATED,
+            State::STATE_VALIDATION_COMPLETE,
         ],
         State::STATE_MORE_ORG_INFO_REQ_ESCALATION_MANAGER => [
             State::STATE_MORE_ORG_INFO_REQ_ESCALATION_COMMITTEE,
             State::STATE_ORG_VALIDATION_DECLINED,
-            State::STATE_VALIDATED,
+            State::STATE_VALIDATION_COMPLETE,
         ],
         State::STATE_MORE_ORG_INFO_REQ_ESCALATION_COMMITTEE => [
             State::STATE_MORE_ORG_INFO_REQ_ESCALATION_MANAGER,
             State::STATE_ORG_VALIDATION_DECLINED,
-            State::STATE_VALIDATED,
+            State::STATE_VALIDATION_COMPLETE,
         ],
         State::STATE_ORG_VALIDATION_DECLINED => [
-            State::STATE_VALIDATED,
-        ],
-        State::STATE_VALIDATED => [
-            State::STATE_ORG_LEFT_PROJECT,
+            State::STATE_VALIDATION_COMPLETE,
         ],
         State::STATE_ORG_LEFT_PROJECT => [],
     ];
