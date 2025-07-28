@@ -84,6 +84,9 @@ class TriggerEmail
                     '[[users.last_name]]' => $user->last_name,
                     '[[users.created_at]]' => $user->created_at,
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),
+
                 ];
 
                 PendingInvite::create([
