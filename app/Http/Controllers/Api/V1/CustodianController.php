@@ -1086,11 +1086,18 @@ class CustodianController extends Controller
      */
     public function getOrganisationUsers(Request $request, int $custodianId, int $organisationId): JsonResponse
     {
-        $users = User::searchViaRequest()->applySorting()->with(['registry.affiliations' => function ($query) use ($organisationId) {
-            $query->where('organisation_id', $organisationId);
-        }])->whereNotNull('registry_id')->whereHas('registry.affiliations', function ($query) use ($organisationId) {
-            $query->where('organisation_id', $organisationId);
-        })->paginate((int)$this->getSystemConfig('PER_PAGE'));
+        $users = User::searchViaRequest()
+                    ->applySorting()
+                    ->with([
+                        'registry.affiliations' => function ($query) use ($organisationId) {
+                            $query->where('organisation_id', $organisationId)
+                                ->with('modelState.state');
+                        },
+                        'registry.affiliations.modelState.state',
+                    ])->whereNotNull('registry_id')->whereHas('registry.affiliations', function ($query) use ($organisationId) {
+                        $query->where('organisation_id', $organisationId)
+                            ->whereHas('modelState.state');
+                    })->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         if ($users) {
             return $this->OKResponse($users);
