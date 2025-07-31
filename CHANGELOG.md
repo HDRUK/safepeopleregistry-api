@@ -1,3 +1,27 @@
+## [1.8.0](https://github.com/HDRUK/soursd-api/compare/v1.7.0...v1.8.0) (2025-07-31)
+
+### ✨ Features
+
+* **REGISTRY-1297:** Bugfix/registry 1297 (#376) ([9fc0580](https://github.com/HDRUK/soursd-api/commit/9fc05805e3172c6ce577bd7ff5ba44c023577d2e))
+* **REGISTRY-1316:** Job to merge accounts (#381) ([25c03fc](https://github.com/HDRUK/soursd-api/commit/25c03fcccd7eb8164fb07b6e76c67da607c7e544))
+* **REGISTRY-1601:** Update statuses (#380) ([c9040d5](https://github.com/HDRUK/soursd-api/commit/c9040d5725ebcb13fa02360631c760cac6b9f69e))
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-1234:** Claim an account that is already created (#378) ([f384d85](https://github.com/HDRUK/soursd-api/commit/f384d85ef99438bb3d49e701716ddbe76cd06d37))
+* **REGISTRY-1261:** add, update, remove subsidiary (#370) ([8ba551c](https://github.com/HDRUK/soursd-api/commit/8ba551cfa3fa5b01dcf93800e69689af301fec45))
+* **REGISTRY-1325:** Dont duplicate affiliation creation upon register (#379) ([2d7fb6e](https://github.com/HDRUK/soursd-api/commit/2d7fb6e06165c7fcd40af95718dc64f95cd53e16))
+* **REGISTRY-1576:** Add protection when seeding for user history (#375) ([dc36bc4](https://github.com/HDRUK/soursd-api/commit/dc36bc49412a18c21b9af591f3db64e7d0880264))
+* **REGISTRY-1576:** create affiliation upon invite (#377) ([81b8814](https://github.com/HDRUK/soursd-api/commit/81b8814349563e683a5df224bbd1ef57b9c1a8e5))
+* **REGISTRY-1579:** Custodians | Organisations - status in user list (#386) ([07fa219](https://github.com/HDRUK/soursd-api/commit/07fa219f58ce7ba7cbaad2d687dadd3885171f9b))
+* **REGISTRY-1602:** update statuses and added affiliation state (#384) ([2b4574c](https://github.com/HDRUK/soursd-api/commit/2b4574cf0e406c3acc3dc76c975ee8dd348fc352))
+* **SOURSD-1234:** update UpdateActionNotifications and AppServiceProvider (#368) ([6754b54](https://github.com/HDRUK/soursd-api/commit/6754b54d9f442bf4d7c93397af66c973ad555b67))
+* **SOURSD-1469:** add return for model state on Projects (#373) ([099ca11](https://github.com/HDRUK/soursd-api/commit/099ca119b2d1dcdd93abba23fbc96a041f1895e3))
+* **SOURSD-1477:** wrong group name (#372) ([4cba74b](https://github.com/HDRUK/soursd-api/commit/4cba74b281087b00224a4a36dd09fdae346e3137))
+* **SOURSD-1490:** Fix for return types (#369) ([6b9e092](https://github.com/HDRUK/soursd-api/commit/6b9e092e7029e5243b839f6de309f0be3f67f8f8))
+* **SOURSD-1496:** Updates for project users (#371) ([c39acd7](https://github.com/HDRUK/soursd-api/commit/c39acd7c3562e153c69d544b666744d648200b2e))
+* **SOURSD-1600:** Move to a static method for transitions (#367) ([278619e](https://github.com/HDRUK/soursd-api/commit/278619e2bf36bf8fa162fb45677ad66342998fb1))
+
 ## [1.7.0](https://github.com/HDRUK/soursd-api/compare/v1.6.0...v1.7.0) (2025-07-11)
 
 ### ✨ Features
