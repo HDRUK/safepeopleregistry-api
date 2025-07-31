@@ -130,20 +130,23 @@ class Affiliation extends Model
     use LogsActivity;
     use FilterManager;
 
-    protected array $transitions = [
+    protected static array $transitions = [
         State::STATE_AFFILIATION_INVITED => [
             State::STATE_AFFILIATION_PENDING
         ],
         State::STATE_AFFILIATION_PENDING => [
             State::STATE_AFFILIATION_APPROVED,
-            State::STATE_AFFILIATION_REJECTED
+            State::STATE_AFFILIATION_REJECTED,
+            State::STATE_AFFILIATION_LEFT,
         ],
         State::STATE_AFFILIATION_APPROVED => [
-            State::STATE_AFFILIATION_REJECTED
+            State::STATE_AFFILIATION_REJECTED,
+            State::STATE_AFFILIATION_LEFT,
         ],
         State::STATE_AFFILIATION_REJECTED => [
             State::STATE_AFFILIATION_APPROVED
-        ]
+        ],
+        State::STATE_AFFILIATION_LEFT => []
     ];
 
     public $table = 'affiliations';
@@ -166,9 +169,9 @@ class Affiliation extends Model
         'verdict_outcome',
     ];
 
-    public function getTransitions(): array
+    public static function getTransitions(): array
     {
-        return $this->transitions;
+        return static::$transitions;
     }
 
     public function getActivitylogOptions(): LogOptions
@@ -179,7 +182,6 @@ class Affiliation extends Model
             ->useLogName('affiliation')
             ->dontSubmitEmptyLogs();
     }
-
 
     /**
      * Get the organisation related to the affiliation.

@@ -59,34 +59,41 @@ class CustodianHasProjectOrganisation extends Model
     use SearchManager;
     use FilterManager;
 
-    protected array $transitions = [
+    protected static array $transitions = [
         State::STATE_PENDING => [
             State::STATE_VALIDATION_IN_PROGRESS,
-            State::STATE_MORE_ORG_INFO_REQ,
+            State::STATE_MORE_ORG_INFO_REQ_ESCALATION_MANAGER,
+            State::STATE_MORE_ORG_INFO_REQ_ESCALATION_COMMITTEE,
         ],
         State::STATE_VALIDATION_IN_PROGRESS => [
             State::STATE_VALIDATION_COMPLETE,
-            State::STATE_MORE_ORG_INFO_REQ,
-            State::STATE_ESCALATE_VALIDATION,
-            State::STATE_VALIDATED,
+            State::STATE_MORE_ORG_INFO_REQ_ESCALATION_MANAGER,
+            State::STATE_MORE_ORG_INFO_REQ_ESCALATION_COMMITTEE,
+            State::STATE_ORG_VALIDATION_DECLINED,
         ],
         State::STATE_VALIDATION_COMPLETE => [
-            State::STATE_ESCALATE_VALIDATION,
-            State::STATE_VALIDATED,
+            State::STATE_ORG_VALIDATION_DECLINED,
+            State::STATE_VALIDATION_COMPLETE,
         ],
-        State::STATE_MORE_ORG_INFO_REQ => [
-            State::STATE_ESCALATE_VALIDATION,
-            State::STATE_VALIDATED,
+        State::STATE_MORE_ORG_INFO_REQ_ESCALATION_MANAGER => [
+            State::STATE_MORE_ORG_INFO_REQ_ESCALATION_COMMITTEE,
+            State::STATE_ORG_VALIDATION_DECLINED,
+            State::STATE_VALIDATION_COMPLETE,
         ],
-        State::STATE_ESCALATE_VALIDATION => [
-            State::STATE_VALIDATED,
+        State::STATE_MORE_ORG_INFO_REQ_ESCALATION_COMMITTEE => [
+            State::STATE_MORE_ORG_INFO_REQ_ESCALATION_MANAGER,
+            State::STATE_ORG_VALIDATION_DECLINED,
+            State::STATE_VALIDATION_COMPLETE,
         ],
-        State::STATE_VALIDATED => [],
+        State::STATE_ORG_VALIDATION_DECLINED => [
+            State::STATE_VALIDATION_COMPLETE,
+        ],
+        State::STATE_ORG_LEFT_PROJECT => [],
     ];
 
-    public function getTransitions(): array
+    public static function getTransitions(): array
     {
-        return $this->transitions;
+        return static::$transitions;
     }
 
     protected $table = 'custodian_has_project_has_organisation';
@@ -129,7 +136,6 @@ class CustodianHasProjectOrganisation extends Model
             }
         });
     }
-
 
     /**
      * Get the organisation associated with the approval.

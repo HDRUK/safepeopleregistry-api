@@ -99,5 +99,6 @@ class Subsidiary extends Model
         'county',
         'country',
         'postcode',
+        'website'
     ];
 }

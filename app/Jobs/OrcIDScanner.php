@@ -3,18 +3,21 @@
 namespace App\Jobs;
 
 use OrcID;
+use Throwable;
 use Carbon\Carbon;
-use App\Models\Accreditation;
+use App\Models\User;
 use App\Models\Education;
 use App\Models\Affiliation;
-use App\Models\RegistryHasAccreditation;
-use App\Models\User;
+use Illuminate\Support\Arr;
 use App\Models\Organisation;
+use App\Models\Accreditation;
 use Illuminate\Bus\Queueable;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Queue\SerializesModels;
+use App\Models\RegistryHasAccreditation;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
 class OrcIDScanner implements ShouldQueue
 {
@@ -40,21 +43,32 @@ class OrcIDScanner implements ShouldQueue
      */
     public function handle(): void
     {
-        if ($this->user->consent_scrape && $this->user->orc_id !== null && $this->user->user_group === User::GROUP_USERS) {
-            $this->user->orcid_scanning = 1;
-            $this->user->save();
+        try {
+            if ($this->user->consent_scrape && $this->user->orc_id !== null && $this->user->user_group === User::GROUP_USERS) {
+                $this->user->orcid_scanning = 1;
+                $this->user->save();
 
-            $token = json_decode(OrcID::getPublicToken($this->user), true);
+                $token = json_decode(OrcID::getPublicToken($this->user), true);
 
-            $this->accessToken = $token['access_token'];
+                $this->accessToken = '';
+                if (isset($token['access_token'])) {
+                    $this->accessToken = Arr::get($token, 'access_token', '');
+                } else {
+                    Log::error('OrcID token is empty', ['user_id' => $this->user->id]);
+                }
 
-            $this->getEducations();
-            $this->getQualifications();
-            $this->getEmployers();
+                $this->getEducations();
+                $this->getQualifications();
+                $this->getEmployers();
 
-            $this->user->orcid_scanning = 0;
-            $this->user->orcid_scanning_completed_at = Carbon::now();
-            $this->user->save();
+                $this->user->orcid_scanning = 0;
+                $this->user->orcid_scanning_completed_at = Carbon::now();
+                $this->user->save();
+            }
+        } catch (Throwable $e) {
+            Log::error('OrcID Scanner failed', [
+                'message' => $e->getMessage(),
+            ]);
         }
 
         // Nothing to do - either no consent to scrape data, or
@@ -64,25 +78,27 @@ class OrcIDScanner implements ShouldQueue
     private function getEducations(): void
     {
         $record = OrcID::getOrcIDRecord($this->accessToken, $this->user->orc_id, 'educations');
-        foreach ($record['affiliation-group'] as $affiliations) {
-            foreach ($affiliations['summaries'] as $summary) {
-                $education = $summary['education-summary'];
-                $title = $education['role-title'];
-                $organisation = $education['organization'];
+        $affiliationsGroup = isset($record['affiliation-group']) ? $record['affiliation-group'] : [];
+        foreach ($affiliationsGroup as $affiliations) {
+            $affiliationsSummaries = isset($affiliations['summaries']) ? $affiliations['summaries'] : [];
+            foreach ($affiliationsSummaries as $summary) {
+                $education = isset($summary['education-summary']) ? $summary['education-summary'] : [];
+                $title = isset($education['role-title']) ? $education['role-title'] : '';
+                $organisation = isset($education['organization']) ? $education['organization'] : [];
 
                 $dates = [
                     'startDate' => $this->normaliseDate($education['start-date']),
                     'endDate' => $this->normaliseDate($education['end-date']),
                 ];
 
-                $education = Education::firstOrCreate([
+                Education::firstOrCreate([
                     'title' => $title,
                     'from' => $dates['startDate'],
                     'to' => $dates['endDate'],
-                    'institute_name' => $organisation['name'],
-                    'institute_address' => json_encode($organisation['address']),
-                    'institute_identifier' => $organisation['disambiguated-organization']['disambiguated-organization-identifier'],
-                    'source' => $organisation['disambiguated-organization']['disambiguation-source'],
+                    'institute_name' => Arr::get($organisation, 'name', ''),
+                    'institute_address' => json_encode(Arr::get($organisation, 'address', [])),
+                    'institute_identifier' => Arr::get($organisation, 'disambiguated-organization.disambiguated-organization-identifier', ''),
+                    'source' => Arr::get($organisation, 'disambiguated-organization.disambiguation-source', ''),
                     'registry_id' => $this->user->registry_id,
                 ]);
             }
@@ -92,12 +108,15 @@ class OrcIDScanner implements ShouldQueue
     private function getQualifications(): void
     {
         $record = OrcID::getOrcIDRecord($this->accessToken, $this->user->orc_id, 'qualifications');
-        foreach ($record['affiliation-group'] as $affiliations) {
-            foreach ($affiliations['summaries'] as $summary) {
 
-                $qualification = $summary['qualification-summary'];
-                $title = $qualification['role-title'];
-                $organisation = $qualification['organization'];
+        $affiliationsGroup = isset($record['affiliation-group']) ? $record['affiliation-group'] : [];
+        foreach ($affiliationsGroup as $affiliations) {
+            $affiliationsSummaries = isset($affiliations['summaries']) ? $affiliations['summaries'] : [];
+            foreach ($affiliationsSummaries as $summary) {
+
+                $qualification = isset($summary['qualification-summary']) ? $summary['qualification-summary'] : [];
+                $title = Arr::get($qualification, 'role-title', '');
+                $organisation = Arr::get($qualification, 'organization', []);
 
                 $dates = [
                     'startDate' => $this->normaliseDate($qualification['start-date']),
@@ -110,11 +129,11 @@ class OrcIDScanner implements ShouldQueue
                 // areas of the code.
                 $accreditation = Accreditation::create([
                     'awarded_at' => $dates['startDate'],
-                    'awarding_body_name' => $organisation['name'],
-                    'awarding_body_ror' => $organisation['disambiguated-organization']['disambiguated-organization-identifier'],
+                    'awarding_body_name' => Arr::get($organisation, 'name', ''),
+                    'awarding_body_ror' => Arr::get($organisation, 'disambiguated-organization.disambiguated-organization-identifier', ''),
                     'title' => $title,
                     'expires_at' => $dates['endDate'],
-                    'awarded_locale' => $organisation['address']['country'],
+                    'awarded_locale' => Arr::get($organisation, 'address.country', ''),
                 ]);
 
                 RegistryHasAccreditation::firstOrCreate([
@@ -128,11 +147,14 @@ class OrcIDScanner implements ShouldQueue
     private function getEmployers(): void
     {
         $record = OrcID::getOrcIDRecord($this->accessToken, $this->user->orc_id, 'employments');
-        foreach ($record['affiliation-group'] as $affiliations) {
-            foreach ($affiliations['summaries'] as $summary) {
-                $organisation = $summary['employment-summary'];
 
-                $knownOrg = $this->isAKnownOrganisation($organisation['organization']['name']);
+        $affiliationsGroup = isset($record['affiliation-group']) ? $record['affiliation-group'] : [];
+        foreach ($affiliationsGroup as $affiliations) {
+            $affiliations = isset($affiliations['summaries']) ? $affiliations['summaries'] : [];
+            foreach ($affiliations as $summary) {
+                $organisation = isset($summary['employment-summary']) ? $summary['employment-summary'] : [];
+
+                $knownOrg = $this->isAKnownOrganisation(Arr::get($organisation, 'organization.name', ''));
 
                 $dates = [
                     'startDate' => $this->normaliseDate($organisation['start-date']),
@@ -140,10 +162,10 @@ class OrcIDScanner implements ShouldQueue
                 ];
 
                 $preExistingAffiliation = Affiliation::where([
-                    'department' => $organisation['department-name'],
+                    'department' => Arr::get($organisation, 'department-name', ''),
                     'from' => $dates['startDate'],
                     'to' => $dates['endDate'],
-                    'role' => $organisation['role-title'],
+                    'role' => Arr::get($organisation, 'role-title', ''),
                     'registry_id' => $this->user->registry_id,
                 ])->first();
 
@@ -158,10 +180,10 @@ class OrcIDScanner implements ShouldQueue
                     'from' => $dates['startDate'],
                     'to' => $dates['endDate'],
                     'is_current' => ($dates['endDate'] === '') ? 1 : 0,
-                    'department' => $organisation['department-name'],
-                    'role' => $organisation['role-title'],
-                    'employer_address' => json_encode($organisation['organization']['address']),
-                    'ror' => $organisation['organization']['disambiguated-organization']['disambiguated-organization-identifier'],
+                    'department' => Arr::get($organisation, 'department-name', ''),
+                    'role' => Arr::get($organisation, 'role-title', ''),
+                    'employer_address' => json_encode(Arr::get($organisation, 'organization.address', [])),
+                    'ror' => Arr::get($organisation, 'organization.disambiguated-organization.disambiguated-organization-identifier', ''),
                     'registry_id' => $this->user->registry_id,
                     'organisation_id' => $knownOrg->id ?? -1,
                     'member_id' => '',
@@ -185,12 +207,16 @@ class OrcIDScanner implements ShouldQueue
         $formedDateString = '';
 
         if (is_array($date)) {
-            if (isset($date['month']) && $date['month'] != null) {
-                $formedDateString .= $date['month']['value'].'/';
+            if (isset($date['day'])) {
+                $formedDateString .= Arr::get($date, 'day.value').'/';
             }
 
-            if (isset($date['year']) && $date['year'] != null) {
-                $formedDateString .= $date['year']['value'];
+            if (isset($date['month'])) {
+                $formedDateString .= Arr::get($date, 'month.value').'/';
+            }
+
+            if (isset($date['year'])) {
+                $formedDateString .= Arr::get($date, 'year.value');
             }
 
             return $formedDateString;

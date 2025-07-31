@@ -250,6 +250,31 @@ class UserController extends Controller
             throw new Exception($e->getMessage());
         }
     }
+    public function showByUniqueIdentifier(Request $request): JsonResponse
+    {
+        $digiIdent = $request->query('digi_ident');
+
+        $user = User::whereHas('registry', function ($query) use ($digiIdent) {
+            $query->where('digi_ident', $digiIdent);
+        })
+            ->with(['organisation:id,organisation_name', 'registry', 'registry.affiliations'])
+            ->select(
+                [
+                    'id',
+                    'unclaimed',
+                    'email',
+                    'registry_id',
+                    'user_group',
+                    'organisation_id'
+                ]
+            )->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        return $this->OKResponse($user);
+    }
 
     /**
      * @OA\Post(
@@ -484,6 +509,8 @@ class UserController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         try {
+
+
             $input = $request->all();
 
             $user = User::where('id', $id)->first();
@@ -517,6 +544,7 @@ class UserController extends Controller
             $user->t_and_c_agreement_date = isset($input['lt_and_c_agreement_date']) ? $input['t_and_c_agreement_date'] : $user->t_and_c_agreement_date;
             $user->uksa_registered = isset($input['uksa_registered']) ? $input['uksa_registered'] : $user->uksa_registered;
             $user->is_sro = isset($input['is_sro']) ? $input['is_sro'] : $user->is_sro;
+            $user->is_delegate = isset($input['is_delegate']) ? $input['is_delegate'] : $user->is_delegate;
 
             if ($user->save()) {
                 return response()->json([
@@ -675,7 +703,7 @@ class UserController extends Controller
 
         $projects = Project::whereIn('id', $projectIds)
             ->withCount('projectUsers')
-            ->with(['organisations'])
+            ->with(['organisations', 'modelState.state'])
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
         return $this->OKResponse($projects);
     }

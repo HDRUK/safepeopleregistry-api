@@ -11,62 +11,7 @@ use App\Models\ModelState;
  */
 trait StateWorkflow
 {
-    protected array $defaultTransitions = [
-        State::STATE_REGISTERED => [
-            State::STATE_PENDING,
-            State::STATE_FORM_RECEIVED,
-        ],
-        State::STATE_PENDING => [
-            State::STATE_FORM_RECEIVED,
-            State::STATE_VALIDATION_IN_PROGRESS,
-        ],
-        State::STATE_FORM_RECEIVED => [
-            State::STATE_VALIDATION_IN_PROGRESS,
-            State::STATE_MORE_USER_INFO_REQ,
-        ],
-        State::STATE_VALIDATION_IN_PROGRESS => [
-            State::STATE_VALIDATION_COMPLETE,
-            State::STATE_MORE_USER_INFO_REQ,
-            State::STATE_ESCALATE_VALIDATION,
-            State::STATE_VALIDATED,
-        ],
-        State::STATE_VALIDATION_COMPLETE => [
-            State::STATE_ESCALATE_VALIDATION,
-            State::STATE_VALIDATED,
-        ],
-        State::STATE_MORE_USER_INFO_REQ => [
-            State::STATE_ESCALATE_VALIDATION,
-            State::STATE_VALIDATED,
-        ],
-        State::STATE_ESCALATE_VALIDATION => [
-            State::STATE_VALIDATED,
-        ],
-        State::STATE_VALIDATED => [],
-        State::STATE_PROJECT_PENDING => [
-            State::STATE_PROJECT_PENDING,
-            State::STATE_PROJECT_APPROVED,
-        ],
-        State::STATE_PROJECT_APPROVED => [
-            State::STATE_PROJECT_APPROVED,
-            State::STATE_PROJECT_COMPLETED
-        ],
-        State::STATE_PROJECT_COMPLETED => [
-            State::STATE_PROJECT_COMPLETED
-        ],
-        State::STATE_AFFILIATION_INVITED => [
-            State::STATE_AFFILIATION_PENDING
-        ],
-        State::STATE_AFFILIATION_PENDING => [
-            State::STATE_AFFILIATION_APPROVED,
-            State::STATE_AFFILIATION_REJECTED
-        ],
-        State::STATE_AFFILIATION_APPROVED => [
-            State::STATE_AFFILIATION_REJECTED
-        ],
-        State::STATE_AFFILIATION_REJECTED => [
-            State::STATE_AFFILIATION_APPROVED
-        ]
-    ];
+    protected static array $defaultTransitions = [];
 
     public function modelState()
     {
@@ -105,7 +50,7 @@ trait StateWorkflow
             return true;
         }
         $currentState = $this->getState();
-        $transitions = $this->getTransitions();
+        $transitions = static::getTransitions();
         return (isset($transitions[$currentState]) && in_array($newStateSlug, $transitions[$currentState]));
     }
 
@@ -118,17 +63,17 @@ trait StateWorkflow
         $this->save(); // make sure triggers observers
     }
 
-    public function getTransitions(): array
+    public static function getTransitions(): array
     {
-        return $this->defaultTransitions;
+        return static::$defaultTransitions;
     }
 
-    public function getAllStates(): array
+    public static function getAllStates(): array
     {
-        $transitions = $this->getTransitions();
+        $transitions = static::getTransitions();
         $keys = array_keys($transitions);
         $values = array_merge(...array_values($transitions));
         $allStates = array_unique(array_merge($keys, $values));
-        return $allStates;
+        return array_values($allStates);
     }
 }

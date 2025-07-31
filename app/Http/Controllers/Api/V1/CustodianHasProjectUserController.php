@@ -86,6 +86,8 @@ class CustodianHasProjectUserController extends Controller
                 'projectHasUser.project:id,title',
                 'projectHasUser.role:id,name',
                 'projectHasUser.affiliation:id,organisation_id',
+                'projectHasUser.affiliation.modelState.state',
+
                 'projectHasUser.affiliation.organisation:id,organisation_name'
             ])
                 ->where('custodian_id', $custodianId)
@@ -329,13 +331,11 @@ class CustodianHasProjectUserController extends Controller
 
     public function getWorkflowStates(Request $request)
     {
-        $model = new CustodianHasProjectUser();
-        return $this->OKResponse($model->getAllStates());
+        return $this->OKResponse(CustodianHasProjectUser::getAllStates());
     }
 
     public function getWorkflowTransitions(Request $request)
     {
-        $model = new CustodianHasProjectUser();
-        return $this->OKResponse($model->getTransitions());
+        return $this->OKResponse(CustodianHasProjectUser::getTransitions());
     }
 }

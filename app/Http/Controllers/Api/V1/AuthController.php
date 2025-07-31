@@ -41,20 +41,27 @@ class AuthController extends Controller
 
                     $registryId = $unclaimedUser->registry_id;
                     $organisationId = $pendingInvite->organisation_id;
+                    $email = $unclaimedUser->email;
 
-                    $aff = Affiliation::create([
-                        'organisation_id' => $organisationId,
-                        'member_id' => '',
-                        'relationship' => null,
-                        'from' => null,
-                        'to' => null,
-                        'department' => null,
-                        'role' => null,
-                        'email' => $unclaimedUser->email,
-                        'ror' => null,
-                        'registry_id' => $registryId,
-                    ]);
+                    $existingAffiliation = Affiliation::where('organisation_id', $organisationId)
+                        ->where('email', $email)
+                        ->where('registry_id', $registryId)
+                        ->first();
 
+                    if (!$existingAffiliation) {
+                        Affiliation::create([
+                            'organisation_id' => $organisationId,
+                            'member_id' => '',
+                            'relationship' => null,
+                            'from' => null,
+                            'to' => null,
+                            'department' => null,
+                            'role' => null,
+                            'email' => $email,
+                            'ror' => null,
+                            'registry_id' => $registryId,
+                        ]);
+                    }
                     $pendingInvite->invite_accepted_at = Carbon::now();
                     $pendingInvite->status = config('speedi.invite_status.COMPLETE');
                     $pendingInvite->save();
@@ -77,6 +84,52 @@ class AuthController extends Controller
             'message' => 'failed',
             'data' => null,
         ], 400);
+    }
+
+    public function claimUser(Request $request): JsonResponse
+    {
+        $response = Keycloak::getUserInfo($request->headers->get('Authorization'));
+        $input = $response->json();
+        $registryId = $request->input('registry_id');
+
+        $userToReplace = User::where('registry_id', $registryId)->first();
+
+        if (!$userToReplace) {
+            return response()->json([
+                'message' => 'User not found',
+                'data' => null,
+            ], 400);
+        }
+
+        if ($userToReplace->user_group !== User::GROUP_ORGANISATIONS) {
+            return response()->json([
+                'message' => 'Only works for organisation admins ',
+                'data' => null,
+            ], 400);
+        }
+
+        if ($userToReplace->unclaimed === 0) {
+            return response()->json([
+                'message' => 'Account already claimed',
+                'data' => null,
+            ], 400);
+        }
+
+
+        $userToReplace->first_name = $input['given_name'];
+        $userToReplace->last_name = $input['family_name'];
+        $userToReplace->email = $input['email'];
+        $userToReplace->keycloak_id = $input['sub'];
+        $userToReplace->unclaimed = 0;
+        $userToReplace->t_and_c_agreed = 1;
+        $userToReplace->t_and_c_agreement_date = now();
+
+        $userToReplace->save();
+
+        return response()->json([
+            'message' => 'success',
+            'data' => $userToReplace
+        ], 201);
     }
 
     public function me(Request $request): JsonResponse

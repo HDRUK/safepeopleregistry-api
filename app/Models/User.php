@@ -137,6 +137,39 @@ class User extends Authenticatable
     public const STATUS_INVITED = 'invited';
     public const STATUS_REGISTERED = 'registered';
 
+    protected static array $transitions = [
+        State::STATE_REGISTERED => [
+            State::STATE_PENDING,
+            State::STATE_FORM_RECEIVED,
+        ],
+        State::STATE_PENDING => [
+            State::STATE_FORM_RECEIVED,
+            State::STATE_VALIDATION_IN_PROGRESS,
+        ],
+        State::STATE_FORM_RECEIVED => [
+            State::STATE_VALIDATION_IN_PROGRESS,
+            State::STATE_MORE_USER_INFO_REQ,
+        ],
+        State::STATE_VALIDATION_IN_PROGRESS => [
+            State::STATE_VALIDATION_COMPLETE,
+            State::STATE_MORE_USER_INFO_REQ,
+            State::STATE_ESCALATE_VALIDATION,
+            State::STATE_VALIDATED,
+        ],
+        State::STATE_VALIDATION_COMPLETE => [
+            State::STATE_ESCALATE_VALIDATION,
+            State::STATE_VALIDATED,
+        ],
+        State::STATE_MORE_USER_INFO_REQ => [
+            State::STATE_ESCALATE_VALIDATION,
+            State::STATE_VALIDATED,
+        ],
+        State::STATE_ESCALATE_VALIDATION => [
+            State::STATE_VALIDATED,
+        ],
+        State::STATE_VALIDATED => [],
+    ];
+
     /**
      * The attributes that are mass assignable.
      */
@@ -184,6 +217,7 @@ class User extends Authenticatable
         'last_name',
         'email',
         'user_group',
+        'registry_id'
     ];
 
     protected static array $sortableColumns = [
@@ -388,5 +422,10 @@ class User extends Authenticatable
     public function inGroup(array $groups): bool
     {
         return in_array($this->user_group, $groups);
+    }
+
+    public static function getTransitions(): array
+    {
+        return static::$transitions;
     }
 }

@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use DB;
 use Hash;
 use App\Models\DecisionModel;
 use App\Models\CustodianModelConfig;

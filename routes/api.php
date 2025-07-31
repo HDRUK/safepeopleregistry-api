@@ -43,6 +43,7 @@ use App\Http\Controllers\Api\V1\ProjectHasUserController;
 use App\Http\Controllers\Api\V1\ProjectHasOrganisationController;
 use App\Http\Controllers\Api\V1\AuditLogController;
 use App\Http\Controllers\Api\V1\VendorWebhookReceiverController;
+use App\Http\Controllers\Api\V1\SubsidiaryController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -61,6 +62,7 @@ Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1
 // --- AUTH ---
 Route::middleware('api')->get('auth/me', [AuthController::class, 'me']);
 Route::middleware('api')->post('auth/register', [AuthController::class, 'registerKeycloakUser']);
+Route::middleware('api')->post('auth/claimUser', [AuthController::class, 'claimUser']);
 
 // --- USERS ---
 Route::middleware(['auth:api'])
@@ -69,9 +71,9 @@ Route::middleware(['auth:api'])
 
         Route::get('/', [UserController::class, 'index']);
         Route::get('/test', [UserController::class, 'fakeEndpointForTesting']);
+        Route::get('/identifier', [UserController::class, 'showByUniqueIdentifier']);
         Route::get('/{id}', [UserController::class, 'show']);
         Route::get('/{id}/history', [AuditLogController::class, 'showUserHistory']);
-        Route::get('/identifier/{id}', [UserController::class, 'showByUniqueIdentifier']);
         Route::get('/{id}/projects', [UserController::class, 'userProjects']);
 
         // create
@@ -345,6 +347,19 @@ Route::middleware('auth:api')
             Route::post('/permissions', 'assignOrganisationPermissionsToFrom');
         });
     });
+
+// --- SUBSIDIARIES ---
+Route::middleware('auth:api')
+    ->prefix('v1/subsidiaries')
+    ->group(function () {
+        Route::controller(SubsidiaryController::class)->group(function () {
+            Route::post('organisations/{orgId}', 'store');
+            Route::put('{id}/organisations/{orgId}', 'update');
+            Route::delete('{id}/organisations/{orgId}', 'destroy');
+        });
+    });
+
+// --- ACCREDITATIONS ---
 
 // --- ACCREDITATIONS ---
 Route::middleware('auth:api')

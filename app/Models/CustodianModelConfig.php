@@ -72,7 +72,7 @@ class CustodianModelConfig extends Model
     ];
 
     /**
-     * Get the custodian 
+     * Get the custodian
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Custodian>
      */

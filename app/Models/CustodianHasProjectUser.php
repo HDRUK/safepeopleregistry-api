@@ -44,34 +44,45 @@ class CustodianHasProjectUser extends Model
     use SearchManager;
     use FilterManager;
 
-    protected array $transitions = [
+    protected static array $transitions = [
         State::STATE_FORM_RECEIVED => [
             State::STATE_VALIDATION_IN_PROGRESS,
-            State::STATE_MORE_USER_INFO_REQ,
+            State::STATE_MORE_USER_INFO_REQ_ESCALATION_MANAGER,
+            State::STATE_MORE_USER_INFO_REQ_ESCALATION_COMMITTEE,
+            State::STATE_USER_LEFT_PROJECT,
         ],
         State::STATE_VALIDATION_IN_PROGRESS => [
             State::STATE_VALIDATION_COMPLETE,
-            State::STATE_MORE_USER_INFO_REQ,
-            State::STATE_ESCALATE_VALIDATION,
-            State::STATE_VALIDATED,
+            State::STATE_MORE_USER_INFO_REQ_ESCALATION_MANAGER,
+            State::STATE_MORE_USER_INFO_REQ_ESCALATION_COMMITTEE,
+            State::STATE_USER_VALIDATION_DECLINED,
+            State::STATE_USER_LEFT_PROJECT,
         ],
         State::STATE_VALIDATION_COMPLETE => [
-            State::STATE_ESCALATE_VALIDATION,
-            State::STATE_VALIDATED,
+            State::STATE_MORE_USER_INFO_REQ_ESCALATION_MANAGER,
+            State::STATE_MORE_USER_INFO_REQ_ESCALATION_COMMITTEE,
+            State::STATE_USER_VALIDATION_DECLINED,
+            State::STATE_USER_LEFT_PROJECT,
         ],
-        State::STATE_MORE_USER_INFO_REQ => [
-            State::STATE_ESCALATE_VALIDATION,
-            State::STATE_VALIDATED,
+        State::STATE_MORE_USER_INFO_REQ_ESCALATION_MANAGER => [
+            State::STATE_MORE_USER_INFO_REQ_ESCALATION_COMMITTEE,
+            State::STATE_USER_VALIDATION_DECLINED,
+            State::STATE_USER_LEFT_PROJECT,
         ],
-        State::STATE_ESCALATE_VALIDATION => [
-            State::STATE_VALIDATED,
+        State::STATE_MORE_USER_INFO_REQ_ESCALATION_COMMITTEE => [
+            State::STATE_MORE_USER_INFO_REQ_ESCALATION_MANAGER,
+            State::STATE_USER_VALIDATION_DECLINED,
+            State::STATE_USER_LEFT_PROJECT,
         ],
-        State::STATE_VALIDATED => [],
+        State::STATE_USER_VALIDATION_DECLINED => [
+            State::STATE_VALIDATION_COMPLETE
+        ],
+        State::STATE_USER_LEFT_PROJECT => [],
     ];
 
-    public function getTransitions(): array
+    public static function getTransitions(): array
     {
-        return $this->transitions;
+        return static::$transitions;
     }
 
     protected static array  $searchableColumns = ['projects.title'];
