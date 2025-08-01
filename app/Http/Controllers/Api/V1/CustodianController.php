@@ -1219,7 +1219,7 @@ class CustodianController extends Controller
     }
 
     // Hide from swagger docs
-    private function getValidationState(int $custodianId, int $projectId, int $userId)
+    private function getValidationState(int $custodianId, int $organisationId, int $projectId, int $userId)
     {
         $record = CustodianHasProjectUser::with([
                 'modelState.state',
@@ -1237,7 +1237,7 @@ class CustodianController extends Controller
     }
 
     // Hide from swagger docs
-    private function getAffiliationStatus(int $custodianId, int $projectId, int $userId)
+    private function getAffiliationStatus(int $custodianId, int $organisationId, int $projectId, int $userId)
     {
         $record = CustodianHasProjectUser::with([
                 'projectHasUser.affiliation.modelState.state',
@@ -1255,7 +1255,7 @@ class CustodianController extends Controller
     }
 
     // Hide from swagger docs
-    private function getOrganisationStatus(int $custodianId, int $organisationId, int $projectId)
+    private function getOrganisationStatus(int $custodianId, int $organisationId, int $projectId, int $userId)
     {
         $projectOrganisationId = ProjectHasOrganisation::where([
             'organisation_id' => $organisationId,
@@ -1274,7 +1274,7 @@ class CustodianController extends Controller
     }
 
     // Hide from swagger docs
-    private function getProjectStatus(int $custodianId, int $organisationId, int $projectId)
+    private function getProjectStatus(int $custodianId, int $organisationId, int $projectId, int $userId)
     {
         $records = Project::where('id', $projectId)
             ->with([
