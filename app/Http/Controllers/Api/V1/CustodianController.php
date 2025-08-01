@@ -1277,13 +1277,17 @@ class CustodianController extends Controller
     private function getProjectStatus(int $custodianId, int $organisationId, int $projectId, int $userId)
     {
         $records = Project::where('id', $projectId)
+            ->whereHas('projectUsers.registry.user', function($query) use ($userId) {
+                $query->where('users.id', $userId);
+            })
+            ->whereHas('organisations', function($query) use ($organisationId) {
+                $query->where('organisation_id', $organisationId);
+            })
+            ->whereHas('custodianHasProjectOrganisation', function($query) use ($custodianId) {
+                $query->where('custodian_id', $custodianId);
+            })
             ->with([
                 'modelState.state',
-                'organisations' => function ($query) use ($organisationId) {
-                    $query->where('organisation_id', $organisationId)
-                          ->select(['organisations.id', 'organisations.organisation_name']);
-                },
-                'projectUsers'
             ])
             ->select(['id', 'title'])
             ->first();
