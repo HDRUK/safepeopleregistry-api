@@ -1204,8 +1204,8 @@ class CustodianController extends Controller
     {
         $projectStatus = $this->getProjectStatus($custodianId, $organisationId, $projectId, $userId);
         $organisationStatus = $this->getOrganisationStatus($custodianId, $organisationId, $projectId, $userId);
-        $validationState = $this->getValidationState($custodianId, $projectId, $userId);
-        $affiliationStatus = $this->getAffiliationStatus($custodianId, $projectId, $userId);
+        $validationState = $this->getValidationState($custodianId, $organisationId, $projectId, $userId);
+        $affiliationStatus = $this->getAffiliationStatus($custodianId, $organisationId, $projectId, $userId);
 
         return response()->json([
             'message' => 'success',
