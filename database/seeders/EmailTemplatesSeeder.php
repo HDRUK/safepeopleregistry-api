@@ -248,7 +248,7 @@ class EmailTemplatesSeeder extends Seeder
                     <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
                       <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
                         <mj-text align="left" padding="10px 25px 10px 25px" >
-                          [[users.first_name]] [[users.last_name]]<br><br>You\'ve been invited to sign-up as a Researcher within the [[env(APP_NAME)]] Registry system, by [[organisations.organisation_name]]. To begin your sign-up process, please 
+                          [[users.first_name]] [[users.last_name]]<br><br>You\'ve been invited to sign-up as a Researcher within the [[env(APP_NAME)]] Registry system, by [[organisation.organisation_name]]. To begin your sign-up process, please 
                           click the button below.
                           <div><br></div>
                           ' . $this->supportFooter . '
@@ -316,7 +316,7 @@ class EmailTemplatesSeeder extends Seeder
                     <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
                       <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
                         <mj-text align="left" padding="10px 25px 10px 25px" >
-                          [[users.first_name]] [[users.last_name]]<br><br>You\'ve been invited to sign-up as a delegate user within the [[env(APP_NAME)]] Registry system, by [[organisations.organisation_name]]. To begin your sign-up process, please 
+                          [[users.first_name]] [[users.last_name]]<br><br>You\'ve been invited to sign-up as a delegate user within the [[env(APP_NAME)]] Registry system, by [[organisation.organisation_name]]. To begin your sign-up process, please 
                           click the button below.
                           <div><br></div>
                           ' . $this->supportFooter . '
@@ -349,8 +349,8 @@ class EmailTemplatesSeeder extends Seeder
                 <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px">
                   <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
                     <mj-text align="left" padding="10px 25px 10px 25px">[[delegate_first_name]] [[delegate_last_name]]<br/><br/>
-                    As a delegate for [[organisation_name]] on the [[env(APP_NAME)]] Registry system. You are requested to verify 
-                    a recent researcher registration as someone who is currently employed by [[organisation_name]]. We ask that you please confirm this to be true, by clicking the button below. That\'s all. The rest is automatic!
+                    As a delegate for [[organisation.organisation_name]] on the [[env(APP_NAME)]] Registry system. You are requested to verify 
+                    a recent researcher registration as someone who is currently employed by [[organisation.organisation_name]]. We ask that you please confirm this to be true, by clicking the button below. That\'s all. The rest is automatic!
                     <div><br/></div>
                     <div>
                       Name: [[users.first_name]] [[users.last_name]]<br/>
@@ -365,7 +365,7 @@ class EmailTemplatesSeeder extends Seeder
                 </mj-section>
                 <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px">
                   <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
-                    <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 25px 10px 25px">I confirm that the named Researcher above is employed by [[organisation_name]]!</mj-button>
+                    <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 25px 10px 25px">I confirm that the named Researcher above is employed by [[organisation.organisation_name]]!</mj-button>
                   </mj-column>
                 </mj-section>
               </mj-wrapper>

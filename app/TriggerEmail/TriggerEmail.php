@@ -79,7 +79,7 @@ class TriggerEmail
                 ];
 
                 $replacements = [
-                    '[[organisations.organisation_name]]' => $organisation->organisation_name,
+                    '[[organisation.organisation_name]]' => $organisation->organisation_name,
                     '[[users.first_name]]' => $user->first_name,
                     '[[users.last_name]]' => $user->last_name,
                     '[[users.created_at]]' => $user->created_at,
@@ -113,7 +113,7 @@ class TriggerEmail
                 ];
 
                 $replacements = [
-                    '[[organisation_name]]' => $organisation->organisation_name,
+                    '[[organisation.organisation_name]]' => $organisation->organisation_name,
                     '[[delegate_first_name]]' => $delegate->first_name,
                     '[[delegate_last_name]]' => $delegate->last_name,
                     '[[env(AP_NAME)]]' => config('speedi.system.app_name'),
