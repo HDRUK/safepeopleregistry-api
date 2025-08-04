@@ -2,17 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\FilterManager;
+use App\Traits\SearchManager;
+use App\Traits\SearchProject;
+use App\Traits\StateWorkflow;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
-use App\Traits\SearchManager;
-use App\Traits\SearchProject;
-use App\Traits\StateWorkflow;
-use App\Traits\FilterManager;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
  * App\Models\Project
@@ -241,7 +242,7 @@ class Project extends Model
     /**
      * Shortcut: All of the raw pivot rows linking this Project ↔ Organisation ↔ Custodian
      */
-    public function custodianHasProjectOrganisation()
+    public function custodianHasProjectOrganisation(): HasManyThrough
     {
         return $this->hasManyThrough(
             CustodianHasProjectOrganisation::class,     // final model
