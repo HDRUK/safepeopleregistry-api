@@ -185,10 +185,7 @@ class ProjectController extends Controller
             ])->findOrFail($projectId);
 
         if ($project) {
-            return response()->json([
-                'message' => 'success',
-                'data' => $project,
-            ], 200);
+            return $this->OKResponse($project);
         }
 
         throw new NotFoundException();
