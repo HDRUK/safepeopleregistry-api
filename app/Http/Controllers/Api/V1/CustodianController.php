@@ -1207,15 +1207,14 @@ class CustodianController extends Controller
         $validationState = $this->getValidationState($custodianId, $projectUserId);
         $affiliationStatus = $this->getAffiliationStatus($custodianId, $projectUserId);
 
-        return response()->json([
-            'message' => 'success',
-            'data' => [
+        $response = [
                 'validation_state' => $validationState,
                 'project_status' => $projectStatus,
                 'organisation_status' => $organisationStatus,
                 'affiliation_status' => $affiliationStatus,
-            ],
-        ], 200);
+        ];
+
+        return $this->OKResponse($response);
     }
 
     // Hide from swagger docs
