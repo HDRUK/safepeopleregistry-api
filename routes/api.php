@@ -197,7 +197,7 @@ Route::middleware(['auth:api'])
         Route::get('/{id}/projects_users', 'getProjectsUsers');
         Route::get('/{id}/rules', 'getRules');
         Route::get('/{id}/organisations/{organisationId}/users', 'getOrganisationUsers');
-        Route::get('/{id}/organisations/{organisationId}/projects/{projectId}/users/{userId}/statuses', 'getStatusesUsers');
+        Route::get('/{id}/projectUsers/{projectUserId}/statuses', 'getStatusesUsers');
 
         // Write
         Route::post('/', 'store');

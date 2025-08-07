@@ -1200,98 +1200,75 @@ class CustodianController extends Controller
      *      )
      * )
      */
-    public function getStatusesUsers(Request $request, int $custodianId, int $organisationId, int $projectId, int $userId): JsonResponse
+    public function getStatusesUsers(Request $request, int $custodianId, int $projectUserId): JsonResponse
     {
-        $projectStatus = $this->getProjectStatus($custodianId, $organisationId, $projectId, $userId);
-        $organisationStatus = $this->getOrganisationStatus($custodianId, $organisationId, $projectId, $userId);
-        $validationState = $this->getValidationState($custodianId, $organisationId, $projectId, $userId);
-        $affiliationStatus = $this->getAffiliationStatus($custodianId, $organisationId, $projectId, $userId);
+        $projectStatus = $this->getProjectStatus($custodianId, $projectUserId);
+        $organisationStatus = $this->getOrganisationStatus($custodianId, $projectUserId);
+        $validationState = $this->getValidationState($custodianId, $projectUserId);
+        $affiliationStatus = $this->getAffiliationStatus($custodianId, $projectUserId);
 
         return response()->json([
             'message' => 'success',
             'data' => [
+                'validation_state' => $validationState,
                 'project_status' => $projectStatus,
                 'organisation_status' => $organisationStatus,
-                'validation_state' => $validationState,
                 'affiliation_status' => $affiliationStatus,
             ],
         ], 200);
     }
 
     // Hide from swagger docs
-    private function getValidationState(int $custodianId, int $organisationId, int $projectId, int $userId)
+    private function getValidationState(int $custodianId, int $projectUserId)
     {
         $record = CustodianHasProjectUser::with([
                 'modelState.state',
             ])
         ->where('custodian_has_project_has_user.custodian_id', $custodianId)
+        ->where('custodian_has_project_has_user.project_has_user_id', $projectUserId)
         ->join('project_has_users', 'custodian_has_project_has_user.project_has_user_id', '=', 'project_has_users.id')
-        ->join('projects', 'project_has_users.project_id', '=', 'projects.id')
-        ->join('registries', 'project_has_users.user_digital_ident', '=', 'registries.digi_ident')
-        ->join('users', 'users.registry_id', '=', 'registries.id')
-        ->where('projects.id', $projectId)
-        ->where('users.id', $userId)
         ->first();
 
         return $record->modelState ?? null;
     }
 
-    // Hide from swagger docs
-    private function getAffiliationStatus(int $custodianId, int $organisationId, int $projectId, int $userId)
+    // // Hide from swagger docs
+    private function getProjectStatus(int $custodianId, int $projectUserId)
+    {
+        $records = ProjectHasUser::with([
+            'project.modelState.state'
+        ])
+        ->where('id', $projectUserId)
+        ->first();
+
+        return optional($records->project)->modelState ?? null;
+    }
+
+    // // Hide from swagger docs
+    private function getOrganisationStatus(int $custodianId, int $projectUserId)
+    {
+        $records = CustodianHasProjectOrganisation::with([
+            'modelState.state',
+        ])
+        ->where('custodian_has_project_has_organisation.custodian_id', $custodianId)
+        ->join('project_has_organisations', 'custodian_has_project_has_organisation.project_has_organisation_id', '=', 'project_has_organisations.id')
+        ->join('project_has_users', 'project_has_organisations.project_id', '=', 'project_has_users.project_id')
+        ->where('project_has_users.id', $projectUserId)
+        ->first();
+
+        return $records->modelState ?? null;
+    }
+
+    // // Hide from swagger docs
+    private function getAffiliationStatus(int $custodianId, int $projectUserId)
     {
         $record = CustodianHasProjectUser::with([
                 'projectHasUser.affiliation.modelState.state',
             ])
         ->where('custodian_has_project_has_user.custodian_id', $custodianId)
-        ->join('project_has_users', 'custodian_has_project_has_user.project_has_user_id', '=', 'project_has_users.id')
-        ->join('projects', 'project_has_users.project_id', '=', 'projects.id')
-        ->join('registries', 'project_has_users.user_digital_ident', '=', 'registries.digi_ident')
-        ->join('users', 'users.registry_id', '=', 'registries.id')
-        ->where('projects.id', $projectId)
-        ->where('users.id', $userId)
+        ->where('custodian_has_project_has_user.project_has_user_id', $projectUserId)
         ->first();
 
         return optional($record->projectHasUser)->affiliation->modelState ?? null;
-    }
-
-    // Hide from swagger docs
-    private function getOrganisationStatus(int $custodianId, int $organisationId, int $projectId, int $userId)
-    {
-        $projectOrganisationId = ProjectHasOrganisation::where([
-            'organisation_id' => $organisationId,
-            'project_id' => $projectId
-        ])->first()->id;
-        
-        $records = CustodianHasProjectOrganisation::with([
-            'modelState.state',
-        ])
-            ->where([
-                'project_has_organisation_id' => $projectOrganisationId,
-                'custodian_id' => $custodianId
-            ])->first();
-
-        return $records->modelState ?? null;
-    }
-
-    // Hide from swagger docs
-    private function getProjectStatus(int $custodianId, int $organisationId, int $projectId, int $userId)
-    {
-        $records = Project::where('id', $projectId)
-            ->whereHas('projectUsers.registry.user', function($query) use ($userId) {
-                $query->where('users.id', $userId);
-            })
-            ->whereHas('organisations', function($query) use ($organisationId) {
-                $query->where('organisation_id', $organisationId);
-            })
-            ->whereHas('custodianHasProjectOrganisation', function($query) use ($custodianId) {
-                $query->where('custodian_id', $custodianId);
-            })
-            ->with([
-                'modelState.state',
-            ])
-            ->select(['id', 'title'])
-            ->first();
-
-        return $records->modelState ?? null;
     }
 }
