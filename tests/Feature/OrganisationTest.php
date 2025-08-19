@@ -733,6 +733,30 @@ class OrganisationTest extends TestCase
         );
     }
 
+    public function test_the_application_can_create_organisation_with_user(): void
+    {
+        $isoCertified = fake()->randomElement([1, 0]);
+        $ceCertified = fake()->randomElement([1, 0]);
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'POST',
+                self::TEST_URL . '/new_account',
+                [
+                    'organisation_name' => 'test test Org',
+                    'lead_applicant_email' => 'phil.reeks+org22@hdruk.ac.uk',
+                    'unclaimed' => 0,
+                ]
+            );
+
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
+
+        $this->assertEquals($response->json()['message'], 'success');
+        $this->assertNotNull($response->json()['data']['user_id']);
+        $this->assertNotNull($response->json()['data']['organisation_id']);
+    }
+
     // LS - Removed as doesn't run in GH - possibly blocked by ROR
     // needs investigation
     //

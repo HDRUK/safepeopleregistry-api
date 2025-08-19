@@ -335,6 +335,7 @@ Route::middleware('auth:api')
 
             // Create
             Route::post('/', 'store');
+            Route::post('/new_account', 'createOrgWithUser');
             //Route::post('/unclaimed', 'inviteOrganisationSimple');
             Route::post('/unclaimed', 'storeUnclaimed');
             Route::post('/{id}/invite', 'invite');

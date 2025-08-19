@@ -455,6 +455,66 @@ class OrganisationController extends Controller
         return $this->OKResponse(null);
     }
 
+    public function createOrgWithUser(Request $request): JsonResponse
+    {
+        $input = $request->all();
+
+        try {
+            $organisation = Organisation::create([
+                'organisation_name' => $input['organisation_name'],
+                'address_1' => '',
+                'address_2' => '',
+                'town' => '',
+                'county' => '',
+                'country' => '',
+                'postcode' => '',
+                'lead_applicant_organisation_name' => '',
+                'lead_applicant_email' => $input['lead_applicant_email'],
+                'organisation_unique_id' => '',
+                'applicant_names' => '',
+                'funders_and_sponsors' => '',
+                'sub_license_arrangements' => '',
+                'verified' => 0,
+                'companies_house_no' => '',
+                'sector_id' => 0,
+                'dsptk_certified' => 0,
+                'dsptk_ods_code' => '',
+                'dsptk_expiry_date' => null,
+                'iso_27001_certified' => 0,
+                'iso_27001_certification_num' => '',
+                'iso_expiry_date' => null,
+                'ce_certified' => 0,
+                'ce_certification_num' => '',
+                'ce_expiry_date' => null,
+                'ce_plus_certified' => 0,
+                'ce_plus_certification_num' => '',
+                'ce_plus_expiry_date' => null,
+                'ror_id' => '',
+                'website' => '',
+                'smb_status' => 0,
+                'organisation_size' => null,
+                'unclaimed' => isset($input['unclaimed']) ? $input['unclaimed'] : 1                
+            ]);
+
+            $user = User::create([
+                'first_name' => '',
+                'last_name' => '',
+                'email' => $input['lead_applicant_email'],
+                'user_group' => User::GROUP_ORGANISATIONS,
+                'is_org_admin' => 1,
+                'organisation_id' => $organisation->id,
+            ]);
+
+            return $this->CreatedResponse([
+                'user_id' => $user->id,
+                'organisation_id' => $organisation->id,
+            ]);
+
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
     public function storeUnclaimed(Request $request): JsonResponse
     {
 
