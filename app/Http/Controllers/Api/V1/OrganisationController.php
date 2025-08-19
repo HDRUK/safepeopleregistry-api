@@ -497,8 +497,8 @@ class OrganisationController extends Controller
             ]);
 
             $user = User::create([
-                'first_name' => '',
-                'last_name' => '',
+                'first_name' => $input['first_name'],
+                'last_name' => $input['last_name'],
                 'email' => $input['lead_applicant_email'],
                 'user_group' => User::GROUP_ORGANISATIONS,
                 'is_org_admin' => 1,
