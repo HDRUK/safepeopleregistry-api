@@ -14,6 +14,27 @@ use Hdruk\LaravelMjml\Models\EmailTemplate;
 
 class TriggerEmail
 {
+    // LS - Stubbed for later.
+    // public function spawnAdminEmail(array $input): void
+    // {
+    //     $replacements = [];
+    //     $recipients = [];
+    //     $template = null;
+
+    //     $recipients = [
+    //         'id' => $input['to'],
+    //         'email' => $input['email'],
+    //     ];
+
+    //     $replacements = [
+    //         '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
+    //         '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+    //         '[[ORGANISATION_NAME]]' => $input['name'],
+    //     ];
+
+    //     SendEmailJob::dispatch($recipients, $template, $replacements, $recipients['email']);
+    // }
+
     public function spawnEmail(array $input): void
     {
         $replacements = [];

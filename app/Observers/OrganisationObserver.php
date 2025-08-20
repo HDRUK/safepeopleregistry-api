@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use TriggerEmail;
 use App\Models\Organisation;
 use App\Models\Custodian;
 use App\Models\Affiliation;
@@ -100,6 +101,20 @@ class OrganisationObserver
                 $organisation->id
             );
         }
+
+        // LS - Stubbed for later.
+        // if ($organisation->system_approved === false) {
+        //     $users = User::where('user_group', User::USER_GROUP_ADMINS)->get()->toArray();
+        //     foreach ($users as $u) {
+        //         TriggerEmail::spawnAdminEmail([
+        //             'identifier' => 'new_organisation_regd',
+        //             'replacements' => $replacements,
+        //             'to' => $u->id,
+        //             'name' => $organisation->name,
+        //         ]);
+        //     }
+        //     unset($users);
+        // }
     }
 
     /**
