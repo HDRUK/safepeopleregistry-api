@@ -12,6 +12,7 @@ return new class () extends Migration {
     {
         Schema::table('organisations', function (Blueprint $table) {
             $table->tinyInteger('system_approved')->default(0);
+            $table->string('sro_profile_uri')->nullable();
         });
     }
 
@@ -22,6 +23,7 @@ return new class () extends Migration {
     {
         Schema::table('organisations', function (Blueprint $table) {
             $table->dropColumn('system_approved');
+            $table->dropColumn('sro_profile_uri');
         });
     }
 };

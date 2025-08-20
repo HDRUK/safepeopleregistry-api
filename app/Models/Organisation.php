@@ -387,6 +387,7 @@ class Organisation extends Model
         'organisation_size',
         'unclaimed',
         'system_approved',
+        'sro_profile_uri',
     ];
 
     protected $casts = [

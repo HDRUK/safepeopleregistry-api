@@ -221,6 +221,7 @@ class OrganisationTest extends TestCase
                         'organisation_size',
                         'website',
                         'system_approved',
+                        'sro_profile_uri',
                     ],
                 ],
             ]
@@ -292,6 +293,7 @@ class OrganisationTest extends TestCase
                 'organisation_size',
                 'website',
                 'system_approved',
+                'sro_profile_uri',
             ],
         ]);
     }

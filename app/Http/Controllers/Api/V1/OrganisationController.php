@@ -394,6 +394,7 @@ class OrganisationController extends Controller
                 'smb_status' => $input['smb_status'],
                 'organisation_size' => $input['organisation_size'],
                 'system_approved' => $input['system_approved'] ?? 0,
+                'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
             ]);
 
             if (isset($input['departments'])) {
@@ -496,6 +497,7 @@ class OrganisationController extends Controller
                 'organisation_size' => null,
                 'unclaimed' => $input['unclaimed'] ?? 1,
                 'system_approved' => $input['system_approved'] ?? 0,
+                'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
             ]);
 
             $user = User::create([
@@ -567,6 +569,7 @@ class OrganisationController extends Controller
                 'organisation_size' => null,
                 'unclaimed' => $input['unclaimed'] ?? 1,
                 'system_approved' => $input['system_approved'] ?? 0,
+                'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
             ]);
 
             return $this->CreatedResponse($organisation->id);
