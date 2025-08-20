@@ -173,13 +173,13 @@ class ProjectController extends Controller
     public function getProjectByIdAndOrganisationId(Request $request, int $projectId, int $organisationId): JsonResponse
     {
         $project = Project::with([
-                'projectDetail', 
-                'custodians', 
+                'projectDetail',
+                'custodians',
                 'modelState.state',
-                'custodianHasProjectOrganisation' => function($query) use ($organisationId) {
-                    $query->whereHas('projectOrganisation', function($query2) use ($organisationId) {
-                            $query2->where('organisation_id', $organisationId);
-                        })
+                'custodianHasProjectOrganisation' => function ($query) use ($organisationId) {
+                    $query->whereHas('projectOrganisation', function ($query2) use ($organisationId) {
+                        $query2->where('organisation_id', $organisationId);
+                    })
                     ->with('modelState.state');
                 },
             ])->findOrFail($projectId);
@@ -353,11 +353,11 @@ class ProjectController extends Controller
             'registry.user',
             'role',
             'project.modelState.state',
-            'project' => function($query) use ($projectId, $organisationId) {
+            'project' => function ($query) use ($projectId, $organisationId) {
                 $query->where('id', $projectId)
                     ->with([
-                        'custodianHasProjectOrganisation' => function($query2) use ($organisationId) {
-                            $query2->whereHas('projectOrganisation', function($query3) use ($organisationId) {
+                        'custodianHasProjectOrganisation' => function ($query2) use ($organisationId) {
+                            $query2->whereHas('projectOrganisation', function ($query3) use ($organisationId) {
                                 $query3->where('organisation_id', $organisationId);
                             })
                             ->with('modelState.state');

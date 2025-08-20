@@ -220,6 +220,7 @@ class OrganisationTest extends TestCase
                         'smb_status',
                         'organisation_size',
                         'website',
+                        'system_approved',
                     ],
                 ],
             ]
@@ -290,6 +291,7 @@ class OrganisationTest extends TestCase
                 'smb_status',
                 'organisation_size',
                 'website',
+                'system_approved',
             ],
         ]);
     }
@@ -406,6 +408,7 @@ class OrganisationTest extends TestCase
                     'smb_status' => false,
                     'organisation_size' => 2,
                     'website' => 'https://www.website.com/',
+                    'system_approved' => true,
                 ]
             );
 
@@ -413,7 +416,9 @@ class OrganisationTest extends TestCase
         $this->assertArrayHasKey('data', $response);
 
         $this->assertDatabaseHas('organisations', [
+            'id' => $response['data']['id'],
             'verified' => true,
+            'system_approved' => true,
         ]);
 
         $response = $this->actingAs($this->organisation_admin)

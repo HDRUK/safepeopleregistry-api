@@ -393,6 +393,7 @@ class OrganisationController extends Controller
                 'website' => $input['website'],
                 'smb_status' => $input['smb_status'],
                 'organisation_size' => $input['organisation_size'],
+                'system_approved' => $input['system_approved'] ?? 0,
             ]);
 
             if (isset($input['departments'])) {
@@ -493,7 +494,8 @@ class OrganisationController extends Controller
                 'website' => '',
                 'smb_status' => 0,
                 'organisation_size' => null,
-                'unclaimed' => isset($input['unclaimed']) ? $input['unclaimed'] : 1                
+                'unclaimed' => $input['unclaimed'] ?? 1,
+                'system_approved' => $input['system_approved'] ?? 0,
             ]);
 
             $user = User::create([
@@ -563,7 +565,8 @@ class OrganisationController extends Controller
                 'website' => '',
                 'smb_status' => 0,
                 'organisation_size' => null,
-                'unclaimed' => isset($input['unclaimed']) ? $input['unclaimed'] : 1
+                'unclaimed' => $input['unclaimed'] ?? 1,
+                'system_approved' => $input['system_approved'] ?? 0,
             ]);
 
             return $this->CreatedResponse($organisation->id);
@@ -805,14 +808,14 @@ class OrganisationController extends Controller
         $projects = Project::searchViaRequest()
             ->applySorting()
             ->with([
-                'organisations' => function($query) use ($organisationId) {
+                'organisations' => function ($query) use ($organisationId) {
                     $query->where('organisations.id', $organisationId);
-                }, 
+                },
                 'modelState.state',
-                'custodianHasProjectOrganisation' => function($query) use ($organisationId) {
-                    $query->whereHas('projectOrganisation', function($query2) use ($organisationId) {
-                            $query2->where('organisation_id', $organisationId);
-                        })
+                'custodianHasProjectOrganisation' => function ($query) use ($organisationId) {
+                    $query->whereHas('projectOrganisation', function ($query2) use ($organisationId) {
+                        $query2->where('organisation_id', $organisationId);
+                    })
                     ->with('modelState.state');
                 },
             ])
