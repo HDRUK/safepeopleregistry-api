@@ -393,6 +393,8 @@ class OrganisationController extends Controller
                 'website' => $input['website'],
                 'smb_status' => $input['smb_status'],
                 'organisation_size' => $input['organisation_size'],
+                'system_approved' => $input['system_approved'] ?? 0,
+                'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
             ]);
 
             if (isset($input['departments'])) {
@@ -493,7 +495,9 @@ class OrganisationController extends Controller
                 'website' => '',
                 'smb_status' => 0,
                 'organisation_size' => null,
-                'unclaimed' => isset($input['unclaimed']) ? $input['unclaimed'] : 1                
+                'unclaimed' => $input['unclaimed'] ?? 1,
+                'system_approved' => $input['system_approved'] ?? 0,
+                'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
             ]);
 
             $user = User::create([
@@ -563,7 +567,9 @@ class OrganisationController extends Controller
                 'website' => '',
                 'smb_status' => 0,
                 'organisation_size' => null,
-                'unclaimed' => isset($input['unclaimed']) ? $input['unclaimed'] : 1
+                'unclaimed' => $input['unclaimed'] ?? 1,
+                'system_approved' => $input['system_approved'] ?? 0,
+                'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
             ]);
 
             return $this->CreatedResponse($organisation->id);
@@ -646,6 +652,11 @@ class OrganisationController extends Controller
             if (!Gate::allows('update', $org)) {
                 return $this->ForbiddenResponse();
             }
+
+            if (!$org->system_approved && (!isset($input['system_approved']) || $input['system_approved'] === false)) {
+                return $this->ForbiddenResponse();
+            }
+
             $org->update($input);
 
             if ($request->has('charities')) {
@@ -805,14 +816,14 @@ class OrganisationController extends Controller
         $projects = Project::searchViaRequest()
             ->applySorting()
             ->with([
-                'organisations' => function($query) use ($organisationId) {
+                'organisations' => function ($query) use ($organisationId) {
                     $query->where('organisations.id', $organisationId);
-                }, 
+                },
                 'modelState.state',
-                'custodianHasProjectOrganisation' => function($query) use ($organisationId) {
-                    $query->whereHas('projectOrganisation', function($query2) use ($organisationId) {
-                            $query2->where('organisation_id', $organisationId);
-                        })
+                'custodianHasProjectOrganisation' => function ($query) use ($organisationId) {
+                    $query->whereHas('projectOrganisation', function ($query2) use ($organisationId) {
+                        $query2->where('organisation_id', $organisationId);
+                    })
                     ->with('modelState.state');
                 },
             ])

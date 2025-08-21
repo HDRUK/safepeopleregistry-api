@@ -68,7 +68,7 @@ class MergeUserAccounts implements ShouldQueue
                 'user_digital_ident' => $registry->digi_ident
             ]);
 
-        //update any validation logs 
+        //update any validation logs
         ValidationLog::where([
             'tertiary_entity_id' => $existingUnclaimedUser->registry->id,
             'tertiary_entity_type' => Registry::class,

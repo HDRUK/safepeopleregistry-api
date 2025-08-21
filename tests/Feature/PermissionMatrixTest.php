@@ -246,6 +246,7 @@ class PermissionMatrixTest extends TestCase
                 'route' => '/organisations/1',
                 'payload' => [
                     'organisation_name' =>  fake()->company(),
+                    'system_approved' => true,
                 ],
                 'permissions' => [
                     'admin' => 200,

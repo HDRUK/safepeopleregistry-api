@@ -72,6 +72,8 @@ class OrganisationTest extends TestCase
             'smb_status' => false,
             'organisation_size' => 2,
             'website' => 'https://www.website.com/',
+            'system_approved' => true,
+            'sro_profile_uri' => 'https://myprofile.something',
         ];
     }
 
@@ -220,6 +222,8 @@ class OrganisationTest extends TestCase
                         'smb_status',
                         'organisation_size',
                         'website',
+                        'system_approved',
+                        'sro_profile_uri',
                     ],
                 ],
             ]
@@ -290,6 +294,8 @@ class OrganisationTest extends TestCase
                 'smb_status',
                 'organisation_size',
                 'website',
+                'system_approved',
+                'sro_profile_uri',
             ],
         ]);
     }
@@ -364,6 +370,11 @@ class OrganisationTest extends TestCase
 
         $this->enableObservers();
 
+        $org = Organisation::where('id', 1)->first();
+        $org->update([
+            'system_approved' => true,
+        ]);
+
         $response = $this->actingAs($this->organisation_admin)
             ->json(
                 'GET',
@@ -406,6 +417,7 @@ class OrganisationTest extends TestCase
                     'smb_status' => false,
                     'organisation_size' => 2,
                     'website' => 'https://www.website.com/',
+                    'system_approved' => true,
                 ]
             );
 
@@ -413,7 +425,9 @@ class OrganisationTest extends TestCase
         $this->assertArrayHasKey('data', $response);
 
         $this->assertDatabaseHas('organisations', [
+            'id' => $response['data']['id'],
             'verified' => true,
+            'system_approved' => true,
         ]);
 
         $response = $this->actingAs($this->organisation_admin)
@@ -757,6 +771,59 @@ class OrganisationTest extends TestCase
         $this->assertEquals($response->json()['message'], 'success');
         $this->assertNotNull($response->json()['data']['user_id']);
         $this->assertNotNull($response->json()['data']['organisation_id']);
+    }
+
+    public function test_the_application_honours_organisations_system_approval(): void
+    {
+        $this->testOrg['system_approved'] = false;
+
+        $isoCertified = fake()->randomElement([1, 0]);
+        $ceCertified = fake()->randomElement([1, 0]);
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'POST',
+                self::TEST_URL,
+                $this->testOrg
+            );
+
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
+
+        $content = $response->json()['data'];
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'PUT',
+                self::TEST_URL . '/' . $content,
+                [
+                    'organisation_name' => 'Cant update no',
+                ]
+            );
+
+        $response->assertStatus(403);
+        $org = Organisation::where('id', $content)->first();
+        $org->system_approved = true;
+        $org->save();
+
+        $this->assertDatabaseHas('organisations', [
+            'id' => $org->id,
+            'system_approved' => true,
+        ]);
+
+        $this->assertEquals($org->organisation_name, $this->testOrg['organisation_name']);
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'PUT',
+                self::TEST_URL . '/' . $org->id,
+                [
+                    'organisation_name' => 'Can update now',
+                ]
+            );
+
+        $response->assertStatus(200);
+        $this->assertEquals(Organisation::where('id', $org->id)->first()->organisation_name, 'Can update now');
     }
 
     // LS - Removed as doesn't run in GH - possibly blocked by ROR
