@@ -821,7 +821,7 @@ class OrganisationTest extends TestCase
                     'organisation_name' => 'Can update now',
                 ]
             );
-        
+
         $response->assertStatus(200);
         $this->assertEquals(Organisation::where('id', $org->id)->first()->organisation_name, 'Can update now');
     }
