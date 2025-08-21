@@ -41,19 +41,21 @@ class UserObserver
         }
 
         // Check the existence within keycloak.
-        if (!Keycloak::checkUserExists($user->id)) {
-            // If not found, create and update local copy with keycloak id.
+        if ($user->unclaimed === 0) {
+            if (!Keycloak::checkUserExists($user->id)) {
+                // If not found, create and update local copy with keycloak id.
 
-            $retVal = Keycloak::createUser([
-                'email' => $user->email,
-                'first_name' => $user->first_name,
-                'last_name' => $user->last_name,
-                'group' => $user->user_group,
-                'id' => $user->id,
-            ]);
+                $retVal = Keycloak::createUser([
+                    'email' => $user->email,
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'group' => $user->user_group,
+                    'id' => $user->id,
+                ]);
 
-            if (!$retVal['success']) {
-                throw new Exception('unable to clone user ' . json_encode($user) . ' within keycloak ');
+                if (!$retVal['success']) {
+                    throw new Exception('unable to clone user ' . json_encode($user) . ' within keycloak ');
+                }
             }
         }
 
