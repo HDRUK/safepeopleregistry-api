@@ -652,6 +652,11 @@ class OrganisationController extends Controller
             if (!Gate::allows('update', $org)) {
                 return $this->ForbiddenResponse();
             }
+
+            if (!$org->system_approved && (!isset($input['system_approved']) || $input['system_approved'] === false)) {
+                return $this->ForbiddenResponse();
+            }
+
             $org->update($input);
 
             if ($request->has('charities')) {
