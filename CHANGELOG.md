@@ -1,3 +1,19 @@
+## [1.9.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.8.0...v1.9.0) (2025-08-26)
+
+### ✨ Features
+
+* **REGISTRY-1673:** End point for Custodian/User & Organisation Statuses into grey (#388) ([f737b2e](https://github.com/HDRUK/safepeopleregistry-api/commit/f737b2e478c2381135d38c3ae105baf93e737765))
+* **REGISTRY-1751:** Adds endpoint that creates an organisation with a … (#390) ([ea1134f](https://github.com/HDRUK/safepeopleregistry-api/commit/ea1134feef44ef1753505a997cb29b26794a32fe))
+* **REGISTRY-1757:** adds in system_approved flag for organisations (#391) ([5771832](https://github.com/HDRUK/safepeopleregistry-api/commit/5771832321409ffabb6ae0f774f9cbdd5d953a97))
+* **REGISTRY-1757:** Adds system_approved flag to Organisations ([4169782](https://github.com/HDRUK/safepeopleregistry-api/commit/4169782c45f1b6d91c6956983a57857be4e3e226))
+* **REGISTRY-1757:** Adds system_approved flag to the API to govern if an Organisation has been approved for system use overall ([54c798f](https://github.com/HDRUK/safepeopleregistry-api/commit/54c798f9ca22c972a7ebb7a35f95f45eeccef6e0))
+* **SOURSD-1751:** Adds endpoint that creates an organisation with a linked user with minimal data provided ([321b2ec](https://github.com/HDRUK/safepeopleregistry-api/commit/321b2eca36014f9eb26d604d8fd853826513e7e5))
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-1622:** Organisation invites Delegate email: “by [[organisations.organisation_name]].” is displaying blank (#389) ([68a59eb](https://github.com/HDRUK/safepeopleregistry-api/commit/68a59eb465ea81487f4eda5137750fa7a50a363c))
+* **REGISTRY-1666:** Don't create keycloak user if user has been invited (#392) ([9d71a80](https://github.com/HDRUK/safepeopleregistry-api/commit/9d71a805aba980e15e250b8cec99b5a5b614f13d))
+
 ## [1.8.0](https://github.com/HDRUK/soursd-api/compare/v1.7.0...v1.8.0) (2025-07-31)
 
 ### ✨ Features
