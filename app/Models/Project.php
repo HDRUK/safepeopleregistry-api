@@ -2,17 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\FilterManager;
+use App\Traits\SearchManager;
+use App\Traits\SearchProject;
+use App\Traits\StateWorkflow;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
-use App\Traits\SearchManager;
-use App\Traits\SearchProject;
-use App\Traits\StateWorkflow;
-use App\Traits\FilterManager;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
  * App\Models\Project
@@ -227,5 +228,29 @@ class Project extends Model
     public static function getTransitions(): array
     {
         return static::$transitions;
+    }
+
+    public function projectHasOrganisations()
+    {
+        return $this->hasMany(
+            ProjectHasOrganisation::class,
+            'project_id',    // FK on project_has_organisations
+            'id'             // local key on projects
+        );
+    }
+
+    /**
+     * Shortcut: All of the raw pivot rows linking this Project ↔ Organisation ↔ Custodian
+     */
+    public function custodianHasProjectOrganisation(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            CustodianHasProjectOrganisation::class,     // final model
+            ProjectHasOrganisation::class,              // through model
+            'project_id',                               // FK on project_has_organisations → projects.id
+            'project_has_organisation_id',              // FK on custodian_has_project_organisation → project_has_organisations.id
+            'id',                                       // local key on projects
+            'id'                                        // local key on project_has_organisations
+        );
     }
 }

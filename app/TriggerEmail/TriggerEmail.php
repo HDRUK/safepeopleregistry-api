@@ -14,6 +14,27 @@ use Hdruk\LaravelMjml\Models\EmailTemplate;
 
 class TriggerEmail
 {
+    // LS - Stubbed for later.
+    // public function spawnAdminEmail(array $input): void
+    // {
+    //     $replacements = [];
+    //     $recipients = [];
+    //     $template = null;
+
+    //     $recipients = [
+    //         'id' => $input['to'],
+    //         'email' => $input['email'],
+    //     ];
+
+    //     $replacements = [
+    //         '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
+    //         '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+    //         '[[ORGANISATION_NAME]]' => $input['name'],
+    //     ];
+
+    //     SendEmailJob::dispatch($recipients, $template, $replacements, $recipients['email']);
+    // }
+
     public function spawnEmail(array $input): void
     {
         $replacements = [];
@@ -79,7 +100,7 @@ class TriggerEmail
                 ];
 
                 $replacements = [
-                    '[[organisations.organisation_name]]' => $organisation->organisation_name,
+                    '[[organisation.organisation_name]]' => $organisation->organisation_name,
                     '[[users.first_name]]' => $user->first_name,
                     '[[users.last_name]]' => $user->last_name,
                     '[[users.created_at]]' => $user->created_at,
@@ -113,7 +134,7 @@ class TriggerEmail
                 ];
 
                 $replacements = [
-                    '[[organisation_name]]' => $organisation->organisation_name,
+                    '[[organisation.organisation_name]]' => $organisation->organisation_name,
                     '[[delegate_first_name]]' => $delegate->first_name,
                     '[[delegate_last_name]]' => $delegate->last_name,
                     '[[env(AP_NAME)]]' => config('speedi.system.app_name'),

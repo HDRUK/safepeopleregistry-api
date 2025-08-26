@@ -197,6 +197,7 @@ Route::middleware(['auth:api'])
         Route::get('/{id}/projects_users', 'getProjectsUsers');
         Route::get('/{id}/rules', 'getRules');
         Route::get('/{id}/organisations/{organisationId}/users', 'getOrganisationUsers');
+        Route::get('/{id}/projectUsers/{projectUserId}/statuses', 'getStatusesUsers');
 
         // Write
         Route::post('/', 'store');
@@ -269,6 +270,9 @@ Route::middleware('auth:api')
         Route::delete('{projectId}/users/registry/{registryId}', 'deleteUserFromProject');
         Route::delete('{projectId}/organisations/{organisationId}', 'deleteOrganisationFromProject');
         Route::put('{projectId}/users/{registryId}/primary_contact', 'makePrimaryContact');
+
+        Route::get('{projectId}/organisations/{organisationId}', 'getProjectByIdAndOrganisationId');
+        Route::get('{projectId}/organisations/{organisationId}/users', 'getProjectUsersByOrganisationId');
     });
 
 // --- REGISTRIES ---
@@ -331,6 +335,7 @@ Route::middleware('auth:api')
 
             // Create
             Route::post('/', 'store');
+            Route::post('/new_account', 'createOrgWithUser');
             //Route::post('/unclaimed', 'inviteOrganisationSimple');
             Route::post('/unclaimed', 'storeUnclaimed');
             Route::post('/{id}/invite', 'invite');

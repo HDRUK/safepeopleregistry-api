@@ -190,6 +190,11 @@ use App\Traits\FilterManager;
  *          example="false",
  *          description="Unclaimed"
  *      ),
+ *      @OA\Property(property="system_approved",
+ *          type="boolean",
+ *          example="false",
+ *          description="Whether this Organisation has been approved to use the system or not"
+ *      )
  * )
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -380,7 +385,9 @@ class Organisation extends Model
         'website',
         'smb_status',
         'organisation_size',
-        'unclaimed'
+        'unclaimed',
+        'system_approved',
+        'sro_profile_uri',
     ];
 
     protected $casts = [
@@ -392,7 +399,8 @@ class Organisation extends Model
         'ce_expiry_date' => 'date:Y-m-d',
         'ce_plus_expiry_date' => 'date:Y-m-d',
         'iso_expiry_date' => 'date:Y-m-d',
-        'dsptk_expiry_date' => 'date:Y-m-d'
+        'dsptk_expiry_date' => 'date:Y-m-d',
+        'system_approved' => 'boolean',
     ];
 
     protected static array $searchableColumns = [

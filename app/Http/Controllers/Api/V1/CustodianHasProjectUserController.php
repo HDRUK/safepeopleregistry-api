@@ -192,7 +192,7 @@ class CustodianHasProjectUserController extends Controller
                 'projectHasUser.registry.user',
                 'projectHasUser.project:id,title',
                 'projectHasUser.role:id,name',
-                'projectHasUser.affiliation:id,organisation_id',
+                'projectHasUser.affiliation:id,organisation_id,email',
                 'projectHasUser.affiliation.organisation:id,organisation_name'
             ])
                 ->where([
