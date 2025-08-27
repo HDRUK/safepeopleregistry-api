@@ -56,6 +56,11 @@ class AffiliationController extends Controller
      */
     public function indexByRegistryId(Request $request, int $registryId): JsonResponse
     {
+        $organisationIds = Affiliation::where('registry_id', $registryId)
+            ->pluck('organisation_id')
+            ->unique()
+            ->values();
+            
         $affiliations = Affiliation::with(
             [
                 'modelState.state',
@@ -66,6 +71,22 @@ class AffiliationController extends Controller
                         'unclaimed',
                         'lead_applicant_email'
                     );
+                },
+                'organisation.projects' => function ($query) use ($registryId, $organisationIds) {
+                    $query->whereHas('projectUsers.registry', function ($q) use ($registryId) {
+                        $q->where('registries.id', $registryId);
+                    })
+                    ->whereHas('custodianHasProjectOrganisation.projectOrganisation', function ($qc) use ($organisationIds) {
+                        $qc->whereIn('organisation_id', $organisationIds);
+                    })
+                    ->with([
+                        'custodianHasProjectOrganisation' => function ($qc) use ($organisationIds) {
+                            $qc->whereHas('projectOrganisation', function ($qp) use ($organisationIds) {
+                                $qp->whereIn('organisation_id', $organisationIds);
+                            })->with('modelState.state');
+                        },
+                    ])
+                    ->select('projects.id', 'projects.title');
                 },
             ]
         )
