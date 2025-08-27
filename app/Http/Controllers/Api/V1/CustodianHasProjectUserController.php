@@ -195,27 +195,6 @@ class CustodianHasProjectUserController extends Controller
                 'projectHasUser.role:id,name',
                 'projectHasUser.affiliation:id,organisation_id,email',
                 'projectHasUser.affiliation.organisation:id,organisation_name',
-                'projectHasUser.affiliation.organisation.projects' => function ($query) use ($custodianId, $projectUserId) {
-                    $findProjectId = ProjectHasUser::where('id', $projectUserId)->with('affiliation')->find($projectUserId);
-                    $projectId = optional($findProjectId)->project_id;
-                    $organisationId = optional($findProjectId->affiliation)->organisation_id;
-
-                    $query->where('projects.id', $projectId)
-                    ->whereHas('custodianHasProjectOrganisation', function ($q) use ($custodianId, $organisationId) {
-                        $q->where('custodian_id', $custodianId)
-                            ->whereHas('projectOrganisation', function ($q2) use ($organisationId) {
-                                $q2->where('organisation_id', $organisationId);
-                            });
-                    })->with([
-                        'custodianHasProjectOrganisation' => function ($q) use ($custodianId, $organisationId) {
-                            $q->where('custodian_id', $custodianId)
-                                ->whereHas('projectOrganisation', function ($q2) use ($organisationId) {
-                                    $q2->where('organisation_id', $organisationId);
-                                })
-                                ->with('modelState.state');
-                        }
-                    ]);
-                }
             ])
                 ->where([
                     'project_has_user_id' => $projectUserId,
