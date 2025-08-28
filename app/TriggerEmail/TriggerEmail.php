@@ -107,7 +107,7 @@ class TriggerEmail
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
                     '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
                     '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),
-
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
                 ];
 
                 PendingInvite::create([
