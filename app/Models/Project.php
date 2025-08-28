@@ -259,10 +259,10 @@ class Project extends Model
         return $this->hasManyThrough(
             CustodianHasProjectUser::class,     // final model
             ProjectHasUser::class,              // through model
-            'project_id',                       // FK on project_has_organisations → projects.id
-            'project_has_user_id',              // FK on custodian_has_project_organisation → project_has_organisations.id
+            'project_id',                       // FK on project_has_user → projects.id
+            'project_has_user_id',              // FK on custodian_has_project_user → project_has_user.id
             'id',                               // local key on projects
-            'id'                                // local key on project_has_organisations
+            'id'                                // local key on project_has_users
         );
     }
 
