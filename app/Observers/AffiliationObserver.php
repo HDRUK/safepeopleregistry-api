@@ -50,12 +50,7 @@ class AffiliationObserver
 
     protected function handleChange(Affiliation $affiliation): void
     {
-
-        // Not sure we should be ever sending delegates emails upon changes like this
-        // - we have a notification system for it
-        if (config('enable_email')) {
-            $this->emailDelegatesIfNowComplete($affiliation);
-        }
+        $this->emailDelegatesIfNowComplete($affiliation);
         $this->updateActionLog($affiliation->registry_id);
         $this->updateOrganisationActionLog($affiliation);
 
