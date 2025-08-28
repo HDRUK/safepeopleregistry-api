@@ -171,6 +171,39 @@ class EmailTemplatesSeeder extends Seeder
             'buttons' => '',
           ],
           [
+            'identifier' => 'researcher_invite',
+            'subject' => 'Safe People Registry | Researcher invite',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#efeeea" width="600px" >
+                          <mj-body background-color="#efeeea" width="600px" >
+                            ' . $this->titleBar . '
+                            <mj-wrapper border="none" direction="ltr" text-align="center" padding="20px 0px 20px 0px" >
+                              <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
+                                <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
+                                  <mj-text align="left" padding="10px 25px 10px 25px" >
+                                    [[users.first_name]] [[users.last_name]]
+                                    <br><br>
+                                    You\'ve been invited to sign-up as a Researcher within the [[env(APP_NAME)]] Registry system, by [[organisation.organisation_name]]. To begin your sign-up process, please click the button below.
+                                    <div><br></div>
+                                    ' . $this->supportFooter . '
+                                    <div><br></div>
+                                    <div><br></div>
+                                    </div>
+                                  </mj-text>
+                                </mj-column>
+                              </mj-section>
+                              <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
+                                <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
+                                  <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 25px 10px 25px" >Sign me up!</mj-button>
+                                </mj-column>
+                              </mj-section>
+                            </mj-wrapper>
+                          </mj-body>
+                        </mjml >',
+            'buttons' => '',
+          ],
+          [
             'identifier' => 'organisation_invite',
             'subject' => 'You\'ve been selected as a trusted Organisation!',
             'body' => '
@@ -240,40 +273,6 @@ class EmailTemplatesSeeder extends Seeder
           ' . $this->mjmlHead . '
           <mj-body background-color="#efeeea" width="600px" ><mj-wrapper padding="20px 0px 20px 0px" border="none" direction="ltr" text-align="center" ><mj-section padding="0px" text-align="left" ><mj-column ><mj-image align="center" height="auto" padding="0px 0px 0px 0px" src="https://fakeimg.pl/800x200?text=[[env(APP_NAME)]]+OTP" ></mj-image></mj-column></mj-section></mj-wrapper><mj-section padding="0px" text-align="left" ><mj-column ><mj-spacer height="20px" padding="   " ></mj-spacer></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-text padding="10px 25px 10px 25px" align="left" font-size="16px" font-weight="bold" >Confirm your email address</mj-text></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-spacer height="20px" padding="   " ></mj-spacer></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-text padding="10px 25px 10px 25px" align="left" >To verify your email address, please enter the code below into your web browser.</mj-text></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-spacer height="20px" padding="   " ></mj-spacer></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-text padding="10px 25px 10px 25px" align="center" font-size="24px" font-style="normal" container-background-color="#000000" color="#FFFFFF" >[[users.otp]]</mj-text></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-text padding="10px 25px 10px 25px" align="left" >The above code is only valid for [[env(OTP_VALIDITY_MINUTES)]] minute(s). <br><br>If you didn\'t request this email, worry not, you can safely ignore it.</mj-text></mj-column></mj-section><mj-section padding="0px" text-align="left" ><mj-column ><mj-spacer height="20px" padding="   " ></mj-spacer></mj-column></mj-section><mj-section padding="0px   " text-align="left" ><mj-column ><mj-text padding="10px 25px 10px 25px" align="left" >[[env(APP_NAME)]] Support Team<div>[[env(SUPPORT_EMAIL)]]</div></mj-text></mj-column></mj-section></mj-body></mjml > 
           ',
-            'buttons' => '',
-          ],
-          [
-            'identifier' => 'researcher_invite',
-            'subject' => 'You\'ve been invited to join the Researcher Registry',
-            'body' => '
-            <mjml>
-              ' . $this->mjmlHead . '
-              <mj-body background-color="#efeeea" width="600px" >
-                <mj-body background-color="#efeeea" width="600px" >
-                  ' . $this->titleBar . '
-                  <mj-wrapper border="none" direction="ltr" text-align="center" padding="20px 0px 20px 0px" >
-                    <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
-                      <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
-                        <mj-text align="left" padding="10px 25px 10px 25px" >
-                          [[users.first_name]] [[users.last_name]]<br><br>You\'ve been invited to sign-up as a Researcher within the [[env(APP_NAME)]] Registry system, by [[organisation.organisation_name]]. To begin your sign-up process, please 
-                          click the button below.
-                          <div><br></div>
-                          ' . $this->supportFooter . '
-                          <div><br></div>
-                          <div><br></div>
-                          </div>
-                        </mj-text>
-                      </mj-column>
-                    </mj-section>
-                    <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
-                      <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
-                        <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 25px 10px 25px" >Sign me up!</mj-button>
-                      </mj-column>
-                    </mj-section>
-                  </mj-wrapper>
-                </mj-body>
-              </mjml > 
-            ',
             'buttons' => '',
           ],
           [
