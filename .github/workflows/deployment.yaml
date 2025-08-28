@@ -36,7 +36,7 @@ jobs:
         id: checkout
         uses: actions/checkout@v4
         with:
-          ref: GAT-7766
+          ref: main
 
       - name: Google Auth
         id: auth
@@ -90,15 +90,15 @@ jobs:
           case "${STATUS}" in
             running|paused|detached)
               echo "Existing scan appears active (${STATUS}). Aborting before starting a new one..."
-              # curl -fsSL -X POST "${BASE_URL}/abort" -H "Content-Length: 0" || true
-              sleep 2
+              curl -fsSL -X POST "${BASE_URL}/abort" -H "Content-Length: 0" || true
+              sleep 60
               ;;
             *)
               echo "No active scan detected or status unknown; proceeding to start."
               ;;
           esac
           echo "Starting new AppCheck scan..."
-          # curl -fsSL -X POST "${BASE_URL}/start" -H "Content-Length: 0"
+          curl -fsSL -X POST "${BASE_URL}/start" -H "Content-Length: 0"
 
       - name: Run Notification
         id: runnotificationsent
