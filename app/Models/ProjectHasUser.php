@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -104,5 +105,13 @@ class ProjectHasUser extends Model
     public function affiliation(): BelongsTo
     {
         return $this->belongsTo(Affiliation::class, 'affiliation_id', 'id');
+    }
+
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\CustodianHasProjectUser>
+     */
+    public function custodianHasProjectUser(): HasMany
+    {
+        return $this->hasMany(CustodianHasProjectUser::class);
     }
 }

@@ -253,4 +253,29 @@ class Project extends Model
             'id'                                        // local key on project_has_organisations
         );
     }
+
+    public function custodianHasProjectUser(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            CustodianHasProjectUser::class,     // final model
+            ProjectHasUser::class,              // through model
+            'project_id',                       // FK on project_has_organisations → projects.id
+            'project_has_user_id',              // FK on custodian_has_project_organisation → project_has_organisations.id
+            'id',                               // local key on projects
+            'id'                                // local key on project_has_organisations
+        );
+    }
+
+
+    public function scopeCustodianHasProjectUser($query, $userDigitalIdent)
+    {
+        $query->with([
+            'custodianHasProjectUser' => function ($query2) use ($userDigitalIdent) {
+                $query2->whereHas('projectHasUser', function ($query3) use ($userDigitalIdent) {
+                    $query3->where('user_digital_ident', $userDigitalIdent);
+                })
+                ->with('modelState.state');
+            },
+        ]);
+    }
 }
