@@ -8,6 +8,7 @@ use App\Models\CustodianHasProjectUser;
 use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
 use App\Models\Custodian;
+use App\Models\ProjectHasUser;
 use Illuminate\Support\Facades\Gate;
 use App\Traits\CommonFunctions;
 use Illuminate\Support\Facades\Auth;
@@ -86,6 +87,8 @@ class CustodianHasProjectUserController extends Controller
                 'projectHasUser.project:id,title',
                 'projectHasUser.role:id,name',
                 'projectHasUser.affiliation:id,organisation_id',
+                'projectHasUser.affiliation.modelState.state',
+
                 'projectHasUser.affiliation.organisation:id,organisation_name'
             ])
                 ->where('custodian_id', $custodianId)
@@ -114,6 +117,7 @@ class CustodianHasProjectUserController extends Controller
                 })
                 ->join('project_has_users', 'custodian_has_project_has_user.project_has_user_id', '=', 'project_has_users.id')
                 ->join('projects', 'project_has_users.project_id', '=', 'projects.id')
+                ->filterByState()
                 ->applySorting()
                 ->select('custodian_has_project_has_user.*')
                 ->paginate($perPage);
@@ -328,13 +332,11 @@ class CustodianHasProjectUserController extends Controller
 
     public function getWorkflowStates(Request $request)
     {
-        $model = new CustodianHasProjectUser();
-        return $this->OKResponse($model->getAllStates());
+        return $this->OKResponse(CustodianHasProjectUser::getAllStates());
     }
 
     public function getWorkflowTransitions(Request $request)
     {
-        $model = new CustodianHasProjectUser();
-        return $this->OKResponse($model->getTransitions());
+        return $this->OKResponse(CustodianHasProjectUser::getTransitions());
     }
 }
