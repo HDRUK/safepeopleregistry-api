@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 
 class EmailTemplatesSeeder extends Seeder
 {
-    private $mjmlHead = '
+  private $mjmlHead = '
     <mj-head>
       <mj-html-attributes>
         <mj-html-attribute class="easy-email" multiple-attributes="false" attribute-name="text-color" text-color="#000000"></mj-html-attribute>
@@ -46,10 +46,14 @@ class EmailTemplatesSeeder extends Seeder
     </mj-section>
   ';
 
-    private $supportFooter = '
+  private $supportFooter = '
     <div>
         Please note, if you encounter any issue whilst registering you can request help by emailing [[env(SUPPORT_EMAIL)]].<br/><br/>Thanks!<br/>[[env(APP_NAME)]] Team.<br/>                         
     </div>
+  ';
+
+  private $whatIsBlurb = '
+    <p>The [[env(APP_NAME)]] is a platform to enable \'safe people\' decision-making for granting access to sensitive data. Users (researchers, analysts) make profiles; Organisations make profiles and affiliate the Users (staff, students); and Data Custodians validate both Users and Organisations to gain access to sensitive data for research projects.</p>
   ';
 
     /**
@@ -134,33 +138,36 @@ class EmailTemplatesSeeder extends Seeder
           ],
           [
             'identifier' => 'custodian_invite',
-            'subject' => 'You\'ve been selected as a trusted Data Custodian!',
-            'body' => '
-            <mjml>
-              ' . $this->mjmlHead . '
-              <mj-body background-color="#efeeea" width="600px" >
-                ' . $this->titleBar . '
-                <mj-wrapper border="none" direction="ltr" text-align="center" padding="20px 0px 20px 0px" >
-                  <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
-                    <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
-                      <mj-text align="left" padding="10px 25px 10px 25px" >
-                        [[custodian.name]]<br><br>You\'ve been invited to sign-up as a trusted Data Custodian, for the [[env(APP_NAME)]] Registry system. To begin your sign-up process, please 
-                        click the button below.
-                        <div><br></div>
-                        ' . $this->supportFooter . '
-                      </mj-text>
-                    </mj-column>
-                  </mj-section>
-                  <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
-                    <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
-                      <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 25px 10px 25px" >
-                        Sign me up!
-                      </mj-button>
-                    </mj-column>
-                  </mj-section>
-                </mj-wrapper>
-              </mj-body>
-            </mjml >',
+            'subject' => 'Safe People Registry | Custodian invite',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#efeeea" width="600px" >
+                          ' . $this->titleBar . '
+                          <mj-wrapper border="none" direction="ltr" text-align="center" padding="20px 0px 20px 0px" >
+                            <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
+                                <mj-text align="left" padding="10px 25px 10px 25px" >
+                                  [[custodian.name]]
+                                  <br><br>
+                                  You\'ve been invited to sign-up as a trusted Data Custodian, for the "[[env(APP_NAME)]]" Registry system. To begin your sign-up process, please
+                                  click the button below.
+                                  <br><br>
+                                  ' . $this->whatIsBlurb . '
+                                  <div><br></div>
+                                  ' . $this->supportFooter . '
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+                            <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
+                                <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 25px 10px 25px" >
+                                  Sign me up!
+                                </mj-button>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+                        </mj-body>
+                      </mjml >',
             'buttons' => '',
           ],
           [

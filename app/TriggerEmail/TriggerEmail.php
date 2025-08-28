@@ -137,7 +137,7 @@ class TriggerEmail
                     '[[organisation.organisation_name]]' => $organisation->organisation_name,
                     '[[delegate_first_name]]' => $delegate->first_name,
                     '[[delegate_last_name]]' => $delegate->last_name,
-                    '[[env(AP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
                     '[[env(INVITE_TIME_HOURS)]]' => config('speedi.system.invite_time_hours'),
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
                     '[[organisations.id]]' => $organisation->id,
@@ -161,6 +161,9 @@ class TriggerEmail
 
                 $replacements = [
                     '[[custodian.name]]' => $custodian->name,
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
                 ];
 
