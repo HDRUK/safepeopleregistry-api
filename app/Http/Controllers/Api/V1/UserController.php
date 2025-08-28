@@ -700,8 +700,8 @@ class UserController extends Controller
 
         $projects = Project::searchViaRequest()
             ->applySorting()
+            ->filterByState()
             ->with(['organisations', 'modelState.state'])
-            ->filterByCommon()
             ->custodianHasProjectUser($user->registry->digi_ident)
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
