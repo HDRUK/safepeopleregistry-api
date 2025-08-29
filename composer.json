@@ -15,7 +15,7 @@
         "laravel/octane": "^2.8.1",
         "laravel/socialite": "^5.14",
         "laravel/tinker": "^2.8",
-        "phpoffice/phpspreadsheet": "^4.1",
+        "phpoffice/phpspreadsheet": "^5.0",
         "predis/predis": "^1.1",
         "robsontenorio/laravel-keycloak-guard": "*",
         "seshac/otp-generator": "^0.0.8",
