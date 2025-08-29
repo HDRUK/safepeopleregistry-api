@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Registry;
 use App\Models\Project;
 use App\Models\Custodian;
+use App\Models\Organisation;
 use App\Models\ProjectHasUser;
 use App\Models\ProjectHasCustodian;
 use App\Models\WebhookEventTrigger;
@@ -16,7 +17,11 @@ use App\Traits\ValidationManager;
 use Illuminate\Support\Facades\Auth;
 use App\Jobs\UpdateProjectUserValidation;
 use App\Models\CustodianHasProjectUser;
+use Illuminate\Support\Facades\Notification;
 use Carbon\Carbon;
+use App\Notifications\ProjectHasUser\ProjectHasUserCreatedEntityUser;
+use App\Notifications\ProjectHasUser\ProjectHasUserCreatedEntityOrganisation;
+use App\Notifications\ProjectHasUser\ProjectHasUserCreatedEntityCustodian;
 
 use function activity;
 
@@ -54,6 +59,8 @@ class ProjectHasUserObserver
                     'custodian_id' => $custodianId,
                 ]
             );
+
+            $this->notifyUserChanged($projectHasUser, $organisationId, $custodianId);
         }
 
         UpdateProjectUserValidation::dispatch(
@@ -243,6 +250,67 @@ class ProjectHasUserObserver
                 }
             }
         }
+    }
+
+    private function notifyUserChanged(ProjectHasUser $projectHasUser, int $organisationId, int $custodianId): void
+    {
+        $entities = $this->getEntityData($projectHasUser, $organisationId, $custodianId);
+
+        Notification::send($entities['user'], new ProjectHasUserCreatedEntityUser(
+            $entities['custodian'],
+            $entities['project'],
+            $entities['organisation']
+        ));
+
+        foreach ($entities['organisationUsers'] as $user) {
+            Notification::send($user, new ProjectHasUserCreatedEntityOrganisation(
+                $entities['custodian'],
+                $entities['project'],
+                $projectHasUser->affiliation
+            ));
+        }
+
+        foreach ($entities['custodianUsers'] as $user) {
+            Notification::send($user, new ProjectHasUserCreatedEntityCustodian(
+                $entities['custodian'],
+                $entities['project'],
+                $entities['organisation'],
+                $projectHasUser->affiliation
+            ));
+        }
+    }
+
+    private function getEntityData(ProjectHasUser $projectHasUser, int $organisationId, int $custodianId)
+    {
+        $digiIdent = $projectHasUser->user_digital_ident;
+
+        $user = User::whereHas('registry', function ($query) use ($digiIdent) {
+            $query->where('digi_ident', $digiIdent);
+        })->first();
+
+        $custodian = Custodian::where([
+            'id' => $custodianId,
+        ])->first();
+
+        $project = Project::where([
+            'id' => $projectHasUser->project_id,
+        ])->first();
+
+        $organisationUsers = User::where([
+            'organisation_id' => $organisationId,
+        ])->get();
+
+        $custodianUsers = User::with(['custodian' =>
+            function ($query) use ($custodianId) {
+                $query->where('id', $custodianId);
+            }
+        ])->get();
+
+        $organisation = Organisation::where([
+            'id' => $organisationId,
+        ])->first();
+
+        return ['user' => $user, 'custodian' => $custodian, 'organisation' => $organisation, 'organisationUsers' => $organisationUsers, 'custodianUsers' => $custodianUsers, 'project' => $project];
     }
 
     /**

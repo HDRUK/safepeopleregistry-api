@@ -433,6 +433,18 @@ class Organisation extends Model
         self::ACTION_AFFILIATE_EMPLOYEES_COMPLETED,
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::created(function ($model) {
+            if ($model->unclaimed === 0) {
+                $model->setState(State::STATE_PENDING);
+                $model->save();
+            }
+        });
+    }
+
     public static function defaultValidationChecks(): array
     {
         return [
