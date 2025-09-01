@@ -283,7 +283,7 @@ class ProjectController extends Controller
      */
     public function getProjectUsers(Request $request, int $projectId): JsonResponse
     {
-        
+
         $projectUsers = ProjectHasUser::with([
             'registry.user',
             'role',

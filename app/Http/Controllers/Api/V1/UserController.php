@@ -11,7 +11,6 @@ use App\Services\DecisionEvaluatorService as DES;
 use App\Models\User;
 use App\Models\Registry;
 use App\Models\Project;
-use App\Models\ProjectHasUser;
 use App\Models\UserHasCustodianPermission;
 use App\Models\UserHasDepartments;
 use App\Http\Requests\Users\CreateUser;

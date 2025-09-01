@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 
 class EmailTemplatesSeeder extends Seeder
 {
-  private $mjmlHead = '
+    private $mjmlHead = '
     <mj-head>
       <mj-html-attributes>
         <mj-html-attribute class="easy-email" multiple-attributes="false" attribute-name="text-color" text-color="#000000"></mj-html-attribute>
@@ -46,13 +46,13 @@ class EmailTemplatesSeeder extends Seeder
     </mj-section>
   ';
 
-  private $supportFooter = '
+    private $supportFooter = '
     <div>
         Please note, if you encounter any issue whilst registering you can request help by emailing [[env(SUPPORT_EMAIL)]].<br/><br/>Thanks!<br/>[[env(APP_NAME)]] Team.<br/>                         
     </div>
   ';
 
-  private $whatIsBlurb = '
+    private $whatIsBlurb = '
     <p>The [[env(APP_NAME)]] is a platform to enable \'safe people\' decision-making for granting access to sensitive data. Users (researchers, analysts) make profiles; Organisations make profiles and affiliate the Users (staff, students); and Data Custodians validate both Users and Organisations to gain access to sensitive data for research projects.</p>
   ';
 

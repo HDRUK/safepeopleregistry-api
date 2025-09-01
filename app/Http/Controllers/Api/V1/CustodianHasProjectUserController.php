@@ -8,7 +8,6 @@ use App\Models\CustodianHasProjectUser;
 use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
 use App\Models\Custodian;
-use App\Models\ProjectHasUser;
 use Illuminate\Support\Facades\Gate;
 use App\Traits\CommonFunctions;
 use Illuminate\Support\Facades\Auth;

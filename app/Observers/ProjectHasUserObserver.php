@@ -22,7 +22,6 @@ use Carbon\Carbon;
 use App\Notifications\ProjectHasUser\ProjectHasUserCreatedEntityUser;
 use App\Notifications\ProjectHasUser\ProjectHasUserCreatedEntityOrganisation;
 use App\Notifications\ProjectHasUser\ProjectHasUserCreatedEntityCustodian;
-use App\Traits\ProjectHasUserManager;
 
 use function activity;
 

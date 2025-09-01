@@ -10,7 +10,6 @@ use App\Models\Project;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use App\Notifications\ProjectHasUser\Traits\ProjectHasUserNotification;
-use App\Jobs\SendEmailJob;
 
 class ProjectHasUserCreatedEntityUser extends Notification
 {
