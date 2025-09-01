@@ -481,6 +481,38 @@ class EmailTemplatesSeeder extends Seeder
             ',
             'buttons' => '',
           ],
+          [
+            'identifier' => 'notification',
+            'subject' => 'Notification',
+            'body' => '
+          <mjml>
+            ' . $this->mjmlHead . '
+            <mj-body background-color="#efeeea" width="600px">
+              ' . $this->titleBar . '
+              <mj-wrapper border="none" direction="ltr" text-align="center" padding="20px 0px 20px 0px">
+                <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px">
+                  <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                    <mj-text align="left" padding="10px 25px 10px 25px">
+                      [[message]]
+                      <div><br/></div>
+                      ' . $this->supportFooter . '
+                        <div><br></div>
+                        <div><br></div>
+                      </div>
+                    </mj-text>
+                  </mj-column>
+                </mj-section>
+                <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px">
+                  <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                    <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 25px 10px 25px">I confirm that the named Researcher above is employed by [[organisation.organisation_name]]!</mj-button>
+                  </mj-column>
+                </mj-section>
+              </mj-wrapper>
+            </mj-body>
+          </mjml>
+          ',
+            'buttons' => '',
+          ],
         ];
 
         foreach ($templates as $template) {

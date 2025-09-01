@@ -49,6 +49,15 @@ class BaseDemoSeeder extends Seeder
             RulesSeeder::class,
             PermissionSeeder::class,
             CustodianSeeder::class,
+        ]);
+
+
+        // --------------------------------------------------------------------------------
+        // Create unclaimed users from custodian_admins that have been created
+        // --------------------------------------------------------------------------------
+        $this->createUnclaimedUsers();
+
+        $this->call([
             SystemConfigSeeder::class,
             ProjectRoleSeeder::class,
             EmailTemplatesSeeder::class,
@@ -865,10 +874,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         $this->linkUsersToProjects($org3Researchers);
 
 
-        // --------------------------------------------------------------------------------
-        // Create unclaimed users from custodian_admins that have been created
-        // --------------------------------------------------------------------------------
-        $this->createUnclaimedUsers();
 
         // --------------------------------------------------------------------------------
         // End

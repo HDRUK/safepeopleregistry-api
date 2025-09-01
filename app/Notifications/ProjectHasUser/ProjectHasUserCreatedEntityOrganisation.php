@@ -19,5 +19,7 @@ class ProjectHasUserCreatedEntityOrganisation extends Notification
         $message = $custodian->name . " added your Organisation and User " . $affiliation->email . " to " . $project->title;
 
         $this->buildNotification($message, []);
+
+        $this->sendEmail($affiliation, $message);
     }
 }

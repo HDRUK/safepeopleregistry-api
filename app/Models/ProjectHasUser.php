@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 /**
  * @OA\Schema(
@@ -38,6 +40,7 @@ use Illuminate\Database\Eloquent\Model;
 class ProjectHasUser extends Model
 {
     use HasFactory;
+    use LogsActivity;
 
     public $incrementing = true;
 
@@ -73,6 +76,15 @@ class ProjectHasUser extends Model
                 'description' => 'The organisation has confirmed the user',
             ],
         ];
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly($this->fillable)
+            ->logOnlyDirty()
+            ->useLogName('project_has_user')
+            ->dontSubmitEmptyLogs();
     }
 
     /**

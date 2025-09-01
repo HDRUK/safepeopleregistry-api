@@ -22,6 +22,7 @@ use Carbon\Carbon;
 use App\Notifications\ProjectHasUser\ProjectHasUserCreatedEntityUser;
 use App\Notifications\ProjectHasUser\ProjectHasUserCreatedEntityOrganisation;
 use App\Notifications\ProjectHasUser\ProjectHasUserCreatedEntityCustodian;
+use App\Traits\ProjectHasUserManager;
 
 use function activity;
 
@@ -256,27 +257,34 @@ class ProjectHasUserObserver
     {
         $entities = $this->getEntityData($projectHasUser, $organisationId, $custodianId);
 
-        Notification::send($entities['user'], new ProjectHasUserCreatedEntityUser(
+        $userNotification = new ProjectHasUserCreatedEntityUser(
             $entities['custodian'],
             $entities['project'],
-            $entities['organisation']
-        ));
+            $entities['organisation'],
+            $projectHasUser->affiliation
+        );
+
+        Notification::send($entities['user'], $userNotification);
 
         foreach ($entities['organisationUsers'] as $user) {
-            Notification::send($user, new ProjectHasUserCreatedEntityOrganisation(
+            $organisationNotification = new ProjectHasUserCreatedEntityOrganisation(
                 $entities['custodian'],
                 $entities['project'],
                 $projectHasUser->affiliation
-            ));
+            );
+
+            Notification::send($user, $organisationNotification);
         }
 
         foreach ($entities['custodianUsers'] as $user) {
-            Notification::send($user, new ProjectHasUserCreatedEntityCustodian(
+            $custodianNotification = new ProjectHasUserCreatedEntityCustodian(
                 $entities['custodian'],
                 $entities['project'],
                 $entities['organisation'],
-                $projectHasUser->affiliation
-            ));
+                $projectHasUser->affiliation,
+            );
+
+            Notification::send($user, $custodianNotification);
         }
     }
 
@@ -300,9 +308,9 @@ class ProjectHasUserObserver
             'organisation_id' => $organisationId,
         ])->get();
 
-        $custodianUsers = User::with(['custodian' =>
+        $custodianUsers = User::whereNotNull('custodian_user_id')->with(['custodian_user' =>
             function ($query) use ($custodianId) {
-                $query->where('id', $custodianId);
+                $query->where('custodian_id', $custodianId);
             }
         ])->get();
 
