@@ -3,6 +3,7 @@
 namespace App\Notifications\ProjectHasUser;
 
 use App\Models\Affiliation;
+use App\Models\User;
 use App\Models\Project;
 use App\Models\Custodian;
 use Illuminate\Bus\Queueable;
@@ -14,12 +15,12 @@ class ProjectHasUserCreatedEntityOrganisation extends Notification
     use Queueable;
     use ProjectHasUserNotification;
 
-    public function __construct(Custodian $custodian, Project $project, Affiliation $affiliation)
+    public function __construct(Custodian $custodian, Project $project, Affiliation $affiliation, User $user)
     {
         $message = $custodian->name . " added your Organisation and User " . $affiliation->email . " to " . $project->title;
 
         $this->buildNotification($message, []);
 
-        $this->sendEmail($affiliation, $message);
+        $this->sendEmail($affiliation, $user, $message);
     }
 }

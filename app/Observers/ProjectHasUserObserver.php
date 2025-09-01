@@ -261,7 +261,8 @@ class ProjectHasUserObserver
             $entities['custodian'],
             $entities['project'],
             $entities['organisation'],
-            $projectHasUser->affiliation
+            $projectHasUser->affiliation,
+            $entities['user']
         );
 
         Notification::send($entities['user'], $userNotification);
@@ -270,7 +271,8 @@ class ProjectHasUserObserver
             $organisationNotification = new ProjectHasUserCreatedEntityOrganisation(
                 $entities['custodian'],
                 $entities['project'],
-                $projectHasUser->affiliation
+                $projectHasUser->affiliation,
+                $entities['user']
             );
 
             Notification::send($user, $organisationNotification);
@@ -282,6 +284,7 @@ class ProjectHasUserObserver
                 $entities['project'],
                 $entities['organisation'],
                 $projectHasUser->affiliation,
+                $entities['user']
             );
 
             Notification::send($user, $custodianNotification);

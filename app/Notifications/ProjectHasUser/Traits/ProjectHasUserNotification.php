@@ -4,6 +4,7 @@ namespace App\Notifications\ProjectHasUser\Traits;
 
 use App\Jobs\SendEmailJob;
 use App\Models\Affiliation;
+use App\Models\User;
 use Hdruk\LaravelMjml\Models\EmailTemplate;
 
 trait ProjectHasUserNotification
@@ -14,7 +15,7 @@ trait ProjectHasUserNotification
     {
         $this->payload = [
             'message' => $message,
-            'details' => $details ?? null,
+            'details' => $details ?? [],
             'time' => now(),
         ];
     }
@@ -29,12 +30,12 @@ trait ProjectHasUserNotification
         return $this->payload;
     }
 
-    public function sendEmail(Affiliation $affiliation, string $message)
+    public function sendEmail(Affiliation $affiliation, User $user, string $message)
     {
         $template = EmailTemplate::where('identifier', 'notification')->first();
 
         $newRecipients = [
-            'id' => $affiliation->id,
+            'id' => $user->id,
             'email' => $affiliation->email,
         ];
 
