@@ -43,6 +43,7 @@ class ProjectHasUserObserver
 
         if ($affiliation) {
             $organisationId = $affiliation->organisation->id;
+
             ProjectHasOrganisation::firstOrCreate([
                 'project_id' => $project->id,
                 'organisation_id' => $organisationId
@@ -60,7 +61,11 @@ class ProjectHasUserObserver
                 ]
             );
 
-            $this->notifyUserChanged($projectHasUser, $organisationId, $custodianId);
+            if ($affiliation) {
+                $organisationId = $affiliation->organisation->id;
+
+                $this->notifyUserChanged($projectHasUser, $organisationId, $custodianId);
+            }
         }
 
         UpdateProjectUserValidation::dispatch(
