@@ -14,7 +14,7 @@ trait ProjectHasUserNotification
     {
         $this->payload = [
             'message' => $message,
-            'details' => $details ?? [],
+            'details' => $details ?? null,
             'time' => now(),
         ];
     }
