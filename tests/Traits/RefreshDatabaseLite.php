@@ -15,6 +15,7 @@ trait RefreshDatabaseLite
         parent::setUp();
 
         if (!static::$migrated) {
+            dd('migrating database');
             Artisan::call('migrate');
             Artisan::call('db:seed', ['--class' => 'BaseDemoSeeder']);
             static::$migrated = true;
