@@ -28,7 +28,7 @@
     <env name="QUEUE_DRIVER" value="sync"/>
     <env name="CONFIG_CACHE" value="true"/>
     <env name="LOG_CHANNEL" value="null"/>
-    <env name="ORCID_ENABLED" value="false"/>
+    <env name="NOTIFICATIONS_ENABLED" value="false"/>
   </php>
   <source>
     <include>
