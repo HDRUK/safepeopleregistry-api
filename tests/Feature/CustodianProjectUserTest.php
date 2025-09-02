@@ -11,7 +11,7 @@ use App\Models\Project;
 use App\Models\State;
 use Tests\Traits\Authorisation;
 
-class CustodianHasProjectUserTest extends TestCase
+class CustodianProjectUserTest extends TestCase
 {
     use Authorisation;
     use ActingAsKeycloakUser;
