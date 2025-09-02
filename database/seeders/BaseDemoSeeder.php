@@ -134,8 +134,6 @@ class BaseDemoSeeder extends Seeder
             'subsidiary_id' => $subsidiary->id,
         ]);
 
-                                   echo 'org 1 created';
-
         $org1Depts = [
             2,
             3,
@@ -200,8 +198,6 @@ National Public Health Ethics Committee for authorization to analyze population 
             'project_id' => $org1Proj2->id,
             'custodian_id' => Custodian::first()->id,
         ]);
-
-                                           echo 'org 1 projects created';
 
         // --------------------------------------------------------------------------------
         // End
@@ -285,7 +281,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         // --------------------------------------------------------------------------------
         // End
         // --------------------------------------------------------------------------------
-
+                                   echo 'org 2 created\n';
         // --------------------------------------------------------------------------------
         // An organisation that demonstrates nefarious links to tabacco industry
         // --------------------------------------------------------------------------------
@@ -381,7 +377,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         // --------------------------------------------------------------------------------
         // End
         // --------------------------------------------------------------------------------
-
+                                   echo 'org 3 created\n';
         // --------------------------------------------------------------------------------
         // Org level admin users
         // --------------------------------------------------------------------------------
@@ -480,7 +476,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         $this->createUsers($org1Users);
         $this->createUsers($org2Users);
         $this->createUsers($org3Users);
-
+                                   echo 'users created\n';
         // Here, need to add these to Keycloak - somehow...
 
         // --------------------------------------------------------------------------------
@@ -842,28 +838,28 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         $this->createUsers($org1Researchers);
         $this->createUsers($org2Researchers);
         $this->createUsers($org3Researchers);
-
+                                   echo 'users created\n';
         // --------------------------------------------------------------------------------
         // Create Registry ledger for above users
         // --------------------------------------------------------------------------------
         $this->createUserRegistry($org1Researchers);
         $this->createUserRegistry($org2Researchers);
         $this->createUserRegistry($org3Researchers, false);
-
+                                   echo 'registry created\n';
         // --------------------------------------------------------------------------------
         // Create Identities for the above users
         // --------------------------------------------------------------------------------
         $this->createIdentities($org1Researchers);
         $this->createIdentities($org2Researchers);
         $this->createIdentities($org3Researchers);
-
+                                   echo 'identities created\n';
         // --------------------------------------------------------------------------------
         // Create Affiliations for the above users
         // --------------------------------------------------------------------------------
         $this->createAffiliations($org1Researchers);
         $this->createAffiliations($org2Researchers);
         $this->createAffiliations($org3Researchers);
-
+                                   echo 'affiliations created\n';
         // --------------------------------------------------------------------------------
         // Link Researchers to projects
         // --------------------------------------------------------------------------------
@@ -871,12 +867,12 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         $this->linkUsersToProjects($org2Researchers);
         $this->linkUsersToProjects($org3Researchers);
 
-                   dd('linked users to projects');
+                                   echo 'link to projects created\n';
         // --------------------------------------------------------------------------------
         // Create unclaimed users from custodian_admins that have been created
         // --------------------------------------------------------------------------------
         $this->createUnclaimedUsers();
-
+                                   echo 'uncalimed created\n';
         // --------------------------------------------------------------------------------
         // End
         // --------------------------------------------------------------------------------
