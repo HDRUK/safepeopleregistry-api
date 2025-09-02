@@ -17,7 +17,7 @@ trait RefreshDatabaseLite
         if (!static::$migrated) {
 
             Artisan::call('migrate');
-                        dd('migrated');
+
             Artisan::call('db:seed', ['--class' => 'BaseDemoSeeder']);
                                     dd('seeded');
             static::$migrated = true;
