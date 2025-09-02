@@ -134,6 +134,8 @@ class BaseDemoSeeder extends Seeder
             'subsidiary_id' => $subsidiary->id,
         ]);
 
+                                   echo 'org 1 created';
+
         $org1Depts = [
             2,
             3,
@@ -198,6 +200,8 @@ National Public Health Ethics Committee for authorization to analyze population 
             'project_id' => $org1Proj2->id,
             'custodian_id' => Custodian::first()->id,
         ]);
+
+                                           echo 'org 1 projects created';
 
         // --------------------------------------------------------------------------------
         // End
