@@ -73,6 +73,7 @@ class State extends Model
         'slug',
     ];
 
+    public const STATE_INVITED = 'invited';
     public const STATE_REGISTERED = 'registered';
     public const STATE_PENDING = 'pending';
     public const STATE_FORM_RECEIVED = 'form_received';
@@ -109,6 +110,7 @@ class State extends Model
     public const STATE_ORG_LEFT_PROJECT = 'org_left_project'; // org left project
 
     public const STATES = [
+        self::STATE_INVITED,
         self::STATE_REGISTERED,
         self::STATE_PENDING,
         self::STATE_FORM_RECEIVED,
@@ -125,7 +127,6 @@ class State extends Model
         self::STATE_AFFILIATION_PENDING,
         self::STATE_AFFILIATION_APPROVED,
         self::STATE_AFFILIATION_REJECTED,
-
         self::STATE_PROJECT_IN_PROGRESS,
         self::STATE_PROJECT_DECLINED_APPROVAL,
         self::STATE_AFFILIATION_LEFT,

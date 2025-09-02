@@ -47,6 +47,7 @@ return [
         'ons_acredited_researcher_list_page_url' => env('ONS_ACCREDITED_RESEARCHER_LIST_PAGE_URL'),
         'ons_column_start_index' => env('ONS_COLUMN_START_INDEX', 1),
         'ons_row_start_index' => env('ONS_ROW_START_INDEX', 6),
+        'notifications_enabled' => env('NOTIFICATIONS_ENABLED', true),
         'orcid_url' => env('ORCID_URL'),
         'orcid_app_id' => env('ORCID_APP_ID'),
         'orcid_redirect_url' => env('ORCID_REDIRECT_URL'),
