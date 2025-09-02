@@ -19,15 +19,19 @@ class AccreditationTest extends TestCase
 
     public function setUp(): void
     {
+        dd("Setting up");
+
         parent::setUp();
         $this->withUsers();
+
+        dd("Fetching registry");
 
         $this->registry = Registry::where('id', $this->user->registry_id)->first();
     }
 
     public function test_the_application_can_list_accreditations_by_registry_id(): void
     {
-        echo "\n" . 'Running ' . __METHOD__ . "\n";
+        dd("RUNNING FIRST TEST");
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
@@ -35,7 +39,7 @@ class AccreditationTest extends TestCase
                 self::TEST_URL . '/' . $this->registry->id,
                 $this->prepareAccreditationPayload()
             );
-        echo $response->getContent() . "\n";
+        // echo $response->getContent() . "\n";
         $response->assertStatus(201);
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
