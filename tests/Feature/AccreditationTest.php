@@ -27,13 +27,15 @@ class AccreditationTest extends TestCase
 
     public function test_the_application_can_list_accreditations_by_registry_id(): void
     {
+        echo "\n" . 'Running ' . __METHOD__ . "\n";
+
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'POST',
                 self::TEST_URL . '/' . $this->registry->id,
                 $this->prepareAccreditationPayload()
             );
-
+        echo $response->getContent() . "\n";
         $response->assertStatus(201);
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
