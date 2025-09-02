@@ -20,9 +20,9 @@ class AccreditationTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->withUsers();
 
-        dd("Fetching registry");
+        dd("Parent setup complete");
+        $this->withUsers();
 
         $this->registry = Registry::where('id', $this->user->registry_id)->first();
     }
