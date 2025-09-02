@@ -66,6 +66,8 @@ class TriggerEmail
                 $replacements = [
                     '[[users.first_name]]' => $user->first_name,
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
                 ];
                 break;
             case 'USER_WITHOUT_ORGANISATION':
@@ -81,6 +83,9 @@ class TriggerEmail
                     '[[users.first_name]]' => $user->first_name,
                     '[[users.last_name]]' => $user->last_name,
                     '[[users.created_at]]' => $user->created_at,
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+
                 ];
 
                 PendingInvite::create([
@@ -108,6 +113,7 @@ class TriggerEmail
                     '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
                     '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),
                     '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
                 ];
 
                 PendingInvite::create([
@@ -141,6 +147,8 @@ class TriggerEmail
                     '[[env(INVITE_TIME_HOURS)]]' => config('speedi.system.invite_time_hours'),
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
                     '[[organisations.id]]' => $organisation->id,
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
                 ];
 
                 PendingInvite::create([
@@ -165,6 +173,7 @@ class TriggerEmail
                     '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),
                     '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
                 ];
 
                 PendingInvite::create([
@@ -200,6 +209,8 @@ class TriggerEmail
                     '[[custodian.id]]' => $custodian->id,
                     '[[role_description]]' => $role_description,
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
                 ];
 
                 PendingInvite::create([
@@ -224,6 +235,7 @@ class TriggerEmail
                     '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
                     '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),
                     '[[digi_ident]]' => User::where('id', $unclaimedUserId)->first()->registry->digi_ident,
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
                 ];
 
                 PendingInvite::create([
@@ -245,6 +257,8 @@ class TriggerEmail
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
                     '[[USER_FIRST_NAME]]' => $user->first_name,
                     '[[USER_LAST_NAME]]' => $user->last_name,
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
                 ];
                 // no break
             default: // Unknown type.

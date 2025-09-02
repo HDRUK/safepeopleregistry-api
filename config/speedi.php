@@ -61,5 +61,6 @@ return [
         'gateway_api_url' => env('GATEWAY_API_URL'),
         'scanning_filesystem_disk' => env('SCANNING_FILESYSTEM_DISK', 'local_scan'),
         'ror_api_url' => env('ROR_API_URL'),
+        'registry_image_url' => env('REGISTRY_IMAGE_URL', 'https://storage.googleapis.com/hdruk-registry-assets/logo-horiz-colour.png'),
     ],
 ];
