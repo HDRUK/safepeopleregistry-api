@@ -59,7 +59,7 @@ class BaseDemoSeeder extends Seeder
         ]);
 
 
-                           dd('called seeders');
+        
 
         // --------------------------------------------------------------------------------
         // A demo Organisation which demonstrates safety at every step
@@ -867,7 +867,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         $this->linkUsersToProjects($org2Researchers);
         $this->linkUsersToProjects($org3Researchers);
 
-
+                   dd('linked users to projects');
         // --------------------------------------------------------------------------------
         // Create unclaimed users from custodian_admins that have been created
         // --------------------------------------------------------------------------------
