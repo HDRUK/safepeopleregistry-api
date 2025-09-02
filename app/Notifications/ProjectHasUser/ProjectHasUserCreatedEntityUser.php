@@ -20,10 +20,8 @@ class ProjectHasUserCreatedEntityUser extends Notification
     {
         $message = $custodian->name . " added you and Organisation " . $organisation->organisation_name . " to " . $project->title;
 
-        if(config('speedi.system.notifications_enabled')) {
-            $this->buildNotification($message, $affiliation);
+        $this->buildNotification($message, $affiliation);
 
-            $this->sendEmail($affiliation, $user, $message);
-        }
+        $this->sendEmail($affiliation, $user, $message);
     }
 }
