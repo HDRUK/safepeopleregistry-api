@@ -27,10 +27,9 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
+        dd('Setup complete');
+
         $this->liteSetUp();
-
-
-        dd('Setup and disable complete');
 
         $this->disableMiddleware();
         $this->disableObservers();
