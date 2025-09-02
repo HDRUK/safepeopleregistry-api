@@ -61,11 +61,11 @@ class ProjectHasUserObserver
                 ]
             );
 
-            if ($affiliation) {
-                $organisationId = $affiliation->organisation->id;
+            // if ($affiliation) {
+            //     $organisationId = $affiliation->organisation->id;
 
-                $this->notifyUserChanged($projectHasUser, $organisationId, $custodianId);
-            }
+            //     $this->notifyUserChanged($projectHasUser, $organisationId, $custodianId);
+            // }
         }
 
         UpdateProjectUserValidation::dispatch(
