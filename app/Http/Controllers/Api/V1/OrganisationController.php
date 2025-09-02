@@ -1361,7 +1361,7 @@ class OrganisationController extends Controller
                 ->with([
                     'registry.affiliations' => function ($q) use ($affiliationIds, $id) {
                         $q->whereIn('id', $affiliationIds)
-                          ->where('organisation_id', $id);
+                          ->where('organisation_id', $id)->limit(1);
                     },
                     'registry.affiliations.modelState.state',
                     'modelState.state'
