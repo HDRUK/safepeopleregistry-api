@@ -19,8 +19,6 @@ class AccreditationTest extends TestCase
 
     public function setUp(): void
     {
-        dd("Setting up");
-
         parent::setUp();
         $this->withUsers();
 
