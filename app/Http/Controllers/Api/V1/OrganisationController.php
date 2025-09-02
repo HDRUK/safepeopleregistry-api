@@ -1365,6 +1365,7 @@ class OrganisationController extends Controller
                     'registry.affiliations.modelState.state',
                     'modelState.state'
                 ])
+                ->has('registry.affiliations')
                 ->whereHas('registry.affiliations', function ($query) use ($affiliationIds) {
                     $query->whereIn('id', $affiliationIds);
                 })
