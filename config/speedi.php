@@ -26,7 +26,7 @@ return [
         'app_url' => env('APP_URL', 'http://soursd-api:8100'),
         'portal_url' => env('PORTAL_URL', 'http://localhost:3000'),
         'portal_path_invite' => env('PORTAL_PATH_INVITE', 'invite'),
-        'support_email' => env('SUPPORT_EMAIL', 'enquire@safepeopleregistry.org'),
+        'support_email' => env('SUPPORT_EMAIL', 'enquiries@safepeopleregistry.org'),
         'invite_time_hours' => env('INVITE_TIME_HOURS', 24),
         'registry_salt_1' => env('REGISTRY_SALT_1'),
         'registry_salt_2' => env('REGISTRY_SALT_2'),
