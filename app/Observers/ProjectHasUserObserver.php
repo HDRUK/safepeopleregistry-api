@@ -61,7 +61,7 @@ class ProjectHasUserObserver
                 ]
             );
 
-            if ($affiliation) {
+            if ($affiliation && config('speedi.system.notifications_enabled')) {
                 $organisationId = $affiliation->organisation->id;
 
                 $this->notifyUserChanged($projectHasUser, $organisationId, $custodianId);
