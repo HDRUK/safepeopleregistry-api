@@ -44,7 +44,7 @@ class OrcIDScanner implements ShouldQueue
     public function handle(): void
     {
         try {
-            if ($this->user->consent_scrape && $this->user->orc_id !== null && $this->user->user_group === User::GROUP_USERS) {
+            if (env('ORCID_ENABLED', true) && $this->user->consent_scrape && $this->user->orc_id !== null && $this->user->user_group === User::GROUP_USERS) {
                 $this->user->orcid_scanning = 1;
                 $this->user->save();
 
