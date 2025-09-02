@@ -439,7 +439,7 @@ class Organisation extends Model
 
         static::created(function ($model) {
             if ($model->unclaimed === 0) {
-                $model->setState(State::STATE_PENDING);
+                $model->setState(State::STATE_INVITED);
                 $model->save();
             }
         });

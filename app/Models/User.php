@@ -264,7 +264,7 @@ class User extends Authenticatable
 
         static::created(function ($model) {
             if ($model->user_group === self::GROUP_USERS && $model->unclaimed === 0) {
-                $model->setState(State::STATE_PENDING);
+                $model->setState(State::STATE_INVITED);
                 $model->save();
             }
         });
@@ -272,7 +272,7 @@ class User extends Authenticatable
 
     public function getStatusAttribute(): string
     {
-        return $this->unclaimed === 1 ? State::STATE_PENDING : State::STATE_REGISTERED;
+        return $this->unclaimed === 1 ? State::STATE_INVITED : State::STATE_REGISTERED;
     }
 
     /**
