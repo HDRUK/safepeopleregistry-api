@@ -15,9 +15,11 @@ trait RefreshDatabaseLite
         parent::setUp();
 
         if (!static::$migrated) {
-            Artisan::call('migrate');
-            Artisan::call('db:seed', ['--class' => 'BaseDemoSeeder']);
 
+            Artisan::call('migrate');
+
+            Artisan::call('db:seed', ['--class' => 'BaseDemoSeeder']);
+                                    dd('seeded');
             static::$migrated = true;
 
             // Store the connection (for SQLite in-memory)

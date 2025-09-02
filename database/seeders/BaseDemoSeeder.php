@@ -58,6 +58,9 @@ class BaseDemoSeeder extends Seeder
             CustodianHasValidationCheckSeeder::class
         ]);
 
+
+                           dd('called seeders');
+
         // --------------------------------------------------------------------------------
         // A demo Organisation which demonstrates safety at every step
         // --------------------------------------------------------------------------------
