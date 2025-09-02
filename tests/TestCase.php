@@ -28,10 +28,12 @@ abstract class TestCase extends BaseTestCase
         parent::setUp();
 
         $this->liteSetUp();
-        $this->disableMiddleware();
-        $this->disableObservers();
+
 
         dd('Setup and disable complete');
+
+        $this->disableMiddleware();
+        $this->disableObservers();
 
         Keycloak::shouldReceive('checkUserExists')
             ->andReturn(true);
