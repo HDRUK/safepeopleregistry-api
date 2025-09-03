@@ -12,6 +12,8 @@ if [ $APP_ENV = 'local' ] || [ $APP_ENV = 'dev' ]; then
     echo 'running in dev mode - with watch'
     # base_command="$base_command --watch"
 
+    php artisan horizon:clear
+
     if [ $REBUILD_DB = 1 ]; then
         # Completely clear down the data in local/dev envs
         php artisan migrate:fresh
