@@ -6,7 +6,6 @@ use DB;
 use App\Models\CustodianHasValidationCheck;
 use App\Models\ValidationCheck;
 use Illuminate\Console\Command;
-use Spatie\Activitylog\Contracts\Activity;
 
 class RemoveValidationCheck extends Command
 {
