@@ -61,14 +61,6 @@ class ProjectHasUser extends Model
                 'description' => 'Mandatory training has been completed',
             ],
             [
-                'name' => 'no_misconduct',
-                'description' => 'The user has no record of misconduct',
-            ],
-            [
-                'name' => 'no_relevant_criminal_record',
-                'description' => 'The user has no relevant criminal record',
-            ],
-            [
                 'name' => 'organisation_has_confirmed_the_user',
                 'description' => 'The organisation has confirmed the user',
             ],
