@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use DB;
-use App\Models\ActivityLog;
 use App\Models\CustodianHasValidationCheck;
 use App\Models\ValidationCheck;
 use Illuminate\Console\Command;
