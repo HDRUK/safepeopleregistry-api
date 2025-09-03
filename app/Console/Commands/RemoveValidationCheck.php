@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use DB;
 use App\Models\ActivityLog;
 use App\Models\CustodianHasValidationCheck;
 use App\Models\ValidationCheck;
@@ -40,7 +41,12 @@ class RemoveValidationCheck extends Command
                 $this->info("validation check: $check not found in table `validation_checks`");
             }
 
-            ActivityLog::where('log_name', 'validation_check')->where('properties->check_name', $check)->delete();
+            // i dont know if we need to delete activity logs
+            // DB::statement("
+            //     DELETE FROM activity_log
+            //     WHERE log_name = 'validation_check'
+            //     AND JSON_UNQUOTE(JSON_EXTRACT(properties, '$.check_name')) = ?
+            // ", [$check]);
             CustodianHasValidationCheck::where('validation_check_id', $id)->delete();
             ValidationCheck::where('id', $id)->delete();
 
