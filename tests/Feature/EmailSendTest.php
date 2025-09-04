@@ -50,7 +50,7 @@ class EmailSendTest extends TestCase
                 'to' => 1,
                 'type' => 'USER',
                 'by' => 1,
-                'identifier' => 'researcher_invite',
+                'identifier' => 'user_invite',
             ]);
 
         $response->assertStatus(200);
