@@ -458,6 +458,8 @@ class EmailTemplatesSeeder extends Seeder
                                   <div><br></div>
                                   ' . $this->whatIsBlurb . '
                                   <div><br></div>
+                                  To begin your sign-up process, please click the button below.
+                                  <div><br></div>
                                   ' . $this->supportFooter . '
                                 </mj-text>
                               </mj-column>
@@ -466,7 +468,7 @@ class EmailTemplatesSeeder extends Seeder
                             <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
                               <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
                                 <mj-text align="left" padding="10px 15px 0px 15px">
-                                  To begin your sign-up process, please click the button below.
+                                  Create your account by clicking the button below.
                                 </mj-text>
                                 <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 15px 15px 15px">
                                   Sign me up!
