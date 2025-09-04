@@ -778,6 +778,62 @@ class EmailTemplatesSeeder extends Seeder
                       </mjml >',
             'buttons' => '',
           ],
+          [
+            'identifier' => 'delegate_affiliation_request',
+            'subject' => 'Safe People Registry | Affiliation request',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#f6dff1" width="600px" >
+
+                          ' . $this->titleBar('Affiliation request') . '
+
+                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                                <mj-text align="left" padding="20px 0px 20px 0px">
+
+                                  [[delegate_first_name]] [[delegate_last_name]]
+                                  <div><br></div>
+                                  As a Delegate for [[organisation.organisation_name]] on the [[env(APP_NAME)]], you are requested to confirm the affiliation of a recent User registration.
+                                  <div><br></div>
+                                  Name: [[users.first_name]] [[users.last_name]]<br>
+                                  Email: [[users.email]]<br>
+                                  
+                                </mj-text>
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[users.profile]]" padding="0px 15px 15px 0px">Go to user profile</mj-button>
+
+                                <mj-text align="left" padding="10px 0px 20px 0px">
+                                  When affiliating a User you are confirming that:
+                                  <ul>
+                                    <li>The [[env(APP_NAME)]] User profile matches that of your employee / student.</li>
+                                    <li>The employee / student is an active researcher / data analyst needing to work on sensitive data.</li>
+                                    <li>The Organisational email address of the User corresponds to the correct email address in your Organisation.</li>
+                                  </ul>
+                                  <br>
+                                  We ask that you please confirm this to be true by clicking the button below.
+                                  <div><br></div>
+                                  ' . $this->supportFooter . '
+
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+                                    
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
+                              <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
+                                <mj-text align="left" padding="10px 15px 0px 15px">
+                                I confirm that the affiliation of the named User (researcher/innovator) above at [[organisation.organisation_name]].
+                                </mj-text>
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 15px 15px 15px">
+                                  Affiliate User
+                                </mj-button>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+
+                        </mj-body>
+                      </mjml >',
+            'buttons' => '',
+          ],
         ];
 
         foreach ($templates as $template) {
