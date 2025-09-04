@@ -585,7 +585,7 @@ class OrganisationTest extends TestCase
                     'first_name' => $firstName,
                     'last_name' => $lastName,
                     'email' => $email,
-                    'identifier' => 'researcher_invite'
+                    'identifier' => 'user_invite'
                 ],
             );
 
