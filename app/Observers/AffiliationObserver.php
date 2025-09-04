@@ -83,24 +83,32 @@ class AffiliationObserver
 
     private function sendDelegateEmails(Affiliation $affiliation): void
     {
-        $delegateIds = User::where([
-            'organisation_id' => $affiliation->organisation_id,
-            'is_delegate' => 1
-        ])->pluck('id');
+        $userDelegates = User::where([
+                'organisation_id' => $affiliation->organisation_id,
+                'user_group' => 'ORGANISATIONS',
+            ])
+                ->where(function ($query) {
+                    $query->where('is_delegate', 1)
+                        ->orWhere('is_sro', 1);
+                })
+                ->get();
 
         $userId = $affiliation->registry?->user?->id;
         if (!$userId) {
             return;
         }
 
-        foreach ($delegateIds as $delegateId) {
-            TriggerEmail::spawnEmail([
-                'type' => 'USER_DELEGATE',
-                'to' => $delegateId,
+        foreach ($userDelegates as $userDelegate) {
+            $email = [
+                'type' => 'DELEGATE_AFFILIATION_REQUEST',
+                'to' => $userDelegate->id,
                 'by' => $affiliation->organisation_id,
                 'for' => $userId,
-                'identifier' => 'delegate_sponsor'
-            ]);
+                'identifier' => 'delegate_affiliation_request',
+                'affiliationId' => $affiliation->id,
+            ];
+
+            TriggerEmail::spawnEmail($email);
         }
     }
 
