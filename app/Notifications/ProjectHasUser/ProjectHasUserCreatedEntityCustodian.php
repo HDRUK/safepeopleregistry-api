@@ -22,6 +22,12 @@ class ProjectHasUserCreatedEntityCustodian extends Notification
 
         $this->buildNotification($message, []);
 
-        $this->sendEmail($affiliation, $user, $message);
+        $this->sendEmail($affiliation, $user, [
+            '[[custodian.name]]' => $custodian->name,
+            '[[user.email]]' => $affiliation->email,
+            '[[organisation.name]]' => $organisation->organisation_name,
+            '[[project.title]]' => $project->title,
+            '[[project.id]]' => $project->id,
+        ]);
     }
 }

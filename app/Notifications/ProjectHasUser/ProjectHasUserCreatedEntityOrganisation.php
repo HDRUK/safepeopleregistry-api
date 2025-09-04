@@ -6,6 +6,7 @@ use App\Models\Affiliation;
 use App\Models\User;
 use App\Models\Project;
 use App\Models\Custodian;
+use App\Models\Organisation;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use App\Notifications\ProjectHasUser\Traits\ProjectHasUserNotification;
@@ -21,6 +22,15 @@ class ProjectHasUserCreatedEntityOrganisation extends Notification
 
         $this->buildNotification($message, []);
 
-        $this->sendEmail($affiliation, $user, $message);
+        $organisationId = $affiliation->organisation_id;
+        $organisation = Organisation::where('id', $organisationId)->first();
+
+        $this->sendEmail($affiliation, $user, [
+            '[[custodian.name]]' => $custodian->name,
+            '[[user.email]]' => $affiliation->email,
+            '[[organisation.name]]' => $organisation->organisation_name,
+            '[[project.title]]' => $project->title,
+            '[[project.id]]' => $project->id,
+        ]);
     }
 }
