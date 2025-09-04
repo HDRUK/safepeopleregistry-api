@@ -586,20 +586,22 @@ class EmailTemplatesSeeder extends Seeder
                                   <mj-text>
                                       Hello! One of your employees or students is requesting that you create an Organisation account within [[env(APP_NAME)]].
                                   </mj-text>
+                                  <div><br></div>
                                   <mj-text>
                                       [[USER_FIRST_NAME]] [[USER_LAST_NAME]] is attempting to affiliate themselves within their [[env(APP_NAME)]] profile, but your Organisation
                                       isn\'t known to us.
                                   </mj-text>
+                                  <div><br></div>
                                   <mj-text>
                                       <strong>Why are you receiving this?</strong> We ask the user to provide an email for the invitation to be sent. If this email finds you and you\'re
                                       not the right person to complete this registration, then please forward it to the person who is. This email is generic, and not tied to you in any way.
                                   </mj-text>
-                                  <mj-button href="[[env(APP_URL)]]">
+                                  <div><br></div>
+                                  <mj-button href="[[env(PORTAL_URL)]]">
                                       More information
                                   </mj-button>
                                   <div><br></div>
                                   ' . $this->supportFooter . '
-                                  <div><br></div>
                                   <div><br></div>
                                   </div>
                                 </mj-text>
@@ -798,7 +800,7 @@ class EmailTemplatesSeeder extends Seeder
                                   <div><br></div>
                                   Name: [[users.first_name]] [[users.last_name]]<br>
                                   Email: [[users.email]]<br>
-                                  
+
                                 </mj-text>
                                 <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[users.profile]]" padding="0px 15px 15px 0px">Go to user profile</mj-button>
 
