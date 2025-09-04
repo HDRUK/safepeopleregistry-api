@@ -271,6 +271,7 @@ class TriggerEmail
                     '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
                     '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
                     '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
                 ];
 
                 PendingInvite::create([
