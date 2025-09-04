@@ -1117,7 +1117,7 @@ class OrganisationController extends Controller
                     'type' => 'USER',
                     'to' => $unclaimedUser->id,
                     'by' => $id,
-                    'identifier' => 'researcher_invite'
+                    'identifier' => 'user_invite'
                 ];
 
                 Affiliation::create([
