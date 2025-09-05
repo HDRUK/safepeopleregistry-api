@@ -49,6 +49,7 @@ class TriggerEmail
         $by = isset($input['by']) ? $input['by'] : null;
         $for = isset($input['for']) ? $input['for'] : null;
         $affiliationId = isset($input['affiliationId']) ? $input['affiliationId'] : null;
+        $custodianId = isset($input['custodianId']) ? $input['custodianId'] : null;
         $identifier = $input['identifier'];
         switch (strtoupper($type)) {
             case 'AFFILIATION':
@@ -100,6 +101,7 @@ class TriggerEmail
                 $user = User::where('id', $to)->first();
                 $organisation = Organisation::where('id', $by)->first();
                 $template = EmailTemplate::where('identifier', $identifier)->first();
+                $custodian = User::where('id', $custodianId)->first();
 
                 $newRecipients = [
                     'id' => $user->id,
@@ -111,6 +113,7 @@ class TriggerEmail
                     '[[users.first_name]]' => $user->first_name,
                     '[[users.last_name]]' => $user->last_name,
                     '[[users.created_at]]' => $user->created_at,
+                    '[[custodian.name]]' => $custodian->name,
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
                     '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
                     '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),

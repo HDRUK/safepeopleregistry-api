@@ -1087,6 +1087,7 @@ class OrganisationController extends Controller
             if (User::where("email", $input['email'])->exists()) {
                 return $this->ConflictResponse();
             }
+            $custodianId = $request->user()->id;
 
             $unclaimedUser = RMC::createUnclaimedUser([
                 'firstname' => $input['first_name'],
@@ -1117,7 +1118,8 @@ class OrganisationController extends Controller
                     'type' => 'USER',
                     'to' => $unclaimedUser->id,
                     'by' => $id,
-                    'identifier' => 'user_invite'
+                    'identifier' => 'user_invite',
+                    'custodianId' => $custodianId,
                 ];
 
                 Affiliation::create([
