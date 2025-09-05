@@ -132,6 +132,41 @@ class AuthController extends Controller
         ], 201);
     }
 
+    public function me_unclaimed(Request $request): JsonResponse
+    {
+        $token = Auth::token();
+
+        if (!$token) {
+            return response()->json([
+                'message' => 'unauthorised',
+                'data' => null,
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $arr = json_decode($token, true);
+
+        if (!isset($arr['email'])) {
+            return response()->json([
+                'message' => 'not found',
+                'data' => null,
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        $user = User::where(['email' => $arr['email'], 'unclaimed' => 1])->first();
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'not found',
+                'data' => null,
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        return response()->json([
+            'message' => 'success',
+            'data' => $user,
+        ], Response::HTTP_OK);
+    }
+
     public function me(Request $request): JsonResponse
     {
         $token = Auth::token();
