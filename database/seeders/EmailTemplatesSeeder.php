@@ -629,25 +629,37 @@ class EmailTemplatesSeeder extends Seeder
           ],
           [
             'identifier' => 'notification',
-            'subject' => 'Notification',
+            'subject' => 'Safe People Registry | New project',
             'body' => '<mjml>
-                      ' . $this->mjmlHead . '
-                      <mj-body background-color="#efeeea" width="600px">
-                        ' . $this->titleBar('Notification') . '
-                        <mj-wrapper border="none" direction="ltr" text-align="center" padding="20px 0px 20px 0px">
-                          <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px">
-                            <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
-                              <mj-text align="left" padding="10px 25px 10px 25px">
-                                [[message]]
-                                <div><br/></div>
-                                ' . $this->supportFooter . '
-                                </div>
-                              </mj-text>
-                            </mj-column>
-                          </mj-section>
-                        </mj-wrapper>
-                      </mj-body>
-                    </mjml>',
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#f6dff1" width="600px" >
+
+                          ' . $this->titleBar('New project') . '
+
+                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                                <mj-text align="left" padding="20px 0px 20px 0px">
+
+                                  You\'ve been added to [[project_name]] in the [[env(APP_NAME)]] by [[custodian.name]]. You can follow the link below to see your project list and follow your validation status.
+                                  <div><br></div>
+                                  ' . $this->supportFooter . '
+
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+                                    
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
+                              <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[link.project]]" padding="10px 15px 15px 15px">
+                                  Go to projects
+                                </mj-button>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+
+                        </mj-body>
+                      </mjml >',
             'buttons' => '',
           ],
           [
