@@ -61,6 +61,7 @@ Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1
 
 // --- AUTH ---
 Route::middleware('api')->get('auth/me', [AuthController::class, 'me']);
+Route::middleware('api')->get('auth/me_unclaimed', [AuthController::class, 'meUnclaimed']);
 Route::middleware('api')->post('auth/register', [AuthController::class, 'registerKeycloakUser']);
 Route::middleware('api')->post('auth/claimUser', [AuthController::class, 'claimUser']);
 
