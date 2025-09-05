@@ -696,7 +696,7 @@ class CustodianController extends Controller
         if ($user) {
             $projects = Project::searchViaRequest()
                 ->applySorting()
-                ->with(['organisations', 'modelState.state'])
+                ->with(['organisations', 'modelState.state', 'custodianHasProjectUser.modelState.state'])
                 ->filterByCommon()
                 ->whereHas('custodians', function ($query) use ($custodianId) {
                     $query->where('custodians.id', $custodianId);
