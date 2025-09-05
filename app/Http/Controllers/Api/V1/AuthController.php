@@ -132,7 +132,7 @@ class AuthController extends Controller
         ], 201);
     }
 
-    public function me_unclaimed(Request $request): JsonResponse
+    public function meUnclaimed(Request $request): JsonResponse
     {
         $token = Auth::token();
 
