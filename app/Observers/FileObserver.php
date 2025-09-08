@@ -5,7 +5,7 @@ namespace App\Observers;
 use App\Models\File;
 use App\Jobs\SendEmailJob;
 use App\Models\Organisation;
-use App\Models\EmailTemplate;
+use Hdruk\LaravelMjml\Models\EmailTemplate;
 use App\Jobs\ProcessCSVSubmission;
 use App\Models\OrganisationHasFile;
 
