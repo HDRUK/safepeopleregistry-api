@@ -91,7 +91,7 @@ class File extends Model
     public const FILE_TYPE_RESEARCHER_LIST = 'researcher_list';
     public const FILE_TYPE_CV = 'cv';
     public const FILE_TYPE_TRAINING_EVIDENCE = 'training_evidence';
-    public const FILE_TYPE_SRO_APPLICATION = 'sro_application';
+    public const FILE_TYPE_DECLARATION = 'declaration';
 
     protected $fillable = [
         'name',

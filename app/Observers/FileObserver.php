@@ -23,7 +23,7 @@ class FileObserver
             ProcessCSVSubmission::dispatch($file, $org);
         }
 
-        if (strtolower($file->type) === File::FILE_TYPE_SRO_APPLICATION &&
+        if (strtolower($file->type) === File::FILE_TYPE_DECLARATION &&
             strtolower($file->status) === File::FILE_STATUS_PROCESSED) {
             $organisationId = OrganisationHasFile::where([
                 'file_id' => $file->id,
