@@ -192,7 +192,8 @@ class OrganisationController extends Controller
             'registries',
             'registries.user',
             'registries.user.permissions',
-            'sector'
+            'sector',
+            'files',
         ])->findOrFail($id);
         if ($organisation) {
             return $this->OKResponseExtended($organisation, 'rules', $this->decisionEvaluator->evaluate($organisation));
