@@ -858,6 +858,33 @@ class EmailTemplatesSeeder extends Seeder
                       </mjml >',
             'buttons' => '',
           ],
+          [
+            'identifier' => 'sro_application_file',
+            'subject' => 'Safe People Registry | SRO Application new file uploaded',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#f6dff1" width="600px" >
+
+                          ' . $this->titleBar('SRO Application new file uploaded') . '
+
+                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                                <mj-text align="left" padding="20px 0px 20px 0px">
+
+                                  Organisation: [[organisation.organisation_name]] just uploaded a new file: [[file.name]].
+                                  <div><br></div>
+                                  ' . $this->supportFooter . '
+
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+
+                        </mj-body>
+                      </mjml >',
+            'buttons' => '',
+          ],
         ];
 
         foreach ($templates as $template) {
