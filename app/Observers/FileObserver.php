@@ -8,6 +8,7 @@ use App\Models\Organisation;
 use Hdruk\LaravelMjml\Models\EmailTemplate;
 use App\Jobs\ProcessCSVSubmission;
 use App\Models\OrganisationHasFile;
+use User;
 
 class FileObserver
 {
@@ -36,8 +37,13 @@ class FileObserver
     {
         $organisation = Organisation::where('id', $organisationId)->first();
         $template = EmailTemplate::where('identifier', 'sro_application_file')->first();
+        $user = User::where([
+            'organisation_id' => $organisationId,
+            'user_group' => 'ORGANISATIONS'
+        ])->first();
 
         $newRecipients = [
+            'id' => $user->id,
             'email' => config('speedi.system.support_email'),
         ];
 
