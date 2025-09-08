@@ -8,7 +8,7 @@ use App\Models\Organisation;
 use Hdruk\LaravelMjml\Models\EmailTemplate;
 use App\Jobs\ProcessCSVSubmission;
 use App\Models\OrganisationHasFile;
-use User;
+use App\Models\User;
 
 class FileObserver
 {
