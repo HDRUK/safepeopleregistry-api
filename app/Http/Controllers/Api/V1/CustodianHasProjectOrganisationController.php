@@ -12,6 +12,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use App\Models\CustodianHasProjectOrganisation;
+use App\Models\State;
 
 class CustodianHasProjectOrganisationController extends Controller
 {
@@ -279,7 +280,7 @@ class CustodianHasProjectOrganisationController extends Controller
             }
 
             $status = $request->get('status');
-            if ($status === 'validation_complete' && !Gate::allows('updateIsAdmin', User::class)) {
+            if ($status === State::STATE_VALIDATION_COMPLETE && !Gate::allows('updateIsAdmin', User::class)) {
                 return $this->ForbiddenResponse();
             }
 
