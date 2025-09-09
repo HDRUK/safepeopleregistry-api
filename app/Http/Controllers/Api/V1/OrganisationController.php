@@ -1396,7 +1396,7 @@ class OrganisationController extends Controller
 
     /**
      * @OA\Patch(
-     *      path="/api/v1/organisations/{id}/sro",
+     *      path="/api/v1/organisations/{id}/updateApproved",
      *      summary="SuperAdmin update org system_approved flag",
      *      description="Updates the system_approved flag for an organisation",
      *      tags={"organisations"},
@@ -1436,7 +1436,7 @@ class OrganisationController extends Controller
      *      )
      * )
      */
-    public function updateSro(Request $request, int $id): JsonResponse
+    public function updateApproved(Request $request, int $id): JsonResponse
     {
         try {
             $input = $request->only(app(Organisation::class)->getFillable());
