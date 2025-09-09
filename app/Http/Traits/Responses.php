@@ -105,4 +105,12 @@ trait Responses
         ], Response::HTTP_BAD_REQUEST);
     }
 
+    public function NoContent(): JsonResponse
+    {
+        return response()->json([
+            'message' => 'no content',
+            'data' => null,
+        ], Response::HTTP_NO_CONTENT);
+    }
+
 }

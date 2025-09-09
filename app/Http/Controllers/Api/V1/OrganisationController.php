@@ -1393,4 +1393,86 @@ class OrganisationController extends Controller
             throw new Exception($e->getMessage());
         }
     }
+
+    /**
+     * @OA\Patch(
+     *      path="/api/v1/organisations/{id}/approved",
+     *      summary="SuperAdmin update org system_approved flag",
+     *      description="Updates the system_approved flag for an organisation",
+     *      tags={"organisations"},
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="organisations entry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="organisations entry ID",
+     *         ),
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="Invite definition",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="system_approved", type="bool", example="true"),
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="integer", example="1"),
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=500,
+     *          description="Error",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="error")
+     *          )
+     *      )
+     * )
+     */
+    public function updateApproved(Request $request, int $id): JsonResponse
+    {
+        try {
+            $input = $request->only(app(Organisation::class)->getFillable());
+            $org = Organisation::findOrFail($id);
+
+            if (!Gate::allows('updateIsAdmin', Organisation::class)) {
+                return $this->ForbiddenResponse();
+            }
+
+            if ($org->system_approved) {
+                return $this->NoContent();
+            }
+
+            if (!isset($input['system_approved'])) {
+                return $this->BadRequestResponse();
+            }
+
+            $org->update([
+                'system_approved' => $input['system_approved']
+            ]);
+
+            $custodianId = $request->user()->id;
+
+            $input = [
+                'type' => 'ORGANISATION_NEEDS_CONFIRMATION',
+                'to' => $org->id,
+                'by' => $custodianId,
+                'identifier' => 'organisation_needs_confirmation'
+            ];
+
+            TriggerEmail::spawnEmail($input);
+
+            return $this->OKResponse($org);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
 }
