@@ -577,7 +577,7 @@ class OrganisationTest extends TestCase
         $firstName = fake()->firstName();
         $lastName = fake()->lastName();
 
-        $response = $this->actingAs($this->organisation_admin)
+        $response = $this->actingAs($this->admin)
             ->json(
                 'POST',
                 self::TEST_URL . '/1/invite_user',
@@ -589,7 +589,7 @@ class OrganisationTest extends TestCase
                 ],
             );
 
-        $response->assertStatus(403);
+        $response->assertStatus(201);
 
         $this->assertDatabaseHas('users', [
             'first_name' => $firstName,
