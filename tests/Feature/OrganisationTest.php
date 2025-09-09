@@ -589,7 +589,7 @@ class OrganisationTest extends TestCase
                 ],
             );
 
-        $response->assertStatus(201);
+        $response->assertStatus(403);
 
         $this->assertDatabaseHas('users', [
             'first_name' => $firstName,
