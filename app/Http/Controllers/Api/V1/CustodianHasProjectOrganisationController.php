@@ -3,14 +3,15 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Exception;
-use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Models\Custodian;
 use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
-use App\Models\Custodian;
-use App\Models\CustodianHasProjectOrganisation;
-use Illuminate\Support\Facades\Gate;
 use App\Traits\CommonFunctions;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
+use App\Models\CustodianHasProjectOrganisation;
 
 class CustodianHasProjectOrganisationController extends Controller
 {
@@ -278,6 +279,9 @@ class CustodianHasProjectOrganisationController extends Controller
             }
 
             $status = $request->get('status');
+            if ($status === 'validation_complete' && !Gate::allows('updateIsAdmin', User::class)) {
+                return $this->ForbiddenResponse();
+            }
 
             if (isset($status)) {
                 $originalStatus = $cho->getState();
