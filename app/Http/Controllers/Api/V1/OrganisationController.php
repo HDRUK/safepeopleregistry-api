@@ -1446,8 +1446,12 @@ class OrganisationController extends Controller
                 return $this->ForbiddenResponse();
             }
 
-            if ($org->system_approved || !isset($input['system_approved'])) {
-                return $this->ForbiddenResponse();
+            if ($org->system_approved) {
+                return $this->NoContent();
+            }
+
+            if (!isset($input['system_approved'])) {
+                return $this->BadRequestResponse();
             }
 
             $org->update([
