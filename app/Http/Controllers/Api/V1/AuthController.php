@@ -139,7 +139,7 @@ class AuthController extends Controller
         $token = Auth::token();
 
         if (!$token) {
-            return $this->ForbiddenResponse();
+            return $this->UnauthorisedResponse();
         }
 
         $arr = json_decode($token, true);
