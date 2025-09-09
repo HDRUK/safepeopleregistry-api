@@ -16,6 +16,8 @@ use App\Http\Controllers\Controller;
 
 class AuthController extends Controller
 {
+    use Responses;
+
     /**
      * Create a new AuthController instance.
      *
@@ -137,34 +139,22 @@ class AuthController extends Controller
         $token = Auth::token();
 
         if (!$token) {
-            return response()->json([
-                'message' => 'unauthorised',
-                'data' => null,
-            ], Response::HTTP_UNAUTHORIZED);
+            return $this->ForbiddenResponse();
         }
 
         $arr = json_decode($token, true);
 
         if (!isset($arr['email'])) {
-            return response()->json([
-                'message' => 'not found',
-                'data' => null,
-            ], Response::HTTP_NOT_FOUND);
+            return $this->NotFoundResponse();
         }
 
         $user = User::where(['email' => $arr['email'], 'unclaimed' => 1])->first();
 
         if (!$user) {
-            return response()->json([
-                'message' => 'not found',
-                'data' => null,
-            ], Response::HTTP_NOT_FOUND);
+            return $this->NotFoundResponse();
         }
 
-        return response()->json([
-            'message' => 'success',
-            'data' => $user,
-        ], Response::HTTP_OK);
+        return $this->OKResponse($user);
     }
 
     public function me(Request $request): JsonResponse

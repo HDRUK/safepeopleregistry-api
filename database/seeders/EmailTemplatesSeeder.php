@@ -58,11 +58,11 @@ class EmailTemplatesSeeder extends Seeder
     <p>The [[env(APP_NAME)]] is a platform to enable \'safe people\' decision-making for granting access to sensitive data. Users (researchers, analysts) make profiles; Organisations make profiles and affiliate the Users (staff, students); and Data Custodians validate both Users and Organisations to gain access to sensitive data for research projects.</p>
   ';
 
-  public function titleBar($title): string
-  {
-      return str_replace('[[email.title]]', $title, $this->titleBar);
-  }
-  
+    public function titleBar($title): string
+    {
+        return str_replace('[[email.title]]', $title, $this->titleBar);
+    }
+
 
     /**
      * Run the database seeds.
