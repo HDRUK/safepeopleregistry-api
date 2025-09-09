@@ -1442,7 +1442,7 @@ class OrganisationController extends Controller
             $input = $request->only(app(Organisation::class)->getFillable());
             $org = Organisation::findOrFail($id);
 
-            if (!Gate::allows('updateSro', Organisation::class)) {
+            if (!Gate::allows('updateIsAdmin', Organisation::class)) {
                 return $this->ForbiddenResponse();
             }
 
