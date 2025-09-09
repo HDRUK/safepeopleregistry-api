@@ -343,6 +343,7 @@ Route::middleware('auth:api')
 
             // Update
             Route::put('/{id}', 'update');
+            Route::patch('/{id}/sro', 'updateSro');
 
             // Delete
             Route::delete('/{id}', 'destroy');

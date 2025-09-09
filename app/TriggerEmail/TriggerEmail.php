@@ -288,6 +288,23 @@ class TriggerEmail
                 ]);
 
                 break;
+
+            case 'ORGANISATION_NEEDS_CONFIRMATION':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $organisation = Organisation::where('id', $to)->first();
+                $newRecipients = [
+                    'id' => $to,
+                    'email' => $organisation->lead_applicant_email,
+                ];
+
+                $replacements = [
+                    '[[organisation.organisation_name]]' => $organisation->organisation_name,
+                    '[[ORGANISATION_PATH_PROFILE]]' => config('speedi.system.portal_url') . '/organisation/profile/details',
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                ];
+
+                break;
             case 'ORGANISATION_INVITE_SIMPLE':
                 $template = EmailTemplate::where('identifier', $identifier)->first();
                 $newRecipients = [
