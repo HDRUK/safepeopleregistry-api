@@ -66,6 +66,9 @@ RUN composer install \
 # Generate Swagger
 RUN php artisan l5-swagger:generate
 
+# Cleanup unwanted files
+RUN rm /var/www/public/.htaccess
+
 # Starts both, laravel server and job queue
 CMD ["/var/www/docker/start.sh"]
 
