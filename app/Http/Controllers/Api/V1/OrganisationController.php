@@ -1084,6 +1084,11 @@ class OrganisationController extends Controller
     public function inviteUser(Request $request, int $id): JsonResponse
     {
         try {
+            $org = Organisation::findOrFail($id);
+            if (!Gate::allows('updateIsAdmin', $org)) {
+                return $this->ForbiddenResponse();
+            }
+
             $input = $request->all();
             if (User::where("email", $input['email'])->exists()) {
                 return $this->ConflictResponse();
