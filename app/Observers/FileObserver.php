@@ -29,11 +29,11 @@ class FileObserver
                 'file_id' => $file->id,
             ])->first()->organisation_id;
 
-            $this->sendEmailNotification($file, $organisationId);
+            $this->sendEmail($file, $organisationId);
         }
     }
 
-    protected function sendEmailNotification(File $file, int $organisationId): void
+    protected function sendEmail(File $file, int $organisationId): void
     {
         $organisation = Organisation::where('id', $organisationId)->first();
         $template = EmailTemplate::where('identifier', 'sro_application_file')->first();
