@@ -1396,7 +1396,7 @@ class OrganisationController extends Controller
 
     /**
      * @OA\Patch(
-     *      path="/api/v1/organisations/{id}/updateApproved",
+     *      path="/api/v1/organisations/{id}/approved",
      *      summary="SuperAdmin update org system_approved flag",
      *      description="Updates the system_approved flag for an organisation",
      *      tags={"organisations"},
