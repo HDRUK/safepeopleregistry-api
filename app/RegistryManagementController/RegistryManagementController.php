@@ -34,6 +34,30 @@ class RegistryManagementController
         ])->id;
     }
 
+    public static function createOrganisationUser(array $input, Request $request): mixed
+    {
+        if (!RegistryManagementController::checkDuplicateKeycloakID($input['sub'])) {
+            $user = User::create([
+                'first_name' => $input['given_name'],
+                'last_name' => $input['family_name'],
+                'email' => $input['email'],
+                'keycloak_id' => $input['sub'],
+                'registry_id' => null,
+                'organisation_id' => $request['organisation_id'],
+                'user_group' => RegistryManagementController::KC_GROUP_ORGANISATIONS,
+                't_and_c_agreed' => 1,
+                't_and_c_agreement_date' => now(),
+                'is_org_admin' => $request['is_org_admin'] ?? 1
+            ]);
+
+            return [
+                'user_id' => $user->id
+            ];
+        }
+
+        return false;
+    }
+
     /**
      * Creates a new user based on incoming data.
      *
@@ -138,25 +162,7 @@ class RegistryManagementController
                     return false;
 
                 case 'organisation':
-                    if (!RegistryManagementController::checkDuplicateKeycloakID($input['sub'])) {
-                        $user = User::create([
-                            'first_name' => $input['given_name'],
-                            'last_name' => $input['family_name'],
-                            'email' => $input['email'],
-                            'keycloak_id' => $input['sub'],
-                            'registry_id' => null,
-                            'organisation_id' => $request['organisation_id'],
-                            'user_group' => RegistryManagementController::KC_GROUP_ORGANISATIONS,
-                            't_and_c_agreed' => 1,
-                            't_and_c_agreement_date' => now(),
-                        ]);
-
-                        return [
-                            'user_id' => $user->id
-                        ];
-                    }
-
-                    return false;
+                    return self::createOrganisationUser($input, $request);
 
                 case 'custodian':
                     if (!RegistryManagementController::checkDuplicateKeycloakID($input['sub'])) {
