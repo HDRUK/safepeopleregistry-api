@@ -465,7 +465,7 @@ class OrganisationController extends Controller
 
         $orgExists = Organisation::where('lead_applicant_email', $input['lead_applicant_email'])->exists();
 
-        if($orgExists) {
+        if ($orgExists) {
             return $this->ConflictResponse();
         }
 
@@ -510,12 +510,7 @@ class OrganisationController extends Controller
 
             $organisation = Organisation::create($organisationsData);
 
-            $request->replace([
-                "organisation_id" => $organisation->id,
-                "is_org_admin" => 1
-            ]);
-
-            if($organisationsData['unclaimed'] === 1) {
+            if ($organisationsData['unclaimed'] === 1) {
                 $user = User::create([
                     'first_name' => $input['first_name'],
                     'last_name' => $input['last_name'],
@@ -532,6 +527,11 @@ class OrganisationController extends Controller
             } else {
                 $response = Keycloak::getUserInfo($request->headers->get('Authorization'));
                 $payload = $response->json();
+
+                $request->replace([
+                    "organisation_id" => $organisation->id,
+                    "is_org_admin" => 1
+                ]);
 
                 $user = RMC::createOrganisationUser($payload, $request);
 
