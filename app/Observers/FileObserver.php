@@ -48,7 +48,7 @@ class FileObserver
         ];
 
         $replacements = [
-            '[[organisation.organisation_name]]' => $organisation->organisation_name, 
+            '[[organisation.organisation_name]]' => $organisation->organisation_name,
             '[[file.name]]' => $file->name,
             '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
         ];
