@@ -102,7 +102,7 @@ class RegistryManagementController
             ]);
 
             switch (strtolower($accountType)) {
-                case 'user':
+                case 'users':
                     if (!RegistryManagementController::checkDuplicateKeycloakID($input['sub'])) {
 
                         DebugLog::create([
@@ -161,10 +161,10 @@ class RegistryManagementController
 
                     return false;
 
-                case 'organisation':
+                case 'organisations':
                     return self::createOrganisationUser($input, $request);
 
-                case 'custodian':
+                case 'custodians':
                     if (!RegistryManagementController::checkDuplicateKeycloakID($input['sub'])) {
                         $user = User::create([
                             'first_name' => $input['given_name'],

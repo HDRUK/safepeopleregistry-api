@@ -344,7 +344,7 @@ Route::middleware('auth:api')
 
             // Update
             Route::put('/{id}', 'update');
-            Route::patch('/{id}/approved', 'updateApproved');
+            Route::put('/{id}/approved', 'updateApproved');
 
             // Delete
             Route::delete('/{id}', 'destroy');
