@@ -93,9 +93,21 @@ class CustodianTest extends TestCase
 
         Queue::assertNothingPushed();
 
-        $custodianId = $this->custodian_admin->custodian_user->custodian_id;
+        $responseCreate = $this->actingAs($this->admin)
+                ->json(
+                    'POST',
+                    self::TEST_URL,
+                    [
+                        'contact_email' => 'test.custodian.invite@test.com',
+                        'name' => 'Test Custodian',
+                        'enabled' => false,
+                    ]
+                );
 
-        $response = $this->actingAs($this->custodian_admin)
+        $decoded = $responseCreate->decodeResponseJson();
+        $custodianId = $decoded['data'];
+
+        $response = $this->actingAs($this->admin)
             ->json(
                 'POST',
                 self::TEST_URL . '/' . $custodianId . '/invite/',

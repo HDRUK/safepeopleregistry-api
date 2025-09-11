@@ -16,6 +16,7 @@ use App\Models\CustodianUser;
 use App\Models\DecisionModel;
 use App\Http\Traits\Responses;
 use App\Models\ProjectHasUser;
+use App\Models\ValidationCheck;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use App\Models\ProjectHasCustodian;
@@ -29,6 +30,7 @@ use App\Traits\SearchManagerCollection;
 use App\Models\CustodianWebhookReceiver;
 use RegistryManagementController as RMC;
 use App\Models\CustodianUserHasPermission;
+use App\Models\CustodianHasValidationCheck;
 use App\Models\CustodianHasProjectOrganisation;
 
 /**
@@ -1137,7 +1139,7 @@ class CustodianController extends Controller
                 CustodianModelConfig::create([
                     'entity_model_id' => $decisionModel->id,
                     'active' => 1,
-                    'custodian_id' => $unclaimedUser->id,
+                    'custodian_id' => $id,
                 ]);
             }
 
@@ -1168,9 +1170,18 @@ class CustodianController extends Controller
             $webhookEventTriggers = WebhookEventTrigger::where('enabled', true)->get();
             foreach ($webhookEventTriggers as $webhookEventTrigger) {
                 CustodianWebhookReceiver::create([
-                    'custodian_id' => $unclaimedUser->id,
+                    'custodian_id' => $id,
                     'url' => 'https://webhook.site/4c812c72-3db1-4162-9160-5a798b52306c', // free webhook receiver
                     'webhook_event' => $webhookEventTrigger->id,
+                ]);
+            }
+
+            // custodian has validations check
+            $validationCheckIds = ValidationCheck::pluck('id')->all();
+            foreach ($validationCheckIds as $validationCheckId) {
+                CustodianHasValidationCheck::create([
+                    'custodian_id' => $id,
+                    'validation_check_id' => $validationCheckId,
                 ]);
             }
 
