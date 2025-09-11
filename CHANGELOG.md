@@ -1,3 +1,35 @@
+## [1.10.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.9.0...v1.10.0) (2025-09-11)
+
+### ✨ Features
+
+* **REGISTRY-1234:** update notification new project template (#410) ([d7172ef](https://github.com/HDRUK/safepeopleregistry-api/commit/d7172ef5bdcacdd1b90168628d82934e35300e0c))
+* **REGISTRY-1317:** Remove Misconduct / Criminal record from Validation check bank (not allowed to hold any information on this) (#407) ([42b725f](https://github.com/HDRUK/safepeopleregistry-api/commit/42b725f93150923e18e1236ed6283fe869a8eaaa))
+* **REGISTRY-1617:** Update Researcher Invite Email Template (#398) ([2a756e3](https://github.com/HDRUK/safepeopleregistry-api/commit/2a756e3eeee2dcb31e8a5ba39398e715054b9143))
+* **REGISTRY-1623:** Email: Affiliation request for Delegate (#400) ([4ddd321](https://github.com/HDRUK/safepeopleregistry-api/commit/4ddd321b52e3d7c84588a55719c8b58b34305886))
+* **REGISTRY-1700:** Update email text (#408) ([6b81827](https://github.com/HDRUK/safepeopleregistry-api/commit/6b81827f7383cc405cf6a809efcd08d6b63f43ab))
+* **REGISTRY-1707:** emails and notifications for add user to projects (#404) ([2a693df](https://github.com/HDRUK/safepeopleregistry-api/commit/2a693dfa617ccf077af981bf710ef58b68a3795f))
+* **REGISTRY-1746:** validation status (#399) ([8f075d3](https://github.com/HDRUK/safepeopleregistry-api/commit/8f075d3584b8978d5f07f046d92132d0a4abaf95))
+* **REGISTRY-1762:** Email templates for invitations (#405) ([0d8dcac](https://github.com/HDRUK/safepeopleregistry-api/commit/0d8dcac3a88ce06f4845679ad2f9e469b205b13d))
+* **REGISTRY-1767:** Superadmin | Make email invite to Data Custodian work (#397) ([2d80ddd](https://github.com/HDRUK/safepeopleregistry-api/commit/2d80ddd94a5153428f7c417211fce5d9fa0610e9))
+* **REGISTRY-1793:** Organisation | SRO application - send email (#415) ([2e7e206](https://github.com/HDRUK/safepeopleregistry-api/commit/2e7e206c5a489507027173e3046accb53a37a3ce))
+* **REGISTRY-1793:** Organisation | SRO application - update organisation for get files (#414) ([51406bb](https://github.com/HDRUK/safepeopleregistry-api/commit/51406bb8822cb8024ba88e37b36b909d43c2f87e))
+* **REGISTRY-1796:** Organisation | SRO application - super-admin interface (#417) ([c126f34](https://github.com/HDRUK/safepeopleregistry-api/commit/c126f34076fa5c639cfc12e617297113c92721de))
+* **REGISTRY-1797:** locking / unlocking functionality (#419) ([09f67e3](https://github.com/HDRUK/safepeopleregistry-api/commit/09f67e3d916edc5932d4f442a04c8123872bce9c))
+* **REGISTRY-1809:** Organisation/User admin | Filter by status is broken on pending (#406) ([30087e5](https://github.com/HDRUK/safepeopleregistry-api/commit/30087e58f97e44e9b7709e9bbe91a8782a8bf81a))
+* **REGISTRY-1865:** reg issues (#421) ([fd54286](https://github.com/HDRUK/safepeopleregistry-api/commit/fd54286ffe558268088b7c31463d29710cbdc0e9))
+
+### 🐛 Bug Fixes
+
+* **GAT-7812:** Remove htaccess file (#416) ([e2603e4](https://github.com/HDRUK/safepeopleregistry-api/commit/e2603e42ed41b017ee23918002abef7f2a2b9a17)), closes [GAT-7812](GAT-7812)
+* **REGISTRY-1234:** fix for user invite who replace research invite (#409) ([5e59882](https://github.com/HDRUK/safepeopleregistry-api/commit/5e598829a26de6fd3b16d9a343ece5c6e699f822))
+* **REGISTRY-1234:** fix user invite template (#411) ([ee33839](https://github.com/HDRUK/safepeopleregistry-api/commit/ee3383927d7bffb67b014212589a5ec7e5fad1ff))
+* **REGISTRY-1768:** Custodian/User & Organisation Statuses into grey box (#394) ([7c2995f](https://github.com/HDRUK/safepeopleregistry-api/commit/7c2995fe29dcf9a22eae365de796b5c331e5a180))
+* **REGISTRY-1768:** Custodian/User & Organisation Statuses into grey box revert (#396) ([655690e](https://github.com/HDRUK/safepeopleregistry-api/commit/655690e5f0609ab193f3cb456d487cd584274788))
+* **REGISTRY-1773:** Custodian | How do we make & claim Data Custodian accounts (#422) ([fb7e343](https://github.com/HDRUK/safepeopleregistry-api/commit/fb7e34358a27a90adeb3eec54b7cad23386252fa))
+* **REGISTRY-1773:** update for invite custodian by super-admin (#423) ([60ca9f3](https://github.com/HDRUK/safepeopleregistry-api/commit/60ca9f3801374b43378c3a28e4af2056d424c551))
+* **REGISTRY-1797:** an organisation can invite users (#424) ([bbc736c](https://github.com/HDRUK/safepeopleregistry-api/commit/bbc736c90eba30dcf3c93caa10ecdba9c23cff28))
+* **REGISTRY-1867:** add approval state to project payload (#413) ([db52834](https://github.com/HDRUK/safepeopleregistry-api/commit/db528342a9e7cd0c436fe818fb4ba8aabc5caa3c))
+
 ## [1.9.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.8.0...v1.9.0) (2025-08-26)
 
 ### ✨ Features
