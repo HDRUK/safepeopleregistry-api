@@ -1113,9 +1113,9 @@ class OrganisationController extends Controller
         try {
             $org = Organisation::findOrFail($id);
             // temp
-            // if (Gate::allows('updateIsOrganisation', $org)) {
-            //     return $this->ForbiddenResponse();
-            // }
+            if (Gate::allows('updateIsOrganisation', $org) && !$org->system_approved) {
+                return $this->ForbiddenResponse();
+            }
 
             $input = $request->all();
             if (User::where("email", $input['email'])->exists()) {
