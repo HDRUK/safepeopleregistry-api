@@ -29,7 +29,7 @@ class OrganisationPolicy
             ($user->inGroup([User::GROUP_ORGANISATIONS]) && $user->organisation_id === $organisation->id);
     }
 
-    public function updateIsInGroupOrganisation(User $user)
+    public function updateIsInGroupOrganisation(User $user, Organisation $organisation)
     {
         return $user->inGroup([User::GROUP_ORGANISATIONS]);
     }

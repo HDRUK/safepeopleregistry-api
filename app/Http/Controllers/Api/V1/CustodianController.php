@@ -1136,7 +1136,7 @@ class CustodianController extends Controller
             foreach ($decisionModels as $decisionModel) {
                 CustodianModelConfig::create([
                     'entity_model_id' => $decisionModel->id,
-                    'active' => 1, // I have to activate it upon confirmation.
+                    'active' => 1,
                     'custodian_id' => $unclaimedUser->id,
                 ]);
             }
