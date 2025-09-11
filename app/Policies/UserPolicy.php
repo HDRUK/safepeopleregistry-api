@@ -71,7 +71,7 @@ class UserPolicy
     {
         return $this->viewAny($user); // same access logic as viewAny for now
     }
-     
+
     public function updateIsAdmin(User $user)
     {
         return $user->isAdmin();

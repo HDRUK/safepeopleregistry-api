@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Keycloak;
 use DB;
 use Http;
 use Auth;
@@ -462,8 +463,14 @@ class OrganisationController extends Controller
     {
         $input = $request->all();
 
+        $orgExists = Organisation::where('lead_applicant_email', $input['lead_applicant_email'])->exists();
+
+        if ($orgExists) {
+            return $this->ConflictResponse();
+        }
+
         try {
-            $organisation = Organisation::create([
+            $organisationsData = [
                 'organisation_name' => $input['organisation_name'],
                 'address_1' => '',
                 'address_2' => '',
@@ -499,22 +506,40 @@ class OrganisationController extends Controller
                 'unclaimed' => $input['unclaimed'] ?? 1,
                 'system_approved' => $input['system_approved'] ?? 0,
                 'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
-            ]);
+            ];
 
-            $user = User::create([
-                'first_name' => $input['first_name'],
-                'last_name' => $input['last_name'],
-                'email' => $input['lead_applicant_email'],
-                'user_group' => User::GROUP_ORGANISATIONS,
-                'is_org_admin' => 1,
-                'organisation_id' => $organisation->id,
-            ]);
+            $organisation = Organisation::create($organisationsData);
 
-            return $this->CreatedResponse([
-                'user_id' => $user->id,
-                'organisation_id' => $organisation->id,
-            ]);
+            if ($organisationsData['unclaimed'] === 1) {
+                $user = User::create([
+                    'first_name' => $input['first_name'],
+                    'last_name' => $input['last_name'],
+                    'email' => $input['lead_applicant_email'],
+                    'user_group' => User::GROUP_ORGANISATIONS,
+                    'is_org_admin' => 1,
+                    'organisation_id' => $organisation->id,
+                ]);
 
+                return $this->CreatedResponse([
+                    'user_id' => $user->id,
+                    'organisation_id' => $organisation->id,
+                ]);
+            } else {
+                $response = Keycloak::getUserInfo($request->headers->get('Authorization'));
+                $payload = $response->json();
+
+                $request->replace([
+                    "organisation_id" => $organisation->id,
+                    "is_org_admin" => 1
+                ]);
+
+                $user = RMC::createOrganisationUser($payload, $request);
+
+                return $this->CreatedResponse([
+                    'user_id' => $user['user_id'],
+                    'organisation_id' => $organisation->id,
+                ]);
+            }
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -650,6 +675,7 @@ class OrganisationController extends Controller
         try {
             $input = $request->only(app(Organisation::class)->getFillable());
             $org = Organisation::findOrFail($id);
+
             if (!Gate::allows('update', $org)) {
                 return $this->ForbiddenResponse();
             }
