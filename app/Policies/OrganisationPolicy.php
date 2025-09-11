@@ -29,8 +29,8 @@ class OrganisationPolicy
             ($user->inGroup([User::GROUP_ORGANISATIONS]) && $user->organisation_id === $organisation->id);
     }
 
-    public function updateIsAdmin(User $user)
+    public function updateIsInGroupOrganisation(User $user)
     {
-        return $user->isAdmin();
+        return $user->inGroup([User::GROUP_ORGANISATIONS]);
     }
 }

@@ -1085,7 +1085,7 @@ class OrganisationController extends Controller
     {
         try {
             $org = Organisation::findOrFail($id);
-            if (!Gate::allows('updateIsAdmin', $org)) {
+            if (!Gate::allows('updateIsInGroupOrganisation', $org)) {
                 return $this->ForbiddenResponse();
             }
 
