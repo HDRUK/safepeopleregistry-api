@@ -3,15 +3,16 @@
 namespace Database\Seeders;
 
 use Hash;
-use App\Models\DecisionModel;
-use App\Models\CustodianModelConfig;
 use App\Models\Custodian;
+use App\Models\Permission;
 use App\Models\CustodianUser;
+use App\Models\DecisionModel;
+use Illuminate\Database\Seeder;
+use App\Models\WebhookEventTrigger;
+use App\Models\CustodianModelConfig;
+use Illuminate\Support\Facades\Schema;
 use App\Models\CustodianWebhookReceiver;
 use App\Models\CustodianUserHasPermission;
-use App\Models\Permission;
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Schema;
 
 class CustodianSeeder extends Seeder
 {
@@ -28,6 +29,8 @@ class CustodianSeeder extends Seeder
         CustodianModelConfig::truncate();
 
         Schema::enableForeignKeyConstraints();
+
+        $webhookEventTriggers = WebhookEventTrigger::where('enabled', 1)->get();
 
         foreach (config('speedi.custodians') as $custodian) {
             $i = Custodian::factory()->create([
@@ -58,30 +61,20 @@ class CustodianSeeder extends Seeder
                     'custodian_id' => $i->id,
                 ]);
 
-                $perm = Permission::where('name', '=', 'CUSTODIAN_ADMIN')->first();
+                $perm = Permission::where('name', '=', 'CUSTODIAN_ADMIN')->select(['id'])->first();
                 CustodianUserHasPermission::create([
                     'custodian_user_id' => $iu->id,
                     'permission_id' => $perm->id,
                 ]);
             }
 
-            CustodianWebhookReceiver::create([
-                'custodian_id' => $i->id,
-                'url' => 'https://webhook.site/4c812c72-3db1-4162-9160-5a798b52306c', // free webhook receiver
-                'webhook_event' => 1,
-            ]);
-
-            CustodianWebhookReceiver::create([
-                'custodian_id' => $i->id,
-                'url' => 'https://webhook.site/4c812c72-3db1-4162-9160-5a798b52306c', // free webhook receiver
-                'webhook_event' => 3,
-            ]);
-
-            CustodianWebhookReceiver::create([
-                'custodian_id' => $i->id,
-                'url' => 'https://webhook.site/4c812c72-3db1-4162-9160-5a798b52306c', // free webhook receiver
-                'webhook_event' => 4,
-            ]);
+            foreach ($webhookEventTriggers as $webhookEventTrigger) {
+                CustodianWebhookReceiver::create([
+                    'custodian_id' => $i->id,
+                    'url' => 'https://webhook.site/4c812c72-3db1-4162-9160-5a798b52306c', // free webhook receiver
+                    'webhook_event' => $webhookEventTrigger->id,
+                ]);
+            }
         }
     }
 }

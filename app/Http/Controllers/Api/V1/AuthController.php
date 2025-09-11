@@ -48,7 +48,7 @@ class AuthController extends Controller
                         ->where('registry_id', $registryId)
                         ->first();
 
-                    if (!$existingAffiliation) {
+                    if (!$existingAffiliation && $unclaimedUser->user_group === User::GROUP_USERS) {
                         Affiliation::create([
                             'organisation_id' => $organisationId,
                             'member_id' => '',

@@ -8,21 +8,27 @@ use TriggerEmail;
 use App\Models\User;
 use App\Models\Project;
 use App\Models\Custodian;
+use App\Models\Permission;
 use Illuminate\Support\Str;
 use App\Models\Organisation;
 use Illuminate\Http\Request;
 use App\Models\CustodianUser;
+use App\Models\DecisionModel;
 use App\Http\Traits\Responses;
 use App\Models\ProjectHasUser;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use App\Models\ProjectHasCustodian;
+use App\Models\WebhookEventTrigger;
 use App\Http\Controllers\Controller;
+use App\Models\CustodianModelConfig;
 use Illuminate\Support\Facades\Gate;
 use App\Models\ProjectHasOrganisation;
 use App\Models\CustodianHasProjectUser;
 use App\Traits\SearchManagerCollection;
+use App\Models\CustodianWebhookReceiver;
 use RegistryManagementController as RMC;
+use App\Models\CustodianUserHasPermission;
 use App\Models\CustodianHasProjectOrganisation;
 
 /**
@@ -1124,6 +1130,49 @@ class CustodianController extends Controller
                 'user_group' => 'CUSTODIANS',
                 'custodian_id' => $id
             ]);
+
+            // CustodianModelConfig - test
+            $decisionModels = DecisionModel::all();
+            foreach ($decisionModels as $decisionModel) {
+                CustodianModelConfig::create([
+                    'entity_model_id' => $decisionModel->id,
+                    'active' => 1, // I have to activate it upon confirmation.
+                    'custodian_id' => $unclaimedUser->id,
+                ]);
+            }
+
+            // CustodianUser - test
+            $custodianUser = CustodianUser::create([
+                'first_name' => 'Custodian', // I should update it upon activation.
+                'last_name' => 'User', // I should update it upon activation.
+                'email' => $custodian['contact_email'],
+                'password' => Hash::make('t3mpP4ssword!'),
+                'provider' => '',
+                'keycloak_id' => '',
+                'custodian_id' => $id,
+            ]);
+
+            // update User - test
+            User::where('id', $unclaimedUser->id)->update([
+                'custodian_user_id' => $custodianUser->id,
+            ]);
+
+            // Permission - test
+            $permission = Permission::where('name', '=', 'CUSTODIAN_ADMIN')->first();
+            CustodianUserHasPermission::create([
+                'custodian_user_id' => $custodianUser->id,
+                'permission_id' => $permission->id,
+            ]);
+
+            // webhooks - test
+            $webhookEventTriggers = WebhookEventTrigger::where('enabled', 1)->get();
+            foreach ($webhookEventTriggers as $webhookEventTrigger) {
+                CustodianWebhookReceiver::create([
+                    'custodian_id' => $unclaimedUser->id,
+                    'url' => 'https://webhook.site/4c812c72-3db1-4162-9160-5a798b52306c', // free webhook receiver
+                    'webhook_event' => $webhookEventTrigger->id,
+                ]);
+            }
 
             $input = [
                 'type' => 'CUSTODIAN',
