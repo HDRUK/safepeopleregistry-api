@@ -1085,7 +1085,7 @@ class OrganisationController extends Controller
     {
         try {
             $org = Organisation::findOrFail($id);
-            if (!Gate::allows('updateIsOrganisation', $org)) {
+            if (Gate::allows('updateIsOrganisation', $org)) {
                 return $this->ForbiddenResponse();
             }
 
