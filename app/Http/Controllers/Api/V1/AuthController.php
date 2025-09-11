@@ -13,7 +13,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
-use App\Models\CustodianUser;
 
 class AuthController extends Controller
 {
@@ -114,14 +113,6 @@ class AuthController extends Controller
                 'message' => 'Account already claimed',
                 'data' => null,
             ], 400);
-        }
-
-        if ($userToReplace->user_group === User::GROUP_CUSTODIANS) {
-            CustodianUser::where('id', $userToReplace->custodian_user_id)
-                ->update([
-                    'first_name' => $input['given_name'],
-                    'last_name' => $input['family_name'],
-                ]);
         }
 
         $userToReplace->first_name = $input['given_name'];
