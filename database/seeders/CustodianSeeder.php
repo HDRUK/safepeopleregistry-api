@@ -30,7 +30,7 @@ class CustodianSeeder extends Seeder
 
         Schema::enableForeignKeyConstraints();
 
-        $webhookEventTriggers = WebhookEventTrigger::where('enabled', 1)->get();
+        $webhookEventTriggers = WebhookEventTrigger::where('enabled', true)->get();
 
         foreach (config('speedi.custodians') as $custodian) {
             $i = Custodian::factory()->create([

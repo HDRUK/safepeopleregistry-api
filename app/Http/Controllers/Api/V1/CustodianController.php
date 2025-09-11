@@ -1165,7 +1165,7 @@ class CustodianController extends Controller
             ]);
 
             // webhooks - test
-            $webhookEventTriggers = WebhookEventTrigger::where('enabled', 1)->get();
+            $webhookEventTriggers = WebhookEventTrigger::where('enabled', true)->get();
             foreach ($webhookEventTriggers as $webhookEventTrigger) {
                 CustodianWebhookReceiver::create([
                     'custodian_id' => $unclaimedUser->id,
