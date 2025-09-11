@@ -28,7 +28,7 @@ class RulesEngineManagementController
 
     public static function determineUserCustodian(): mixed
     {
-        $key = RulesEngineManagementController::getCustodianKeyFromHeaders();
+        $key = self::getCustodianKeyFromHeaders();
         $user = User::where('keycloak_id', $key)->first();
 
         if (!$user || $user->user_group !== 'CUSTODIANS') {
@@ -48,7 +48,7 @@ class RulesEngineManagementController
 
     public static function loadCustodianRules(Request $request): ?Collection
     {
-        $custodianId = RulesEngineManagementController::determineUserCustodian();
+        $custodianId = self::determineUserCustodian();
         if (!$custodianId) {
             return null;
         }

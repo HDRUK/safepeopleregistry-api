@@ -428,6 +428,11 @@ class User extends Authenticatable
         return $this->user_group === self::GROUP_ADMINS;
     }
 
+    public function isOrganisation(): bool
+    {
+        return $this->user_group === self::GROUP_ORGANISATIONS;
+    }
+
     public function inGroup(array $groups): bool
     {
         return in_array($this->user_group, $groups);

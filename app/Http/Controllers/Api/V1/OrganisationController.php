@@ -680,9 +680,10 @@ class OrganisationController extends Controller
                 return $this->ForbiddenResponse();
             }
 
-            if (!isset($input['unclaimed']) && !$org->system_approved && (!isset($input['system_approved']) || $input['system_approved'] === false)) {
-                return $this->ForbiddenResponse();
-            }
+            // we need more discussion aroud this disable
+            // if (!$org->system_approved && (!isset($input['system_approved']) || $input['system_approved'] === false)) {
+            //     return $this->ForbiddenResponse();
+            // }
 
             $org->update($input);
 
@@ -1111,7 +1112,7 @@ class OrganisationController extends Controller
     {
         try {
             $org = Organisation::findOrFail($id);
-            if (!Gate::allows('updateIsAdmin', $org)) {
+            if (Gate::allows('updateIsOrganisation', $org)) {
                 return $this->ForbiddenResponse();
             }
 

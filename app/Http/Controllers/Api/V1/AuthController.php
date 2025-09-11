@@ -51,7 +51,7 @@ class AuthController extends Controller
                         ->where('registry_id', $registryId)
                         ->first();
 
-                    if (!$existingAffiliation) {
+                    if (!$existingAffiliation && $unclaimedUser->user_group === User::GROUP_USERS) {
                         Affiliation::create([
                             'organisation_id' => $organisationId,
                             'member_id' => '',
@@ -118,7 +118,6 @@ class AuthController extends Controller
             ], 400);
         }
 
-
         $userToReplace->first_name = $input['given_name'];
         $userToReplace->last_name = $input['family_name'];
         $userToReplace->email = $input['email'];
@@ -128,6 +127,7 @@ class AuthController extends Controller
         $userToReplace->t_and_c_agreement_date = now();
 
         $userToReplace->save();
+
 
         return response()->json([
             'message' => 'success',

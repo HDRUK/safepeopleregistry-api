@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\DebugLog;
 use App\Models\Registry;
 use Illuminate\Http\Request;
+use App\Models\CustodianUser;
 use Illuminate\Support\Facades\Log;
 
 class RegistryManagementController
@@ -78,6 +79,14 @@ class RegistryManagementController
 
             if ($unclaimedUser) {
                 Log::debug('unclaimed user detected - {id}', ['id' => $unclaimedUser->id]);
+
+                if ($unclaimedUser->user_group === User::GROUP_CUSTODIANS) {
+                    CustodianUser::where('id', $unclaimedUser->custodian_user_id)
+                        ->update([
+                            'first_name' => $input['given_name'],
+                            'last_name' => $input['family_name'],
+                        ]);
+                }
 
                 $unclaimedUser->first_name = $input['given_name'];
                 $unclaimedUser->last_name = $input['family_name'];
