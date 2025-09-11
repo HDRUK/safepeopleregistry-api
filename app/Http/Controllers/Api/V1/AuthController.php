@@ -13,9 +13,12 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
+use App\Http\Traits\Responses;
 
 class AuthController extends Controller
 {
+    use Responses;
+
     /**
      * Create a new AuthController instance.
      *
@@ -130,6 +133,29 @@ class AuthController extends Controller
             'message' => 'success',
             'data' => $userToReplace
         ], 201);
+    }
+
+    public function meUnclaimed(Request $request): JsonResponse
+    {
+        $token = Auth::token();
+
+        if (!$token) {
+            return $this->UnauthorisedResponse();
+        }
+
+        $arr = json_decode($token, true);
+
+        if (!isset($arr['email'])) {
+            return $this->NotFoundResponse();
+        }
+
+        $user = User::where(['email' => $arr['email'], 'unclaimed' => 1])->first();
+
+        if (!$user) {
+            return $this->NotFoundResponse();
+        }
+
+        return $this->OKResponse($user);
     }
 
     public function me(Request $request): JsonResponse

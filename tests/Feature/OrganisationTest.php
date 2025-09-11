@@ -759,7 +759,7 @@ class OrganisationTest extends TestCase
                 [
                     'organisation_name' => 'test test Org',
                     'lead_applicant_email' => 'phil.reeks+org22@hdruk.ac.uk',
-                    'unclaimed' => 0,
+                    'unclaimed' => 1,
                     'first_name' => 'Phil',
                     'last_name' => 'Reeks',
                 ]
