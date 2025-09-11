@@ -13,9 +13,12 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
+use App\Http\Traits\Responses;
 
 class AuthController extends Controller
 {
+    use Responses;
+
     /**
      * Create a new AuthController instance.
      *
@@ -48,7 +51,7 @@ class AuthController extends Controller
                         ->where('registry_id', $registryId)
                         ->first();
 
-                    if (!$existingAffiliation) {
+                    if (!$existingAffiliation && $unclaimedUser->user_group === User::GROUP_USERS) {
                         Affiliation::create([
                             'organisation_id' => $organisationId,
                             'member_id' => '',
@@ -115,7 +118,6 @@ class AuthController extends Controller
             ], 400);
         }
 
-
         $userToReplace->first_name = $input['given_name'];
         $userToReplace->last_name = $input['family_name'];
         $userToReplace->email = $input['email'];
@@ -126,10 +128,34 @@ class AuthController extends Controller
 
         $userToReplace->save();
 
+
         return response()->json([
             'message' => 'success',
             'data' => $userToReplace
         ], 201);
+    }
+
+    public function meUnclaimed(Request $request): JsonResponse
+    {
+        $token = Auth::token();
+
+        if (!$token) {
+            return $this->UnauthorisedResponse();
+        }
+
+        $arr = json_decode($token, true);
+
+        if (!isset($arr['email'])) {
+            return $this->NotFoundResponse();
+        }
+
+        $user = User::where(['email' => $arr['email'], 'unclaimed' => 1])->first();
+
+        if (!$user) {
+            return $this->NotFoundResponse();
+        }
+
+        return $this->OKResponse($user);
     }
 
     public function me(Request $request): JsonResponse

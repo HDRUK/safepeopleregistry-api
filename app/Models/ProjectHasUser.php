@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -60,14 +61,6 @@ class ProjectHasUser extends Model
                 'description' => 'Mandatory training has been completed',
             ],
             [
-                'name' => 'no_misconduct',
-                'description' => 'The user has no record of misconduct',
-            ],
-            [
-                'name' => 'no_relevant_criminal_record',
-                'description' => 'The user has no relevant criminal record',
-            ],
-            [
                 'name' => 'organisation_has_confirmed_the_user',
                 'description' => 'The organisation has confirmed the user',
             ],
@@ -104,5 +97,13 @@ class ProjectHasUser extends Model
     public function affiliation(): BelongsTo
     {
         return $this->belongsTo(Affiliation::class, 'affiliation_id', 'id');
+    }
+
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\CustodianHasProjectUser>
+     */
+    public function custodianHasProjectUser(): HasMany
+    {
+        return $this->hasMany(CustodianHasProjectUser::class);
     }
 }

@@ -134,9 +134,6 @@ class User extends Authenticatable
     public const GROUP_KC_CUSTODIANS = '\Custodians';
     public const GROUP_KC_ADMINS = '\Admins';
 
-    public const STATUS_INVITED = 'invited';
-    public const STATUS_REGISTERED = 'registered';
-
     protected static array $transitions = [
         State::STATE_REGISTERED => [
             State::STATE_PENDING,
@@ -261,9 +258,21 @@ class User extends Authenticatable
 
     protected $appends = ['status', 'evaluation'];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::created(function ($model) {
+            if ($model->user_group === self::GROUP_USERS && $model->unclaimed === 0) {
+                $model->setState(State::STATE_INVITED);
+                $model->save();
+            }
+        });
+    }
+
     public function getStatusAttribute(): string
     {
-        return $this->unclaimed === 1 ? self::STATUS_INVITED : self::STATUS_REGISTERED;
+        return $this->unclaimed === 1 ? State::STATE_INVITED : State::STATE_REGISTERED;
     }
 
     /**
@@ -417,6 +426,11 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->user_group === self::GROUP_ADMINS;
+    }
+
+    public function isOrganisation(): bool
+    {
+        return $this->user_group === self::GROUP_ORGANISATIONS;
     }
 
     public function inGroup(array $groups): bool

@@ -26,7 +26,7 @@ return [
         'app_url' => env('APP_URL', 'http://soursd-api:8100'),
         'portal_url' => env('PORTAL_URL', 'http://localhost:3000'),
         'portal_path_invite' => env('PORTAL_PATH_INVITE', 'invite'),
-        'support_email' => env('SUPPORT_EMAIL', 'support@safepeopleregistry.org'),
+        'support_email' => env('SUPPORT_EMAIL', 'enquiries@safepeopleregistry.org'),
         'invite_time_hours' => env('INVITE_TIME_HOURS', 24),
         'registry_salt_1' => env('REGISTRY_SALT_1'),
         'registry_salt_2' => env('REGISTRY_SALT_2'),
@@ -47,6 +47,7 @@ return [
         'ons_acredited_researcher_list_page_url' => env('ONS_ACCREDITED_RESEARCHER_LIST_PAGE_URL'),
         'ons_column_start_index' => env('ONS_COLUMN_START_INDEX', 1),
         'ons_row_start_index' => env('ONS_ROW_START_INDEX', 6),
+        'notifications_enabled' => env('NOTIFICATIONS_ENABLED', true),
         'orcid_url' => env('ORCID_URL'),
         'orcid_app_id' => env('ORCID_APP_ID'),
         'orcid_redirect_url' => env('ORCID_REDIRECT_URL'),
@@ -61,5 +62,6 @@ return [
         'gateway_api_url' => env('GATEWAY_API_URL'),
         'scanning_filesystem_disk' => env('SCANNING_FILESYSTEM_DISK', 'local_scan'),
         'ror_api_url' => env('ROR_API_URL'),
+        'registry_image_url' => env('REGISTRY_IMAGE_URL', 'https://storage.googleapis.com/hdruk-registry-assets/logo-horiz-colour.png'),
     ],
 ];

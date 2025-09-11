@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\DebugLog;
 use App\Models\Registry;
 use Illuminate\Http\Request;
+use App\Models\CustodianUser;
 use Illuminate\Support\Facades\Log;
 
 class RegistryManagementController
@@ -34,6 +35,30 @@ class RegistryManagementController
         ])->id;
     }
 
+    public static function createOrganisationUser(array $input, Request $request): mixed
+    {
+        if (!RegistryManagementController::checkDuplicateKeycloakID($input['sub'])) {
+            $user = User::create([
+                'first_name' => $input['given_name'],
+                'last_name' => $input['family_name'],
+                'email' => $input['email'],
+                'keycloak_id' => $input['sub'],
+                'registry_id' => null,
+                'organisation_id' => $request['organisation_id'],
+                'user_group' => RegistryManagementController::KC_GROUP_ORGANISATIONS,
+                't_and_c_agreed' => 1,
+                't_and_c_agreement_date' => now(),
+                'is_org_admin' => $request['is_org_admin'] ?? 1
+            ]);
+
+            return [
+                'user_id' => $user->id
+            ];
+        }
+
+        return false;
+    }
+
     /**
      * Creates a new user based on incoming data.
      *
@@ -54,6 +79,14 @@ class RegistryManagementController
 
             if ($unclaimedUser) {
                 Log::debug('unclaimed user detected - {id}', ['id' => $unclaimedUser->id]);
+
+                if ($unclaimedUser->user_group === User::GROUP_CUSTODIANS) {
+                    CustodianUser::where('id', $unclaimedUser->custodian_user_id)
+                        ->update([
+                            'first_name' => $input['given_name'],
+                            'last_name' => $input['family_name'],
+                        ]);
+                }
 
                 $unclaimedUser->first_name = $input['given_name'];
                 $unclaimedUser->last_name = $input['family_name'];
@@ -78,7 +111,7 @@ class RegistryManagementController
             ]);
 
             switch (strtolower($accountType)) {
-                case 'user':
+                case 'users':
                     if (!RegistryManagementController::checkDuplicateKeycloakID($input['sub'])) {
 
                         DebugLog::create([
@@ -137,28 +170,10 @@ class RegistryManagementController
 
                     return false;
 
-                case 'organisation':
-                    if (!RegistryManagementController::checkDuplicateKeycloakID($input['sub'])) {
-                        $user = User::create([
-                            'first_name' => $input['given_name'],
-                            'last_name' => $input['family_name'],
-                            'email' => $input['email'],
-                            'keycloak_id' => $input['sub'],
-                            'registry_id' => null,
-                            'organisation_id' => $request['organisation_id'],
-                            'user_group' => RegistryManagementController::KC_GROUP_ORGANISATIONS,
-                            't_and_c_agreed' => 1,
-                            't_and_c_agreement_date' => now(),
-                        ]);
+                case 'organisations':
+                    return self::createOrganisationUser($input, $request);
 
-                        return [
-                            'user_id' => $user->id
-                        ];
-                    }
-
-                    return false;
-
-                case 'custodian':
+                case 'custodians':
                     if (!RegistryManagementController::checkDuplicateKeycloakID($input['sub'])) {
                         $user = User::create([
                             'first_name' => $input['given_name'],

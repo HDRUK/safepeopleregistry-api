@@ -283,11 +283,15 @@ class ProjectController extends Controller
      */
     public function getProjectUsers(Request $request, int $projectId): JsonResponse
     {
+
         $projectUsers = ProjectHasUser::with([
             'registry.user',
             'role',
             'project',
+            'project.modelState.state',
+            'affiliation.modelState.state',
             'affiliation.organisation:id,organisation_name',
+            'custodianHasProjectUser.modelState.state',
         ])
             ->where('project_id', $projectId)
             ->whereHas('registry.user', function ($query) {

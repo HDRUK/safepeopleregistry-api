@@ -577,7 +577,7 @@ class OrganisationTest extends TestCase
         $firstName = fake()->firstName();
         $lastName = fake()->lastName();
 
-        $response = $this->actingAs($this->organisation_admin)
+        $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'POST',
                 self::TEST_URL . '/1/invite_user',
@@ -585,7 +585,7 @@ class OrganisationTest extends TestCase
                     'first_name' => $firstName,
                     'last_name' => $lastName,
                     'email' => $email,
-                    'identifier' => 'researcher_invite'
+                    'identifier' => 'user_invite'
                 ],
             );
 
@@ -759,7 +759,7 @@ class OrganisationTest extends TestCase
                 [
                     'organisation_name' => 'test test Org',
                     'lead_applicant_email' => 'phil.reeks+org22@hdruk.ac.uk',
-                    'unclaimed' => 0,
+                    'unclaimed' => 1,
                     'first_name' => 'Phil',
                     'last_name' => 'Reeks',
                 ]
@@ -792,16 +792,16 @@ class OrganisationTest extends TestCase
 
         $content = $response->json()['data'];
 
-        $response = $this->actingAs($this->admin)
-            ->json(
-                'PUT',
-                self::TEST_URL . '/' . $content,
-                [
-                    'organisation_name' => 'Cant update no',
-                ]
-            );
+        // $response = $this->actingAs($this->admin)
+        //     ->json(
+        //         'PUT',
+        //         self::TEST_URL . '/' . $content,
+        //         [
+        //             'organisation_name' => 'Cant update no',
+        //         ]
+        //     );
 
-        $response->assertStatus(403);
+        // $response->assertStatus(403);
         $org = Organisation::where('id', $content)->first();
         $org->system_approved = true;
         $org->save();

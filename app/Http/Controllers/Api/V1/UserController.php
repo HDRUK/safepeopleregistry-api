@@ -11,7 +11,6 @@ use App\Services\DecisionEvaluatorService as DES;
 use App\Models\User;
 use App\Models\Registry;
 use App\Models\Project;
-use App\Models\ProjectHasUser;
 use App\Models\UserHasCustodianPermission;
 use App\Models\UserHasDepartments;
 use App\Http\Requests\Users\CreateUser;
@@ -693,18 +692,19 @@ class UserController extends Controller
     public function userProjects(Request $request, int $id): JsonResponse
     {
         $user = User::with('registry')->findOrFail($id);
+
         if (!Gate::allows('view', $user)) {
             return $this->ForbiddenResponse();
         }
 
-        $projectIds = ProjectHasUser::where('user_digital_ident', $user->registry->digi_ident)
-            ->pluck('project_id')
-            ->toArray();
-
-        $projects = Project::whereIn('id', $projectIds)
-            ->withCount('projectUsers')
+        $projects = Project::searchViaRequest()
+            ->applySorting()
+            ->filterByState()
             ->with(['organisations', 'modelState.state'])
+            ->custodianHasProjectUser($user->registry->digi_ident)
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+
+
         return $this->OKResponse($projects);
     }
 

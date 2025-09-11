@@ -15,18 +15,22 @@ class WebhookEventTriggerSeeder extends Seeder
             [
                 'name' => 'user-left-project',
                 'description' => 'Event trigger for when a user is removed or leaves a Project',
+                'enabled' => true,
             ],
             [
                 'name' => 'user-joined-project',
                 'description' => 'Event trigger for when a user joins a Project',
+                'enabled' => false,
             ],
             [
                 'name' => 'user-accepted-read-request',
                 'description' => 'Event trigger for when a user accepts a read request',
+                'enabled' => true,
             ],
             [
                 'name' => 'user-rejected-read-request',
                 'description' => 'Event trigger for when a user rejects a read request',
+                'enabled' => true,
             ]
         ];
 
@@ -34,6 +38,7 @@ class WebhookEventTriggerSeeder extends Seeder
             WebhookEventTrigger::create([
                 'name' => $t['name'],
                 'description' => $t['description'],
+                'enabled' => $t['enabled'],
             ]);
         }
     }

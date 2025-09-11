@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Keycloak;
 use DB;
 use Http;
 use Auth;
@@ -192,7 +193,8 @@ class OrganisationController extends Controller
             'registries',
             'registries.user',
             'registries.user.permissions',
-            'sector'
+            'sector',
+            'files',
         ])->findOrFail($id);
         if ($organisation) {
             return $this->OKResponseExtended($organisation, 'rules', $this->decisionEvaluator->evaluate($organisation));
@@ -461,8 +463,14 @@ class OrganisationController extends Controller
     {
         $input = $request->all();
 
+        $orgExists = Organisation::where('lead_applicant_email', $input['lead_applicant_email'])->exists();
+
+        if ($orgExists) {
+            return $this->ConflictResponse();
+        }
+
         try {
-            $organisation = Organisation::create([
+            $organisationsData = [
                 'organisation_name' => $input['organisation_name'],
                 'address_1' => '',
                 'address_2' => '',
@@ -498,22 +506,40 @@ class OrganisationController extends Controller
                 'unclaimed' => $input['unclaimed'] ?? 1,
                 'system_approved' => $input['system_approved'] ?? 0,
                 'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
-            ]);
+            ];
 
-            $user = User::create([
-                'first_name' => $input['first_name'],
-                'last_name' => $input['last_name'],
-                'email' => $input['lead_applicant_email'],
-                'user_group' => User::GROUP_ORGANISATIONS,
-                'is_org_admin' => 1,
-                'organisation_id' => $organisation->id,
-            ]);
+            $organisation = Organisation::create($organisationsData);
 
-            return $this->CreatedResponse([
-                'user_id' => $user->id,
-                'organisation_id' => $organisation->id,
-            ]);
+            if ($organisationsData['unclaimed'] === 1) {
+                $user = User::create([
+                    'first_name' => $input['first_name'],
+                    'last_name' => $input['last_name'],
+                    'email' => $input['lead_applicant_email'],
+                    'user_group' => User::GROUP_ORGANISATIONS,
+                    'is_org_admin' => 1,
+                    'organisation_id' => $organisation->id,
+                ]);
 
+                return $this->CreatedResponse([
+                    'user_id' => $user->id,
+                    'organisation_id' => $organisation->id,
+                ]);
+            } else {
+                $response = Keycloak::getUserInfo($request->headers->get('Authorization'));
+                $payload = $response->json();
+
+                $request->replace([
+                    "organisation_id" => $organisation->id,
+                    "is_org_admin" => 1
+                ]);
+
+                $user = RMC::createOrganisationUser($payload, $request);
+
+                return $this->CreatedResponse([
+                    'user_id' => $user['user_id'],
+                    'organisation_id' => $organisation->id,
+                ]);
+            }
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -649,13 +675,15 @@ class OrganisationController extends Controller
         try {
             $input = $request->only(app(Organisation::class)->getFillable());
             $org = Organisation::findOrFail($id);
+
             if (!Gate::allows('update', $org)) {
                 return $this->ForbiddenResponse();
             }
 
-            if (!$org->system_approved && (!isset($input['system_approved']) || $input['system_approved'] === false)) {
-                return $this->ForbiddenResponse();
-            }
+            // we need more discussion aroud this disable
+            // if (!$org->system_approved && (!isset($input['system_approved']) || $input['system_approved'] === false)) {
+            //     return $this->ForbiddenResponse();
+            // }
 
             $org->update($input);
 
@@ -1083,10 +1111,17 @@ class OrganisationController extends Controller
     public function inviteUser(Request $request, int $id): JsonResponse
     {
         try {
+            $org = Organisation::findOrFail($id);
+            // temp
+            if (Gate::allows('updateIsOrganisation', $org) && !$org->system_approved) {
+                return $this->ForbiddenResponse();
+            }
+
             $input = $request->all();
             if (User::where("email", $input['email'])->exists()) {
                 return $this->ConflictResponse();
             }
+            $custodianId = $request->user()->id;
 
             $unclaimedUser = RMC::createUnclaimedUser([
                 'firstname' => $input['first_name'],
@@ -1117,7 +1152,8 @@ class OrganisationController extends Controller
                     'type' => 'USER',
                     'to' => $unclaimedUser->id,
                     'by' => $id,
-                    'identifier' => 'researcher_invite'
+                    'identifier' => 'user_invite',
+                    'custodianId' => $custodianId,
                 ];
 
                 Affiliation::create([
@@ -1359,14 +1395,16 @@ class OrganisationController extends Controller
             $users = User::searchViaRequest()
                 ->applySorting()
                 ->with([
-                    'registry.affiliations' => function ($query) use ($id) {
-                        $query->where('organisation_id', $id)->limit(1);
+                    'registry.affiliations' => function ($q) use ($affiliationIds, $id) {
+                        $q->whereIn('id', $affiliationIds)
+                          ->where('organisation_id', $id)->limit(1);
                     },
                     'registry.affiliations.modelState.state',
                     'modelState.state'
                 ])
-                ->whereHas('registry.affiliations', function ($query) use ($affiliationIds) {
-                    $query->whereIn('id', $affiliationIds);
+                ->whereHas('registry.affiliations', function ($query) use ($affiliationIds, $id) {
+                    $query->whereIn('id', $affiliationIds)
+                          ->where('organisation_id', $id);
                 })
                 ->where(function ($query) use ($showPending, $id) {
                     if ($showPending) {
@@ -1388,4 +1426,86 @@ class OrganisationController extends Controller
             throw new Exception($e->getMessage());
         }
     }
+
+    /**
+     * @OA\Patch(
+     *      path="/api/v1/organisations/{id}/approved",
+     *      summary="SuperAdmin update org system_approved flag",
+     *      description="Updates the system_approved flag for an organisation",
+     *      tags={"organisations"},
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="organisations entry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="organisations entry ID",
+     *         ),
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="Invite definition",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="system_approved", type="bool", example="true"),
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="integer", example="1"),
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=500,
+     *          description="Error",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="error")
+     *          )
+     *      )
+     * )
+     */
+    public function updateApproved(Request $request, int $id): JsonResponse
+    {
+        try {
+            $input = $request->only(app(Organisation::class)->getFillable());
+            $org = Organisation::findOrFail($id);
+
+            if (!Gate::allows('updateIsAdmin', Organisation::class)) {
+                return $this->ForbiddenResponse();
+            }
+
+            if ($org->system_approved) {
+                return $this->NoContent();
+            }
+
+            if (!isset($input['system_approved'])) {
+                return $this->BadRequestResponse();
+            }
+
+            $org->update([
+                'system_approved' => $input['system_approved']
+            ]);
+
+            $custodianId = $request->user()->id;
+
+            $input = [
+                'type' => 'ORGANISATION_NEEDS_CONFIRMATION',
+                'to' => $org->id,
+                'by' => $custodianId,
+                'identifier' => 'organisation_needs_confirmation'
+            ];
+
+            TriggerEmail::spawnEmail($input);
+
+            return $this->OKResponse($org);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
 }
