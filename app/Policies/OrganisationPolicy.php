@@ -33,4 +33,9 @@ class OrganisationPolicy
     {
         return $user->isOrganisation();
     }
+
+    public function updateIsAdmin(User $user): bool
+    {
+        return $user->isAdmin();
+    }
 }
