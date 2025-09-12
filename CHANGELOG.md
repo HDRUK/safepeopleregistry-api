@@ -1,3 +1,9 @@
+## [1.10.1](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.10.0...v1.10.1) (2025-09-12)
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-1885:** Organisations > Approval - 403 for admin (#425) ([3a4ffa8](https://github.com/HDRUK/safepeopleregistry-api/commit/3a4ffa848aac3e3143cb5e5dd50b794a615d7163))
+
 ## [1.10.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.9.0...v1.10.0) (2025-09-11)
 
 ### ✨ Features
