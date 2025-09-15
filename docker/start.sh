@@ -21,6 +21,7 @@ if [ $APP_ENV = 'local' ] || [ $APP_ENV = 'dev' ]; then
     fi
 else
     php artisan horizon:clear
+    
     # Only forward-facing migrations anywhere else
     php artisan migrate
     # call the email template seeder to updateOrCreate without truncating first
