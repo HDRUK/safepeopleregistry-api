@@ -697,11 +697,21 @@ class UserController extends Controller
             return $this->ForbiddenResponse();
         }
 
+        $userDigitalIdent = $user->registry->digi_ident;
+
         $projects = Project::searchViaRequest()
             ->applySorting()
             ->filterByState()
             ->with(['organisations', 'modelState.state'])
-            ->custodianHasProjectUser($user->registry->digi_ident)
+            ->custodianHasProjectUser($userDigitalIdent)
+            ->whereHas(
+                'custodianHasProjectUser',
+                function ($query) use ($userDigitalIdent) {
+                    $query->whereHas('projectHasUser', function ($query2) use ($userDigitalIdent) {
+                        $query2->where('user_digital_ident', $userDigitalIdent);
+                    });
+                }
+            )
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
 
