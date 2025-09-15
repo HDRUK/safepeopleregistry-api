@@ -706,9 +706,9 @@ class UserController extends Controller
             ->custodianHasProjectUser($userDigitalIdent)
             ->whereHas(
                 'custodianHasProjectUser',
-                function ($query2) use ($userDigitalIdent) {
-                    $query2->whereHas('projectHasUser', function ($query3) use ($userDigitalIdent) {
-                        $query3->where('user_digital_ident', $userDigitalIdent);
+                function ($query) use ($userDigitalIdent) {
+                    $query->whereHas('projectHasUser', function ($query2) use ($userDigitalIdent) {
+                        $query2->where('user_digital_ident', $userDigitalIdent);
                     });
                 }
             )
