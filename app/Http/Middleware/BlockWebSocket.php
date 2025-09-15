@@ -15,19 +15,17 @@ class BlockWebSocket
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $upgrade     = strtolower((string) $request->header('Upgrade'));
-        $connection  = strtolower((string) $request->header('Connection'));
+        $upgrade    = strtolower((string) $request->header('Upgrade'));
+        $connection = strtolower((string) $request->header('Connection'));
 
-        // Block if it's trying to upgrade to WS
         if ($upgrade === 'websocket' || str_contains($connection, 'upgrade')) {
             abort(403, 'WebSocket not supported.');
         }
 
-        // Block if WS-specific headers are present
-        if ($request->hasHeader('Sec-WebSocket-Key') ||
-            $request->hasHeader('Sec-WebSocket-Version') ||
-            $request->hasHeader('Sec-WebSocket-Extensions') ||
-            $request->hasHeader('Sec-WebSocket-Protocol')) {
+        if ($request->hasHeader('Sec-WebSocket-Key')
+            || $request->hasHeader('Sec-WebSocket-Version')
+            || $request->hasHeader('Sec-WebSocket-Extensions')
+            || $request->hasHeader('Sec-WebSocket-Protocol')) {
             abort(403, 'WebSocket not supported.');
         }
 
