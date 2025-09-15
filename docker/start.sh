@@ -21,8 +21,6 @@ if [ $APP_ENV = 'local' ] then
         php artisan migrate
     fi
 else
-    php artisan optimize:clear
-    
     # Only forward-facing migrations anywhere else
     php artisan migrate
     # call the email template seeder to updateOrCreate without truncating first
