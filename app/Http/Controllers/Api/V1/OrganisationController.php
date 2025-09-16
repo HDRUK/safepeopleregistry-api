@@ -1090,6 +1090,7 @@ class OrganisationController extends Controller
      *              @OA\Property(property="department_id", type="integer", example="1"),
      *              @OA\Property(property="role", type="string", example="admin"),
      *              @OA\Property(property="user_group", type="string", example="USERS"),
+     *              @OA\Property(property="from_custodian", type="bool", example="true"),
      *          ),
      *      ),
      *      @OA\Response(
@@ -1122,7 +1123,7 @@ class OrganisationController extends Controller
             if (User::where("email", $input['email'])->exists()) {
                 return $this->ConflictResponse();
             }
-            $custodianId = $request->user()->id;
+            $loggedInUserId = $request->user()->id;
 
             $unclaimedUser = RMC::createUnclaimedUser([
                 'firstname' => $input['first_name'],
@@ -1149,13 +1150,27 @@ class OrganisationController extends Controller
                     'identifier' => 'delegate_invite'
                 ];
             } else {
-                $email = [
-                    'type' => 'USER',
-                    'to' => $unclaimedUser->id,
-                    'by' => $id,
-                    'identifier' => 'user_invite',
-                    'custodianId' => $custodianId,
-                ];
+                $loggedInUser = User::where('id', $loggedInUserId)->first();
+
+                if ($loggedInUser->user_group === User::GROUP_CUSTODIANS) {
+                    $email = [
+                        'type' => 'USER',
+                        'to' => $unclaimedUser->id,
+                        'by' => $id,
+                        'identifier' => 'custodian_user_invite',
+                        'custodianId' => $loggedInUserId,
+                    ];
+                }
+                
+                if ($loggedInUser->user_group === User::GROUP_ORGANISATIONS) {
+                    $email = [
+                        'type' => 'USER',
+                        'to' => $unclaimedUser->id,
+                        'by' => $id,
+                        'identifier' => 'user_invite',
+                        'custodianId' => $loggedInUserId,
+                    ];
+                }
 
                 Affiliation::create([
                     'organisation_id' => $id,
