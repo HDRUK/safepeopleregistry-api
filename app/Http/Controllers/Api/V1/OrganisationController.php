@@ -97,7 +97,8 @@ class OrganisationController extends Controller
                     'registries',
                     'registries.user',
                     'registries.user.permissions',
-                    'delegates'
+                    'delegates',
+                    'sroOfficer'
                 ])
                 ->filterWhen('has_delegates', function ($query, $hasDelegates) {
                     if ($hasDelegates) {

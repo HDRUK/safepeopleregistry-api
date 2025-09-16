@@ -544,6 +544,7 @@ class UserController extends Controller
             $user->uksa_registered = isset($input['uksa_registered']) ? $input['uksa_registered'] : $user->uksa_registered;
             $user->is_sro = isset($input['is_sro']) ? $input['is_sro'] : $user->is_sro;
             $user->is_delegate = isset($input['is_delegate']) ? $input['is_delegate'] : $user->is_delegate;
+            $user->role = isset($input['role']) ? $input['role'] : $user->role;
 
             if ($user->save()) {
                 return response()->json([
