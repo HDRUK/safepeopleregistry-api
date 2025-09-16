@@ -101,7 +101,7 @@ class TriggerEmail
                 $user = User::where('id', $to)->first();
                 $organisation = Organisation::where('id', $by)->first();
                 $template = EmailTemplate::where('identifier', $identifier)->first();
-                $custodian = User::where('id', $custodianId)->first();
+                $custodian = $custodianId ? User::where('id', $custodianId)->first() : null;
 
                 $newRecipients = [
                     'id' => $user->id,
@@ -113,7 +113,7 @@ class TriggerEmail
                     '[[users.first_name]]' => $user->first_name,
                     '[[users.last_name]]' => $user->last_name,
                     '[[users.created_at]]' => $user->created_at,
-                    '[[custodian.name]]' => $custodian->name ?? '',
+                    '[[custodian.name]]' => $custodianId ? $custodian->name : '',
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
                     '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
                     '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),
@@ -219,6 +219,7 @@ class TriggerEmail
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
                     '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
                     '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),
                 ];
 
                 PendingInvite::create([
