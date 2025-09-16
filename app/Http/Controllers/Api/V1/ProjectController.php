@@ -172,7 +172,7 @@ class ProjectController extends Controller
      */
     public function getProjectByIdAndUserId(Request $request, int $projectId, int $userId): JsonResponse
     {
-        $user = User::with(['registry'])->findOrFail(9);
+        $user = User::with(['registry'])->findOrFail($userId);
 
         if (!$user || !$user->registry) {
             return $this->NotFoundResponse();
