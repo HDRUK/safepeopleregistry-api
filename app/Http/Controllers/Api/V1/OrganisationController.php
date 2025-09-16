@@ -1090,6 +1090,7 @@ class OrganisationController extends Controller
      *              @OA\Property(property="department_id", type="integer", example="1"),
      *              @OA\Property(property="role", type="string", example="admin"),
      *              @OA\Property(property="user_group", type="string", example="USERS"),
+     *              @OA\Property(property="from_custodian", type="bool", example="true"),
      *          ),
      *      ),
      *      @OA\Response(
@@ -1149,13 +1150,25 @@ class OrganisationController extends Controller
                     'identifier' => 'delegate_invite'
                 ];
             } else {
-                $email = [
-                    'type' => 'USER',
-                    'to' => $unclaimedUser->id,
-                    'by' => $id,
-                    'identifier' => 'user_invite',
-                    'custodianId' => $custodianId,
-                ];
+                $fromCustodian = isset($input['from_custodian']) ? $input['from_custodian'] : false;
+
+                if ($fromCustodian) { // custodian invite user
+                    $email = [
+                        'type' => 'USER',
+                        'to' => $unclaimedUser->id,
+                        'by' => $id,
+                        'identifier' => 'custodian_user_invite',
+                        'custodianId' => $custodianId,
+                    ];
+                } else { // organisation invite user
+                    $email = [
+                        'type' => 'USER',
+                        'to' => $unclaimedUser->id,
+                        'by' => $id,
+                        'identifier' => 'user_invite',
+                        'custodianId' => $custodianId,
+                    ];
+                }
 
                 Affiliation::create([
                     'organisation_id' => $id,
