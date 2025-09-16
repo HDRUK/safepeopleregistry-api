@@ -1167,8 +1167,7 @@ class OrganisationController extends Controller
                         'type' => 'USER',
                         'to' => $unclaimedUser->id,
                         'by' => $id,
-                        'identifier' => 'user_invite',
-                        'custodianId' => $loggedInUserId,
+                        'identifier' => 'organisation_user_invite',
                     ];
                 }
 
