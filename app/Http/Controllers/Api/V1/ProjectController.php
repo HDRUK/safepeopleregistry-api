@@ -130,6 +130,75 @@ class ProjectController extends Controller
 
     /**
      * @OA\Get(
+     *      path="/api/v1/projects/{projectId}/users/{userId}",
+     *      summary="Get project details by projectID and userID",
+     *      description="Fetches project given user and project IDs.",
+     *      tags={"Project"},
+     *      @OA\Parameter(
+     *          name="userId",
+     *          in="path",
+     *          required=true,
+     *          description="ID of the user",
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\Parameter(
+     *          name="projectId",
+     *          in="path",
+     *          required=true,
+     *          description="ID of the project",
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successfully retrieved project",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="array",
+     *                  @OA\Items(
+     *                      ref="#/components/schemas/Project"
+     *                  )
+     *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Project not found",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="Project not found")
+     *          )
+     *      )
+     * )
+     */
+    public function getProjectByIdAndUserId(Request $request, int $projectId, int $userId): JsonResponse
+    {
+        $user = User::with(['registry'])->findOrFail(9);
+
+        if (!$user || !$user->registry) {
+            return $this->NotFoundResponse();
+        }
+
+        $project = Project::with([
+                'projectDetail',
+                'custodians',
+                'modelState.state',
+                'custodianHasProjectUser' => function ($query) use ($user) {
+                    $query->whereHas('projectHasUser', function ($query2) use ($user) {
+                        $query2->where('user_digital_ident', $user->registry->digi_ident);
+                    })
+                    ->with('modelState.state');
+                },
+            ])->findOrFail($projectId);
+
+        if ($project) {
+            return $this->OKResponse($project);
+        }
+
+        throw new NotFoundException();
+    }
+
+    /**
+     * @OA\Get(
      *      path="/api/v1/projects/{projectId}/organisations/{organisationId}",
      *      summary="Get project details by projectID and organisationID",
      *      description="Fetches project given organisation and project IDs.",
