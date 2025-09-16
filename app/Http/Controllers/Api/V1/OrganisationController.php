@@ -1152,23 +1152,13 @@ class OrganisationController extends Controller
             } else {
                 $fromCustodian = isset($input['from_custodian']) ? $input['from_custodian'] : false;
 
-                if ($fromCustodian) { // custodian invite user
-                    $email = [
-                        'type' => 'USER',
-                        'to' => $unclaimedUser->id,
-                        'by' => $id,
-                        'identifier' => 'custodian_user_invite',
-                        'custodianId' => $custodianId,
-                    ];
-                } else { // organisation invite user
-                    $email = [
-                        'type' => 'USER',
-                        'to' => $unclaimedUser->id,
-                        'by' => $id,
-                        'identifier' => 'user_invite',
-                        'custodianId' => $custodianId,
-                    ];
-                }
+                $email = [
+                    'type' => 'USER',
+                    'to' => $unclaimedUser->id,
+                    'by' => $id,
+                    'identifier' => $fromCustodian ? 'custodian_user_invite' : 'user_invite',
+                    'custodianId' => $custodianId,
+                ];
 
                 Affiliation::create([
                     'organisation_id' => $id,
