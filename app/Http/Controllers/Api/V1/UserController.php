@@ -225,7 +225,7 @@ class UserController extends Controller
 
             $loggedInUserId = $request->user()->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();
-            $isUserGroupOrg = $loggedInUser->user_group === 'ORGANISATIONS' ? true : false;
+            $isUserGroupOrg = (!is_null($loggedInUser) && $loggedInUser->user_group === 'ORGANISATIONS') ? true : false;
 
             $user = User::with([
                 'permissions',
