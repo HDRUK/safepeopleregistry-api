@@ -498,7 +498,7 @@ class ProjectController extends Controller
                     'registry_id' => $user->registry_id,
                     'first_name' => $user->first_name,
                     'last_name' => $user->last_name,
-                    'email' => $user->email,
+                    'email' => $affiliation->email,
                     'affiliation_id' => $affiliation->id,
                     'organisation_name' => $affiliation->organisation->organisation_name,
                     'role' => $matchingProjectUser?->role,
