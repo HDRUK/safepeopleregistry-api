@@ -312,7 +312,7 @@ class EmailTemplatesSeeder extends Seeder
                         ' . $this->mjmlHead . '
                         <mj-body background-color="#f6dff1" width="600px" >
 
-                          ' . $this->titleBar('User invite') . '
+                          ' . $this->titleBar('Approver invite') . '
 
                           <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
                             <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
@@ -355,7 +355,7 @@ class EmailTemplatesSeeder extends Seeder
                         ' . $this->mjmlHead . '
                         <mj-body background-color="#f6dff1" width="600px" >
 
-                          ' . $this->titleBar('User invite') . '
+                          ' . $this->titleBar('Administrator invite') . '
 
                           <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
                             <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
