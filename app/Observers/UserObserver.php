@@ -60,7 +60,9 @@ class UserObserver
         }
 
         // Call the OrcID scanner job to fetch the OrcID data.
-        OrcIDScanner::dispatch($user);
+        if ($user->consent_scrape) {
+            OrcIDScanner::dispatch($user);
+        }
     }
 
     /**
@@ -128,7 +130,10 @@ class UserObserver
         }
 
         // Call the OrcID scanner job to fetch the OrcID data.
-        OrcIDScanner::dispatch($user);
+        if ($user->consent_scrape) {
+            OrcIDScanner::dispatch($user);
+        }
+
     }
 
     /**

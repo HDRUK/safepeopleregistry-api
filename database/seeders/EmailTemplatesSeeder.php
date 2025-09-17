@@ -237,10 +237,134 @@ class EmailTemplatesSeeder extends Seeder
                             <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
                               <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
                                 <mj-text align="left" padding="20px 0px 20px 0px">
+                                  ' . $this->whatIsBlurb . '
+                                  <div><br></div>
+                                  You\'ve been added to the [[env(APP_NAME)]] by [[custodian.name]]. Please follow the link below to make a profile. [[custodian.name]] will use your [[env(APP_NAME)]] profile to validate you under the \'safe people\' criteria of the Five Safes.
+                                  <div><br/></div>
+                                  ' . $this->supportFooter . '
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+                                    
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
+                              <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
+                                <mj-text align="left" padding="10px 15px 0px 15px">
+                                  Create your account by clicking the button below.
+                                </mj-text>
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 15px 15px 15px">
+                                  Sign me up!
+                                </mj-button>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+
+                        </mj-body>
+                      </mjml >',
+            'buttons' => '',
+          ],
+          [
+            'identifier' => 'organisation_user_invite',
+            'subject' => 'Safe People Registry | User invite',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#f6dff1" width="600px" >
+
+                          ' . $this->titleBar('User invite') . '
+
+                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                                <mj-text align="left" padding="20px 0px 20px 0px">
+
+                                  [[users.first_name]] [[users.last_name]]
+                                  <div><br></div>
+                                  You\'ve been invited to sign-up as a User (researcher/innovator) within the [[env(APP_NAME)]] by [[organisation.organisation_name]].
+                                  <div><br></div>
+                                  ' . $this->whatIsBlurb . '
+                                  <div><br></div>
+                                  To create your account, please click the button below.
+                                  <div><br></div>
+                                  ' . $this->supportFooter . '
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+                                    
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
+                              <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
+                                <mj-text align="left" padding="10px 15px 0px 15px">
+                                  Create your account by clicking the button below.
+                                </mj-text>
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 15px 15px 15px">
+                                  Sign me up!
+                                </mj-button>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+
+                        </mj-body>
+                      </mjml >',
+            'buttons' => '',
+          ],
+          [
+            'identifier' => 'custodian_invite_approver',
+            'subject' => 'Safe People Registry | Approver invite',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#f6dff1" width="600px" >
+
+                          ' . $this->titleBar('Approver invite') . '
+
+                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                                <mj-text align="left" padding="20px 0px 20px 0px">
 
                                   [[users.first_name]] [[users.last_name]]
                                   <div><br></div>
                                   You\'ve been invited to sign-up as an Approver within the [[env(APP_NAME)]] for the Data Custodian: [[custodian.name]].
+                                  <div><br></div>
+                                  ' . $this->whatIsBlurb . '
+                                  <div><br></div>
+                                  To begin your sign-up process, please click the button below.
+                                  <div><br/></div>
+                                  ' . $this->supportFooter . '
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+                                    
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
+                              <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
+                                <mj-text align="left" padding="10px 15px 0px 15px">
+                                  Create your account by clicking the button below.
+                                </mj-text>
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 15px 15px 15px">
+                                  Sign me up!
+                                </mj-button>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+
+                        </mj-body>
+                      </mjml >',
+            'buttons' => '',
+          ],
+          [
+            'identifier' => 'custodian_invite_administrator',
+            'subject' => 'Safe People Registry | Administrator invite',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#f6dff1" width="600px" >
+
+                          ' . $this->titleBar('Administrator invite') . '
+
+                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                                <mj-text align="left" padding="20px 0px 20px 0px">
+
+                                  [[users.first_name]] [[users.last_name]]
+                                  <div><br></div>
+                                  You\'ve been invited to sign-up as an Administrator within the [[env(APP_NAME)]] for the Data Custodian: [[custodian.name]].
                                   <div><br></div>
                                   ' . $this->whatIsBlurb . '
                                   <div><br></div>
