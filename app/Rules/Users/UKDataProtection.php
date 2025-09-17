@@ -16,6 +16,6 @@ class UKDataProtection extends BaseRule
 
         $actual = Arr::get($model, $path, null);
 
-        return in_array($actual, $sanctions);
+        return !in_array($actual, $sanctions);
     }
 }
