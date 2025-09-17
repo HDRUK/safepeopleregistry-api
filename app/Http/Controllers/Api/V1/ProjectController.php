@@ -172,31 +172,33 @@ class ProjectController extends Controller
      */
     public function getProjectByIdAndUserId(Request $request, int $projectId, int $userId): JsonResponse
     {
-        $user = User::with(['registry'])->findOrFail($userId);
+        try {
+            $user = User::with(['registry'])->find($userId);
 
-        if (!$user || !$user->registry) {
-            return $this->NoContent();
+            if (!$user || !$user->registry) {
+                return $this->NoContent();
+            }
+
+            $project = Project::with([
+                    'projectDetail',
+                    'custodians',
+                    'modelState.state',
+                    'custodianHasProjectUser' => function ($query) use ($user) {
+                        $query->whereHas('projectHasUser', function ($query2) use ($user) {
+                            $query2->where('user_digital_ident', $user->registry->digi_ident);
+                        })
+                        ->with('modelState.state');
+                    },
+                ])->find($projectId);
+
+            if ($project) {
+                return $this->OKResponse($project);
+            } else {
+                return $this->NoContent();
+            }
+        } catch (Exception $e) {
+            $this->ErrorResponse($e->getMessage());
         }
-
-        $project = Project::with([
-                'projectDetail',
-                'custodians',
-                'modelState.state',
-                'custodianHasProjectUser' => function ($query) use ($user) {
-                    $query->whereHas('projectHasUser', function ($query2) use ($user) {
-                        $query2->where('user_digital_ident', $user->registry->digi_ident);
-                    })
-                    ->with('modelState.state');
-                },
-            ])->findOrFail($projectId);
-
-        if ($project) {
-            return $this->OKResponse($project);
-        } else {
-            return $this->NoContent();
-        }
-
-        throw new NotFoundException();
     }
 
     /**
