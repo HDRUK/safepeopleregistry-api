@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use Exception;
 use App\Models\Affiliation;
+use App\Models\User;
 use App\Models\State;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
@@ -56,6 +57,11 @@ class AffiliationController extends Controller
      */
     public function indexByRegistryId(Request $request, int $registryId): JsonResponse
     {
+
+        $loggedInUserId = $request->user()->id;
+        $loggedInUser = User::where('id', $loggedInUserId)->first();
+        $isUserGroupOrg = $loggedInUser->user_group === 'ORGANISATIONS' ? true : false;
+        
         $affiliations = Affiliation::with(
             [
                 'modelState.state',
@@ -72,6 +78,13 @@ class AffiliationController extends Controller
             ->where(['registry_id' => $registryId])
             ->paginate((int) $this->getSystemConfig('PER_PAGE'));
 
+        if ($isUserGroupOrg) {
+            $affiliations->getCollection()->each(function ($affiliation) use ($loggedInUser) {
+                if ($affiliation->organisation_id !== $loggedInUser->organisation_id) {
+                    $affiliation->setAttribute('member_id', '***');
+                }
+            });
+        }
 
         return response()->json([
             'message' => 'success',

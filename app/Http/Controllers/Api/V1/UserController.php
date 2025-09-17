@@ -6,23 +6,24 @@ use DB;
 use Hash;
 use Keycloak;
 use Exception;
-use RegistryManagementController as RMC;
-use App\Services\DecisionEvaluatorService as DES;
+use TriggerEmail;
 use App\Models\User;
-use App\Models\Registry;
 use App\Models\Project;
-use App\Models\UserHasCustodianPermission;
-use App\Models\UserHasDepartments;
-use App\Http\Requests\Users\CreateUser;
-use App\Http\Traits\Responses;
-use Illuminate\Http\JsonResponse;
+use App\Models\Registry;
+use App\Models\Organisation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use App\Http\Controllers\Controller;
+use App\Http\Traits\Responses;
 use App\Traits\CommonFunctions;
 use App\Traits\CheckPermissions;
+use Illuminate\Http\JsonResponse;
+use App\Models\UserHasDepartments;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
-use TriggerEmail;
+use App\Http\Requests\Users\CreateUser;
+use RegistryManagementController as RMC;
+use App\Models\UserHasCustodianPermission;
+use App\Services\DecisionEvaluatorService as DES;
 
 class UserController extends Controller
 {
@@ -222,6 +223,10 @@ class UserController extends Controller
         try {
             $this->decisionEvaluator = new DES($request);
 
+            $loggedInUserId = $request->user()->id;
+            $loggedInUser = User::where('id', $loggedInUserId)->first();
+            $isUserGroupOrg = $loggedInUser->user_group === 'ORGANISATIONS' ? true : false;
+
             $user = User::with([
                 'permissions',
                 'registry',
@@ -234,6 +239,14 @@ class UserController extends Controller
                 'registry.education',
                 'registry.trainings',
             ])->where('id', $id)->first();
+
+            if ($user->registry && $user->registry->affiliations && $isUserGroupOrg) {
+                $user->registry->affiliations->each(function ($affiliation) use ($loggedInUser) {
+                    if ($affiliation->organisation_id !== $loggedInUser->organisation_id) {
+                        $affiliation->setAttribute('member_id', '***');
+                    }
+                });
+            }
 
             if (!Gate::allows('view', $user)) {
                 return $this->ForbiddenResponse();
