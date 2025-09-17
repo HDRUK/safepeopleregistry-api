@@ -179,17 +179,21 @@ class ProjectController extends Controller
                 return $this->NoContent();
             }
 
+            $digiIdent = $user->registry->digi_ident;
+
             $project = Project::with([
-                    'projectDetail',
-                    'custodians',
-                    'modelState.state',
-                    'custodianHasProjectUser' => function ($query) use ($user) {
-                        $query->whereHas('projectHasUser', function ($query2) use ($user) {
-                            $query2->where('user_digital_ident', $user->registry->digi_ident);
-                        })
-                        ->with('modelState.state');
-                    },
-                ])->find($projectId);
+                'projectDetail',
+                'custodians',
+                'modelState.state',
+                'custodianHasProjectUser' => function ($query) use ($digiIdent) {
+                    $query->whereHas('projectHasUser', function ($query2) use ($digiIdent) {
+                        $query2->where('user_digital_ident', $digiIdent);
+                    })
+                    ->with('modelState.state');
+                },
+            ])->whereHas('custodianHasProjectUser.projectHasUser', function ($q) use ($digiIdent) {
+                $q->where('user_digital_ident', $digiIdent);
+            })->find($projectId);
 
             if ($project) {
                 return $this->OKResponse($project);
@@ -197,7 +201,7 @@ class ProjectController extends Controller
                 return $this->NoContent();
             }
         } catch (Exception $e) {
-            $this->ErrorResponse($e->getMessage());
+            return $this->ErrorResponse($e->getMessage());
         }
     }
 
