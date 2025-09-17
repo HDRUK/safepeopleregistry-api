@@ -1,3 +1,19 @@
+## [1.11.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.10.1...v1.11.0) (2025-09-17)
+
+### ✨ Features
+
+* **REGISTRY-1459:** get project by id and user id for approvals (#434) ([5d9194e](https://github.com/HDRUK/safepeopleregistry-api/commit/5d9194e07f7893d532a99ed5d1ebe2f051075178))
+* **REGISTRY-1893:** Potential Cross Site WebSocket Hijacking - Insufficient WebSocket Origin Validation (#429) ([f28c1e9](https://github.com/HDRUK/safepeopleregistry-api/commit/f28c1e93f99a70c3d2d2a2e7db55a07720fe7918))
+* **REGISTRY-1897:** Distinguish User invite email based on invited by Org or by Custodian (#432) ([d62deef](https://github.com/HDRUK/safepeopleregistry-api/commit/d62deef0f7ddc8c988745beab1079f0b7b301328))
+* **REGISTRY-1904:** include sro (#428) ([5251a68](https://github.com/HDRUK/safepeopleregistry-api/commit/5251a682f1e3f5bc374f9e6db16ee5df070f1f76))
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-1234:** fix send user email invite for users (#433) ([25165e7](https://github.com/HDRUK/safepeopleregistry-api/commit/25165e78343f9f3842c8fee81227e32091cf53cb))
+* **REGISTRY-1234:** send approver and administrator invite emails (#435) ([4c5998e](https://github.com/HDRUK/safepeopleregistry-api/commit/4c5998ea1f9bd8317b07b8dd8dc6a44e53989251))
+* **REGISTRY-1234:** update start OrcIDScanner job (#431) ([3522f35](https://github.com/HDRUK/safepeopleregistry-api/commit/3522f35bace5496861e43d9177007330a60dc0ac))
+* **REGISTRY-1895:** filter projects (#427) ([da107ce](https://github.com/HDRUK/safepeopleregistry-api/commit/da107ce789d989d51b5c29cd812aab26374ff9e2))
+
 ## [1.10.1](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.10.0...v1.10.1) (2025-09-12)
 
 ### 🐛 Bug Fixes
