@@ -87,6 +87,7 @@ class BaseDemoSeeder extends Seeder
             'smb_status' => true,
             'organisation_size' => 2,
             'website' => 'https://www.website1.com/',
+            'system_approved' => true,
         ]);
 
         /*CustodianHasOrganisation::create([

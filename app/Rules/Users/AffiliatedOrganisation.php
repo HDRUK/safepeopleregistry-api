@@ -17,7 +17,7 @@ class AffiliatedOrganisation extends BaseRule
         $affiliationArray = Arr::get($model, $path, null);
 
         foreach ($affiliationArray as $a) {
-            if ($a['registryAffiliationState'] === State::STATE_AFFILIATION_APPROVED) {
+            if (!is_null(data_get($a, 'modelState.state.slug')) && $a['modelState']['state']['slug'] === State::STATE_AFFILIATION_APPROVED) {
                 if ($a['from'] !== '' && $a['to'] === '') {
                     // Assume current affiliation
                     $verdict = true;
