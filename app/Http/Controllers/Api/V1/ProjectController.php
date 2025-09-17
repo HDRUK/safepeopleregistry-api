@@ -175,7 +175,7 @@ class ProjectController extends Controller
         $user = User::with(['registry'])->findOrFail($userId);
 
         if (!$user || !$user->registry) {
-            return $this->NotFoundResponse();
+            return $this->NoContent();
         }
 
         $project = Project::with([
@@ -192,6 +192,8 @@ class ProjectController extends Controller
 
         if ($project) {
             return $this->OKResponse($project);
+        } else {
+            return $this->NoContent();
         }
 
         throw new NotFoundException();
