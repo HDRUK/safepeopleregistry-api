@@ -291,6 +291,9 @@ class CustodianUserController extends Controller
         try {
             $user = CustodianUser::where('id', $id)->first();
 
+            $custodianUserPermissions = CustodianUserHasPermission::where('custodian_user_id', $id)->first();
+            $permissions = Permission::where('id', $custodianUserPermissions->permission_id)->first();
+
             /**
              * Observer is also creating the keycloak user
              */
@@ -302,12 +305,21 @@ class CustodianUserController extends Controller
                 'custodian_user_id' => $id
             ]);
 
+            $emailIdentifier = '';
+            if ($permissions->name === 'CUSTODIAN_ADMIN') {
+                $emailIdentifier = 'custodian_invite_administrator';
+            }
+
+            if ($permissions->name === 'CUSTODIAN_APPROVER') {
+                $emailIdentifier = 'custodian_invite_approver';
+            }
+
             $input = [
                 'type' => 'CUSTODIAN_USER',
                 'to' => $user->id,
                 'unclaimed_user_id' => $unclaimedUser->id,
                 'by' => $id,
-                'identifier' => 'custodian_user_invite'
+                'identifier' => $emailIdentifier
             ];
 
             TriggerEmail::spawnEmail($input);
