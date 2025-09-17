@@ -1161,7 +1161,7 @@ class OrganisationController extends Controller
                         'custodianId' => $loggedInUserId,
                     ];
                 }
-                
+
                 if ($loggedInUser->user_group === User::GROUP_ORGANISATIONS) {
                     $email = [
                         'type' => 'USER',

@@ -130,6 +130,83 @@ class ProjectController extends Controller
 
     /**
      * @OA\Get(
+     *      path="/api/v1/projects/{projectId}/users/{userId}",
+     *      summary="Get project details by projectID and userID",
+     *      description="Fetches project given user and project IDs.",
+     *      tags={"Project"},
+     *      @OA\Parameter(
+     *          name="userId",
+     *          in="path",
+     *          required=true,
+     *          description="ID of the user",
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\Parameter(
+     *          name="projectId",
+     *          in="path",
+     *          required=true,
+     *          description="ID of the project",
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Successfully retrieved project",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="array",
+     *                  @OA\Items(
+     *                      ref="#/components/schemas/Project"
+     *                  )
+     *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Project not found",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="Project not found")
+     *          )
+     *      )
+     * )
+     */
+    public function getProjectByIdAndUserId(Request $request, int $projectId, int $userId): JsonResponse
+    {
+        try {
+            $user = User::with(['registry'])->find($userId);
+
+            if (!$user || !$user->registry) {
+                return $this->NoContent();
+            }
+
+            $digiIdent = $user->registry->digi_ident;
+
+            $project = Project::with([
+                'projectDetail',
+                'custodians',
+                'modelState.state',
+                'custodianHasProjectUser' => function ($query) use ($digiIdent) {
+                    $query->whereHas('projectHasUser', function ($query2) use ($digiIdent) {
+                        $query2->where('user_digital_ident', $digiIdent);
+                    })
+                    ->with('modelState.state');
+                },
+            ])->whereHas('custodianHasProjectUser.projectHasUser', function ($q) use ($digiIdent) {
+                $q->where('user_digital_ident', $digiIdent);
+            })->find($projectId);
+
+            if ($project) {
+                return $this->OKResponse($project);
+            } else {
+                return $this->NoContent();
+            }
+        } catch (Exception $e) {
+            return $this->ErrorResponse($e->getMessage());
+        }
+    }
+
+    /**
+     * @OA\Get(
      *      path="/api/v1/projects/{projectId}/organisations/{organisationId}",
      *      summary="Get project details by projectID and organisationID",
      *      description="Fetches project given organisation and project IDs.",

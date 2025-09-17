@@ -272,6 +272,8 @@ Route::middleware('auth:api')
         Route::delete('{projectId}/organisations/{organisationId}', 'deleteOrganisationFromProject');
         Route::put('{projectId}/users/{registryId}/primary_contact', 'makePrimaryContact');
 
+        Route::get('{projectId}/users/{userId}', 'getProjectByIdAndUserId');
+
         Route::get('{projectId}/organisations/{organisationId}', 'getProjectByIdAndOrganisationId');
         Route::get('{projectId}/organisations/{organisationId}/users', 'getProjectUsersByOrganisationId');
     });
