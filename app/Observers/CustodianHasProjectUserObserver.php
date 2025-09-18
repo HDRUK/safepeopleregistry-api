@@ -30,7 +30,7 @@ class CustodianHasProjectUserObserver
 
     private function getEntityData(CustodianHasProjectUser $model)
     {
-        $projectHasUser = ProjectHasUsers::with(['registry.user', 'affiliation.organisation', 'project'])->where('project_has_user_id', $model->project_has_user_id);
+        $projectHasUser = ProjectHasUser::with(['registry.user', 'affiliation.organisation', 'project'])->where('project_has_user_id', $model->project_has_user_id);
 
         $custodian = Custodian::find($model->id);
 
