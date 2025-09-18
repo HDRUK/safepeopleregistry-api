@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Models\CustodianHasProjectUser;
 use App\Models\Custodian;
 use App\Models\State;
+use Illuminate\Database\Eloquent\Model;
 
 class CustodianHasProjectUserObserver
 {
