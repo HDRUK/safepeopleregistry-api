@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Traits\StateWorkflow;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Chelout\RelationshipEvents\Traits\HasRelationshipObservables;
 
 /**
  * @OA\Schema(
@@ -43,22 +44,32 @@ class CustodianHasProjectUser extends Model
     use StateWorkflow;
     use SearchManager;
     use FilterManager;
+    use HasRelationshipObservables;
 
     protected static array $transitions = [
         State::STATE_FORM_RECEIVED => [
             State::STATE_VALIDATION_IN_PROGRESS,
+            State::STATE_MORE_USER_INFO_REQ,
             State::STATE_MORE_USER_INFO_REQ_ESCALATION_MANAGER,
             State::STATE_MORE_USER_INFO_REQ_ESCALATION_COMMITTEE,
             State::STATE_USER_LEFT_PROJECT,
         ],
         State::STATE_VALIDATION_IN_PROGRESS => [
             State::STATE_VALIDATION_COMPLETE,
+            State::STATE_MORE_USER_INFO_REQ,
             State::STATE_MORE_USER_INFO_REQ_ESCALATION_MANAGER,
             State::STATE_MORE_USER_INFO_REQ_ESCALATION_COMMITTEE,
             State::STATE_USER_VALIDATION_DECLINED,
             State::STATE_USER_LEFT_PROJECT,
         ],
         State::STATE_VALIDATION_COMPLETE => [
+            State::STATE_MORE_USER_INFO_REQ,
+            State::STATE_MORE_USER_INFO_REQ_ESCALATION_MANAGER,
+            State::STATE_MORE_USER_INFO_REQ_ESCALATION_COMMITTEE,
+            State::STATE_USER_VALIDATION_DECLINED,
+            State::STATE_USER_LEFT_PROJECT,
+        ],
+        State::STATE_MORE_USER_INFO_REQ => [
             State::STATE_MORE_USER_INFO_REQ_ESCALATION_MANAGER,
             State::STATE_MORE_USER_INFO_REQ_ESCALATION_COMMITTEE,
             State::STATE_USER_VALIDATION_DECLINED,
