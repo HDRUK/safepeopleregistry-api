@@ -129,10 +129,12 @@ class UserObserver
             }
         }
 
-        // Call the OrcID scanner job to fetch the OrcID data.
-        if ($user->consent_scrape) {
-            OrcIDScanner::dispatch($user);
-        }
+        // LS - Removed from update as this is spamming ORCID.
+        //
+        // // Call the OrcID scanner job to fetch the OrcID data.
+        // if ($user->consent_scrape) {
+        //     OrcIDScanner::dispatch($user);
+        // }
 
     }
 
