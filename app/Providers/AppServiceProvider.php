@@ -39,7 +39,6 @@ use App\Observers\AuditModelObserver;
 use App\Observers\RegistryReadRequestObserver;
 use App\Observers\CustodianHasValidationCheckObserver;
 use App\Observers\CustodianHasProjectOrganisationObserver;
-use App\Observers\CustodianHasProjectOrganisationUserObserver;
 use App\Observers\CustodianHasProjectUserObserver;
 use App\Observers\RegistryHasTrainingObserver;
 use Illuminate\Support\ServiceProvider;
