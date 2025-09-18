@@ -1,3 +1,17 @@
+## [1.12.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.11.0...v1.12.0) (2025-09-18)
+
+### ✨ Features
+
+* **REGISTRY-1816:** Organisation | Hide staff/students IDs of other affiliations (#439) ([7115e4d](https://github.com/HDRUK/safepeopleregistry-api/commit/7115e4de5c5a66dc60ec91f752a59dd999f1756f))
+* **REGISTRY-1926:** All project users endpoint needs to display affiliation email address (#440) ([dde09f7](https://github.com/HDRUK/safepeopleregistry-api/commit/dde09f7effd4ba3449bd89db670c85e8cfbc234a))
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-1234:** fix param for email (#437) ([ad0383c](https://github.com/HDRUK/safepeopleregistry-api/commit/ad0383c9e10378a5dbf5ad3515d5c4c9680f665b))
+* **REGISTRY-1852:** Prevents ORCID running scans on user updates as w… (#441) ([7625129](https://github.com/HDRUK/safepeopleregistry-api/commit/76251294accdfa45d2c2e372f8bd79e2d04e910f))
+* **REGISTRY-1852:** Prevents ORCID running scans on user updates as we are spamming ORCID API ([058a291](https://github.com/HDRUK/safepeopleregistry-api/commit/058a291190ceb41815e10caeb87978250bd7b562))
+* **REGISTRY-1898:** Custodian/Project-User/Automated flags | Affiliation flag not updatin… (#438) ([b42f757](https://github.com/HDRUK/safepeopleregistry-api/commit/b42f75773107e81a9d9bdc1500b5bfc7fe13219e))
+
 ## [1.11.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.10.1...v1.11.0) (2025-09-17)
 
 ### ✨ Features
