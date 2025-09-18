@@ -6,7 +6,7 @@ use App\Models\CustodianHasProjectUser;
 use App\Models\Custodian;
 use App\Models\State;
 use App\Models\User;
-use App\Models\ProjectHasUsers;
+use App\Models\ProjectHasUser;
 use Illuminate\Database\Eloquent\Model;
 
 class CustodianHasProjectUserObserver
@@ -36,7 +36,7 @@ class CustodianHasProjectUserObserver
 
         $organisationUsers = User::where([
             'organisation_id' => $projectHasUser->affiliation->organisation_id,
-        ])->find();
+        ])->get();
 
         return ['user' => $projectHasUser->registry->user, 'custodian' => $custodian, 'organisation' => $projectHasUser->affiliation->organisation, 'organisationUsers' => $organisationUsers, 'project' => $projectHasUser->project];
     }
