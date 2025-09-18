@@ -11,6 +11,7 @@ class CustodianHasProjectUserObserver
 {
     public function hasOneSaved(CustodianHasProjectUser $model, Model $related): void
     {
+        dd('******* HAS ONE SAVED');
         $this->updateValidationStatus($model, $related);
     }
 
