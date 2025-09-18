@@ -8,19 +8,18 @@ use App\Models\State;
 
 class CustodianHasProjectUserObserver
 {
-    public function updated(CustodianHasProjectUser $model): void
+    public function hasOneSaved(CustodianHasProjectUser $model, Model $related): void
     {
-        $this->updateValidationStatus($model);
+        $this->updateValidationStatus($model, $related);
     }
 
-    protected function updateValidationStatus(CustodianHasProjectUser $model): void
+    protected function updateValidationStatus(CustodianHasProjectUser $model, Model $related): void
     {
-        dd('************** UPDATING validation status');
         if ((app()->bound('seeding') && app()->make('seeding') === true)) {
             return;
         }
 
-        if($model->relationLoaded('modelState') && $model->modelState->isDirty()) {
+        if($related->isDirty()) {
             $this->notifyStatusChanged($model);
         }
     }

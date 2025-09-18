@@ -36,6 +36,7 @@ class ProjectHasUserObserver
      */
     public function created(ProjectHasUser $projectHasUser): void
     {
+        dd('**************** CREATED');
         $user = $projectHasUser->registry->user;
         $project = $projectHasUser->project;
         $affiliation = $projectHasUser->affiliation;

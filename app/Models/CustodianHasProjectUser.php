@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Traits\StateWorkflow;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Chelout\RelationshipEvents\Traits\HasRelationshipObservables;
 
 /**
  * @OA\Schema(
@@ -43,6 +44,7 @@ class CustodianHasProjectUser extends Model
     use StateWorkflow;
     use SearchManager;
     use FilterManager;
+    use HasRelationshipObservables;
 
     protected static array $transitions = [
         State::STATE_FORM_RECEIVED => [
