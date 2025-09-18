@@ -23,9 +23,9 @@ class CustodianHasProjectUserObserver
             return;
         }
 
-        if($related->isDirty()) {
-            $this->notifyStatusChanged($model);
-        }
+        // if($related->isDirty()) {
+        //     $this->notifyStatusChanged($model);
+        // }
     }
 
     private function getEntityData(CustodianHasProjectUser $model)
