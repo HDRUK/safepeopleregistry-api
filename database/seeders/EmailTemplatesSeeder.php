@@ -1076,7 +1076,6 @@ class EmailTemplatesSeeder extends Seeder
                                   Verify your [[env(APP_NAME)]] Affiliation Email address
                                   <div><br></div>
                                   A Safe People Registry affiliation has been made with this email address. If this was you, click the link below to verify your email address.
-                                  This link will expire within [[env(OTP_AFFILIATION_VALIDITY_HOURS)]] hours.
                                   If you didn\'t create this account, please contact us at [[env(SUPPORT_EMAIL)]] so that we can follow up.
                                   <div><br></div>
                                   ' . $this->supportFooter . '

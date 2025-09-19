@@ -428,13 +428,11 @@ class AffiliationController extends Controller
                 'verification_code' => 'required|exists:affiliations,verification_code',
             ]);
 
-            $expirySeconds = config('speedi.system.otp_affiliation_validity_minutes') * 60;
             $affiliation = Affiliation::where([
                     'verification_code' => $validated['verification_code'],
                     'is_verified'       => 0,
                     'current_employer'  => 1,
                 ])
-                ->where('verification_sent_at', '>=', now()->subSeconds($expirySeconds))
                 ->first();
 
             if (is_null($affiliation)) {

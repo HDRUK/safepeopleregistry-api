@@ -319,13 +319,11 @@ class TriggerEmail
                     'email' => $affiliation->email,
                 ];
 
-                $validationHours = round((int)config('speedi.system.otp_affiliation_validity_minutes')/60,0);
                 $replacements = [
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
                     '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
                     '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
                     '[[AFFILIATION_VERIFICATION_PATH]]' => config('speedi.system.portal_url') . '/user/profile/affiliations?verify=' . $affiliation->verification_code,
-                    '[[env(OTP_AFFILIATION_VALIDITY_HOURS)]]' => $validationHours,
                 ];
 
                 break;
