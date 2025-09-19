@@ -280,7 +280,8 @@ class AffiliationController extends Controller
 
             $affiliation = Affiliation::where([
                 'id' => $id,
-                'current_employer' => true
+                'current_employer' => true,
+                'is_verified' => false,
             ])->first();
 
             if (is_null($affiliation)) {
@@ -433,6 +434,7 @@ class AffiliationController extends Controller
                     'is_verified'       => 0,
                     'current_employer'  => 1,
                 ])
+                ->where('verification_sent_at', '>=', now()->subMinutes((int)config('speedi.system.otp_affiliation_validity_minutes')))
                 ->first();
 
             if (is_null($affiliation)) {
