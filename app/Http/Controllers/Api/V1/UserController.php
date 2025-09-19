@@ -10,7 +10,6 @@ use TriggerEmail;
 use App\Models\User;
 use App\Models\Project;
 use App\Models\Registry;
-use App\Models\Organisation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Http\Traits\Responses;

@@ -16,19 +16,16 @@ class BaseProdSeeder extends Seeder
 
         $this->call([
             SectorSeeder::class,
+            StateSeeder::class,
             EntityModelTypeSeeder::class,
+            RulesSeeder::class,
             PermissionSeeder::class,
-            // CustodianSeeder::class,
             SystemConfigSeeder::class,
             ProjectRoleSeeder::class,
             EmailTemplatesSeeder::class,
             DepartmentSeeder::class,
             WebhookEventTriggerSeeder::class,
-            EntityModelTypeSeeder::class,
-            StateSeeder::class,
-            EntityModelSeeder::class,
-            RulesSeeder::class,
-            ValidationCheckSeeder::class,
+            ValidationCheckSeeder::class
         ]);
     }
 }

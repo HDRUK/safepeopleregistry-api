@@ -15,7 +15,7 @@ class UKDataProtection extends BaseRule
         $sanctions = $conditions['sanctioned_countries'];
 
         $actual = Arr::get($model, $path, null);
-        
+
         $verdict = $actual ? !in_array($actual, $sanctions) : false;
 
         return $verdict;
