@@ -79,12 +79,12 @@ use Spatie\Activitylog\LogOptions;
  *          type="integer",
  *          example=123,
  *          description="The Registry primary key associated with this affiliation"
- *      )
+ *      ),
  *      @OA\Property(property="current_employer",
  *          type="boolean",
  *          example=true,
  *          description="Flag indicating if affiliation is for the current employer"
- *      )
+ *      ),
  *      @OA\Property(property="verification_code",
  *          type="string",
  *          example="a9f34b1c-6d8f-47f2-9131-1d2b56a3e7df",
