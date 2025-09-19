@@ -2,7 +2,6 @@
 
 namespace App\Observers;
 
-use Exception;
 use TriggerEmail;
 use App\Models\Organisation;
 use App\Models\Department;
@@ -68,8 +67,8 @@ class OrganisationObserver
 
         $departments = optional(Department::get())->toArray();
 
-        if(isset($departments)) {
-            $data = array_map(function($row) use ($organisation) {
+        if (isset($departments)) {
+            $data = array_map(function ($row) use ($organisation) {
                 return [
                     "department_id" => $row['id'],
                     "organisation_id" => $organisation->id
