@@ -2,8 +2,11 @@
 
 namespace App\Observers;
 
+use Exception;
 use TriggerEmail;
 use App\Models\Organisation;
+use App\Models\Department;
+use App\Models\OrganisationHasDepartment;
 use App\Models\Custodian;
 use App\Models\Affiliation;
 use App\Models\State;
@@ -62,6 +65,21 @@ class OrganisationObserver
                 'completed_at' => null,
             ]);
         }
+
+        $departments = optional(Department::get())->toArray();
+
+        if(isset($departments)) {
+            $data = array_map(function($row) use ($organisation) {
+                return [
+                    "department_id" => $row['id'],
+                    "organisation_id" => $organisation->id
+                ];
+            }, $departments);
+
+            OrganisationHasDepartment::insert($data);
+        }
+
+
 
         // Force completeness checks on creation
         $this->checkIsComplete(
