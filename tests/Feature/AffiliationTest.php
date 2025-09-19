@@ -51,6 +51,7 @@ class AffiliationTest extends TestCase
                     'email' => fake()->email(),
                     'ror' => $this->generateRorID(),
                     'registry_id' => 1,
+                    'current_employer' => false,
                 ]
             );
 
