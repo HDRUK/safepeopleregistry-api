@@ -80,6 +80,33 @@ use Spatie\Activitylog\LogOptions;
  *          example=123,
  *          description="The Registry primary key associated with this affiliation"
  *      )
+ *      @OA\Property(property="current_employer",
+ *          type="boolean",
+ *          example=true,
+ *          description="Flag indicating if affiliation is for the current employer"
+ *      )
+ *      @OA\Property(property="verification_code",
+ *          type="string",
+ *          example="a9f34b1c-6d8f-47f2-9131-1d2b56a3e7df",
+ *          description="Unique verification code issued for confirmation"
+ *      ),
+ *      @OA\Property(property="verification_sent_at",
+ *          type="string",
+ *          format="date-time",
+ *          example="2025-09-18T12:45:00Z",
+ *          description="Timestamp when verification code was sent"
+ *      ),
+ *      @OA\Property(property="verification_confirmed_at",
+ *          type="string",
+ *          format="date-time",
+ *          example="2025-09-19T09:10:00Z",
+ *          description="Timestamp when verification was confirmed"
+ *      ),
+ *      @OA\Property(property="is_verified",
+ *          type="boolean",
+ *          example=true,
+ *          description="Flag indicating if affiliation is verified"
+ *      )
  * )
  *
  * @property int $id
@@ -167,6 +194,16 @@ class Affiliation extends Model
         'verdict_user_id',
         'verdict_date_actioned',
         'verdict_outcome',
+        'verification_code',
+        'verification_sent_at',
+        'verification_confirmed_at',
+        'is_verified',
+        'current_employer',
+    ];
+
+    protected $casts = [
+        'is_verified' => 'boolean',
+        'current_employer' => 'boolean',
     ];
 
     public static function getTransitions(): array

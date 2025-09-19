@@ -25,6 +25,10 @@ class AffiliationObserver
             $this->getUser($affiliation),
             $affiliation
         ), $affiliation);
+
+        if ($affiliation->current_employer) {
+            $this->sendVerificationEmails($affiliation);
+        }
     }
 
     public function updated(Affiliation $affiliation): void
@@ -137,4 +141,18 @@ class AffiliationObserver
             'user_group' => User::GROUP_ORGANISATIONS,
         ])->get();
     }
+
+    public function sendVerificationEmails(Affiliation $affiliation): void
+    {
+        $email = [
+            'type' => 'AFFILIATION_VERIFIED',
+            'to' => $affiliation->id,
+            'by' => $affiliation->id,
+            'for' => $affiliation->id,
+            'identifier' => 'affiliation_user_professional_email_confirm',
+        ];
+
+        TriggerEmail::spawnEmail($email);
+    }
+
 }
