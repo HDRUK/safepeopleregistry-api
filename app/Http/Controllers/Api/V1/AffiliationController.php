@@ -530,7 +530,7 @@ class AffiliationController extends Controller
                 return $this->NotFoundResponse();
             }
 
-            if (!$affiliation->is_verified && $status === 'approved') {
+            if (!$affiliation->is_verified && $affiliation->current_employer && $status === 'approved') {
                 return $this->ErrorResponse('Affiliation is not verified');
             }
 
