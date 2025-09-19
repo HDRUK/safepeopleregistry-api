@@ -381,10 +381,10 @@ class AffiliationController extends Controller
     }
 
     /**
-     * @OA\PATCH(
+     * @OA\Patch(
      *      path="/api/v1/affiliations/verify_email",
      *      summary="Update an Affiliation entry",
-     *      description="Update an Affiliation entry",
+     *      description="Update an Affiliation entry with verification",
      *      tags={"Affiliations"},
      *      summary="Affiliations@verifyEmail",
      *      security={{"bearerAuth":{}}},
