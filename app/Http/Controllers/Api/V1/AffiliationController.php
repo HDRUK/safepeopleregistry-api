@@ -3,14 +3,18 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Exception;
-use App\Models\Affiliation;
+use TriggerEmail;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\State;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\JsonResponse;
+use App\Models\Affiliation;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use App\Traits\CommonFunctions;
 use App\Http\Traits\Responses;
+use App\Traits\CommonFunctions;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Gate;
 
 class AffiliationController extends Controller
 {
@@ -57,7 +61,6 @@ class AffiliationController extends Controller
      */
     public function indexByRegistryId(Request $request, int $registryId): JsonResponse
     {
-
         $loggedInUserId = $request->user()->id;
         $loggedInUser = User::where('id', $loggedInUserId)->first();
         $isUserGroupOrg = (!is_null($loggedInUser) && $loggedInUser->user_group === 'ORGANISATIONS') ? true : false;
@@ -238,7 +241,8 @@ class AffiliationController extends Controller
     {
         try {
             $input = $request->only(app(Affiliation::class)->getFillable());
-            $affiliation = Affiliation::create([
+
+            $array = [
                 'organisation_id' => $input['organisation_id'],
                 'member_id' => $request['member_id'],
                 'relationship' => $input['relationship'],
@@ -249,12 +253,61 @@ class AffiliationController extends Controller
                 'email' => $input['email'],
                 'ror' => $input['ror'],
                 'registry_id' => $registryId,
-            ]);
+                'current_employer' => $input['current_employer'] ?? false
+            ];
+            if ($input['current_employer']) {
+                $array['verification_code'] = Str::uuid()->toString();
+                $array['verification_sent_at'] = Carbon::now();
+            }
+            $affiliation = Affiliation::create($array);
 
             return response()->json([
                 'message' => 'success',
                 'data' => $affiliation->id,
             ], 201);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    //Hide from swagger docs
+    public function resendVerificationEmail(Request $request, int $id): JsonResponse
+    {
+        try {
+            if (!Gate::allows('isAdmin', Affiliation::class)) {
+                return $this->ForbiddenResponse();
+            }
+
+            $affiliation = Affiliation::where([
+                'id' => $id,
+                'current_employer' => true,
+                'is_verified' => false,
+            ])->first();
+
+            if (is_null($affiliation)) {
+                return $this->BadRequestResponse();
+            }
+
+            $array = [
+                'is_verified' => 0,
+                'verification_code' => Str::uuid()->toString(),
+                'verification_sent_at' => Carbon::now(),
+            ];
+
+            Affiliation::where('id', $id)->update($array);
+
+            $email = [
+                'type' => 'AFFILIATION_VERIFIED',
+                'to' => $affiliation->id,
+                'by' => $affiliation->id,
+                'for' => $affiliation->id,
+                'identifier' => 'affiliation_user_professional_email_confirm',
+            ];
+
+            TriggerEmail::spawnEmail($email);
+
+            // Logic to resend the verification email
+            return $this->OKResponse('Verification email resent');
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -319,11 +372,84 @@ class AffiliationController extends Controller
             $affiliation = Affiliation::findOrFail($id);
             $affiliation->update($input);
 
-
             return response()->json([
                 'message' => 'success',
                 'data' => $affiliation,
             ], 200);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    /**
+     * @OA\Patch(
+     *      path="/api/v1/affiliations/verify_email",
+     *      summary="Update an Affiliation entry",
+     *      description="Update an Affiliation entry with verification",
+     *      tags={"Affiliations"},
+     *      summary="Affiliations@verifyEmail",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="Affiliation definition",
+     *          @OA\JsonContent(
+     *              ref="#/components/schemas/Affiliation"
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data",
+     *                  ref="#/components/schemas/Affiliation"
+     *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=500,
+     *          description="Error",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="error")
+     *          )
+     *      )
+     * )
+     */
+    public function verifyEmail(Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'verification_code' => 'required|exists:affiliations,verification_code',
+            ]);
+
+            $affiliation = Affiliation::where([
+                    'verification_code' => $validated['verification_code'],
+                    'is_verified'       => 0,
+                    'current_employer'  => 1,
+                ])
+                ->where('verification_sent_at', '>=', now()->subMinutes((int)config('speedi.system.otp_affiliation_validity_minutes')))
+                ->first();
+
+            if (is_null($affiliation)) {
+                return $this->NotFoundResponse();
+            }
+
+            $array = [
+                'verification_code' => null,
+                'is_verified' => 1,
+                'verification_confirmed_at' => Carbon::now(),
+            ];
+
+            Affiliation::where('id', $affiliation->id)->update($array);
+
+            return $this->OKResponse('Affiliation email verified');
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -403,6 +529,10 @@ class AffiliationController extends Controller
             )->first();
             if (!$affiliation) {
                 return $this->NotFoundResponse();
+            }
+
+            if (!$affiliation->is_verified && $affiliation->current_employer && $status === 'approved') {
+                return $this->ErrorResponse('Affiliation is not verified');
             }
 
             $statusSlugMap = [

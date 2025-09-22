@@ -1060,6 +1060,44 @@ class EmailTemplatesSeeder extends Seeder
                       </mjml >',
             'buttons' => '',
           ],
+          [
+            'identifier' => 'affiliation_user_professional_email_confirm',
+            'subject' => 'Safe People Registry | Verify affiliation email',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#f6dff1" width="600px" >
+
+                          ' . $this->titleBar('Verify Affiliation email') . '
+
+                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                                <mj-text align="left" padding="20px 0px 20px 0px">
+                                  Verify your [[env(APP_NAME)]] Affiliation Email address
+                                  <div><br></div>
+                                  A Safe People Registry affiliation has been made with this email address. If this was you, click the link below to verify your email address.
+                                  If you didn\'t create this account, please contact us at [[env(SUPPORT_EMAIL)]] so that we can follow up.
+                                  <div><br></div>
+                                  This link will expire within [[env(OTP_VALIDITY_HOURS)]] hours.
+                                  <div><br></div>
+                                  ' . $this->supportFooter . '
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+                                    
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
+                              <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[AFFILIATION_VERIFICATION_PATH]]" padding="10px 15px 15px 15px">
+                                  Link to e-mail address verification
+                                </mj-button>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+
+                        </mj-body>
+                      </mjml >',
+            'buttons' => '',
+          ],
         ];
 
         foreach ($templates as $template) {
