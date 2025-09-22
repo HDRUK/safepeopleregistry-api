@@ -442,6 +442,7 @@ class AffiliationController extends Controller
             }
 
             $array = [
+                'verification_code' => null,
                 'is_verified' => 1,
                 'verification_confirmed_at' => Carbon::now(),
             ];
