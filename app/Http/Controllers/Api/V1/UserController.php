@@ -10,6 +10,7 @@ use TriggerEmail;
 use App\Models\User;
 use App\Models\Project;
 use App\Models\Registry;
+use App\Models\PendingInvite;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Http\Traits\Responses;
@@ -526,7 +527,7 @@ class UserController extends Controller
 
             $user = User::where('id', $id)->first();
 
-            if (!Gate::allows('update', $user)) {
+            if (!Gate::allows('update', $user) && $user->keycloak_id) {
                 return $this->ForbiddenResponse();
             }
 
@@ -570,6 +571,47 @@ class UserController extends Controller
                 'data' => null,
                 'error' => 'unable to save user',
             ], 409);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    public function getPendingInviteByInviteCode(Request $request, String $inviteCode): JsonResponse
+    {
+        try {
+            $pendingInvite = PendingInvite::where('invite_code', $inviteCode)->first();
+
+            if ($pendingInvite) {
+                return $this->OKResponse($pendingInvite);
+            }
+
+            return $this->NotFoundResponse();
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    public function updateUserEmailByInviteCode(Request $request, string $inviteCode): JsonResponse
+    {
+        try {
+            $input = $request->only(['email']);
+
+            $pendingInvite = PendingInvite::where('invite_code', $inviteCode)->first();
+            $user = User::where("id", $pendingInvite->user_id)->first();
+
+            if (!Gate::allows('update', $user) && $user->keycloak_id) {
+                return $this->ForbiddenResponse();
+            }
+
+            if (!isset($user->keycloak_id)) {
+                $user->email = isset($input['email']) ? $input['email'] : $user->email;
+
+                if ($user->save()) {
+                    return $this->NoContent();
+                }
+            }
+
+            return $this->NotFoundResponse();
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
