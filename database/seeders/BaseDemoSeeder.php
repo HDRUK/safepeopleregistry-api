@@ -1123,7 +1123,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         unset($custodianAdmin);
     }
 
-    private function addRandomUsersToProject(int $projectId, int $nUsers = null): void
+    private function addRandomUsersToProject(int $projectId, ?int $nUsers): void
     {
         $nUsers = $nUsers ?? random_int(1, 10);
         $users = User::whereNotNull('registry_id')->inRandomOrder()->limit($nUsers)->get();
