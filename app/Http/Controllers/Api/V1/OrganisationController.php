@@ -523,16 +523,6 @@ class OrganisationController extends Controller
                     'organisation_id' => $organisation->id,
                 ]);
 
-                activity()
-                    ->causedBy(Auth::user())
-                    ->performedOn(Organisation::where('id', $organisation->id)->first())
-                    ->withProperties([
-                        'organisation_id' => $organisation->id,
-                        'organisation_name' => $organisation->organisation_name,
-                    ])
-                    ->event('created')
-                    ->useLog('organisation_created');
-
                 return $this->CreatedResponse([
                     'user_id' => $user->id,
                     'organisation_id' => $organisation->id,
@@ -540,16 +530,6 @@ class OrganisationController extends Controller
             } else {
                 $response = Keycloak::getUserInfo($request->headers->get('Authorization'));
                 $payload = $response->json();
-
-                activity()
-                    ->causedBy(Auth::user())
-                    ->performedOn($organisation)
-                    ->withProperties([
-                        'organisation_id' => $organisation->id,
-                        'organisation_name' => $organisation->organisation_name,
-                    ])
-                    ->event('created')
-                    ->useLog('organisation_created');
 
                 $request->replace([
                     "organisation_id" => $organisation->id,
@@ -713,21 +693,6 @@ class OrganisationController extends Controller
             if ($request->has('charities')) {
                 $this->updateOrganisationCharities($id, $request->input('charities'));
             }
-
-            Log::info('test', [
-                'bla' =>  $request->user()->id
-            ]);
-
-            activity()
-                // ->causedBy(User::find($request->user()->id))
-                // ->byAnonymous()
-                ->performedOn($org)
-                ->withProperties([
-                    'organisation_id' => $org->id,
-                    'organisation_name' => $org->organisation_name,
-                ])
-                ->event('updated')
-                ->useLog('organisation_updated');
 
             Log::info('last activity', [
                 'organisation_id' => $org->id,

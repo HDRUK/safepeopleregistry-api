@@ -437,12 +437,45 @@ class Organisation extends Model
     {
         parent::boot();
 
-        static::created(function ($model) {
-            if ($model->unclaimed === 0) {
-                $model->setState(State::STATE_INVITED);
-                $model->save();
-            }
+        static::created(function (self $model) {
+            $model->writeActivity(
+                logName: 'created',
+                event: 'created',
+                properties: [
+                    'organisation_id'   => $model->id,
+                    'organisation_name' => $model->organisation_name,
+                    'attributes'        => $model->getChanges(), // what changed
+                ]
+            );
         });
+
+        static::updated(function (self $model) {
+            $model->writeActivity(
+                logName: 'updated',
+                event: 'updated',
+                properties: [
+                    'organisation_id'   => $model->id,
+                    'organisation_name' => $model->organisation_name,
+                    'attributes'        => $model->getChanges(), // what changed
+                    'old'               => $model->getOriginal(), // before update
+                ]
+            );
+        });
+    }
+
+    protected function writeActivity(string $logName, string $event, array $properties = []): void
+    {
+        $logger = activity()
+            ->performedOn($this)
+            ->withProperties($properties)
+            ->event($event)
+            ->useLog($logName);
+
+        if (auth()->check()) {
+            $logger->causedBy(auth()->user());
+        }
+
+        $logger->log($event);
     }
 
     public static function defaultValidationChecks(): array
