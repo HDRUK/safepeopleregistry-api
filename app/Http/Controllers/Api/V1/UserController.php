@@ -597,9 +597,18 @@ class UserController extends Controller
             $input = $request->only(['email']);
 
             $pendingInvite = PendingInvite::where('invite_code', $inviteCode)->first();
+            
+            if (!$pendingInvite) {
+                return $this->NotFoundResponse();
+            }
+
             $user = User::where("id", $pendingInvite->user_id)->first();
 
-            if (!Gate::allows('update', $user) && $user->keycloak_id) {
+            if (!$user) {
+                return $this->NotFoundResponse();
+            }
+
+            if (!Gate::allows('updateEmailFromInvite', $user)) {
                 return $this->ForbiddenResponse();
             }
 

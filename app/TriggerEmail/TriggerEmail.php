@@ -36,6 +36,15 @@ class TriggerEmail
     //     SendEmailJob::dispatch($recipients, $template, $replacements, $recipients['email']);
     // }
 
+    public static function generateInviteCode(): string
+    {
+        return Hash::make(
+            Str::random(8) .
+            ':' . config('speedi.system.registry_salt_1') .
+            ':' . config('speedi.system.registry_salt_2')
+        );
+    }
+
     public function spawnEmail(array $input): void
     {
         $replacements = [];
@@ -51,6 +60,9 @@ class TriggerEmail
         $affiliationId = isset($input['affiliationId']) ? $input['affiliationId'] : null;
         $custodianId = isset($input['custodianId']) ? $input['custodianId'] : null;
         $identifier = $input['identifier'];
+
+        $inviteCode = generateInviteCode();
+
         switch (strtoupper($type)) {
             case 'AFFILIATION':
                 if ($input['email'] === '') {
@@ -95,6 +107,7 @@ class TriggerEmail
                     'user_id' => $user->id,
                     'invite_sent_at' => Carbon::now(),
                     'status' => config('speedi.invite_status.PENDING'),
+                    'invite_code': 
                 ]);
                 break;
             case 'USER':
@@ -241,6 +254,7 @@ class TriggerEmail
 
                 $replacements = [
                     '[[organisation.organisation_name]]' => $organisation->organisation_name,
+                    '[[inviteCode]]' => $inviteCode,
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
                     '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
                     '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),
@@ -251,7 +265,8 @@ class TriggerEmail
                 PendingInvite::create([
                     'user_id' => $unclaimedUserId,
                     'status' => config('speedi.invite_status.PENDING'),
-                    'invite_sent_at' => Carbon::now()
+                    'invite_sent_at' => Carbon::now(),
+                    'invite_code' => $inviteCode
                 ]);
 
                 break;

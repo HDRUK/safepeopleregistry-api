@@ -77,4 +77,13 @@ class UserPolicy
         return $user->isAdmin();
     }
 
+    public function updateEmailFromInvite(User $user, User $model)
+    {
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        return $user->user_group === User::GROUP_ORGANISATIONS && !isset($user->keycloak_id);
+    }
 }
+
