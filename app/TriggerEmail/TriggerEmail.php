@@ -3,7 +3,6 @@
 namespace App\TriggerEmail;
 
 use Str;
-use Hash;
 use App\Jobs\SendEmailJob;
 use App\Models\Affiliation;
 use App\Models\Custodian;
@@ -40,11 +39,7 @@ class TriggerEmail
 
     public function generateInviteCode(): string
     {
-        return Hash::make(
-            Str::random(8) .
-            ':' . config('speedi.system.registry_salt_1') .
-            ':' . config('speedi.system.registry_salt_2')
-        );
+        return Str::uuid();
     }
 
     public function spawnEmail(array $input): void
