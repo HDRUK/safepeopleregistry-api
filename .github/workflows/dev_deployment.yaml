@@ -76,7 +76,7 @@ jobs:
         id: checkout
         uses: actions/checkout@v4
         with:
-          ref: fdev # override for branch deployment
+          ref: dev # override for branch deployment
 
       - name: Google Auth
         id: auth
