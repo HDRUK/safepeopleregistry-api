@@ -52,23 +52,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        if (!App::environment('local')) {
-            return;
-        }
-
-        // Only listen during HTTP requests (not migrate/seed/queue/tinker)
-        if (App::runningInConsole() || App::runningUnitTests()) {
-            return;
-        }
-
         Event::listen('eloquent.*', function ($eventName, $payload) {
             $model = $payload[0] ?? null;
 
             if ($model instanceof Model) {
-                $class = get_class($model);
-                Log::info('Model', [
-                    'model' => $class
-                ]);
                 App::make(AuditModelObserver::class)->handle($eventName, $model);
             }
         });

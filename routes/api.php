@@ -75,7 +75,6 @@ Route::middleware(['auth:api'])
         Route::get('/identifier', [UserController::class, 'showByUniqueIdentifier']);
         Route::get('/{id}', [UserController::class, 'show']);
         Route::get('/{id}/history', [AuditLogController::class, 'showUserHistory'])->whereNumber('id');
-        Route::get('/{id}/history/organisations', [AuditLogController::class, 'showOrganisationHistory'])->whereNumber('id');
         Route::get('/{id}/projects', [UserController::class, 'userProjects']);
 
         // create
@@ -351,6 +350,8 @@ Route::middleware('auth:api')
 
             // Delete
             Route::delete('/{id}', 'destroy');
+
+            Route::get('/{id}/history', [AuditLogController::class, 'showOrganisationHistory'])->whereNumber('id');
         });
 
         Route::controller(PermissionController::class)->group(function () {

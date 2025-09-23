@@ -524,6 +524,7 @@ class OrganisationController extends Controller
                 ]);
 
                 activity()
+                    ->causedBy(Auth::user())
                     ->performedOn(Organisation::where('id', $organisation->id)->first())
                     ->withProperties([
                         'organisation_id' => $organisation->id,
@@ -541,6 +542,7 @@ class OrganisationController extends Controller
                 $payload = $response->json();
 
                 activity()
+                    ->causedBy(Auth::user())
                     ->performedOn($organisation)
                     ->withProperties([
                         'organisation_id' => $organisation->id,
@@ -706,8 +708,19 @@ class OrganisationController extends Controller
             //     return $this->ForbiddenResponse();
             // }
 
+            $org->update($input);
+
+            if ($request->has('charities')) {
+                $this->updateOrganisationCharities($id, $request->input('charities'));
+            }
+
+            Log::info('test', [
+                'bla' =>  $request->user()->id
+            ]);
+
             activity()
-                ->causedBy(User::where('id', $request->user()->id)->first())
+                // ->causedBy(User::find($request->user()->id))
+                // ->byAnonymous()
                 ->performedOn($org)
                 ->withProperties([
                     'organisation_id' => $org->id,
@@ -716,11 +729,12 @@ class OrganisationController extends Controller
                 ->event('updated')
                 ->useLog('organisation_updated');
 
-            $org->update($input);
-
-            if ($request->has('charities')) {
-                $this->updateOrganisationCharities($id, $request->input('charities'));
-            }
+            Log::info('last activity', [
+                'organisation_id' => $org->id,
+                'organisation_name' => $org->organisation_name,
+                'user_id' => $request->user()->id,
+                'activity' => json_encode(\Spatie\Activitylog\Models\Activity::latest()->first()),
+            ]);
 
             return $this->OKResponse($org);
         } catch (Exception $e) {
