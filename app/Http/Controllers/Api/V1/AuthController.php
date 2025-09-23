@@ -158,7 +158,7 @@ class AuthController extends Controller
 
         $arr = json_decode($token, true);
 
-        if (isset($input['invite_code'])) {
+        if (!empty($input['invite_code'])) {
             $pendingInvite = PendingInvite::where([
                 'invite_code' => $input['invite_code']
             ])->first();
