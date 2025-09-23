@@ -523,16 +523,6 @@ class OrganisationController extends Controller
                     'organisation_id' => $organisation->id,
                 ]);
 
-                activity()
-                    ->performedOn(Organisation::where('id', $organisation->id)->first())
-                    ->withProperties([
-                        'organisation_id' => $organisation->id,
-                        'organisation_name' => $organisation->organisation_name,
-                    ])
-                    ->event('created')
-                    ->useLog('organisation_created')
-                    ->log('created');
-
                 return $this->CreatedResponse([
                     'user_id' => $user->id,
                     'organisation_id' => $organisation->id,
@@ -540,16 +530,6 @@ class OrganisationController extends Controller
             } else {
                 $response = Keycloak::getUserInfo($request->headers->get('Authorization'));
                 $payload = $response->json();
-
-                activity()
-                    ->performedOn($organisation)
-                    ->withProperties([
-                        'organisation_id' => $organisation->id,
-                        'organisation_name' => $organisation->organisation_name,
-                    ])
-                    ->event('created')
-                    ->useLog('organisation_created')
-                    ->log('created');
 
                 $request->replace([
                     "organisation_id" => $organisation->id,
@@ -620,16 +600,6 @@ class OrganisationController extends Controller
                 'system_approved' => $input['system_approved'] ?? 0,
                 'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
             ]);
-
-            activity()
-                ->performedOn($organisation)
-                ->withProperties([
-                    'organisation_id' => $organisation->id,
-                    'organisation_name' => $organisation->organisation_name,
-                ])
-                ->event('created')
-                ->useLog('organisation_invite')
-                ->log('created');
 
             return $this->CreatedResponse($organisation->id);
         } catch (Exception $e) {
@@ -723,27 +693,6 @@ class OrganisationController extends Controller
             if ($request->has('charities')) {
                 $this->updateOrganisationCharities($id, $request->input('charities'));
             }
-
-            Log::info('test', [
-                'bla' =>  $request->user()->id
-            ]);
-
-            activity()
-                ->performedOn($org)
-                ->withProperties([
-                    'organisation_id' => $org->id,
-                    'organisation_name' => $org->organisation_name,
-                ])
-                ->event('updated')
-                ->useLog('organisation_updated')
-                ->log('updated');
-
-            Log::info('last activity', [
-                'organisation_id' => $org->id,
-                'organisation_name' => $org->organisation_name,
-                'user_id' => $request->user()->id,
-                'activity' => json_encode(\Spatie\Activitylog\Models\Activity::latest()->first()),
-            ]);
 
             return $this->OKResponse($org);
         } catch (Exception $e) {
