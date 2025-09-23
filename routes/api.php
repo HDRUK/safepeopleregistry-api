@@ -399,6 +399,9 @@ Route::middleware('auth:api')
         Route::put('{id}', 'update');
         Route::delete('{id}', 'destroy');
         Route::put('{registryId}/affiliation/{id}', 'updateRegistryAffiliation');
+
+        Route::get('{affiliationId}/resend/verification', 'resendVerificationEmail');
+        Route::patch('/verify_email', 'verifyEmail');
     });
 
 // --- PROFESSIONAL REGISTRATIONS ---

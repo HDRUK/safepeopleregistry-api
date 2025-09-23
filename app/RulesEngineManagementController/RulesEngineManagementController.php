@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\CustodianUser;
 use App\Models\DecisionModel;
 use App\Models\CustodianModelConfig;
+use App\Models\EntityModelType;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -53,6 +54,12 @@ class RulesEngineManagementController
             return null;
         }
 
+        $entityModelTypeNames = [
+            'user_validation_rules',
+            'org_validation_rules',
+        ];
+        $entityModelTypeIds = EntityModelType::whereIn('name', $entityModelTypeNames)->pluck('id');
+
         $modelConfig = CustodianModelConfig::where([
             'custodian_id' => $custodianId,
             'active' => 1,
@@ -63,7 +70,7 @@ class RulesEngineManagementController
             return null;
         }
 
-        $activeModels = DecisionModel::whereIn('id', $modelConfig)->get();
+        $activeModels = DecisionModel::whereIn('id', $modelConfig)->whereIn('entity_model_type_id', $entityModelTypeIds)->get();
         if (!$activeModels) {
             return null;
         }
