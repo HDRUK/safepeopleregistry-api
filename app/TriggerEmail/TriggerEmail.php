@@ -107,7 +107,6 @@ class TriggerEmail
                     'user_id' => $user->id,
                     'invite_sent_at' => Carbon::now(),
                     'status' => config('speedi.invite_status.PENDING'),
-                    'invite_code': 
                 ]);
                 break;
             case 'USER':

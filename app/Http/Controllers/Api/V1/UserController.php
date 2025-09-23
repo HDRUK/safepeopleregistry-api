@@ -527,7 +527,7 @@ class UserController extends Controller
 
             $user = User::where('id', $id)->first();
 
-            if (!Gate::allows('update', $user) && $user->keycloak_id) {
+            if (!Gate::allows('update', $user)) {
                 return $this->ForbiddenResponse();
             }
 
@@ -597,7 +597,7 @@ class UserController extends Controller
             $input = $request->only(['email']);
 
             $pendingInvite = PendingInvite::where('invite_code', $inviteCode)->first();
-            
+
             if (!$pendingInvite) {
                 return $this->NotFoundResponse();
             }

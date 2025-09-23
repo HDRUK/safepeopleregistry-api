@@ -86,4 +86,3 @@ class UserPolicy
         return $user->user_group === User::GROUP_ORGANISATIONS && !isset($user->keycloak_id);
     }
 }
-
