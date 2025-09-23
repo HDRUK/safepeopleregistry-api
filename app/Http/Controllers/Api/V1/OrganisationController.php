@@ -707,7 +707,7 @@ class OrganisationController extends Controller
             // }
 
             activity()
-                ->causedBy($request->user()->id)
+                ->causedBy(User::where('id', $request->user()->id)->first())
                 ->performedOn($org)
                 ->withProperties([
                     'organisation_id' => $org->id,
