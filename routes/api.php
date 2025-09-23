@@ -74,7 +74,8 @@ Route::middleware(['auth:api'])
         Route::get('/test', [UserController::class, 'fakeEndpointForTesting']);
         Route::get('/identifier', [UserController::class, 'showByUniqueIdentifier']);
         Route::get('/{id}', [UserController::class, 'show']);
-        Route::get('/{id}/history', [AuditLogController::class, 'showUserHistory']);
+        Route::get('/{id}/history', [AuditLogController::class, 'showUserHistory'])->whereNumber('id');
+        Route::get('/{id}/history/organisations', [AuditLogController::class, 'showOrganisationHistory'])->whereNumber('id');
         Route::get('/{id}/projects', [UserController::class, 'userProjects']);
 
         // create
