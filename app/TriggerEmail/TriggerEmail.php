@@ -38,7 +38,7 @@ class TriggerEmail
     //     SendEmailJob::dispatch($recipients, $template, $replacements, $recipients['email']);
     // }
 
-    public static function generateInviteCode(): string
+    public function generateInviteCode(): string
     {
         return Hash::make(
             Str::random(8) .
@@ -63,7 +63,7 @@ class TriggerEmail
         $custodianId = isset($input['custodianId']) ? $input['custodianId'] : null;
         $identifier = $input['identifier'];
 
-        $inviteCode = generateInviteCode();
+        $inviteCode = $this->generateInviteCode();
 
         switch (strtoupper($type)) {
             case 'AFFILIATION':
