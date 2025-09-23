@@ -2,6 +2,7 @@
 
 namespace App\TriggerEmail;
 
+use Hash;
 use App\Jobs\SendEmailJob;
 use App\Models\Affiliation;
 use App\Models\Custodian;
