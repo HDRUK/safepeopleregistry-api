@@ -775,7 +775,7 @@ class EmailTemplatesSeeder extends Seeder
                                     
                             <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
                               <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[link.project]]" padding="10px 15px 15px 15px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[link_project]]" padding="10px 15px 15px 15px">
                                   Go to projects
                                 </mj-button>
                               </mj-column>
