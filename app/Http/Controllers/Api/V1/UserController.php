@@ -14,6 +14,7 @@ use App\Models\PendingInvite;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Http\Traits\Responses;
+use App\Models\EntityModelType;
 use App\Traits\CommonFunctions;
 use App\Traits\CheckPermissions;
 use Illuminate\Http\JsonResponse;
@@ -89,7 +90,7 @@ class UserController extends Controller
         if (!Gate::allows('viewAny', User::class)) {
             return $this->ForbiddenResponse();
         }
-        $this->decisionEvaluator = new DES($request);
+        $this->decisionEvaluator = new DES($request, EntityModelType::USER_VALIDATION_RULES);
 
         $users = User::searchViaRequest()
             ->filterByState()
@@ -220,8 +221,8 @@ class UserController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
-        try {
-            $this->decisionEvaluator = new DES($request);
+        // try {
+            $this->decisionEvaluator = new DES($request, EntityModelType::USER_VALIDATION_RULES);
 
             $loggedInUserId = $request->user()->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();
@@ -258,9 +259,9 @@ class UserController extends Controller
                 'message' => 'success',
                 'data' => $user
             ], 200);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
+        // } catch (Exception $e) {
+        //     throw new Exception($e->getMessage());
+        // }
     }
     public function showByUniqueIdentifier(Request $request): JsonResponse
     {

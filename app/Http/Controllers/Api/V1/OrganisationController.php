@@ -2,32 +2,34 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Keycloak;
 use DB;
-use Http;
 use Auth;
+use Http;
+use Keycloak;
 use Exception;
-use RegistryManagementController as RMC;
-use App\Services\DecisionEvaluatorService as DES;
+use TriggerEmail;
 use Carbon\Carbon;
-use App\Exceptions\NotFoundException;
-use App\Http\Controllers\Controller;
-use App\Jobs\OrganisationIDVT;
+use App\Models\User;
+use App\Models\Charity;
 use App\Models\Project;
 use App\Models\DebugLog;
+use App\Models\Affiliation;
 use App\Models\Organisation;
-use App\Models\Charity;
-use App\Models\OrganisationHasDepartment;
-use App\Models\User;
-use App\Models\UserHasDepartments;
+use Illuminate\Http\Request;
 use App\Models\PendingInvite;
+use App\Http\Traits\Responses;
+use App\Jobs\OrganisationIDVT;
+use App\Models\EntityModelType;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use TriggerEmail;
-use App\Http\Traits\Responses;
-use App\Models\Affiliation;
+use App\Models\UserHasDepartments;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
+use App\Exceptions\NotFoundException;
+use RegistryManagementController as RMC;
+use App\Models\OrganisationHasDepartment;
+use App\Services\DecisionEvaluatorService as DES;
 
 class OrganisationController extends Controller
 {
@@ -80,7 +82,7 @@ class OrganisationController extends Controller
     public function index(Request $request): JsonResponse
     {
         $organisations = [];
-        $this->decisionEvaluator = new DES($request);
+        $this->decisionEvaluator = new DES($request, EntityModelType::ORG_VALIDATION_RULES);
 
         $custodianId = $request->get('custodian_id');
 
@@ -180,7 +182,7 @@ class OrganisationController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
-        $this->decisionEvaluator = new DES($request);
+        $this->decisionEvaluator = new DES($request, EntityModelType::ORG_VALIDATION_RULES);
 
         $organisation = Organisation::with([
             'departments',
@@ -197,8 +199,10 @@ class OrganisationController extends Controller
             'sector',
             'files',
         ])->findOrFail($id);
+
         if ($organisation) {
-            return $this->OKResponseExtended($organisation, 'rules', $this->decisionEvaluator->evaluate($organisation));
+            $organisation['rules'] = $this->decisionEvaluator->evaluate($organisation);
+            return $this->OKResponse($organisation);
         }
 
         throw new NotFoundException();
@@ -432,7 +436,6 @@ class OrganisationController extends Controller
                     $organisation->charities()->attach($charity->id);
                 }
             }
-
 
             // Run automated IDVT
             if (!in_array(config('speedi.system.app_env'), ['testing', 'ci'])) {
