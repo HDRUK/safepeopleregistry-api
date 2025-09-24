@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Exception;
 use App\Http\Controllers\Controller;
+use App\Http\Traits\Responses;
 use App\Models\CustodianWebhookReceiver;
 use App\Models\WebhookEventTrigger;
 use Illuminate\Http\Request;
@@ -16,6 +18,8 @@ use Illuminate\Http\JsonResponse;
  */
 class WebhookController extends Controller
 {
+    use Responses;
+
     /**
      * Get all webhook receivers with event trigger details.
      *
@@ -317,12 +321,20 @@ class WebhookController extends Controller
      * )
      */
 
-    public function getAllEventTriggers(): JsonResponse
+    public function getAllEventTriggers(Request $request): JsonResponse
     {
-        $eventTriggers = WebhookEventTrigger::all();
-        return response()->json([
-            'message' => 'success',
-            'data' => $eventTriggers
-        ]);
+        try {
+            if ($request->query->count() > 0) {
+                return $this->BadRequestResponse();
+            }
+
+            $eventTriggers = WebhookEventTrigger::all();
+            return response()->json([
+                'message' => 'success',
+                'data' => $eventTriggers
+            ]);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
     }
 }
