@@ -51,7 +51,7 @@ class RouteServiceProvider extends ServiceProvider
         $modelMap = [
             'custodianId'    => [Custodian::class, 'id', 'numeric'],
             'projectId'      => [Project::class, 'id', 'numeric'],
-            'notificationId' => [Notification::class, 'id', 'numeric'],
+            // 'notificationId' => [Notification::class, 'id', 'numeric'],
             'registryId'     => [Registry::class, 'id', 'numeric'],
             'organisationId' => [Organisation::class, 'id', 'numeric'],
         ];
