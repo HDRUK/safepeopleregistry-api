@@ -221,7 +221,7 @@ class UserController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
-        // try {
+        try {
             $this->decisionEvaluator = new DES($request, EntityModelType::USER_VALIDATION_RULES);
 
             $loggedInUserId = $request->user()->id;
@@ -259,9 +259,9 @@ class UserController extends Controller
                 'message' => 'success',
                 'data' => $user
             ], 200);
-        // } catch (Exception $e) {
-        //     throw new Exception($e->getMessage());
-        // }
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
     }
     public function showByUniqueIdentifier(Request $request): JsonResponse
     {
