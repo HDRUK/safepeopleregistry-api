@@ -76,6 +76,8 @@ Route::middleware(['auth:api'])
         Route::get('/{id}', [UserController::class, 'show']);
         Route::get('/{id}/history', [AuditLogController::class, 'showUserHistory']);
         Route::get('/{id}/projects', [UserController::class, 'userProjects']);
+        Route::get('/pending_invites/invite_code/{inviteCode}', [UserController::class, 'getPendingInviteByInviteCode']);
+
 
         // create
         Route::post('/', [UserController::class, 'store']);
@@ -86,6 +88,8 @@ Route::middleware(['auth:api'])
 
         //update
         Route::put('/{id}', [UserController::class, 'update']);
+        Route::put('/pending_invites/claim_email/{inviteCode}', [UserController::class, 'updateUserEmailByInviteCode']);
+
         Route::patch('/{id}', [UserController::class, 'edit']);
         Route::delete('/{id}', [UserController::class, 'destroy']);
 
