@@ -2,12 +2,16 @@
 
 namespace App\Providers;
 
+use App\Models\File;
 use App\Models\Project;
 use App\Models\Registry;
+use App\Models\Training;
 use App\Models\Custodian;
 use Illuminate\Support\Str;
 use App\Models\Notification;
 use App\Models\Organisation;
+use App\Models\ProjectHasOrganisation;
+use App\Models\ProjectHasUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -54,6 +58,10 @@ class RouteServiceProvider extends ServiceProvider
             // 'notificationId' => [Notification::class, 'id', 'numeric'],
             'registryId'     => [Registry::class, 'id', 'numeric'],
             'organisationId' => [Organisation::class, 'id', 'numeric'],
+            'trainingId'     => [Training::class, 'id', 'numeric'],
+            'fileId'        => [File::class, 'id', 'numeric'],
+            'projectUserId'  => [ProjectHasUser::class, 'id', 'numeric'],
+            'projectOrganisationId' => [ProjectHasOrganisation::class, 'id', 'numeric']
         ];
 
         $this->registerModelMap($modelMap);
