@@ -27,7 +27,7 @@ class SubsidiaryController extends Controller
      *      summary="subsidiaries@store",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
-     *         name="orgId",
+     *         name="organisationId",
      *         in="path",
      *         description="organisations entry ID",
      *         required=true,
@@ -70,17 +70,17 @@ class SubsidiaryController extends Controller
      *      )
      * )
      */
-    public function store(Request $request, int $orgId): JsonResponse
+    public function store(Request $request, int $organisationId): JsonResponse
     {
         try {
             $input = $request->only(app(Subsidiary::class)->getFillable());
-            $org = Organisation::findOrFail($orgId);
+            $org = Organisation::findOrFail($organisationId);
 
             if (!Gate::allows('update', $org)) {
                 return $this->ForbiddenResponse();
             }
 
-            $subsidiary = $this->addSubsidiary($orgId, $input);
+            $subsidiary = $this->addSubsidiary($organisationId, $input);
 
             return $this->CreatedResponse($subsidiary);
         } catch (Exception $e) {
@@ -90,14 +90,14 @@ class SubsidiaryController extends Controller
 
     /**
      * @OA\Put(
-     *      path="/api/v1/subsidiaries/{subsidiaryId}/organisations/{orgId}",
+     *      path="/api/v1/subsidiaries/{subsidiaryId}/organisations/{organisationId}",
      *      summary="Update a subsidiary entry",
      *      description="Update a subsidiary entry",
      *      tags={"subsidiaries"},
      *      summary="subsidiaries@update",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
-     *         name="orgId",
+     *         name="organisationId",
      *         in="path",
      *         description="organisations entry ID",
      *         required=true,
@@ -151,17 +151,17 @@ class SubsidiaryController extends Controller
      *      )
      * )
      */
-    public function update(Request $request, int $subsidiaryId, int $orgId): JsonResponse
+    public function update(Request $request, int $subsidiaryId, int $organisationId): JsonResponse
     {
         try {
             $input = $request->only(app(Subsidiary::class)->getFillable());
-            $org = Organisation::findOrFail($orgId);
+            $org = Organisation::findOrFail($organisationId);
 
             if (!Gate::allows('update', $org)) {
                 return $this->ForbiddenResponse();
             }
 
-            $subsidiary = $this->addSubsidiary($orgId, $input);
+            $subsidiary = $this->addSubsidiary($organisationId, $input);
 
             return $this->OKResponse($subsidiary);
         } catch (Exception $e) {
@@ -171,14 +171,14 @@ class SubsidiaryController extends Controller
 
     /**
      * @OA\Delete(
-     *      path="/api/v1/subsidiaries/{subsidiaryId}/organisations/{orgId}",
+     *      path="/api/v1/subsidiaries/{subsidiaryId}/organisations/{organisationId}",
      *      summary="Delete an subsidiary entry from the system by ID",
      *      description="Delete an subsidiary entry from the system",
      *      tags={"subsidiaries"},
      *      summary="subsidiaries@destroy",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
-     *         name="orgId",
+     *         name="organisationId",
      *         in="path",
      *         description="organisations entry ID",
      *         required=true,
@@ -222,11 +222,11 @@ class SubsidiaryController extends Controller
      *      )
      * )
      */
-    public function destroy(Request $request, int $subsidiaryId, int $orgId): JsonResponse
+    public function destroy(Request $request, int $subsidiaryId, int $organisationId): JsonResponse
     {
         try {
             $subsidiary = Subsidiary::findOrFail($subsidiaryId);
-            $org = Organisation::findOrFail($orgId);
+            $org = Organisation::findOrFail($organisationId);
 
             if (!Gate::allows('delete', $org)) {
                 return $this->ForbiddenResponse();
