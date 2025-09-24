@@ -502,14 +502,12 @@ Route::middleware('auth:api')
     ->controller(WebhookController::class)
     ->group(function () {
         Route::get('receivers', 'getAllReceivers');
-        Route::get('receivers/{custodianId}', 'getReceiversByCustodian')->whereNumber('custodianId');
+        Route::get('receivers/{custodianId}', 'getReceiversByCustodian');
         Route::post('receivers', 'createReceiver');
-        Route::put('receivers/{custodianId}', 'updateReceiver')->whereNumber('custodianId');
-        Route::delete('receivers/{custodianId}', 'deleteReceiver')->whereNumber('custodianId');
+        Route::put('receivers/{custodianId}', 'updateReceiver');
+        Route::delete('receivers/{custodianId}', 'deleteReceiver');
         Route::get('event-triggers', 'getAllEventTriggers');
     });
-
-Route::post('v1/webhooks/{provider}', [VendorWebhookReceiverController::class, 'receive']);
 
 // --- CUSTODIAN CONFIG ---
 Route::middleware('auth:api')
@@ -616,6 +614,8 @@ Route::middleware('auth:api')
 
 // --- RULES ---
 Route::middleware('auth:api')->get('v1/rules', [RulesEngineManagementController::class, 'getRules']);
+
+Route::post('v1/webhooks/{provider}', [VendorWebhookReceiverController::class, 'receive']);
 
 // ONS CSV RESEARCHER FEED
 Route::post('v1/ons_researcher_feed', [ONSSubmissionController::class, 'receiveCSV']);
