@@ -19,6 +19,7 @@ use Illuminate\Http\Request;
 use App\Models\PendingInvite;
 use App\Http\Traits\Responses;
 use App\Jobs\OrganisationIDVT;
+use App\Models\EntityModelType;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use App\Models\UserHasDepartments;
@@ -81,7 +82,7 @@ class OrganisationController extends Controller
     public function index(Request $request): JsonResponse
     {
         $organisations = [];
-        $this->decisionEvaluator = new DES($request);
+        $this->decisionEvaluator = new DES($request, EntityModelType::ORG_VALIDATION_RULES);
 
         $custodianId = $request->get('custodian_id');
 
@@ -181,7 +182,7 @@ class OrganisationController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
-        $this->decisionEvaluator = new DES($request);
+        $this->decisionEvaluator = new DES($request, EntityModelType::ORG_VALIDATION_RULES);
 
         $organisation = Organisation::with([
             'departments',

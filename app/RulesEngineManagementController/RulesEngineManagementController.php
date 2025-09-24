@@ -47,18 +47,23 @@ class RulesEngineManagementController
         return $custodianId;
     }
 
-    public static function loadCustodianRules(Request $request): ?Collection
+    public static function loadCustodianRules(Request $request, ?string $validationType): ?Collection
     {
         $custodianId = self::determineUserCustodian();
         if (!$custodianId) {
             return null;
         }
 
-        $entityModelTypeNames = [
-            'user_validation_rules',
-            'org_validation_rules',
-        ];
-        $entityModelTypeIds = EntityModelType::whereIn('name', $entityModelTypeNames)->pluck('id');
+        $entityModelTypeIds = [];
+
+        if ($validationType) {
+            $entityModelTypeIds = EntityModelType::where('name', $validationType)->pluck('id');
+        } else {
+            $entityModelTypeIds = EntityModelType::whereIn('name', [
+                EntityModelType::USER_VALIDATION_RULES,
+                EntityModelType::ORG_VALIDATION_RULES
+            ])->pluck('id');
+        }
 
         $modelConfig = CustodianModelConfig::where([
             'custodian_id' => $custodianId,

@@ -12,9 +12,9 @@ class DecisionEvaluatorService
 {
     private $custodianRules = [];
 
-    public function __construct(Request $request)
+    public function __construct(Request $request, ?string $validationType)
     {
-        $this->custodianRules = REMC::loadCustodianRules($request);
+        $this->custodianRules = REMC::loadCustodianRules($request, $validationType);
     }
 
     public function evaluate($models, $batch = false)
@@ -46,7 +46,6 @@ class DecisionEvaluatorService
             // We want to ensure that we're only running rules against their
             // intended class types, such as App\Model\User against
             $normModelType = $this->normaliseRuleClass($rule->model_type);
-
             if ($normModelType === User::GROUP_USERS && $normModelType !== $model->user_group) {
                 continue;
             }
