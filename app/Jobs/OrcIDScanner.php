@@ -29,15 +29,10 @@ class OrcIDScanner implements ShouldQueue
     private $user = null;
 
     private $accessToken = null;
-
-    // /**
-    //  * Create a new job instance.
-    //  */
-    // public function __construct($userId)
-    // {
-    //     $this->user = User::find($userId);
-    // }
-
+    
+    /**
+     * Create a new job instance.
+     */
     public function __construct(User $user)
     {
         $this->user = $user;
@@ -95,9 +90,13 @@ class OrcIDScanner implements ShouldQueue
                 'message' => $e->getMessage(),
             ]);
         }
-
-        $this->release(30);
+        
         return;
+    }
+
+    public function backoff(): array
+    {
+        return [5, 30, 45]; // first retry after 5s, then 30s, then 45s
     }
 
     public function sendLog($message, $event, $reason, $decision): void
