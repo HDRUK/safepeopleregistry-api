@@ -106,8 +106,8 @@ class OrcIDScanner implements ShouldQueue
             'attempt'    => $this->attempts(),
             'max_tries'  => 3,
             'user_id'    => $this->user->id,
-            'orcid_scanning' => true,
-            'orcid_present' => false,
+            'orcid_scanning' => $this->user->orcid_scanning ? true : false,
+            'orcid_present' => blank($this->user->orc_id) ? false : true,
             'reason'     => $reason,
             'decision'   => $decision,
         ];
