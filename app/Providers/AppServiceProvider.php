@@ -20,7 +20,6 @@ use App\Models\RegistryHasTraining;
 use App\Models\RegistryReadRequest;
 use App\Observers\RegistryObserver;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Log;
 use App\Models\CustodianModelConfig;
 use App\Observers\CustodianObserver;
 use App\Observers\AuditModelObserver;

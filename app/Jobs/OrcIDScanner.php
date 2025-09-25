@@ -29,7 +29,7 @@ class OrcIDScanner implements ShouldQueue
     private $user = null;
 
     private $accessToken = null;
-    
+
     /**
      * Create a new job instance.
      */
@@ -90,7 +90,7 @@ class OrcIDScanner implements ShouldQueue
                 'message' => $e->getMessage(),
             ]);
         }
-        
+
         return;
     }
 

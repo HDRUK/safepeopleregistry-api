@@ -11,7 +11,6 @@ use App\Models\DebugLog;
 use App\Models\ActionLog;
 use App\Jobs\OrcIDScanner;
 use App\Models\Organisation;
-use Illuminate\Support\Facades\Log;
 use App\Notifications\AdminUserChanged;
 use Illuminate\Support\Facades\Notification;
 
