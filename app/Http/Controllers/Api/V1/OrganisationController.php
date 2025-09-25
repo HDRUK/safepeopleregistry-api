@@ -361,6 +361,7 @@ class OrganisationController extends Controller
         if (!Gate::allows('create', Organisation::class)) {
             return $this->ForbiddenResponse();
         }
+
         try {
             $input = $request->all();
             $organisation = Organisation::create([

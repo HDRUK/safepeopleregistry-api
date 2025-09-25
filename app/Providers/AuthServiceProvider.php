@@ -7,10 +7,12 @@ use App\Models\User;
 use App\Models\Registry;
 use App\Models\Custodian;
 use App\Models\Organisation;
+use App\Models\Project;
 use App\Policies\UserPolicy;
 use App\Policies\RegistryPolicy;
 use App\Policies\CustodianPolicy;
 use App\Policies\OrganisationPolicy;
+use App\Policies\ProjectPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -25,6 +27,7 @@ class AuthServiceProvider extends ServiceProvider
         Registry::class => RegistryPolicy::class,
         Custodian::class => CustodianPolicy::class,
         Organisation::class => OrganisationPolicy::class,
+        Project::class => ProjectPolicy::class,
     ];
 
     /**

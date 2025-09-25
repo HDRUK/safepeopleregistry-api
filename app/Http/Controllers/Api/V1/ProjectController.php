@@ -541,6 +541,10 @@ class ProjectController extends Controller
      */
     public function getAllUsersFlagProjectByUserId(Request $request, int $projectId, int $userId)
     {
+        if (!Gate::allows('viewProjectUserDetails')) {
+            return $this->Forbidden();
+        };        
+        
         $user = User::where(['user_group' => User::GROUP_USERS, 'id' => $userId])
             ->with([
                 'modelState',
