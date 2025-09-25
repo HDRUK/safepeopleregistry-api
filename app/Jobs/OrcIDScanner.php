@@ -33,9 +33,14 @@ class OrcIDScanner implements ShouldQueue
     // /**
     //  * Create a new job instance.
     //  */
-    public function __construct($userId)
+    // public function __construct($userId)
+    // {
+    //     $this->user = User::find($userId);
+    // }
+
+    public function __construct(User $user)
     {
-        $this->user = User::find($userId);
+        $this->user = $user;
     }
 
     /**
@@ -61,7 +66,7 @@ class OrcIDScanner implements ShouldQueue
             return;
         }
 
-        $this->release(delay: now()->addSeconds(10 * ($this->attempts() + 1)));
+        $this->release(delay: now()->addSeconds(20 * ($this->attempts() + 1)));
 
         Log::info('OrcIDScanner: OrcID scanning started. ', 'orcid_scan.job_removed', 'job_started', 'start');
 
