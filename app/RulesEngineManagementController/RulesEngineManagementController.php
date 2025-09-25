@@ -47,7 +47,7 @@ class RulesEngineManagementController
         return $custodianId;
     }
 
-    public static function loadCustodianRules(Request $request, ?string $validationType): ?Collection
+    public static function loadCustodianRules(Request $request, array $validationType): ?Collection
     {
         $custodianId = self::determineUserCustodian();
         if (!$custodianId) {
@@ -56,8 +56,8 @@ class RulesEngineManagementController
 
         $entityModelTypeIds = [];
 
-        if ($validationType) {
-            $entityModelTypeIds = EntityModelType::where('name', $validationType)->pluck('id');
+        if (filled($validationType)) {
+            $entityModelTypeIds = EntityModelType::whereIn('name', $validationType)->pluck('id');
         } else {
             $entityModelTypeIds = EntityModelType::whereIn('name', [
                 EntityModelType::USER_VALIDATION_RULES,

@@ -63,7 +63,7 @@ class UserObserver
         // Call the OrcID scanner job to fetch the OrcID data.
         if ($user->consent_scrape && filled($user->orc_id) && ($user->isDirty('orc_id') || $user->isDirty('consent_scrape'))) {
             OrcIDScanner::dispatch($user);
-            Log::info('UserObserver: OrcID scanning started.');
+            Log::info('UserObserver: OrcID Scanner Job started.');
         }
     }
 
@@ -136,7 +136,7 @@ class UserObserver
         // // Call the OrcID scanner job to fetch the OrcID data.
         if ($user->consent_scrape && filled($user->orc_id) && ($user->isDirty('orc_id') || $user->isDirty('consent_scrape'))) {
             OrcIDScanner::dispatch($user);
-            Log::info('UserObserver: OrcID scanning started.');
+            Log::info('UserObserver: OrcID Scanner Job started.');
         }
 
     }

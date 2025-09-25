@@ -90,7 +90,7 @@ class UserController extends Controller
         if (!Gate::allows('viewAny', User::class)) {
             return $this->ForbiddenResponse();
         }
-        $this->decisionEvaluator = new DES($request, EntityModelType::USER_VALIDATION_RULES);
+        $this->decisionEvaluator = new DES($request, [EntityModelType::USER_VALIDATION_RULES]);
 
         $users = User::searchViaRequest()
             ->filterByState()
@@ -222,7 +222,7 @@ class UserController extends Controller
     public function show(Request $request, int $id): JsonResponse
     {
         try {
-            $this->decisionEvaluator = new DES($request, EntityModelType::USER_VALIDATION_RULES);
+            $this->decisionEvaluator = new DES($request, [EntityModelType::USER_VALIDATION_RULES]);
 
             $loggedInUserId = $request->user()->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();

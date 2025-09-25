@@ -12,7 +12,7 @@ class DecisionEvaluatorService
 {
     private $custodianRules = [];
 
-    public function __construct(Request $request, ?string $validationType)
+    public function __construct(Request $request, array $validationType)
     {
         $this->custodianRules = REMC::loadCustodianRules($request, $validationType);
     }
