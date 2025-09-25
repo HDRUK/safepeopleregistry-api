@@ -2,17 +2,18 @@
 
 namespace App\Observers;
 
-use Exception;
 use Keycloak;
+use Exception;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\State;
-use App\Models\Organisation;
+use App\Models\DebugLog;
 use App\Models\ActionLog;
 use App\Jobs\OrcIDScanner;
-use App\Models\DebugLog;
+use App\Models\Organisation;
+use Illuminate\Support\Facades\Log;
 use App\Notifications\AdminUserChanged;
 use Illuminate\Support\Facades\Notification;
-use Carbon\Carbon;
 
 class UserObserver
 {
@@ -62,7 +63,8 @@ class UserObserver
         // Call the OrcID scanner job to fetch the OrcID data.
         $user->refresh();
         if ($user->consent_scrape && blank($user->orc_id)) {
-            OrcIDScanner::dispatch($user);
+            // OrcIDScanner::dispatch($user);
+            Log::info('User created but OrcID scanning skipped as OrcID is blank.');
         }
     }
 
@@ -135,7 +137,8 @@ class UserObserver
         // // Call the OrcID scanner job to fetch the OrcID data.
         $user->refresh();
         if ($user->consent_scrape && filled($user->orc_id)) {
-            OrcIDScanner::dispatch($user);
+            // OrcIDScanner::dispatch($user);
+            Log::info('User created but OrcID scanning skipped as OrcID is blank.');
         }
 
     }

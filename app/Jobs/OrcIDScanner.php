@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use Exception;
 use OrcID;
 use Throwable;
 use Carbon\Carbon;
@@ -42,7 +41,7 @@ class OrcIDScanner implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle()
     {
         if ($this->attempts() > 3) {
             $this->sendLog('OrcID Scanner failed: max attempts reached; deleting job', 'orcid_scan.job_removed', 'max_attempts_reached', 'deleted');
@@ -92,11 +91,10 @@ class OrcIDScanner implements ShouldQueue
             ]);
         }
 
-        // Nothing to do - either no consent to scrape data, or
-        // OrcID hasn't been set. Either way, fail silently.
+        return 0;
     }
 
-    public function sendLog($message, $event, $reason, $decision)
+    public function sendLog($message, $event, $reason, $decision): void
     {
         $log = [
             'event'      => $event,
@@ -112,12 +110,12 @@ class OrcIDScanner implements ShouldQueue
             'decision'   => $decision,
         ];
 
-        return Log::error($message, $log);
+        Log::error($message, $log);
     }
 
     public function failed(Throwable $exception): void
     {
-        Log::error('OrcID Scanner failed', [
+        Log::info('OrcID Scanner failed', [
             'user_id' => $this->user->id,
             'class_exception' => get_class($exception),
             'message' => $exception->getMessage(),
