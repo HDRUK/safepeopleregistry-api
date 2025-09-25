@@ -31,9 +31,6 @@ class OrcIDScanner implements ShouldQueue
 
     private $accessToken = null;
 
-    public int $tries = 3;
-    protected int $ttlSeconds = 600;
-
     // /**
     //  * Create a new job instance.
     //  */
@@ -47,37 +44,20 @@ class OrcIDScanner implements ShouldQueue
      */
     public function handle(): void
     {
+        if ($this->attempts() > 3) {
+            $this->sendLog('OrcID Scanner failed: max attempts reached; deleting job', 'orcid_scan.job_removed', 'max_attempts_reached', 'deleted');
+            $this->delete();
+            return;
+        }
+
         if (blank($this->user->orc_id)) {
-            Log::error('OrcID Scanner failed: user has no ORCID; deleting job', [
-                'event'      => 'orcid_scan.job_removed',
-                'job_class'  => static::class,
-                'job_id'     => $this->job?->getJobId(),
-                'queue'      => $this->job?->getQueue(),
-                'attempt'    => $this->attempts(),
-                'max_tries'  => property_exists($this, 'tries') ? $this->tries : null,
-                'user_id'    => $this->user->id,
-                'orcid_present' => false,
-                'reason'     => 'user_orcid_blank',
-                'decision'   => 'deleted',
-            ]);
+            $this->sendLog('OrcID Scanner failed: user has no ORCID; deleting job', 'orcid_scan.job_removed', 'user_orcid_blank', 'deleted');
             $this->delete();
             return;
         }
 
         if ($this->user->orcid_scanning === 1) {
-            $this->release(delay: now()->addSeconds(10 * 2 * ($this->attempts() + 1)));
-            Log::notice("OrcID Scanner failed - duplicate ORCID scan detected; deleting job.", [
-                'event'      => 'orcid_scan.duplicate_job',
-                'job_class'  => static::class,
-                'job_id'     => $this->job?->getJobId(),
-                'queue'      => $this->job?->getQueue(),
-                'attempt'    => $this->attempts(),
-                'max_tries'  => property_exists($this, 'tries') ? $this->tries : null,
-                'user_id'    => $this->user->id,
-                'orcid_scanning' => true,
-                'reason'     => 'already_running_or_already_has_orcid',
-                'decision'   => 'deleted',
-            ]);
+            $this->sendLog("OrcID Scanner failed - duplicate ORCID scan detected; deleting job.", 'orcid_scan.duplicate_job', 'already_running_or_already_has_orcid', 'deleted');
             $this->delete();
             return;
         }
@@ -114,6 +94,25 @@ class OrcIDScanner implements ShouldQueue
 
         // Nothing to do - either no consent to scrape data, or
         // OrcID hasn't been set. Either way, fail silently.
+    }
+
+    public function sendLog($message, $event, $reason, $decision)
+    {
+        $log = [
+            'event'      => $event,
+            'job_class'  => static::class,
+            'job_id'     => $this->job?->getJobId(),
+            'queue'      => $this->job?->getQueue(),
+            'attempt'    => $this->attempts(),
+            'max_tries'  => 3,
+            'user_id'    => $this->user->id,
+            'orcid_scanning' => true,
+            'orcid_present' => false,
+            'reason'     => $reason,
+            'decision'   => $decision,
+        ];
+
+        return Log::notice($message, $log);
     }
 
     public function failed(Throwable $exception): void
