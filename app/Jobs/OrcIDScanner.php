@@ -63,7 +63,7 @@ class OrcIDScanner implements ShouldQueue
 
         $this->release(delay: now()->addSeconds(10 * ($this->attempts() + 1)));
 
-        Log::info('OrcIDScanner: User created but OrcID scanning started.');
+        Log::info('OrcIDScanner: OrcID scanning started.');
         return 0;
 
         try {
