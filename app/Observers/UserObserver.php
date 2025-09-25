@@ -64,7 +64,7 @@ class UserObserver
         $user->refresh();
         if ($user->consent_scrape && blank($user->orc_id)) {
             OrcIDScanner::dispatch($user->id);
-            Log::info('User created but OrcID scanning started.');
+            Log::info('UserObserver: User created but OrcID scanning started.');
         }
     }
 
@@ -138,7 +138,7 @@ class UserObserver
         $user->refresh();
         if ($user->consent_scrape && filled($user->orc_id)) {
             OrcIDScanner::dispatch($user->id);
-            Log::info('User created but OrcID scanning started.');
+            Log::info('UserObserver: User created but OrcID scanning started.');
         }
 
     }
