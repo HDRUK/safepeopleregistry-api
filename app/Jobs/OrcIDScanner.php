@@ -112,7 +112,7 @@ class OrcIDScanner implements ShouldQueue
             'decision'   => $decision,
         ];
 
-        return Log::notice($message, $log);
+        return Log::error($message, $log);
     }
 
     public function failed(Throwable $exception): void
