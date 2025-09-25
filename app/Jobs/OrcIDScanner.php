@@ -63,8 +63,7 @@ class OrcIDScanner implements ShouldQueue
 
         $this->release(delay: now()->addSeconds(10 * ($this->attempts() + 1)));
 
-        Log::info('OrcIDScanner: OrcID scanning started.');
-        return 0;
+        Log::info('OrcIDScanner: OrcID scanning started. ', 'orcid_scan.job_removed', 'job_started', 'start');
 
         try {
             if ($this->user->consent_scrape && $this->user->orc_id !== null && $this->user->user_group === User::GROUP_USERS) {
@@ -93,8 +92,6 @@ class OrcIDScanner implements ShouldQueue
                 'message' => $e->getMessage(),
             ]);
         }
-
-        return 0;
     }
 
     public function sendLog($message, $event, $reason, $decision): void
