@@ -63,6 +63,9 @@ class OrcIDScanner implements ShouldQueue
 
         $this->release(delay: now()->addSeconds(10 * ($this->attempts() + 1)));
 
+        Log::info('User created but OrcID scanning started.');
+        return 0;
+
         try {
             if ($this->user->consent_scrape && $this->user->orc_id !== null && $this->user->user_group === User::GROUP_USERS) {
                 $this->user->orcid_scanning = 1;

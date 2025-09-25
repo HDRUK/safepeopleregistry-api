@@ -63,8 +63,8 @@ class UserObserver
         // Call the OrcID scanner job to fetch the OrcID data.
         $user->refresh();
         if ($user->consent_scrape && blank($user->orc_id)) {
-            // OrcIDScanner::dispatch($user);
-            Log::info('User created but OrcID scanning skipped as OrcID is blank.');
+            OrcIDScanner::dispatch($user);
+            Log::info('User created but OrcID scanning started.');
         }
     }
 
@@ -137,8 +137,8 @@ class UserObserver
         // // Call the OrcID scanner job to fetch the OrcID data.
         $user->refresh();
         if ($user->consent_scrape && filled($user->orc_id)) {
-            // OrcIDScanner::dispatch($user);
-            Log::info('User created but OrcID scanning skipped as OrcID is blank.');
+            OrcIDScanner::dispatch($user);
+            Log::info('User created but OrcID scanning started.');
         }
 
     }
