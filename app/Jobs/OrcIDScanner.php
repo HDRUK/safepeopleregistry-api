@@ -33,9 +33,9 @@ class OrcIDScanner implements ShouldQueue
     // /**
     //  * Create a new job instance.
     //  */
-    public function __construct(User $user)
+    public function __construct($userId)
     {
-        $this->user = $user;
+        $this->user = User::find($userId);
     }
 
     /**
