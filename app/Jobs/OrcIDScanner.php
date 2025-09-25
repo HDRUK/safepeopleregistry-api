@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use Exception;
 use OrcID;
 use Throwable;
 use Carbon\Carbon;
@@ -30,6 +31,9 @@ class OrcIDScanner implements ShouldQueue
 
     private $accessToken = null;
 
+    public int $tries = 3;
+    protected int $ttlSeconds = 600;
+
     // /**
     //  * Create a new job instance.
     //  */
@@ -43,6 +47,43 @@ class OrcIDScanner implements ShouldQueue
      */
     public function handle(): void
     {
+        if (blank($this->user->orc_id)) {
+            Log::error('OrcID Scanner failed: user has no ORCID; deleting job', [
+                'event'      => 'orcid_scan.job_removed',
+                'job_class'  => static::class,
+                'job_id'     => $this->job?->getJobId(),
+                'queue'      => $this->job?->getQueue(),
+                'attempt'    => $this->attempts(),
+                'max_tries'  => property_exists($this, 'tries') ? $this->tries : null,
+                'user_id'    => $this->user->id,
+                'orcid_present' => false,
+                'reason'     => 'user_orcid_blank',
+                'decision'   => 'deleted',
+            ]);
+            $this->delete();
+            return;
+        }
+
+        if ($this->user->orcid_scanning === 1) {
+            $this->release(delay: now()->addSeconds(10 * 2 * ($this->attempts() + 1)));
+            Log::notice("OrcID Scanner failed - duplicate ORCID scan detected; deleting job.", [
+                'event'      => 'orcid_scan.duplicate_job',
+                'job_class'  => static::class,
+                'job_id'     => $this->job?->getJobId(),
+                'queue'      => $this->job?->getQueue(),
+                'attempt'    => $this->attempts(),
+                'max_tries'  => property_exists($this, 'tries') ? $this->tries : null,
+                'user_id'    => $this->user->id,
+                'orcid_scanning' => true,
+                'reason'     => 'already_running_or_already_has_orcid',
+                'decision'   => 'deleted',
+            ]);
+            $this->delete();
+            return;
+        }
+
+        $this->release(delay: now()->addSeconds(10 * ($this->attempts() + 1)));
+
         try {
             if ($this->user->consent_scrape && $this->user->orc_id !== null && $this->user->user_group === User::GROUP_USERS) {
                 $this->user->orcid_scanning = 1;
@@ -73,6 +114,15 @@ class OrcIDScanner implements ShouldQueue
 
         // Nothing to do - either no consent to scrape data, or
         // OrcID hasn't been set. Either way, fail silently.
+    }
+
+    public function failed(Throwable $exception): void
+    {
+        Log::error('OrcID Scanner failed', [
+            'user_id' => $this->user->id,
+            'class_exception' => get_class($exception),
+            'message' => $exception->getMessage(),
+        ]);
     }
 
     private function getEducations(): void
