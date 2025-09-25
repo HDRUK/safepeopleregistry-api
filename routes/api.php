@@ -268,6 +268,7 @@ Route::middleware('auth:api')
         // Project user management
         Route::get('user/{registryId}/validated', 'getValidatedProjects');
         Route::get('{id}/users', 'getProjectUsers');
+        Route::get('{id}/all_users/{userId}', 'getAllUsersFlagProjectByUserId');
         Route::get('{id}/all_users', 'getAllUsersFlagProject');
         Route::put('{id}/all_users', 'updateAllProjectUsers');
         Route::post('{id}/users', 'addProjectUser');
