@@ -60,10 +60,8 @@ class UserObserver
             }
         }
 
-        // Call the OrcID scanner job to fetch the OrcID data.
         if ($user->consent_scrape && filled($user->orc_id) && ($user->isDirty('orc_id') || $user->isDirty('consent_scrape'))) {
             OrcIDScanner::dispatch($user);
-            Log::info('UserObserver: OrcID Scanner Job started.');
         }
     }
 
@@ -131,12 +129,8 @@ class UserObserver
             }
         }
 
-        // LS - Removed from update as this is spamming ORCID.
-        //
-        // // Call the OrcID scanner job to fetch the OrcID data.
         if ($user->consent_scrape && filled($user->orc_id) && ($user->isDirty('orc_id') || $user->isDirty('consent_scrape'))) {
             OrcIDScanner::dispatch($user);
-            Log::info('UserObserver: OrcID Scanner Job started.');
         }
 
     }
