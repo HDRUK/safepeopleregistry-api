@@ -192,8 +192,6 @@ return [
             'tries' => 1,
             'timeout' => 60,
             'nice' => 0,
-            'tries' => 3,
-            'backoff' => [5, 30, 60],
         ],
     ],
 
