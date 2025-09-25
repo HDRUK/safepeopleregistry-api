@@ -49,13 +49,13 @@ class OrcIDScanner implements ShouldQueue
     public function handle()
     {
         if ($this->attempts() > 3) {
-            $this->sendLog('OrcID Scanner failed: max attempts reached; deleting job', 'orcid_scan.job_removed', 'max_attempts_reached', 'deleted');
+            $this->sendLog('OrcID Scanner failed - max attempts reached; deleting job', 'orcid_scan.job_removed', 'max_attempts_reached', 'deleted');
             $this->delete();
             return;
         }
 
         if (blank($this->user->orc_id)) {
-            $this->sendLog('OrcID Scanner failed: user has no ORCID; deleting job', 'orcid_scan.job_removed', 'user_orcid_blank', 'deleted');
+            $this->sendLog('OrcID Scanner failed - user has no ORCID; deleting job', 'orcid_scan.job_removed', 'user_orcid_blank', 'deleted');
             $this->delete();
             return;
         }
@@ -68,7 +68,7 @@ class OrcIDScanner implements ShouldQueue
 
         $this->release(delay: now()->addSeconds(20 * ($this->attempts() + 1)));
 
-        $this->sendLog('OrcIDScanner: OrcID scanning started. ', 'orcid_scan.job_removed', 'job_started', 'start');
+        $this->sendLog('OrcIDScanner - OrcID scanning started. ', 'orcid_scan.job_removed', 'job_started', 'start');
 
         try {
             if ($this->user->consent_scrape && $this->user->orc_id !== null && $this->user->user_group === User::GROUP_USERS) {
