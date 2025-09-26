@@ -30,9 +30,9 @@ class OrcIDScanner implements ShouldQueue
 
     private $accessToken = null;
 
-    // /**
-    //  * Create a new job instance.
-    //  */
+    /**
+     * Create a new job instance.
+     */
     public function __construct(User $user)
     {
         $this->user = $user;
@@ -41,8 +41,28 @@ class OrcIDScanner implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle()
     {
+        if ($this->attempts() > 3) {
+            $this->sendLog('OrcID Scanner failed - max attempts reached; deleting job', 'orcid_scan.job_removed', 'max_attempts_reached', 'deleted');
+            $this->delete();
+            return;
+        }
+
+        if (blank($this->user->orc_id)) {
+            $this->sendLog('OrcID Scanner failed - user has no ORCID; deleting job', 'orcid_scan.job_removed', 'user_orcid_blank', 'deleted');
+            $this->delete();
+            return;
+        }
+
+        if ($this->user->orcid_scanning === 1) {
+            $this->sendLog("OrcID Scanner failed - duplicate ORCID scan detected; deleting job.", 'orcid_scan.duplicate_job', 'already_running_or_already_has_orcid', 'deleted');
+            $this->delete();
+            return;
+        }
+
+        $this->sendLog('OrcIDScanner - OrcID scanning started. ', 'orcid_scan.job_started', 'job_started', 'start');
+
         try {
             if ($this->user->consent_scrape && $this->user->orc_id !== null && $this->user->user_group === User::GROUP_USERS) {
                 $this->user->orcid_scanning = 1;
@@ -71,8 +91,40 @@ class OrcIDScanner implements ShouldQueue
             ]);
         }
 
-        // Nothing to do - either no consent to scrape data, or
-        // OrcID hasn't been set. Either way, fail silently.
+        return;
+    }
+
+    public function backoff(): array
+    {
+        return [5, 30, 45]; // first retry after 5s, then 30s, then 45s
+    }
+
+    public function sendLog($message, $event, $reason, $decision): void
+    {
+        $log = [
+            'event'      => $event,
+            'job_class'  => static::class,
+            'job_id'     => $this->job?->getJobId(),
+            'queue'      => $this->job?->getQueue(),
+            'attempt'    => $this->attempts(),
+            'max_tries'  => 3,
+            'user_id'    => $this->user->id,
+            'orcid_scanning' => $this->user->orcid_scanning ? true : false,
+            'orcid_present' => blank($this->user->orc_id) ? false : true,
+            'reason'     => $reason,
+            'decision'   => $decision,
+        ];
+
+        Log::error($message, $log);
+    }
+
+    public function failed(Throwable $exception): void
+    {
+        Log::info('OrcID Scanner failed', [
+            'user_id' => $this->user->id,
+            'class_exception' => get_class($exception),
+            'message' => $exception->getMessage(),
+        ]);
     }
 
     private function getEducations(): void

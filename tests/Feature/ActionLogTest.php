@@ -137,15 +137,22 @@ class ActionLogTest extends TestCase
 
         $response->assertStatus(200);
 
-        $expectedResponse = array_map(function ($action) use ($org) {
-            return [
-                'entity_id' => $org->id,
-                'action' => $action,
-                'completed_at' => null,
-            ];
-        }, Organisation::getDefaultActions());
+        $actions = Organisation::getDefaultActions();
+        $expected = collect($actions)->map(fn ($action) => [
+            'entity_id'    => $org->id,
+            'action'       => $action,
+            'completed_at' => null,
+        ])->all();
 
-        $response->assertJson(['data' => $expectedResponse]);
+        $actual = collect($response->json('data'))
+            ->map(fn ($row) => [
+                'entity_id'    => $row['entity_id'],
+                'action'       => $row['action'],
+                'completed_at' => $row['completed_at'],
+            ])
+            ->all();
+
+        $this->assertEqualsCanonicalizing($expected, $actual);
     }
 
 
