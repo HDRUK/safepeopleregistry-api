@@ -318,7 +318,7 @@ class TriggerEmail
                 ];
 
                 break;
-            case 'AFFILIATION_VERIFIED': 
+            case 'AFFILIATION_VERIFIED':
                 $template = EmailTemplate::where('identifier', $identifier)->first();
                 $affiliation = Affiliation::where([
                     'id' => $to,
@@ -330,7 +330,7 @@ class TriggerEmail
                     'email' => $affiliation->email,
                 ];
 
-                $validationHours = round((int)config('speedi.system.otp_affiliation_validity_minutes')/60,0);
+                $validationHours = round((int)config('speedi.system.otp_affiliation_validity_minutes') / 60, 0);
                 $replacements = [
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
                     '[[env(APP_NAME)]]' => config('speedi.system.app_name'),

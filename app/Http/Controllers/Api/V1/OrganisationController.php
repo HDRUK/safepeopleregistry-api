@@ -23,7 +23,6 @@ use App\Models\EntityModelType;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use App\Models\UserHasDepartments;
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
 use App\Exceptions\NotFoundException;
@@ -82,7 +81,7 @@ class OrganisationController extends Controller
     public function index(Request $request): JsonResponse
     {
         $organisations = [];
-        $this->decisionEvaluator = new DES($request, EntityModelType::ORG_VALIDATION_RULES);
+        $this->decisionEvaluator = new DES($request, [EntityModelType::ORG_VALIDATION_RULES]);
 
         $custodianId = $request->get('custodian_id');
 
@@ -182,7 +181,7 @@ class OrganisationController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
-        $this->decisionEvaluator = new DES($request, EntityModelType::ORG_VALIDATION_RULES);
+        $this->decisionEvaluator = new DES($request, [EntityModelType::ORG_VALIDATION_RULES]);
 
         $organisation = Organisation::with([
             'departments',
