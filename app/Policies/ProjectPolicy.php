@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-use Exception;
 use App\Models\User;
 use App\Models\Project;
 

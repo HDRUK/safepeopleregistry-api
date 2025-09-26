@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Exception;
 use App\Traits\FilterManager;
 use App\Traits\SearchManager;
 use App\Traits\SearchProject;
@@ -280,7 +279,8 @@ class Project extends Model
         ]);
     }
 
-    public function scopeCustodianUserIds($query, $projectId) {
+    public function scopeCustodianUserIds($query, $projectId)
+    {
         $project = $query->with(['custodians.custodianUsers.user'])->find($projectId);
 
         return $project['custodians']->pluck('custodianUsers')->flatten()->pluck('user.id');

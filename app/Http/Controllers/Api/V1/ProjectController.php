@@ -546,8 +546,8 @@ class ProjectController extends Controller
 
         if (!Gate::allows('viewProjectUserDetails', $project)) {
             return $this->ForbiddenResponse();
-        };   
-        
+        };
+
         $user = User::where(['user_group' => User::GROUP_USERS, 'id' => $userId])
             ->with([
                 'modelState',
@@ -572,7 +572,7 @@ class ProjectController extends Controller
 
         if (!Gate::allows('viewProjectUserDetails', $project)) {
             return $this->ForbiddenResponse();
-        };   
+        };
 
         $users = User::searchViaRequest()
             ->where('user_group', User::GROUP_USERS)
