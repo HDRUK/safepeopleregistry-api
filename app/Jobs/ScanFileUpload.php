@@ -2,6 +2,8 @@
 
 namespace App\Jobs;
 
+use Log;
+use Exception;
 use App\Models\File;
 use App\Traits\CommonFunctions;
 use Illuminate\Bus\Queueable;
@@ -11,6 +13,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Response;
 
 class ScanFileUpload implements ShouldQueue
 {
@@ -51,7 +54,10 @@ class ScanFileUpload implements ShouldQueue
         ];
         $url = config('speedi.system.clam_av_service_url') . '/scan_file';
 
-        $response = Http::post(
+        $response = Http::withBasicAuth(
+            config('speedi.system.clamav_basic_auth_username'),
+            config('speedi.system.clamav_basic_auth_password')
+        )->post(
             $url,
             [
                 'file' => $filePath,
@@ -59,6 +65,16 @@ class ScanFileUpload implements ShouldQueue
                 'service_path' => config('speedi.system.app_url'),
             ]
         );
+
+        if (!$response->successful()) {
+            if ($response->status() === Response::HTTP_UNAUTHORIZED) {
+                Log::info('Malware scan not authorised.');
+                throw new Exception('malware scan not authorised');
+            } else {
+                Log::info('Malware scan not available.');
+                throw new Exception('malware scan not available');
+            }
+        }
 
         $isInfected = $response['isInfected'] ?? null;
         $response->close();
