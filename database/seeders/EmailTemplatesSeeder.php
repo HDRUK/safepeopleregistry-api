@@ -1058,11 +1058,13 @@ class EmailTemplatesSeeder extends Seeder
             EmailTemplate::updateOrCreate(
                 ['identifier' => $template['identifier']],
                 [
-                'subject' => $template['subject'],
-                'body' => $template['body'],
-                'buttons' => $template['buttons'] ?? '',
-        ]
+                  'subject' => $template['subject'],
+                  'body' => $template['body'],
+                  'buttons' => $template['buttons'] ?? '',
+                ]
             );
         }
+
+        $this->command?->info('Email templates seeded successfully.');
     }
 }

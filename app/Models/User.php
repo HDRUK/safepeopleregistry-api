@@ -135,6 +135,9 @@ class User extends Authenticatable
     public const GROUP_KC_ADMINS = '\Admins';
 
     protected static array $transitions = [
+        State::STATE_FORM_RECEIVED => [
+            State::STATE_PENDING,
+        ],
         State::STATE_REGISTERED => [
             State::STATE_PENDING,
             State::STATE_FORM_RECEIVED,
