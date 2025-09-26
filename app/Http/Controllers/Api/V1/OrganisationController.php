@@ -575,17 +575,6 @@ class OrganisationController extends Controller
                 'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
             ]);
 
-            // temp
-            // $input = [
-            //     'type' => 'ORGANISATION_INVITE_SIMPLE',
-            //     'to' => $organisation->id,
-            //     'address' => $input['lead_applicant_email'],
-            //     'by' => Auth::user()->id,
-            //     'identifier' => 'organisation_invite',
-            // ];
-
-            // TriggerEmail::spawnEmail($input);
-
             return $this->CreatedResponse($organisation->id);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
