@@ -55,8 +55,8 @@ class ScanFileUpload implements ShouldQueue
         $url = config('speedi.system.clam_av_service_url') . '/scan_file';
 
         $response = Http::withBasicAuth(
-            config('speedi.clamav_basic_auth_username'),
-            config('speedi.clamav_basic_auth_password')
+            config('speedi.system.clamav_basic_auth_username'),
+            config('speedi.system.clamav_basic_auth_password')
         )->post(
             $url,
             [
