@@ -490,15 +490,15 @@ class ProjectController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/api/v1/projects/{projectId}/organisations/{organisationId}/users",
-     *      summary="Get all users by projectID and organisationID",
-     *      description="Fetches users given organisation and project IDs.",
+     *      path="/api/v1/projects/{projectId}/all_users/{userId}",
+     *      summary="Get all users by projectID and userID",
+     *      description="Fetches users for a project.",
      *      tags={"Project"},
      *      @OA\Parameter(
-     *          name="organisationId",
+     *          name="userId",
      *          in="path",
      *          required=true,
-     *          description="ID of the organisation",
+     *          description="ID of the user",
      *          @OA\Schema(type="integer")
      *      ),
      *      @OA\Parameter(
@@ -510,7 +510,7 @@ class ProjectController extends Controller
      *      ),
      *      @OA\Response(
      *          response=200,
-     *          description="Successfully retrieved organisation users",
+     *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="array",
@@ -531,11 +531,11 @@ class ProjectController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
-     *          response=404,
-     *          description="Organisation users not found",
+     *          response=403,
+     *          description="Forbidden",
      *          @OA\JsonContent(
      *              type="object",
-     *              @OA\Property(property="message", type="string", example="Organisation users not found")
+     *              @OA\Property(property="message", type="string", example="Not authorised")
      *          )
      *      )
      * )
