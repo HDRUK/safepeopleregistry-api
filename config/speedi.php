@@ -64,5 +64,7 @@ return [
         'ror_api_url' => env('ROR_API_URL'),
         'registry_image_url' => env('REGISTRY_IMAGE_URL', 'https://storage.googleapis.com/hdruk-registry-assets/logo-horiz-colour.png'),
         'otp_affiliation_validity_minutes' => env('OTP_AFFILIATION_VALIDITY_MINUTES', 60),
+        'clamav_basic_auth_username' => env('CLAMAV_BASIC_AUTH_USERNAME', ''),
+        'clamav_basic_auth_password' => env('CLAMAV_BASIC_AUTH_PASSWORD', ''),
     ],
 ];
