@@ -2,13 +2,16 @@
 
 namespace App\Policies;
 
+use Exception;
+use App\Models\User;
+use App\Models\Project;
+
 class ProjectPolicy
 {
-    public function viewProjectUserDetails(User $user): bool
+    public function viewProjectUserDetails(User $user, Project $project): bool
     {
-        return $user->inGroup([
-            User::GROUP_ADMINS,
-            User::GROUP_CUSTODIANS
-        ]);
+        $projectCustodianUserIds = $project->custodianUserIds($project->id)->toArray();
+
+        return in_array($user->id, $projectCustodianUserIds);
     }
 }

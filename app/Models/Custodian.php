@@ -180,4 +180,12 @@ class Custodian extends Model
     {
         return $this->hasMany(CustodianHasProjectOrganisation::class, 'custodian_id');
     }
+
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\CustodianHasProjectUser>
+     */
+    public function projectUsers(): HasMany
+    {
+        return $this->hasMany(CustodianHasProjectUser::class, 'custodian_id');
+    }
 }

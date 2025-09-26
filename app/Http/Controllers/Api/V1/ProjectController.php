@@ -18,6 +18,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Gate;
 
 class ProjectController extends Controller
 {
@@ -541,9 +542,11 @@ class ProjectController extends Controller
      */
     public function getAllUsersFlagProjectByUserId(Request $request, int $projectId, int $userId)
     {
-        if (!Gate::allows('viewProjectUserDetails')) {
-            return $this->Forbidden();
-        };        
+        $project = Project::find($projectId);
+
+        if (!Gate::allows('viewProjectUserDetails', $project)) {
+            return $this->ForbiddenResponse();
+        };   
         
         $user = User::where(['user_group' => User::GROUP_USERS, 'id' => $userId])
             ->with([
@@ -565,6 +568,12 @@ class ProjectController extends Controller
 
     public function getAllUsersFlagProject(Request $request, int $projectId): JsonResponse
     {
+        $project = Project::find($projectId);
+
+        if (!Gate::allows('viewProjectUserDetails', $project)) {
+            return $this->ForbiddenResponse();
+        };   
+
         $users = User::searchViaRequest()
             ->where('user_group', User::GROUP_USERS)
             ->filterByState()
