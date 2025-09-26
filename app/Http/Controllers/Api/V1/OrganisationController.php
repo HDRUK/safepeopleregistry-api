@@ -447,21 +447,6 @@ class OrganisationController extends Controller
         }
     }
 
-    public function inviteOrganisationSimple(Request $request): JsonResponse
-    {
-        $input = [
-            'type' => 'ORGANISATION_INVITE_SIMPLE',
-            'to' => -1,
-            'address' => $request->get('lead_applicant_email'),
-            'by' => Auth::user()->id,
-            'identifier' => 'organisation_invite_new',
-        ];
-
-        TriggerEmail::spawnEmail($input);
-
-        return $this->OKResponse(null);
-    }
-
     public function createOrgWithUser(Request $request): JsonResponse
     {
         $input = $request->all();
@@ -550,17 +535,6 @@ class OrganisationController extends Controller
 
     public function storeUnclaimed(Request $request): JsonResponse
     {
-
-        $input = [
-            'type' => 'ORGANISATION_INVITE_SIMPLE',
-            'to' => -1,
-            'address' => $request->get('lead_applicant_email'),
-            'by' => Auth::user()->id,
-            'identifier' => 'organisation_invite_new',
-        ];
-
-        TriggerEmail::spawnEmail($input);
-
         try {
             $input = $request->all();
             $organisation = Organisation::create([
@@ -600,6 +574,17 @@ class OrganisationController extends Controller
                 'system_approved' => $input['system_approved'] ?? 0,
                 'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
             ]);
+
+            // temp disabled
+            //  $input = [
+            //     'type' => 'ORGANISATION_INVITE_SIMPLE',
+            //     'to' => -1,
+            //     'address' => $request->get('lead_applicant_email'),
+            //     'by' => Auth::user()->id,
+            //     'identifier' => 'organisation_invite_new',
+            // ];
+
+            // TriggerEmail::spawnEmail($input);
 
             return $this->CreatedResponse($organisation->id);
         } catch (Exception $e) {
