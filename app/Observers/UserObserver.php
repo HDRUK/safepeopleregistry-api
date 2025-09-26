@@ -59,7 +59,7 @@ class UserObserver
             }
         }
 
-        if ($user->consent_scrape && filled($user->orc_id) && ($user->isDirty('orc_id') || $user->isDirty('consent_scrape'))) {
+        if ($user->consent_scrape && filled($user->orc_id)) {
             OrcIDScanner::dispatch($user);
         }
     }
