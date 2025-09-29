@@ -9,6 +9,7 @@ use App\Http\Traits\Responses;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use Spatie\Activitylog\Models\Activity;
+use App\Http\Requests\AuditLog\GetUserHistory;
 
 /**
  * @OA\Tag(
@@ -20,7 +21,7 @@ class AuditLogController extends Controller
 {
     use Responses;
 
-    public function showUserHistory(Request $request, int $id): JsonResponse
+    public function showUserHistory(GetUserHistory $request, int $id): JsonResponse
     {
         $user = User::find($id);
 
