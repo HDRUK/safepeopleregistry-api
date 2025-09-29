@@ -3,17 +3,18 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Keycloak;
-use RegistryManagementController as RMC;
 use Carbon\Carbon;
-use App\Models\PendingInvite;
 use App\Models\User;
+use App\Models\State;
 use App\Models\Affiliation;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Models\PendingInvite;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\Controller;
 use App\Http\Traits\Responses;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use RegistryManagementController as RMC;
 
 class AuthController extends Controller
 {
@@ -49,6 +50,8 @@ class AuthController extends Controller
         $user = RMC::createNewUser($payload, $request);
 
         if ($user) {
+            $user->setState(State::STATE_REGISTERED);
+
             if (isset($user['unclaimed_user_id'])) {
                 $unclaimedUser = User::where('id', $user['unclaimed_user_id'])->first();
 

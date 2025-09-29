@@ -28,7 +28,9 @@ class UserObserver
      */
     public function created(User $user): void
     {
-        $user->setState(State::STATE_REGISTERED);
+        if (!$user->getState()) {
+            $user->setState(State::STATE_FORM_RECEIVED);
+        }
 
         foreach (User::getDefaultActions() as $action) {
             ActionLog::firstOrCreate([
