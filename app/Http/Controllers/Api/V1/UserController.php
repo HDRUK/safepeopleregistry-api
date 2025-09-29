@@ -23,6 +23,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Users\GetUser;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\Users\CreateUser;
+use App\Http\Requests\Users\DeleteUser;
 use App\Http\Requests\Users\UpdateUser;
 use RegistryManagementController as RMC;
 use App\Models\UserHasCustodianPermission;
@@ -679,7 +680,7 @@ class UserController extends Controller
      *      )
      * )
      */
-    public function destroy(Request $request, int $id): JsonResponse
+    public function destroy(DeleteUser $request, int $id): JsonResponse
     {
         try {
             $user = User::findOrFail($id);

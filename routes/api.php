@@ -90,7 +90,8 @@ Route::middleware(['auth:api'])
         Route::put('/{id}', [UserController::class, 'update']);
         Route::put('/pending_invites/claim_email/{inviteCode}', [UserController::class, 'updateUserEmailByInviteCode']);
 
-        Route::patch('/{id}', [UserController::class, 'edit']);
+        // the method not found in controller
+        // Route::patch('/{id}', [UserController::class, 'edit']);
         Route::delete('/{id}', [UserController::class, 'destroy']);
 
 

@@ -574,8 +574,7 @@ class UserTest extends TestCase
         });
     }
 
-
-    public function test_the_application_can_delete_users(): void
+    public function test_the_application_can_delete_users_with_success(): void
     {
         $response = $this->actingAs($this->admin)
             ->json(
@@ -605,6 +604,25 @@ class UserTest extends TestCase
             );
 
         $response->assertStatus(200);
+    }
+
+    public function test_the_application_can_delete_users_with_no_success(): void
+    {
+        $latestUserId = User::query()->orderBy('id', 'desc')->first();
+        $userIdTest = $latestUserId->id + 1;
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'DELETE',
+                self::TEST_URL . '/' . $userIdTest
+            );
+
+        $response->assertStatus(200);
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 
     public function test_the_application_can_search_across_affiliations_by_name_and_email(): void
