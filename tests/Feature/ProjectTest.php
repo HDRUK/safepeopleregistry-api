@@ -14,11 +14,13 @@ use App\Models\Organisation;
 use App\Models\Project;
 use App\Models\ProjectHasUser;
 use App\Models\ProjectHasCustodian;
+use App\Models\CustodianUser;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 use Spatie\WebhookServer\CallWebhookJob;
 use Illuminate\Support\Facades\Queue;
+
 
 class ProjectTest extends TestCase
 {
@@ -32,6 +34,42 @@ class ProjectTest extends TestCase
         parent::setUp();
         Carbon::setTestNow(Carbon::now());
         $this->withUsers();
+
+        //Adding this gives 401s
+        $this->withMiddleware();
+    }
+
+    private function createProjectUserRelation() {
+        $custodianUser = CustodianUser::first();
+        $custodian_admin = User::where('custodian_user_id', $custodianUser->id)->first();
+        $custodian = Custodian::with('custodianUsers')->where('id', $custodianUser['custodian_id'])->first();
+        
+        ProjectHasUser::truncate();
+        ProjectHasCustodian::truncate();
+
+        $registry = Registry::with('user')->first();
+        $project = Project::first();
+        $custodian = Custodian::first();
+
+        ProjectHasCustodian::create([
+            'project_id' => $project->id,
+            'custodian_id' => $custodian->id,
+            'approved' => true
+        ]);
+
+        ProjectHasUser::create([
+            'project_id' => $project->id,
+            'user_digital_ident' => $registry->digi_ident,
+            'affiliation_id' => 1,
+            'project_role_id' => 7,
+        ]);
+
+        return [
+            'project' => $project,
+            'custodian_admin' => $custodian_admin,
+            'custodian' => $custodian,
+            'user' => $registry->user
+        ];
     }
 
     public function test_the_application_can_search_on_project_name(): void
@@ -469,25 +507,71 @@ class ProjectTest extends TestCase
         $this->assertEquals($users[0]['email'], $user->email);
     }
 
-    public function test_the_application_can_show_all_users_for_a_project(): void
+    public function test_the_application_cannot_show_a_user_for_a_project_when_not_custodian(): void
     {
-        $user = User::where('user_group', 'USERS')->first();
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/all_users/1',
+            );
+        
+        $response->assertStatus(403)
+            ->assertJson([
+                'message' => 'forbidden',
+            ]);
+    }
+
+    public function test_the_application_can_show_a_user_for_a_project(): void
+    {
+        $entityData = $this->createProjectUserRelation();
+
+        $response = $this->actingAsKeycloakUser($entityData['custodian_admin'], $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $entityData['project']->id . '/all_users/' . $entityData['user']->id,
+            );
+
+        $response->assertStatus(200);
+        $users = $response->decodeResponseJson()['data'];
+
+        $this->assertNotNull($users);
+        $this->assertEquals($users[0]['user_id'], $this->user['id']);
+        $this->assertEquals($users[0]['email'], $this->user['email']);
+        $this->assertNotNull($users[0]['role']);
+    }
+
+    public function test_the_application_cannot_show_all_users_for_a_project_when_not_custodian(): void
+    {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'GET',
                 self::TEST_URL . '/1/all_users',
+            );
+        
+        $response->assertStatus(403)
+            ->assertJson([
+                'message' => 'forbidden',
+            ]);
+    }    
+
+    public function test_the_application_can_show_all_users_for_a_project(): void
+    {
+        $entityData = $this->createProjectUserRelation();
+
+        // dd(self::TEST_URL . '/' . $entityData['project']->id . '/all_users'); // Cache the custodian user ids for the policy to work
+
+        $response = $this->actingAsKeycloakUser($this->custodian_admin, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $entityData['project']->id . '/all_users',
             );
 
         $response->assertStatus(200);
         $users = $response->decodeResponseJson()['data']['data'];
 
         $this->assertNotNull($users);
-        $this->assertEquals($users[0]['user_id'], $user->id);
-        $this->assertEquals($users[0]['email'], $user->email);
+        $this->assertEquals($users[0]['user_id'], $entityData['user']->id);
+        $this->assertEquals($users[0]['email'], $entityData['user']->email);
         $this->assertNotNull($users[0]['role']);
-
-        $this->assertEquals($users[1]['user_id'], $user->id);
-        $this->assertEquals($users[1]['email'], $user->email);
-        $this->assertNull($users[1]['role']);
     }
 }
