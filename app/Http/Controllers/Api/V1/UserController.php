@@ -26,6 +26,7 @@ use App\Http\Requests\Users\CreateUser;
 use RegistryManagementController as RMC;
 use App\Models\UserHasCustodianPermission;
 use App\Http\Requests\Users\GetUserProject;
+use App\Http\Requests\Users\CheckUserInviteCode;
 use App\Services\DecisionEvaluatorService as DES;
 
 class UserController extends Controller
@@ -579,7 +580,7 @@ class UserController extends Controller
         }
     }
 
-    public function getPendingInviteByInviteCode(Request $request, String $inviteCode): JsonResponse
+    public function getPendingInviteByInviteCode(CheckUserInviteCode $request, String $inviteCode): JsonResponse
     {
         try {
             $pendingInvite = PendingInvite::where('invite_code', $inviteCode)->first();
@@ -594,7 +595,7 @@ class UserController extends Controller
         }
     }
 
-    public function updateUserEmailByInviteCode(Request $request, string $inviteCode): JsonResponse
+    public function updateUserEmailByInviteCode(CheckUserInviteCode $request, string $inviteCode): JsonResponse
     {
         try {
             $input = $request->only(['email']);
