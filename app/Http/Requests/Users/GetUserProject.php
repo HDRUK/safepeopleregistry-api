@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\AuditLog;
+namespace App\Http\Requests\Users;
 
 use App\Http\Requests\BaseFormRequest;
 
-class GetUserHistory extends BaseFormRequest
+class GetUserProject extends BaseFormRequest
 {
     /**
      * Get the validation rules that apply to the request.

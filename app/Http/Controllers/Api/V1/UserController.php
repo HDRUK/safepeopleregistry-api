@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\Users\CreateUser;
 use RegistryManagementController as RMC;
 use App\Models\UserHasCustodianPermission;
+use App\Http\Requests\Users\GetUserProject;
 use App\Services\DecisionEvaluatorService as DES;
 
 class UserController extends Controller
@@ -755,7 +756,7 @@ class UserController extends Controller
         }
     }
 
-    public function userProjects(Request $request, int $id): JsonResponse
+    public function userProjects(GetUserProject $request, int $id): JsonResponse
     {
         $user = User::with('registry')->findOrFail($id);
 

@@ -3,14 +3,18 @@
 namespace Tests\Feature;
 
 use Http;
-use RegistryManagementController as RMC;
-use KeycloakGuard\ActingAsKeycloakUser;
+use Carbon\Carbon;
+use Tests\TestCase;
 use App\Models\User;
 use App\Models\State;
+use App\Models\Project;
+use App\Models\Registry;
+use App\Models\Affiliation;
 use Illuminate\Support\Str;
-use Tests\TestCase;
+use App\Models\ProjectHasUser;
 use Tests\Traits\Authorisation;
-use Carbon\Carbon;
+use KeycloakGuard\ActingAsKeycloakUser;
+use RegistryManagementController as RMC;
 
 class UserTest extends TestCase
 {
@@ -682,5 +686,45 @@ class UserTest extends TestCase
         $message = $responseUser->decodeResponseJson()['message'];
 
         $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_list_projects_by_user_with_success(): void
+    {
+        $registry = Registry::first();
+        $digi_ident = $registry->digi_ident;
+
+        $project = Project::first();
+        $projectId = $project->id;
+
+        $user = User::where('registry_id', $registry->id)->first();
+
+        ProjectHasUser::create([
+            'project_id' => $projectId,
+            'user_digital_ident' => $digi_ident,
+            'project_role_id' => 6,
+            'affiliation_id' => Affiliation::where('organisation_id', 2)->first()->id
+        ]);
+
+        $responseUser = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $user->id . '/projects' // One of the researchers
+            );
+
+        $responseUser->assertStatus(200);
+    }
+
+    public function test_the_application_list_projects_by_user_with_no_success(): void
+    {
+        $latestUserId = User::query()->orderBy('id', 'desc')->first();
+        $userIdTest = $latestUserId->id + 1;
+
+        $responseUser = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $userIdTest . '/projects' // One of the researchers
+            );
+
+        $responseUser->assertStatus(400);
     }
 }
