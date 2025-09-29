@@ -10,8 +10,8 @@ use TriggerEmail;
 use App\Models\User;
 use App\Models\Project;
 use App\Models\Registry;
-use App\Models\PendingInvite;
 use Illuminate\Http\Request;
+use App\Models\PendingInvite;
 use Illuminate\Http\Response;
 use App\Http\Traits\Responses;
 use App\Models\EntityModelType;
@@ -20,6 +20,7 @@ use App\Traits\CheckPermissions;
 use Illuminate\Http\JsonResponse;
 use App\Models\UserHasDepartments;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Users\GetUser;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\Users\CreateUser;
 use RegistryManagementController as RMC;
@@ -219,7 +220,7 @@ class UserController extends Controller
      *      )
      * )
      */
-    public function show(Request $request, int $id): JsonResponse
+    public function show(GetUser $request, int $id): JsonResponse
     {
         try {
             $this->decisionEvaluator = new DES($request, [EntityModelType::USER_VALIDATION_RULES]);

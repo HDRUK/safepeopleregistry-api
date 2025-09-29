@@ -611,4 +611,76 @@ class UserTest extends TestCase
         $this->assertTrue($content['data']['data'][0]['email'] === $user->email);
         $this->assertTrue($user->getState() === State::STATE_PENDING);
     }
+
+    public function test_the_application_can_get_user_based_on_id_with_success(): void
+    {
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
+                    'first_name' => fake()->firstname(),
+                    'last_name' => fake()->lastname(),
+                    'email' => fake()->email(),
+                    'provider' => fake()->word(),
+                    'provider_sub' => Str::random(10),
+                    'public_opt_in' => fake()->randomElement([0, 1]),
+                    'declaration_signed' => fake()->randomElement([0, 1]),
+                ]
+            );
+
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
+
+        $userId = $response->decodeResponseJson()['data'];
+        $this->assertGreaterThan(0, $userId);
+
+        $responseUser = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $userId // One of the researchers
+            );
+
+        $responseUser->assertStatus(200);
+        $contentUser = $responseUser->decodeResponseJson()['data'];
+        $this->assertGreaterThan(1, count($contentUser));
+    }
+
+    public function test_the_application_can_get_user_based_on_id_with_no_success(): void
+    {
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
+                    'first_name' => fake()->firstname(),
+                    'last_name' => fake()->lastname(),
+                    'email' => fake()->email(),
+                    'provider' => fake()->word(),
+                    'provider_sub' => Str::random(10),
+                    'public_opt_in' => fake()->randomElement([0, 1]),
+                    'declaration_signed' => fake()->randomElement([0, 1]),
+                ]
+            );
+
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
+
+        $userId = $response->decodeResponseJson()['data'];
+        $this->assertGreaterThan(0, $userId);
+
+        $latestUserId = User::query()->orderBy('id', 'desc')->first();
+        $userIdTest = $latestUserId->id + 1;
+
+        $responseUser = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $userIdTest // One of the researchers
+            );
+
+        $responseUser->assertStatus(400);
+        $message = $responseUser->decodeResponseJson()['message'];
+
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
 }
