@@ -279,10 +279,8 @@ class Project extends Model
         ]);
     }
 
-    public function scopeCustodianUserIds($query, $projectId)
+    public function scopeCustodianUsers($query, $projectId)
     {
-        $project = $query->with(['custodians.custodianUsers.user'])->find($projectId);
-
-        return $project['custodians']->pluck('custodianUsers')->flatten()->pluck('user.id')->toArray();
+        return $query->with(['custodians.custodianUsers.user'])->find($projectId);
     }
 }
