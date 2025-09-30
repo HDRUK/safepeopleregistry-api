@@ -402,7 +402,7 @@ Route::middleware('auth:api')
         Route::put('{registryId}/affiliation/{id}', 'updateRegistryAffiliation');
 
         Route::get('{affiliationId}/resend/verification', 'resendVerificationEmail');
-        Route::patch('/verify_email', 'verifyEmail');
+        Route::put('/verify_email/{verificationCode}', 'verifyEmail');
     });
 
 // --- PROFESSIONAL REGISTRATIONS ---

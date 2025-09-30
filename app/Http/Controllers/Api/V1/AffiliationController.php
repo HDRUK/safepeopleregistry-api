@@ -389,12 +389,16 @@ class AffiliationController extends Controller
      *      tags={"Affiliations"},
      *      summary="Affiliations@verifyEmail",
      *      security={{"bearerAuth":{}}},
-     *      @OA\RequestBody(
-     *          required=true,
-     *          description="Affiliation definition",
-     *          @OA\JsonContent(
-     *              ref="#/components/schemas/Affiliation"
-     *          ),
+     *      @OA\Parameter(
+     *         name="verification_code",
+     *         in="path",
+     *         description="Email verification code",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="string",
+     *            description="Email verification code",
+     *         ),
      *      ),
      *      @OA\Response(
      *          response=404,
@@ -408,9 +412,7 @@ class AffiliationController extends Controller
      *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data",
-     *                  ref="#/components/schemas/Affiliation"
-     *              )
+     *              @OA\Property(property="data", type="string", example="Affiliation email verified")
      *          ),
      *      ),
      *      @OA\Response(
@@ -420,17 +422,20 @@ class AffiliationController extends Controller
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
+     *      @OA\Response(
+     *          response=404,
+     *          description="Error",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="error")
+     *          )
+     *      )
      * )
      */
-    public function verifyEmail(Request $request): JsonResponse
+    public function verifyEmail(Request $request, string $verificationCode): JsonResponse
     {
         try {
-            $validated = $request->validate([
-                'verification_code' => 'required|exists:affiliations,verification_code',
-            ]);
-
             $affiliation = Affiliation::where([
-                    'verification_code' => $validated['verification_code'],
+                    'verification_code' => $verificationCode,
                     'is_verified'       => 0,
                     'current_employer'  => 1,
                 ])
@@ -449,7 +454,7 @@ class AffiliationController extends Controller
 
             Affiliation::where('id', $affiliation->id)->update($array);
 
-            return $this->OKResponse('Affiliation email verified');
+            return $this->OKResponse($affiliation->id);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }

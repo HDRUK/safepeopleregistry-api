@@ -121,7 +121,7 @@ class AffiliationObserver
         $unclaimed = $affiliation->organisation->unclaimed;
         $affiliation->setState($unclaimed
             ? State::STATE_AFFILIATION_INVITED
-            : State::STATE_AFFILIATION_PENDING);
+            : State::STATE_AFFILIATION_EMAIL_VERIFY);
     }
 
     private function notifyAdmins($notification, Affiliation $affiliation): void
