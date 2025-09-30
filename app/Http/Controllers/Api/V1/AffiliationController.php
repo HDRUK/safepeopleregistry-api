@@ -431,7 +431,7 @@ class AffiliationController extends Controller
     public function verifyEmail(Request $request, string $verificationCode): JsonResponse
     {
         try {
-            $affiliation = Affiliation::where([
+            $affiliation = Affiliation::with('organisation')->where([
                     'verification_code' => $verificationCode,
                     'is_verified'       => 0,
                     'current_employer'  => 1,
