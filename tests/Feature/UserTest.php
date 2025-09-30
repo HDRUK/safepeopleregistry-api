@@ -617,8 +617,6 @@ class UserTest extends TestCase
                 self::TEST_URL . '/' . $userIdTest
             );
 
-        $response->assertStatus(200);
-
         $response->assertStatus(400);
         $message = $response->decodeResponseJson()['message'];
 

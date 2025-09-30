@@ -10,6 +10,7 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\Notifications\GetNotificationUser;
+use App\Http\Requests\Notifications\UpdateUserNotification;
 
 class NotificationController extends Controller
 {
@@ -247,7 +248,7 @@ class NotificationController extends Controller
      *      ))
      * )
      */
-    public function markUserNotificationAsRead(int $userId, string $notificationId): JsonResponse
+    public function markUserNotificationAsRead(UpdateUserNotification $request, int $userId, string $notificationId): JsonResponse
     {
         /** @var User|null $user */
         $user = User::find($userId);
@@ -297,7 +298,7 @@ class NotificationController extends Controller
      *      @OA\Response(response=200, description="Notification marked as unread")
      * )
      */
-    public function markUserNotificationAsUnread(int $userId, string $notificationId): JsonResponse
+    public function markUserNotificationAsUnread(UpdateUserNotification $request, int $userId, string $notificationId): JsonResponse
     {
         /** @var User|null $user */
         $user = User::find($userId);
