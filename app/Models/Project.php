@@ -278,4 +278,9 @@ class Project extends Model
             },
         ]);
     }
+
+    public function scopeCustodianUsers($query, $projectId)
+    {
+        return $query->with(['custodians.custodianUsers.user'])->find($projectId);
+    }
 }
