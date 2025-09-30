@@ -383,7 +383,7 @@ class AffiliationController extends Controller
 
     /**
      * @OA\Patch(
-     *      path="/api/v1/affiliations/verify_email",
+     *      path="/api/v1/affiliations/verify_email/{verificationCode}",
      *      summary="Update an Affiliation entry",
      *      description="Update an Affiliation entry with verification",
      *      tags={"Affiliations"},
@@ -412,18 +412,11 @@ class AffiliationController extends Controller
      *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data", type="string", example="Affiliation email verified")
+     *              @OA\Property(property="data", type="integer", example="1")
      *          ),
      *      ),
      *      @OA\Response(
      *          response=500,
-     *          description="Error",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="error")
-     *          )
-     *      )
-     *      @OA\Response(
-     *          response=404,
      *          description="Error",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="error")
