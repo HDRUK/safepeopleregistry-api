@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\V1;
 
 use Exception;
 use Carbon\Carbon;
-use function activity;
 use App\Models\Project;
 use App\Models\Registry;
 use App\Models\Custodian;
@@ -16,13 +15,14 @@ use App\Models\ProjectHasUser;
 use Illuminate\Http\JsonResponse;
 use App\Models\ProjectHasCustodian;
 use App\Http\Controllers\Controller;
-
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\ValidationLogs\GetValidationLog;
 use App\Http\Requests\ValidationLogs\UpdateValidationLog;
 use App\Http\Requests\ValidationLogs\UpdateByCustodianValidationLog;
 use App\Http\Requests\ValidationLogs\GetCustodianProjectUserValidationLog;
 use App\Http\Requests\ValidationLogs\GetCustodianOrganisationValidationLog;
+
+use function activity;
 
 class ValidationLogController extends Controller
 {

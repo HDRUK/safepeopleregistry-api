@@ -21,7 +21,7 @@ class EditUser extends BaseFormRequest
             ],
         ];
     }
-        
+
     /**
      * Add Route parameters to the FormRequest.
      *

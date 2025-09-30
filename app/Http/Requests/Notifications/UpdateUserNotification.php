@@ -26,7 +26,7 @@ class UpdateUserNotification extends BaseFormRequest
             ],
         ];
     }
-                
+
     /**
      * Add Route parameters to the FormRequest.
      *

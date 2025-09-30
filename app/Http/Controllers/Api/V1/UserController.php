@@ -220,7 +220,7 @@ class UserController extends Controller
      *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
      *          )
      *      ),
-     * 
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",

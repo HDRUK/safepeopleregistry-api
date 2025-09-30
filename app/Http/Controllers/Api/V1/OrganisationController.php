@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1;
 
 use DB;
-use Auth;
 use Http;
 use Keycloak;
 use Exception;

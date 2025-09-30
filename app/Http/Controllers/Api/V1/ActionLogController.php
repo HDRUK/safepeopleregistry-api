@@ -3,16 +3,15 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Carbon\Carbon;
-use function activity;
 use App\Models\ActionLog;
-use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-
 use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\ActionLogs\UpdateActionLog;
 use App\Http\Requests\ActionLogs\GetEntityActionLog;
+
+use function activity;
 
 class ActionLogController extends Controller
 {

@@ -1,11 +1,9 @@
 <?php
 
-
 namespace Tests\Feature;
 
 use Tests\TestCase;
 use App\Models\User;
-use App\Models\Registry;
 use Illuminate\Support\Str;
 use Tests\Traits\Authorisation;
 use Spatie\Activitylog\Models\Activity;

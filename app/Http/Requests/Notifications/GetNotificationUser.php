@@ -22,7 +22,7 @@ class GetNotificationUser extends BaseFormRequest
         ];
 
     }
-            
+
     /**
      * Add Route parameters to the FormRequest.
      *

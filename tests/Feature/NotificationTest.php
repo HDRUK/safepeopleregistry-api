@@ -186,7 +186,7 @@ class NotificationTest extends TestCase
 
         $responseMarkRead->assertStatus(400);
 
-        // 
+        //
         $latestUserId = User::query()->orderBy('id', 'desc')->first();
         $userIdTest = $latestUserId->id + 1;
 
@@ -286,7 +286,7 @@ class NotificationTest extends TestCase
 
         $responseMarkUnread->assertStatus(400);
 
-        // 
+        //
         $latestUserId = User::query()->orderBy('id', 'desc')->first();
         $userIdTest = $latestUserId->id + 1;
 
