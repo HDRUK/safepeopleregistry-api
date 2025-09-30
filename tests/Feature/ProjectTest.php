@@ -34,7 +34,6 @@ class ProjectTest extends TestCase
         parent::setUp();
         Carbon::setTestNow(Carbon::now());
         $this->withUsers();
-        $this->withMiddleware();
     }
 
     private function createProjectUserRelation() {
