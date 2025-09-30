@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Illuminate\Http\JsonResponse;
+use App\Models\User;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Http\Traits\Responses;
 use App\Traits\CommonFunctions;
-use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
+use App\Http\Requests\Notifications\GetNotificationUser;
 
 class NotificationController extends Controller
 {
@@ -73,7 +74,7 @@ class NotificationController extends Controller
      *      )
      * )
      */
-    public function getUserNotifications(Request $request, int $userId): JsonResponse
+    public function getUserNotifications(GetNotificationUser $request, int $userId): JsonResponse
     {
         $user = User::find($userId);
 
@@ -143,7 +144,7 @@ class NotificationController extends Controller
      *      )
      * )
      */
-    public function getNotificationCounts($userId): JsonResponse
+    public function getNotificationCounts(GetNotificationUser $request, int $userId): JsonResponse
     {
         $user = User::find($userId);
 
@@ -193,7 +194,7 @@ class NotificationController extends Controller
      *      ))
      * )
      */
-    public function markUserNotificationsAsRead(int $userId): JsonResponse
+    public function markUserNotificationsAsRead(GetNotificationUser $request, int $userId): JsonResponse
     {
         /** @var User|null $user */
         $user = User::find($userId);

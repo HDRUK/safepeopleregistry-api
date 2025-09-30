@@ -66,6 +66,62 @@ class NotificationTest extends TestCase
             ]);
     }
 
+    public function test_user_can_retrieve_notifications_with_no_success()
+    {
+        Notification::sendNow($this->user, new AdminUserChanged($this->user, ['test' => ['old' => 'Old', 'new' => 'New']]));
+
+        $latestUserId = User::query()->orderBy('id', 'desc')->first();
+        $userIdTest = $latestUserId->id + 1;
+
+        $response = $this->actingAs($this->user)
+            ->json(
+                'GET',
+                "/api/v1/users/{$userIdTest}/notifications"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_user_can_retrieve_count_notifications_with_success()
+    {
+        Notification::sendNow($this->user, new AdminUserChanged($this->user, ['test' => ['old' => 'Old', 'new' => 'New']]));
+
+        $response = $this->actingAs($this->user)
+            ->json(
+                'GET',
+                $this->testUrl . '/count'
+            );
+
+        $response->assertStatus(200);
+        $responseJson = $response->decodeResponseJson();
+
+        $countNotification = $this->user->notifications()->whereNull('read_at')->count();
+        $this->assertArrayHasKey('data', $responseJson);
+        $this->assertEquals($responseJson['data']['total'], $countNotification);
+    }
+
+    public function test_user_can_retrieve_count_notifications_with_no_success()
+    {
+        Notification::sendNow($this->user, new AdminUserChanged($this->user, ['test' => ['old' => 'Old', 'new' => 'New']]));
+
+        $latestUserId = User::query()->orderBy('id', 'desc')->first();
+        $userIdTest = $latestUserId->id + 1;
+
+        $response = $this->actingAs($this->user)
+            ->json(
+                'GET',
+                "/api/v1/users/{$userIdTest}/notifications"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
     public function test_user_can_read_notifications()
     {
         Notification::sendNow($this->user, new AdminUserChanged($this->user, ['test' => ['old' => 'Old', 'new' => 'New']]));

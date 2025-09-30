@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Users;
+namespace App\Http\Requests\Notifications;
 
 use App\Http\Requests\BaseFormRequest;
 
-class EditUser extends BaseFormRequest
+class GetNotificationUser extends BaseFormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -20,8 +20,9 @@ class EditUser extends BaseFormRequest
                 'exists:users,id',
             ],
         ];
+
     }
-        
+            
     /**
      * Add Route parameters to the FormRequest.
      *
