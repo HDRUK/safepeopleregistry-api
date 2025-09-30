@@ -158,6 +158,9 @@ class Affiliation extends Model
     use FilterManager;
 
     protected static array $transitions = [
+        State::STATE_AFFILIATION_EMAIL_VERIFY => [
+            State::STATE_AFFILIATION_PENDING
+        ],
         State::STATE_AFFILIATION_INVITED => [
             State::STATE_AFFILIATION_PENDING
         ],

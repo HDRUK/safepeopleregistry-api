@@ -3,6 +3,7 @@
 namespace App\TriggerEmail;
 
 use Str;
+use Exception;
 use App\Jobs\SendEmailJob;
 use App\Models\Affiliation;
 use App\Models\Custodian;
@@ -318,7 +319,7 @@ class TriggerEmail
                 ];
 
                 break;
-            case 'AFFILIATION_VERIFIED':
+            case 'AFFILIATION_VERIFY':
                 $template = EmailTemplate::where('identifier', $identifier)->first();
                 $affiliation = Affiliation::where([
                     'id' => $to,

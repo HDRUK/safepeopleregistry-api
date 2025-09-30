@@ -255,10 +255,12 @@ class AffiliationController extends Controller
                 'registry_id' => $registryId,
                 'current_employer' => $input['current_employer'] ?? false
             ];
+
             if ($input['current_employer']) {
                 $array['verification_code'] = Str::uuid()->toString();
                 $array['verification_sent_at'] = Carbon::now();
             }
+
             $affiliation = Affiliation::create($array);
 
             return response()->json([
@@ -297,7 +299,7 @@ class AffiliationController extends Controller
             Affiliation::where('id', $id)->update($array);
 
             $email = [
-                'type' => 'AFFILIATION_VERIFIED',
+                'type' => 'AFFILIATION_VERIFY',
                 'to' => $affiliation->id,
                 'by' => $affiliation->id,
                 'for' => $affiliation->id,
@@ -382,19 +384,23 @@ class AffiliationController extends Controller
     }
 
     /**
-     * @OA\Patch(
-     *      path="/api/v1/affiliations/verify_email",
+     * @OA\Put(
+     *      path="/api/v1/affiliations/verify_email/{verificationCode}",
      *      summary="Update an Affiliation entry",
      *      description="Update an Affiliation entry with verification",
      *      tags={"Affiliations"},
      *      summary="Affiliations@verifyEmail",
      *      security={{"bearerAuth":{}}},
-     *      @OA\RequestBody(
-     *          required=true,
-     *          description="Affiliation definition",
-     *          @OA\JsonContent(
-     *              ref="#/components/schemas/Affiliation"
-     *          ),
+     *      @OA\Parameter(
+     *         name="verification_code",
+     *         in="path",
+     *         description="Email verification code",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="string",
+     *            description="Email verification code",
+     *         ),
      *      ),
      *      @OA\Response(
      *          response=404,
@@ -422,15 +428,11 @@ class AffiliationController extends Controller
      *      )
      * )
      */
-    public function verifyEmail(Request $request): JsonResponse
+    public function verifyEmail(Request $request, string $verificationCode): JsonResponse
     {
         try {
-            $validated = $request->validate([
-                'verification_code' => 'required|exists:affiliations,verification_code',
-            ]);
-
-            $affiliation = Affiliation::where([
-                    'verification_code' => $validated['verification_code'],
+            $affiliation = Affiliation::with('organisation')->where([
+                    'verification_code' => $verificationCode,
                     'is_verified'       => 0,
                     'current_employer'  => 1,
                 ])
@@ -449,7 +451,7 @@ class AffiliationController extends Controller
 
             Affiliation::where('id', $affiliation->id)->update($array);
 
-            return $this->OKResponse('Affiliation email verified');
+            return $this->OKResponse($affiliation);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
