@@ -124,19 +124,18 @@ class StateWorkflowTest extends TestCase
     {
         $affiliation = Affiliation::where('id', 1)->first();
 
-        $this->assertTrue($affiliation->getState() === State::STATE_AFFILIATION_PENDING);
-        $this->assertTrue($affiliation->canTransitionTo(State::STATE_AFFILIATION_APPROVED) === true);
-        $this->assertTrue($affiliation->canTransitionTo(State::STATE_AFFILIATION_REJECTED) === true);
+        $this->assertTrue($affiliation->getState() === State::STATE_AFFILIATION_EMAIL_VERIFY);
+        $this->assertTrue($affiliation->canTransitionTo(State::STATE_AFFILIATION_PENDING) === true);
 
-        $affiliation->transitionTo(State::STATE_AFFILIATION_APPROVED);
+        $affiliation->transitionTo(State::STATE_AFFILIATION_PENDING);
 
         $this->assertDatabaseHas('model_states', [
-            'state_id' => State::where('slug', State::STATE_AFFILIATION_APPROVED)->first()->id,
+            'state_id' => State::where('slug', State::STATE_AFFILIATION_PENDING)->first()->id,
             'stateable_id' => $affiliation->id,
         ]);
 
-        $this->assertTrue($affiliation->canTransitionTo(State::STATE_AFFILIATION_APPROVED) === false);
-        $this->assertTrue($affiliation->canTransitionTo(State::STATE_AFFILIATION_PENDING) === false);
+        $this->assertTrue($affiliation->canTransitionTo(State::STATE_AFFILIATION_APPROVED) === true);
         $this->assertTrue($affiliation->canTransitionTo(State::STATE_AFFILIATION_REJECTED) === true);
+        $this->assertTrue($affiliation->canTransitionTo(State::STATE_AFFILIATION_EMAIL_VERIFY) === false);
     }
 }
