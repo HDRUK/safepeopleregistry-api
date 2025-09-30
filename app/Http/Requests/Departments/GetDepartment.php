@@ -4,7 +4,7 @@ namespace App\Http\Requests\Departments;
 
 use App\Http\Requests\BaseFormRequest;
 
-class UpdateDepartment extends BaseFormRequest
+class GetDepartment extends BaseFormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -18,14 +18,6 @@ class UpdateDepartment extends BaseFormRequest
                 'required',
                 'integer',
                 'exists:departments,id',
-            ],
-            'name' => [
-                'string',
-                'max:255',
-            ],
-            'category' => [
-                'string',
-                'max:255',
             ],
         ];
     }

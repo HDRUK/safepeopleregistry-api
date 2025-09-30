@@ -3,14 +3,16 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Exception;
-use App\Exceptions\NotFoundException;
 use App\Models\Department;
-use App\Http\Requests\Departments\CreateDepartment;
-use App\Http\Requests\Departments\UpdateDepartment;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Traits\CommonFunctions;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use App\Exceptions\NotFoundException;
+use App\Http\Requests\Departments\GetDepartment;
+use App\Http\Requests\Departments\CreateDepartment;
+use App\Http\Requests\Departments\DeleteDepartment;
+use App\Http\Requests\Departments\UpdateDepartment;
 
 /**
  * @OA\Tag(
@@ -64,6 +66,14 @@ class DepartmentController extends Controller
      *         @OA\JsonContent(ref="#/components/schemas/Department")
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Invalid argument(s)",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *         )
+     *     ),
+     *     @OA\Response(
      *         response=404,
      *         description="Department not found",
      *         @OA\JsonContent(
@@ -73,7 +83,7 @@ class DepartmentController extends Controller
      *     )
      * )
      */
-    public function show(Request $request, int $id): JsonResponse
+    public function show(GetDepartment $request, int $id): JsonResponse
     {
         $dep = Department::findOrFail($id);
         if ($dep) {
@@ -155,6 +165,14 @@ class DepartmentController extends Controller
      *         @OA\JsonContent(ref="#/components/schemas/Department")
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Invalid argument(s)",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *         )
+     *     ),
+     *     @OA\Response(
      *         response=404,
      *         description="Department not found",
      *         @OA\JsonContent(
@@ -202,6 +220,14 @@ class DepartmentController extends Controller
      *         )
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Invalid argument(s)",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *         )
+     *     ),
+     *     @OA\Response(
      *         response=404,
      *         description="Department not found",
      *         @OA\JsonContent(
@@ -211,7 +237,7 @@ class DepartmentController extends Controller
      *     )
      * )
      */
-    public function destroy(Request $request, int $id): JsonResponse
+    public function destroy(DeleteDepartment $request, int $id): JsonResponse
     {
         try {
             Department::where('id', $id)->delete();
