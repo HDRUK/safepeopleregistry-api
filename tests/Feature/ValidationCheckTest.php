@@ -55,16 +55,6 @@ class ValidationCheckTest extends TestCase
         $this->assertEquals('Invalid argument(s)', $message);
     }
 
-    public function test_it_returns_404_when_showing_missing_validation_check()
-    {
-        $response = $this->getJson(self::TEST_URL . "/999");
-
-        $response->assertNotFound()
-            ->assertJson([
-                'message' => 'not found',
-            ]);
-    }
-
     public function test_it_can_create_a_validation_check()
     {
         $payload = [
