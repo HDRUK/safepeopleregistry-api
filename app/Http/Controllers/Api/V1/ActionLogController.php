@@ -2,18 +2,17 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Models\ActionLog;
-use App\Models\User;
-use App\Models\Organisation;
-use App\Models\Custodian;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Gate;
+use function activity;
+use App\Models\ActionLog;
+use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
-use function activity;
+use Illuminate\Support\Facades\Gate;
+use App\Http\Requests\ActionLogs\UpdateActionLog;
+use App\Http\Requests\ActionLogs\GetEntityActionLog;
 
 class ActionLogController extends Controller
 {
@@ -75,19 +74,13 @@ class ActionLogController extends Controller
      *     )
      * )
      */
-    public function getEntityActionLog($entity, $id)
+    public function getEntityActionLog(GetEntityActionLog $request, $entity, $id)
     {
-        $entityClassMap = [
-            'users' => User::class,
-            'organisations' => Organisation::class,
-            'custodians' => Custodian::class,
-        ];
-
-        if (!isset($entityClassMap[$entity])) {
+        if (!isset(ActionLog::ENTITY_MAP[$entity])) {
             return $this->BadRequestResponse();
         }
 
-        $logs = ActionLog::where('entity_type', $entityClassMap[$entity])
+        $logs = ActionLog::where('entity_type', ActionLog::ENTITY_MAP[$entity])
             ->where('entity_id', $id)
             ->get();
 
@@ -148,7 +141,7 @@ class ActionLogController extends Controller
      *     )
      * )
      */
-    public function update(Request $request, $id)
+    public function update(UpdateActionLog $request, $id)
     {
         $log = ActionLog::find($id);
         if (!$log) {

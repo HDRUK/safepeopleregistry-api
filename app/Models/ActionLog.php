@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use App\Enums\ActionLogType;
+use App\Models\User;
+use App\Models\Organisation;
+use App\Models\Custodian;
 
 /**
  * @OA\Schema (
@@ -64,6 +67,12 @@ use App\Enums\ActionLogType;
 class ActionLog extends Model
 {
     use HasFactory;
+
+    public const ENTITY_MAP = [
+        'users'         => User::class,
+        'organisations' => Organisation::class,
+        'custodians'    => Custodian::class,
+    ];
 
     protected $table = 'action_logs';
 

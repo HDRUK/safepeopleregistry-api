@@ -101,7 +101,6 @@ class ActionLogTest extends TestCase
         }
     }
 
-
     public function test_it_returns_user_action_logs_via_api()
     {
         $response = $this->actingAs($this->admin)

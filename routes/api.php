@@ -106,10 +106,9 @@ Route::middleware(['auth:api'])
 // --- ACTION LOGS ---
 Route::middleware('auth:api')
     ->prefix('v1')
-    ->controller(ActionLogController::class)
     ->group(function () {
-        Route::get('{entity}/{id}/action_log', 'getEntityActionLog');
-        Route::put('action_log/{id}', 'update');
+        Route::get('{entity}/{id}/action_log', [ActionLogController::class, 'getEntityActionLog']);
+        Route::put('action_log/{id}', [ActionLogController::class, 'update']);
     });
 
 
