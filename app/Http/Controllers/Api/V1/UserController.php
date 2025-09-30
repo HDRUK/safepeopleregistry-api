@@ -213,18 +213,18 @@ class UserController extends Controller
      *          ),
      *      ),
      *
-     *     @OA\Response(
-     *         response=400,
-     *         description="User not found",
-     *         @OA\JsonContent(@OA\Property(property="message", type="string", example="User not found"))
-     *     )
+     *      @OA\Response(
+     *          response=400,
+     *          description="User Not Found",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="User not found")
+     *          )
+     *      ),
      * 
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -519,18 +519,18 @@ class UserController extends Controller
      *          ),
      *      ),
      *
-     *     @OA\Response(
-     *         response=400,
-     *         description="User not found",
-     *         @OA\JsonContent(@OA\Property(property="message", type="string", example="User not found"))
-     *     )
+     *      @OA\Response(
+     *          response=400,
+     *          description="User Not Found",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="User not found")
+     *          )
+     *      ),
      *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -667,7 +667,6 @@ class UserController extends Controller
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="not found")
      *           ),
@@ -676,22 +675,22 @@ class UserController extends Controller
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="success")
      *          ),
      *      ),
      *
-     *     @OA\Response(
-     *         response=400,
-     *         description="User not found",
-     *         @OA\JsonContent(@OA\Property(property="message", type="string", example="User not found"))
-     *     )
+     *      @OA\Response(
+     *          response=400,
+     *          description="User Not Found",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="User not found")
+     *          )
+     *      ),
      *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
-     *
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="error")
      *          )

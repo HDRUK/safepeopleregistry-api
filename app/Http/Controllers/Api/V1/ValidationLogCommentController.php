@@ -41,7 +41,7 @@ class ValidationLogCommentController extends Controller
      *         response=400,
      *         description="Comment not found",
      *         @OA\JsonContent(@OA\Property(property="message", type="string", example="Comment not found"))
-     *     )
+     *     ),
      *
      *     @OA\Response(
      *         response=404,
@@ -140,7 +140,7 @@ class ValidationLogCommentController extends Controller
      *         response=400,
      *         description="Comment not found",
      *         @OA\JsonContent(@OA\Property(property="message", type="string", example="Comment not found"))
-     *     )
+     *     ),
      *
      *     @OA\Response(
      *         response=404,
@@ -191,7 +191,7 @@ class ValidationLogCommentController extends Controller
      *         response=400,
      *         description="Comment not found",
      *         @OA\JsonContent(@OA\Property(property="message", type="string", example="Comment not found"))
-     *     )
+     *     ),
      *
      *     @OA\Response(
      *         response=404,
