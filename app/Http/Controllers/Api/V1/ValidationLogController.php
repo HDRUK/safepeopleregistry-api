@@ -20,6 +20,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\ValidationLogs\GetValidationLog;
 use App\Http\Requests\ValidationLogs\UpdateValidationLog;
+use App\Http\Requests\ValidationLogs\UpdateByCustodianValidationLog;
+use App\Http\Requests\ValidationLogs\GetCustodianProjectUserValidationLog;
+use App\Http\Requests\ValidationLogs\GetCustodianOrganisationValidationLog;
 
 class ValidationLogController extends Controller
 {
@@ -70,7 +73,7 @@ class ValidationLogController extends Controller
      * )
      */
     public function getCustodianProjectUserValidationLogs(
-        Request $request,
+        GetCustodianProjectUserValidationLog $request,
         int $custodianId,
         int $projectId,
         int $registryId
@@ -177,7 +180,7 @@ class ValidationLogController extends Controller
      * )
      */
     public function getCustodianOrganisationValidationLogs(
-        Request $request,
+        GetCustodianOrganisationValidationLog $request,
         int $custodianId,
         int $organisationId,
     ): JsonResponse {
@@ -239,7 +242,7 @@ class ValidationLogController extends Controller
      *     )
      * )
      */
-    public function updateCustodianValidationLogs(Request $request, int $custodianId): JsonResponse
+    public function updateCustodianValidationLogs(UpdateByCustodianValidationLog $request, int $custodianId): JsonResponse
     {
         $validated = $request->validate([
             'enabled' => 'required|in:0,1',
