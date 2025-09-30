@@ -194,7 +194,7 @@ Route::middleware(['auth:api'])
         // Read
         Route::get('/', 'index');
         Route::get('/{id}', 'show');
-        Route::get('/identifier/{id}', 'showByUniqueIdentifier');
+        Route::get('/identifier/{uniqueIdentifier}', 'showByUniqueIdentifier');
         Route::get('/{id}/projects', 'getProjects');
         Route::get('/{id}/users/{userId}/projects', 'getUserProjects');
         Route::get('/{id}/organisations', 'getProjectsOrganisations');
@@ -212,7 +212,8 @@ Route::middleware(['auth:api'])
 
         // Update
         Route::put('/{id}', 'update');
-        Route::patch('/{id}/rules', 'updateCustodianRules');
+        // cannot find the method in this controller
+        // Route::patch('/{id}/rules', 'updateCustodianRules');
 
         // Delete
         Route::delete('/{id}', 'destroy');

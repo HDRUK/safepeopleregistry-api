@@ -2,19 +2,21 @@
 
 namespace Tests\Feature;
 
-use KeycloakGuard\ActingAsKeycloakUser;
-use App\Models\DecisionModel;
-use App\Models\CustodianModelConfig;
-use App\Models\ProjectHasCustodian;
-use App\Models\User;
-use App\Models\Custodian;
-use App\Models\Sector;
 use Carbon\Carbon;
-use App\Models\PendingInvite;
-use Illuminate\Support\Str;
 use Tests\TestCase;
+use App\Models\User;
+use App\Models\Sector;
+use App\Models\Custodian;
+use Illuminate\Support\Str;
+use App\Models\Organisation;
+use App\Models\DecisionModel;
+use App\Models\PendingInvite;
 use Tests\Traits\Authorisation;
+use App\Models\ProjectHasCustodian;
+use App\Models\CustodianModelConfig;
+use App\Models\ProjectHasUser;
 use Illuminate\Support\Facades\Queue;
+use KeycloakGuard\ActingAsKeycloakUser;
 
 class CustodianTest extends TestCase
 {
@@ -87,6 +89,21 @@ class CustodianTest extends TestCase
         $this->assertArrayHasKey('data', $response);
     }
 
+    public function test_custodian_cannot_see_details(): void
+    {
+        $latestCustodian = Custodian::query()->orderBy('id', 'desc')->first();
+        $custodianIdTest = $latestCustodian->id + 1;
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $custodianIdTest
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
 
     public function test_the_application_can_invite_a_custodian(): void
     {
@@ -353,6 +370,20 @@ class CustodianTest extends TestCase
         $this->assertEquals($content['name'], $custodianCreated->name);
     }
 
+
+    public function test_the_application_cannot_get_custodians_by_unique_identifier(): void
+    {
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/identifier/uniqueIdentifierForTest'
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
     public function test_the_application_can_receive_custodian_pushes_with_valid_key(): void
     {
         $user = $this->user;
@@ -573,9 +604,8 @@ class CustodianTest extends TestCase
                 self::TEST_URL . "/{$nonexistentId}/rules"
             );
 
-        $response->assertStatus(404);
+        $response->assertStatus(400);
     }
-
 
     public function test_custodian_can_get_project_users(): void
     {
@@ -606,5 +636,220 @@ class CustodianTest extends TestCase
 
         $response->assertStatus(403)
             ->assertJson(['message' => 'forbidden']);
+    }
+
+    public function test_custodian_cannot_get_projects(): void
+    {
+        $latestCustodian = Custodian::query()->orderBy('id', 'desc')->first();
+        $custodianIdTest = $latestCustodian->id + 1;
+
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$custodianIdTest}/projects"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_custodian_cannot_get_projects_and_users(): void
+    {
+        $latestCustodian = Custodian::query()->orderBy('id', 'desc')->first();
+        $custodianIdTest = $latestCustodian->id + 1;
+
+        $latestUser = User::query()->orderBy('id', 'desc')->first();
+        $userIdTest = $latestUser->id + 1;
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$custodianIdTest}/users/{$userIdTest}/projects"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+
+    }
+
+    public function test_custodian_cannot_get_projects_and_organisations(): void
+    {
+        $latestCustodian = Custodian::query()->orderBy('id', 'desc')->first();
+        $custodianIdTest = $latestCustodian->id + 1;
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$custodianIdTest}/organisations"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_custodian_cannot_get_custodian_users(): void
+    {
+        $latestCustodian = Custodian::query()->orderBy('id', 'desc')->first();
+        $custodianIdTest = $latestCustodian->id + 1;
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$custodianIdTest}/custodian_users"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_custodian_cannot_get_custodian_projects_users(): void
+    {
+        $latestCustodian = Custodian::query()->orderBy('id', 'desc')->first();
+        $custodianIdTest = $latestCustodian->id + 1;
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$custodianIdTest}/projects_users"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_custodian_cannot_get_custodian_rules(): void
+    {
+        $latestCustodian = Custodian::query()->orderBy('id', 'desc')->first();
+        $custodianIdTest = $latestCustodian->id + 1;
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$custodianIdTest}/rules"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_custodian_cannot_get_organisations_users(): void
+    {
+        $latestCustodian = Custodian::query()->orderBy('id', 'desc')->first();
+        $custodianIdTest = $latestCustodian->id + 1;
+
+        $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
+        $organisationIdTest = $latestOrganisation->id + 1;
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$custodianIdTest}/organisations/{$organisationIdTest}/users"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_custodian_cannot_get_statuses(): void
+    {
+        $latestCustodian = Custodian::query()->orderBy('id', 'desc')->first();
+        $custodianIdTest = $latestCustodian->id + 1;
+
+        $latestProjectHasUser = ProjectHasUser::query()->orderBy('id', 'desc')->first();
+        $projectHasUserIdTest = $latestProjectHasUser ? $latestProjectHasUser->id + 1 : 1;
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$custodianIdTest}/projectUsers/{$projectHasUserIdTest}/statuses"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_invite_a_custodian(): void
+    {
+        $latestCustodian = Custodian::query()->orderBy('id', 'desc')->first();
+        $custodianIdTest = $latestCustodian ? $latestCustodian->id + 1 : 1;
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'POST',
+                self::TEST_URL . '/' . $custodianIdTest . '/invite/',
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_create_projects(): void
+    {
+        $latestCustodian = Custodian::query()->orderBy('id', 'desc')->first();
+        $custodianIdTest = $latestCustodian ? $latestCustodian->id + 1 : 1;
+
+        $user = $this->user;
+        $user->update([
+            'user_group' => User::GROUP_ADMINS
+        ]);
+        $response = $this->actingAs($user)
+            ->json(
+                'POST',
+                self::TEST_URL . "/{$custodianIdTest}/projects",
+                [
+                    'title' => 'Test project',
+                ]
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_update_custodian(): void
+    {
+        $latestCustodian = Custodian::query()->orderBy('id', 'desc')->first();
+        $custodianIdTest = $latestCustodian ? $latestCustodian->id + 1 : 1;
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'PUT',
+                self::TEST_URL . "/{$custodianIdTest}",
+                [
+                    'name' => 'Updated Custodian',
+                    'enabled' => false,
+                    'idvt_required' => true,
+                ]
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_delete_custodian(): void
+    {
+        $latestCustodian = Custodian::query()->orderBy('id', 'desc')->first();
+        $custodianIdTest = $latestCustodian ? $latestCustodian->id + 1 : 1;
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'DELETE',
+                self::TEST_URL . "/{$custodianIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 }
