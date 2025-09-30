@@ -81,7 +81,7 @@ class ValidationLogCommentTest extends TestCase
                 self::TEST_URL . '/1'
             );
 
-        $response->assertStatus(404);
+        $response->assertStatus(400);
     }
 
     public function test_it_can_create_a_validation_log_comment_via_api()
@@ -243,7 +243,7 @@ class ValidationLogCommentTest extends TestCase
                 self::TEST_URL . '/' . $comment->id,
             );
 
-        $response->assertStatus(404);
+        $response->assertStatus(400);
     }
 
     public function test_it_cannot_delete_a_validation_log_comment_via_api()
