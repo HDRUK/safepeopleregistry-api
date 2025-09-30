@@ -9,7 +9,7 @@ class ProjectPolicy
 {
     public function viewProjectUserDetails(User $user, Project $project): bool
     {
-        $projectCustodianUserIds = $project->custodianUserIds($project->id)->toArray();
+        $projectCustodianUserIds = $project->custodianUserIds($project->id);
 
         return in_array($user->id, $projectCustodianUserIds);
     }

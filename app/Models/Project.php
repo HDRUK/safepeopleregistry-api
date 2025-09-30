@@ -283,6 +283,6 @@ class Project extends Model
     {
         $project = $query->with(['custodians.custodianUsers.user'])->find($projectId);
 
-        return $project['custodians']->pluck('custodianUsers')->flatten()->pluck('user.id');
+        return $project['custodians']->pluck('custodianUsers')->flatten()->pluck('user.id')->toArray();
     }
 }
