@@ -3,21 +3,23 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Exception;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\Controller;
-use App\Models\ValidationLog;
+use Carbon\Carbon;
+use function activity;
+use App\Models\Project;
+use App\Models\Registry;
 use App\Models\Custodian;
 use App\Models\Organisation;
-use App\Models\Project;
-use App\Models\ProjectHasUser;
-use App\Models\ProjectHasCustodian;
-use App\Models\Registry;
-use Carbon\Carbon;
+use Illuminate\Http\Request;
+use App\Models\ValidationLog;
 use App\Http\Traits\Responses;
-use Illuminate\Support\Facades\Auth;
+use App\Models\ProjectHasUser;
+use Illuminate\Http\JsonResponse;
+use App\Models\ProjectHasCustodian;
+use App\Http\Controllers\Controller;
 
-use function activity;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\ValidationLogs\GetValidationLog;
+use App\Http\Requests\ValidationLogs\UpdateValidationLog;
 
 class ValidationLogController extends Controller
 {
@@ -285,7 +287,7 @@ class ValidationLogController extends Controller
      *     )
      * )
      */
-    public function index($validationLogId): JsonResponse
+    public function index(GetValidationLog $request, int $validationLogId): JsonResponse
     {
         $validationLog = ValidationLog::withDisabled()
             ->with(["comments", "validationCheck"])
@@ -327,7 +329,7 @@ class ValidationLogController extends Controller
      *     )
      * )
      */
-    public function comments($validationLogId): JsonResponse
+    public function comments(GetValidationLog $request, int $validationLogId): JsonResponse
     {
         $validationLog = ValidationLog::find($validationLogId);
         if (!$validationLog) {
@@ -384,7 +386,7 @@ class ValidationLogController extends Controller
      *     )
      * )
      */
-    public function update(Request $request, $id): JsonResponse
+    public function update(UpdateValidationLog $request, $id): JsonResponse
     {
         $log = ValidationLog::withDisabled()->find($id);
         if (!$log) {
