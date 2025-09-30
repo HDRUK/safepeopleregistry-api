@@ -255,10 +255,12 @@ class AffiliationController extends Controller
                 'registry_id' => $registryId,
                 'current_employer' => $input['current_employer'] ?? false
             ];
+
             if ($input['current_employer']) {
                 $array['verification_code'] = Str::uuid()->toString();
                 $array['verification_sent_at'] = Carbon::now();
             }
+
             $affiliation = Affiliation::create($array);
 
             return response()->json([
@@ -297,7 +299,7 @@ class AffiliationController extends Controller
             Affiliation::where('id', $id)->update($array);
 
             $email = [
-                'type' => 'AFFILIATION_VERIFIED',
+                'type' => 'AFFILIATION_VERIFY',
                 'to' => $affiliation->id,
                 'by' => $affiliation->id,
                 'for' => $affiliation->id,
@@ -382,7 +384,7 @@ class AffiliationController extends Controller
     }
 
     /**
-     * @OA\Patch(
+     * @OA\Put(
      *      path="/api/v1/affiliations/verify_email/{verificationCode}",
      *      summary="Update an Affiliation entry",
      *      description="Update an Affiliation entry with verification",

@@ -82,7 +82,7 @@ class AffiliationObserver
     {
         return filled($affiliation->member_id)
             && filled($affiliation->relationship)
-            && filled($affiliation->from);
+            && filled($affiliation->from) && $affiliation->is_verified === 1;
     }
 
     private function sendDelegateEmails(Affiliation $affiliation): void
@@ -145,7 +145,7 @@ class AffiliationObserver
     public function sendVerificationEmails(Affiliation $affiliation): void
     {
         $email = [
-            'type' => 'AFFILIATION_VERIFIED',
+            'type' => 'AFFILIATION_VERIFY',
             'to' => $affiliation->id,
             'by' => $affiliation->id,
             'for' => $affiliation->id,
