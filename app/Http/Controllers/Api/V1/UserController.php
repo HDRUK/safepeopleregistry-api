@@ -215,9 +215,9 @@ class UserController extends Controller
      *
      *      @OA\Response(
      *          response=400,
-     *          description="User Not Found",
+     *          description="Invalid argument(s)",
      *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="User not found")
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
      *          )
      *      ),
      * 
@@ -521,9 +521,9 @@ class UserController extends Controller
      *
      *      @OA\Response(
      *          response=400,
-     *          description="User Not Found",
+     *          description="Invalid argument(s)",
      *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="User not found")
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
      *          )
      *      ),
      *
@@ -682,9 +682,9 @@ class UserController extends Controller
      *
      *      @OA\Response(
      *          response=400,
-     *          description="User Not Found",
+     *          description="Invalid argument(s)",
      *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="User not found")
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
      *          )
      *      ),
      *
