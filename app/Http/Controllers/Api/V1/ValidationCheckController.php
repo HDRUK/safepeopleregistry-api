@@ -65,7 +65,7 @@ class ValidationCheckController extends Controller
      *         response=400,
      *         description="Invalid argument(s)",
      *         @OA\JsonContent(@OA\Property(property="message", type="string", example="Invalid argument(s)"))
-     *     )
+     *     ),
      *     @OA\Response(
      *         response=404,
      *         description="Validation check not found",
@@ -151,7 +151,7 @@ class ValidationCheckController extends Controller
      *         response=400,
      *         description="Invalid argument(s)",
      *         @OA\JsonContent(@OA\Property(property="message", type="string", example="Invalid argument(s)"))
-     *     )
+     *     ),
      *     @OA\Response(
      *         response=404,
      *         description="Validation check not found",
@@ -200,7 +200,7 @@ class ValidationCheckController extends Controller
      *         response=400,
      *         description="Invalid argument(s)",
      *         @OA\JsonContent(@OA\Property(property="message", type="string", example="Invalid argument(s)"))
-     *     )
+     *     ),
      *     @OA\Response(
      *         response=404,
      *         description="Validation check not found",
@@ -247,7 +247,7 @@ class ValidationCheckController extends Controller
      *         response=400,
      *         description="Invalid argument(s)",
      *         @OA\JsonContent(@OA\Property(property="message", type="string", example="Invalid argument(s)"))
-     *     )
+     *     ),
      *     @OA\Response(
      *         response=404,
      *         description="Custodian not found",
