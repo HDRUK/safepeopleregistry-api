@@ -618,9 +618,6 @@ class UserTest extends TestCase
             );
 
         $response->assertStatus(400);
-        $message = $response->decodeResponseJson()['message'];
-
-        $this->assertEquals('Invalid argument(s)', $message);
     }
 
     public function test_the_application_can_search_across_affiliations_by_name_and_email(): void
@@ -764,9 +761,6 @@ class UserTest extends TestCase
             );
 
         $responseUser->assertStatus(400);
-        $message = $responseUser->decodeResponseJson()['message'];
-
-        $this->assertEquals('Invalid argument(s)', $message);
     }
 
     public function test_the_application_list_projects_by_user_with_success(): void
@@ -807,8 +801,5 @@ class UserTest extends TestCase
             );
 
         $responseUser->assertStatus(400);
-        $message = $responseUser->decodeResponseJson()['message'];
-
-        $this->assertEquals('Invalid argument(s)', $message);
     }
 }

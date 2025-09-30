@@ -50,7 +50,6 @@ class ValidationLogCommentTest extends TestCase
 
     public function test_it_returns_a_validation_log_comment_via_api()
     {
-
         $comment = ValidationLogComment::create([
             'comment' => 'test comment',
             'user_id' => $this->user->id,
@@ -87,7 +86,6 @@ class ValidationLogCommentTest extends TestCase
 
     public function test_it_can_create_a_validation_log_comment_via_api()
     {
-
         $payload = [
             'comment' => 'test comment',
             'user_id' => $this->user->id,
@@ -166,6 +164,46 @@ class ValidationLogCommentTest extends TestCase
         ]);
     }
 
+    public function test_it_cannot_update_a_validation_log_comment_via_api()
+    {
+        $comment = ValidationLogComment::create([
+            'comment' => 'test comment',
+            'user_id' => $this->user->id,
+            'validation_log_id' => ValidationLog::first()->id
+        ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $comment->id,
+            );
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'data' => [
+                'id' => $comment->id,
+                'validation_log_id' => $comment->validation_log_id,
+                'user_id' => $comment->user_id,
+                'comment' => $comment->comment,
+            ]
+        ]);
+
+        $payload = [
+            'comment' => 'updated comment',
+        ];
+
+        $latestValication = ValidationLogComment::query()->orderBy('id', 'desc')->first();
+        $latestValicationIdTest = $latestValication->id + 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . '/' . $latestValicationIdTest,
+                $payload
+            );
+        $response->assertStatus(400);
+    }
+
     public function test_it_can_delete_a_validation_log_comment_via_api()
     {
 
@@ -206,5 +244,41 @@ class ValidationLogCommentTest extends TestCase
             );
 
         $response->assertStatus(404);
+    }
+
+    public function test_it_cannot_delete_a_validation_log_comment_via_api()
+    {
+        $comment = ValidationLogComment::create([
+            'comment' => 'test comment',
+            'user_id' => $this->user->id,
+            'validation_log_id' => ValidationLog::first()->id
+        ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $comment->id,
+            );
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'data' => [
+                'id' => $comment->id,
+                'validation_log_id' => $comment->validation_log_id,
+                'user_id' => $comment->user_id,
+                'comment' => $comment->comment,
+            ]
+        ]);
+
+        $latestValication = ValidationLogComment::query()->orderBy('id', 'desc')->first();
+        $latestValicationIdTest = $latestValication->id + 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'DELETE',
+                self::TEST_URL . '/' . $latestValicationIdTest,
+            );
+
+        $response->assertStatus(400);
     }
 }

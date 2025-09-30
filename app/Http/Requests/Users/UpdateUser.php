@@ -22,6 +22,13 @@ class UpdateUser extends BaseFormRequest
         ];
     }
     
+    public function messages(): array
+    {
+        return [
+            'id.exists' => 'User not found',
+        ];
+    }
+
     /**
      * Add Route parameters to the FormRequest.
      *
