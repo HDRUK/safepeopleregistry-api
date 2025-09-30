@@ -327,9 +327,9 @@ class CustodianController extends Controller
      *      ),
      *      @OA\Response(
      *          response=400,
-     *          description="Invalid Parameter(s)",
+     *          description="Invalid argument(s)",
      *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="Invalid Parameter(s)")
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
      *          ),
      *      ),
      *      @OA\Response(
@@ -408,9 +408,9 @@ class CustodianController extends Controller
      *      ),
      *      @OA\Response(
      *          response=400,
-     *          description="Invalid Parameter(s)",
+     *          description="Invalid argument(s)",
      *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="Invalid Parameter(s)")
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
      *           ),
      *      ),
      *      @OA\Response(
@@ -652,11 +652,11 @@ class CustodianController extends Controller
      *      ),
      *      @OA\Response(
      *          response=400,
-     *          description="Invalid parameter(s)",
+     *          description="Invalid argument(s)",
      *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="Invalid parameter(s)")
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
      *          )
-     *      )
+     *      ),
      *      @OA\Response(
      *          response=500,
      *          description="Error",
@@ -739,7 +739,7 @@ class CustodianController extends Controller
      *      ),
      *      @OA\Response(
      *          response=400,
-     *          description="Invalid argument(s),
+     *          description="Invalid argument(s)",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
      *          )
@@ -1042,7 +1042,7 @@ class CustodianController extends Controller
      *      ),
      *      @OA\Response(
      *          response=400,
-     *          description="Invalid parameter(s)",
+     *          description="Invalid argument(s)",
      *          @OA\JsonContent(
      *              type="object",
      *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
@@ -1162,10 +1162,10 @@ class CustodianController extends Controller
      *      ),
      *      @OA\Response(
      *          response=400,
-     *          description="Invalid parameter(s)",
+     *          description="Invalid argument(s)",
      *          @OA\JsonContent(
      *              type="object",
-     *              @OA\Property(property="message", type="string", example="Invalid parameter(s)")
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
      *          )
      *      ),
      *      @OA\Response(
@@ -1336,10 +1336,10 @@ class CustodianController extends Controller
      *      ),
      *      @OA\Response(
      *          response=400,
-     *          description="Invalid parameter(s)",
+     *          description="Invalid argument(s)",
      *          @OA\JsonContent(
      *              type="object",
-     *              @OA\Property(property="message", type="string", example="Invalid parameter(s)")
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
      *          )
      *      ),
      *      @OA\Response(
