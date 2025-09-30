@@ -10,7 +10,7 @@ use App\Models\ValidationCheck;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\CustodianHasValidationCheck;
-use App\Http\Requests\DeleteValidationCheck;
+use App\Http\Requests\ValidationChecks\DeleteValidationCheck;
 use App\Http\Requests\ValidationChecks\GetValidationCheck;
 use App\Http\Requests\ValidationChecks\UpdateValidationCheck;
 use App\Http\Requests\ValidationChecks\CreateValidationCheckRequest;
