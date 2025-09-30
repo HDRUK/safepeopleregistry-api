@@ -414,7 +414,9 @@ class AffiliationController extends Controller
      *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data", type="integer", example="1")
+     *              @OA\Property(property="data",
+     *                  ref="#/components/schemas/Affiliation"
+     *              )
      *          ),
      *      ),
      *      @OA\Response(
@@ -449,7 +451,7 @@ class AffiliationController extends Controller
 
             Affiliation::where('id', $affiliation->id)->update($array);
 
-            return $this->OKResponse($affiliation->id);
+            return $this->OKResponse($affiliation);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
