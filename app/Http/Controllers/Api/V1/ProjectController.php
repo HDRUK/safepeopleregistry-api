@@ -521,7 +521,6 @@ class ProjectController extends Controller
      *                      @OA\Property(property="registry_id", type="integer", example=5),
      *                      @OA\Property(property="first_name", type="string", example="Harold"),
      *                      @OA\Property(property="last_name", type="string", example="Ramis"),
-     *                      @OA\Property(property="email", type="string", example="),
      *                      @OA\Property(property="professional_email", type="string", example="nlindgren@hotmail.com"),
      *                      @OA\Property(property="affiliation_id", type="integer", example=6),
      *                      @OA\Property(property="organisation_name", type="string", example="TANDY ENERGY LIMITED"),
