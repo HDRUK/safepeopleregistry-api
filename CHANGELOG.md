@@ -1,3 +1,25 @@
+## [1.13.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.12.0...v1.13.0) (2025-10-01)
+
+### ✨ Features
+
+* **REGISTRY-1294:** inivite code for org and sro (#447) ([8d20f68](https://github.com/HDRUK/safepeopleregistry-api/commit/8d20f688ae107ae98672d7021265ba6665ef6ff8))
+* **REGISTRY-1662:** add project user get single user endpoint (#455) ([f3e0ee6](https://github.com/HDRUK/safepeopleregistry-api/commit/f3e0ee63251aa89ea2d03e62e422252e35a2dfa6))
+* **REGISTRY-1836:** Organisation: automatic flags and history (#448) ([ad86c6e](https://github.com/HDRUK/safepeopleregistry-api/commit/ad86c6ee2aca8d9128e73c7a407a363a2834c8dc))
+* **REGISTRY-1938:** Affiliations - verified email (#445) ([6a303f6](https://github.com/HDRUK/safepeopleregistry-api/commit/6a303f680b940012b394b4e44565daa7efee2e41))
+* **REGISTRY-1939:** use url part (#459) ([d1a6a2e](https://github.com/HDRUK/safepeopleregistry-api/commit/d1a6a2e18604593c1c10b653b287bbcf61f49ce5))
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-1484:** Custodian | Project/User | Automated flags | Making sure Flags config matches what's shown (#446) ([b27c75c](https://github.com/HDRUK/safepeopleregistry-api/commit/b27c75c9abf24d341c291efb2f51e03142ba3aea))
+* **REGISTRY-1670:** Custodian invites User | Account should show up as Invited (#457) ([ff267b1](https://github.com/HDRUK/safepeopleregistry-api/commit/ff267b1aedf9b11f9a2a39a9923aeac6759a6b4a))
+* **REGISTRY-1927:** Possible SQL Injection (#449) ([dc97a43](https://github.com/HDRUK/safepeopleregistry-api/commit/dc97a43fb4f9d5840531c24d0661cde41e69665f))
+* **REGISTRY-1927:** validations of parameters in requests - first part (#458) ([7b204a8](https://github.com/HDRUK/safepeopleregistry-api/commit/7b204a85f8c217a6d0d890041b3cbe7e86ad9b5a))
+* **REGISTRY-1934:** ORCiD scanner issue (#452) ([fe560b4](https://github.com/HDRUK/safepeopleregistry-api/commit/fe560b4ea281cb95c21fc5ed756bd5b6b72a5575))
+* **REGISTRY-1942:** broken prod seeder (#444) ([2e5b3d7](https://github.com/HDRUK/safepeopleregistry-api/commit/2e5b3d7e1cd6a5e6d0c0c3ebcd75ed6b8498b04e))
+* **REGISTRY-1949:** email notification error in preprod (#451) ([dd8fdf3](https://github.com/HDRUK/safepeopleregistry-api/commit/dd8fdf31636bd4080dc3996708b971eaac63f729))
+* **REGISTRY-1964:** Organisation invite email spawned twice (#456) ([18a4259](https://github.com/HDRUK/safepeopleregistry-api/commit/18a42591dc0638e9c981a51e8e6183df027eece9))
+* **REGISTRY-1986:** no org for affiliation in seeded data (#461) ([29d053f](https://github.com/HDRUK/safepeopleregistry-api/commit/29d053f07bd64b4159142075a65a4b1e4a222f09))
+
 ## [1.12.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.11.0...v1.12.0) (2025-09-18)
 
 ### ✨ Features
