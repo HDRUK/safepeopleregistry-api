@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Models\User;
+use App\Models\Affiliation;
 use App\Models\Organisation;
 use Illuminate\Http\Request;
+use App\Models\ValidationLog;
 use App\Http\Traits\Responses;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
@@ -22,6 +24,12 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 class AuditLogController extends Controller
 {
     use Responses;
+    protected const ALLOWED_TYPES = [
+        User::class,
+        Organisation::class,
+        ValidationLog::class,
+        Affiliation::class,
+    ];
 
     public function showUserHistory(GetUserHistory $request, int $id): JsonResponse
     {
@@ -30,23 +38,6 @@ class AuditLogController extends Controller
         if (!$user) {
             return $this->NotFoundResponse();
         }
-
-        // $logs = Activity::query()
-        //     ->where(function ($query) use ($user) {
-        //         $query->where(function ($q) use ($user) {
-        //             $q->where('subject_type', get_class($user))
-        //                 ->where('subject_id', $user->id);
-        //         })->orWhere(function ($q) use ($user) {
-        //             $q->where('causer_type', get_class($user))
-        //                 ->where('causer_id', $user->id);
-        //         });
-        //     })
-        //     ->with([
-        //         'causer:id,first_name,last_name',
-        //         'subject:id,first_name,last_name',
-        //     ])
-        //     ->orderBy('created_at', 'desc')
-        //     ->get();
 
         $logs = Activity::query()
             ->where(function ($query) use ($user) {
@@ -58,43 +49,39 @@ class AuditLogController extends Controller
                         ->where('causer_id', $user->id);
                 });
             })
+            ->whereHasMorph('subject', self::ALLOWED_TYPES)
+            ->whereHasMorph('causer', self::ALLOWED_TYPES)
             ->with([
-                'causer' => function (MorphTo $morph) {
-        $morph->constrain([
-            '*' => function ($q) {
-                $model = $q->getModel();
-                
-                // if (in_array(SoftDeletes::class, class_uses_recursive($model::class), true)) {
-                //     $q->withTrashed();
-                // }
-                
-                $cols = ['id'];
-                $table = $model->getTable();
-                foreach (['first_name','last_name','name','email','organisation_name','title'] as $c) {
-                    if (Schema::hasColumn($table, $c)) $cols[] = $c;
-                }
-                $q->select($cols);
-            },
-        ]);
-    },
-    'subject' => function (MorphTo $morph) {
-        $morph->constrain([
-            '*' => function ($q) {
-                $model = $q->getModel();
-                
-                // if (in_array(SoftDeletes::class, class_uses_recursive($model::class), true)) {
-                //     $q->withTrashed();
-                // }
-
-                $cols = ['id'];
-                $table = $model->getTable();
-                foreach (['first_name','last_name','name','email','organisation_name','title'] as $c) {
-                    if (Schema::hasColumn($table, $c)) $cols[] = $c;
-                }
-                $q->select($cols);
-            },
-        ]);
-    },
+                'causer' => function (MorphTo $morphTo) {
+                    $morphTo->constrain([
+                        User::class         => fn ($q) => $q->select('id','first_name','last_name'),
+                        Organisation::class => fn ($q) => $q->select('id','organisation_name'),
+                        ValidationLog::class => fn ($q) => $q->select('id'),
+                        Affiliation::class  => fn ($q) => $q
+                            ->select(['id', 'registry_id'])
+                            ->with([
+                                'registry:id',
+                                'registry.user:id,first_name,last_name,registry_id',
+                            ]),
+                    ])->morphWith([
+                        Affiliation::class => ['registry.user'],
+                    ]);
+                },
+                'subject' => function (MorphTo $morphTo) {
+                    $morphTo->constrain([
+                        User::class         => fn ($q) => $q->select('id','first_name','last_name'),
+                        Organisation::class => fn ($q) => $q->select('id','organisation_name'),
+                        ValidationLog::class => fn ($q) => $q->select('id'),
+                        Affiliation::class  => fn ($q) => $q
+                            ->select(['id', 'registry_id'])
+                            ->with([
+                                'registry:id',
+                                'registry.user:id,first_name,last_name,registry_id',
+                            ]),
+                    ])->morphWith([
+                        Affiliation::class => ['registry.user'],
+                    ]);
+                },
             ])
             ->latest('created_at')
             ->get();
@@ -120,11 +107,41 @@ class AuditLogController extends Controller
                         ->where('causer_id', $organisation->id);
                 });
             })
+            ->whereHasMorph('subject', self::ALLOWED_TYPES)
+            ->whereHasMorph('causer', self::ALLOWED_TYPES)
             ->with([
-                'causer:id,first_name,last_name',
-                'subject:id,organisation_name',
+                'causer' => function (MorphTo $morphTo) {
+                    $morphTo->constrain([
+                        User::class         => fn ($q) => $q->select('id','first_name','last_name'),
+                        Organisation::class => fn ($q) => $q->select('id','organisation_name'),
+                        ValidationLog::class => fn ($q) => $q->select('id'),
+                        Affiliation::class  => fn ($q) => $q
+                            ->select(['id', 'registry_id'])
+                            ->with([
+                                'registry:id',
+                                'registry.user:id,first_name,last_name,registry_id',
+                            ]),
+                    ])->morphWith([
+                        Affiliation::class => ['registry.user'],
+                    ]);
+                },
+                'subject' => function (MorphTo $morphTo) {
+                    $morphTo->constrain([
+                        User::class         => fn ($q) => $q->select('id','first_name','last_name'),
+                        Organisation::class => fn ($q) => $q->select('id','organisation_name'),
+                        ValidationLog::class => fn ($q) => $q->select('id'),
+                        Affiliation::class  => fn ($q) => $q
+                            ->select(['id', 'registry_id'])
+                            ->with([
+                                'registry:id',
+                                'registry.user:id,first_name,last_name,registry_id',
+                            ]),
+                    ])->morphWith([
+                        Affiliation::class => ['registry.user'],
+                    ]);
+                },
             ])
-            ->orderBy('created_at', 'desc')
+            ->latest('created_at')
             ->get();
 
         return $this->OKResponse($logs);
