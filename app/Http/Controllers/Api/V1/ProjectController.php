@@ -44,7 +44,7 @@ class ProjectController extends Controller
             'email' => $user->email,
             'professional_email' => $affiliation->email,
             'affiliation_id' => $affiliation->id,
-            'organisation_name' => $affiliation->organisation->organisation_name,
+            'organisation_name' => $affiliation->organisation?->organisation_name,
             'role' => $matchingProjectUser?->role,
         ];
     }
