@@ -8,8 +8,10 @@ use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Schema;
 use Spatie\Activitylog\Models\Activity;
 use App\Http\Requests\AuditLog\GetUserHistory;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
  * @OA\Tag(
@@ -57,8 +59,42 @@ class AuditLogController extends Controller
                 });
             })
             ->with([
-                'causer', 
-                'subject'
+                'causer' => function (MorphTo $morph) {
+        $morph->constrain([
+            '*' => function ($q) {
+                $model = $q->getModel();
+                
+                // if (in_array(SoftDeletes::class, class_uses_recursive($model::class), true)) {
+                //     $q->withTrashed();
+                // }
+                
+                $cols = ['id'];
+                $table = $model->getTable();
+                foreach (['first_name','last_name','name','email','organisation_name','title'] as $c) {
+                    if (Schema::hasColumn($table, $c)) $cols[] = $c;
+                }
+                $q->select($cols);
+            },
+        ]);
+    },
+    'subject' => function (MorphTo $morph) {
+        $morph->constrain([
+            '*' => function ($q) {
+                $model = $q->getModel();
+                
+                // if (in_array(SoftDeletes::class, class_uses_recursive($model::class), true)) {
+                //     $q->withTrashed();
+                // }
+
+                $cols = ['id'];
+                $table = $model->getTable();
+                foreach (['first_name','last_name','name','email','organisation_name','title'] as $c) {
+                    if (Schema::hasColumn($table, $c)) $cols[] = $c;
+                }
+                $q->select($cols);
+            },
+        ]);
+    },
             ])
             ->latest('created_at')
             ->get();
