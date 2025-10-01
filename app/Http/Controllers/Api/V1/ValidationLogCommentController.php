@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Models\ValidationLogComment;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 use App\Http\Traits\Responses;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use App\Models\ValidationLogComment;
+use App\Http\Requests\ValidationLogComments\GetValidationLogComment;
+use App\Http\Requests\ValidationLogComments\DeleteValidationLogComment;
+use App\Http\Requests\ValidationLogComments\UpdateValidationLogComment;
 
 class ValidationLogCommentController extends Controller
 {
@@ -35,13 +38,19 @@ class ValidationLogCommentController extends Controller
      *     ),
      *
      *     @OA\Response(
+     *         response=400,
+     *         description="Comment not found",
+     *         @OA\JsonContent(@OA\Property(property="message", type="string", example="Comment not found"))
+     *     ),
+     *
+     *     @OA\Response(
      *         response=404,
      *         description="Comment not found",
      *         @OA\JsonContent(@OA\Property(property="message", type="string", example="Comment not found"))
      *     )
      * )
      */
-    public function show($id): JsonResponse
+    public function show(GetValidationLogComment $request, int $id): JsonResponse
     {
         $comment = ValidationLogComment::with(['user', 'validationLog'])->find($id);
 
@@ -128,13 +137,19 @@ class ValidationLogCommentController extends Controller
      *     ),
      *
      *     @OA\Response(
+     *         response=400,
+     *         description="Comment not found",
+     *         @OA\JsonContent(@OA\Property(property="message", type="string", example="Comment not found"))
+     *     ),
+     *
+     *     @OA\Response(
      *         response=404,
      *         description="Comment not found",
      *         @OA\JsonContent(@OA\Property(property="message", type="string", example="Comment not found"))
      *     )
      * )
      */
-    public function update(Request $request, $id): JsonResponse
+    public function update(UpdateValidationLogComment $request, $id): JsonResponse
     {
         $validated = $request->validate([
             'comment' => 'required|string',
@@ -173,13 +188,19 @@ class ValidationLogCommentController extends Controller
      *     ),
      *
      *     @OA\Response(
+     *         response=400,
+     *         description="Comment not found",
+     *         @OA\JsonContent(@OA\Property(property="message", type="string", example="Comment not found"))
+     *     ),
+     *
+     *     @OA\Response(
      *         response=404,
      *         description="Comment not found",
      *         @OA\JsonContent(@OA\Property(property="message", type="string", example="Comment not found"))
      *     )
      * )
      */
-    public function destroy($id): JsonResponse
+    public function destroy(DeleteValidationLogComment $request, int $id): JsonResponse
     {
         $comment = ValidationLogComment::find($id);
         if (!$comment) {

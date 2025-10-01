@@ -60,6 +60,22 @@ class CustodianUserTest extends TestCase
         $this->assertArrayHasKey('data', $response);
     }
 
+    public function test_the_application_cannot_show_custodian_users(): void
+    {
+        $latestCustodianUser = CustodianUser::query()->orderBy('id', 'desc')->first();
+        $custodianIdTest = $latestCustodianUser ? $latestCustodianUser->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$custodianIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
     public function test_the_application_can_create_custodian_users(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
@@ -122,6 +138,27 @@ class CustodianUserTest extends TestCase
         $this->assertEquals($content['last_name'], 'Name');
     }
 
+    public function test_the_application_cannot_update_custodian_users(): void
+    {
+        $latestCustodianUser = CustodianUser::query()->orderBy('id', 'desc')->first();
+        $custodianIdTest = $latestCustodianUser ? $latestCustodianUser->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . "/{$custodianIdTest}",
+                [
+                    'first_name' => 'Updated',
+                    'last_name' => 'Name',
+                    'email' => fake()->email(),
+                ]
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
     public function test_the_application_can_delete_custodian_users(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
@@ -152,6 +189,22 @@ class CustodianUserTest extends TestCase
             );
 
         $response->assertStatus(200);
+    }
+
+    public function test_the_application_cannot_delete_custodian_users(): void
+    {
+        $latestCustodianUser = CustodianUser::query()->orderBy('id', 'desc')->first();
+        $custodianIdTest = $latestCustodianUser ? $latestCustodianUser->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'DELETE',
+                self::TEST_URL . "/{$custodianIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 
     public function test_the_application_can_invite_a_user_for_custodian(): void
@@ -188,6 +241,22 @@ class CustodianUserTest extends TestCase
         $invites = PendingInvite::all();
 
         $this->assertTrue(count($invites) === 1);
+    }
+
+    public function test_the_application_cannot_invite_a_user_for_custodian(): void
+    {
+        $latestCustodianUser = CustodianUser::query()->orderBy('id', 'desc')->first();
+        $custodianIdTest = $latestCustodianUser ? $latestCustodianUser->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL . "/invite/{$custodianIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 
     public function test_the_application_can_assign_permissions_to_custodian_users(): void

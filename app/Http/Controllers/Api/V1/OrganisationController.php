@@ -2,32 +2,32 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Keycloak;
 use DB;
 use Http;
-use Auth;
+use Keycloak;
 use Exception;
-use RegistryManagementController as RMC;
-use App\Services\DecisionEvaluatorService as DES;
+use TriggerEmail;
 use Carbon\Carbon;
-use App\Exceptions\NotFoundException;
-use App\Http\Controllers\Controller;
-use App\Jobs\OrganisationIDVT;
+use App\Models\User;
+use App\Models\Charity;
 use App\Models\Project;
 use App\Models\DebugLog;
+use App\Models\Affiliation;
 use App\Models\Organisation;
-use App\Models\Charity;
-use App\Models\OrganisationHasDepartment;
-use App\Models\User;
-use App\Models\UserHasDepartments;
+use Illuminate\Http\Request;
 use App\Models\PendingInvite;
+use App\Http\Traits\Responses;
+use App\Jobs\OrganisationIDVT;
+use App\Models\EntityModelType;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use TriggerEmail;
-use App\Http\Traits\Responses;
-use App\Models\Affiliation;
+use App\Models\UserHasDepartments;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
+use App\Exceptions\NotFoundException;
+use RegistryManagementController as RMC;
+use App\Models\OrganisationHasDepartment;
+use App\Services\DecisionEvaluatorService as DES;
 
 class OrganisationController extends Controller
 {
@@ -80,7 +80,7 @@ class OrganisationController extends Controller
     public function index(Request $request): JsonResponse
     {
         $organisations = [];
-        $this->decisionEvaluator = new DES($request);
+        $this->decisionEvaluator = new DES($request, [EntityModelType::ORG_VALIDATION_RULES]);
 
         $custodianId = $request->get('custodian_id');
 
@@ -180,7 +180,7 @@ class OrganisationController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
-        $this->decisionEvaluator = new DES($request);
+        $this->decisionEvaluator = new DES($request, [EntityModelType::ORG_VALIDATION_RULES]);
 
         $organisation = Organisation::with([
             'departments',
@@ -197,8 +197,10 @@ class OrganisationController extends Controller
             'sector',
             'files',
         ])->findOrFail($id);
+
         if ($organisation) {
-            return $this->OKResponseExtended($organisation, 'rules', $this->decisionEvaluator->evaluate($organisation));
+            $organisation['rules'] = $this->decisionEvaluator->evaluate($organisation);
+            return $this->OKResponse($organisation);
         }
 
         throw new NotFoundException();
@@ -361,6 +363,7 @@ class OrganisationController extends Controller
         if (!Gate::allows('create', Organisation::class)) {
             return $this->ForbiddenResponse();
         }
+
         try {
             $input = $request->all();
             $organisation = Organisation::create([
@@ -433,7 +436,6 @@ class OrganisationController extends Controller
                 }
             }
 
-
             // Run automated IDVT
             if (!in_array(config('speedi.system.app_env'), ['testing', 'ci'])) {
                 OrganisationIDVT::dispatchSync($organisation);
@@ -443,21 +445,6 @@ class OrganisationController extends Controller
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
-    }
-
-    public function inviteOrganisationSimple(Request $request): JsonResponse
-    {
-        $input = [
-            'type' => 'ORGANISATION_INVITE_SIMPLE',
-            'to' => -1,
-            'address' => $request->get('lead_applicant_email'),
-            'by' => Auth::user()->id,
-            'identifier' => 'organisation_invite_new',
-        ];
-
-        TriggerEmail::spawnEmail($input);
-
-        return $this->OKResponse(null);
     }
 
     public function createOrgWithUser(Request $request): JsonResponse
@@ -548,17 +535,6 @@ class OrganisationController extends Controller
 
     public function storeUnclaimed(Request $request): JsonResponse
     {
-
-        $input = [
-            'type' => 'ORGANISATION_INVITE_SIMPLE',
-            'to' => -1,
-            'address' => $request->get('lead_applicant_email'),
-            'by' => Auth::user()->id,
-            'identifier' => 'organisation_invite_new',
-        ];
-
-        TriggerEmail::spawnEmail($input);
-
         try {
             $input = $request->all();
             $organisation = Organisation::create([

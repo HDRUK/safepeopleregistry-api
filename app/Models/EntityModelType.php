@@ -56,6 +56,10 @@ class EntityModelType extends Model
 {
     use HasFactory;
 
+    public const DECISON_MODELS = 'decision_models';
+    public const ORG_VALIDATION_RULES = 'org_validation_rules';
+    public const USER_VALIDATION_RULES = 'user_validation_rules';
+
     protected $table = 'entity_model_types';
     public $timestamps = true;
 
@@ -64,8 +68,8 @@ class EntityModelType extends Model
     ];
 
     public const ENTITY_TYPES = [
-        'decision_models',
-        'user_validation_rules',
-        'org_validation_rules',
+        self::DECISON_MODELS,
+        self::USER_VALIDATION_RULES,
+        self::ORG_VALIDATION_RULES,
     ];
 }

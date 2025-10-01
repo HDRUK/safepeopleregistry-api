@@ -213,7 +213,7 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="10px 15px 0px 15px">
                                 To begin your sign-up process, please click the button below.
                                 </mj-text>
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 15px 15px 15px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]?invite_code=[[inviteCode]]" padding="10px 15px 15px 15px">
                                   Sign me up!
                                 </mj-button>
                               </mj-column>
@@ -706,52 +706,6 @@ class EmailTemplatesSeeder extends Seeder
             'buttons' => '',
           ],
           [
-            'identifier' => 'organisation_invite_new',
-            'subject' => 'Someone is requesting you join [[env(APP_NAME)]] as a new Organisation',
-            'body' => '<mjml>
-                      ' . $this->mjmlHead . '
-                      <mj-body background-color="#efeeea" width="600px" >
-                        <mj-body background-color="#efeeea" width="600px" >
-                          ' . $this->titleBar . '
-                          <mj-wrapper border="none" direction="ltr" text-align="center" padding="20px 0px 20px 0px" >
-                            <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
-                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
-                                <mj-text align="left" padding="10px 25px 10px 25px" >
-                                  <mj-text>
-                                      Hello! One of your employees or students is requesting that you create an Organisation account within [[env(APP_NAME)]].
-                                  </mj-text>
-                                  <div><br></div>
-                                  <mj-text>
-                                      [[USER_FIRST_NAME]] [[USER_LAST_NAME]] is attempting to affiliate themselves within their [[env(APP_NAME)]] profile, but your Organisation
-                                      isn\'t known to us.
-                                  </mj-text>
-                                  <div><br></div>
-                                  <mj-text>
-                                      <strong>Why are you receiving this?</strong> We ask the user to provide an email for the invitation to be sent. If this email finds you and you\'re
-                                      not the right person to complete this registration, then please forward it to the person who is. This email is generic, and not tied to you in any way.
-                                  </mj-text>
-                                  <div><br></div>
-                                  <mj-button href="[[env(PORTAL_URL)]]">
-                                      More information
-                                  </mj-button>
-                                  <div><br></div>
-                                  ' . $this->supportFooter . '
-                                  <div><br></div>
-                                  </div>
-                                </mj-text>
-                              </mj-column>
-                            </mj-section>
-                            <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
-                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
-                                <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 25px 10px 25px" >Sign me up!</mj-button>
-                              </mj-column>
-                            </mj-section>
-                          </mj-wrapper>
-                        </mj-body>
-                      </mjml >',
-            'buttons' => '',
-          ],
-          [
             'identifier' => 'notification',
             'subject' => 'Safe People Registry | New project',
             'body' => '<mjml>
@@ -775,7 +729,7 @@ class EmailTemplatesSeeder extends Seeder
                                     
                             <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
                               <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[link.project]]" padding="10px 15px 15px 15px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[link_project]]" padding="10px 15px 15px 15px">
                                   Go to projects
                                 </mj-button>
                               </mj-column>
@@ -1060,17 +1014,57 @@ class EmailTemplatesSeeder extends Seeder
                       </mjml >',
             'buttons' => '',
           ],
+          [
+            'identifier' => 'affiliation_user_professional_email_confirm',
+            'subject' => 'Safe People Registry | Verify affiliation email',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#f6dff1" width="600px" >
+
+                          ' . $this->titleBar('Verify Affiliation email') . '
+
+                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                                <mj-text align="left" padding="20px 0px 20px 0px">
+                                  Verify your [[env(APP_NAME)]] Affiliation Email address
+                                  <div><br></div>
+                                  A Safe People Registry affiliation has been made with this email address. If this was you, click the link below to verify your email address.
+                                  If you didn\'t create this account, please contact us at [[env(SUPPORT_EMAIL)]] so that we can follow up.
+                                  <div><br></div>
+                                  This link will expire within [[env(OTP_VALIDITY_HOURS)]] hours.
+                                  <div><br></div>
+                                  ' . $this->supportFooter . '
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+                                    
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
+                              <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[AFFILIATION_VERIFICATION_PATH]]" padding="10px 15px 15px 15px">
+                                  Link to e-mail address verification
+                                </mj-button>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+
+                        </mj-body>
+                      </mjml >',
+            'buttons' => '',
+          ],
         ];
 
         foreach ($templates as $template) {
             EmailTemplate::updateOrCreate(
                 ['identifier' => $template['identifier']],
                 [
-                'subject' => $template['subject'],
-                'body' => $template['body'],
-                'buttons' => $template['buttons'] ?? '',
-        ]
+                  'subject' => $template['subject'],
+                  'body' => $template['body'],
+                  'buttons' => $template['buttons'] ?? '',
+                ]
             );
         }
+
+        $this->command?->info('Email templates seeded successfully.');
     }
 }

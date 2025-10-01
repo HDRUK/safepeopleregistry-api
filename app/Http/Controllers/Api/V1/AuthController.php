@@ -3,17 +3,18 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Keycloak;
-use RegistryManagementController as RMC;
 use Carbon\Carbon;
-use App\Models\PendingInvite;
 use App\Models\User;
+use App\Models\State;
 use App\Models\Affiliation;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Models\PendingInvite;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\Controller;
 use App\Http\Traits\Responses;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use RegistryManagementController as RMC;
 
 class AuthController extends Controller
 {
@@ -28,20 +29,35 @@ class AuthController extends Controller
     {
     }
 
+    public function acceptInvite(int $id)
+    {
+        $pendingInvite = PendingInvite::where('user_id', $id)->first();
+
+        if ($pendingInvite) {
+            $pendingInvite->invite_accepted_at = Carbon::now();
+            $pendingInvite->status = config('speedi.invite_status.COMPLETE');
+            $pendingInvite->save();
+        }
+
+        return $pendingInvite;
+    }
+
     public function registerKeycloakUser(Request $request): JsonResponse
     {
-
         $response = Keycloak::getUserInfo($request->headers->get('Authorization'));
         $payload = $response->json();
 
         $user = RMC::createNewUser($payload, $request);
 
         if ($user) {
+            $user->setState(State::STATE_REGISTERED);
+
             if (isset($user['unclaimed_user_id'])) {
                 $unclaimedUser = User::where('id', $user['unclaimed_user_id'])->first();
-                $pendingInvite = PendingInvite::where('user_id', $user['unclaimed_user_id'])->first();
-                if ($pendingInvite) {
 
+                $pendingInvite = $this->acceptInvite($user['unclaimed_user_id']);
+
+                if ($pendingInvite) {
                     $registryId = $unclaimedUser->registry_id;
                     $organisationId = $pendingInvite->organisation_id;
                     $email = $unclaimedUser->email;
@@ -65,9 +81,6 @@ class AuthController extends Controller
                             'registry_id' => $registryId,
                         ]);
                     }
-                    $pendingInvite->invite_accepted_at = Carbon::now();
-                    $pendingInvite->status = config('speedi.invite_status.COMPLETE');
-                    $pendingInvite->save();
                 }
 
 
@@ -118,6 +131,8 @@ class AuthController extends Controller
             ], 400);
         }
 
+        $this->acceptInvite($userToReplace->id);
+
         $userToReplace->first_name = $input['given_name'];
         $userToReplace->last_name = $input['family_name'];
         $userToReplace->email = $input['email'];
@@ -138,6 +153,7 @@ class AuthController extends Controller
     public function meUnclaimed(Request $request): JsonResponse
     {
         $token = Auth::token();
+        $input = $request->only(['invite_code']);
 
         if (!$token) {
             return $this->UnauthorisedResponse();
@@ -145,13 +161,16 @@ class AuthController extends Controller
 
         $arr = json_decode($token, true);
 
-        if (!isset($arr['email'])) {
-            return $this->NotFoundResponse();
+        if (!empty($input['invite_code'])) {
+            $pendingInvite = PendingInvite::where([
+                'invite_code' => $input['invite_code']
+            ])->first();
+            $user = User::where(['id' => $pendingInvite->user_id, 'unclaimed' => 1])->first();
+        } elseif (isset($arr['email'])) {
+            $user = User::where(['email' => $arr['email'], 'unclaimed' => 1])->first();
         }
 
-        $user = User::where(['email' => $arr['email'], 'unclaimed' => 1])->first();
-
-        if (!$user) {
+        if (!isset($user)) {
             return $this->NotFoundResponse();
         }
 

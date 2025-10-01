@@ -3,19 +3,24 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Exception;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\Controller;
-use App\Models\ValidationLog;
+use Carbon\Carbon;
+use App\Models\Project;
+use App\Models\Registry;
 use App\Models\Custodian;
 use App\Models\Organisation;
-use App\Models\Project;
-use App\Models\ProjectHasUser;
-use App\Models\ProjectHasCustodian;
-use App\Models\Registry;
-use Carbon\Carbon;
+use Illuminate\Http\Request;
+use App\Models\ValidationLog;
 use App\Http\Traits\Responses;
+use App\Models\ProjectHasUser;
+use Illuminate\Http\JsonResponse;
+use App\Models\ProjectHasCustodian;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\ValidationLogs\GetValidationLog;
+use App\Http\Requests\ValidationLogs\UpdateValidationLog;
+use App\Http\Requests\ValidationLogs\UpdateByCustodianValidationLog;
+use App\Http\Requests\ValidationLogs\GetCustodianProjectUserValidationLog;
+use App\Http\Requests\ValidationLogs\GetCustodianOrganisationValidationLog;
 
 use function activity;
 
@@ -68,7 +73,7 @@ class ValidationLogController extends Controller
      * )
      */
     public function getCustodianProjectUserValidationLogs(
-        Request $request,
+        GetCustodianProjectUserValidationLog $request,
         int $custodianId,
         int $projectId,
         int $registryId
@@ -175,7 +180,7 @@ class ValidationLogController extends Controller
      * )
      */
     public function getCustodianOrganisationValidationLogs(
-        Request $request,
+        GetCustodianOrganisationValidationLog $request,
         int $custodianId,
         int $organisationId,
     ): JsonResponse {
@@ -237,7 +242,7 @@ class ValidationLogController extends Controller
      *     )
      * )
      */
-    public function updateCustodianValidationLogs(Request $request, int $custodianId): JsonResponse
+    public function updateCustodianValidationLogs(UpdateByCustodianValidationLog $request, int $custodianId): JsonResponse
     {
         $validated = $request->validate([
             'enabled' => 'required|in:0,1',
@@ -285,7 +290,7 @@ class ValidationLogController extends Controller
      *     )
      * )
      */
-    public function index($validationLogId): JsonResponse
+    public function index(GetValidationLog $request, int $validationLogId): JsonResponse
     {
         $validationLog = ValidationLog::withDisabled()
             ->with(["comments", "validationCheck"])
@@ -327,7 +332,7 @@ class ValidationLogController extends Controller
      *     )
      * )
      */
-    public function comments($validationLogId): JsonResponse
+    public function comments(GetValidationLog $request, int $validationLogId): JsonResponse
     {
         $validationLog = ValidationLog::find($validationLogId);
         if (!$validationLog) {
@@ -384,7 +389,7 @@ class ValidationLogController extends Controller
      *     )
      * )
      */
-    public function update(Request $request, $id): JsonResponse
+    public function update(UpdateValidationLog $request, $id): JsonResponse
     {
         $log = ValidationLog::withDisabled()->find($id);
         if (!$log) {

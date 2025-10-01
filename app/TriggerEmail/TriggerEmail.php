@@ -2,6 +2,8 @@
 
 namespace App\TriggerEmail;
 
+use Str;
+use Exception;
 use App\Jobs\SendEmailJob;
 use App\Models\Affiliation;
 use App\Models\Custodian;
@@ -36,6 +38,11 @@ class TriggerEmail
     //     SendEmailJob::dispatch($recipients, $template, $replacements, $recipients['email']);
     // }
 
+    public function generateInviteCode(): string
+    {
+        return Str::uuid();
+    }
+
     public function spawnEmail(array $input): void
     {
         $replacements = [];
@@ -51,6 +58,9 @@ class TriggerEmail
         $affiliationId = isset($input['affiliationId']) ? $input['affiliationId'] : null;
         $custodianId = isset($input['custodianId']) ? $input['custodianId'] : null;
         $identifier = $input['identifier'];
+
+        $inviteCode = $this->generateInviteCode();
+
         switch (strtoupper($type)) {
             case 'AFFILIATION':
                 if ($input['email'] === '') {
@@ -241,17 +251,19 @@ class TriggerEmail
 
                 $replacements = [
                     '[[organisation.organisation_name]]' => $organisation->organisation_name,
+                    '[[inviteCode]]' => $inviteCode,
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
                     '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
                     '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),
-                    '[[digi_ident]]' => User::where('id', $unclaimedUserId)->first()->registry->digi_ident,
+                    // '[[digi_ident]]' => User::where('id', $unclaimedUserId)->first()->registry->digi_ident,
                     '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
                 ];
 
                 PendingInvite::create([
                     'user_id' => $unclaimedUserId,
                     'status' => config('speedi.invite_status.PENDING'),
-                    'invite_sent_at' => Carbon::now()
+                    'invite_sent_at' => Carbon::now(),
+                    'invite_code' => $inviteCode
                 ]);
 
                 break;
@@ -307,22 +319,28 @@ class TriggerEmail
                 ];
 
                 break;
-            case 'ORGANISATION_INVITE_SIMPLE':
+            case 'AFFILIATION_VERIFY':
                 $template = EmailTemplate::where('identifier', $identifier)->first();
+                $affiliation = Affiliation::where([
+                    'id' => $to,
+                    'current_employer' => true
+                ])->first();
+
                 $newRecipients = [
                     'id' => $to,
-                    'email' => $input['address'],
+                    'email' => $affiliation->email,
                 ];
-                $user = User::where('id', $by)->first();
+
+                $validationHours = round((int)config('speedi.system.otp_affiliation_validity_minutes') / 60, 0);
                 $replacements = [
-                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
-                    '[[USER_FIRST_NAME]]' => $user->first_name,
-                    '[[USER_LAST_NAME]]' => $user->last_name,
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
                     '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
-                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[AFFILIATION_VERIFICATION_PATH]]' => config('speedi.system.portal_url') . '/user/profile/affiliations?verify=' . $affiliation->verification_code,
+                    '[[env(OTP_AFFILIATION_VALIDITY_HOURS)]]' => $validationHours,
                 ];
-                // no break
+
+                break;
             default: // Unknown type.
                 break;
         }

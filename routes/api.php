@@ -74,8 +74,10 @@ Route::middleware(['auth:api'])
         Route::get('/test', [UserController::class, 'fakeEndpointForTesting']);
         Route::get('/identifier', [UserController::class, 'showByUniqueIdentifier']);
         Route::get('/{id}', [UserController::class, 'show']);
-        Route::get('/{id}/history', [AuditLogController::class, 'showUserHistory']);
+        Route::get('/{id}/history', [AuditLogController::class, 'showUserHistory'])->whereNumber('id');
         Route::get('/{id}/projects', [UserController::class, 'userProjects']);
+        Route::get('/pending_invites/invite_code/{inviteCode}', [UserController::class, 'getPendingInviteByInviteCode']);
+
 
         // create
         Route::post('/', [UserController::class, 'store']);
@@ -86,6 +88,9 @@ Route::middleware(['auth:api'])
 
         //update
         Route::put('/{id}', [UserController::class, 'update']);
+        Route::put('/pending_invites/claim_email/{inviteCode}', [UserController::class, 'updateUserEmailByInviteCode']);
+
+        // the method not found in controller
         Route::patch('/{id}', [UserController::class, 'edit']);
         Route::delete('/{id}', [UserController::class, 'destroy']);
 
@@ -101,10 +106,9 @@ Route::middleware(['auth:api'])
 // --- ACTION LOGS ---
 Route::middleware('auth:api')
     ->prefix('v1')
-    ->controller(ActionLogController::class)
     ->group(function () {
-        Route::get('{entity}/{id}/action_log', 'getEntityActionLog');
-        Route::put('action_log/{id}', 'update');
+        Route::get('{entity}/{id}/action_log', [ActionLogController::class, 'getEntityActionLog']);
+        Route::put('action_log/{id}', [ActionLogController::class, 'update']);
     });
 
 
@@ -190,7 +194,7 @@ Route::middleware(['auth:api'])
         // Read
         Route::get('/', 'index');
         Route::get('/{id}', 'show');
-        Route::get('/identifier/{id}', 'showByUniqueIdentifier');
+        Route::get('/identifier/{uniqueIdentifier}', 'showByUniqueIdentifier');
         Route::get('/{id}/projects', 'getProjects');
         Route::get('/{id}/users/{userId}/projects', 'getUserProjects');
         Route::get('/{id}/organisations', 'getProjectsOrganisations');
@@ -208,6 +212,7 @@ Route::middleware(['auth:api'])
 
         // Update
         Route::put('/{id}', 'update');
+        // cannot find the method in this controller
         Route::patch('/{id}/rules', 'updateCustodianRules');
 
         // Delete
@@ -264,6 +269,7 @@ Route::middleware('auth:api')
         // Project user management
         Route::get('user/{registryId}/validated', 'getValidatedProjects');
         Route::get('{id}/users', 'getProjectUsers');
+        Route::get('{id}/all_users/{userId}', 'getAllUsersFlagProjectByUserId');
         Route::get('{id}/all_users', 'getAllUsersFlagProject');
         Route::put('{id}/all_users', 'updateAllProjectUsers');
         Route::post('{id}/users', 'addProjectUser');
@@ -339,7 +345,6 @@ Route::middleware('auth:api')
             // Create
             Route::post('/', 'store');
             Route::post('/new_account', 'createOrgWithUser');
-            //Route::post('/unclaimed', 'inviteOrganisationSimple');
             Route::post('/unclaimed', 'storeUnclaimed');
             Route::post('/{id}/invite', 'invite');
             Route::post('/{id}/invite_user', 'inviteUser');
@@ -350,6 +355,8 @@ Route::middleware('auth:api')
 
             // Delete
             Route::delete('/{id}', 'destroy');
+
+            Route::get('/{id}/history', [AuditLogController::class, 'showOrganisationHistory'])->whereNumber('id');
         });
 
         Route::controller(PermissionController::class)->group(function () {
@@ -395,6 +402,9 @@ Route::middleware('auth:api')
         Route::put('{id}', 'update');
         Route::delete('{id}', 'destroy');
         Route::put('{registryId}/affiliation/{id}', 'updateRegistryAffiliation');
+
+        Route::get('{affiliationId}/resend/verification', 'resendVerificationEmail');
+        Route::put('/verify_email/{verificationCode}', 'verifyEmail');
     });
 
 // --- PROFESSIONAL REGISTRATIONS ---
@@ -493,12 +503,14 @@ Route::middleware('auth:api')
     ->controller(WebhookController::class)
     ->group(function () {
         Route::get('receivers', 'getAllReceivers');
-        Route::get('receivers/{custodianId}', 'getReceiversByCustodian');
+        Route::get('receivers/{custodianId}', 'getReceiversByCustodian')->whereNumber('custodianId');
         Route::post('receivers', 'createReceiver');
-        Route::put('receivers/{custodianId}', 'updateReceiver');
-        Route::delete('receivers/{custodianId}', 'deleteReceiver');
+        Route::put('receivers/{custodianId}', 'updateReceiver')->whereNumber('custodianId');
+        Route::delete('receivers/{custodianId}', 'deleteReceiver')->whereNumber('custodianId');
         Route::get('event-triggers', 'getAllEventTriggers');
     });
+
+Route::post('v1/webhooks/{provider}', [VendorWebhookReceiverController::class, 'receive']);
 
 // --- CUSTODIAN CONFIG ---
 Route::middleware('auth:api')
@@ -605,8 +617,6 @@ Route::middleware('auth:api')
 
 // --- RULES ---
 Route::middleware('auth:api')->get('v1/rules', [RulesEngineManagementController::class, 'getRules']);
-
-Route::post('v1/webhooks/{provider}', [VendorWebhookReceiverController::class, 'receive']);
 
 // ONS CSV RESEARCHER FEED
 Route::post('v1/ons_researcher_feed', [ONSSubmissionController::class, 'receiveCSV']);

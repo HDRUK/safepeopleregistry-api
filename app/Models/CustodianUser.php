@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\SearchManager;
@@ -131,5 +132,15 @@ class CustodianUser extends Model
     public function custodian(): BelongsTo
     {
         return $this->belongsTo(Custodian::class, 'custodian_id', 'id');
+    }
+
+    /**
+     * Get the user for the custodian user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne<\App\Models\User>
+     */
+    public function user(): HasOne
+    {
+        return $this->hasOne(User::class, 'custodian_user_id', 'id');
     }
 }

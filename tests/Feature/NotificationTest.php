@@ -2,12 +2,13 @@
 
 namespace Tests\Feature;
 
-use KeycloakGuard\ActingAsKeycloakUser;
-use App\Models\User;
 use Tests\TestCase;
+use App\Models\User;
+use Illuminate\Support\Str;
 use Tests\Traits\Authorisation;
-use Illuminate\Support\Facades\Notification;
 use App\Notifications\AdminUserChanged;
+use KeycloakGuard\ActingAsKeycloakUser;
+use Illuminate\Support\Facades\Notification;
 
 class NotificationTest extends TestCase
 {
@@ -64,6 +65,238 @@ class NotificationTest extends TestCase
                     ],
                 ]
             ]);
+    }
+
+    public function test_user_can_retrieve_notifications_with_no_success()
+    {
+        Notification::sendNow($this->user, new AdminUserChanged($this->user, ['test' => ['old' => 'Old', 'new' => 'New']]));
+
+        $latestUserId = User::query()->orderBy('id', 'desc')->first();
+        $userIdTest = $latestUserId->id + 1;
+
+        $response = $this->actingAs($this->user)
+            ->json(
+                'GET',
+                "/api/v1/users/{$userIdTest}/notifications"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_user_can_retrieve_count_notifications_with_success()
+    {
+        Notification::sendNow($this->user, new AdminUserChanged($this->user, ['test' => ['old' => 'Old', 'new' => 'New']]));
+
+        $response = $this->actingAs($this->user)
+            ->json(
+                'GET',
+                $this->testUrl . '/count'
+            );
+
+        $response->assertStatus(200);
+        $responseJson = $response->decodeResponseJson();
+
+        $countNotification = $this->user->notifications()->whereNull('read_at')->count();
+        $this->assertArrayHasKey('data', $responseJson);
+        $this->assertEquals($responseJson['data']['total'], $countNotification);
+    }
+
+    public function test_user_can_retrieve_count_notifications_with_no_success()
+    {
+        Notification::sendNow($this->user, new AdminUserChanged($this->user, ['test' => ['old' => 'Old', 'new' => 'New']]));
+
+        $latestUserId = User::query()->orderBy('id', 'desc')->first();
+        $userIdTest = $latestUserId->id + 1;
+
+        $response = $this->actingAs($this->user)
+            ->json(
+                'GET',
+                "/api/v1/users/{$userIdTest}/notifications"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_user_can_mark_notifications_as_read_with_success()
+    {
+        Notification::sendNow($this->user, new AdminUserChanged($this->user, ['test' => ['old' => 'Old', 'new' => 'New']]));
+
+        $response = $this->actingAs($this->user)
+            ->json(
+                'GET',
+                $this->testUrl
+            );
+
+        $response->assertStatus(200);
+        $responseJson = $response->decodeResponseJson();
+        $notificationId = $responseJson['data']['data'][0]['id'];
+
+        // mark read
+        $responseMarkRead = $this->actingAs($this->user)
+            ->json(
+                'PATCH',
+                "/api/v1/users/{$this->user->id}/notifications/" . $notificationId . "/read"
+            );
+
+        $responseMarkRead->assertStatus(200);
+        $message = $responseMarkRead->decodeResponseJson()['message'];
+
+        $this->assertEquals('Notification marked as read', $message);
+    }
+
+    public function test_user_can_mark_notifications_as_read_with_no_success()
+    {
+        Notification::sendNow($this->user, new AdminUserChanged($this->user, ['test' => ['old' => 'Old', 'new' => 'New']]));
+
+        $response = $this->actingAs($this->user)
+            ->json(
+                'GET',
+                $this->testUrl
+            );
+
+        $response->assertStatus(200);
+        $responseJson = $response->decodeResponseJson();
+        $notificationId = $responseJson['data']['data'][0]['id'];
+        $notificationIdTest = Str::uuid()->toString();
+
+        // mark read
+        $responseMarkRead = $this->actingAs($this->user)
+            ->json(
+                'PATCH',
+                "/api/v1/users/{$this->user->id}/notifications/" . $notificationIdTest . "/read"
+            );
+
+        $responseMarkRead->assertStatus(400);
+
+        //
+        $latestUserId = User::query()->orderBy('id', 'desc')->first();
+        $userIdTest = $latestUserId->id + 1;
+
+        $responseMarkRead = $this->actingAs($this->user)
+            ->json(
+                'PATCH',
+                "/api/v1/users/{$userIdTest}/notifications/" . $notificationId . "/read"
+            );
+
+        $responseMarkRead->assertStatus(400);
+
+        //
+        $latestUserId = User::query()->orderBy('id', 'desc')->first();
+        $userIdTest = $latestUserId->id + 1;
+
+        $responseMarkRead = $this->actingAs($this->user)
+            ->json(
+                'PATCH',
+                "/api/v1/users/{$userIdTest}/notifications/" . $notificationIdTest . "/read"
+            );
+
+        $responseMarkRead->assertStatus(400);
+    }
+
+    public function test_user_can_mark_notifications_as_unread_with_success()
+    {
+        Notification::sendNow($this->user, new AdminUserChanged($this->user, ['test' => ['old' => 'Old', 'new' => 'New']]));
+
+        $response = $this->actingAs($this->user)
+            ->json(
+                'GET',
+                $this->testUrl
+            );
+
+        $response->assertStatus(200);
+        $responseJson = $response->decodeResponseJson();
+        $notificationId = $responseJson['data']['data'][0]['id'];
+
+        // mark read
+        $responseMarkRead = $this->actingAs($this->user)
+            ->json(
+                'PATCH',
+                "/api/v1/users/{$this->user->id}/notifications/" . $notificationId . "/read"
+            );
+
+        $responseMarkRead->assertStatus(200);
+        $message = $responseMarkRead->decodeResponseJson()['message'];
+
+        $this->assertEquals('Notification marked as read', $message);
+
+        // mark as unread
+        $responseMarkUnread = $this->actingAs($this->user)
+            ->json(
+                'PATCH',
+                "/api/v1/users/{$this->user->id}/notifications/" . $notificationId . "/unread"
+            );
+
+        $responseMarkUnread->assertStatus(200);
+        $message = $responseMarkUnread->decodeResponseJson()['message'];
+
+        $this->assertEquals('Notification marked as unread', $message);
+    }
+
+    public function test_user_can_mark_notifications_as_unread_with_no_success()
+    {
+        Notification::sendNow($this->user, new AdminUserChanged($this->user, ['test' => ['old' => 'Old', 'new' => 'New']]));
+
+        $response = $this->actingAs($this->user)
+            ->json(
+                'GET',
+                $this->testUrl
+            );
+
+        $response->assertStatus(200);
+        $responseJson = $response->decodeResponseJson();
+        $notificationId = $responseJson['data']['data'][0]['id'];
+        $notificationIdTest = Str::uuid()->toString();
+
+        // mark read
+        $responseMarkRead = $this->actingAs($this->user)
+            ->json(
+                'PATCH',
+                "/api/v1/users/{$this->user->id}/notifications/" . $notificationId . "/read"
+            );
+
+        $responseMarkRead->assertStatus(200);
+        $message = $responseMarkRead->decodeResponseJson()['message'];
+
+        $this->assertEquals('Notification marked as read', $message);
+
+        // mark as unread
+        $responseMarkUnread = $this->actingAs($this->user)
+            ->json(
+                'PATCH',
+                "/api/v1/users/{$this->user->id}/notifications/" . $notificationIdTest . "/unread"
+            );
+
+        $responseMarkUnread->assertStatus(400);
+
+        //
+        $latestUserId = User::query()->orderBy('id', 'desc')->first();
+        $userIdTest = $latestUserId->id + 1;
+
+        $responseMarkUnread = $this->actingAs($this->user)
+            ->json(
+                'PATCH',
+                "/api/v1/users/{$userIdTest}/notifications/" . $notificationId . "/unread"
+            );
+
+        $responseMarkUnread->assertStatus(400);
+
+        //
+        $latestUserId = User::query()->orderBy('id', 'desc')->first();
+        $userIdTest = $latestUserId->id + 1;
+
+        $responseMarkUnread = $this->actingAs($this->user)
+            ->json(
+                'PATCH',
+                "/api/v1/users/{$userIdTest}/notifications/" . $notificationIdTest . "/unread"
+            );
+
+        $responseMarkUnread->assertStatus(400);
     }
 
     public function test_user_can_read_notifications()

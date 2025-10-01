@@ -2,9 +2,10 @@
 
 namespace Tests\Feature;
 
-use KeycloakGuard\ActingAsKeycloakUser;
 use Tests\TestCase;
+use App\Models\Department;
 use Tests\Traits\Authorisation;
+use KeycloakGuard\ActingAsKeycloakUser;
 
 class DepartmentTest extends TestCase
 {
@@ -42,6 +43,22 @@ class DepartmentTest extends TestCase
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
+    }
+
+    public function test_the_application_cannot_show_departments(): void
+    {
+        $latestDepartment = Department::query()->orderBy('id', 'desc')->first();
+        $departmentIdTest = $latestDepartment ? $latestDepartment->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$departmentIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 
     public function test_the_application_can_create_departments(): void
@@ -94,6 +111,25 @@ class DepartmentTest extends TestCase
         $this->assertEquals($content['category'], 'Test Category');
     }
 
+    public function test_the_application_cannot_update_departments(): void
+    {
+        $latestDepartment = Department::query()->orderBy('id', 'desc')->first();
+        $departmentIdTest = $latestDepartment ? $latestDepartment->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PATCH',
+                self::TEST_URL . "/{$departmentIdTest}",
+                [
+                    'name' => 'Updated Department',
+                ]
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
     public function test_the_application_can_delete_departments(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
@@ -118,5 +154,21 @@ class DepartmentTest extends TestCase
             );
 
         $response->assertStatus(200);
+    }
+
+    public function test_the_application_cannot_delete_departments(): void
+    {
+        $latestDepartment = Department::query()->orderBy('id', 'desc')->first();
+        $departmentIdTest = $latestDepartment ? $latestDepartment->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'DELETE',
+                self::TEST_URL . "/{$departmentIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 }

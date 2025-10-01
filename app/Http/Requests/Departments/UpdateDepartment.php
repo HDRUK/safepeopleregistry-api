@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Departments;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\BaseFormRequest;
 
-class UpdateDepartment extends FormRequest
+class UpdateDepartment extends BaseFormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -14,6 +14,11 @@ class UpdateDepartment extends FormRequest
     public function rules(): array
     {
         return [
+            'id' => [
+                'required',
+                'integer',
+                'exists:departments,id',
+            ],
             'name' => [
                 'string',
                 'max:255',
@@ -23,5 +28,15 @@ class UpdateDepartment extends FormRequest
                 'max:255',
             ],
         ];
+    }
+
+    /**
+     * Add Route parameters to the FormRequest.
+     *
+     * @return void
+     */
+    protected function prepareForValidation()
+    {
+        $this->merge(['id' => $this->route('id')]);
     }
 }

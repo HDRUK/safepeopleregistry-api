@@ -7,11 +7,12 @@ use App\Models\User;
 use App\Models\CustodianUser;
 use App\Models\DecisionModel;
 use App\Models\CustodianModelConfig;
+use App\Models\EntityModelType;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
- * @method static \Illuminate\Database\Eloquent\Collection|null loadCustodianRules(\Illuminate\Http\Request $request)
+ * @method static \Illuminate\Database\Eloquent\Collection|null loadCustodianRules(\Illuminate\Http\Request $request, array $validationType)
  */
 class RulesEngineManagementController
 {
@@ -46,11 +47,22 @@ class RulesEngineManagementController
         return $custodianId;
     }
 
-    public static function loadCustodianRules(Request $request): ?Collection
+    public static function loadCustodianRules(Request $request, array $validationType): ?Collection
     {
         $custodianId = self::determineUserCustodian();
         if (!$custodianId) {
             return null;
+        }
+
+        $entityModelTypeIds = [];
+
+        if (filled($validationType)) {
+            $entityModelTypeIds = EntityModelType::whereIn('name', $validationType)->pluck('id');
+        } else {
+            $entityModelTypeIds = EntityModelType::whereIn('name', [
+                EntityModelType::USER_VALIDATION_RULES,
+                EntityModelType::ORG_VALIDATION_RULES
+            ])->pluck('id');
         }
 
         $modelConfig = CustodianModelConfig::where([
@@ -63,7 +75,7 @@ class RulesEngineManagementController
             return null;
         }
 
-        $activeModels = DecisionModel::whereIn('id', $modelConfig)->get();
+        $activeModels = DecisionModel::whereIn('id', $modelConfig)->whereIn('entity_model_type_id', $entityModelTypeIds)->get();
         if (!$activeModels) {
             return null;
         }

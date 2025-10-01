@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Models\User;
+use App\Models\Affiliation;
 use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\Responses;
@@ -17,12 +18,36 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Gate;
 
 class ProjectController extends Controller
 {
     use CommonFunctions;
     use FilterManager;
     use Responses;
+
+    public function formatProjectUserAffiliation(Affiliation $affiliation, User $user, int $projectId, $idCounter): array
+    {
+        $matchingProjectUser = $user->registry->projectUsers
+            ->first(function ($projectUser) use ($projectId, $affiliation) {
+                return $projectUser->project_id == $projectId &&
+                    $projectUser->affiliation_id == $affiliation->id;
+            });
+
+        return [
+            'id' => $idCounter,
+            'project_user_id' => $matchingProjectUser?->id,
+            'user_id' => $user->id,
+            'registry_id' => $user->registry_id,
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'email' => $user->email,
+            'professional_email' => $affiliation->email,
+            'affiliation_id' => $affiliation->id,
+            'organisation_name' => $affiliation->organisation?->organisation_name,
+            'role' => $matchingProjectUser?->role,
+        ];
+    }
 
     /**
      * @OA\Get(
@@ -463,8 +488,91 @@ class ProjectController extends Controller
         return $this->OKResponse($projectUsers);
     }
 
+    /**
+     * @OA\Get(
+     *      path="/api/v1/projects/{projectId}/all_users/{userId}",
+     *      summary="Get all users by projectID and userID",
+     *      description="Fetches users for a project.",
+     *      tags={"Project"},
+     *      @OA\Parameter(
+     *          name="userId",
+     *          in="path",
+     *          required=true,
+     *          description="ID of the user",
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\Parameter(
+     *          name="projectId",
+     *          in="path",
+     *          required=true,
+     *          description="ID of the project",
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="array",
+     *                  @OA\Items(
+     *                      @OA\Property(property="id", type="integer", example=1),
+     *                      @OA\Property(property="project_user_id", type="integer", example=1),
+     *                      @OA\Property(property="user_id", type="integer", example=14),
+     *                      @OA\Property(property="registry_id", type="integer", example=5),
+     *                      @OA\Property(property="first_name", type="string", example="Harold"),
+     *                      @OA\Property(property="last_name", type="string", example="Ramis"),
+     *                      @OA\Property(property="professional_email", type="string", example="nlindgren@hotmail.com"),
+     *                      @OA\Property(property="affiliation_id", type="integer", example=6),
+     *                      @OA\Property(property="organisation_name", type="string", example="TANDY ENERGY LIMITED"),
+     *                      @OA\Property(property="role", type="integer", example=1),
+     *                  )
+     *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="Not authorised")
+     *          )
+     *      )
+     * )
+     */
+    public function getAllUsersFlagProjectByUserId(Request $request, int $projectId, int $userId)
+    {
+        $project = Project::find($projectId);
+
+        if (!Gate::allows('viewProjectUserDetails', $project)) {
+            return $this->ForbiddenResponse();
+        };
+
+        $user = User::where(['user_group' => User::GROUP_USERS, 'id' => $userId])
+            ->with([
+                'modelState',
+                'registry.affiliations',
+                'registry.affiliations.organisation',
+                'registry.projectUsers.role',
+                'registry.projectUsers.affiliation'
+            ])->first();
+
+        $idCounter = 1;
+
+        $expandedUser = $user->registry->affiliations->map(function ($affiliation) use ($user, $projectId, &$idCounter) {
+            return $this->formatProjectUserAffiliation($affiliation, $user, $projectId, $idCounter++);
+        });
+
+        return $this->OKResponse($expandedUser);
+    }
+
     public function getAllUsersFlagProject(Request $request, int $projectId): JsonResponse
     {
+        $project = Project::find($projectId);
+
+        if (!Gate::allows('viewProjectUserDetails', $project)) {
+            return $this->ForbiddenResponse();
+        };
+
         $users = User::searchViaRequest()
             ->where('user_group', User::GROUP_USERS)
             ->filterByState()
@@ -483,27 +591,7 @@ class ProjectController extends Controller
             // LS - Even though the return types match, phpstan sees them as not covariant.
             /** @phpstan-ignore-next-line */
             return $user->registry->affiliations->map(function ($affiliation) use ($user, $projectId, &$idCounter) {
-
-                $matchingProjectUser = $user->registry->projectUsers
-                    ->first(function ($projectUser) use ($projectId, $affiliation) {
-                        return $projectUser->project_id == $projectId &&
-                            $projectUser->affiliation_id == $affiliation->id;
-                    });
-
-
-                return [
-                    'id' => $idCounter++,
-                    'project_user_id' => $matchingProjectUser?->id,
-                    'user_id' => $user->id,
-                    'registry_id' => $user->registry_id,
-                    'first_name' => $user->first_name,
-                    'last_name' => $user->last_name,
-                    'email' => $user->email,
-                    'professional_email' => $affiliation->email,
-                    'affiliation_id' => $affiliation->id,
-                    'organisation_name' => $affiliation->organisation->organisation_name,
-                    'role' => $matchingProjectUser?->role,
-                ];
+                return $this->formatProjectUserAffiliation($affiliation, $user, $projectId, $idCounter++);
             });
         });
 

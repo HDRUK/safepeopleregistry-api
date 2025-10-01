@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\ValidationChecks\CreateValidationCheckRequest;
-use App\Http\Traits\Responses;
-use App\Models\Custodian;
-use App\Models\CustodianHasValidationCheck;
-use App\Models\ValidationCheck;
 use Exception;
-use Illuminate\Http\JsonResponse;
+use App\Models\Custodian;
 use Illuminate\Http\Request;
+use App\Http\Traits\Responses;
+use App\Models\ValidationCheck;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
+use App\Models\CustodianHasValidationCheck;
+use App\Http\Requests\ValidationChecks\DeleteValidationCheck;
+use App\Http\Requests\ValidationChecks\GetValidationCheck;
+use App\Http\Requests\ValidationChecks\UpdateValidationCheck;
+use App\Http\Requests\ValidationChecks\CreateValidationCheckRequest;
+use App\Http\Requests\ValidationChecks\GetByCustodianValidationCheck;
 
 class ValidationCheckController extends Controller
 {
@@ -58,13 +62,18 @@ class ValidationCheckController extends Controller
      *         @OA\JsonContent(ref="#/components/schemas/ValidationCheck")
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Invalid argument(s)",
+     *         @OA\JsonContent(@OA\Property(property="message", type="string", example="Invalid argument(s)"))
+     *     ),
+     *     @OA\Response(
      *         response=404,
      *         description="Validation check not found",
      *         @OA\JsonContent(@OA\Property(property="message", type="string", example="Validation check not found"))
      *     )
      * )
      */
-    public function show($id): JsonResponse
+    public function show(GetValidationCheck $request, int $id): JsonResponse
     {
         try {
             $check = ValidationCheck::find($id);
@@ -139,13 +148,18 @@ class ValidationCheckController extends Controller
      *         @OA\JsonContent(ref="#/components/schemas/ValidationCheck")
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Invalid argument(s)",
+     *         @OA\JsonContent(@OA\Property(property="message", type="string", example="Invalid argument(s)"))
+     *     ),
+     *     @OA\Response(
      *         response=404,
      *         description="Validation check not found",
      *         @OA\JsonContent(@OA\Property(property="message", type="string", example="Validation check not found"))
      *     )
      * )
      */
-    public function update(Request $request, $id): JsonResponse
+    public function update(UpdateValidationCheck $request, $id): JsonResponse
     {
         try {
             $input = $request->only(app(ValidationCheck::class)->getFillable());
@@ -183,13 +197,18 @@ class ValidationCheckController extends Controller
      *         @OA\JsonContent(@OA\Property(property="message", type="string", example="Validation check deleted"))
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Invalid argument(s)",
+     *         @OA\JsonContent(@OA\Property(property="message", type="string", example="Invalid argument(s)"))
+     *     ),
+     *     @OA\Response(
      *         response=404,
      *         description="Validation check not found",
      *         @OA\JsonContent(@OA\Property(property="message", type="string", example="Validation check not found"))
      *     )
      * )
      */
-    public function destroy($id): JsonResponse
+    public function destroy(DeleteValidationCheck $request, int $id): JsonResponse
     {
         try {
             $check = ValidationCheck::find($id);
@@ -225,13 +244,18 @@ class ValidationCheckController extends Controller
      *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/ValidationCheck"))
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Invalid argument(s)",
+     *         @OA\JsonContent(@OA\Property(property="message", type="string", example="Invalid argument(s)"))
+     *     ),
+     *     @OA\Response(
      *         response=404,
      *         description="Custodian not found",
      *         @OA\JsonContent(@OA\Property(property="message", type="string", example="Custodian not found"))
      *     )
      * )
      */
-    public function getCustodianValidationChecks($custodianId): JsonResponse
+    public function getCustodianValidationChecks(GetByCustodianValidationCheck $request, int $custodianId): JsonResponse
     {
         try {
             $custodian = Custodian::with('validationChecks')->find($custodianId);
