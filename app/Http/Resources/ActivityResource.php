@@ -36,8 +36,8 @@ class ActivityResource extends JsonResource
             'causer_id'    => $this->causer_id,
             'properties'   => $this->properties?->toArray() ?? [],
             'batch_uuid'   => $this->batch_uuid,
-            'causer'       => $this->whenLoaded('causer', fn () => $this->formatCauser()),
-            'subject'      => $this->whenLoaded('subject', fn () => $this->formatSubject()),
+            'causer'       => $this->whenLoaded('causer', fn () => $this->formatCauserSubject($this->causer)),
+            'subject'      => $this->whenLoaded('subject', fn () => $this->formatSubject($this->subject)),
             'created_at'   => optional($this->created_at)->toIso8601String(),
         ];
     }
@@ -47,60 +47,14 @@ class ActivityResource extends JsonResource
      * - Affiliation => collapse to registry.user (id, first_name, last_name)
      * - User / Organisation / ValidationLog => trimmed fields
      */
-    protected function formatSubject()
+    protected function formatCauserSubject($model): array|null
     {
-        $subject = $this->subject;
-
-        if ($subject instanceof Affiliation) {
-            $u = $subject->registry?->user;
-            return $u ? [
-                'id'         => $u->id,
-                'first_name' => $u->first_name,
-                'last_name'  => $u->last_name,
-            ] : null;
-        }
-
-        if ($subject instanceof User) {
-            return [
-                'id'         => $subject->id,
-                'first_name' => $subject->first_name,
-                'last_name'  => $subject->last_name,
-            ];
-        }
-
-        if ($subject instanceof Organisation) {
-            return [
-                'id'                => $subject->id,
-                'organisation_name' => $subject->organisation_name,
-            ];
-        }
-
-        if ($subject instanceof ValidationLog) {
-            return [
-                'id' => $subject->id,
-            ];
-        }
-
-        // Unknown or null subject
-        return null;
-    }
-
-    /**
-     * Causer formatting (mirrors subject rules but allows null).
-     * - null => null
-     * - Affiliation => collapse to registry.user (id, first_name, last_name)
-     * - User / Organisation / ValidationLog => trimmed fields
-     */
-    protected function formatCauser()
-    {
-        $causer = $this->causer;
-
-        if (is_null($causer)) {
+        if (is_null($model)) {
             return null;
         }
 
-        if ($causer instanceof Affiliation) {
-            $u = $causer->registry?->user;
+        if ($model instanceof Affiliation) {
+            $u = $model->registry?->user;
             return $u ? [
                 'id'         => $u->id,
                 'first_name' => $u->first_name,
@@ -108,28 +62,27 @@ class ActivityResource extends JsonResource
             ] : null;
         }
 
-        if ($causer instanceof User) {
+        if ($model instanceof User) {
             return [
-                'id'         => $causer->id,
-                'first_name' => $causer->first_name,
-                'last_name'  => $causer->last_name,
+                'id'         => $model->id,
+                'first_name' => $model->first_name,
+                'last_name'  => $model->last_name,
             ];
         }
 
-        if ($causer instanceof Organisation) {
+        if ($model instanceof Organisation) {
             return [
-                'id'                => $causer->id,
-                'organisation_name' => $causer->organisation_name,
+                'id'                => $model->id,
+                'organisation_name' => $model->organisation_name,
             ];
         }
 
-        if ($causer instanceof ValidationLog) {
+        if ($model instanceof ValidationLog) {
             return [
-                'id' => $causer->id,
+                'id' => $model->id,
             ];
         }
 
-        // Unknown causer type (shouldn’t happen if you filtered with ALLOWED_TYPES)
         return null;
     }
 }
