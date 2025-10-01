@@ -95,6 +95,7 @@ class AuditLogController extends Controller
             ->get();
 
         return $this->OKResponse($logs);
+        // trim the output
         // return ActivityResource::collection($logs);
     }
 
@@ -161,6 +162,7 @@ class AuditLogController extends Controller
             ->get();
 
         return $this->OKResponse($logs);
+        // trim the output
         // return ActivityResource::collection($logs);
     }
 }
