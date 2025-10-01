@@ -66,7 +66,7 @@ class AuditLogController extends Controller
                                 ->select(['id','registry_id'])
                                 ->with([
                                     'registry:id',
-                                    'registry.user:id,first_name,last_name,registry_id,status,evaluation',
+                                    'registry.user:id,first_name,last_name,registry_id,evaluation',
                                 ]),
                         ])->morphWith([
                             Affiliation::class => ['registry.user'],
@@ -83,7 +83,7 @@ class AuditLogController extends Controller
                                 ->select(['id','registry_id'])
                                 ->with([
                                     'registry:id',
-                                    'registry.user:id,first_name,last_name,registry_id,status,evaluation',
+                                    'registry.user:id,first_name,last_name,registry_id,evaluation',
                                 ]),
                         ])->morphWith([
                             Affiliation::class => ['registry.user'],
