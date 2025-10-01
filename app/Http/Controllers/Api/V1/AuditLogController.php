@@ -11,9 +11,10 @@ use App\Http\Traits\Responses;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use Spatie\Activitylog\Models\Activity;
+use App\Http\Resources\ActivityResource;
 use App\Http\Requests\AuditLog\GetUserHistory;
-use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 /**
  * @OA\Tag(
@@ -31,7 +32,7 @@ class AuditLogController extends Controller
         Affiliation::class,
     ];
 
-    public function showUserHistory(GetUserHistory $request, int $id): JsonResponse
+    public function showUserHistory(GetUserHistory $request, int $id)
     {
         $user = User::find($id);
 
@@ -65,7 +66,7 @@ class AuditLogController extends Controller
                                 ->select(['id','registry_id'])
                                 ->with([
                                     'registry:id',
-                                    'registry.user:id,first_name,last_name,registry_id',
+                                    'registry.user:id,first_name,last_name,registry_id,status,evaluation',
                                 ]),
                         ])->morphWith([
                             Affiliation::class => ['registry.user'],
@@ -82,7 +83,7 @@ class AuditLogController extends Controller
                                 ->select(['id','registry_id'])
                                 ->with([
                                     'registry:id',
-                                    'registry.user:id,first_name,last_name,registry_id',
+                                    'registry.user:id,first_name,last_name,registry_id,status,evaluation',
                                 ]),
                         ])->morphWith([
                             Affiliation::class => ['registry.user'],
@@ -94,9 +95,10 @@ class AuditLogController extends Controller
             ->get();
 
         return $this->OKResponse($logs);
+        // return ActivityResource::collection($logs);
     }
 
-    public function showOrganisationHistory(Request $request, int $id): JsonResponse
+    public function showOrganisationHistory(Request $request, int $id)
     {
         $organisation = Organisation::find($id);
 
@@ -159,5 +161,6 @@ class AuditLogController extends Controller
             ->get();
 
         return $this->OKResponse($logs);
+        // return ActivityResource::collection($logs);
     }
 }
