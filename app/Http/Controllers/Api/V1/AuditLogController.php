@@ -6,10 +6,12 @@ use App\Models\User;
 use App\Models\Organisation;
 use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
+use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use Spatie\Activitylog\Models\Activity;
 use App\Http\Requests\AuditLog\GetUserHistory;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
  * @OA\Tag(
@@ -20,6 +22,7 @@ use App\Http\Requests\AuditLog\GetUserHistory;
 class AuditLogController extends Controller
 {
     use Responses;
+    use CommonFunctions;
 
     public function showUserHistory(GetUserHistory $request, int $id): JsonResponse
     {
@@ -40,8 +43,12 @@ class AuditLogController extends Controller
                 });
             })
             ->with([
-                'causer:id,first_name,last_name',
-                'subject:id,first_name,last_name',
+                'causer' => fn (MorphTo $morphTo) => $morphTo->withTrashed()->morphWith([
+                    get_class($user) => ['id','first_name','last_name'],
+                ]),
+                'subject' => fn (MorphTo $morphTo) => $morphTo->withTrashed()->morphWith([
+                    get_class($user) => ['id','first_name','last_name'],
+                ]),
             ])
             ->orderBy('created_at', 'desc')
             ->get();
