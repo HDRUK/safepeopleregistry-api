@@ -10,9 +10,9 @@ use App\Models\ValidationLog;
 use App\Http\Traits\Responses;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Schema;
 use Spatie\Activitylog\Models\Activity;
 use App\Http\Requests\AuditLog\GetUserHistory;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
@@ -50,37 +50,44 @@ class AuditLogController extends Controller
                 });
             })
             ->whereHasMorph('subject', self::ALLOWED_TYPES)
-            ->whereHasMorph('causer', self::ALLOWED_TYPES)
+            ->where(function ($query) {
+                $query->whereNull('causer_type')
+                    ->orWhereHasMorph('causer', self::ALLOWED_TYPES);
+            })
             ->with([
-                'causer' => function (MorphTo $morphTo) {
-                    $morphTo->constrain([
-                        User::class         => fn ($q) => $q->select('id','first_name','last_name'),
-                        Organisation::class => fn ($q) => $q->select('id','organisation_name'),
-                        ValidationLog::class => fn ($q) => $q->select('id'),
-                        Affiliation::class  => fn ($q) => $q
-                            ->select(['id', 'registry_id'])
-                            ->with([
-                                'registry:id',
-                                'registry.user:id,first_name,last_name,registry_id',
-                            ]),
-                    ])->morphWith([
-                        Affiliation::class => ['registry.user'],
-                    ]);
+                'causer' => function (Relation $relation) {
+                    if ($relation instanceof MorphTo) {
+                        $relation->constrain([
+                            User::class         => fn ($q) => $q->select('id','first_name','last_name'),
+                            Organisation::class => fn ($q) => $q->select('id','organisation_name'),
+                            ValidationLog::class=> fn ($q) => $q->select('id'),
+                            Affiliation::class  => fn ($q) => $q
+                                ->select(['id','registry_id'])
+                                ->with([
+                                    'registry:id',
+                                    'registry.user:id,first_name,last_name,registry_id',
+                                ]),
+                        ])->morphWith([
+                            Affiliation::class => ['registry.user'],
+                        ]);
+                    }
                 },
-                'subject' => function (MorphTo $morphTo) {
-                    $morphTo->constrain([
-                        User::class         => fn ($q) => $q->select('id','first_name','last_name'),
-                        Organisation::class => fn ($q) => $q->select('id','organisation_name'),
-                        ValidationLog::class => fn ($q) => $q->select('id'),
-                        Affiliation::class  => fn ($q) => $q
-                            ->select(['id', 'registry_id'])
-                            ->with([
-                                'registry:id',
-                                'registry.user:id,first_name,last_name,registry_id',
-                            ]),
-                    ])->morphWith([
-                        Affiliation::class => ['registry.user'],
-                    ]);
+                'subject' => function (Relation $relation) {
+                    if ($relation instanceof MorphTo) {
+                        $relation->constrain([
+                            User::class         => fn ($q) => $q->select('id','first_name','last_name'),
+                            Organisation::class => fn ($q) => $q->select('id','organisation_name'),
+                            ValidationLog::class=> fn ($q) => $q->select('id'),
+                            Affiliation::class  => fn ($q) => $q
+                                ->select(['id','registry_id'])
+                                ->with([
+                                    'registry:id',
+                                    'registry.user:id,first_name,last_name,registry_id',
+                                ]),
+                        ])->morphWith([
+                            Affiliation::class => ['registry.user'],
+                        ]);
+                    }
                 },
             ])
             ->latest('created_at')
@@ -108,37 +115,44 @@ class AuditLogController extends Controller
                 });
             })
             ->whereHasMorph('subject', self::ALLOWED_TYPES)
-            ->whereHasMorph('causer', self::ALLOWED_TYPES)
+            ->where(function ($query) {
+                $query->whereNull('causer_type')
+                    ->orWhereHasMorph('causer', self::ALLOWED_TYPES);
+            })
             ->with([
-                'causer' => function (MorphTo $morphTo) {
-                    $morphTo->constrain([
-                        User::class         => fn ($q) => $q->select('id','first_name','last_name'),
-                        Organisation::class => fn ($q) => $q->select('id','organisation_name'),
-                        ValidationLog::class => fn ($q) => $q->select('id'),
-                        Affiliation::class  => fn ($q) => $q
-                            ->select(['id', 'registry_id'])
-                            ->with([
-                                'registry:id',
-                                'registry.user:id,first_name,last_name,registry_id',
-                            ]),
-                    ])->morphWith([
-                        Affiliation::class => ['registry.user'],
-                    ]);
+                'causer' => function (Relation $relation) {
+                    if ($relation instanceof MorphTo) {
+                        $relation->constrain([
+                            User::class         => fn ($q) => $q->select('id','first_name','last_name'),
+                            Organisation::class => fn ($q) => $q->select('id','organisation_name'),
+                            ValidationLog::class=> fn ($q) => $q->select('id'),
+                            Affiliation::class  => fn ($q) => $q
+                                ->select(['id','registry_id'])
+                                ->with([
+                                    'registry:id',
+                                    'registry.user:id,first_name,last_name,registry_id',
+                                ]),
+                        ])->morphWith([
+                            Affiliation::class => ['registry.user'],
+                        ]);
+                    }
                 },
-                'subject' => function (MorphTo $morphTo) {
-                    $morphTo->constrain([
-                        User::class         => fn ($q) => $q->select('id','first_name','last_name'),
-                        Organisation::class => fn ($q) => $q->select('id','organisation_name'),
-                        ValidationLog::class => fn ($q) => $q->select('id'),
-                        Affiliation::class  => fn ($q) => $q
-                            ->select(['id', 'registry_id'])
-                            ->with([
-                                'registry:id',
-                                'registry.user:id,first_name,last_name,registry_id',
-                            ]),
-                    ])->morphWith([
-                        Affiliation::class => ['registry.user'],
-                    ]);
+                'subject' => function (Relation $relation) {
+                    if ($relation instanceof MorphTo) {
+                        $relation->constrain([
+                            User::class         => fn ($q) => $q->select('id','first_name','last_name'),
+                            Organisation::class => fn ($q) => $q->select('id','organisation_name'),
+                            ValidationLog::class=> fn ($q) => $q->select('id'),
+                            Affiliation::class  => fn ($q) => $q
+                                ->select(['id','registry_id'])
+                                ->with([
+                                    'registry:id',
+                                    'registry.user:id,first_name,last_name,registry_id',
+                                ]),
+                        ])->morphWith([
+                            Affiliation::class => ['registry.user'],
+                        ]);
+                    }
                 },
             ])
             ->latest('created_at')
