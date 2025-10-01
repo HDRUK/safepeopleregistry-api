@@ -29,6 +29,23 @@ class AuditLogController extends Controller
             return $this->NotFoundResponse();
         }
 
+        // $logs = Activity::query()
+        //     ->where(function ($query) use ($user) {
+        //         $query->where(function ($q) use ($user) {
+        //             $q->where('subject_type', get_class($user))
+        //                 ->where('subject_id', $user->id);
+        //         })->orWhere(function ($q) use ($user) {
+        //             $q->where('causer_type', get_class($user))
+        //                 ->where('causer_id', $user->id);
+        //         });
+        //     })
+        //     ->with([
+        //         'causer:id,first_name,last_name',
+        //         'subject:id,first_name,last_name',
+        //     ])
+        //     ->orderBy('created_at', 'desc')
+        //     ->get();
+
         $logs = Activity::query()
             ->where(function ($query) use ($user) {
                 $query->where(function ($q) use ($user) {
@@ -40,10 +57,10 @@ class AuditLogController extends Controller
                 });
             })
             ->with([
-                'causer:id,first_name,last_name',
-                'subject:id,first_name,last_name',
+                'causer', 
+                'subject'
             ])
-            ->orderBy('created_at', 'desc')
+            ->latest('created_at')
             ->get();
 
         return $this->OKResponse($logs);
