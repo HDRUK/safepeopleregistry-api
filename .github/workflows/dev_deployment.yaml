@@ -4,7 +4,7 @@ run-name: ${{ github.actor }} triggered deploy to DEV pipeline
 on:
   push:
     branches:
-      - dev # override for branch deployment
+      - update-gcloud # override for branch deployment
 
 env:
   PROJECT_ID: '${{ secrets.PROJECT_ID }}'
@@ -26,7 +26,7 @@ jobs:
         id: checkout
         uses: actions/checkout@v4
         with:
-          ref: dev  # override for branch deployment
+          ref: update-gcloud  # override for branch deployment
 
       - name: Read VERSION file
         id: getversion
@@ -76,7 +76,7 @@ jobs:
         id: checkout
         uses: actions/checkout@v4
         with:
-          ref: dev # override for branch deployment
+          ref: update-gcloud # override for branch deployment
 
       - name: Google Auth
         id: auth
@@ -93,7 +93,7 @@ jobs:
             echo "version=$(sed '/.*\"\(.*\)\".*/ s//\1/g' version)" >> $GITHUB_OUTPUT
           
       - name: Deploy to Cloud Run
-        uses: actions-hub/gcloud@master
+        uses: actions-hub/gcloud@540.0.0
         id: deploy
         env:
           PROJECT_ID: ${{ secrets.PROJECT_ID }}
