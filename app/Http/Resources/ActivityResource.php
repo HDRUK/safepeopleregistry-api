@@ -37,7 +37,7 @@ class ActivityResource extends JsonResource
             'properties'   => $this->properties?->toArray() ?? [],
             'batch_uuid'   => $this->batch_uuid,
             'causer'       => $this->whenLoaded('causer', fn () => $this->formatCauserSubject($this->causer)),
-            'subject'      => $this->whenLoaded('subject', fn () => $this->formatSubject($this->subject)),
+            'subject'      => $this->whenLoaded('subject', fn () => $this->formatCauserSubject($this->subject)),
             'created_at'   => optional($this->created_at)->toIso8601String(),
         ];
     }
