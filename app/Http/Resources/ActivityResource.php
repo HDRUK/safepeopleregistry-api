@@ -9,6 +9,13 @@ use Illuminate\Http\Request;
 use App\Models\ValidationLog;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * Tell PHPStan that this resource “acts like” Activity,
+ * and that $resource is an Activity instance.
+ *
+ * @mixin \Spatie\Activitylog\Models\Activity
+ * @property-read \Spatie\Activitylog\Models\Activity $resource
+ */
 class ActivityResource extends JsonResource
 {
     /**

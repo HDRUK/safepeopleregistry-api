@@ -94,9 +94,9 @@ class AuditLogController extends Controller
             ->latest('created_at')
             ->get();
 
-        return $this->OKResponse($logs);
+        // return $this->OKResponse($logs);
         // trim the output
-        // return ActivityResource::collection($logs);
+        return ActivityResource::collection($logs);
     }
 
     public function showOrganisationHistory(Request $request, int $id)
@@ -161,8 +161,8 @@ class AuditLogController extends Controller
             ->latest('created_at')
             ->get();
 
-        return $this->OKResponse($logs);
+        // return $this->OKResponse($logs);
         // trim the output
-        // return ActivityResource::collection($logs);
+        return ActivityResource::collection($logs);
     }
 }
