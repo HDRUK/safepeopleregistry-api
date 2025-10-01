@@ -65,6 +65,12 @@ class ActionLog extends Model
 {
     use HasFactory;
 
+    public const ENTITY_MAP = [
+        'users'         => User::class,
+        'organisations' => Organisation::class,
+        'custodians'    => Custodian::class,
+    ];
+
     protected $table = 'action_logs';
 
     protected $fillable = [

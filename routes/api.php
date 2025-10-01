@@ -90,6 +90,7 @@ Route::middleware(['auth:api'])
         Route::put('/{id}', [UserController::class, 'update']);
         Route::put('/pending_invites/claim_email/{inviteCode}', [UserController::class, 'updateUserEmailByInviteCode']);
 
+        // the method not found in controller
         Route::patch('/{id}', [UserController::class, 'edit']);
         Route::delete('/{id}', [UserController::class, 'destroy']);
 
@@ -105,10 +106,9 @@ Route::middleware(['auth:api'])
 // --- ACTION LOGS ---
 Route::middleware('auth:api')
     ->prefix('v1')
-    ->controller(ActionLogController::class)
     ->group(function () {
-        Route::get('{entity}/{id}/action_log', 'getEntityActionLog');
-        Route::put('action_log/{id}', 'update');
+        Route::get('{entity}/{id}/action_log', [ActionLogController::class, 'getEntityActionLog']);
+        Route::put('action_log/{id}', [ActionLogController::class, 'update']);
     });
 
 
@@ -194,7 +194,7 @@ Route::middleware(['auth:api'])
         // Read
         Route::get('/', 'index');
         Route::get('/{id}', 'show');
-        Route::get('/identifier/{id}', 'showByUniqueIdentifier');
+        Route::get('/identifier/{uniqueIdentifier}', 'showByUniqueIdentifier');
         Route::get('/{id}/projects', 'getProjects');
         Route::get('/{id}/users/{userId}/projects', 'getUserProjects');
         Route::get('/{id}/organisations', 'getProjectsOrganisations');
@@ -212,6 +212,7 @@ Route::middleware(['auth:api'])
 
         // Update
         Route::put('/{id}', 'update');
+        // cannot find the method in this controller
         Route::patch('/{id}/rules', 'updateCustodianRules');
 
         // Delete

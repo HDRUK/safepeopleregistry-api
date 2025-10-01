@@ -10,8 +10,8 @@ use TriggerEmail;
 use App\Models\User;
 use App\Models\Project;
 use App\Models\Registry;
-use App\Models\PendingInvite;
 use Illuminate\Http\Request;
+use App\Models\PendingInvite;
 use Illuminate\Http\Response;
 use App\Http\Traits\Responses;
 use App\Models\EntityModelType;
@@ -20,10 +20,15 @@ use App\Traits\CheckPermissions;
 use Illuminate\Http\JsonResponse;
 use App\Models\UserHasDepartments;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Users\GetUser;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\Users\CreateUser;
+use App\Http\Requests\Users\DeleteUser;
+use App\Http\Requests\Users\UpdateUser;
 use RegistryManagementController as RMC;
 use App\Models\UserHasCustodianPermission;
+use App\Http\Requests\Users\GetUserProject;
+use App\Http\Requests\Users\CheckUserInviteCode;
 use App\Services\DecisionEvaluatorService as DES;
 
 class UserController extends Controller
@@ -209,17 +214,23 @@ class UserController extends Controller
      *      ),
      *
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          )
+     *      ),
+     *
+     *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
      * )
      */
-    public function show(Request $request, int $id): JsonResponse
+    public function show(GetUser $request, int $id): JsonResponse
     {
         try {
             $this->decisionEvaluator = new DES($request, [EntityModelType::USER_VALIDATION_RULES]);
@@ -509,21 +520,25 @@ class UserController extends Controller
      *      ),
      *
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          )
+     *      ),
+     *
+     *      @OA\Response(
      *          response=500,
      *          description="Error",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
      * )
      */
-    public function update(Request $request, int $id): JsonResponse
+    public function update(UpdateUser $request, int $id): JsonResponse
     {
         try {
-
-
             $input = $request->all();
 
             $user = User::where('id', $id)->first();
@@ -577,7 +592,7 @@ class UserController extends Controller
         }
     }
 
-    public function getPendingInviteByInviteCode(Request $request, String $inviteCode): JsonResponse
+    public function getPendingInviteByInviteCode(CheckUserInviteCode $request, String $inviteCode): JsonResponse
     {
         try {
             $pendingInvite = PendingInvite::where('invite_code', $inviteCode)->first();
@@ -592,7 +607,7 @@ class UserController extends Controller
         }
     }
 
-    public function updateUserEmailByInviteCode(Request $request, string $inviteCode): JsonResponse
+    public function updateUserEmailByInviteCode(CheckUserInviteCode $request, string $inviteCode): JsonResponse
     {
         try {
             $input = $request->only(['email']);
@@ -652,7 +667,6 @@ class UserController extends Controller
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="not found")
      *           ),
@@ -661,23 +675,29 @@ class UserController extends Controller
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="success")
      *          ),
      *      ),
      *
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          )
+     *      ),
+     *
+     *      @OA\Response(
      *          response=500,
      *          description="Error",
-     *
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
      * )
      */
-    public function destroy(Request $request, int $id): JsonResponse
+    public function destroy(DeleteUser $request, int $id): JsonResponse
     {
         try {
             $user = User::findOrFail($id);
@@ -754,7 +774,7 @@ class UserController extends Controller
         }
     }
 
-    public function userProjects(Request $request, int $id): JsonResponse
+    public function userProjects(GetUserProject $request, int $id): JsonResponse
     {
         $user = User::with('registry')->findOrFail($id);
 

@@ -31,7 +31,14 @@ use App\Models\CustodianWebhookReceiver;
 use RegistryManagementController as RMC;
 use App\Models\CustodianUserHasPermission;
 use App\Models\CustodianHasValidationCheck;
+use App\Http\Requests\Custodians\GetCustodian;
 use App\Models\CustodianHasProjectOrganisation;
+use App\Http\Requests\Custodians\GetUserProject;
+use App\Http\Requests\Custodians\DeleteCustodian;
+use App\Http\Requests\Custodians\GetStatusAndUser;
+use App\Http\Requests\Custodians\GetOrganisationUser;
+use App\Http\Requests\Custodians\GetProjectsByCustodian;
+use App\Http\Requests\Custodians\GetCustodianByUniqueIdentifier;
 
 /**
  * @OA\Tag(
@@ -117,6 +124,13 @@ class CustodianController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Not found response",
      *          @OA\JsonContent(
@@ -125,7 +139,7 @@ class CustodianController extends Controller
      *      )
      * )
      */
-    public function show(Request $request, int $id): JsonResponse
+    public function show(GetCustodian $request, int $id): JsonResponse
     {
         if (!Gate::allows('viewAny', Custodian::class)) {
             return $this->ForbiddenResponse();
@@ -175,6 +189,13 @@ class CustodianController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Not found response",
      *          @OA\JsonContent(
@@ -183,9 +204,9 @@ class CustodianController extends Controller
      *      )
      * )
      */
-    public function showByUniqueIdentifier(Request $request, string $id): JsonResponse
+    public function showByUniqueIdentifier(GetCustodianByUniqueIdentifier $request, string $uniqueIdentifier): JsonResponse
     {
-        $custodian = Custodian::where('unique_identifier', $id)->first();
+        $custodian = Custodian::where('unique_identifier', $uniqueIdentifier)->first();
         if ($custodian) {
             return response()->json([
                 'message' => 'success',
@@ -305,6 +326,13 @@ class CustodianController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          ),
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Not found response",
      *          @OA\JsonContent(
@@ -330,7 +358,7 @@ class CustodianController extends Controller
      *      )
      * )
      */
-    public function update(Request $request, int $id): JsonResponse
+    public function update(GetCustodian $request, int $id): JsonResponse
     {
         try {
             $input = $request->only(app(Custodian::class)->getFillable());
@@ -379,6 +407,13 @@ class CustodianController extends Controller
      *         ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *           ),
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Not found response",
      *          @OA\JsonContent(
@@ -401,7 +436,7 @@ class CustodianController extends Controller
      *      )
      * )
      */
-    public function destroy(Request $request, int $id): JsonResponse
+    public function destroy(DeleteCustodian $request, int $id): JsonResponse
     {
         try {
             $custodian = Custodian::findOrFail((int)$id);
@@ -546,6 +581,13 @@ class CustodianController extends Controller
      *          )
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Custodian not found",
      *          @OA\JsonContent(
@@ -554,7 +596,7 @@ class CustodianController extends Controller
      *      )
      * )
      */
-    public function getProjects(Request $request, int $custodianId): JsonResponse
+    public function getProjects(GetProjectsByCustodian $request, int $custodianId): JsonResponse
     {
         $custodian = Custodian::findOrFail($custodianId);
         if (! Gate::allows('viewDetailed', $custodian)) {
@@ -609,6 +651,13 @@ class CustodianController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=500,
      *          description="Error",
      *          @OA\JsonContent(
@@ -617,7 +666,7 @@ class CustodianController extends Controller
      *      )
      * )
      */
-    public function addProject(Request $request, int $custodianId): JsonResponse
+    public function addProject(GetCustodian $request, int $custodianId): JsonResponse
     {
         try {
             $input = $request->only(app(Project::class)->getFillable());
@@ -689,6 +738,13 @@ class CustodianController extends Controller
      *          )
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="User not found",
      *          @OA\JsonContent(
@@ -697,7 +753,7 @@ class CustodianController extends Controller
      *      )
      * )
      */
-    public function getUserProjects(Request $request, int $custodianId, int $userId): JsonResponse
+    public function getUserProjects(GetUserProject $request, int $custodianId, int $userId): JsonResponse
     {
         $user = User::with('registry')->find($userId);
 
@@ -858,6 +914,13 @@ class CustodianController extends Controller
      *          )
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Custodian not found",
      *          @OA\JsonContent(
@@ -867,7 +930,7 @@ class CustodianController extends Controller
      * )
      */
 
-    public function getProjectsUsers(Request $request, int $custodianId): JsonResponse
+    public function getProjectsUsers(GetCustodian $request, int $custodianId): JsonResponse
     {
         $custodian = Custodian::findOrFail($custodianId);
         if (! Gate::allows('viewDetailed', $custodian)) {
@@ -911,9 +974,7 @@ class CustodianController extends Controller
         return $this->OKResponse($projectUsers);
     }
 
-
-
-    public function getProjectsOrganisations(Request $request, int $custodianId): JsonResponse
+    public function getProjectsOrganisations(GetCustodian $request, int $custodianId): JsonResponse
     {
         $custodian = Custodian::findOrFail($custodianId);
         if (! Gate::allows('viewDetailed', $custodian)) {
@@ -980,6 +1041,14 @@ class CustodianController extends Controller
      *          )
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Custodian not found",
      *          @OA\JsonContent(
@@ -989,7 +1058,7 @@ class CustodianController extends Controller
      *      )
      * )
      */
-    public function getRules(Request $request, int $custodianId): JsonResponse
+    public function getRules(GetCustodian $request, int $custodianId): JsonResponse
     {
 
         $custodian = Custodian::with('rules')->find($custodianId);
@@ -1029,6 +1098,14 @@ class CustodianController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Custodian users not found",
      *          @OA\JsonContent(
@@ -1038,9 +1115,8 @@ class CustodianController extends Controller
      *      )
      * )
      */
-    public function getCustodianUsers(Request $request, int $custodianId): JsonResponse
+    public function getCustodianUsers(GetCustodian $request, int $custodianId): JsonResponse
     {
-
         $users = CustodianUser::searchViaRequest()->where('custodian_id', $custodianId)
             ->applySorting()->with("userPermissions.permission")
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
@@ -1085,6 +1161,14 @@ class CustodianController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Organisation users not found",
      *          @OA\JsonContent(
@@ -1094,7 +1178,7 @@ class CustodianController extends Controller
      *      )
      * )
      */
-    public function getOrganisationUsers(Request $request, int $custodianId, int $organisationId): JsonResponse
+    public function getOrganisationUsers(GetOrganisationUser $request, int $custodianId, int $organisationId): JsonResponse
     {
         $users = User::searchViaRequest()
                     ->applySorting()
@@ -1117,7 +1201,7 @@ class CustodianController extends Controller
     }
 
     //Hide from swagger docs
-    public function invite(Request $request, int $id): JsonResponse
+    public function invite(GetCustodian $request, int $id): JsonResponse
     {
         try {
             $custodian = Custodian::where('id', $id)->first();
@@ -1251,6 +1335,14 @@ class CustodianController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Organisation users not found",
      *          @OA\JsonContent(
@@ -1260,7 +1352,7 @@ class CustodianController extends Controller
      *      )
      * )
      */
-    public function getStatusesUsers(Request $request, int $custodianId, int $projectUserId): JsonResponse
+    public function getStatusesUsers(GetStatusAndUser $request, int $custodianId, int $projectUserId): JsonResponse
     {
         $projectStatus = $this->getProjectStatus($custodianId, $projectUserId);
         $organisationStatus = $this->getOrganisationStatus($custodianId, $projectUserId);

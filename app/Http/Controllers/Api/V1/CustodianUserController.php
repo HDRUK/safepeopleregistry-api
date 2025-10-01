@@ -3,16 +3,20 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Hash;
-use Exception;
 use Keycloak;
+use Exception;
 use TriggerEmail;
-use RegistryManagementController as RMC;
-use App\Http\Controllers\Controller;
-use App\Models\CustodianUser;
-use App\Models\CustodianUserHasPermission;
 use App\Models\Permission;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Models\CustodianUser;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
+use RegistryManagementController as RMC;
+use App\Models\CustodianUserHasPermission;
+use App\Http\Requests\CustodianUsers\GetCustodianUser;
+use App\Http\Requests\CustodianUsers\DeleteCustodianUser;
+use App\Http\Requests\CustodianUsers\InviteCustodianUser;
+use App\Http\Requests\CustodianUsers\UpdateCustodianUser;
 
 class CustodianUserController extends Controller
 {
@@ -97,6 +101,13 @@ class CustodianUserController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Not found response",
      *          @OA\JsonContent(
@@ -105,7 +116,7 @@ class CustodianUserController extends Controller
      *      )
      * )
      */
-    public function show(Request $request, int $id): JsonResponse
+    public function show(GetCustodianUser $request, int $id): JsonResponse
     {
         $user = CustodianUser::where('id', $id)->first();
 
@@ -232,6 +243,13 @@ class CustodianUserController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=500,
      *          description="Error",
      *          @OA\JsonContent(
@@ -240,7 +258,7 @@ class CustodianUserController extends Controller
      *      )
      * )
      */
-    public function update(Request $request, int $id): JsonResponse
+    public function update(UpdateCustodianUser $request, int $id): JsonResponse
     {
         try {
             $input = $request->all();
@@ -286,7 +304,7 @@ class CustodianUserController extends Controller
     }
 
     //Hide from swagger docs
-    public function invite(Request $request, int $id): JsonResponse
+    public function invite(InviteCustodianUser $request, int $id): JsonResponse
     {
         try {
             $user = CustodianUser::where('id', $id)->first();
@@ -353,6 +371,13 @@ class CustodianUserController extends Controller
      *         ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *           ),
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Not found response",
      *          @OA\JsonContent(
@@ -375,7 +400,7 @@ class CustodianUserController extends Controller
      *      )
      * )
      */
-    public function destroy(Request $request, int $id): JsonResponse
+    public function destroy(DeleteCustodianUser $request, int $id): JsonResponse
     {
         try {
             $user = CustodianUser::where('id', $id)->first();

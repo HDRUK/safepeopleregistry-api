@@ -3,18 +3,23 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Exception;
-use App\Http\Controllers\Controller;
 use App\Models\File;
+use App\Models\Registry;
 use App\Models\Training;
-use App\Models\TrainingHasFile;
-use App\Models\RegistryHasTraining;
-use App\Traits\CommonFunctions;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
-use App\Http\Requests\Training\CreateTraining;
-use App\Models\Registry;
+use App\Models\TrainingHasFile;
+use App\Traits\CommonFunctions;
+use Illuminate\Http\JsonResponse;
+use App\Models\RegistryHasTraining;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
+use App\Http\Requests\Training\GetTraining;
+use App\Http\Requests\Training\CreateTraining;
+use App\Http\Requests\Training\DeleteTraining;
+use App\Http\Requests\Training\UpdateTraining;
+use App\Http\Requests\Training\GetTrainingByRegistry;
+use App\Http\Requests\Training\GetLinkTrainingAndFile;
 
 class TrainingController extends Controller
 {
@@ -88,6 +93,13 @@ class TrainingController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Not found response",
      *          @OA\JsonContent(
@@ -96,7 +108,7 @@ class TrainingController extends Controller
      *      )
      * )
      */
-    public function indexByRegistryId(Request $request, int $registryId): JsonResponse
+    public function indexByRegistryId(GetTrainingByRegistry $request, int $registryId): JsonResponse
     {
         $registry = Registry::findOrFail($registryId);
         if (!Gate::allows('view', $registry)) {
@@ -142,6 +154,13 @@ class TrainingController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Not found response",
      *          @OA\JsonContent(
@@ -150,7 +169,7 @@ class TrainingController extends Controller
      *      )
      * )
      */
-    public function show(Request $request, int $id): JsonResponse
+    public function show(GetTraining $request, int $id): JsonResponse
     {
         $training = Training::with('files')
             ->where('id', $id)->first();
@@ -243,6 +262,13 @@ class TrainingController extends Controller
      *          ref="#/components/schemas/Training"
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          ),
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Not found response",
      *          @OA\JsonContent(
@@ -268,7 +294,7 @@ class TrainingController extends Controller
      *      )
      * )
      */
-    public function update(Request $request, int $id): JsonResponse
+    public function update(UpdateTraining $request, int $id): JsonResponse
     {
         try {
             $input = $request->only(app(Training::class)->getFillable());
@@ -282,7 +308,7 @@ class TrainingController extends Controller
     }
 
     //Hide from swagger
-    public function destroy(Request $request, int $id): JsonResponse
+    public function destroy(DeleteTraining $request, int $id): JsonResponse
     {
         try {
             $training = Training::with('files')
@@ -316,7 +342,7 @@ class TrainingController extends Controller
         }
     }
 
-    public function linkTrainingFile(Request $request, int $trainingId, int $fileId): JsonResponse
+    public function linkTrainingFile(GetLinkTrainingAndFile $request, int $trainingId, int $fileId): JsonResponse
     {
         try {
             $training = Training::where('id', $trainingId)->first();

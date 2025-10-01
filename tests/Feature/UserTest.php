@@ -3,14 +3,18 @@
 namespace Tests\Feature;
 
 use Http;
-use RegistryManagementController as RMC;
-use KeycloakGuard\ActingAsKeycloakUser;
+use Carbon\Carbon;
+use Tests\TestCase;
 use App\Models\User;
 use App\Models\State;
+use App\Models\Project;
+use App\Models\Registry;
+use App\Models\Affiliation;
 use Illuminate\Support\Str;
-use Tests\TestCase;
+use App\Models\ProjectHasUser;
 use Tests\Traits\Authorisation;
-use Carbon\Carbon;
+use KeycloakGuard\ActingAsKeycloakUser;
+use RegistryManagementController as RMC;
 
 class UserTest extends TestCase
 {
@@ -340,7 +344,7 @@ class UserTest extends TestCase
         $response->assertStatus(400);
     }
 
-    public function test_the_application_can_update_users(): void
+    public function test_the_application_can_update_users_with_success(): void
     {
         $this->withTemporaryObservers(function () {
 
@@ -424,6 +428,71 @@ class UserTest extends TestCase
         });
     }
 
+    public function test_the_application_can_update_users_with_no_success(): void
+    {
+        $this->withTemporaryObservers(function () {
+
+            Carbon::setTestNow(Carbon::now());
+            $response = $this->actingAs($this->admin)
+                ->json(
+                    'POST',
+                    self::TEST_URL,
+                    [
+                        'first_name' => fake()->firstname(),
+                        'last_name' => fake()->lastname(),
+                        'email' => fake()->email(),
+                        'provider' => fake()->word(),
+                        'provider_sub' => Str::random(10),
+                        'consent_scrape' => true,
+                        'public_opt_in' => false,
+                        'declaration_signed' => false,
+                        'organisation_id' => 1,
+                        'orc_id' => fake()->numerify('####-####-####-####'),
+                    ]
+                );
+
+            $response->assertStatus(201);
+            $this->assertArrayHasKey('data', $response);
+
+            $content = $response->decodeResponseJson()['data'];
+            $this->assertGreaterThan(0, $content);
+
+            $response = $this->actingAs($this->admin)
+                ->json(
+                    'GET',
+                    self::TEST_URL . '/' . $content . '/action_log'
+                );
+
+            $response->assertStatus(200);
+            $responseData = $response['data'];
+            $actionLog = collect($responseData)
+                ->firstWhere('action', User::ACTION_PROFILE_COMPLETED);
+
+            $this->assertNull($actionLog['completed_at']);
+
+            $latestUserId = User::query()->orderBy('id', 'desc')->first();
+            $userIdTest = $latestUserId->id + 1;
+
+            $responseUpdate = $this->actingAs($this->admin)
+                ->json(
+                    'PUT',
+                    self::TEST_URL . '/' . $userIdTest,
+                    [
+                        'first_name' => 'Updated',
+                        'last_name' => 'Name',
+                        'email' => fake()->email(),
+                        'declaration_signed' => true,
+                        'organisation_id' => 2,
+                        'location' => 1
+                    ]
+                );
+
+            $responseUpdate->assertStatus(400);
+            $message = $responseUpdate->decodeResponseJson()['message'];
+
+            $this->assertEquals('Invalid argument(s)', $message);
+        });
+    }
 
     public function test_the_application_can_complete_action_log_for_profile(): void
     {
@@ -505,8 +574,7 @@ class UserTest extends TestCase
         });
     }
 
-
-    public function test_the_application_can_delete_users(): void
+    public function test_the_application_can_delete_users_with_success(): void
     {
         $response = $this->actingAs($this->admin)
             ->json(
@@ -536,6 +604,23 @@ class UserTest extends TestCase
             );
 
         $response->assertStatus(200);
+    }
+
+    public function test_the_application_can_delete_users_with_no_success(): void
+    {
+        $latestUserId = User::query()->orderBy('id', 'desc')->first();
+        $userIdTest = $latestUserId->id + 1;
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'DELETE',
+                self::TEST_URL . '/' . $userIdTest
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 
     public function test_the_application_can_search_across_affiliations_by_name_and_email(): void
@@ -610,5 +695,120 @@ class UserTest extends TestCase
         $content = $response->decodeResponseJson();
         $this->assertTrue($content['data']['data'][0]['email'] === $user->email);
         $this->assertTrue($user->getState() === State::STATE_PENDING);
+    }
+
+    public function test_the_application_can_get_user_based_on_id_with_success(): void
+    {
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
+                    'first_name' => fake()->firstname(),
+                    'last_name' => fake()->lastname(),
+                    'email' => fake()->email(),
+                    'provider' => fake()->word(),
+                    'provider_sub' => Str::random(10),
+                    'public_opt_in' => fake()->randomElement([0, 1]),
+                    'declaration_signed' => fake()->randomElement([0, 1]),
+                ]
+            );
+
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
+
+        $userId = $response->decodeResponseJson()['data'];
+        $this->assertGreaterThan(0, $userId);
+
+        $responseUser = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $userId // One of the researchers
+            );
+
+        $responseUser->assertStatus(200);
+        $contentUser = $responseUser->decodeResponseJson()['data'];
+        $this->assertGreaterThan(1, count($contentUser));
+    }
+
+    public function test_the_application_can_get_user_based_on_id_with_no_success(): void
+    {
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
+                    'first_name' => fake()->firstname(),
+                    'last_name' => fake()->lastname(),
+                    'email' => fake()->email(),
+                    'provider' => fake()->word(),
+                    'provider_sub' => Str::random(10),
+                    'public_opt_in' => fake()->randomElement([0, 1]),
+                    'declaration_signed' => fake()->randomElement([0, 1]),
+                ]
+            );
+
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
+
+        $userId = $response->decodeResponseJson()['data'];
+        $this->assertGreaterThan(0, $userId);
+
+        $latestUserId = User::query()->orderBy('id', 'desc')->first();
+        $userIdTest = $latestUserId->id + 1;
+
+        $responseUser = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $userIdTest // One of the researchers
+            );
+
+        $responseUser->assertStatus(400);
+        $message = $responseUser->decodeResponseJson()['message'];
+
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_list_projects_by_user_with_success(): void
+    {
+        $registry = Registry::first();
+        $digi_ident = $registry->digi_ident;
+
+        $project = Project::first();
+        $projectId = $project->id;
+
+        $user = User::where('registry_id', $registry->id)->first();
+
+        ProjectHasUser::create([
+            'project_id' => $projectId,
+            'user_digital_ident' => $digi_ident,
+            'project_role_id' => 6,
+            'affiliation_id' => Affiliation::where('organisation_id', 2)->first()->id
+        ]);
+
+        $responseUser = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $user->id . '/projects' // One of the researchers
+            );
+
+        $responseUser->assertStatus(200);
+    }
+
+    public function test_the_application_list_projects_by_user_with_no_success(): void
+    {
+        $latestUserId = User::query()->orderBy('id', 'desc')->first();
+        $userIdTest = $latestUserId->id + 1;
+
+        $responseUser = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $userIdTest . '/projects' // One of the researchers
+            );
+
+        $responseUser->assertStatus(400);
+        $message = $responseUser->decodeResponseJson()['message'];
+
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 }

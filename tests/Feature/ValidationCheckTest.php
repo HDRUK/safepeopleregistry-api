@@ -42,14 +42,17 @@ class ValidationCheckTest extends TestCase
             ]);
     }
 
-    public function test_it_returns_404_when_showing_missing_validation_check()
+    public function test_it_cannot_show_a_single_validation_check()
     {
-        $response = $this->getJson(self::TEST_URL . "/999");
+        ValidationCheck::factory()->create();
+        $validationCheck = ValidationCheck::query()->orderBy('id', 'desc')->first();
+        $validationCheckIdTest = $validationCheck->id + 1;
 
-        $response->assertNotFound()
-            ->assertJson([
-                'message' => 'not found',
-            ]);
+        $response = $this->getJson(self::TEST_URL . "/{$validationCheckIdTest}");
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 
     public function test_it_can_create_a_validation_check()
@@ -99,19 +102,27 @@ class ValidationCheckTest extends TestCase
         $this->assertDatabaseHas('validation_checks', $payload);
     }
 
-    public function test_it_returns_404_when_updating_missing_validation_check()
+    public function test_it_cannot_update_a_validation_check()
     {
+        $check = ValidationCheck::factory()->create([
+            'name' => 'original_name',
+            'description' => 'original_description',
+            'applies_to' => ProjectHasUser::class,
+        ]);
+
         $payload = [
-            'name' => 'irrelevant',
-            'description' => 'irrelevant',
+            'name' => 'updated_name',
+            'description' => 'updated_description',
         ];
 
-        $response = $this->putJson(self::TEST_URL . "/999", $payload);
+        $validationCheck = ValidationCheck::query()->orderBy('id', 'desc')->first();
+        $validationCheckIdTest = $validationCheck->id + 1;
 
-        $response->assertNotFound()
-            ->assertJson([
-                'message' => 'not found',
-            ]);
+        $response = $this->putJson(self::TEST_URL . "/{$validationCheckIdTest}", $payload);
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 
     public function test_it_can_delete_a_validation_check()
@@ -124,13 +135,17 @@ class ValidationCheckTest extends TestCase
         $this->assertDatabaseMissing('validation_checks', ['id' => $check->id]);
     }
 
-    public function test_it_returns_404_when_deleting_missing_validation_check()
+    public function test_it_cannot_delete_a_validation_check()
     {
-        $response = $this->deleteJson(self::TEST_URL . "/999");
+        $check = ValidationCheck::factory()->create();
 
-        $response->assertNotFound()
-            ->assertJson([
-                'message' => 'not found',
-            ]);
+        $validationCheck = ValidationCheck::query()->orderBy('id', 'desc')->first();
+        $validationCheckIdTest = $validationCheck->id + 1;
+
+        $response = $this->deleteJson(self::TEST_URL . "/{$validationCheckIdTest}");
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 }
