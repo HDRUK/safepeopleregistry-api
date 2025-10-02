@@ -442,6 +442,8 @@ class AffiliationController extends Controller
             if (is_null($affiliation)) {
                 return $this->NotFoundResponse();
             }
+            
+            $affiliation->setState(State::STATE_AFFILIATION_PENDING);
 
             $array = [
                 'verification_code' => null,
@@ -451,7 +453,7 @@ class AffiliationController extends Controller
 
             Affiliation::where('id', $affiliation->id)->update($array);
 
-            return $this->OKResponse($affiliation);
+            return $this->OKResponse($updatedAffiliation);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
