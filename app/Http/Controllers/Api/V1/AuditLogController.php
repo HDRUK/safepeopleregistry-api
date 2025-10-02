@@ -15,6 +15,7 @@ use App\Http\Resources\ActivityResource;
 use App\Http\Requests\AuditLog\GetUserHistory;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use App\Http\Requests\AuditLog\GetOrganisationHistory;
 
 /**
  * @OA\Tag(
@@ -66,7 +67,7 @@ class AuditLogController extends Controller
                                 ->select(['id','registry_id'])
                                 ->with([
                                     'registry:id',
-                                    'registry.user:id,first_name,last_name,registry_id,evaluation',
+                                    'registry.user:id,first_name,last_name,registry_id',
                                 ]),
                         ])->morphWith([
                             Affiliation::class => ['registry.user'],
@@ -99,7 +100,7 @@ class AuditLogController extends Controller
         return ActivityResource::collection($logs);
     }
 
-    public function showOrganisationHistory(Request $request, int $id)
+    public function showOrganisationHistory(GetOrganisationHistory $request, int $id)
     {
         $organisation = Organisation::find($id);
 
