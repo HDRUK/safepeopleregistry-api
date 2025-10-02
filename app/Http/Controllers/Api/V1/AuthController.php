@@ -47,27 +47,29 @@ class AuthController extends Controller
         $response = Keycloak::getUserInfo($request->headers->get('Authorization'));
         $payload = $response->json();
 
-        $user = RMC::createNewUser($payload, $request);
+        $createdUser = RMC::createNewUser($payload, $request);
 
-        if ($user) {
+        if ($createdUser) {
+            $userId = isset($createdUser['unclaimed_user_id']) ? $createdUser['unclaimed_user_id'] : $createdUser['user_id'];
+
+            $user = User::where('id', $userId)->first();
+
             $user->setState(State::STATE_REGISTERED);
 
-            if (isset($user['unclaimed_user_id'])) {
-                $unclaimedUser = User::where('id', $user['unclaimed_user_id'])->first();
-
-                $pendingInvite = $this->acceptInvite($user['unclaimed_user_id']);
+            if (isset($createdUser['unclaimed_user_id'])) {
+                $pendingInvite = $this->acceptInvite($createdUser['unclaimed_user_id']);
 
                 if ($pendingInvite) {
-                    $registryId = $unclaimedUser->registry_id;
+                    $registryId = $user->registry_id;
                     $organisationId = $pendingInvite->organisation_id;
-                    $email = $unclaimedUser->email;
+                    $email = $user->email;
 
                     $existingAffiliation = Affiliation::where('organisation_id', $organisationId)
                         ->where('email', $email)
                         ->where('registry_id', $registryId)
                         ->first();
 
-                    if (!$existingAffiliation && $unclaimedUser->user_group === User::GROUP_USERS) {
+                    if (!$existingAffiliation && $user->user_group === User::GROUP_USERS) {
                         Affiliation::create([
                             'organisation_id' => $organisationId,
                             'member_id' => '',
@@ -86,7 +88,7 @@ class AuthController extends Controller
 
                 return response()->json([
                     'message' => 'success',
-                    'data' => $unclaimedUser,
+                    'data' => $user,
                 ], 201);
             }
 
