@@ -5,10 +5,8 @@ namespace App\Http\Controllers\Api\V1;
 use App\Models\User;
 use App\Models\Affiliation;
 use App\Models\Organisation;
-use Illuminate\Http\Request;
 use App\Models\ValidationLog;
 use App\Http\Traits\Responses;
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use Spatie\Activitylog\Models\Activity;
 use App\Http\Resources\ActivityResource;
@@ -60,9 +58,9 @@ class AuditLogController extends Controller
                 'causer' => function (Relation $relation) {
                     if ($relation instanceof MorphTo) {
                         $relation->constrain([
-                            User::class         => fn ($q) => $q->select('id','first_name','last_name'),
-                            Organisation::class => fn ($q) => $q->select('id','organisation_name'),
-                            ValidationLog::class=> fn ($q) => $q->select('id'),
+                            User::class         => fn ($q) => $q->select('id', 'first_name', 'last_name'),
+                            Organisation::class => fn ($q) => $q->select('id', 'organisation_name'),
+                            ValidationLog::class => fn ($q) => $q->select('id'),
                             Affiliation::class  => fn ($q) => $q
                                 ->select(['id','registry_id'])
                                 ->with([
@@ -77,9 +75,9 @@ class AuditLogController extends Controller
                 'subject' => function (Relation $relation) {
                     if ($relation instanceof MorphTo) {
                         $relation->constrain([
-                            User::class         => fn ($q) => $q->select('id','first_name','last_name'),
-                            Organisation::class => fn ($q) => $q->select('id','organisation_name'),
-                            ValidationLog::class=> fn ($q) => $q->select('id'),
+                            User::class         => fn ($q) => $q->select('id', 'first_name', 'last_name'),
+                            Organisation::class => fn ($q) => $q->select('id', 'organisation_name'),
+                            ValidationLog::class => fn ($q) => $q->select('id'),
                             Affiliation::class  => fn ($q) => $q
                                 ->select(['id','registry_id'])
                                 ->with([
@@ -127,9 +125,9 @@ class AuditLogController extends Controller
                 'causer' => function (Relation $relation) {
                     if ($relation instanceof MorphTo) {
                         $relation->constrain([
-                            User::class         => fn ($q) => $q->select('id','first_name','last_name'),
-                            Organisation::class => fn ($q) => $q->select('id','organisation_name'),
-                            ValidationLog::class=> fn ($q) => $q->select('id'),
+                            User::class         => fn ($q) => $q->select('id', 'first_name', 'last_name'),
+                            Organisation::class => fn ($q) => $q->select('id', 'organisation_name'),
+                            ValidationLog::class => fn ($q) => $q->select('id'),
                             Affiliation::class  => fn ($q) => $q
                                 ->select(['id','registry_id'])
                                 ->with([
@@ -144,9 +142,9 @@ class AuditLogController extends Controller
                 'subject' => function (Relation $relation) {
                     if ($relation instanceof MorphTo) {
                         $relation->constrain([
-                            User::class         => fn ($q) => $q->select('id','first_name','last_name'),
-                            Organisation::class => fn ($q) => $q->select('id','organisation_name'),
-                            ValidationLog::class=> fn ($q) => $q->select('id'),
+                            User::class         => fn ($q) => $q->select('id', 'first_name', 'last_name'),
+                            Organisation::class => fn ($q) => $q->select('id', 'organisation_name'),
+                            ValidationLog::class => fn ($q) => $q->select('id'),
                             Affiliation::class  => fn ($q) => $q
                                 ->select(['id','registry_id'])
                                 ->with([

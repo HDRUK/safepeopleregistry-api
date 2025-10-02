@@ -21,7 +21,6 @@ use Tests\Traits\Authorisation;
 use Spatie\WebhookServer\CallWebhookJob;
 use Illuminate\Support\Facades\Queue;
 
-
 class ProjectTest extends TestCase
 {
     use Authorisation;
@@ -36,11 +35,12 @@ class ProjectTest extends TestCase
         $this->withUsers();
     }
 
-    private function createProjectUserRelation() {
+    private function createProjectUserRelation()
+    {
         $custodianUser = CustodianUser::first();
         $custodian_admin = User::where('custodian_user_id', $custodianUser->id)->first();
         $custodian = Custodian::with('custodianUsers')->where('id', $custodianUser['custodian_id'])->first();
-        
+
         ProjectHasUser::truncate();
         ProjectHasCustodian::truncate();
 
@@ -512,7 +512,7 @@ class ProjectTest extends TestCase
     //             'GET',
     //             self::TEST_URL . '/1/all_users/1',
     //         );
-        
+
     //     $response->assertStatus(403)
     //         ->assertJson([
     //             'message' => 'forbidden',
@@ -545,12 +545,12 @@ class ProjectTest extends TestCase
     //             'GET',
     //             self::TEST_URL . '/1/all_users',
     //         );
-        
+
     //     $response->assertStatus(403)
     //         ->assertJson([
     //             'message' => 'forbidden',
     //         ]);
-    // }    
+    // }
 
     // public function test_the_application_can_show_all_users_for_a_project(): void
     // {
