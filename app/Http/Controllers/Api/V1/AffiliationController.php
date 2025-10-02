@@ -453,7 +453,7 @@ class AffiliationController extends Controller
 
             Affiliation::where('id', $affiliation->id)->update($array);
 
-            return $this->OKResponse($updatedAffiliation);
+            return $this->OKResponse();
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
