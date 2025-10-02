@@ -442,7 +442,7 @@ class AffiliationController extends Controller
             if (is_null($affiliation)) {
                 return $this->NotFoundResponse();
             }
-            
+
             $affiliation->setState(State::STATE_AFFILIATION_PENDING);
 
             $array = [

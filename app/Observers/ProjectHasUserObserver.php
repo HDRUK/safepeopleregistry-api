@@ -50,12 +50,9 @@ class ProjectHasUserObserver
         }
 
         if ($affiliation && config('speedi.system.notifications_enabled')) {
-            $custodianIds = ProjectHasCustodian::where('project_id', $project->id)
-                ->pluck('custodian_id');
-
             $this->notifyUserChanged($project, $user, $affiliation->organisation, $affiliation);
             $this->notifyOrganisationUserChanged($project, $affiliation->organisation, $affiliation);
-            $this->notifyCustodianUserChanged($project, $user, $affiliation->organisation, $affiliation, $custodianIds);
+            $this->notifyCustodianUserChanged($project, $user, $affiliation->organisation, $affiliation);
         }
 
         UpdateProjectUserValidation::dispatch(
@@ -266,8 +263,6 @@ class ProjectHasUserObserver
         foreach ($organisationUsers as $organisationUser) {
             $organisationNotification = new ProjectHasUserCreatedEntityOrganisation(
                 $project,
-                $organisationUser,
-                $organisation,
                 $affiliation
             );
 
