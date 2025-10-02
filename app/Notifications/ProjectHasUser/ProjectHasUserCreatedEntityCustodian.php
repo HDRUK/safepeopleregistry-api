@@ -16,18 +16,10 @@ class ProjectHasUserCreatedEntityCustodian extends Notification
     use Queueable;
     use ProjectHasUserNotification;
 
-    public function __construct(Custodian $custodian, Project $project, Organisation $organisation, Affiliation $affiliation, User $user)
+    public function __construct(Custodian $custodian, Project $project, Organisation $organisation, Affiliation $affiliation)
     {
         $message = $custodian->name . " added User " . $affiliation->email . " with Organisation " . $organisation->organisation_name . " to " . $project->title;
 
         $this->buildNotification($message, []);
-
-        $this->sendEmail($affiliation, $user, [
-            '[[custodian.name]]' => $custodian->name,
-            '[[user.email]]' => $affiliation->email,
-            '[[organisation.name]]' => $organisation->organisation_name,
-            '[[project.title]]' => $project->title,
-            '[[project.id]]' => $project->id,
-        ]);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Models\User;
 use App\Models\Registry;
+use App\Models\Affiliation;
 use App\Models\Project;
 use App\Models\Custodian;
 use App\Models\Organisation;
@@ -42,30 +43,19 @@ class ProjectHasUserObserver
         $role = $projectHasUser->role;
 
         if ($affiliation) {
-            $organisationId = $affiliation->organisation->id;
-
             ProjectHasOrganisation::firstOrCreate([
                 'project_id' => $project->id,
-                'organisation_id' => $organisationId
+                'organisation_id' => $affiliation->organisation->id
             ]);
         }
 
-        $custodianIds = ProjectHasCustodian::where('project_id', $project->id)
-            ->pluck('custodian_id');
+        if ($affiliation && config('speedi.system.notifications_enabled')) {
+            $custodianIds = ProjectHasCustodian::where('project_id', $project->id)
+                ->pluck('custodian_id');
 
-        foreach ($custodianIds as $custodianId) {
-            CustodianHasProjectUser::firstOrCreate(
-                [
-                    'project_has_user_id' => $projectHasUser->id,
-                    'custodian_id' => $custodianId,
-                ]
-            );
-
-            if ($affiliation && config('speedi.system.notifications_enabled')) {
-                $organisationId = $affiliation->organisation->id;
-
-                $this->notifyUserChanged($projectHasUser, $organisationId, $custodianId);
-            }
+            $this->notifyUserChanged($project, $user, $affiliation->organisation, $affiliation);
+            $this->notifyOrganisationUserChanged($project, $affiliation->organisation, $affiliation);
+            $this->notifyCustodianUserChanged($project, $user, $affiliation->organisation, $affiliation, $custodianIds);
         }
 
         UpdateProjectUserValidation::dispatch(
@@ -257,75 +247,51 @@ class ProjectHasUserObserver
         }
     }
 
-    private function notifyUserChanged(ProjectHasUser $projectHasUser, int $organisationId, int $custodianId): void
-    {
-        $entities = $this->getEntityData($projectHasUser, $organisationId, $custodianId);
-
+    private function notifyUserChanged(Project $project, User $user, Organisation $organisation, Affiliation $affiliation) {
         $userNotification = new ProjectHasUserCreatedEntityUser(
-            $entities['custodian'],
-            $entities['project'],
-            $entities['organisation'],
-            $projectHasUser->affiliation,
-            $entities['user']
+            $project,
+            $organisation,
+            $affiliation,
+            $user
         );
 
-        Notification::send($entities['user'], $userNotification);
+        Notification::send($user, $userNotification);
+    }
 
-        foreach ($entities['organisationUsers'] as $user) {
+    private function notifyOrganisationUserChanged(Project $project, Organisation $organisation, Affiliation $affiliation): void
+    {
+        $organisationUsers = User::where('organisation_id', $organisation->id)->get();
+
+        foreach ($organisationUsers as $organisationUser) {
             $organisationNotification = new ProjectHasUserCreatedEntityOrganisation(
-                $entities['custodian'],
-                $entities['project'],
-                $projectHasUser->affiliation,
-                $entities['user']
+                $project,
+                $organisationUser,
+                $organisation,
+                $affiliation
             );
 
-            Notification::send($user, $organisationNotification);
-        }
-
-        foreach ($entities['custodianUsers'] as $user) {
-            $custodianNotification = new ProjectHasUserCreatedEntityCustodian(
-                $entities['custodian'],
-                $entities['project'],
-                $entities['organisation'],
-                $projectHasUser->affiliation,
-                $entities['user']
-            );
-
-            Notification::send($user, $custodianNotification);
+            Notification::send($organisationUser, $organisationNotification);
         }
     }
 
-    private function getEntityData(ProjectHasUser $projectHasUser, int $organisationId, int $custodianId)
+    private function notifyCustodianUserChanged(Project $project, User $user, Organisation $organisation, Affiliation $affiliation): void
     {
-        $digiIdent = $projectHasUser->user_digital_ident;
+        $projectCustodianUsers = Project::with(['custodians.custodianUsers.user'])->find($project->id);        
 
-        $user = User::whereHas('registry', function ($query) use ($digiIdent) {
-            $query->where('digi_ident', $digiIdent);
-        })->first();
+        foreach ($projectCustodianUsers['custodians'] as $custodian) {
+            foreach ($custodian['custodianUsers'] as $custodianUser) {
+                if(isset($custodianUser['user'])) {
+                    $custodianNotification = new ProjectHasUserCreatedEntityCustodian(
+                        $custodian,
+                        $project,
+                        $organisation,
+                        $affiliation
+                    );
 
-        $custodian = Custodian::where([
-            'id' => $custodianId,
-        ])->first();
-
-        $project = Project::where([
-            'id' => $projectHasUser->project_id,
-        ])->first();
-
-        $organisationUsers = User::where([
-            'organisation_id' => $organisationId,
-        ])->get();
-
-        $custodianUsers = User::whereNotNull('custodian_user_id')->with(['custodian_user' =>
-            function ($query) use ($custodianId) {
-                $query->where('custodian_id', $custodianId);
+                    Notification::send($custodianUser['user'], $custodianNotification);
+                }
             }
-        ])->get();
-
-        $organisation = Organisation::where([
-            'id' => $organisationId,
-        ])->first();
-
-        return ['user' => $user, 'custodian' => $custodian, 'organisation' => $organisation, 'organisationUsers' => $organisationUsers, 'custodianUsers' => $custodianUsers, 'project' => $project];
+        }
     }
 
     /**
