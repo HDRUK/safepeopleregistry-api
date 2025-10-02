@@ -247,7 +247,8 @@ class ProjectHasUserObserver
         }
     }
 
-    private function notifyUserChanged(Project $project, User $user, Organisation $organisation, Affiliation $affiliation) {
+    private function notifyUserChanged(Project $project, User $user, Organisation $organisation, Affiliation $affiliation)
+    {
         $userNotification = new ProjectHasUserCreatedEntityUser(
             $project,
             $organisation,
@@ -276,11 +277,11 @@ class ProjectHasUserObserver
 
     private function notifyCustodianUserChanged(Project $project, User $user, Organisation $organisation, Affiliation $affiliation): void
     {
-        $projectCustodianUsers = Project::with(['custodians.custodianUsers.user'])->find($project->id);        
+        $projectCustodianUsers = Project::with(['custodians.custodianUsers.user'])->find($project->id);
 
         foreach ($projectCustodianUsers['custodians'] as $custodian) {
             foreach ($custodian['custodianUsers'] as $custodianUser) {
-                if(isset($custodianUser['user'])) {
+                if (isset($custodianUser['user'])) {
                     $custodianNotification = new ProjectHasUserCreatedEntityCustodian(
                         $custodian,
                         $project,

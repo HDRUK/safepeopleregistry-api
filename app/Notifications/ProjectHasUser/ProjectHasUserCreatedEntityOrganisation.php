@@ -5,7 +5,6 @@ namespace App\Notifications\ProjectHasUser;
 use App\Models\Affiliation;
 use App\Models\User;
 use App\Models\Project;
-use App\Models\Custodian;
 use App\Models\Organisation;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;

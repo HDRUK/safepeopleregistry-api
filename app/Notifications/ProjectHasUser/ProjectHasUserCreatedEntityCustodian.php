@@ -3,7 +3,6 @@
 namespace App\Notifications\ProjectHasUser;
 
 use App\Models\Affiliation;
-use App\Models\User;
 use App\Models\Custodian;
 use App\Models\Organisation;
 use App\Models\Project;
