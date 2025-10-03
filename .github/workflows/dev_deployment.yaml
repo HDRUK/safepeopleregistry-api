@@ -4,7 +4,7 @@ run-name: ${{ github.actor }} triggered deploy to DEV pipeline
 on:
   push:
     branches:
-      - dev # override for branch deployment
+      - 'feat/REGISTRY-1920' # override for branch deployment
 
 env:
   PROJECT_ID: '${{ secrets.PROJECT_ID }}'
