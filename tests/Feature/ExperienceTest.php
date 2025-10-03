@@ -146,9 +146,10 @@ class ExperienceTest extends TestCase
                 'PUT',
                 self::TEST_URL . "/{$experienceIdTest}",
                 [
-                    'dl_ident' => '23897592835298352',
-                    'pp_ident' => 'PASSPORTIDENT 92387429874 A',
-                    'verified' => true,
+                    'project_id' => 1,
+                    'from' => Carbon::now(),
+                    'to' => Carbon::now()->addYears(1),
+                    'organisation_id' => 1,
                 ]
             );
 

@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Exceptions\NotFoundException;
-use App\Http\Controllers\Controller;
-use App\Models\Identity;
-use App\Traits\CommonFunctions;
 use Exception;
-use Illuminate\Http\JsonResponse;
+use App\Models\Identity;
 use Illuminate\Http\Request;
+use App\Traits\CommonFunctions;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
+use App\Exceptions\NotFoundException;
+use App\Http\Requests\Identities\GetIdentity;
+use App\Http\Requests\Identities\DeleteIdentity;
+use App\Http\Requests\Identities\UpdateIdentity;
 
 class IdentityController extends Controller
 {
@@ -22,13 +25,10 @@ class IdentityController extends Controller
      *      tags={"Identity"},
      *      summary="Identity@index",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -38,13 +38,10 @@ class IdentityController extends Controller
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -68,26 +65,21 @@ class IdentityController extends Controller
      *      tags={"Identity"},
      *      summary="Identity@show",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Identity ID",
      *         required=true,
      *         example="1",
-     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Identity ID",
      *         ),
      *      ),
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -97,19 +89,23 @@ class IdentityController extends Controller
      *              )
      *          ),
      *      ),
-     *
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
      * )
      */
-    public function show(Request $request, int $id): JsonResponse
+    public function show(GetIdentity $request, int $id): JsonResponse
     {
         $identity = Identity::findOrFail($id);
         if ($identity) {
@@ -130,13 +126,10 @@ class IdentityController extends Controller
      *      tags={"Identity"},
      *      summary="Identity@store",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Identity definition",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="registry_id", type="integer", example="1"),
      *              @OA\Property(property="selfie_path", type="string", example="storage/path/to/selfie.jpeg"),
      *              @OA\Property(property="passport_path", type="string", example="storage/path/to/passport.jpeg"),
@@ -150,36 +143,27 @@ class IdentityController extends Controller
      *              @OA\Property(property="dob", type="string", example="1977-07-25")
      *          ),
      *      ),
-     *
-     *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *
-     *          @OA\JsonContent(
-     *
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          ),
-     *      ),
-     *
      *      @OA\Response(
      *          response=201,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
      *              )
      *          ),
      *      ),
-     *
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *          ),
+     *      ),
      *      @OA\Response(
      *          response=500,
      *          description="Error",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -213,13 +197,10 @@ class IdentityController extends Controller
      *      tags={"Identity"},
      *      summary="Identity@update",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Identity definition",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="registry_id", type="integer", example="1"),
      *              @OA\Property(property="selfie_path", type="string", example="storage/path/to/selfie.jpeg"),
      *              @OA\Property(property="passport_path", type="string", example="storage/path/to/passport.jpeg"),
@@ -233,23 +214,10 @@ class IdentityController extends Controller
      *              @OA\Property(property="dob", type="string", example="1977-07-25")
      *          ),
      *      ),
-     *
-     *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *
-     *          @OA\JsonContent(
-     *
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          ),
-     *      ),
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -257,19 +225,30 @@ class IdentityController extends Controller
      *              )
      *          ),
      *      ),
-     *
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *          ),
+     *      ),
      *      @OA\Response(
      *          response=500,
      *          description="Error",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
      * )
      */
-    public function update(Request $request, int $id): JsonResponse
+    public function update(UpdateIdentity $request, int $id): JsonResponse
     {
         try {
             $input = $request->only(app(Identity::class)->getFillable());
@@ -294,52 +273,48 @@ class IdentityController extends Controller
      *      tags={"Identity"},
      *      summary="Identity@destroy",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Identity entry ID",
      *         required=true,
      *         example="1",
-     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Identity entry ID",
      *         ),
      *      ),
-     *
-     *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *
-     *          @OA\JsonContent(
-     *
-     *              @OA\Property(property="message", type="string", example="not found")
-     *           ),
-     *      ),
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="success")
      *          ),
      *      ),
-     *
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *           ),
+     *      ),
      *      @OA\Response(
      *          response=500,
      *          description="Error",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
      * )
      */
-    public function destroy(Request $request, int $id): JsonResponse
+    public function destroy(DeleteIdentity $request, int $id): JsonResponse
     {
         try {
             Identity::where('id', $id)->delete();
