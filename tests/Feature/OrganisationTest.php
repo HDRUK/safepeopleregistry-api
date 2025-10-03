@@ -826,6 +826,357 @@ class OrganisationTest extends TestCase
         $this->assertEquals(Organisation::where('id', $org->id)->first()->organisation_name, 'Can update now');
     }
 
+    public function test_the_application_cannot_get_organisations(): void
+    {
+        $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
+        $organisationIdTest = $latestOrganisation ? $latestOrganisation->id + 1 : 1;
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$organisationIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_get_organisations_idvt(): void
+    {
+        $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
+        $organisationIdTest = $latestOrganisation ? $latestOrganisation->id + 1 : 1;
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$organisationIdTest}/idvt"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_get_organisations_count_certifications(): void
+    {
+        $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
+        $organisationIdTest = $latestOrganisation ? $latestOrganisation->id + 1 : 1;
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$organisationIdTest}/counts/certifications"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_get_organisations_count_users(): void
+    {
+        $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
+        $organisationIdTest = $latestOrganisation ? $latestOrganisation->id + 1 : 1;
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$organisationIdTest}/counts/users"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_get_organisations_count_projects_present(): void
+    {
+        $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
+        $organisationIdTest = $latestOrganisation ? $latestOrganisation->id + 1 : 1;
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$organisationIdTest}/counts/projects/present"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_get_organisations_count_projects_past(): void
+    {
+        $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
+        $organisationIdTest = $latestOrganisation ? $latestOrganisation->id + 1 : 1;
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$organisationIdTest}/counts/projects/past"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_get_organisations_projects_present(): void
+    {
+        $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
+        $organisationIdTest = $latestOrganisation ? $latestOrganisation->id + 1 : 1;
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$organisationIdTest}/projects/present"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_get_organisations_projects_past(): void
+    {
+        $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
+        $organisationIdTest = $latestOrganisation ? $latestOrganisation->id + 1 : 1;
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$organisationIdTest}/projects/past"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_get_organisations_projects_future(): void
+    {
+        $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
+        $organisationIdTest = $latestOrganisation ? $latestOrganisation->id + 1 : 1;
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$organisationIdTest}/projects/future"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_get_organisations_projects(): void
+    {
+        $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
+        $organisationIdTest = $latestOrganisation ? $latestOrganisation->id + 1 : 1;
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$organisationIdTest}/projects"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_get_organisations_users(): void
+    {
+        $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
+        $organisationIdTest = $latestOrganisation ? $latestOrganisation->id + 1 : 1;
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$organisationIdTest}/users"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_get_organisations_delegates(): void
+    {
+        $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
+        $organisationIdTest = $latestOrganisation ? $latestOrganisation->id + 1 : 1;
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$organisationIdTest}/delegates"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_get_organisations_registries(): void
+    {
+        $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
+        $organisationIdTest = $latestOrganisation ? $latestOrganisation->id + 1 : 1;
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$organisationIdTest}/registries"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+    
+    public function test_the_application_cannot_get_organisations_validate_ror(): void
+    {
+        $randomFakeString = fake()->regexify('[A-Za-z0-9]{7}');
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/ror/{$randomFakeString}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_get_organisations_invite(): void
+    {
+        $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
+        $organisationIdTest = $latestOrganisation ? $latestOrganisation->id + 1 : 1;
+
+        $user = $this->user;
+        $user->update([
+            'user_group' => User::GROUP_ADMINS
+        ]);
+
+        Queue::assertNothingPushed();
+
+        $response = $this->actingAs($user)
+            ->json(
+                'POST',
+                self::TEST_URL . "/{$organisationIdTest}/invite",
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_get_organisations_invite_user(): void
+    {
+        $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
+        $organisationIdTest = $latestOrganisation ? $latestOrganisation->id + 1 : 1;
+
+        $email = fake()->email();
+        $firstName = fake()->firstName();
+        $lastName = fake()->lastName();
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'POST',
+                self::TEST_URL . "/{$organisationIdTest}/invite_user",
+                [
+                    'first_name' => $firstName,
+                    'last_name' => $lastName,
+                    'email' => $email,
+                    'identifier' => 'user_invite'
+                ],
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_update_organisations(): void
+    {
+        $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
+        $organisationIdTest = $latestOrganisation ? $latestOrganisation->id + 1 : 1;
+
+        $response = $this->actingAs($this->organisation_admin)
+            ->json(
+                'PUT',
+                self::TEST_URL . "/{$organisationIdTest}",
+                [
+                    'organisation_name' => 'Test Organisation',
+                    'address_1' => '123 Blah blah',
+                    'address_2' => '',
+                    'town' => 'Town',
+                    'county' => 'County',
+                    'country' => 'Country',
+                    'postcode' => 'BLA4 4HH',
+                    'lead_applicant_organisation_name' => 'Some One',
+                    'lead_applicant_email' => fake()->email(),
+                    'organisation_unique_id' => Str::random(40),
+                    'applicant_names' => 'Some One, Some Two, Some Three',
+                    'funders_and_sponsors' => 'UKRI, MRC',
+                    'sub_license_arrangements' => 'N/A',
+                    'verified' => true,
+                    'companies_house_no' => '10887014',
+                    'sector_id' => fake()->randomElement([0, count(Sector::SECTORS)]),
+                    'charities' => [
+                        'registration_id' => '1186569',
+                    ],
+                    'ror_id' => '02wnqcb97',
+                    'smb_status' => false,
+                    'organisation_size' => 2,
+                    'website' => 'https://www.website.com/',
+                    'system_approved' => true,
+                ]
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    } 
+    
+    public function test_the_application_cannot_update_organisations_approved(): void
+    {
+        $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
+        $organisationIdTest = $latestOrganisation ? $latestOrganisation->id + 1 : 1;
+
+        $systemApproved = fake()->randomElement([false, true]);
+
+        $response = $this->actingAs($this->organisation_admin)
+            ->json(
+                'PUT',
+                self::TEST_URL . "/{$organisationIdTest}/approved",
+                [
+                    'system_approved' => $systemApproved,
+                ]
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_delete_organisations(): void
+    {
+        $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
+        $organisationIdTest = $latestOrganisation ? $latestOrganisation->id + 1 : 1;
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'DELETE',
+                self::TEST_URL . "/{$organisationIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+    
     // LS - Removed as doesn't run in GH - possibly blocked by ROR
     // needs investigation
     //

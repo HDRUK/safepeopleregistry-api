@@ -625,11 +625,8 @@ Route::middleware('auth:api')->get('v1/rules', [RulesEngineManagementController:
 Route::post('v1/ons_researcher_feed', [ONSSubmissionController::class, 'receiveCSV']);
 
 // stop all all other routes
-Route::any('{path}', function () {
-    $response = [
+Route::fallback(function () {
+    return response()->json([
         'message' => 'Resource not found',
-    ];
-
-    return response()->json($response)
-        ->setStatusCode(404);
+    ], 404);
 });

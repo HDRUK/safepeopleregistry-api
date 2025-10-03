@@ -27,7 +27,27 @@ use Illuminate\Support\Facades\Gate;
 use App\Exceptions\NotFoundException;
 use RegistryManagementController as RMC;
 use App\Models\OrganisationHasDepartment;
+use App\Http\Requests\Organisations\GetUser;
+use App\Http\Requests\Organisations\GetProject;
+use App\Http\Requests\Organisations\GetDelegate;
+use App\Http\Requests\Organisations\GetRegistry;
 use App\Services\DecisionEvaluatorService as DES;
+use App\Http\Requests\Organisations\GetCountUsers;
+use App\Http\Requests\Organisations\GetPastProject;
+use App\Http\Requests\Organisations\GetCountProject;
+use App\Http\Requests\Organisations\GetOrganisation;
+use App\Http\Requests\Organisations\GetFutureProject;
+use App\Http\Requests\Organisations\GetPresentProject;
+use App\Http\Requests\Organisations\DeleteOrganisation;
+use App\Http\Requests\Organisations\OrganisationInvite;
+use App\Http\Requests\Organisations\UpdateOrganisation;
+use App\Http\Requests\Organisations\GetCountPastProject;
+use App\Http\Requests\Organisations\GetOrganisationIdvt;
+use App\Http\Requests\Organisations\GetCountCertifications;
+use App\Http\Requests\Organisations\GetCountPresentProject;
+use App\Http\Requests\Organisations\OrganisationInviteUser;
+use App\Http\Requests\Organisations\OrganisationValidateRor;
+use App\Http\Requests\Organisations\OrganisationUpdateApprover;
 
 class OrganisationController extends Controller
 {
@@ -170,6 +190,13 @@ class OrganisationController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Not found response",
      *          @OA\JsonContent(
@@ -178,7 +205,7 @@ class OrganisationController extends Controller
      *      )
      * )
      */
-    public function show(Request $request, int $id): JsonResponse
+    public function show(GetOrganisation $request, int $id): JsonResponse
     {
         $this->decisionEvaluator = new DES($request, [EntityModelType::ORG_VALIDATION_RULES]);
 
@@ -207,7 +234,7 @@ class OrganisationController extends Controller
     }
 
     // No swagger, internal call
-    public function pastProjects(Request $request, int $id): JsonResponse
+    public function pastProjects(GetPastProject $request, int $id): JsonResponse
     {
         $projects = Project::with('organisations')
             ->where('start_date', '<', Carbon::now())
@@ -218,7 +245,7 @@ class OrganisationController extends Controller
     }
 
     // No swagger, internal call
-    public function presentProjects(Request $request, int $id): JsonResponse
+    public function presentProjects(GetPresentProject $request, int $id): JsonResponse
     {
         $projects = Project::with('organisations')
             ->where('start_date', '<=', Carbon::now())
@@ -229,7 +256,7 @@ class OrganisationController extends Controller
     }
 
     // No swagger, internal call
-    public function futureProjects(Request $request, int $id): JsonResponse
+    public function futureProjects(GetFutureProject $request, int $id): JsonResponse
     {
         $projects = Project::with('organisations')
             ->where('start_date', '>', Carbon::now())
@@ -273,6 +300,13 @@ class OrganisationController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Not found response",
      *          @OA\JsonContent(
@@ -281,7 +315,7 @@ class OrganisationController extends Controller
      *      )
      * )
      */
-    public function idvt(Request $request, int $id): JsonResponse
+    public function idvt(GetOrganisationIdvt $request, int $id): JsonResponse
     {
         $organisation = Organisation::findOrFail($id);
 
@@ -608,13 +642,6 @@ class OrganisationController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          ),
-     *      ),
-     *      @OA\Response(
      *          response=200,
      *          description="Success",
      *          @OA\JsonContent(
@@ -639,6 +666,20 @@ class OrganisationController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *          ),
+     *      ),
+     *      @OA\Response(
      *          response=500,
      *          description="Error",
      *          @OA\JsonContent(
@@ -647,7 +688,7 @@ class OrganisationController extends Controller
      *      )
      * )
      */
-    public function update(Request $request, int $id): JsonResponse
+    public function update(UpdateOrganisation $request, int $id): JsonResponse
     {
         try {
             $input = $request->only(app(Organisation::class)->getFillable());
@@ -694,18 +735,25 @@ class OrganisationController extends Controller
      *         ),
      *      ),
      *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *           ),
-     *      ),
-     *      @OA\Response(
      *          response=200,
      *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="success")
      *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *           ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *           ),
      *      ),
      *      @OA\Response(
      *          response=500,
@@ -716,7 +764,7 @@ class OrganisationController extends Controller
      *      )
      * )
      */
-    public function destroy(Request $request, int $id): JsonResponse
+    public function destroy(DeleteOrganisation $request, int $id): JsonResponse
     {
         try {
             $organisation = Organisation::findOrFail($id);
@@ -737,7 +785,7 @@ class OrganisationController extends Controller
     /**
      * No swagger, internal call
      */
-    public function countCertifications(Request $request, int $id): JsonResponse
+    public function countCertifications(GetCountCertifications $request, int $id): JsonResponse
     {
         try {
             $counts = DB::table('organisations')
@@ -771,26 +819,21 @@ class OrganisationController extends Controller
      *      tags={"organisation"},
      *      summary="organisation@getProjects",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Organisation ID",
      *         required=true,
      *         example="1",
-     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Organisation ID",
      *         ),
      *      ),
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -804,19 +847,23 @@ class OrganisationController extends Controller
      *              ),
      *          ),
      *      ),
-     *
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *           @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *           @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
      * )
      */
-    public function getProjects(Request $request, int $organisationId): JsonResponse
+    public function getProjects(GetProject $request, int $organisationId): JsonResponse
     {
         $projects = Project::searchViaRequest()
             ->applySorting()
@@ -859,24 +906,20 @@ class OrganisationController extends Controller
      *      tags={"organisation"},
      *      summary="organisation@getUsers",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Organisation ID",
      *         required=true,
      *         example="1",
-     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Organisation ID",
      *         ),
      *      ),
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
@@ -904,18 +947,23 @@ class OrganisationController extends Controller
      *              )
      *          ),
      *      ),
-     *
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
      * )
      */
-    public function getUsers(Request $request, int $organisationId): JsonResponse
+    public function getUsers(GetUser $request, int $organisationId): JsonResponse
     {
         try {
             $org = Organisation::findOrFail($organisationId);
@@ -951,7 +999,6 @@ class OrganisationController extends Controller
      *      description="Return all delegates associated with an organisation",
      *      tags={"organisation"},
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
@@ -963,7 +1010,6 @@ class OrganisationController extends Controller
      *            description="Organisation ID"
      *         ),
      *      ),
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
@@ -981,7 +1027,13 @@ class OrganisationController extends Controller
      *              )
      *          )
      *      ),
-     *
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          )
+     *      ),
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
@@ -991,7 +1043,7 @@ class OrganisationController extends Controller
      *      )
      * )
      */
-    public function getDelegates(Request $request, int $organisationId): JsonResponse
+    public function getDelegates(GetDelegate $request, int $organisationId): JsonResponse
     {
         try {
             $org = Organisation::findOrFail($organisationId);
@@ -1015,7 +1067,7 @@ class OrganisationController extends Controller
     /**
      * No swagger, internal call
      */
-    public function countUsers(Request $request, int $id): JsonResponse
+    public function countUsers(GetCountUsers $request, int $id): JsonResponse
     {
         try {
             $count = Affiliation::where('organisation_id', $id)->count();
@@ -1078,6 +1130,13 @@ class OrganisationController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=500,
      *          description="Error",
      *          @OA\JsonContent(
@@ -1086,7 +1145,7 @@ class OrganisationController extends Controller
      *      )
      * )
      */
-    public function inviteUser(Request $request, int $id): JsonResponse
+    public function inviteUser(OrganisationInviteUser $request, int $id): JsonResponse
     {
         try {
             $org = Organisation::findOrFail($id);
@@ -1178,7 +1237,7 @@ class OrganisationController extends Controller
     }
 
     //Hide from swagger docs
-    public function invite(Request $request, int $id): JsonResponse
+    public function invite(OrganisationInvite $request, int $id): JsonResponse
     {
         try {
             $organisation = Organisation::where('id', $id)->first();
@@ -1223,7 +1282,7 @@ class OrganisationController extends Controller
     /**
      * No swagger, internal call
      */
-    public function countPresentProjects(Request $request, int $id): JsonResponse
+    public function countPresentProjects(GetCountPresentProject $request, int $id): JsonResponse
     {
         try {
             $projectCount = Project::whereHas('organisations', function ($query) use ($id) {
@@ -1245,7 +1304,7 @@ class OrganisationController extends Controller
     /**
      * No swagger, internal call
      */
-    public function countPastProjects(Request $request, int $id): JsonResponse
+    public function countPastProjects(GetCountPastProject $request, int $id): JsonResponse
     {
         try {
             $projectCount = Project::whereHas('organisations', function ($query) use ($id) {
@@ -1293,7 +1352,7 @@ class OrganisationController extends Controller
         }
     }
 
-    public function validateRor(Request $request, string $ror): JsonResponse
+    public function validateRor(OrganisationValidateRor $request, string $ror): JsonResponse
     {
         $response = Http::get(config('speedi.system.ror_api_url') . '/' . $ror);
         if ($response->status() === 200) {
@@ -1369,6 +1428,13 @@ class OrganisationController extends Controller
      *          )
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          )
+     *      )
+     *      @OA\Response(
      *          response=404,
      *          description="No registries found for this organisation",
      *          @OA\JsonContent(
@@ -1377,7 +1443,7 @@ class OrganisationController extends Controller
      *      )
      * )
      */
-    public function getRegistries(Request $request, int $id): JsonResponse
+    public function getRegistries(GetRegistry $request, int $id): JsonResponse
     {
         try {
             $showPending = $request->boolean("show_pending");
@@ -1452,6 +1518,13 @@ class OrganisationController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=500,
      *          description="Error",
      *          @OA\JsonContent(
@@ -1460,7 +1533,7 @@ class OrganisationController extends Controller
      *      )
      * )
      */
-    public function updateApproved(Request $request, int $id): JsonResponse
+    public function updateApproved(OrganisationUpdateApprover $request, int $id): JsonResponse
     {
         try {
             $input = $request->only(app(Organisation::class)->getFillable());
