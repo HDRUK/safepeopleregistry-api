@@ -131,6 +131,60 @@ class ProjectTest extends TestCase
         $this->assertArrayHasKey('data', $response);
     }
 
+    public function test_the_application_cannot_show_projects(): void
+    {
+        $latestProject = Project::query()->orderBy('id', 'desc')->first();
+        $projectIdTest = $latestProject->id + 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$projectIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_show_project_user(): void
+    {
+        $latestProject = Project::query()->orderBy('id', 'desc')->first();
+        $projectIdTest = $latestProject->id + 1;
+
+        $latestUser = User::query()->orderBy('id', 'desc')->first();
+        $userIdTest = $latestUser->id + 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$projectIdTest}/users/{$userIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_show_project_organisation(): void
+    {
+        $latestProject = Project::query()->orderBy('id', 'desc')->first();
+        $projectIdTest = $latestProject->id + 1;
+
+        $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
+        $organisationIdTest = $latestOrganisation->id + 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$projectIdTest}/organisations/{$organisationIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
     public function test_the_application_can_create_projects(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
@@ -263,7 +317,7 @@ class ProjectTest extends TestCase
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'GET',
-                self::TEST_URL . '/1/users',
+                self::TEST_URL . "/{$projectId}/users",
             );
 
         $response->assertStatus(200);
@@ -302,6 +356,22 @@ class ProjectTest extends TestCase
 
         $response->assertStatus(200);
         $this->assertCount(0, $response['data']['data']);
+    }
+
+    public function test_the_application_cannot_show_users_in_project(): void
+    {
+        $latestProject = Project::query()->orderBy('id', 'desc')->first();
+        $projectIdTest = $latestProject->id + 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$projectIdTest}/users"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 
     public function test_the_application_can_show_user_approved_projects(): void
@@ -481,7 +551,9 @@ class ProjectTest extends TestCase
                 ["primary_contact" => 1]
             );
 
-        $response->assertStatus(404);
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 
     public function test_the_application_can_show_project_users_with_filtering(): void
@@ -502,6 +574,142 @@ class ProjectTest extends TestCase
         $this->assertNotNull($users);
         $this->assertEquals($users[0]['id'], $user->id);
         $this->assertEquals($users[0]['email'], $user->email);
+    }
+
+    public function test_the_application_cannot_show_users_in_project_in_organisation(): void
+    {
+        $latestProject = Project::query()->orderBy('id', 'desc')->first();
+        $projectIdTest = $latestProject->id + 1;
+        $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
+        $organisationIdTest = $latestOrganisation->id + 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$projectIdTest}/organisations/{$organisationIdTest}/users"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_show_users_flag_by_project_by_user(): void
+    {
+        $latestProject = Project::query()->orderBy('id', 'desc')->first();
+        $projectIdTest = $latestProject->id + 1;
+        $latestUser = User::query()->orderBy('id', 'desc')->first();
+        $userIdTest = $latestUser->id + 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$projectIdTest}/all_users/{$userIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_update_project(): void
+    {
+        $latestProject = Project::query()->orderBy('id', 'desc')->first();
+        $projectIdTest = $latestProject->id + 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . "/{$projectIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_update_project_make_primary_contact(): void
+    {
+        $latestProject = Project::query()->orderBy('id', 'desc')->first();
+        $projectIdTest = $latestProject->id + 1;
+        $latestRegistry = Registry::query()->orderBy('id', 'desc')->first();
+        $registryIdTest = $latestRegistry->id + 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . "/{$projectIdTest}/users/{$registryIdTest}/primary_contact"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_update_project_users(): void
+    {
+        $latestProject = Project::query()->orderBy('id', 'desc')->first();
+        $projectIdTest = $latestProject->id + 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . "/{$projectIdTest}/all_users"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_delete_project(): void
+    {
+        $latestProject = Project::query()->orderBy('id', 'desc')->first();
+        $projectIdTest = $latestProject->id + 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'DELETE',
+                self::TEST_URL . "/{$projectIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_get_valid_projects(): void
+    {
+        $latestRegistry = Registry::query()->orderBy('id', 'desc')->first();
+        $registryIdTest = $latestRegistry->id + 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . "/user/{$registryIdTest}/validated"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_update_project_user(): void
+    {
+        $latestProject = Project::query()->orderBy('id', 'desc')->first();
+        $projectIdTest = $latestProject->id + 1;
+        $latestRegistry = Registry::query()->orderBy('id', 'desc')->first();
+        $registryIdTest = $latestRegistry->id + 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . "/{$projectIdTest}/users/{$registryIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 
     /** Only seem to be returning 401 / 403 in tests */

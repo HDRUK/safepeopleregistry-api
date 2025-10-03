@@ -271,10 +271,13 @@ Route::middleware('auth:api')
         Route::get('{id}/users', 'getProjectUsers');
         Route::get('{id}/all_users/{userId}', 'getAllUsersFlagProjectByUserId');
         Route::get('{id}/all_users', 'getAllUsersFlagProject');
-        Route::put('{id}/all_users', 'updateAllProjectUsers');
-        Route::post('{id}/users', 'addProjectUser');
+        Route::put('{projectId}/all_users', 'updateAllProjectUsers');
+        // no method in controller
+        Route::post('{projectId}/users', 'addProjectUser');
         Route::put('{projectId}/users/{registryId}', 'updateProjectUser');
+        // no method in controller
         Route::delete('{projectId}/users/registry/{registryId}', 'deleteUserFromProject');
+        // no method in controller
         Route::delete('{projectId}/organisations/{organisationId}', 'deleteOrganisationFromProject');
         Route::put('{projectId}/users/{registryId}/primary_contact', 'makePrimaryContact');
 
@@ -622,11 +625,8 @@ Route::middleware('auth:api')->get('v1/rules', [RulesEngineManagementController:
 Route::post('v1/ons_researcher_feed', [ONSSubmissionController::class, 'receiveCSV']);
 
 // stop all all other routes
-Route::any('{path}', function () {
-    $response = [
+Route::fallback(function () {
+    return response()->json([
         'message' => 'Resource not found',
-    ];
-
-    return response()->json($response)
-        ->setStatusCode(404);
+    ], 404);
 });

@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Exceptions\NotFoundException;
-use App\Http\Controllers\Controller;
-use App\Models\Registry;
-use App\Traits\CommonFunctions;
-use App\Http\Traits\Responses;
 use Exception;
-use Illuminate\Http\JsonResponse;
+use App\Models\Registry;
 use Illuminate\Http\Request;
+use App\Http\Traits\Responses;
+use App\Traits\CommonFunctions;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
+use App\Exceptions\NotFoundException;
+use App\Http\Requests\Registries\GetRegistry;
+use App\Http\Requests\Registries\DeleteRegistry;
+use App\Http\Requests\Registries\UpdateRegistry;
 
 class RegistryController extends Controller
 {
@@ -86,6 +89,13 @@ class RegistryController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *           ),
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Not found response",
      *          @OA\JsonContent(
@@ -94,7 +104,7 @@ class RegistryController extends Controller
      *      )
      * )
      */
-    public function show(Request $request, int $id): JsonResponse
+    public function show(GetRegistry $request, int $id): JsonResponse
     {
         $registry = Registry::with([
             'files',
@@ -187,13 +197,6 @@ class RegistryController extends Controller
      *          ref="#/components/schemas/Registry"
      *      ),
      *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          ),
-     *      ),
-     *      @OA\Response(
      *          response=200,
      *          description="Success",
      *          @OA\JsonContent(
@@ -201,6 +204,20 @@ class RegistryController extends Controller
      *              @OA\Property(property="data",
      *                  ref="#/components/schemas/Registry"
      *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *           ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
      *      @OA\Response(
@@ -212,7 +229,7 @@ class RegistryController extends Controller
      *      )
      * )
      */
-    public function update(Request $request, int $id): JsonResponse
+    public function update(UpdateRegistry $request, int $id): JsonResponse
     {
         try {
             $input = $request->only(app(Registry::class)->getFillable());
@@ -249,18 +266,25 @@ class RegistryController extends Controller
      *         ),
      *      ),
      *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *           ),
-     *      ),
-     *      @OA\Response(
      *          response=200,
      *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="success")
      *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *           ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *           ),
      *      ),
      *      @OA\Response(
      *          response=500,
@@ -271,7 +295,7 @@ class RegistryController extends Controller
      *      )
      * )
      */
-    public function destroy(Request $request, int $id): JsonResponse
+    public function destroy(DeleteRegistry $request, int $id): JsonResponse
     {
         try {
             $registry = Registry::findOrFail($id);
