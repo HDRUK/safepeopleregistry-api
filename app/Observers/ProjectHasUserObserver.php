@@ -49,18 +49,18 @@ class ProjectHasUserObserver
             ]);
         }
 
-        if ($affiliation && config('speedi.system.notifications_enabled')) {
-            $this->notifyUserChanged($project, $user, $affiliation->organisation, $affiliation);
-            $this->notifyOrganisationUserChanged($project, $affiliation->organisation, $affiliation);
-            $this->notifyCustodianUserChanged($project, $user, $affiliation->organisation, $affiliation);
-        }
-
         UpdateProjectUserValidation::dispatch(
             $projectHasUser
         );
 
         if ((app()->bound('seeding') && app()->make('seeding') === true)) {
             return;
+        }
+
+        if ($affiliation) {
+            $this->notifyUserChanged($project, $user, $affiliation->organisation, $affiliation);
+            $this->notifyOrganisationUserChanged($project, $affiliation->organisation, $affiliation);
+            $this->notifyCustodianUserChanged($project, $user, $affiliation->organisation, $affiliation);
         }
 
         activity()
