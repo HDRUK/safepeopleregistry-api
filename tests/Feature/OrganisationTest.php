@@ -1033,7 +1033,7 @@ class OrganisationTest extends TestCase
         $message = $response->decodeResponseJson()['message'];
         $this->assertEquals('Invalid argument(s)', $message);
     }
-    
+
     public function test_the_application_cannot_get_organisations_validate_ror(): void
     {
         $randomFakeString = fake()->regexify('[A-Za-z0-9]{7}');
@@ -1138,8 +1138,8 @@ class OrganisationTest extends TestCase
         $response->assertStatus(400);
         $message = $response->decodeResponseJson()['message'];
         $this->assertEquals('Invalid argument(s)', $message);
-    } 
-    
+    }
+
     public function test_the_application_cannot_update_organisations_approved(): void
     {
         $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
@@ -1176,7 +1176,7 @@ class OrganisationTest extends TestCase
         $message = $response->decodeResponseJson()['message'];
         $this->assertEquals('Invalid argument(s)', $message);
     }
-    
+
     // LS - Removed as doesn't run in GH - possibly blocked by ROR
     // needs investigation
     //

@@ -250,7 +250,7 @@ class IdentityTest extends TestCase
 
     public function test_the_application_cannot_update_identities(): void
     {
-         $latestIdentity = Identity::query()->orderBy('id', 'desc')->first();
+        $latestIdentity = Identity::query()->orderBy('id', 'desc')->first();
         $identityIdTest = $latestIdentity ? $latestIdentity->id + 1 : 1;
 
         $passed = fake()->randomElement([0, 1]);

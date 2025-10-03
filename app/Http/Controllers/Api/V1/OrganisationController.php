@@ -34,7 +34,6 @@ use App\Http\Requests\Organisations\GetRegistry;
 use App\Services\DecisionEvaluatorService as DES;
 use App\Http\Requests\Organisations\GetCountUsers;
 use App\Http\Requests\Organisations\GetPastProject;
-use App\Http\Requests\Organisations\GetCountProject;
 use App\Http\Requests\Organisations\GetOrganisation;
 use App\Http\Requests\Organisations\GetFutureProject;
 use App\Http\Requests\Organisations\GetPresentProject;
@@ -1433,7 +1432,7 @@ class OrganisationController extends Controller
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
      *          )
-     *      )
+     *      ),
      *      @OA\Response(
      *          response=404,
      *          description="No registries found for this organisation",
