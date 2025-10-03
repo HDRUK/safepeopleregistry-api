@@ -1,3 +1,14 @@
+## [1.14.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.13.0...v1.14.0) (2025-10-03)
+
+### ✨ Features
+
+* **REGISTRY-1920:** change notifications (#466) ([e2a58d6](https://github.com/HDRUK/safepeopleregistry-api/commit/e2a58d6d53b86a7178b7d815c3ea351cb06bffd1))
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-1900:** History missing (#463) ([e49a64e](https://github.com/HDRUK/safepeopleregistry-api/commit/e49a64eaea9cce313c1c727ce89c839e89420541))
+* **REGISTRY-1990:** Fix setState on user creation (#465) ([328fc2c](https://github.com/HDRUK/safepeopleregistry-api/commit/328fc2c8b55fdb2a74bf15aee3908613809b31a9))
+
 ## [1.13.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.12.0...v1.13.0) (2025-10-01)
 
 ### ✨ Features
