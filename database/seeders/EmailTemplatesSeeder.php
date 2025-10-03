@@ -719,7 +719,7 @@ class EmailTemplatesSeeder extends Seeder
                               <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
                                 <mj-text align="left" padding="20px 0px 20px 0px">
 
-                                  You\'ve been added to [[project_name]] in the [[env(APP_NAME)]] by [[custodian.name]]. You can follow the link below to see your project list and follow your validation status.
+                                  You\'ve been added to [[project_name]] in the [[env(APP_NAME)]]. You can follow the link below to see your project list and follow your validation status.
                                   <div><br></div>
                                   ' . $this->supportFooter . '
 

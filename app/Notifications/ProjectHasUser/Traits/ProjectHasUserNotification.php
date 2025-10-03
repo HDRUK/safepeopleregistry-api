@@ -4,7 +4,6 @@ namespace App\Notifications\ProjectHasUser\Traits;
 
 use App\Jobs\SendEmailJob;
 use App\Models\Affiliation;
-use App\Models\User;
 use Hdruk\LaravelMjml\Models\EmailTemplate;
 
 trait ProjectHasUserNotification
@@ -30,19 +29,18 @@ trait ProjectHasUserNotification
         return $this->payload;
     }
 
-    public function sendEmail(Affiliation $affiliation, User $user, array $message = [])
+    public function sendEmail(Affiliation $affiliation, string $email, int $userId, array $message = [])
     {
         $template = EmailTemplate::where('identifier', 'notification')->first();
 
         $newRecipients = [
-            'id' => $user->id,
-            'email' => $affiliation->email,
+            'id' => $userId,
+            'email' => $email,
         ];
 
         $replacements = [
             '[[project_name]]' => $message['[[project.title]]'],
             '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
-            '[[custodian.name]]' => $message['[[custodian.name]]'],
             '[[link_project]]' => config('speedi.system.portal_url') . 'user/profile/projects/' . $message['[[project.id]]'] . '/safe-project',
             '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
         ];

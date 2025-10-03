@@ -443,15 +443,17 @@ class AffiliationController extends Controller
                 return $this->NotFoundResponse();
             }
 
+            $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+
             $array = [
                 'verification_code' => null,
                 'is_verified' => 1,
                 'verification_confirmed_at' => Carbon::now(),
             ];
 
-            Affiliation::where('id', $affiliation->id)->update($array);
+            $updatedAffiliation = Affiliation::where('id', $affiliation->id)->update($array);
 
-            return $this->OKResponse($affiliation);
+            return $this->OKResponse($updatedAffiliation);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }

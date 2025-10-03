@@ -3,7 +3,6 @@
 namespace App\TriggerEmail;
 
 use Str;
-use Exception;
 use App\Jobs\SendEmailJob;
 use App\Models\Affiliation;
 use App\Models\Custodian;
