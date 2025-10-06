@@ -3,10 +3,13 @@
 namespace Tests\Feature;
 
 use Carbon\Carbon;
-use KeycloakGuard\ActingAsKeycloakUser;
 use Tests\TestCase;
-use Tests\Traits\Authorisation;
+use App\Models\Registry;
+use App\Models\Affiliation;
+use App\Models\Organisation;
 use App\Traits\CommonFunctions;
+use Tests\Traits\Authorisation;
+use KeycloakGuard\ActingAsKeycloakUser;
 
 class AffiliationTest extends TestCase
 {
@@ -32,6 +35,53 @@ class AffiliationTest extends TestCase
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
+    }
+
+    public function test_the_application_cannot_show_affiliations_by_registry_id(): void
+    {
+        $latestRegistry = Registry::query()->orderBy('id', 'desc')->first();
+        $registryIdTest = $latestRegistry ? $latestRegistry->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$registryIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_can_show_organisation_affiliation(): void
+    {
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/organisation/1'
+            );
+
+        $response->assertStatus(200);
+        $this->assertArrayHasKey('data', $response);
+    }
+
+    public function test_the_application_cannot_show_organisation_affiliation(): void
+    {
+        $latestRegistry = Registry::query()->orderBy('id', 'desc')->first();
+        $registryIdTest = $latestRegistry ? $latestRegistry->id + 1 : 1;
+
+        $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
+        $organisationIdTest = $latestOrganisation ? $latestOrganisation->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$registryIdTest}/organisation/{$organisationIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 
     public function test_the_application_can_create_an_affiliation_by_registry_id(): void
@@ -60,6 +110,35 @@ class AffiliationTest extends TestCase
         $this->assertArrayHasKey('data', $response);
     }
 
+    public function test_the_application_cannot_create_an_affiliation_by_registry_id(): void
+    {
+        $latestRegistry = Registry::query()->orderBy('id', 'desc')->first();
+        $registryIdTest = $latestRegistry ? $latestRegistry->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL . "/{$registryIdTest}",
+                [
+                    'organisation_id' => 1,
+                    'member_id' => fake()->uuid(),
+                    'relationship' => 'employee',
+                    'from' => Carbon::now()->subYears(5)->toDateString(),
+                    'to' => '',
+                    'department' => 'Research',
+                    'role' => 'Researcher',
+                    'email' => fake()->email(),
+                    'ror' => $this->generateRorID(),
+                    'registry_id' => 1,
+                    'current_employer' => false,
+                ]
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
     public function test_the_application_can_update_an_affiliation(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
@@ -78,6 +157,28 @@ class AffiliationTest extends TestCase
         $this->assertArrayHasKey('data', $response);
     }
 
+    public function test_the_application_cannot_update_an_affiliation(): void
+    {
+        $latestAffiliation = Affiliation::query()->orderBy('id', 'desc')->first();
+        $affiliationIdTest = $latestAffiliation ? $latestAffiliation->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . "/{$affiliationIdTest}",
+                [
+                    'member_id' => 'A1234567',
+                    'organisation_id' => 1,
+                    'current_employer' => 1,
+                    'relationship' => 'employee'
+                ]
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
     public function test_the_application_can_delete_an_affiliation(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
@@ -87,6 +188,22 @@ class AffiliationTest extends TestCase
             );
 
         $response->assertStatus(200);
+    }
+
+    public function test_the_application_cannot_delete_an_affiliation(): void
+    {
+        $latestAffiliation = Affiliation::query()->orderBy('id', 'desc')->first();
+        $affiliationIdTest = $latestAffiliation ? $latestAffiliation->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'DELETE',
+                self::TEST_URL . "/{$affiliationIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 
     public function test_the_application_can_update_registry_affiliations(): void
@@ -125,6 +242,76 @@ class AffiliationTest extends TestCase
                 'PUT',
                 self::TEST_URL . '/1/affiliation/999?status=rejected'
             );
-        $response->assertStatus(404);
+        $response->assertStatus(400);
+    }
+
+    public function test_the_application_cannot_update_registry_affiliations(): void
+    {
+        $latestAffiliation = Affiliation::query()->orderBy('id', 'desc')->first();
+        $affiliationIdTest = $latestAffiliation ? $latestAffiliation->id + 1 : 1;
+
+        $latestRegistry = Registry::query()->orderBy('id', 'desc')->first();
+        $registryIdTest = $latestRegistry ? $latestRegistry->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . "/{$registryIdTest}/affiliation/{$latestAffiliation}"
+            );
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . "/{$registryIdTest}/affiliation/{$latestAffiliation}"
+            );
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . "/{$registryIdTest}/affiliation/{$latestAffiliation}"
+            );
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . "/{$registryIdTest}/affiliation/{$latestAffiliation}"
+            );
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . "/{$registryIdTest}/affiliation/{$latestAffiliation}"
+            );
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+    public function test_the_application_cannot_send_verification_email(): void
+    {
+        $latestAffiliation = Affiliation::query()->orderBy('id', 'desc')->first();
+        $affiliationIdTest = $latestAffiliation ? $latestAffiliation->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$affiliationIdTest}/resend/verification"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 }

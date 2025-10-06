@@ -39,7 +39,7 @@ class AccreditationTest extends TestCase
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
-                'GET', 
+                'GET',
                 self::TEST_URL . "/{$this->registry->id}"
             );
 
@@ -55,10 +55,10 @@ class AccreditationTest extends TestCase
     {
         $latestRegistry = Registry::query()->orderBy('id', 'desc')->first();
         $registryIdTest = $latestRegistry ? $latestRegistry->id + 1 : 1;
-        
+
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
-                'GET', 
+                'GET',
                 self::TEST_URL . "/{$registryIdTest}"
             );
 
@@ -87,7 +87,7 @@ class AccreditationTest extends TestCase
     {
         $latestRegistry = Registry::query()->orderBy('id', 'desc')->first();
         $registryIdTest = $latestRegistry ? $latestRegistry->id + 1 : 1;
-        
+
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'POST',
@@ -136,7 +136,7 @@ class AccreditationTest extends TestCase
 
         $latestAccreditation = Accreditation::query()->orderBy('id', 'desc')->first();
         $accreditationIdTest = $latestAccreditation ? $latestAccreditation->id + 1 : 1;
-        
+
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'PUT',

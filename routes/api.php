@@ -402,12 +402,16 @@ Route::middleware('auth:api')
         Route::get('workflowTransitions', 'getWorkflowTransitions');
         Route::get('{registryId}', 'indexByRegistryId');
         Route::get('{registryId}/organisation/{organisationId}', 'getOrganisationAffiliation');
-        Route::post('{registryId}', 'storeByRegistryId');
+        Route::post('{registryId}', 'storeByRegistryId'); //
         Route::put('{id}', 'update');
         Route::delete('{id}', 'destroy');
-        Route::put('{registryId}/affiliation/{id}', 'updateRegistryAffiliation');
 
-        Route::get('{affiliationId}/resend/verification', 'resendVerificationEmail');
+        // I think this is a wrong format
+        Route::put('{registryId}/affiliation/{id}', 'updateRegistryAffiliation');
+        // I think need to be like this - I dont know if fe use this endpoint
+        // Route::put('{id}/registries/{registryId}', 'updateRegistryAffiliation');
+
+        Route::get('{id}/resend/verification', 'resendVerificationEmail');
         Route::put('/verify_email/{verificationCode}', 'verifyEmail');
     });
 
