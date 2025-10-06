@@ -91,7 +91,7 @@ Route::middleware(['auth:api'])
         Route::put('/pending_invites/claim_email/{inviteCode}', [UserController::class, 'updateUserEmailByInviteCode']);
 
         // the method not found in controller
-        Route::patch('/{id}', [UserController::class, 'edit']);
+        // Route::patch('/{id}', [UserController::class, 'edit']);
         Route::delete('/{id}', [UserController::class, 'destroy']);
 
 
@@ -213,7 +213,7 @@ Route::middleware(['auth:api'])
         // Update
         Route::put('/{id}', 'update');
         // cannot find the method in this controller
-        Route::patch('/{id}/rules', 'updateCustodianRules');
+        // Route::patch('/{id}/rules', 'updateCustodianRules');
 
         // Delete
         Route::delete('/{id}', 'destroy');
@@ -273,12 +273,12 @@ Route::middleware('auth:api')
         Route::get('{id}/all_users', 'getAllUsersFlagProject');
         Route::put('{projectId}/all_users', 'updateAllProjectUsers');
         // no method in controller
-        Route::post('{projectId}/users', 'addProjectUser');
+        // Route::post('{projectId}/users', 'addProjectUser');
         Route::put('{projectId}/users/{registryId}', 'updateProjectUser');
         // no method in controller
-        Route::delete('{projectId}/users/registry/{registryId}', 'deleteUserFromProject');
+        // Route::delete('{projectId}/users/registry/{registryId}', 'deleteUserFromProject');
         // no method in controller
-        Route::delete('{projectId}/organisations/{organisationId}', 'deleteOrganisationFromProject');
+        // Route::delete('{projectId}/organisations/{organisationId}', 'deleteOrganisationFromProject');
         Route::put('{projectId}/users/{registryId}/primary_contact', 'makePrimaryContact');
 
         Route::get('{projectId}/users/{userId}', 'getProjectByIdAndUserId');
@@ -387,9 +387,10 @@ Route::middleware('auth:api')
     ->group(function () {
         Route::get('{registryId}', 'indexByRegistryId');
         Route::post('{registryId}', 'storeByRegistryId');
-        Route::put('{id}/{registryId}', 'updateByRegistryId');
-        Route::patch('{id}/{registryId}', 'editByRegistryId');
-        Route::delete('{id}/{registryId}', 'destroyByRegistryId');
+        Route::put('{id}/registries/{registryId}', 'updateByRegistryId');
+        // not found in controller
+        // Route::patch('{id}/registries/{registryId}', 'editByRegistryId');
+        Route::delete('{id}/registries/{registryId}', 'destroyByRegistryId');
     });
 
 // --- AFFILIATIONS ---

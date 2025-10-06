@@ -4,12 +4,17 @@ namespace App\Http\Controllers\Api\V1;
 
 use Exception;
 use Carbon\Carbon;
-use App\Models\Accreditation;
-use App\Models\RegistryHasAccreditation;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Models\Accreditation;
 use App\Traits\CommonFunctions;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
+use App\Models\RegistryHasAccreditation;
+use App\Http\Requests\Accreditations\GetAccreditationByRegistry;
+use App\Http\Requests\Accreditations\EditAccreditationByRegistry;
+use App\Http\Requests\Accreditations\CreateAccreditationByRegistry;
+use App\Http\Requests\Accreditations\DeleteAccreditationByRegistry;
+use App\Http\Requests\Accreditations\UpdateAccreditationByRegistry;
 
 /**
  * @OA\Tag(
@@ -45,10 +50,17 @@ class AccreditationController extends Controller
      *                 @OA\Items(ref="#/components/schemas/Accreditation")
      *             )
      *         )
-     *     )
-     * )
+     *     ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          )
+     *      )
+     *  )
      */
-    public function indexByRegistryId(Request $request, int $registryId): JsonResponse
+    public function indexByRegistryId(GetAccreditationByRegistry $request, int $registryId): JsonResponse
     {
         $rha = RegistryHasAccreditation::where('registry_id', $registryId)
             ->get()
@@ -87,10 +99,17 @@ class AccreditationController extends Controller
      *             @OA\Property(property="message", type="string", example="success"),
      *             @OA\Property(property="data", type="integer", example=1)
      *         )
-     *     )
+     *     ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          )
+     *      )
      * )
      */
-    public function storeByRegistryId(Request $request, int $registryId): JsonResponse
+    public function storeByRegistryId(CreateAccreditationByRegistry $request, int $registryId): JsonResponse
     {
         try {
             $input = $request->all();
@@ -121,7 +140,7 @@ class AccreditationController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/v1/registries/{registryId}/accreditations/{id}",
+     *     path="/api/v1/accreditations/{id}/registries/{registryId}",
      *     tags={"Accreditation"},
      *     summary="Update accreditation for a registry",
      *     @OA\Parameter(
@@ -150,10 +169,17 @@ class AccreditationController extends Controller
      *             @OA\Property(property="message", type="string", example="success"),
      *             @OA\Property(property="data", ref="#/components/schemas/Accreditation")
      *         )
-     *     )
+     *     ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          )
+     *      )
      * )
      */
-    public function updateByRegistryId(Request $request, int $id, int $registryId): JsonResponse
+    public function updateByRegistryId(UpdateAccreditationByRegistry $request, int $id, int $registryId): JsonResponse
     {
         try {
             $input = $request->all();
@@ -181,7 +207,7 @@ class AccreditationController extends Controller
     /**
      * Hidden from Swagger documentation
      */
-    public function destroyByRegistryId(Request $request, int $id, int $registryId): JsonResponse
+    public function destroyByRegistryId(DeleteAccreditationByRegistry $request, int $id, int $registryId): JsonResponse
     {
         try {
             Accreditation::where('id', $id)->first()->delete();
