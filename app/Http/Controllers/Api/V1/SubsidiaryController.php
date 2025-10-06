@@ -3,15 +3,17 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Exception;
-use App\Http\Controllers\Controller;
-use App\Models\Organisation;
-use App\Models\OrganisationHasSubsidiary;
 use App\Models\Subsidiary;
+use App\Models\Organisation;
+use App\Http\Traits\Responses;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use App\Http\Traits\Responses;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
+use App\Models\OrganisationHasSubsidiary;
+use App\Http\Requests\Subsidiaries\CreateSubsidiary;
+use App\Http\Requests\Subsidiaries\DeleteSubsidiary;
+use App\Http\Requests\Subsidiaries\UpdateSubsidiary;
 
 class SubsidiaryController extends Controller
 {
@@ -45,13 +47,6 @@ class SubsidiaryController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          ),
-     *      ),
-     *      @OA\Response(
      *          response=201,
      *          description="Success",
      *          @OA\JsonContent(
@@ -59,6 +54,20 @@ class SubsidiaryController extends Controller
      *              @OA\Property(property="data",
      *                  ref="#/components/schemas/Subsidiary",
      *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
      *      @OA\Response(
@@ -70,7 +79,7 @@ class SubsidiaryController extends Controller
      *      )
      * )
      */
-    public function store(Request $request, int $orgId): JsonResponse
+    public function store(CreateSubsidiary $request, int $orgId): JsonResponse
     {
         try {
             $input = $request->only(app(Subsidiary::class)->getFillable());
@@ -108,7 +117,7 @@ class SubsidiaryController extends Controller
      *         ),
      *      ),
      *      @OA\Parameter(
-     *         name="subsidiaryId",
+     *         name="id",
      *         in="path",
      *         description="subsidiary entry ID",
      *         required=true,
@@ -126,13 +135,6 @@ class SubsidiaryController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          ),
-     *      ),
-     *      @OA\Response(
      *          response=200,
      *          description="Success",
      *          @OA\JsonContent(
@@ -140,6 +142,20 @@ class SubsidiaryController extends Controller
      *              @OA\Property(property="data",
      *                  ref="#/components/schemas/Subsidiary",
      *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
      *      @OA\Response(
@@ -151,7 +167,7 @@ class SubsidiaryController extends Controller
      *      )
      * )
      */
-    public function update(Request $request, int $subsidiaryId, int $orgId): JsonResponse
+    public function update(UpdateSubsidiary $request, int $id, int $orgId): JsonResponse
     {
         try {
             $input = $request->only(app(Subsidiary::class)->getFillable());
@@ -189,7 +205,7 @@ class SubsidiaryController extends Controller
      *         ),
      *      ),
      *      @OA\Parameter(
-     *         name="subsidiaryId",
+     *         name="id",
      *         in="path",
      *         description="subsidiary entry ID",
      *         required=true,
@@ -200,18 +216,25 @@ class SubsidiaryController extends Controller
      *         ),
      *      ),
      *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *           ),
-     *      ),
-     *      @OA\Response(
      *          response=200,
      *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="success")
      *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *           ),
      *      ),
      *      @OA\Response(
      *          response=500,
@@ -222,10 +245,10 @@ class SubsidiaryController extends Controller
      *      )
      * )
      */
-    public function destroy(Request $request, int $subsidiaryId, int $orgId): JsonResponse
+    public function destroy(DeleteSubsidiary $request, int $id, int $orgId): JsonResponse
     {
         try {
-            $subsidiary = Subsidiary::findOrFail($subsidiaryId);
+            $subsidiary = Subsidiary::findOrFail($id);
             $org = Organisation::findOrFail($orgId);
 
             if (!Gate::allows('delete', $org)) {
