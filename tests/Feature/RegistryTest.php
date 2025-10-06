@@ -2,10 +2,11 @@
 
 namespace Tests\Feature;
 
-use KeycloakGuard\ActingAsKeycloakUser;
 use Carbon\Carbon;
 use Tests\TestCase;
+use App\Models\Registry;
 use Tests\Traits\Authorisation;
+use KeycloakGuard\ActingAsKeycloakUser;
 
 class RegistryTest extends TestCase
 {
@@ -142,5 +143,58 @@ class RegistryTest extends TestCase
         );
 
         $response->assertStatus(200);
+    }
+
+    public function test_the_application_cannot_get_registries(): void
+    {
+        $latestRegistry = Registry::query()->orderBy('id', 'desc')->first();
+        $registryIdTest = $latestRegistry->id + 1;
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$registryIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_update_registries(): void
+    {
+        $latestRegistry = Registry::query()->orderBy('id', 'desc')->first();
+        $registryIdTest = $latestRegistry->id + 1;
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'PUT',
+                self::TEST_URL . "/{$registryIdTest}",
+                [
+                    'dl_ident' => '23897592835298352',
+                    'pp_ident' => 'PASSPORTIDENT 92387429874 A',
+                    'verified' => true,
+                ]
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_delete_registries(): void
+    {
+        $latestRegistry = Registry::query()->orderBy('id', 'desc')->first();
+        $registryIdTest = $latestRegistry->id + 1;
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'DELETE',
+                self::TEST_URL . "/{$registryIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 }

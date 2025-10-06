@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Identity;
 use KeycloakGuard\ActingAsKeycloakUser;
 use Carbon\Carbon;
 use Tests\TestCase;
@@ -229,5 +230,76 @@ class IdentityTest extends TestCase
             ->json('DELETE', self::TEST_URL . '/' . $content['data']);
 
         $response->assertStatus(200);
+    }
+
+    public function test_the_application_cannot_get_identities(): void
+    {
+        $latestIdentity = Identity::query()->orderBy('id', 'desc')->first();
+        $identityIdTest = $latestIdentity ? $latestIdentity->id + 1 : 1;
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$identityIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_update_identities(): void
+    {
+        $latestIdentity = Identity::query()->orderBy('id', 'desc')->first();
+        $identityIdTest = $latestIdentity ? $latestIdentity->id + 1 : 1;
+
+        $passed = fake()->randomElement([0, 1]);
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'PUT',
+                self::TEST_URL . "/{$identityIdTest}",
+                [
+                    'registry_id' => 1,
+                    'address_1' => '123 Blah blah',
+                    'address_2' => '',
+                    'town' => 'Town',
+                    'county' => 'County',
+                    'country' => 'Country',
+                    'postcode' => 'BLA4 4HH',
+                    'dob' => '1988-01-01',
+                    'idvt_success' => $passed,
+                    'idvt_result' => ($passed === 1 ? 'approved' : 'declined'),
+                    'idvt_completed_at' => Carbon::now(),
+                    'idvt_identification_number' => null,
+                    'idvt_document_type' => 'PASSPORT',
+                    'idvt_document_number' => null,
+                    'idvt_document_country' => null,
+                    'idvt_document_valid_until' => null,
+                    'idvt_attempt_id' => null,
+                    'idvt_context_id' => null,
+                    'idvt_document_dob' => null,
+                    'idvt_context' => null,
+                ]
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_delete_identities(): void
+    {
+        $latestIdentity = Identity::query()->orderBy('id', 'desc')->first();
+        $identityIdTest = $latestIdentity ? $latestIdentity->id + 1 : 1;
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'DELETE',
+                self::TEST_URL . "/{$identityIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 }

@@ -18,11 +18,8 @@ use Illuminate\Support\Facades\Route;
 // });
 
 // stop all all other routes
-Route::any('{path}', function () {
-    $response = [
+Route::fallback(function () {
+    return response()->json([
         'message' => 'Resource not found',
-    ];
-
-    return response()->json($response)
-        ->setStatusCode(404);
+    ], 404);
 });

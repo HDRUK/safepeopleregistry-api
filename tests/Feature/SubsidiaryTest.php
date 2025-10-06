@@ -2,13 +2,14 @@
 
 namespace Tests\Feature;
 
-use KeycloakGuard\ActingAsKeycloakUser;
+use Tests\TestCase;
 use App\Models\Sector;
 use App\Models\Subsidiary;
-use App\Models\OrganisationHasSubsidiary;
 use Illuminate\Support\Str;
-use Tests\TestCase;
+use App\Models\Organisation;
 use Tests\Traits\Authorisation;
+use KeycloakGuard\ActingAsKeycloakUser;
+use App\Models\OrganisationHasSubsidiary;
 
 class SubsidiaryTest extends TestCase
 {
@@ -98,6 +99,33 @@ class SubsidiaryTest extends TestCase
         $response->assertStatus(201);
     }
 
+    public function test_the_application_cannot_create_a_subsidiary(): void
+    {
+        $payload = [
+            "name" => "test sub",
+            "address_1" => "Building 1",
+            "address_2" => "10 Euston Rd",
+            "town" => "London",
+            "county" => "None",
+            "country" => "United Kingdom",
+            "postcode" => "SG5 4PF"
+        ];
+
+        $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
+        $organisationIdTest = $latestOrganisation ? $latestOrganisation->id + 1 : 1;
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'POST',
+                self::TEST_URL . "/organisations/{$organisationIdTest}",
+                $payload
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
     public function test_the_application_can_update_a_subsidiary(): void
     {
         $payload = [
@@ -124,6 +152,36 @@ class SubsidiaryTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_the_application_cannot_update_a_subsidiary(): void
+    {
+        $payload = [
+            "name" => "renamed test sub",
+            "address_1" => "Building 1",
+            "address_2" => "10 Euston Rd",
+            "town" => "London",
+            "county" => "None",
+            "country" => "United Kingdom",
+            "postcode" => "SG5 4PF"
+        ];
+
+        $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
+        $organisationIdTest = $latestOrganisation ? $latestOrganisation->id + 1 : 1;
+
+        $latestSubsidiary = Subsidiary::query()->orderBy('id', 'desc')->first();
+        $subsidiaryIdTest = $latestSubsidiary ? $latestSubsidiary->id + 1 : 1;
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'PUT',
+                self::TEST_URL . "/{$subsidiaryIdTest}/organisations/{$organisationIdTest}",
+                $payload
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
     public function test_the_application_can_delete_a_subsidiary(): void
     {
         $response = $this->actingAs($this->admin)
@@ -139,5 +197,25 @@ class SubsidiaryTest extends TestCase
         $this->assertNull($ohsId);
 
         $response->assertStatus(200);
+    }
+
+    public function test_the_application_cannot_delete_a_subsidiary(): void
+    {
+        $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
+        $organisationIdTest = $latestOrganisation ? $latestOrganisation->id + 1 : 1;
+
+        $latestSubsidiary = Subsidiary::query()->orderBy('id', 'desc')->first();
+        $subsidiaryIdTest = $latestSubsidiary ? $latestSubsidiary->id + 1 : 1;
+
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'DELETE',
+                self::TEST_URL . "/{$subsidiaryIdTest}/organisations/{$organisationIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 }
