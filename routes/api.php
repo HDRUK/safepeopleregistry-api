@@ -431,12 +431,23 @@ Route::middleware('auth:api')
     ->prefix('v1/educations')
     ->controller(EducationController::class)
     ->group(function () {
-        Route::get('{registryId}', 'indexByRegistryId');
-        Route::get('{id}/{registryId}', 'showByRegistryId');
+        Route::get('{registryId}', 'indexByRegistryId'); //
+        // I think need to be like this - I dont know if fe use this endpoint
+        // Route::get('registries/{registryId}', 'indexByRegistryId');
+        Route::get('{id}/{registryId}', 'showByRegistryId'); //
+        // I think need to be like this - I dont know if fe use this endpoint
+        // Route::get('{id}/registries/{registryId}', 'showByRegistryId');
         Route::post('{registryId}', 'storeByRegistryId');
+        // I think need to be like this - I dont know if fe use this endpoint
+        // Route::get('registries/{registryId}', 'storeByRegistryId');
         Route::put('{id}/{registryId}', 'updateByRegistryId');
+        // I think need to be like this - I dont know if fe use this endpoint
+        // Route::put('{id}/registries/{registryId}', 'updateByRegistryId');
+        // no method in controller
         Route::patch('{id}/{registryId}', 'editByRegistryId');
         Route::delete('{id}/{registryId}', 'destroyByRegistryId');
+        // I think need to be like this - I dont know if fe use this endpoint
+        // Route::delete('{id}/registries/{registryId}', 'destroyByRegistryId');
     });
 
 // --- SECTORS ---

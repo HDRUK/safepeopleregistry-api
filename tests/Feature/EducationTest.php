@@ -2,11 +2,12 @@
 
 namespace Tests\Feature;
 
-use KeycloakGuard\ActingAsKeycloakUser;
 use Carbon\Carbon;
-use App\Models\Registry;
 use Tests\TestCase;
+use App\Models\Registry;
+use App\Models\Education;
 use Tests\Traits\Authorisation;
+use KeycloakGuard\ActingAsKeycloakUser;
 
 class EducationTest extends TestCase
 {
@@ -29,11 +30,46 @@ class EducationTest extends TestCase
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'GET',
-                self::TEST_URL . '/' . $this->registry->id
+                self::TEST_URL . "/{$this->registry->id}"
             );
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
+    }
+
+    public function test_the_application_cannot_list_educations_by_registry(): void
+    {
+        $latestRegistry = Registry::query()->orderBy('id', 'desc')->first();
+        $registryIdTest = $latestRegistry ? $latestRegistry->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$registryIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_cannot_list_educations_by_id_and_by_registry(): void
+    {
+        $latestRegistry = Registry::query()->orderBy('id', 'desc')->first();
+        $registryIdTest = $latestRegistry ? $latestRegistry->id + 1 : 1;
+
+        $latestEducation = Education::query()->orderBy('id', 'desc')->first();
+        $educationIdTest = $latestEducation ? $latestEducation->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$educationIdTest}/{$registryIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 
     public function test_the_application_can_create_educations(): void
@@ -47,6 +83,23 @@ class EducationTest extends TestCase
 
         $response->assertStatus(201);
         $this->assertArrayHasKey('data', $response);
+    }
+
+    public function test_the_application_cannot_create_educations(): void
+    {
+        $latestRegistry = Registry::query()->orderBy('id', 'desc')->first();
+        $registryIdTest = $latestRegistry ? $latestRegistry->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL . "/{$registryIdTest}",
+                $this->getEducationPayload()
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 
     public function test_the_application_can_show_educations(): void
@@ -109,6 +162,27 @@ class EducationTest extends TestCase
         $this->assertEquals($content['registry_id'], $this->registry->id);
     }
 
+
+    public function test_the_application_cannot_update_educations(): void
+    {
+        $latestRegistry = Registry::query()->orderBy('id', 'desc')->first();
+        $registryIdTest = $latestRegistry ? $latestRegistry->id + 1 : 1;
+
+        $latestEducation = Education::query()->orderBy('id', 'desc')->first();
+        $educationIdTest = $latestEducation ? $latestEducation->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . "/{$educationIdTest}/{$registryIdTest}",
+                $this->getUpdatedEducationPayload()
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
     public function test_the_application_can_delete_educations(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
@@ -130,6 +204,25 @@ class EducationTest extends TestCase
             );
 
         $response->assertStatus(200);
+    }
+
+    public function test_the_application_cannot_delete_educations(): void
+    {
+        $latestRegistry = Registry::query()->orderBy('id', 'desc')->first();
+        $registryIdTest = $latestRegistry ? $latestRegistry->id + 1 : 1;
+
+        $latestEducation = Education::query()->orderBy('id', 'desc')->first();
+        $educationIdTest = $latestEducation ? $latestEducation->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'DELETE',
+                self::TEST_URL . "/{$educationIdTest}/{$registryIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 
     private function getEducationPayload(): array

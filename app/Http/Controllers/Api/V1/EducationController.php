@@ -4,11 +4,15 @@ namespace App\Http\Controllers\Api\V1;
 
 use Exception;
 use Carbon\Carbon;
-use App\Models\Education;
 use App\Models\Registry;
+use App\Models\Education;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Educations\GetEducationByRegistry;
+use App\Http\Requests\Educations\CreateEducationByRegistry;
+use App\Http\Requests\Educations\GetEducationByIdByRegistry;
+use App\Http\Requests\Educations\DeleteEducationByIdByRegistry;
+use App\Http\Requests\Educations\UpdateEducationByIdByRegistry;
 
 /**
  * @OA\Tag(
@@ -20,7 +24,7 @@ class EducationController extends Controller
 {
     /**
      * @OA\Get(
-     *     path="/api/v1/registries/{registryId}/educations",
+     *     path="/api/v1/educations/registries/{registryId}",
      *     tags={"Education"},
      *     summary="Get education records by registry ID",
      *     @OA\Parameter(
@@ -37,10 +41,17 @@ class EducationController extends Controller
      *             type="array",
      *             @OA\Items(ref="#/components/schemas/Education")
      *         )
-     *     )
+     *     ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      )
      * )
      */
-    public function indexByRegistryId(Request $request, int $registryId): JsonResponse
+    public function indexByRegistryId(GetEducationByRegistry $request, int $registryId): JsonResponse
     {
         $educations = Education::where('registry_id', $registryId)->get();
 
@@ -52,7 +63,7 @@ class EducationController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/v1/registries/{registryId}/educations/{id}",
+     *     path="/api/v1/educations/{id}/registries/{registryId}",
      *     tags={"Education"},
      *     summary="Get a specific education record by ID and registry ID",
      *     @OA\Parameter(
@@ -74,6 +85,13 @@ class EducationController extends Controller
      *         description="Success",
      *         @OA\JsonContent(ref="#/components/schemas/Education")
      *     ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
      *     @OA\Response(
      *         response=404,
      *         description="Education record not found",
@@ -84,7 +102,7 @@ class EducationController extends Controller
      *     )
      * )
      */
-    public function showByRegistryId(Request $request, int $id, int $registryId): JsonResponse
+    public function showByRegistryId(GetEducationByIdByRegistry $request, int $id, int $registryId): JsonResponse
     {
         try {
             $education = Education::where([
@@ -128,16 +146,14 @@ class EducationController extends Controller
      *     ),
      *     @OA\Response(
      *         response=400,
-     *         description="Registry not found",
+     *         description="Invalid argument(s)",
      *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="message", type="string", example="failed"),
-     *             @OA\Property(property="error", type="string", example="registry not found")
+     *             @OA\Property(property="message", type="string", example="Invalid argument(s)"),
      *         )
      *     )
      * )
      */
-    public function storeByRegistryId(Request $request, int $registryId): JsonResponse
+    public function storeByRegistryId(CreateEducationByRegistry $request, int $registryId): JsonResponse
     {
         try {
             $input = $request->all();
@@ -201,16 +217,14 @@ class EducationController extends Controller
      *     ),
      *     @OA\Response(
      *         response=400,
-     *         description="Unable to save education",
+     *         description="Invalid argument(s)",
      *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="message", type="string", example="failed"),
-     *             @OA\Property(property="error", type="string", example="unable to save education")
+     *             @OA\Property(property="message", type="string", example="Invalid argument(s)"),
      *         )
      *     )
      * )
      */
-    public function updateByRegistryId(Request $request, int $id, int $registryId): JsonResponse
+    public function updateByRegistryId(UpdateEducationByIdByRegistry $request, int $id, int $registryId): JsonResponse
     {
         try {
             $input = $request->all();
@@ -273,10 +287,17 @@ class EducationController extends Controller
      *             @OA\Property(property="message", type="string", example="success"),
      *             @OA\Property(property="data", type="null", example=null)
      *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid argument(s)",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *         )
      *     )
      * )
      */
-    public function destroyByRegistryId(Request $request, int $id, int $registryId): JsonResponse
+    public function destroyByRegistryId(DeleteEducationByIdByRegistry $request, int $id, int $registryId): JsonResponse
     {
         try {
             Education::where([
