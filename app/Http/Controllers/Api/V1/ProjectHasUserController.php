@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Exception;
-use App\Http\Controllers\Controller;
-use App\Models\ProjectHasUser;
 use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
+use App\Models\ProjectHasUser;
 use App\Traits\CommonFunctions;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\ProjectHasUsers\GetProjectHasUser;
+use App\Http\Requests\ProjectHasUsers\DeleteProjectHasUser;
 
 class ProjectHasUserController extends Controller
 {
@@ -39,6 +41,13 @@ class ProjectHasUserController extends Controller
      *          )
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=403,
      *          description="Forbidden",
      *          @OA\JsonContent(
@@ -58,8 +67,8 @@ class ProjectHasUserController extends Controller
      */
 
     public function show(
-        Request $request,
-        int $projectUserId,
+        GetProjectHasUser $request,
+        int $id,
     ) {
         try {
             $phu = ProjectHasUser::with([
@@ -70,7 +79,7 @@ class ProjectHasUserController extends Controller
                 'affiliation.organisation:id,organisation_name'
             ])
                 ->where([
-                    'id' => $projectUserId,
+                    'id' => $id,
                 ])->first();
 
             return $this->OKResponse($phu);
@@ -103,12 +112,19 @@ class ProjectHasUserController extends Controller
      *          description="success",
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="failed",
      *      )
      * )
      */
-    public function delete(Request $request, int $id)
+    public function delete(DeleteProjectHasUser $request, int $id)
     {
         try {
             $data = ProjectHasUser::where('id', $id);
