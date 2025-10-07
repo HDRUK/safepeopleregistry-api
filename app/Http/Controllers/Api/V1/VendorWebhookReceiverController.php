@@ -4,11 +4,12 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Models\DebugLog;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Http\Traits\HmacSigning;
-use App\Services\WebhookTranslators\TranslatorFactory;
 use App\Http\Traits\Responses;
+use App\Http\Traits\HmacSigning;
 use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
+use App\Services\WebhookTranslators\TranslatorFactory;
+use App\Http\Requests\VendorWebhookReceivers\GetVendorWebhookReceiverByProvider;
 
 /**
  * @OA\Tag(
@@ -51,23 +52,22 @@ class VendorWebhookReceiverController extends Controller
      *     ),
      *     @OA\Response(
      *         response=400,
-     *         description="Invalid signature",
+     *         description="Invalid argument(s)",
      *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="message", type="string", example="Invalid signature")
+     *             @OA\Property(property="message", type="string", example="Invalid argument(s)"),
      *         )
      *     ),
-     *     @OA\Response(
-     *         response=500,
-     *         description="Internal server error",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="message", type="string", example="An error occurred")
-     *         )
-     *     )
+      *    @OA\Response(
+     *        response=500,
+     *        description="Internal server error",
+     *        @OA\JsonContent(
+     *            type="object",
+     *            @OA\Property(property="message", type="string", example="An error occurred")
+     *        )
+     *    )
      * )
      */
-    public function receive(Request $request, string $provider): JsonResponse
+    public function receive(GetVendorWebhookReceiverByProvider $request, string $provider): JsonResponse
     {
         DebugLog::create([
             'class' => VendorWebhookReceiverController::class,
