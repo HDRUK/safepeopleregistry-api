@@ -42,6 +42,38 @@ class FileTest extends TestCase
         $response->assertStatus(404);
     }
 
+    public function test_cannot_get_file_by_id()
+    {
+        $latestFile = File::query()->orderBy('id', 'desc')->first();
+        $fileIdTest = $latestFile ? $latestFile->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$fileIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_it_should_return_not_download_by_id()
+    {
+        $latestFile = File::query()->orderBy('id', 'desc')->first();
+        $fileIdTest = $latestFile ? $latestFile->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$fileIdTest}/download"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
     public function test_it_should_download_processed_file()
     {
         $file = File::create([

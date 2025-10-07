@@ -2,20 +2,22 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Controllers\Controller;
-use App\Jobs\ScanFileUpload;
-use App\Models\File;
-use App\Models\Organisation;
-use App\Models\OrganisationHasFile;
-use App\Models\Registry;
-use App\Models\RegistryHasFile;
-use App\Models\User;
-use App\Traits\CommonFunctions;
 use Exception;
-use Illuminate\Http\JsonResponse;
+use App\Models\File;
+use App\Models\User;
+use App\Models\Registry;
+use App\Jobs\ScanFileUpload;
+use App\Models\Organisation;
 use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
+use App\Models\RegistryHasFile;
+use App\Traits\CommonFunctions;
+use Illuminate\Http\JsonResponse;
+use App\Models\OrganisationHasFile;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\FileUploads\GetFileUpload;
+use App\Http\Requests\FileUploads\GetDownloadFileUpload;
 
 class FileUploadController extends Controller
 {
@@ -55,6 +57,13 @@ class FileUploadController extends Controller
      *          )
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Not found",
      *          @OA\JsonContent(
@@ -63,7 +72,7 @@ class FileUploadController extends Controller
      *      ),
      * )
      */
-    public function show(Request $request, int $id): JsonResponse
+    public function show(GetFileUpload $request, int $id): JsonResponse
     {
         $file = File::findOrFail($id);
 
@@ -112,6 +121,13 @@ class FileUploadController extends Controller
      *          }
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="File not found",
      *          @OA\JsonContent(
@@ -120,7 +136,7 @@ class FileUploadController extends Controller
      *      ),
      * )
      */
-    public function download(int $id)
+    public function download(GetDownloadFileUpload $request, int $id)
     {
         try {
             $file = File::find($id);
