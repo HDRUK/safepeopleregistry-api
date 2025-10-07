@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
+use App\Models\ProjectRole;
 use Tests\Traits\Authorisation;
 use KeycloakGuard\ActingAsKeycloakUser;
 
@@ -46,6 +47,22 @@ class ProjectRoleTest extends TestCase
         $content = $response->decodeResponseJson()['data'];
 
         $this->assertTrue($content['name'] === 'Principal Investigator (PI)');
+    }
+
+    public function test_the_application_cannot_show_a_project_role(): void
+    {
+        $lastestProjectRole = ProjectRole::query()->orderBy('id', 'desc')->first();
+        $projectRoleIdTest = $lastestProjectRole ? $lastestProjectRole->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$projectRoleIdTest}",
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 
     public function test_the_application_can_create_project_roles(): void
@@ -97,5 +114,24 @@ class ProjectRoleTest extends TestCase
         $response->assertStatus(200);
         $content = $response->decodeResponseJson()['data'];
         $this->assertTrue($content['name'] === 'Test Role 321');
+    }
+
+    public function test_the_application_cannot_update_project_roles(): void
+    {
+        $lastestProjectRole = ProjectRole::query()->orderBy('id', 'desc')->first();
+        $projectRoleIdTest = $lastestProjectRole ? $lastestProjectRole->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'PUT',
+            self::TEST_URL . "/{$projectRoleIdTest}",
+            [
+                'name' => 'Test Role 321',
+            ]
+        );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 }
