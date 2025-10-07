@@ -17,6 +17,7 @@ class WebhookTest extends TestCase
 
     protected $custodian;
     protected const TEST_URL = '/api/v1/webhooks';
+    protected $eventTrigger = null;
 
     protected function setUp(): void
     {
@@ -81,6 +82,22 @@ class WebhookTest extends TestCase
             ]
         ]);
     }
+
+    public function test_the_application_cannot_get_webhook_receivers_by_custodian(): void
+    {
+        CustodianWebhookReceiver::factory()->count(3)->create(['custodian_id' => $this->custodian->id]);
+
+        $latestCustodian = Custodian::query()->orderBy('id', 'desc')->first();
+        $custodianIdTest = $latestCustodian ? $latestCustodian->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->getJson(self::TEST_URL . "/receivers/{$custodianIdTest}");
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
     public function test_the_application_can_create_webhook_receiver(): void
     {
         $webhookData = [
@@ -140,6 +157,28 @@ class WebhookTest extends TestCase
         ]);
     }
 
+    public function test_the_application_cannot_update_webhook_receiver_by_custodian_id(): void
+    {
+        $receiver = CustodianWebhookReceiver::factory()->create(['custodian_id' => $this->custodian->id]);
+        $newEventTrigger = WebhookEventTrigger::factory()->create();
+
+        $updateData = [
+            'id' => $receiver->id,
+            'url' => 'https://example.com/new-webhook',
+            'webhook_event_id' => $newEventTrigger->id,
+        ];
+
+        $latestCustodian = Custodian::query()->orderBy('id', 'desc')->first();
+        $custodianIdTest = $latestCustodian ? $latestCustodian->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->putJson(self::TEST_URL . "/receivers/{$custodianIdTest}", $updateData);
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
     public function test_the_application_can_delete_webhook_receiver(): void
     {
         $receiver = CustodianWebhookReceiver::factory()->create(['custodian_id' => $this->custodian->id]);
@@ -156,5 +195,24 @@ class WebhookTest extends TestCase
         ]);
 
         $this->assertDatabaseMissing('custodian_webhook_receivers', ['id' => $receiver->id]);
+    }
+
+    public function test_the_application_cannot_delete_webhook_receiver(): void
+    {
+        $receiver = CustodianWebhookReceiver::factory()->create(['custodian_id' => $this->custodian->id]);
+
+        $deleteData = [
+            'id' => $receiver->id,
+        ];
+
+        $latestCustodian = Custodian::query()->orderBy('id', 'desc')->first();
+        $custodianIdTest = $latestCustodian ? $latestCustodian->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->deleteJson(self::TEST_URL . "/receivers/{$custodianIdTest}", $deleteData);
+            
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 }

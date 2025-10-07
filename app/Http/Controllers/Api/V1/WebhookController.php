@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Exception;
-use App\Http\Controllers\Controller;
-use App\Http\Traits\Responses;
-use App\Models\CustodianWebhookReceiver;
-use App\Models\WebhookEventTrigger;
 use Illuminate\Http\Request;
+use App\Http\Traits\Responses;
 use Illuminate\Http\JsonResponse;
+use App\Models\WebhookEventTrigger;
+use App\Http\Controllers\Controller;
+use App\Models\CustodianWebhookReceiver;
+use App\Http\Requests\Webhooks\GetReceiverByCustodian;
+use App\Http\Requests\Webhooks\DeleteReceiverByCustodian;
+use App\Http\Requests\Webhooks\UpdateReceiverByCustodian;
 
 /**
  * @OA\Tag(
@@ -104,10 +107,17 @@ class WebhookController extends Controller
      *                 )
      *             )
      *         )
-     *     )
+     *     ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      )
      * )
      */
-    public function getReceiversByCustodian(int $custodianId): JsonResponse
+    public function getReceiversByCustodian(GetReceiverByCustodian $request, int $custodianId): JsonResponse
     {
         $receivers = CustodianWebhookReceiver::where('custodian_id', $custodianId)
             ->with('eventTrigger:id,name,description')
@@ -209,6 +219,13 @@ class WebhookController extends Controller
      *         )
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Invalid argument(s)",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *         )
+     *     ),
+     *     @OA\Response(
      *         response=404,
      *         description="Webhook receiver not found"
      *     ),
@@ -218,7 +235,7 @@ class WebhookController extends Controller
      *     )
      * )
      */
-    public function updateReceiver(Request $request, int $custodianId): JsonResponse
+    public function updateReceiver(UpdateReceiverByCustodian $request, int $custodianId): JsonResponse
     {
         $request->validate([
             'id' => 'required|exists:custodian_webhook_receivers,id',
@@ -270,12 +287,19 @@ class WebhookController extends Controller
      *         )
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Invalid argument(s)",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *         )
+     *     ),
+     *     @OA\Response(
      *         response=404,
      *         description="Webhook receiver not found"
      *     )
      * )
      */
-    public function deleteReceiver(Request $request, int $custodianId): JsonResponse
+    public function deleteReceiver(DeleteReceiverByCustodian $request, int $custodianId): JsonResponse
     {
         $request->validate([
             'id' => 'required|exists:custodian_webhook_receivers,id',
