@@ -4,7 +4,7 @@ namespace App\Http\Requests\CustodianModelConfig;
 
 use App\Http\Requests\BaseFormRequest;
 
-class UpdateCustodianModelConfigRequest extends BaseFormRequest
+class DeleteCustodianModelConfig extends BaseFormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -18,10 +18,6 @@ class UpdateCustodianModelConfigRequest extends BaseFormRequest
                 'required',
                 'integer',
                 'exists:custodian_model_configs,id',
-            ],
-            'active' => [
-                'boolean',
-                'sometimes',
             ],
         ];
     }

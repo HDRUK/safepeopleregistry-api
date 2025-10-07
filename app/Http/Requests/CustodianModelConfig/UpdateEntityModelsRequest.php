@@ -3,8 +3,9 @@
 namespace App\Http\Requests\CustodianModelConfig;
 
 use App\Http\Requests\BaseFormRequest;
+use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateCustodianModelConfigRequest extends BaseFormRequest
+class UpdateEntityModelsRequest extends BaseFormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -14,18 +15,14 @@ class UpdateCustodianModelConfigRequest extends BaseFormRequest
     public function rules(): array
     {
         return [
-            'id' => [
+            'custodianId' => [
                 'required',
                 'integer',
-                'exists:custodian_model_configs,id',
-            ],
-            'active' => [
-                'boolean',
-                'sometimes',
+                'exists:custodians,id',
             ],
         ];
     }
-
+    
     /**
      * Add Route parameters to the FormRequest.
      *
@@ -33,6 +30,6 @@ class UpdateCustodianModelConfigRequest extends BaseFormRequest
      */
     protected function prepareForValidation()
     {
-        $this->merge(['id' => $this->route('id')]);
+        $this->merge(['custodianId' => $this->route('custodianId')]);
     }
 }

@@ -3,18 +3,21 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Exception;
-use App\Models\CustodianModelConfig;
 use App\Models\Custodian;
-use App\Models\EntityModelType;
+use Illuminate\Http\Request;
 use App\Models\DecisionModel;
-use App\Traits\CommonFunctions;
 use App\Http\Traits\Responses;
+use App\Models\EntityModelType;
+use App\Traits\CommonFunctions;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
+use App\Models\CustodianModelConfig;
+use App\Http\Requests\CustodianModelConfig\GetEntityModelsRequest;
+use App\Http\Requests\CustodianModelConfig\UpdateEntityModelsRequest;
+use App\Http\Requests\CustodianModelConfig\DeleteCustodianModelConfig;
 use App\Http\Requests\CustodianModelConfig\CreateCustodianModelConfigRequest;
 use App\Http\Requests\CustodianModelConfig\UpdateCustodianModelConfigRequest;
-use App\Http\Requests\CustodianModelConfig\GetEntityModelsRequest;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
+use App\Http\Requests\CustodianModelConfig\GetCustodianModelConfigByCustodian;
 
 class CustodianModelConfigController extends Controller
 {
@@ -51,6 +54,13 @@ class CustodianModelConfigController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Not found response",
      *          @OA\JsonContent(
@@ -59,7 +69,7 @@ class CustodianModelConfigController extends Controller
      *      )
      * )
      */
-    public function getByCustodianID(Request $request, int $id): JsonResponse
+    public function getByCustodianID(GetCustodianModelConfigByCustodian $request, int $id): JsonResponse
     {
         $conf = CustodianModelConfig::where('custodian_id', $id)->get();
         if (!$conf) {
@@ -161,6 +171,13 @@ class CustodianModelConfigController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Not found response",
      *          @OA\JsonContent(
@@ -220,18 +237,25 @@ class CustodianModelConfigController extends Controller
      *         ),
      *      ),
      *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *           ),
-     *      ),
-     *      @OA\Response(
      *          response=200,
      *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="success")
      *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *           ),
      *      ),
      *      @OA\Response(
      *          response=500,
@@ -242,7 +266,7 @@ class CustodianModelConfigController extends Controller
      *      )
      * )
      */
-    public function destroy(Request $request, int $id): JsonResponse
+    public function destroy(DeleteCustodianModelConfig $request, int $id): JsonResponse
     {
         try {
             $conf = CustodianModelConfig::where('id', $id)->first();
@@ -291,6 +315,13 @@ class CustodianModelConfigController extends Controller
      *                  )
      *              )
      *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
      *      ),
      *      @OA\Response(
      *          response=404,
@@ -379,9 +410,9 @@ class CustodianModelConfigController extends Controller
      *      ),
      *      @OA\Response(
      *          response=400,
-     *          description="Bad Request",
+     *          description="Invalid argument(s)",
      *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="Invalid input")
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
      *          )
      *      ),
      *      @OA\Response(
@@ -393,7 +424,7 @@ class CustodianModelConfigController extends Controller
      *      )
      * )
      */
-    public function updateEntityModels(Request $request, int $custodianId): JsonResponse
+    public function updateEntityModels(UpdateEntityModelsRequest $request, int $custodianId): JsonResponse
     {
         try {
             $request->validate([

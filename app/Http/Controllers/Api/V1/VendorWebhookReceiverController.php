@@ -57,7 +57,7 @@ class VendorWebhookReceiverController extends Controller
      *             @OA\Property(property="message", type="string", example="Invalid argument(s)"),
      *         )
      *     ),
-      *    @OA\Response(
+     *    @OA\Response(
      *        response=500,
      *        description="Internal server error",
      *        @OA\JsonContent(

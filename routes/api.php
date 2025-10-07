@@ -540,7 +540,7 @@ Route::middleware('auth:api')
         Route::get('{id}', 'getByCustodianID');
         Route::put('{id}', 'update');
         Route::delete('{id}', 'destroy');
-        Route::get('{id}/entity_models', 'getEntityModels');
+        Route::get('{custodianId}/entity_models', 'getEntityModels');
         Route::put('{id}/entity_models', 'updateEntityModels');
     });
 
