@@ -307,11 +307,11 @@ class CustodianHasProjectOrganisationController extends Controller
             }
 
             if ($status !== strtoupper($currentStatus->slug) && !$organisation->system_approved) {
-                return $this->ForbiddenResponse('Organisation must be approved by an administrator 1');
+                return $this->ForbiddenResponse();
             }
 
             if ($status === State::STATE_VALIDATION_COMPLETE && !Gate::allows('updateIsAdmin', User::class)) {
-                return $this->ForbiddenResponse('Organisation must be approved by an administrator 2');
+                return $this->ForbiddenResponse();
             }
 
             if (isset($status)) {
