@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Exceptions\NotFoundException;
-use App\Http\Controllers\Controller;
-use App\Models\Infringement;
-use App\Traits\CommonFunctions;
 use Exception;
-use Illuminate\Http\JsonResponse;
+use App\Models\Infringement;
 use Illuminate\Http\Request;
+use App\Traits\CommonFunctions;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
+use App\Exceptions\NotFoundException;
+use App\Http\Requests\Infringements\GetInfringement;
 
 class InfringementController extends Controller
 {
@@ -113,7 +114,7 @@ class InfringementController extends Controller
      *      )
      * )
      */
-    public function show(Request $request, int $id): JsonResponse
+    public function show(GetInfringement $request, int $id): JsonResponse
     {
         $infringement = Infringement::findOrFail($id);
         if ($infringement) {
