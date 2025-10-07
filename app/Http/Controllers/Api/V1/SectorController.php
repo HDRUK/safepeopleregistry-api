@@ -65,7 +65,7 @@ class SectorController extends Controller
      *         @OA\JsonContent(ref="#/components/schemas/Sector")
      *     ),
      *     @OA\Response(
-     *         response=404,
+     *         response=400,
      *         description="Invalid argument(s)",
      *         @OA\JsonContent(
      *             type="object",
@@ -167,7 +167,7 @@ class SectorController extends Controller
      *         @OA\JsonContent(ref="#/components/schemas/Sector")
      *     ),
      *     @OA\Response(
-     *         response=404,
+     *         response=400,
      *         description="Invalid argument(s)",
      *         @OA\JsonContent(
      *             type="object",
@@ -229,7 +229,7 @@ class SectorController extends Controller
      *         )
      *     ),
      *     @OA\Response(
-     *         response=404,
+     *         response=400,
      *         description="Invalid argument(s)",
      *         @OA\JsonContent(
      *             type="object",
