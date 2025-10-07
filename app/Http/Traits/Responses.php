@@ -49,11 +49,11 @@ trait Responses
         ], Response::HTTP_UNAUTHORIZED);
     }
 
-    public function ForbiddenResponse(): JsonResponse
+    public function ForbiddenResponse(mixed $data = null): JsonResponse
     {
         return response()->json([
             'message' => 'forbidden',
-            'data' => null,
+            'data' => $data,
         ], Response::HTTP_FORBIDDEN);
     }
 

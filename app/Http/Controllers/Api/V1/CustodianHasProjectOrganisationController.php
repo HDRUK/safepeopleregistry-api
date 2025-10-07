@@ -12,6 +12,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use App\Models\CustodianHasProjectOrganisation;
+use App\Models\Organisation;
+use App\Models\ProjectHasOrganisation;
 use App\Models\State;
 
 class CustodianHasProjectOrganisationController extends Controller
@@ -279,9 +281,20 @@ class CustodianHasProjectOrganisationController extends Controller
                 return $this->NotFoundResponse();
             }
 
+            $projectOrganisation = ProjectHasOrganisation::where('id', $projectOrganisationId)->first();
+            if (!$projectOrganisation) {
+                return $this->NotFoundResponse();
+            }
+
+            $organisation = Organisation::where('id', $projectOrganisation->organisation_id)->first();
+            if (!$organisation) {
+                return $this->NotFoundResponse();
+            }
+
             $status = $request->get('status');
-            if ($status === State::STATE_VALIDATION_COMPLETE && !Gate::allows('updateIsAdmin', User::class)) {
-                return $this->ForbiddenResponse();
+
+            if ($status === State::STATE_VALIDATION_COMPLETE && !$organisation->system_approved) {
+                return $this->ForbiddenResponse('Organisation must be approved by an administrator');
             }
 
             if (isset($status)) {
