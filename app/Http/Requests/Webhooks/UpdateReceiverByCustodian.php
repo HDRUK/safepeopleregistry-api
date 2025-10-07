@@ -17,7 +17,7 @@ class UpdateReceiverByCustodian extends BaseFormRequest
             'custodianId' => [
                 'required',
                 'integer',
-                'exists:custodians,custodian_id',
+                'exists:custodians,id',
             ],
         ];
     }

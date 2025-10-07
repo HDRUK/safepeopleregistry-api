@@ -182,7 +182,7 @@ class WebhookTest extends TestCase
     public function test_the_application_can_delete_webhook_receiver(): void
     {
         $receiver = CustodianWebhookReceiver::factory()->create(['custodian_id' => $this->custodian->id]);
-
+        
         $deleteData = [
             'id' => $receiver->id,
         ];
