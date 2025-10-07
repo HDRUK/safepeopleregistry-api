@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Models\DebugLog;
-use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
 use App\Http\Traits\HmacSigning;
 use Illuminate\Http\JsonResponse;

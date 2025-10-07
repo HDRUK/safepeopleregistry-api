@@ -28,7 +28,7 @@ class GetEntityModelsRequest extends BaseFormRequest
             ],
         ];
     }
-    
+
     /**
      * Add Route parameters to the FormRequest.
      *

@@ -182,7 +182,7 @@ class WebhookTest extends TestCase
     public function test_the_application_can_delete_webhook_receiver(): void
     {
         $receiver = CustodianWebhookReceiver::factory()->create(['custodian_id' => $this->custodian->id]);
-        
+
         $deleteData = [
             'id' => $receiver->id,
         ];
@@ -210,7 +210,7 @@ class WebhookTest extends TestCase
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->deleteJson(self::TEST_URL . "/receivers/{$custodianIdTest}", $deleteData);
-            
+
         $response->assertStatus(400);
         $message = $response->decodeResponseJson()['message'];
         $this->assertEquals('Invalid argument(s)', $message);

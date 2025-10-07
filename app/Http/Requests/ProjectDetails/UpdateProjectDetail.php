@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Http\Requests\CustodianModelConfig;
+namespace App\Http\Requests\ProjectDetails;
 
 use App\Http\Requests\BaseFormRequest;
-use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateEntityModelsRequest extends BaseFormRequest
+class UpdateProjectDetail extends BaseFormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -15,10 +14,10 @@ class UpdateEntityModelsRequest extends BaseFormRequest
     public function rules(): array
     {
         return [
-            'custodianId' => [
+            'id' => [
                 'required',
                 'integer',
-                'exists:custodians,id',
+                'exists:project_details,id',
             ],
         ];
     }
@@ -30,6 +29,6 @@ class UpdateEntityModelsRequest extends BaseFormRequest
      */
     protected function prepareForValidation()
     {
-        $this->merge(['custodianId' => $this->route('custodianId')]);
+        $this->merge(['id' => $this->route('id')]);
     }
 }
