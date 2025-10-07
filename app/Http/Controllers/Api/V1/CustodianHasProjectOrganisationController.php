@@ -310,10 +310,6 @@ class CustodianHasProjectOrganisationController extends Controller
                 return $this->ForbiddenResponse();
             }
 
-            if ($status === State::STATE_VALIDATION_COMPLETE && !Gate::allows('updateIsAdmin', User::class)) {
-                return $this->ForbiddenResponse();
-            }
-
             if (isset($status)) {
                 $originalStatus = $cho->getState();
                 if ($cho->canTransitionTo($status)) {
