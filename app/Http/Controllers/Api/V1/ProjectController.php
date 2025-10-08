@@ -405,6 +405,7 @@ class ProjectController extends Controller
      */
     public function getProjectUsers(GetProjectUsers $request, int $id): JsonResponse
     {
+        $loggedInUserId = $request->user();
 
         $projectUsers = ProjectHasUser::with([
             'registry.user',
@@ -421,6 +422,11 @@ class ProjectController extends Controller
                 $query->searchViaRequest()
                     ->filterByState()
                     ->with("modelState");
+            })
+            ->whereHas('registry.user', function($query) use ($loggedInUserId) {
+                if($loggedInUserId->user_group === User::GROUP_USERS) {
+                    $query->where('id', $loggedInUserId->id);
+                }
             })
             ->whereHas('affiliation.organisation', function ($query) {
                 /** @phpstan-ignore-next-line */
