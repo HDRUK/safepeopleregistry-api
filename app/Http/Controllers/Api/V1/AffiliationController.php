@@ -15,6 +15,14 @@ use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
+use App\Http\Requests\Affiliations\DeleteAffiliation;
+use App\Http\Requests\Affiliations\UpdateAffiliation;
+use App\Http\Requests\Affiliations\VerificationEmail;
+use App\Http\Requests\Affiliations\ResendVerificationEmail;
+use App\Http\Requests\Affiliations\GetAffiliationByRegistry;
+use App\Http\Requests\Affiliations\GetOrganisationAffiliation;
+use App\Http\Requests\Affiliations\CreateAffiliationByRegistry;
+use App\Http\Requests\Affiliations\UpdateAffiliationByRegistry;
 
 class AffiliationController extends Controller
 {
@@ -51,6 +59,13 @@ class AffiliationController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Not found response",
      *          @OA\JsonContent(
@@ -59,9 +74,9 @@ class AffiliationController extends Controller
      *      )
      * )
      */
-    public function indexByRegistryId(Request $request, int $registryId): JsonResponse
+    public function indexByRegistryId(GetAffiliationByRegistry $request, int $registryId): JsonResponse
     {
-        $loggedInUserId = $request->user()->id;
+        $loggedInUserId = $request->user()?->id;
         $loggedInUser = User::where('id', $loggedInUserId)->first();
         $isUserGroupOrg = (!is_null($loggedInUser) && $loggedInUser->user_group === 'ORGANISATIONS') ? true : false;
 
@@ -147,6 +162,13 @@ class AffiliationController extends Controller
      *          )
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Affiliation not found",
      *          @OA\JsonContent(
@@ -155,7 +177,7 @@ class AffiliationController extends Controller
      *      )
      * )
      */
-    public function getOrganisationAffiliation(Request $request, int $registryId, int $organisationId): JsonResponse
+    public function getOrganisationAffiliation(GetOrganisationAffiliation $request, int $registryId, int $organisationId): JsonResponse
     {
         $affiliation = Affiliation::with(
             [
@@ -212,13 +234,6 @@ class AffiliationController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          ),
-     *      ),
-     *      @OA\Response(
      *          response=200,
      *          description="Success",
      *          @OA\JsonContent(
@@ -226,6 +241,20 @@ class AffiliationController extends Controller
      *              @OA\Property(property="data",
      *                  ref="#/components/schemas/Affiliation"
      *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
      *      @OA\Response(
@@ -237,7 +266,7 @@ class AffiliationController extends Controller
      *      )
      * )
      */
-    public function storeByRegistryId(Request $request, int $registryId): JsonResponse
+    public function storeByRegistryId(CreateAffiliationByRegistry $request, int $registryId): JsonResponse
     {
         try {
             $input = $request->only(app(Affiliation::class)->getFillable());
@@ -273,7 +302,7 @@ class AffiliationController extends Controller
     }
 
     //Hide from swagger docs
-    public function resendVerificationEmail(Request $request, int $id): JsonResponse
+    public function resendVerificationEmail(ResendVerificationEmail $request, int $id): JsonResponse
     {
         try {
             if (!Gate::allows('isAdmin', Affiliation::class)) {
@@ -342,13 +371,6 @@ class AffiliationController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          ),
-     *      ),
-     *      @OA\Response(
      *          response=200,
      *          description="Success",
      *          @OA\JsonContent(
@@ -356,6 +378,20 @@ class AffiliationController extends Controller
      *              @OA\Property(property="data",
      *                  ref="#/components/schemas/Affiliation"
      *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
      *      @OA\Response(
@@ -367,7 +403,7 @@ class AffiliationController extends Controller
      *      )
      * )
      */
-    public function update(Request $request, int $id): JsonResponse
+    public function update(UpdateAffiliation $request, int $id): JsonResponse
     {
         try {
             $input = $request->only(app(Affiliation::class)->getFillable());
@@ -403,13 +439,6 @@ class AffiliationController extends Controller
      *         ),
      *      ),
      *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          ),
-     *      ),
-     *      @OA\Response(
      *          response=200,
      *          description="Success",
      *          @OA\JsonContent(
@@ -417,6 +446,20 @@ class AffiliationController extends Controller
      *              @OA\Property(property="data",
      *                  ref="#/components/schemas/Affiliation"
      *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
      *      @OA\Response(
@@ -428,7 +471,7 @@ class AffiliationController extends Controller
      *      )
      * )
      */
-    public function verifyEmail(Request $request, string $verificationCode): JsonResponse
+    public function verifyEmail(VerificationEmail $request, string $verificationCode): JsonResponse
     {
         try {
             $affiliation = Affiliation::with('organisation')->where([
@@ -479,18 +522,25 @@ class AffiliationController extends Controller
      *         ),
      *      ),
      *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *           ),
-     *      ),
-     *      @OA\Response(
      *          response=200,
      *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="success")
      *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *           ),
      *      ),
      *      @OA\Response(
      *          response=500,
@@ -501,7 +551,7 @@ class AffiliationController extends Controller
      *      )
      * )
      */
-    public function destroy(Request $request, int $id): JsonResponse
+    public function destroy(DeleteAffiliation $request, int $id): JsonResponse
     {
         try {
             Affiliation::where('id', $id)->first()->delete();
@@ -515,7 +565,7 @@ class AffiliationController extends Controller
         }
     }
 
-    public function updateRegistryAffiliation(Request $request, int $registryId, int $affiliationId): JsonResponse
+    public function updateRegistryAffiliation(UpdateAffiliationByRegistry $request, int $registryId, int $id): JsonResponse
     {
         try {
 
@@ -528,7 +578,7 @@ class AffiliationController extends Controller
             $affiliation = Affiliation::where(
                 [
                     'registry_id' => $registryId,
-                    'id' => $affiliationId
+                    'id' => $id
                 ]
             )->first();
             if (!$affiliation) {

@@ -3,16 +3,20 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Exception;
-use App\Models\User;
+use App\Models\State;
 use App\Models\Custodian;
+use App\Models\Organisation;
 use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
 use App\Traits\CommonFunctions;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use App\Models\ProjectHasOrganisation;
 use App\Models\CustodianHasProjectOrganisation;
-use App\Models\State;
+use App\Http\Requests\CustodianHasProjectOrganisation\GetCustodianHasProjectOrganisation;
+use App\Http\Requests\CustodianHasProjectOrganisation\GetAllCustodianHasProjectOrganisation;
+use App\Http\Requests\CustodianHasProjectOrganisation\UpdateCustodianHasProjectOrganisation;
 
 class CustodianHasProjectOrganisationController extends Controller
 {
@@ -48,6 +52,13 @@ class CustodianHasProjectOrganisationController extends Controller
      *          )
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=403,
      *          description="Forbidden",
      *          @OA\JsonContent(
@@ -65,7 +76,7 @@ class CustodianHasProjectOrganisationController extends Controller
      *      )
      * )
      */
-    public function index(Request $request, int $custodianId)
+    public function index(GetAllCustodianHasProjectOrganisation $request, int $custodianId)
     {
         try {
             $custodian = Custodian::findOrFail($custodianId);
@@ -151,6 +162,13 @@ class CustodianHasProjectOrganisationController extends Controller
      *          )
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=403,
      *          description="Forbidden",
      *          @OA\JsonContent(
@@ -169,7 +187,7 @@ class CustodianHasProjectOrganisationController extends Controller
      * )
      */
     public function show(
-        Request $request,
+        GetCustodianHasProjectOrganisation $request,
         int $custodianId,
         int $projectOrganisationId,
     ) {
@@ -236,10 +254,9 @@ class CustodianHasProjectOrganisationController extends Controller
      *      ),
      *      @OA\Response(
      *          response=400,
-     *          description="Bad Request",
+     *          description="Invalid argument(s)",
      *          @OA\JsonContent(
-     *              type="object",
-     *              @OA\Property(property="message", type="string", example="cannot transition to state = [status]")
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
      *          )
      *      ),
      *      @OA\Response(
@@ -257,11 +274,19 @@ class CustodianHasProjectOrganisationController extends Controller
      *              type="object",
      *              @OA\Property(property="message", type="string", example="Not found")
      *          )
+     *      ),
+     *      @OA\Response(
+     *          response=500,
+     *          description="Bad Request",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="cannot transition to state = [status]")
+     *          )
      *      )
      * )
      */
     public function update(
-        Request $request,
+        UpdateCustodianHasProjectOrganisation $request,
         int $custodianId,
         int $projectOrganisationId,
     ) {
@@ -279,12 +304,23 @@ class CustodianHasProjectOrganisationController extends Controller
                 return $this->NotFoundResponse();
             }
 
-            $status = $request->get('status');
-            if ($status === State::STATE_VALIDATION_COMPLETE && !Gate::allows('updateIsAdmin', User::class)) {
-                return $this->ForbiddenResponse();
+            $projectOrganisation = ProjectHasOrganisation::where('id', $projectOrganisationId)->first();
+            if (!$projectOrganisation) {
+                return $this->NotFoundResponse();
             }
 
+            $organisation = Organisation::where('id', $projectOrganisation->organisation_id)->first();
+            if (!$organisation) {
+                return $this->NotFoundResponse();
+            }
+
+            $status = $request->get('status');
+
             if (isset($status)) {
+                if ($status !== $cho->getState() && !$organisation->system_approved) {
+                    return $this->ForbiddenResponse();
+                }
+
                 $originalStatus = $cho->getState();
                 if ($cho->canTransitionTo($status)) {
                     $cho->transitionTo($status);

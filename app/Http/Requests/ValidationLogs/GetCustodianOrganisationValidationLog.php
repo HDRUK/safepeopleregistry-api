@@ -19,7 +19,7 @@ class GetCustodianOrganisationValidationLog extends BaseFormRequest
                 'integer',
                 'exists:custodians,id',
             ],
-            'projectId' => [
+            'organisationId' => [
                 'required',
                 'integer',
                 'exists:organisations,id',

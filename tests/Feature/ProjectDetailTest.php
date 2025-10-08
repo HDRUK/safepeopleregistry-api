@@ -252,6 +252,22 @@ class ProjectDetailTest extends TestCase
         $this->assertEquals($content['request_frequency'], 'ONE-OFF');
     }
 
+    public function test_the_application_cannot_show_project_detail(): void
+    {
+        $lastestProjectDetail = ProjectDetail::query()->orderBy('id', 'desc')->first();
+        $projectDetailIdTest = $lastestProjectDetail ? $lastestProjectDetail->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$projectDetailIdTest}",
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
     public function test_the_application_can_delete_project_detail(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
@@ -276,6 +292,22 @@ class ProjectDetailTest extends TestCase
         $this->assertTrue(count($details) === 0);
     }
 
+    public function test_the_application_cannot_delete_project_detail(): void
+    {
+        $lastestProjectDetail = ProjectDetail::query()->orderBy('id', 'desc')->first();
+        $projectDetailIdTest = $lastestProjectDetail ? $lastestProjectDetail->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'DELETE',
+                self::TEST_URL . "/{$projectDetailIdTest}",
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
     public function test_the_application_can_update_project_details(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
@@ -288,7 +320,7 @@ class ProjectDetailTest extends TestCase
         $response->assertStatus(201);
         $content = $response->decodeResponseJson()['data'];
 
-        $this->updatedPayloadPart = [
+        $updatedPayloadPart = [
             'duty_of_confidentiality' => 0,
             'national_data_optout' => 1,
             'request_frequency' => 'RECURRING',
@@ -299,7 +331,7 @@ class ProjectDetailTest extends TestCase
         ->json(
             'PUT',
             self::TEST_URL . '/' . $content,
-            $this->updatedPayloadPart
+            $updatedPayloadPart
         );
 
         $response->assertStatus(200);
@@ -309,6 +341,30 @@ class ProjectDetailTest extends TestCase
         $this->assertTrue($content['duty_of_confidentiality'] === 0);
         $this->assertTrue($content['national_data_optout'] === 1);
         $this->assertTrue($content['request_frequency'] === 'RECURRING');
+    }
+
+    public function test_the_application_cannot_update_project_details(): void
+    {
+        $lastestProjectDetail = ProjectDetail::query()->orderBy('id', 'desc')->first();
+        $projectDetailIdTest = $lastestProjectDetail ? $lastestProjectDetail->id + 1 : 1;
+
+        $updatedPayloadPart = [
+            'duty_of_confidentiality' => 0,
+            'national_data_optout' => 1,
+            'request_frequency' => 'RECURRING',
+            'access_type' => 0,
+        ];
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'PUT',
+            self::TEST_URL . "/{$projectDetailIdTest}",
+            $updatedPayloadPart
+        );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 
     public function test_the_application_can_query_gateway(): void

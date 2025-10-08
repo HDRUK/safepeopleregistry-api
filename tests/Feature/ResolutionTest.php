@@ -44,6 +44,22 @@ class ResolutionTest extends TestCase
         }
     }
 
+    public function test_the_application_cannot_list_resolutions_by_registry_id(): void
+    {
+        $latestRegistry = Registry::query()->orderBy('id', 'desc')->first();
+        $registryIdTest = $latestRegistry ? $latestRegistry->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . "/$registryIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
     public function test_the_application_can_create_resolutions_by_registry_id(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
@@ -55,6 +71,23 @@ class ResolutionTest extends TestCase
 
         $response->assertStatus(201);
         $this->assertEquals($response->decodeResponseJson()['message'], 'success');
+    }
+
+    public function test_the_application_cannot_create_resolutions_by_registry_id(): void
+    {
+        $latestRegistry = Registry::query()->orderBy('id', 'desc')->first();
+        $registryIdTest = $latestRegistry ? $latestRegistry->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        ->json(
+            'POST',
+            self::TEST_URL . "/$registryIdTest}",
+            $this->prepareResolutionPayload()
+        );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 
     public function test_the_application_can_create_resolutions_with_infringement_id_by_registry_id(): void

@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Api\V1;
 
 use Exception;
 use App\Models\Sector;
-use App\Traits\CommonFunctions;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Traits\CommonFunctions;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Sectors\GetSector;
+use App\Http\Requests\Sectors\DeleteSector;
+use App\Http\Requests\Sectors\UpdateSector;
 
 /**
  * @OA\Tag(
@@ -62,6 +65,14 @@ class SectorController extends Controller
      *         @OA\JsonContent(ref="#/components/schemas/Sector")
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Invalid argument(s)",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *         )
+     *     ),
+     *     @OA\Response(
      *         response=404,
      *         description="Sector not found",
      *         @OA\JsonContent(
@@ -71,7 +82,7 @@ class SectorController extends Controller
      *     )
      * )
      */
-    public function show(Request $request, int $id): JsonResponse
+    public function show(GetSector $request, int $id): JsonResponse
     {
         try {
             $sector = Sector::findOrFail($id);
@@ -156,6 +167,14 @@ class SectorController extends Controller
      *         @OA\JsonContent(ref="#/components/schemas/Sector")
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Invalid argument(s)",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *         )
+     *     ),
+     *     @OA\Response(
      *         response=404,
      *         description="Sector not found",
      *         @OA\JsonContent(
@@ -165,7 +184,7 @@ class SectorController extends Controller
      *     )
      * )
      */
-    public function update(Request $request, int $id): JsonResponse
+    public function update(UpdateSector $request, int $id): JsonResponse
     {
         try {
             $input = $request->all();
@@ -210,6 +229,14 @@ class SectorController extends Controller
      *         )
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Invalid argument(s)",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *         )
+     *     ),
+     *     @OA\Response(
      *         response=404,
      *         description="Sector not found",
      *         @OA\JsonContent(
@@ -219,7 +246,7 @@ class SectorController extends Controller
      *     )
      * )
      */
-    public function destroy(Request $request, int $id): JsonResponse
+    public function destroy(DeleteSector $request, int $id): JsonResponse
     {
         try {
             Sector::where('id', $id)->delete();

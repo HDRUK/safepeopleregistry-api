@@ -7,6 +7,7 @@ use Hash;
 use Keycloak;
 use Exception;
 use TriggerEmail;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Project;
 use App\Models\Registry;
@@ -787,6 +788,7 @@ class UserController extends Controller
         $projects = Project::searchViaRequest()
             ->applySorting()
             ->filterByState()
+            ->filterByCommon()
             ->with(['organisations', 'modelState.state'])
             ->custodianHasProjectUser($userDigitalIdent)
             ->whereHas(

@@ -91,7 +91,7 @@ Route::middleware(['auth:api'])
         Route::put('/pending_invites/claim_email/{inviteCode}', [UserController::class, 'updateUserEmailByInviteCode']);
 
         // the method not found in controller
-        Route::patch('/{id}', [UserController::class, 'edit']);
+        // Route::patch('/{id}', [UserController::class, 'edit']);
         Route::delete('/{id}', [UserController::class, 'destroy']);
 
 
@@ -213,7 +213,7 @@ Route::middleware(['auth:api'])
         // Update
         Route::put('/{id}', 'update');
         // cannot find the method in this controller
-        Route::patch('/{id}/rules', 'updateCustodianRules');
+        // Route::patch('/{id}/rules', 'updateCustodianRules');
 
         // Delete
         Route::delete('/{id}', 'destroy');
@@ -271,11 +271,14 @@ Route::middleware('auth:api')
         Route::get('{id}/users', 'getProjectUsers');
         Route::get('{id}/all_users/{userId}', 'getAllUsersFlagProjectByUserId');
         Route::get('{id}/all_users', 'getAllUsersFlagProject');
-        Route::put('{id}/all_users', 'updateAllProjectUsers');
-        Route::post('{id}/users', 'addProjectUser');
+        Route::put('{projectId}/all_users', 'updateAllProjectUsers');
+        // no method in controller
+        // Route::post('{projectId}/users', 'addProjectUser');
         Route::put('{projectId}/users/{registryId}', 'updateProjectUser');
-        Route::delete('{projectId}/users/registry/{registryId}', 'deleteUserFromProject');
-        Route::delete('{projectId}/organisations/{organisationId}', 'deleteOrganisationFromProject');
+        // no method in controller
+        // Route::delete('{projectId}/users/registry/{registryId}', 'deleteUserFromProject');
+        // no method in controller
+        // Route::delete('{projectId}/organisations/{organisationId}', 'deleteOrganisationFromProject');
         Route::put('{projectId}/users/{registryId}/primary_contact', 'makePrimaryContact');
 
         Route::get('{projectId}/users/{userId}', 'getProjectByIdAndUserId');
@@ -384,9 +387,10 @@ Route::middleware('auth:api')
     ->group(function () {
         Route::get('{registryId}', 'indexByRegistryId');
         Route::post('{registryId}', 'storeByRegistryId');
-        Route::put('{id}/{registryId}', 'updateByRegistryId');
-        Route::patch('{id}/{registryId}', 'editByRegistryId');
-        Route::delete('{id}/{registryId}', 'destroyByRegistryId');
+        Route::put('{id}/registries/{registryId}', 'updateByRegistryId');
+        // not found in controller
+        // Route::patch('{id}/registries/{registryId}', 'editByRegistryId');
+        Route::delete('{id}/registries/{registryId}', 'destroyByRegistryId');
     });
 
 // --- AFFILIATIONS ---
@@ -398,12 +402,16 @@ Route::middleware('auth:api')
         Route::get('workflowTransitions', 'getWorkflowTransitions');
         Route::get('{registryId}', 'indexByRegistryId');
         Route::get('{registryId}/organisation/{organisationId}', 'getOrganisationAffiliation');
-        Route::post('{registryId}', 'storeByRegistryId');
+        Route::post('{registryId}', 'storeByRegistryId'); //
         Route::put('{id}', 'update');
         Route::delete('{id}', 'destroy');
-        Route::put('{registryId}/affiliation/{id}', 'updateRegistryAffiliation');
 
-        Route::get('{affiliationId}/resend/verification', 'resendVerificationEmail');
+        // I think this is a wrong format
+        Route::put('{registryId}/affiliation/{id}', 'updateRegistryAffiliation');
+        // I think need to be like this - I dont know if fe use this endpoint
+        // Route::put('{id}/registries/{registryId}', 'updateRegistryAffiliation');
+
+        Route::get('{id}/resend/verification', 'resendVerificationEmail');
         Route::put('/verify_email/{verificationCode}', 'verifyEmail');
     });
 
@@ -423,12 +431,23 @@ Route::middleware('auth:api')
     ->prefix('v1/educations')
     ->controller(EducationController::class)
     ->group(function () {
-        Route::get('{registryId}', 'indexByRegistryId');
-        Route::get('{id}/{registryId}', 'showByRegistryId');
+        Route::get('{registryId}', 'indexByRegistryId'); //
+        // I think need to be like this - I dont know if fe use this endpoint
+        // Route::get('registries/{registryId}', 'indexByRegistryId');
+        Route::get('{id}/{registryId}', 'showByRegistryId'); //
+        // I think need to be like this - I dont know if fe use this endpoint
+        // Route::get('{id}/registries/{registryId}', 'showByRegistryId');
         Route::post('{registryId}', 'storeByRegistryId');
+        // I think need to be like this - I dont know if fe use this endpoint
+        // Route::get('registries/{registryId}', 'storeByRegistryId');
         Route::put('{id}/{registryId}', 'updateByRegistryId');
+        // I think need to be like this - I dont know if fe use this endpoint
+        // Route::put('{id}/registries/{registryId}', 'updateByRegistryId');
+        // no method in controller
         Route::patch('{id}/{registryId}', 'editByRegistryId');
         Route::delete('{id}/{registryId}', 'destroyByRegistryId');
+        // I think need to be like this - I dont know if fe use this endpoint
+        // Route::delete('{id}/registries/{registryId}', 'destroyByRegistryId');
     });
 
 // --- SECTORS ---
@@ -521,7 +540,7 @@ Route::middleware('auth:api')
         Route::get('{id}', 'getByCustodianID');
         Route::put('{id}', 'update');
         Route::delete('{id}', 'destroy');
-        Route::get('{id}/entity_models', 'getEntityModels');
+        Route::get('{custodianId}/entity_models', 'getEntityModels');
         Route::put('{id}/entity_models', 'updateEntityModels');
     });
 
@@ -622,11 +641,8 @@ Route::middleware('auth:api')->get('v1/rules', [RulesEngineManagementController:
 Route::post('v1/ons_researcher_feed', [ONSSubmissionController::class, 'receiveCSV']);
 
 // stop all all other routes
-Route::any('{path}', function () {
-    $response = [
+Route::fallback(function () {
+    return response()->json([
         'message' => 'Resource not found',
-    ];
-
-    return response()->json($response)
-        ->setStatusCode(404);
+    ], 404);
 });

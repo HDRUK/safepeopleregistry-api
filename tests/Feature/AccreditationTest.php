@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Accreditation;
 use KeycloakGuard\ActingAsKeycloakUser;
 use Carbon\Carbon;
 use App\Models\Registry;
@@ -30,14 +31,17 @@ class AccreditationTest extends TestCase
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'POST',
-                self::TEST_URL . '/' . $this->registry->id,
+                self::TEST_URL . "/{$this->registry->id}",
                 $this->prepareAccreditationPayload()
             );
 
         $response->assertStatus(201);
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-            ->json('GET', self::TEST_URL . '/' . $this->registry->id);
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$this->registry->id}"
+            );
 
         $response->assertStatus(200);
         $content = $response->decodeResponseJson()['data'];
@@ -47,12 +51,28 @@ class AccreditationTest extends TestCase
         $this->assertEquals($content['data'][0]['title'], 'Safe Researcher Training');
     }
 
+    public function test_the_application_cannot_list_accreditations_by_registry_id(): void
+    {
+        $latestRegistry = Registry::query()->orderBy('id', 'desc')->first();
+        $registryIdTest = $latestRegistry ? $latestRegistry->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$registryIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
     public function test_the_application_can_create_accreditations_by_registry_id(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'POST',
-                self::TEST_URL . '/' . $this->registry->id,
+                self::TEST_URL . "/{$this->registry->id}",
                 $this->prepareAccreditationPayload()
             );
 
@@ -63,12 +83,29 @@ class AccreditationTest extends TestCase
         $this->assertNotNull($content['data']);
     }
 
+    public function test_the_application_cannot_create_accreditations_by_registry_id(): void
+    {
+        $latestRegistry = Registry::query()->orderBy('id', 'desc')->first();
+        $registryIdTest = $latestRegistry ? $latestRegistry->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'POST',
+                self::TEST_URL . "/{$registryIdTest}",
+                $this->prepareAccreditationPayload()
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
     public function test_the_application_can_update_accreditations_by_registry_id(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
             'POST',
-            self::TEST_URL . '/' . $this->registry->id,
+            self::TEST_URL . "/{$this->registry->id}",
             $this->prepareAccreditationPayload()
         );
 
@@ -80,7 +117,7 @@ class AccreditationTest extends TestCase
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'PUT',
-                self::TEST_URL . '/' . $content['data'] . '/' . $this->registry->id,
+                self::TEST_URL . "/{$content['data']}/registries/{$this->registry->id}",
                 $this->prepareUpdatedAccreditationPayload()
             );
 
@@ -92,12 +129,32 @@ class AccreditationTest extends TestCase
         $this->assertEquals($content['data']['awarded_locale'], 'UK');
     }
 
+    public function test_the_application_cannot_update_accreditations_by_registry_id(): void
+    {
+        $latestRegistry = Registry::query()->orderBy('id', 'desc')->first();
+        $registryIdTest = $latestRegistry ? $latestRegistry->id + 1 : 1;
+
+        $latestAccreditation = Accreditation::query()->orderBy('id', 'desc')->first();
+        $accreditationIdTest = $latestAccreditation ? $latestAccreditation->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . "/{$accreditationIdTest}/registries/{$registryIdTest}",
+                $this->prepareUpdatedAccreditationPayload()
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
     public function test_the_application_can_delete_accreditations_by_registry_id(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
             'POST',
-            self::TEST_URL . '/' . $this->registry->id,
+            self::TEST_URL . "/{$this->registry->id}",
             $this->prepareAccreditationPayload()
         );
 
@@ -109,13 +166,33 @@ class AccreditationTest extends TestCase
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'DELETE',
-                self::TEST_URL . '/' . $content['data'] . '/' . $this->registry->id,
+                self::TEST_URL . "/{$content['data']}/registries/{$this->registry->id}",
                 $this->prepareEditedAccreditationPayload()
             );
 
         $response->assertStatus(200);
         $content = $response->decodeResponseJson();
         $this->assertEquals($content['message'], 'success');
+    }
+
+    public function test_the_application_cannot_delete_accreditations_by_registry_id(): void
+    {
+        $latestRegistry = Registry::query()->orderBy('id', 'desc')->first();
+        $registryIdTest = $latestRegistry ? $latestRegistry->id + 1 : 1;
+
+        $latestAccreditation = Accreditation::query()->orderBy('id', 'desc')->first();
+        $accreditationIdTest = $latestAccreditation ? $latestAccreditation->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'DELETE',
+                self::TEST_URL . "/{$accreditationIdTest}/registries/{$registryIdTest}",
+                $this->prepareEditedAccreditationPayload()
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 
     private function prepareAccreditationPayload(): array

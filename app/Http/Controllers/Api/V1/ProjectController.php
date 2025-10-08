@@ -2,52 +2,41 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Exception;
 use App\Models\User;
-use App\Models\Affiliation;
-use App\Exceptions\NotFoundException;
-use App\Http\Controllers\Controller;
-use App\Http\Traits\Responses;
-use App\Models\CustodianHasProjectUser;
+use App\Models\State;
 use App\Models\Project;
 use App\Models\Registry;
-use App\Models\State;
+use App\Models\Affiliation;
+use Illuminate\Http\Request;
+use App\Traits\FilterManager;
+use App\Http\Traits\Responses;
 use App\Models\ProjectHasUser;
 use App\Traits\CommonFunctions;
-use App\Traits\FilterManager;
-use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
+use App\Exceptions\NotFoundException;
+use App\Models\CustodianHasProjectUser;
+use App\Http\Requests\Projects\GetProject;
+use App\Http\Requests\Projects\DeleteProject;
+use App\Http\Requests\Projects\UpdateProject;
+use App\Http\Requests\Projects\GetProjectUsers;
+use Illuminate\Pagination\LengthAwarePaginator;
+use App\Http\Requests\Projects\UpdateProjectUser;
+use App\Http\Requests\Projects\MakePrimaryContact;
+use App\Http\Requests\Projects\GetValidatedProjects;
+use App\Http\Requests\Projects\UpdateAllProjectUsers;
+use App\Http\Requests\Projects\GetProjectByIdAndUserId;
+use App\Http\Requests\Projects\GetAllUsersFlagProjectByUserId;
+use App\Http\Requests\Projects\GetProjectByIdAndOrganisationId;
+use App\Http\Requests\Projects\GetProjectUsersByOrganisationId;
 
 class ProjectController extends Controller
 {
     use CommonFunctions;
     use FilterManager;
     use Responses;
-
-    public function formatProjectUserAffiliation(Affiliation $affiliation, User $user, int $projectId, $idCounter): array
-    {
-        $matchingProjectUser = $user->registry->projectUsers
-            ->first(function ($projectUser) use ($projectId, $affiliation) {
-                return $projectUser->project_id == $projectId &&
-                    $projectUser->affiliation_id == $affiliation->id;
-            });
-
-        return [
-            'id' => $idCounter,
-            'project_user_id' => $matchingProjectUser?->id,
-            'user_id' => $user->id,
-            'registry_id' => $user->registry_id,
-            'first_name' => $user->first_name,
-            'last_name' => $user->last_name,
-            'email' => $user->email,
-            'professional_email' => $affiliation->email,
-            'affiliation_id' => $affiliation->id,
-            'organisation_name' => $affiliation->organisation?->organisation_name,
-            'role' => $matchingProjectUser?->role,
-        ];
-    }
 
     /**
      * @OA\Get(
@@ -131,6 +120,13 @@ class ProjectController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Not found response",
      *          @OA\JsonContent(
@@ -139,7 +135,7 @@ class ProjectController extends Controller
      *      )
      * )
      */
-    public function show(Request $request, int $id): JsonResponse
+    public function show(GetProject $request, int $id): JsonResponse
     {
         $project = Project::with(['projectDetail', 'custodians', 'modelState.state'])->findOrFail($id);
 
@@ -186,6 +182,14 @@ class ProjectController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Project not found",
      *          @OA\JsonContent(
@@ -195,7 +199,7 @@ class ProjectController extends Controller
      *      )
      * )
      */
-    public function getProjectByIdAndUserId(Request $request, int $projectId, int $userId): JsonResponse
+    public function getProjectByIdAndUserId(GetProjectByIdAndUserId $request, int $projectId, int $userId): JsonResponse
     {
         try {
             $user = User::with(['registry'])->find($userId);
@@ -263,6 +267,14 @@ class ProjectController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Project not found",
      *          @OA\JsonContent(
@@ -272,7 +284,7 @@ class ProjectController extends Controller
      *      )
      * )
      */
-    public function getProjectByIdAndOrganisationId(Request $request, int $projectId, int $organisationId): JsonResponse
+    public function GetProjectByIdAndOrganisationId(GetProjectByIdAndOrganisationId $request, int $projectId, int $organisationId): JsonResponse
     {
         $project = Project::with([
                 'projectDetail',
@@ -375,6 +387,14 @@ class ProjectController extends Controller
      *          )
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Not found response",
      *          @OA\JsonContent(
@@ -383,8 +403,9 @@ class ProjectController extends Controller
      *      )
      * )
      */
-    public function getProjectUsers(Request $request, int $projectId): JsonResponse
+    public function getProjectUsers(GetProjectUsers $request, int $id): JsonResponse
     {
+        $loggedInUserId = $request->user();
 
         $projectUsers = ProjectHasUser::with([
             'registry.user',
@@ -395,12 +416,17 @@ class ProjectController extends Controller
             'affiliation.organisation:id,organisation_name',
             'custodianHasProjectUser.modelState.state',
         ])
-            ->where('project_id', $projectId)
+            ->where('project_id', $id)
             ->whereHas('registry.user', function ($query) {
                 /** @phpstan-ignore-next-line */
                 $query->searchViaRequest()
                     ->filterByState()
                     ->with("modelState");
+            })
+            ->whereHas('registry.user', function($query) use ($loggedInUserId) {
+                if($loggedInUserId->user_group === User::GROUP_USERS) {
+                    $query->where('id', $loggedInUserId->id);
+                }
             })
             ->whereHas('affiliation.organisation', function ($query) {
                 /** @phpstan-ignore-next-line */
@@ -444,6 +470,14 @@ class ProjectController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Organisation users not found",
      *          @OA\JsonContent(
@@ -453,7 +487,7 @@ class ProjectController extends Controller
      *      )
      * )
      */
-    public function getProjectUsersByOrganisationId(Request $request, int $projectId, int $organisationId): JsonResponse
+    public function getProjectUsersByOrganisationId(GetProjectUsersByOrganisationId $request, int $projectId, int $organisationId): JsonResponse
     {
         $projectUsers = ProjectHasUser::with([
             'registry.user',
@@ -530,6 +564,14 @@ class ProjectController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=403,
      *          description="Forbidden",
      *          @OA\JsonContent(
@@ -539,7 +581,7 @@ class ProjectController extends Controller
      *      )
      * )
      */
-    public function getAllUsersFlagProjectByUserId(Request $request, int $projectId, int $userId)
+    public function getAllUsersFlagProjectByUserId(GetAllUsersFlagProjectByUserId $request, int $projectId, int $userId)
     {
         $project = Project::find($projectId);
 
@@ -702,13 +744,6 @@ class ProjectController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          ),
-     *      ),
-     *      @OA\Response(
      *          response=200,
      *          description="Success",
      *          @OA\JsonContent(
@@ -726,6 +761,20 @@ class ProjectController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *          ),
+     *      ),
+     *      @OA\Response(
      *          response=500,
      *          description="Error",
      *          @OA\JsonContent(
@@ -734,7 +783,7 @@ class ProjectController extends Controller
      *      )
      * )
      */
-    public function update(Request $request, int $id): JsonResponse
+    public function update(UpdateProject $request, int $id): JsonResponse
     {
         try {
             $input = $request->only(app(Project::class)->getFillable());
@@ -799,13 +848,6 @@ class ProjectController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          ),
-     *      ),
-     *      @OA\Response(
      *          response=200,
      *          description="Success",
      *          @OA\JsonContent(
@@ -843,6 +885,20 @@ class ProjectController extends Controller
      *          )
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *          ),
+     *      ),
+     *      @OA\Response(
      *          response=500,
      *          description="Error",
      *          @OA\JsonContent(
@@ -851,7 +907,7 @@ class ProjectController extends Controller
      *      )
      * )
      */
-    public function makePrimaryContact(Request $request, int $projectId, int $registryId): JsonResponse
+    public function MakePrimaryContact(MakePrimaryContact $request, int $projectId, int $registryId): JsonResponse
     {
         try {
             $input = $request->all();
@@ -885,7 +941,70 @@ class ProjectController extends Controller
         }
     }
 
-    public function updateAllProjectUsers(Request $request, int $projectId): JsonResponse
+    /**
+     * @OA\Put(
+     *    path="/api/v1/projects/{id}/all_users",
+     *    summary="Update project with all users",
+     *    description="Update all users associated with a project",
+     *    tags={"Project"},
+     *    summary="Project@updateAllProjectUsers",
+     *    security={{"bearerAuth":{}}},
+     *    @OA\Parameter(
+     *       name="id",
+     *       in="path",
+     *       description="Project entry ID",
+     *       required=true,
+     *       example="1",
+     *       @OA\Schema(
+     *          type="integer",
+     *          description="Project entry ID",
+     *       ),
+     *    ),
+     *    @OA\RequestBody(
+     *        required=true,
+     *        description="Project definition",
+     *        @OA\JsonContent(type="object", additionalProperties=true),
+     *    ),
+     *    @OA\Response(
+     *       response="200",
+     *       description="Success response",
+     *       @OA\JsonContent(
+     *          @OA\Property(property="message", type="string", example="success"),
+     *          @OA\Property(
+     *             property="data",
+     *             type="array",
+     *             example="[]",
+     *             @OA\Items(
+     *                type="array",
+     *                @OA\Items()
+     *             )
+     *          ),
+     *       ),
+     *    ),
+     *    @OA\Response(
+     *        response=400,
+     *        description="Invalid argument(s)",
+     *        @OA\JsonContent(
+     *            @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *        ),
+     *    ),
+     *    @OA\Response(
+     *        response=404,
+     *        description="Not found response",
+     *        @OA\JsonContent(
+     *            @OA\Property(property="message", type="string", example="not found")
+     *        ),
+     *    ),
+     *    @OA\Response(
+     *        response=500,
+     *        description="Error",
+     *        @OA\JsonContent(
+     *            @OA\Property(property="message", type="string", example="error")
+     *        )
+     *    )
+     * )
+     */
+    public function updateAllProjectUsers(UpdateAllProjectUsers $request, int $projectId): JsonResponse
     {
         try {
             $validated = $request->validate(['users' => 'required|array']);
@@ -940,7 +1059,7 @@ class ProjectController extends Controller
         }
     }
 
-
+    // removed or not used
     public function addProjectUser(Request $request, int $projectId, int $registryId): JsonResponse
     {
         $validated = $request->validate([
@@ -990,18 +1109,25 @@ class ProjectController extends Controller
      *         ),
      *      ),
      *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *           ),
-     *      ),
-     *      @OA\Response(
      *          response=200,
      *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="success")
      *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *           ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *           ),
      *      ),
      *      @OA\Response(
      *          response=500,
@@ -1012,7 +1138,7 @@ class ProjectController extends Controller
      *      )
      * )
      */
-    public function destroy(Request $request, int $id): JsonResponse
+    public function destroy(DeleteProject $request, int $id): JsonResponse
     {
         try {
             Project::where('id', $id)->delete();
@@ -1063,6 +1189,13 @@ class ProjectController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Not found response",
      *          @OA\JsonContent(
@@ -1071,7 +1204,7 @@ class ProjectController extends Controller
      *      )
      * )
      */
-    public function getValidatedProjects(Request $request, int $registryId): JsonResponse
+    public function getValidatedProjects(GetValidatedProjects $request, int $registryId): JsonResponse
     {
         $digi_ident = optional(Registry::where('id', $registryId)->first())->digi_ident;
 
@@ -1100,7 +1233,7 @@ class ProjectController extends Controller
         ], 200);
     }
 
-    public function updateProjectUser(Request $request, int $projectId, int $registryId): JsonResponse
+    public function updateProjectUser(UpdateProjectUser $request, int $projectId, int $registryId): JsonResponse
     {
         $validated = $request->validate([
             'project_role_id' => 'nullable|integer|exists:project_roles,id',
@@ -1125,5 +1258,28 @@ class ProjectController extends Controller
         $projectUser->update($validated);
 
         return $this->OKResponse($projectUser);
+    }
+
+    public function formatProjectUserAffiliation(Affiliation $affiliation, User $user, int $projectId, $idCounter): array
+    {
+        $matchingProjectUser = $user->registry->projectUsers
+            ->first(function ($projectUser) use ($projectId, $affiliation) {
+                return $projectUser->project_id == $projectId &&
+                    $projectUser->affiliation_id == $affiliation->id;
+            });
+
+        return [
+            'id' => $idCounter,
+            'project_user_id' => $matchingProjectUser?->id,
+            'user_id' => $user->id,
+            'registry_id' => $user->registry_id,
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'email' => $user->email,
+            'professional_email' => $affiliation->email,
+            'affiliation_id' => $affiliation->id,
+            'organisation_name' => $affiliation->organisation?->organisation_name,
+            'role' => $matchingProjectUser?->role,
+        ];
     }
 }

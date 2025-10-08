@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Controllers\Controller;
-use App\Models\SystemConfig;
 use Exception;
-use Illuminate\Http\JsonResponse;
+use App\Models\SystemConfig;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\SystemConfig\GetSystemConfigByName;
 
 class SystemConfigController extends Controller
 {
@@ -20,7 +21,7 @@ class SystemConfigController extends Controller
         ], 200);
     }
 
-    public function getByName(Request $request, string $name): JsonResponse
+    public function getByName(GetSystemConfigByName $request, string $name): JsonResponse
     {
         try {
             $systemConfig = SystemConfig::where('name', $name)->first();

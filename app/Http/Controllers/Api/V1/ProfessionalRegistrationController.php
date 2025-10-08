@@ -3,19 +3,22 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Exception;
+use App\Traits\CommonFunctions;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
 use App\Models\ProfessionalRegistration;
 use App\Models\RegistryHasProfessionalRegistration;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use App\Traits\CommonFunctions;
+use App\Http\Requests\ProfessionalRegistrations\DeleteProfessionRegistration;
+use App\Http\Requests\ProfessionalRegistrations\UpdateProfessionRegistration;
+use App\Http\Requests\ProfessionalRegistrations\GetProfessionRegistrationByRegistry;
+use App\Http\Requests\ProfessionalRegistrations\CreateProfessionRegistrationByRegistry;
 
 class ProfessionalRegistrationController extends Controller
 {
     use CommonFunctions;
 
     //Hide from swagger
-    public function indexByRegistryId(Request $request, int $registryId): JsonResponse
+    public function indexByRegistryId(GetProfessionRegistrationByRegistry $request, int $registryId): JsonResponse
     {
         $professionalRegistrations = ProfessionalRegistration::withWhereHas(
             'registryHasProfessionalRegistrations',
@@ -32,7 +35,7 @@ class ProfessionalRegistrationController extends Controller
     }
 
     //Hide from swagger
-    public function storeByRegistryId(Request $request, int $registryId): JsonResponse
+    public function storeByRegistryId(CreateProfessionRegistrationByRegistry $request, int $registryId): JsonResponse
     {
         try {
             $input = $request->all();
@@ -91,13 +94,6 @@ class ProfessionalRegistrationController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          ),
-     *      ),
-     *      @OA\Response(
      *          response=200,
      *          description="Success",
      *          @OA\JsonContent(
@@ -112,6 +108,20 @@ class ProfessionalRegistrationController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *          ),
+     *      ),
+     *      @OA\Response(
      *          response=500,
      *          description="Error",
      *          @OA\JsonContent(
@@ -120,7 +130,7 @@ class ProfessionalRegistrationController extends Controller
      *      )
      * )
      */
-    public function update(Request $request, int $id): JsonResponse
+    public function update(UpdateProfessionRegistration $request, int $id): JsonResponse
     {
         try {
             $input = $request->all();
@@ -149,7 +159,7 @@ class ProfessionalRegistrationController extends Controller
     }
 
     //Hide from swagger
-    public function destroy(Request $request, int $id): JsonResponse
+    public function destroy(DeleteProfessionRegistration $request, int $id): JsonResponse
     {
         try {
             ProfessionalRegistration::where('id', $id)->first()->delete();
