@@ -303,12 +303,23 @@ class CustodianHasProjectOrganisationController extends Controller
                 return $this->NotFoundResponse();
             }
 
-            $status = $request->get('status');
-            if ($status === State::STATE_VALIDATION_COMPLETE && !Gate::allows('updateIsAdmin', User::class)) {
-                return $this->ForbiddenResponse();
+            $projectOrganisation = ProjectHasOrganisation::where('id', $projectOrganisationId)->first();
+            if (!$projectOrganisation) {
+                return $this->NotFoundResponse();
             }
 
+            $organisation = Organisation::where('id', $projectOrganisation->organisation_id)->first();
+            if (!$organisation) {
+                return $this->NotFoundResponse();
+            }
+
+            $status = $request->get('status');
+
             if (isset($status)) {
+                if ($status !== $cho->getState() && !$organisation->system_approved) {
+                    return $this->ForbiddenResponse();
+                }
+
                 $originalStatus = $cho->getState();
                 if ($cho->canTransitionTo($status)) {
                     $cho->transitionTo($status);
