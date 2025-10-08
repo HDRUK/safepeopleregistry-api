@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Exception;
-use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
 use App\Models\ProjectHasUser;
 use App\Traits\CommonFunctions;

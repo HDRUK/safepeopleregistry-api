@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\ProjectHasUser;
 use Tests\TestCase;
-use App\Models\ProjectRole;
 use Tests\Traits\Authorisation;
 use KeycloakGuard\ActingAsKeycloakUser;
 

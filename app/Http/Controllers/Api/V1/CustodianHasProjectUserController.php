@@ -3,14 +3,17 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Exception;
-use App\Http\Controllers\Controller;
-use App\Models\CustodianHasProjectUser;
+use App\Models\Custodian;
 use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
-use App\Models\Custodian;
-use Illuminate\Support\Facades\Gate;
 use App\Traits\CommonFunctions;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
+use App\Models\CustodianHasProjectUser;
+use App\Http\Requests\CustodianProjectUser\GetCustodianProjectUser;
+use App\Http\Requests\CustodianProjectUser\GetAllCustodianProjectUser;
+use App\Http\Requests\CustodianProjectUser\UpdateCustodianProjectUser;
 
 use function activity;
 
@@ -48,6 +51,13 @@ class CustodianHasProjectUserController extends Controller
      *          )
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=403,
      *          description="Forbidden",
      *          @OA\JsonContent(
@@ -65,7 +75,7 @@ class CustodianHasProjectUserController extends Controller
      *      )
      * )
      */
-    public function index(Request $request, int $custodianId)
+    public function index(GetAllCustodianProjectUser $request, int $custodianId)
     {
         try {
             $custodian = Custodian::findOrFail($custodianId);
@@ -87,7 +97,6 @@ class CustodianHasProjectUserController extends Controller
                 'projectHasUser.role:id,name',
                 'projectHasUser.affiliation:id,organisation_id',
                 'projectHasUser.affiliation.modelState.state',
-
                 'projectHasUser.affiliation.organisation:id,organisation_name'
             ])
                 ->where('custodian_id', $custodianId)
@@ -159,6 +168,13 @@ class CustodianHasProjectUserController extends Controller
      *          )
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=403,
      *          description="Forbidden",
      *          @OA\JsonContent(
@@ -177,7 +193,7 @@ class CustodianHasProjectUserController extends Controller
      * )
      */
     public function show(
-        Request $request,
+        GetCustodianProjectUser $request,
         int $custodianId,
         int $projectUserId,
     ) {
@@ -248,10 +264,9 @@ class CustodianHasProjectUserController extends Controller
      *      ),
      *      @OA\Response(
      *          response=400,
-     *          description="Bad Request",
+     *          description="Invalid argument(s)",
      *          @OA\JsonContent(
-     *              type="object",
-     *              @OA\Property(property="message", type="string", example="cannot transition to state = [status]")
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
      *          )
      *      ),
      *      @OA\Response(
@@ -269,12 +284,20 @@ class CustodianHasProjectUserController extends Controller
      *              type="object",
      *              @OA\Property(property="message", type="string", example="Not found")
      *          )
+     *      ),
+     *      @OA\Response(
+     *          response=500,
+     *          description="Bad Request",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(property="message", type="string", example="cannot transition to state = [status]")
+     *          )
      *      )
      * )
      */
 
     public function update(
-        Request $request,
+        UpdateCustodianProjectUser $request,
         int $custodianId,
         int $projectUserId,
     ) {

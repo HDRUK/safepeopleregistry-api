@@ -48,12 +48,41 @@ class CustodianProjectUserTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_index_cannot_show_all_project_users_for_custodian(): void
+    {
+        $lastestCustodian = Custodian::query()->orderBy('id', 'desc')->first();
+        $custodianIdTest = $lastestCustodian ? $lastestCustodian->id + 1 : 1;
+
+        $response = $this->actingAs($this->admin)
+            ->json('GET', self::TEST_URL . "/{$custodianIdTest}/projectUsers");
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
     public function test_show_returns_specific_project_user_for_custodian(): void
     {
         $response = $this->actingAs($this->admin)
             ->json('GET', self::TEST_URL . "/1/projectUsers/{$this->projectUser->id}");
 
         $response->assertStatus(200);
+    }
+
+    public function test_cannot_show_returns_specific_project_user_for_custodian(): void
+    {
+        $lastestCustodian = Custodian::query()->orderBy('id', 'desc')->first();
+        $custodianIdTest = $lastestCustodian ? $lastestCustodian->id + 1 : 1;
+
+        $lastestProjectHasUser = ProjectHasUser::query()->orderBy('id', 'desc')->first();
+        $projectHasUserIdTest = $lastestProjectHasUser ? $lastestProjectHasUser->id + 1 : 1;
+
+        $response = $this->actingAs($this->admin)
+            ->json('GET', self::TEST_URL . "/{$custodianIdTest}/projectUsers/{$projectHasUserIdTest}");
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 
     public function test_update_project_user_approval_for_custodian(): void
@@ -66,5 +95,25 @@ class CustodianProjectUserTest extends TestCase
             ->json('PUT', self::TEST_URL . "/1/projectUsers/{$this->projectUser->id}", $payload);
 
         $response->assertStatus(200);
+    }
+
+    public function test_cannot_update_project_user_approval_for_custodian(): void
+    {
+        $lastestCustodian = Custodian::query()->orderBy('id', 'desc')->first();
+        $custodianIdTest = $lastestCustodian ? $lastestCustodian->id + 1 : 1;
+
+        $lastestProjectHasUser = ProjectHasUser::query()->orderBy('id', 'desc')->first();
+        $projectHasUserIdTest = $lastestProjectHasUser ? $lastestProjectHasUser->id + 1 : 1;
+
+        $payload = [
+            'status' => State::STATE_FORM_RECEIVED,
+        ];
+
+        $response = $this->actingAs($this->admin)
+            ->json('PUT', self::TEST_URL . "/{$custodianIdTest}/projectUsers/{$projectHasUserIdTest}", $payload);
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 }
