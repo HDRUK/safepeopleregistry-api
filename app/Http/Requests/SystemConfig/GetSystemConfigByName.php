@@ -16,7 +16,7 @@ class GetSystemConfigByName extends BaseFormRequest
         return [
             'name' => [
                 'required',
-                'integer',
+                'string',
                 'exists:system_config,name',
             ],
         ];
