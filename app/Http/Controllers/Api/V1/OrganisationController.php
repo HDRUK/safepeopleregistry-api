@@ -866,6 +866,8 @@ class OrganisationController extends Controller
     {
         $projects = Project::searchViaRequest()
             ->applySorting()
+            ->filterByCommon()
+            ->filterByState()
             ->with([
                 'organisations' => function ($query) use ($organisationId) {
                     $query->where('organisations.id', $organisationId);
