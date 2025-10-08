@@ -2,8 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\Project;
+use App\Models\State;
 use App\Models\Status;
+use App\Models\Project;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Schema;
 
@@ -24,7 +25,7 @@ class ProjectSeeder extends Seeder
         $projects = Project::all();
 
         foreach ($projects as $project) {
-            $project->setState(Status::PROJECT_PENDING);
+            $project->setState(State::STATE_PROJECT_PENDING);
         }
     }
 }

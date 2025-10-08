@@ -2,21 +2,24 @@
 
 namespace Tests\Feature;
 
-use KeycloakGuard\ActingAsKeycloakUser;
 use Carbon\Carbon;
+use Tests\TestCase;
 use App\Models\User;
+use App\Models\State;
 use App\Models\Sector;
 use App\Models\Project;
-use App\Models\Organisation;
-use App\Jobs\SendEmailJob;
 use App\Models\ActionLog;
-use App\Models\PendingInvite;
-use App\Models\ProjectHasOrganisation;
-use App\Models\OrganisationHasDepartment;
-use Illuminate\Support\Facades\Queue;
+use App\Jobs\SendEmailJob;
+use App\Models\ModelState;
 use Illuminate\Support\Str;
-use Tests\TestCase;
+use App\Models\Organisation;
+use App\Models\PendingInvite;
 use Tests\Traits\Authorisation;
+use Illuminate\Support\Facades\Queue;
+use App\Models\ProjectHasOrganisation;
+use KeycloakGuard\ActingAsKeycloakUser;
+use App\Models\OrganisationHasDepartment;
+use App\Models\CustodianHasProjectOrganisation;
 
 class OrganisationTest extends TestCase
 {
@@ -103,7 +106,6 @@ class OrganisationTest extends TestCase
             $project->save();
         }
 
-
         $response = $this->actingAs($this->organisation_admin)
             ->json(
                 'GET',
@@ -154,6 +156,82 @@ class OrganisationTest extends TestCase
 
         $this->assertTrue($content['data'][0]['start_date'] > Carbon::now());
         $this->assertTrue($content['data'][0]['end_date'] > Carbon::now());
+    }
+
+    public function test_the_application_can_list_an_organisations_past_and_active_projects_by_active(): void
+    {
+        $orgProjects = ProjectHasOrganisation::where('organisation_id', '1')->get();
+        for ($i = 0; $i < 1; $i++) {
+            $project = Project::where('id', $orgProjects[$i]->project_id)->first();
+            $project->start_date = Carbon::now();
+            $project->end_date = Carbon::now()->addYears(1);
+            $project->save();
+        }
+
+        $response = $this->actingAs($this->organisation_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/projects?active=1',
+            );
+
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson()['data'];
+
+        $this->assertTrue($content['data'][0]['start_date'] <= Carbon::now());
+        $this->assertTrue($content['data'][0]['end_date'] >= Carbon::now());
+
+        for ($i = 0; $i < 1; $i++) {
+            $project = Project::where('id', $orgProjects[$i]->project_id)->first();
+            $project->start_date = Carbon::now()->subYears(2);
+            $project->end_date = Carbon::now()->subYears(1);
+            $project->save();
+        }
+
+        $response = $this->actingAs($this->organisation_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/projects?active=0',
+            );
+
+        $response->assertStatus(200);
+        $content = $response->decodeResponseJson()['data'];
+    }
+
+    public function test_the_application_can_list_an_organisations_filter_by_state(): void
+    {
+        $orgProjects = ProjectHasOrganisation::where('organisation_id', '1')->get();
+        $array = [];
+        foreach ($orgProjects as $orgProject) {
+            $projectId = $orgProject->project_id;
+
+            $modelState = ModelState::where([
+                'stateable_id' => $projectId,
+                'stateable_type' => Project::class
+            ])->first();
+            $state = State::where('id', $modelState->state_id)->first();
+
+            $array[] = [
+                'orgProjectId' => $projectId,
+                'state' => $state->slug,
+            ];
+
+        }
+
+        $arrStates = array_count_values(array_column($array, 'state'));
+
+        foreach ($arrStates as $key => $value) {
+            $response = $this->actingAs($this->organisation_admin)
+                ->json(
+                    'GET',
+                    self::TEST_URL . "/1/projects?filter[]={$key}",
+                );
+            $response->assertStatus(200);
+            $respnseData = $response->decodeResponseJson()['data'];
+            $countResponse = count($respnseData['data']);
+
+            $this->assertEquals($countResponse, $value);
+        }
+
     }
 
     public function test_the_application_can_list_organisations(): void
