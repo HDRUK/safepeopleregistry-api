@@ -12,6 +12,8 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
 
+use App\Services\MicrosoftGraphService;
+
 class SendEmailJob implements ShouldQueue
 {
     use Dispatchable;
@@ -24,6 +26,8 @@ class SendEmailJob implements ShouldQueue
     private $template = null;
     private $replacements = [];
     private $address = null;
+
+    private MicrosoftGraphService $mgs;
 
     /**
      * Create a new job instance.
@@ -51,13 +55,27 @@ class SendEmailJob implements ShouldQueue
      */
     public function handle(): void
     {
+        $retVal = null;
+
         DebugLog::create([
             'class' => __CLASS__,
             'log' => 'SendEmailJob started for: ' . json_encode($this->to),
         ]);
 
-        $retVal = Mail::to($this->to['email'])
-            ->send(new Email($this->to['id'], $this->template, $this->replacements, $this->address));
+        switch (config('mail.default')) {
+            case 'exchange':
+                $this->mgs = new MicrosoftGraphService();
+                $retVal = $this->mgs->sendMail($this->to, new Email($this->to['id'], $this->template, $this->replacements, $this->address));
+                break;
+            case 'smtp':
+                $retVal = Mail::to($this->to['email'])
+                    ->send(new Email($this->to['id'], $this->template, $this->replacements, $this->address));
+                break;
+            default:
+                $retVal = null;
+                break;
+        }
+
 
         DebugLog::create([
             'class' => __CLASS__,
@@ -69,6 +87,7 @@ class SendEmailJob implements ShouldQueue
     {
         return [
             'name' => 'send_email',
+            'mailer' => config('mail.default'),
             'to' => json_encode($this->to),
             'template' => json_encode($this->template),
             'replacements' => json_encode($this->replacements),

@@ -46,6 +46,13 @@ return [
             'local_domain' => env('MAIL_EHLO_DOMAIN'),
         ],
 
+        'exchange' => [
+            'tenant_id' => env('MS_EXCHANGE_TENANT_ID'),
+            'client_id' => env('MS_EXCHANGE_CLIENT_ID'),
+            'client_secret' => env('MS_EXCHANGE_CLIENT_SECRET'),
+            'sender' => env('MAIL_FROM_ADDRESS'),
+        ],
+
         'ses' => [
             'transport' => 'ses',
         ],
