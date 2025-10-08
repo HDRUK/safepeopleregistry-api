@@ -2,13 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\SendEmailJob;
 use Hdruk\LaravelMjml\Email;
 use Hdruk\LaravelMjml\Models\EmailTemplate;
 use App\Services\MicrosoftGraphService;
 use Illuminate\Console\Command;
 
-class onstest extends Command
+class ExchangeMailTest extends Command
 {
     /**
      * The name and signature of the console command.

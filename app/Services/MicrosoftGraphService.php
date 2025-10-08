@@ -4,9 +4,7 @@ namespace App\Services;
 
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
-
 use Hdruk\LaravelMjml\Email;
-use Hdruk\LaravelMjml\Models\EmailTemplate;
 
 class MicrosoftGraphService
 {
