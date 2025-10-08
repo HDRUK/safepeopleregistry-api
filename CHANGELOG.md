@@ -1,3 +1,15 @@
+## [1.14.1](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.14.0...v1.14.1) (2025-10-08)
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-1927:** validations of parameters in requests - part three (#469) ([3265922](https://github.com/HDRUK/safepeopleregistry-api/commit/3265922164edb3bc0b48a244072bd56302e147d7))
+* **REGISTRY-1927:** validations of parameters in requests - second part (#467) ([844edb7](https://github.com/HDRUK/safepeopleregistry-api/commit/844edb7a0d2787538ff34ab865f5c7d342066471))
+* **REGISTRY-2006:** Custodians > Organisations - forbidden error validated status (#470) ([ed60f95](https://github.com/HDRUK/safepeopleregistry-api/commit/ed60f952fb17c50afa2142f5f150c744b9d88cc2))
+* **REGISTRY-2009:** Custodians > Organisations - 400 on validation_logs (#471) ([a59897d](https://github.com/HDRUK/safepeopleregistry-api/commit/a59897d4cf46deffc7aeafe0cc5d8b9524e9a061))
+* **REGISTRY-2015:** The custodian can change the status of an organisation (#472) ([0ff5b6e](https://github.com/HDRUK/safepeopleregistry-api/commit/0ff5b6eaf7b6295d15b8de87f5a0209a514e65d1))
+* **REGISTRY-2016:** return only own user for user entities (#473) ([cdf1dcf](https://github.com/HDRUK/safepeopleregistry-api/commit/cdf1dcf464af485bf7a4c4fcfe034e7133b279f7))
+* **REGISTRY-2019:** Users > Projects - can't filter by date dropdown (#474) ([779362d](https://github.com/HDRUK/safepeopleregistry-api/commit/779362d9817c41faa3a181a3a7b47eeb7c7155d3))
+
 ## [1.14.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.13.0...v1.14.0) (2025-10-03)
 
 ### ✨ Features
