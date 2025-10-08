@@ -47,4 +47,19 @@ class SystemConfigTest extends TestCase
         $this->assertEquals($content['name'], 'PER_PAGE');
         $this->assertEquals($content['value'], 25);
     }
+
+    public function test_the_application_cannot_get_config_by_name(): void
+    {
+        $systemConfigName = fake()->words(3, true);
+
+        $response = $this->json(
+            'GET',
+            self::TEST_URL . "/{$systemConfigName}",
+            []
+        );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
 }
