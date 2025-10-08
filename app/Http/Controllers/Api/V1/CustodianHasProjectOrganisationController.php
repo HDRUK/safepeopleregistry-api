@@ -294,27 +294,11 @@ class CustodianHasProjectOrganisationController extends Controller
 
             $status = $request->get('status');
 
-            $modelStatus = ModelState::where([
-                'stateable_id' => $cho->id,
-                'stateable_type' => CustodianHasProjectOrganisation::class
-            ])->first();
-            if (!$modelStatus) {
-                return $this->NotFoundResponse();
-            }
-            $currentStatus = State::where('id', $modelStatus->state_id)->first();
-            if (!$currentStatus) {
-                return $this->NotFoundResponse();
-            }
-
-            if ($status !== strtoupper($currentStatus->slug) && !$organisation->system_approved) {
-                return $this->ForbiddenResponse();
-            }
-
-            if ($status === State::STATE_VALIDATION_COMPLETE && !Gate::allows('updateIsAdmin', User::class)) {
-                return $this->ForbiddenResponse();
-            }
-
             if (isset($status)) {
+                if ($status !== $cho->getState() && !$organisation->system_approved) {
+                    return $this->ForbiddenResponse();
+                }
+
                 $originalStatus = $cho->getState();
                 if ($cho->canTransitionTo($status)) {
                     $cho->transitionTo($status);
