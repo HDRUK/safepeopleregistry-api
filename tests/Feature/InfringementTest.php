@@ -2,9 +2,10 @@
 
 namespace Tests\Feature;
 
-use KeycloakGuard\ActingAsKeycloakUser;
 use Tests\TestCase;
+use App\Models\Infringement;
 use Tests\Traits\Authorisation;
+use KeycloakGuard\ActingAsKeycloakUser;
 
 class InfringementTest extends TestCase
 {
@@ -57,6 +58,22 @@ class InfringementTest extends TestCase
 
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
+    }
+
+    public function test_the_application_cannot_show_infringements_by_id(): void
+    {
+        $latestInfringement = Infringement::query()->orderBy('id', 'desc')->first();
+        $infringementIdTest = $latestInfringement ? $latestInfringement->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$infringementIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 
     public function test_the_application_can_create_infringements(): void

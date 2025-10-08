@@ -4,15 +4,18 @@ namespace App\Http\Controllers\Api\V1;
 
 use Gateway;
 use Exception;
-use App\Models\Custodian;
 use App\Models\Project;
-use App\Models\ProjectDetail;
-use App\Http\Requests\Gateway\QueryGatewayDur;
-use App\Traits\CommonFunctions;
-use App\Http\Traits\Responses;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\JsonResponse;
+use App\Models\Custodian;
 use Illuminate\Http\Request;
+use App\Models\ProjectDetail;
+use App\Http\Traits\Responses;
+use App\Traits\CommonFunctions;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Gateway\QueryGatewayDur;
+use App\Http\Requests\ProjectDetails\GetProjectDetail;
+use App\Http\Requests\ProjectDetails\DeleteProjectDetail;
+use App\Http\Requests\ProjectDetails\UpdateProjectDetail;
 
 class ProjectDetailController extends Controller
 {
@@ -82,6 +85,13 @@ class ProjectDetailController extends Controller
      *          )
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Not found response",
      *          @OA\JsonContent(
@@ -90,7 +100,7 @@ class ProjectDetailController extends Controller
      *      )
      * )
      */
-    public function show(Request $request, int $id): JsonResponse
+    public function show(GetProjectDetail $request, int $id): JsonResponse
     {
         $projectDetail = ProjectDetail::where('id', $id)->first();
         if ($projectDetail) {
@@ -182,13 +192,6 @@ class ProjectDetailController extends Controller
      *          )
      *      ),
      *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          )
-     *      ),
-     *      @OA\Response(
      *          response=200,
      *          description="Success",
      *          @OA\JsonContent(
@@ -196,6 +199,20 @@ class ProjectDetailController extends Controller
      *              @OA\Property(property="data",
      *                  ref="#/components/schemas/ProjectDetail"
      *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
      *          )
      *      ),
      *      @OA\Response(
@@ -207,7 +224,7 @@ class ProjectDetailController extends Controller
      *      )
      * )
      */
-    public function update(Request $request, int $id): JsonResponse
+    public function update(UpdateProjectDetail $request, int $id): JsonResponse
     {
         try {
             $input = $request->only(app(ProjectDetail::class)->getFillable());
@@ -240,18 +257,25 @@ class ProjectDetailController extends Controller
      *         ),
      *      ),
      *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *           ),
-     *      ),
-     *      @OA\Response(
      *          response=200,
      *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="success")
      *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *           ),
      *      ),
      *      @OA\Response(
      *          response=500,
@@ -262,7 +286,7 @@ class ProjectDetailController extends Controller
      *      )
      * )
      */
-    public function destroy(Request $request, int $id): JsonResponse
+    public function destroy(DeleteProjectDetail $request, int $id): JsonResponse
     {
         try {
             ProjectDetail::where('id', $id)->delete();

@@ -5,11 +5,12 @@ namespace App\Http\Controllers\Api\V1;
 use Exception;
 use App\Models\Resolution;
 use App\Models\Infringement;
-use App\Models\InfringementHasResolution;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use App\Traits\CommonFunctions;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
+use App\Models\InfringementHasResolution;
+use App\Http\Requests\Resolutions\GetResolutionByRegistry;
+use App\Http\Requests\Resolutions\CreateResolutionByRegistry;
 
 /**
  * @OA\Tag(
@@ -40,10 +41,18 @@ class ResolutionController extends Controller
      *             type="array",
      *             @OA\Items(ref="#/components/schemas/Resolution")
      *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid argument(s)",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *         )
      *     )
      * )
      */
-    public function indexByRegistryId(Request $request, int $registryId): JsonResponse
+    public function indexByRegistryId(GetResolutionByRegistry $request, int $registryId): JsonResponse
     {
         $resolutions = Resolution::where('registry_id', $registryId)->get();
 
@@ -80,15 +89,15 @@ class ResolutionController extends Controller
      *     ),
      *     @OA\Response(
      *         response=400,
-     *         description="Validation error",
+     *         description="Invalid argument(s)",
      *         @OA\JsonContent(
      *             type="object",
-     *             @OA\Property(property="message", type="string", example="Validation error")
+     *             @OA\Property(property="message", type="string", example="Invalid argument(s)")
      *         )
      *     )
      * )
      */
-    public function storeByRegistryId(Request $request, int $registryId): JsonResponse
+    public function storeByRegistryId(CreateResolutionByRegistry $request, int $registryId): JsonResponse
     {
         try {
             $input = $request->all();

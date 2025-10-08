@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Api\V1;
 
 use Exception;
 use App\Models\ProjectRole;
-use App\Traits\CommonFunctions;
-use App\Http\Traits\Responses;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Http\Traits\Responses;
+use App\Traits\CommonFunctions;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\ProjectRoles\GetProjectRole;
+use App\Http\Requests\ProjectRoles\UpdateProjectRole;
 
 class ProjectRoleController extends Controller
 {
@@ -78,6 +80,13 @@ class ProjectRoleController extends Controller
      *          )
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Not found response",
      *          @OA\JsonContent(
@@ -86,7 +95,7 @@ class ProjectRoleController extends Controller
      *      )
      * )
      */
-    public function show(Request $request, int $id): JsonResponse
+    public function show(GetProjectRole $request, int $id): JsonResponse
     {
         $role = ProjectRole::where('id', $id)->first();
         if ($role) {
@@ -112,13 +121,6 @@ class ProjectRoleController extends Controller
      *          )
      *      ),
      *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          ),
-     *      ),
-     *      @OA\Response(
      *          response=201,
      *          description="Success",
      *          @OA\JsonContent(
@@ -127,6 +129,13 @@ class ProjectRoleController extends Controller
      *                  @OA\Property(property="id", type="integer", example="123")
      *              )
      *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *          ),
      *      ),
      *      @OA\Response(
      *          response=500,
@@ -178,13 +187,6 @@ class ProjectRoleController extends Controller
      *          )
      *      ),
      *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          )
-     *      ),
-     *      @OA\Response(
      *          response=200,
      *          description="Success",
      *          @OA\JsonContent(
@@ -192,6 +194,20 @@ class ProjectRoleController extends Controller
      *              @OA\Property(property="data",
      *                  ref="#/components/schemas/ProjectRole"
      *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
      *          )
      *      ),
      *      @OA\Response(
@@ -203,7 +219,7 @@ class ProjectRoleController extends Controller
      *      )
      * )
      */
-    public function update(Request $request, int $id): JsonResponse
+    public function update(UpdateProjectRole $request, int $id): JsonResponse
     {
         try {
             $input = $request->only(app(ProjectRole::class)->getFillable());

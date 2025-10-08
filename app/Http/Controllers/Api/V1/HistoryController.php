@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Exceptions\NotFoundException;
-use App\Http\Controllers\Controller;
-use App\Models\History;
-use App\Traits\CommonFunctions;
-use Carbon\Carbon;
-use Exception;
 use Hash;
-use Illuminate\Http\JsonResponse;
+use Exception;
+use Carbon\Carbon;
+use App\Models\History;
 use Illuminate\Http\Request;
+use App\Traits\CommonFunctions;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
+use App\Exceptions\NotFoundException;
+use App\Http\Requests\Histories\GetHistory;
 
 /**
  * History is immutable (simulated) in the sense that it can never
@@ -102,6 +103,13 @@ class HistoryController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=404,
      *          description="Not found response",
      *          @OA\JsonContent(
@@ -110,7 +118,7 @@ class HistoryController extends Controller
      *      )
      * )
      */
-    public function show(Request $request, int $id): JsonResponse
+    public function show(GetHistory $request, int $id): JsonResponse
     {
         $history = History::findOrFail($id);
         if ($history) {

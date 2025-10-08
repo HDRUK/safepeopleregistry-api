@@ -16,11 +16,26 @@ class GetEntityModelsRequest extends BaseFormRequest
     public function rules(): array
     {
         return [
+            'custodianId' => [
+                'required',
+                'integer',
+                'exists:custodians,id',
+            ],
             'entity_model_type' => [
                 'required',
                 'string',
                 Rule::in(EntityModelType::ENTITY_TYPES),
             ],
         ];
+    }
+
+    /**
+     * Add Route parameters to the FormRequest.
+     *
+     * @return void
+     */
+    protected function prepareForValidation()
+    {
+        $this->merge(['custodianId' => $this->route('custodianId')]);
     }
 }

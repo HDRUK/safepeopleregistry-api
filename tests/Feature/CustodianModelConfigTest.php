@@ -2,10 +2,12 @@
 
 namespace Tests\Feature;
 
-use KeycloakGuard\ActingAsKeycloakUser;
-use App\Traits\CommonFunctions;
 use Tests\TestCase;
+use App\Models\Custodian;
+use App\Models\CustodianModelConfig;
+use App\Traits\CommonFunctions;
 use Tests\Traits\Authorisation;
+use KeycloakGuard\ActingAsKeycloakUser;
 
 class CustodianModelConfigTest extends TestCase
 {
@@ -32,6 +34,22 @@ class CustodianModelConfigTest extends TestCase
         $response->assertStatus(200);
         $this->assertArrayHasKey('data', $response);
         $this->assertNotNull($response->decodeResponseJson()['data']);
+    }
+
+    public function test_the_application_cannot_show_custodian_config_by_custodian_id(): void
+    {
+        $latestCustodian = Custodian::query()->orderBy('id', 'desc')->first();
+        $custodianIdTest = $latestCustodian ? $latestCustodian->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$custodianIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 
     public function test_the_application_can_create_custodian_config(): void
@@ -88,6 +106,25 @@ class CustodianModelConfigTest extends TestCase
         $this->assertEquals($content['data']['active'], 0);
     }
 
+    public function test_the_application_cannot_update_custodian_config(): void
+    {
+        $latestCustodianModelConfig = CustodianModelConfig::query()->orderBy('id', 'desc')->first();
+        $custodianModelConfigIdTest = $latestCustodianModelConfig ? $latestCustodianModelConfig->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . "/{$custodianModelConfigIdTest}",
+                [
+                    'active' => 0,
+                ]
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
     public function test_the_application_can_delete_a_custodian_config(): void
     {
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
@@ -120,6 +157,22 @@ class CustodianModelConfigTest extends TestCase
         $this->assertEquals($content['message'], 'success');
     }
 
+    public function test_the_application_cannot_delete_a_custodian_config(): void
+    {
+        $latestCustodianModelConfig = CustodianModelConfig::query()->orderBy('id', 'desc')->first();
+        $custodianModelConfigIdTest = $latestCustodianModelConfig ? $latestCustodianModelConfig->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'DELETE',
+                self::TEST_URL . "/{$custodianModelConfigIdTest}"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
     public function test_the_application_can_get_entity_models_for_specific_custodian(): void
     {
         $custodianId = 1;
@@ -141,6 +194,22 @@ class CustodianModelConfigTest extends TestCase
             $this->assertArrayHasKey('description', $content['data'][0]);
             $this->assertArrayHasKey('active', $content['data'][0]);
         }
+    }
+
+    public function test_the_application_cannot_get_entity_models_for_specific_custodian(): void
+    {
+        $latestCustodian = Custodian::query()->orderBy('id', 'desc')->first();
+        $custodianIdTest = $latestCustodian ? $latestCustodian->id + 1 : 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                "/api/v1/custodian_config/{$custodianIdTest}/entity_models?entity_model_type=decision_models"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 
     public function test_the_application_returns_error_for_invalid_entity_model_type(): void
@@ -183,8 +252,8 @@ class CustodianModelConfigTest extends TestCase
                 "/api/v1/custodian_config/{$invalidCustodianId}/entity_models?entity_model_type=decision_models"
             );
 
-        $response->assertStatus(404);
-        $content = $response->decodeResponseJson();
-        $this->assertNull($content['data']);
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
     }
 }

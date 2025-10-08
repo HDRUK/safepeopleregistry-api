@@ -122,15 +122,6 @@ class RegistryReadRequestController extends Controller
      *              @OA\Property(property="user_id", type="integer", example="123")
      *          ),
      *      ),
-     *
-     *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found")
-     *          ),
-     *      ),
-     *
      *      @OA\Response(
      *          response=201,
      *          description="Success",
@@ -139,7 +130,20 @@ class RegistryReadRequestController extends Controller
      *              @OA\Property(property="data", type="boolean", example="true")
      *          ),
      *      ),
-     *
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *          ),
+     *      ),
      *      @OA\Response(
      *          response=500,
      *          description="Error",

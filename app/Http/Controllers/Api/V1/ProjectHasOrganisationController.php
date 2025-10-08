@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Exception;
-use App\Http\Controllers\Controller;
-use App\Models\ProjectHasOrganisation;
-use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
 use App\Traits\CommonFunctions;
+use App\Http\Controllers\Controller;
+use App\Models\ProjectHasOrganisation;
+use App\Http\Requests\ProjectHasOrganisations\GetProjectHasOrganisation;
 
 /**
  * @OA\Tag(
@@ -38,6 +38,13 @@ class ProjectHasOrganisationController extends Controller
      *         @OA\JsonContent(ref="#/components/schemas/ProjectHasOrganisation")
      *     ),
      *     @OA\Response(
+     *         response=400,
+     *         description="Invalid argument(s)",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *         )
+     *     ),
+     *     @OA\Response(
      *         response=404,
      *         description="Project-organisation relationship not found",
      *         @OA\JsonContent(
@@ -56,15 +63,15 @@ class ProjectHasOrganisationController extends Controller
      * )
      */
     public function show(
-        Request $request,
-        int $projectOrganisationId,
+        GetProjectHasOrganisation $request,
+        int $id,
     ) {
         try {
             $phu = ProjectHasOrganisation::with([
                 'organisation',
             ])
                 ->where([
-                    'id' => $projectOrganisationId,
+                    'id' => $id,
                 ])->first();
 
             if (!$phu) {

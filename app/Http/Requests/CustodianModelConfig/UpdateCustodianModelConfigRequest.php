@@ -14,10 +14,25 @@ class UpdateCustodianModelConfigRequest extends BaseFormRequest
     public function rules(): array
     {
         return [
+            'id' => [
+                'required',
+                'integer',
+                'exists:custodian_model_configs,id',
+            ],
             'active' => [
                 'boolean',
                 'sometimes',
             ],
         ];
+    }
+
+    /**
+     * Add Route parameters to the FormRequest.
+     *
+     * @return void
+     */
+    protected function prepareForValidation()
+    {
+        $this->merge(['id' => $this->route('id')]);
     }
 }
