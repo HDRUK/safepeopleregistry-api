@@ -11,9 +11,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use App\Models\CustodianHasProjectUser;
-use App\Http\Requests\CustodianProjectUser\GetCustodianProjectUser;
-use App\Http\Requests\CustodianProjectUser\GetAllCustodianProjectUser;
-use App\Http\Requests\CustodianProjectUser\UpdateCustodianProjectUser;
+use App\Http\Requests\CustodianHasProjectUser\GetCustodianHasProjectUser;
+use App\Http\Requests\CustodianHasProjectUser\GetAllCustodianHasProjectUser;
+use App\Http\Requests\CustodianHasProjectUser\UpdateCustodianHasProjectUser;
 
 use function activity;
 
@@ -75,7 +75,7 @@ class CustodianHasProjectUserController extends Controller
      *      )
      * )
      */
-    public function index(GetAllCustodianProjectUser $request, int $custodianId)
+    public function index(GetAllCustodianHasProjectUser $request, int $custodianId)
     {
         try {
             $custodian = Custodian::findOrFail($custodianId);
@@ -193,7 +193,7 @@ class CustodianHasProjectUserController extends Controller
      * )
      */
     public function show(
-        GetCustodianProjectUser $request,
+        GetCustodianHasProjectUser $request,
         int $custodianId,
         int $projectUserId,
     ) {
@@ -297,7 +297,7 @@ class CustodianHasProjectUserController extends Controller
      */
 
     public function update(
-        UpdateCustodianProjectUser $request,
+        UpdateCustodianHasProjectUser $request,
         int $custodianId,
         int $projectUserId,
     ) {

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\CustodianProjectUser;
+namespace App\Http\Requests\CustodianHasProjectUser;
 
 use App\Http\Requests\BaseFormRequest;
 
-class GetAllCustodianProjectUser extends BaseFormRequest
+class GetAllCustodianHasProjectUser extends BaseFormRequest
 {
     /**
      * Get the validation rules that apply to the request.
