@@ -7,10 +7,8 @@ use App\Models\State;
 use App\Models\Project;
 use App\Models\Custodian;
 use App\Models\Organisation;
-use App\Models\ProjectHasUser;
 use Tests\Traits\Authorisation;
 use App\Models\ProjectHasOrganisation;
-use App\Models\CustodianHasProjectUser;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\CustodianHasProjectOrganisation;
 
