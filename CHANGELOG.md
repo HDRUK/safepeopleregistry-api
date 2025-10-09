@@ -1,3 +1,14 @@
+## [1.15.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.14.2...v1.15.0) (2025-10-09)
+
+### ✨ Features
+
+* **REGISTRY-0000:** Implement microsoft graph api for additional ema… (#477) ([69f49ed](https://github.com/HDRUK/safepeopleregistry-api/commit/69f49edd5135b0da3faebd2c8d7885d4241f9554))
+* **REGISTRY-0000:** Implement microsoft graph api for additional email sending options ([4603326](https://github.com/HDRUK/safepeopleregistry-api/commit/4603326d7bb2e473bcffd26b0525739a424664c4))
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-2024:** Organisations > Delegates - sign up link going to homepage (#479) ([feae401](https://github.com/HDRUK/safepeopleregistry-api/commit/feae4015b979f2884f1bf4332fa5c57d3f1f50b0))
+
 ## [1.14.2](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.14.1...v1.14.2) (2025-10-09)
 
 ### 🐛 Bug Fixes
