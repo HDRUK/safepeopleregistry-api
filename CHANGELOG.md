@@ -1,3 +1,9 @@
+## [1.14.2](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.14.1...v1.14.2) (2025-10-09)
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-2010:** Organisations > Projects - filters not working (#475) ([4cfaf55](https://github.com/HDRUK/safepeopleregistry-api/commit/4cfaf55dc5b8ea51fbc32da5525a04c9276f8698))
+
 ## [1.14.1](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.14.0...v1.14.1) (2025-10-08)
 
 ### 🐛 Bug Fixes
