@@ -1,3 +1,16 @@
+## [1.16.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.15.0...v1.16.0) (2025-10-10)
+
+### ✨ Features
+
+* **REGISTRY-1873:** Organisation | SRO application - notifications & emails (#481) ([75dde57](https://github.com/HDRUK/safepeopleregistry-api/commit/75dde57170185b242ee1a2a3f2620acb033acb25))
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-0000:** fix for horizon (#483) ([53b0896](https://github.com/HDRUK/safepeopleregistry-api/commit/53b0896b44a30ec9f1c9352adf46f94dfd661a1c))
+* **REGISTRY-0000:** get projects by id and userid (#482) ([e21909f](https://github.com/HDRUK/safepeopleregistry-api/commit/e21909f052f9484ef479cc8b0efc9f0c86034f6a))
+* **REGISTRY-0000:** update email and others (#485) ([b51fd9d](https://github.com/HDRUK/safepeopleregistry-api/commit/b51fd9d2f37b0ff090de55685b6a7c67f7760e5d))
+* **REGISTRY-2038:** Adding multiple users to projects, the response is not complete (#484) ([cb965bf](https://github.com/HDRUK/safepeopleregistry-api/commit/cb965bf802504cc6b73f246023849eb47e80a725))
+
 ## [1.15.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.14.2...v1.15.0) (2025-10-09)
 
 ### ✨ Features
