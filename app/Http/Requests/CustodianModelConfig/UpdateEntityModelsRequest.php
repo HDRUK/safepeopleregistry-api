@@ -15,7 +15,7 @@ class UpdateEntityModelsRequest extends BaseFormRequest
     public function rules(): array
     {
         return [
-            'custodianId' => [
+            'id' => [
                 'required',
                 'integer',
                 'exists:custodians,id',
@@ -30,6 +30,6 @@ class UpdateEntityModelsRequest extends BaseFormRequest
      */
     protected function prepareForValidation()
     {
-        $this->merge(['custodianId' => $this->route('custodianId')]);
+        $this->merge(['id' => $this->route('id')]);
     }
 }
