@@ -14,7 +14,7 @@ class GetAllUsersFlagProjectByUserId extends BaseFormRequest
     public function rules(): array
     {
         return [
-            'projectId' => [
+            'id' => [
                 'required',
                 'integer',
                 'exists:projects,id',
@@ -34,7 +34,7 @@ class GetAllUsersFlagProjectByUserId extends BaseFormRequest
      */
     protected function prepareForValidation()
     {
-        $this->merge(['projectId' => $this->route('projectId')]);
+        $this->merge(['id' => $this->route('id')]);
         $this->merge(['userId' => $this->route('userId')]);
     }
 }

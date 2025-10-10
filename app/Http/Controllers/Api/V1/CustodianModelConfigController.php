@@ -424,7 +424,7 @@ class CustodianModelConfigController extends Controller
      *      )
      * )
      */
-    public function updateEntityModels(UpdateEntityModelsRequest $request, int $custodianId): JsonResponse
+    public function updateEntityModels(UpdateEntityModelsRequest $request, int $id): JsonResponse
     {
         try {
             $request->validate([
@@ -437,7 +437,7 @@ class CustodianModelConfigController extends Controller
             $updatedConfigs = [];
 
             foreach ($configs as $config) {
-                $custodianModelConfig = CustodianModelConfig::where('custodian_id', $custodianId)
+                $custodianModelConfig = CustodianModelConfig::where('custodian_id', $id)
                     ->where('entity_model_id', $config['entity_model_id'])
                     ->first();
 

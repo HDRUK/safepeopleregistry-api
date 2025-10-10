@@ -581,9 +581,9 @@ class ProjectController extends Controller
      *      )
      * )
      */
-    public function getAllUsersFlagProjectByUserId(GetAllUsersFlagProjectByUserId $request, int $projectId, int $userId)
+    public function getAllUsersFlagProjectByUserId(GetAllUsersFlagProjectByUserId $request, int $id, int $userId)
     {
-        $project = Project::find($projectId);
+        $project = Project::find($id);
 
         if (!Gate::allows('viewProjectUserDetails', $project)) {
             return $this->ForbiddenResponse();
@@ -600,8 +600,8 @@ class ProjectController extends Controller
 
         $idCounter = 1;
 
-        $expandedUser = $user->registry->affiliations->map(function ($affiliation) use ($user, $projectId, &$idCounter) {
-            return $this->formatProjectUserAffiliation($affiliation, $user, $projectId, $idCounter++);
+        $expandedUser = $user->registry->affiliations->map(function ($affiliation) use ($user, $id, &$idCounter) {
+            return $this->formatProjectUserAffiliation($affiliation, $user, $id, $idCounter++);
         });
 
         return $this->OKResponse($expandedUser);
@@ -1013,45 +1013,47 @@ class ProjectController extends Controller
             $registryIds = $users->pluck('registry_id')->unique();
             $registries = Registry::with('user')->whereIn('id', $registryIds)->get()->keyBy('id');
 
-            foreach ($users as $entry) {
-                $registry = $registries->get($entry['registry_id']);
-                $user = $registry->user;
-                if (!$registry || !$user) {
-                    continue;
-                }
-
-                $digiIdent = $registry->digi_ident;
-                $affiliationId = $entry['affiliation_id'];
-                $roleId = $entry['role']['id'] ?? null;
-                $primaryContact = $entry['primary_contact'] ?? 0;
-
-
-                $roleId = $entry['role']['id'] ?? null;
-                $phu = ProjectHasUser::where('id', $entry['project_user_id'])->first();
-
-                if ($phu) {
-                    if (is_null($roleId)) {
-                        $phu->delete();
-                    } else {
-                        $phu->update(
-                            [
-                                'project_role_id' => $roleId,
-                                'primary_contact' => $primaryContact,
-                                'affiliation_id' => $affiliationId,
-                            ]
-                        );
+            \DB::transaction(function () use ($users, $registries, $projectId) {
+                foreach ($users as $entry) {
+                    $registry = $registries->get($entry['registry_id']);
+                    $user = $registry->user;
+                    if (!$registry || !$user) {
+                        continue;
                     }
-                } elseif ($roleId) {
-                    ProjectHasUser::updateOrCreate([
-                        'project_id' => $projectId,
-                        'user_digital_ident' => $digiIdent, // index
-                        'affiliation_id' => $affiliationId,
-                    ], [
-                        'project_role_id' => $roleId,
-                        'primary_contact' => $primaryContact,
-                    ]);
+
+                    $digiIdent = $registry->digi_ident;
+                    $affiliationId = $entry['affiliation_id'];
+                    $roleId = $entry['role']['id'] ?? null;
+                    $primaryContact = $entry['primary_contact'] ?? 0;
+
+
+                    $roleId = $entry['role']['id'] ?? null;
+                    $phu = ProjectHasUser::where('id', $entry['project_user_id'])->first();
+
+                    if ($phu) {
+                        if (is_null($roleId)) {
+                            $phu->delete();
+                        } else {
+                            $phu->update(
+                                [
+                                    'project_role_id' => $roleId,
+                                    'primary_contact' => $primaryContact,
+                                    'affiliation_id' => $affiliationId,
+                                ]
+                            );
+                        }
+                    } elseif ($roleId) {
+                        ProjectHasUser::updateOrCreate([
+                            'project_id' => $projectId,
+                            'user_digital_ident' => $digiIdent, // index
+                            'affiliation_id' => $affiliationId,
+                        ], [
+                            'project_role_id' => $roleId,
+                            'primary_contact' => $primaryContact,
+                        ]);
+                    }
                 }
-            }
+            });
 
             return $this->OKResponse(true);
         } catch (Exception $e) {
