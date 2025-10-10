@@ -581,9 +581,9 @@ class ProjectController extends Controller
      *      )
      * )
      */
-    public function getAllUsersFlagProjectByUserId(GetAllUsersFlagProjectByUserId $request, int $projectId, int $userId)
+    public function getAllUsersFlagProjectByUserId(GetAllUsersFlagProjectByUserId $request, int $id, int $userId)
     {
-        $project = Project::find($projectId);
+        $project = Project::find($id);
 
         if (!Gate::allows('viewProjectUserDetails', $project)) {
             return $this->ForbiddenResponse();
@@ -600,8 +600,8 @@ class ProjectController extends Controller
 
         $idCounter = 1;
 
-        $expandedUser = $user->registry->affiliations->map(function ($affiliation) use ($user, $projectId, &$idCounter) {
-            return $this->formatProjectUserAffiliation($affiliation, $user, $projectId, $idCounter++);
+        $expandedUser = $user->registry->affiliations->map(function ($affiliation) use ($user, $id, &$idCounter) {
+            return $this->formatProjectUserAffiliation($affiliation, $user, $id, $idCounter++);
         });
 
         return $this->OKResponse($expandedUser);
