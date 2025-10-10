@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use DB;
 use Hash;
 use Keycloak;
-use Throwable;
+use Exception;
 use TriggerEmail;
 use Carbon\Carbon;
 use App\Models\User;
@@ -271,8 +271,8 @@ class UserController extends Controller
                 'message' => 'success',
                 'data' => $user
             ], 200);
-        } catch (Throwable $e) {
-            throw new Throwable($e->getMessage());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         }
     }
     public function showByUniqueIdentifier(Request $request): JsonResponse
@@ -402,8 +402,8 @@ class UserController extends Controller
                 'message' => 'success',
                 'data' => $user->id,
             ], 201);
-        } catch (Throwable $e) {
-            throw new Throwable($e->getMessage());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         }
     }
 
@@ -437,8 +437,8 @@ class UserController extends Controller
                 'message' => 'success',
                 'data' => $unclaimedUser,
             ], 201);
-        } catch (Throwable $e) {
-            throw new Throwable($e->getMessage());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         }
     }
 
@@ -569,8 +569,8 @@ class UserController extends Controller
                 'data' => $user,
             ], 200);
 
-        } catch (Throwable $e) {
-            throw new Throwable($e->getMessage());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         }
     }
 
@@ -584,8 +584,8 @@ class UserController extends Controller
             }
 
             return $this->NotFoundResponse();
-        } catch (Throwable $e) {
-            throw new Throwable($e->getMessage());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         }
     }
 
@@ -619,8 +619,8 @@ class UserController extends Controller
             }
 
             return $this->NotFoundResponse();
-        } catch (Throwable $e) {
-            throw new Throwable($e->getMessage());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         }
     }
 
@@ -694,8 +694,8 @@ class UserController extends Controller
             return response()->json([
                 'message' => 'success',
             ], 200);
-        } catch (Throwable $e) {
-            throw new Throwable($e->getMessage());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         }
     }
 
@@ -751,8 +751,8 @@ class UserController extends Controller
 
             $records = collect($results)->toArray();
             return $this->OKResponse($records);
-        } catch (Throwable $e) {
-            throw new Throwable($e->getMessage());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         }
     }
 

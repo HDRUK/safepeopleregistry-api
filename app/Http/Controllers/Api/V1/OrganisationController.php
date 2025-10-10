@@ -27,7 +27,9 @@ use Illuminate\Support\Facades\Gate;
 use App\Exceptions\NotFoundException;
 use RegistryManagementController as RMC;
 use App\Models\OrganisationHasDepartment;
+use App\Notifications\OrganisationApproved;
 use App\Http\Requests\Organisations\GetUser;
+use Illuminate\Support\Facades\Notification;
 use App\Http\Requests\Organisations\GetProject;
 use App\Http\Requests\Organisations\GetDelegate;
 use App\Http\Requests\Organisations\GetRegistry;
@@ -1575,8 +1577,6 @@ class OrganisationController extends Controller
                 'system_approved' => $input['system_approved']
             ]);
 
-            $custodianId = $request->user()->id;
-
             // email
             $input = [
                 'type' => 'ORGANISATION_CONFIRMATION_WITH_SUCCESS',
@@ -1588,12 +1588,21 @@ class OrganisationController extends Controller
             TriggerEmail::spawnEmail($input);
 
             // notification
+            $loggedUserId = $request->user()->id;
+            $loggerUser = User::findOrFail($loggedUserId);
+            $usersToNotify = $this->getNotificationUsers($id);
+            Notification::send($usersToNotify, new OrganisationApproved($org));
             
 
             return $this->OKResponse($org);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
+    }
+
+    private function getNotificationUsers(int $orgId)
+    {
+        return User::where("organisation_id", $orgId)->get();
     }
 
 }
