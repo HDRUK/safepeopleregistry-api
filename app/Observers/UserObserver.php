@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use Keycloak;
 use Exception;
+use TriggerEmail;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\State;
@@ -71,7 +72,6 @@ class UserObserver
      */
     public function updated(User $user): void
     {
-
         DebugLog::create([
             'class' => User::class,
             'log' => 'User updated ::' . json_encode($user->getChanges()),
@@ -79,7 +79,7 @@ class UserObserver
 
         $changes = [];
 
-        $fieldsToTrack = ['first_name', 'last_name', 'email'];
+        $fieldsToTrack = ['first_name', 'last_name', 'email', 'role'];
 
         foreach ($fieldsToTrack as $field) {
             if ($user->isDirty($field)) {
@@ -127,6 +127,23 @@ class UserObserver
                     ],
                     ['completed_at' => Carbon::now()]
                 );
+            }
+        }
+
+        // send email to admin if user->is_sro
+        if ($user->is_sro && !empty($changes)) {
+            Organisation::where('id', $user->organisation_id)->update([
+                'system_approved' => 0,
+            ]);
+            $userAdmins = User::where('user_group', User::GROUP_ADMINS)->select(['id'])->get();
+            foreach ($userAdmins as $userAdmin) {
+                $input = [
+                    'type' => 'ORGANISATION_NEEDS_CONFIRMATION',
+                    'to' => $user->organisation_id,
+                    'by' => $userAdmin->id,
+                    'identifier' => 'organisation_confirmation_needed'
+                ];
+                TriggerEmail::spawnEmail($input);
             }
         }
 
