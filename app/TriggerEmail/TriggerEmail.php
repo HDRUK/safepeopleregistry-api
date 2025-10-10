@@ -257,6 +257,7 @@ class TriggerEmail
                     '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),
                     // '[[digi_ident]]' => User::where('id', $unclaimedUserId)->first()->registry->digi_ident,
                     '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
                 ];
 
                 PendingInvite::create([
