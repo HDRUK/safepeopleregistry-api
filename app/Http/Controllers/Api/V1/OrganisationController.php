@@ -27,7 +27,9 @@ use Illuminate\Support\Facades\Gate;
 use App\Exceptions\NotFoundException;
 use RegistryManagementController as RMC;
 use App\Models\OrganisationHasDepartment;
+use App\Notifications\OrganisationApproved;
 use App\Http\Requests\Organisations\GetUser;
+use Illuminate\Support\Facades\Notification;
 use App\Http\Requests\Organisations\GetProject;
 use App\Http\Requests\Organisations\GetDelegate;
 use App\Http\Requests\Organisations\GetRegistry;
@@ -706,6 +708,25 @@ class OrganisationController extends Controller
 
             if ($request->has('charities')) {
                 $this->updateOrganisationCharities($id, $request->input('charities'));
+            }
+
+            if ($org->isDirty()) {
+                Organisation::where('id', $org->id)->update([
+                    'system_approved' => 0,
+                ]);
+
+                $userAdmins = User::where('user_group', User::GROUP_ADMINS)->select(['id'])->get();
+                foreach ($userAdmins as $userAdmin) {
+                    $input = [
+                        'type' => 'ORGANISATION_NEEDS_CONFIRMATION',
+                        'to' => $id,
+                        'by' => $userAdmin->id,
+                        'identifier' => 'organisation_confirmation_needed'
+                    ];
+
+                    TriggerEmail::spawnEmail($input);
+                }
+
             }
 
             return $this->OKResponse($org);
@@ -1556,21 +1577,32 @@ class OrganisationController extends Controller
                 'system_approved' => $input['system_approved']
             ]);
 
-            $custodianId = $request->user()->id;
-
+            // email
             $input = [
-                'type' => 'ORGANISATION_NEEDS_CONFIRMATION',
-                'to' => $org->id,
-                'by' => $custodianId,
-                'identifier' => 'organisation_needs_confirmation'
+                'type' => 'ORGANISATION_CONFIRMATION_WITH_SUCCESS',
+                'to' => $id,
+                'by' => -1,
+                'identifier' => 'organisation_confirmation_with_success'
             ];
 
             TriggerEmail::spawnEmail($input);
+
+            // notification
+            $loggedUserId = $request->user()->id;
+            $loggerUser = User::findOrFail($loggedUserId);
+            $usersToNotify = $this->getNotificationUsers($id);
+            Notification::send($usersToNotify, new OrganisationApproved($org));
+            
 
             return $this->OKResponse($org);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
+    }
+
+    private function getNotificationUsers(int $orgId)
+    {
+        return User::where("organisation_id", $orgId)->get();
     }
 
 }

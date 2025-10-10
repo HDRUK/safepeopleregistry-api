@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Exception;
+use TriggerEmail;
 use App\Models\File;
 use App\Models\User;
 use App\Models\Registry;
@@ -275,6 +276,22 @@ class FileUploadController extends Controller
                     'organisation_id' => $organisation->id,
                     'file_id' => $fileIn->id,
                 ]);
+
+                Organisation::where('id', $organisation->id)->update([
+                    'system_approved' => 0,
+                ]);
+
+                $userAdmins = User::where('user_group', User::GROUP_ADMINS)->select(['id'])->get();
+                foreach ($userAdmins as $userAdmin) {
+                    $input = [
+                        'type' => 'ORGANISATION_NEEDS_CONFIRMATION',
+                        'to' => $organisation->id,
+                        'by' => $userAdmin->id,
+                        'identifier' => 'organisation_confirmation_needed'
+                    ];
+
+                    TriggerEmail::spawnEmail($input);
+                }
             } else {
                 throw new Exception('Invalid or missing registry ID or organisation ID');
             }

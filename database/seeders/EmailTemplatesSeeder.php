@@ -774,7 +774,7 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="10px 15px 0px 15px">
                                 Confirm the Organisation by clicking the button below.
                                 </mj-text>
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[link.organisation.profile]]" padding="10px 15px 15px 15px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[ORGANISATION_PATH_PROFILE)]]" padding="10px 15px 15px 15px">
                                   Confirm Organisation
                                 </mj-button>
                               </mj-column>
@@ -786,7 +786,7 @@ class EmailTemplatesSeeder extends Seeder
             'buttons' => '',
           ],
           [
-            'identifier' => 'organisation_confirmation',
+            'identifier' => 'organisation_confirmation_with_success',
             'subject' => 'Safe People Registry | Organisation confirmed',
             'body' => '<mjml>
                         ' . $this->mjmlHead . '
@@ -963,57 +963,57 @@ class EmailTemplatesSeeder extends Seeder
                       </mjml >',
             'buttons' => '',
           ],
-          [
-            'identifier' => 'organisation_needs_confirmation',
-            'subject' => 'Safe People Registry | Organisation confirmation needed',
-            'body' => '<mjml>
-                        ' . $this->mjmlHead . '
-                        <mj-body background-color="#f6dff1" width="600px" >
+          // [
+          //   'identifier' => 'organisation_needs_confirmation',
+          //   'subject' => 'Safe People Registry | Organisation confirmation needed',
+          //   'body' => '<mjml>
+          //               ' . $this->mjmlHead . '
+          //               <mj-body background-color="#f6dff1" width="600px" >
 
-                          ' . $this->titleBar('Organisation confirmation needed') . '
+          //                 ' . $this->titleBar('Organisation confirmation needed') . '
 
-                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
-                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
-                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
-                                <mj-text align="left" padding="20px 0px 20px 0px">
-                                  You\'re asked to confirm a new Organisation on the [[env(APP_NAME)]]!
-                                  <div><br></div>
-                                  [[organisation.organisation_name]]
-                                </mj-text>
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[ORGANISATION_PATH_PROFILE]]" padding="0px 15px 0px 0px">
-                                  Organisation Profile
-                                </mj-button>
-                                <mj-text align="left" padding="20px 0px 20px 0px">
-                                  When confirming an Organisation, you are confirming that:
-                                  <ul>
-                                    <li>The profile (linked) of the signee of the SRO declaration matches an appropriate profile (such as a Data Protection Officer) in that Organisation</li>
-                                    <li>The SRO declaration is signed</li>
-                                    <li>The Organisation does not appear shady - [[ORGANISATION_PATH_PROFILE]]</li>
-                                  </ul>
-                                  <div><br></div>
-                                  ' . $this->whatIsBlurb . '
-                                  <div><br></div>
-                                  ' . $this->supportFooter . '
-                                </mj-text>
-                              </mj-column>
-                            </mj-section>
+          //                 <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+          //                   <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+          //                     <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+          //                       <mj-text align="left" padding="20px 0px 20px 0px">
+          //                         You\'re asked to confirm a new Organisation on the [[env(APP_NAME)]]!
+          //                         <div><br></div>
+          //                         [[organisation.organisation_name]]
+          //                       </mj-text>
+          //                       <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[ORGANISATION_PATH_PROFILE]]" padding="0px 15px 0px 0px">
+          //                         Organisation Profile
+          //                       </mj-button>
+          //                       <mj-text align="left" padding="20px 0px 20px 0px">
+          //                         When confirming an Organisation, you are confirming that:
+          //                         <ul>
+          //                           <li>The profile (linked) of the signee of the SRO declaration matches an appropriate profile (such as a Data Protection Officer) in that Organisation</li>
+          //                           <li>The SRO declaration is signed</li>
+          //                           <li>The Organisation does not appear shady - [[ORGANISATION_PATH_PROFILE]]</li>
+          //                         </ul>
+          //                         <div><br></div>
+          //                         ' . $this->whatIsBlurb . '
+          //                         <div><br></div>
+          //                         ' . $this->supportFooter . '
+          //                       </mj-text>
+          //                     </mj-column>
+          //                   </mj-section>
                                     
-                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
-                              <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
-                                <mj-text align="left" padding="10px 15px 0px 15px">
-                                Confirm the Organisation by clicking the button below.
-                                </mj-text>
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[ORGANISATION_PATH_PROFILE)]]" padding="10px 15px 15px 15px">
-                                  Confirm Organisation
-                                </mj-button>
-                              </mj-column>
-                            </mj-section>
-                          </mj-wrapper>
+          //                   <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
+          //                     <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
+          //                       <mj-text align="left" padding="10px 15px 0px 15px">
+          //                       Confirm the Organisation by clicking the button below.
+          //                       </mj-text>
+          //                       <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[ORGANISATION_PATH_PROFILE)]]" padding="10px 15px 15px 15px">
+          //                         Confirm Organisation
+          //                       </mj-button>
+          //                     </mj-column>
+          //                   </mj-section>
+          //                 </mj-wrapper>
 
-                        </mj-body>
-                      </mjml >',
-            'buttons' => '',
-          ],
+          //               </mj-body>
+          //             </mjml >',
+          //   'buttons' => '',
+          // ],
           [
             'identifier' => 'affiliation_user_professional_email_confirm',
             'subject' => 'Safe People Registry | Verify affiliation email',

@@ -450,26 +450,21 @@ class UserController extends Controller
      *      tags={"User"},
      *      summary="User@update",
      *      security={{"bearerAuth":{}}},
-     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="User ID",
      *         required=true,
      *         example="1",
-     *
      *         @OA\Schema(
      *            type="integer",
      *            description="User ID",
      *         ),
      *      ),
-     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="User definition",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="first_name", type="string", example="A"),
      *              @OA\Property(property="last_name", type="string", example="Researcher"),
      *              @OA\Property(property="email", type="string", example="someone@somewhere.com"),
@@ -478,23 +473,17 @@ class UserController extends Controller
      *              @OA\Property(property="location", type="string", example="United Kingdom"),
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
-     *
      *          @OA\JsonContent(
-     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -519,7 +508,6 @@ class UserController extends Controller
      *              )
      *          ),
      *      ),
-     *
      *      @OA\Response(
      *          response=400,
      *          description="Invalid argument(s)",
@@ -527,7 +515,6 @@ class UserController extends Controller
      *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
      *          )
      *      ),
-     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
@@ -575,19 +562,13 @@ class UserController extends Controller
             $user->is_sro = isset($input['is_sro']) ? $input['is_sro'] : $user->is_sro;
             $user->is_delegate = isset($input['is_delegate']) ? $input['is_delegate'] : $user->is_delegate;
             $user->role = isset($input['role']) ? $input['role'] : $user->role;
-
-            if ($user->save()) {
-                return response()->json([
-                    'message' => 'success',
-                    'data' => $user,
-                ], 200);
-            }
+            $user->save();
 
             return response()->json([
-                'message' => 'failed',
-                'data' => null,
-                'error' => 'unable to save user',
-            ], 409);
+                'message' => 'success',
+                'data' => $user,
+            ], 200);
+
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
