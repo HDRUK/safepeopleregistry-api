@@ -308,7 +308,7 @@ class TriggerEmail
                 $template = EmailTemplate::where('identifier', $identifier)->first();
                 $organisation = Organisation::where('id', $to)->first();
                 $userAdmin = User::where('id', $by)->first();
-                
+
                 $newRecipients = [
                     'id' => $userAdmin->id,
                     'email' => $userAdmin->email,

@@ -997,7 +997,7 @@ class EmailTemplatesSeeder extends Seeder
           //                       </mj-text>
           //                     </mj-column>
           //                   </mj-section>
-                                    
+
           //                   <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
           //                     <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
           //                       <mj-text align="left" padding="10px 15px 0px 15px">

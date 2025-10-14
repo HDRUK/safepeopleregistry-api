@@ -29,7 +29,7 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
     protected function gate(): void
     {
         Gate::define('viewHorizon', function (User $user = null) {
-           return config('app.env') !== 'prod'; 
+            return config('app.env') !== 'prod';
         });
     }
 }

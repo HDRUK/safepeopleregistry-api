@@ -395,7 +395,7 @@ class OrganisationController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        if (!Gate::allows('create', Organisation::class)) {
+        if (!Gate::allows('admin')) {
             return $this->ForbiddenResponse();
         }
 
@@ -1561,7 +1561,7 @@ class OrganisationController extends Controller
             $input = $request->only(app(Organisation::class)->getFillable());
             $org = Organisation::findOrFail($id);
 
-            if (!Gate::allows('updateIsAdmin', Organisation::class)) {
+            if (!Gate::allows('admin')) {
                 return $this->ForbiddenResponse();
             }
 
@@ -1592,7 +1592,7 @@ class OrganisationController extends Controller
             $loggerUser = User::findOrFail($loggedUserId);
             $usersToNotify = $this->getNotificationUsers($id);
             Notification::send($usersToNotify, new OrganisationApproved($org));
-            
+
 
             return $this->OKResponse($org);
         } catch (Exception $e) {

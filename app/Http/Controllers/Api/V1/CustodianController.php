@@ -264,7 +264,7 @@ class CustodianController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        if (!Gate::allows('create', Custodian::class)) {
+        if (!Gate::allows('admin')) {
             return $this->ForbiddenResponse();
         }
 

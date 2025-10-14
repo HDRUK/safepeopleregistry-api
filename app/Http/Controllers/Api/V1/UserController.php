@@ -7,7 +7,6 @@ use Hash;
 use Keycloak;
 use Exception;
 use TriggerEmail;
-use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Project;
 use App\Models\Registry;
@@ -374,7 +373,7 @@ class UserController extends Controller
      */
     public function store(CreateUser $request): JsonResponse
     {
-        if (!Gate::allows('create', User::class)) {
+        if (!Gate::allows('admin')) {
             return $this->ForbiddenResponse();
         }
         try {
@@ -682,11 +681,11 @@ class UserController extends Controller
     public function destroy(DeleteUser $request, int $id): JsonResponse
     {
         try {
-            $user = User::findOrFail($id);
-
-            if (!Gate::allows('delete', $user)) {
+            if (!Gate::allows('admin')) {
                 return $this->ForbiddenResponse();
             }
+
+            $user = User::findOrFail($id);
             $user->delete();
 
             UserHasCustodianPermission::where('user_id', $id)->delete();
