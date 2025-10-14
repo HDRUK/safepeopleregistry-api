@@ -20,11 +20,6 @@ class UserPolicy
         return $this->viewAny($user) || $user->id === $model->id;
     }
 
-    public function create(User $user): bool
-    {
-        return $user->isAdmin();
-    }
-
     public function update(User $user, User $model): bool
     {
         if ($user->isAdmin()) {
@@ -62,19 +57,9 @@ class UserPolicy
         return $user->id === $model->id;
     }
 
-    public function delete(User $user, User $model): bool
-    {
-        return $user->isAdmin();
-    }
-
     public function invite(User $user): bool
     {
         return $this->viewAny($user); // same access logic as viewAny for now
-    }
-
-    public function updateIsAdmin(User $user)
-    {
-        return $user->isAdmin();
     }
 
     public function updateEmailFromInvite(User $user, User $model)

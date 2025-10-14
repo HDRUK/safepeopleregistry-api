@@ -22,11 +22,6 @@ class RegistryPolicy
         return $this->viewAny($user) || $user->registry_id === $registry->id;
     }
 
-    public function create(User $user): bool
-    {
-        return $user->isAdmin();
-    }
-
     public function update(User $user, Registry $registry): bool
     {
         return $user->isAdmin() || $user->registry_id === $registry->id;

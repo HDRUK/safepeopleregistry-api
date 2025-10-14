@@ -305,7 +305,7 @@ class AffiliationController extends Controller
     public function resendVerificationEmail(ResendVerificationEmail $request, int $id): JsonResponse
     {
         try {
-            if (!Gate::allows('isAdmin', Affiliation::class)) {
+            if (!Gate::allows('admin')) {
                 return $this->ForbiddenResponse();
             }
 

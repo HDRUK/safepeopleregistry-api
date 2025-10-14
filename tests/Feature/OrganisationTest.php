@@ -19,7 +19,6 @@ use Illuminate\Support\Facades\Queue;
 use App\Models\ProjectHasOrganisation;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\OrganisationHasDepartment;
-use App\Models\CustodianHasProjectOrganisation;
 
 class OrganisationTest extends TestCase
 {

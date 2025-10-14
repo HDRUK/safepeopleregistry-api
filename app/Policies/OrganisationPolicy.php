@@ -7,11 +7,6 @@ use App\Models\User;
 
 class OrganisationPolicy
 {
-    public function create(User $user): bool
-    {
-        return $user->isAdmin();
-    }
-
     public function update(User $user, Organisation $organisation): bool
     {
         return $user->isAdmin() || ($user->inGroup([User::GROUP_ORGANISATIONS]) &&
@@ -32,10 +27,5 @@ class OrganisationPolicy
     public function updateIsOrganisation(User $user): bool
     {
         return $user->isOrganisation();
-    }
-
-    public function updateIsAdmin(User $user): bool
-    {
-        return $user->isAdmin();
     }
 }

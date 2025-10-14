@@ -423,8 +423,8 @@ class ProjectController extends Controller
                     ->filterByState()
                     ->with("modelState");
             })
-            ->whereHas('registry.user', function($query) use ($loggedInUserId) {
-                if($loggedInUserId->user_group === User::GROUP_USERS) {
+            ->whereHas('registry.user', function ($query) use ($loggedInUserId) {
+                if ($loggedInUserId->user_group === User::GROUP_USERS) {
                     $query->where('id', $loggedInUserId->id);
                 }
             })
