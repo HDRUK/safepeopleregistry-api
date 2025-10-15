@@ -321,6 +321,7 @@ class AffiliationController extends Controller
 
             $array = [
                 'is_verified' => 0,
+                'verification_code' => Str::uuid()->toString(),
                 'verification_sent_at' => Carbon::now(),
             ];
 
