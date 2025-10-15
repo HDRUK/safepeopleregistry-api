@@ -4,7 +4,7 @@ run-name: ${{ github.actor }} triggered deploy to DEV pipeline
 on:
   push:
     branches:
-      - dev # override for branch deployment
+      - "fix/preprod-test-get-user-92" # override for branch deployment
 
 env:
   PROJECT_ID: '${{ secrets.PROJECT_ID }}'
@@ -20,13 +20,13 @@ jobs:
       id-token: write
 
     runs-on: ubuntu-latest
-    environment: dev
+    environment: preprod
     steps:
       - name: Checkout
         id: checkout
         uses: actions/checkout@v4
         with:
-          ref: dev  # override for branch deployment
+          ref: fix/preprod-test-get-user-92  # override for branch deployment
 
       - name: Read VERSION file
         id: getversion
@@ -70,13 +70,13 @@ jobs:
       id-token: write
 
     runs-on: ubuntu-latest
-    environment: dev
+    environment: preprod
     steps:
       - name: Checkout
         id: checkout
         uses: actions/checkout@v4
         with:
-          ref: dev # override for branch deployment
+          ref: fix/preprod-test-get-user-92 # override for branch deployment
 
       - name: Google Auth
         id: auth
