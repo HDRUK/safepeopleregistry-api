@@ -357,7 +357,7 @@ class TriggerEmail
                     '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
                     '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
                     '[[AFFILIATION_VERIFICATION_PATH]]' => config('speedi.system.portal_url') . '/user/profile/affiliations?verify=' . $affiliation->verification_code,
-                    '[[env(OTP_AFFILIATION_VALIDITY_HOURS)]]' => $validationHours,
+                    '[[env(OTP_VALIDITY_HOURS)]]' => $validationHours,
                 ];
 
                 break;
