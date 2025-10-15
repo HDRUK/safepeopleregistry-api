@@ -285,6 +285,11 @@ class AffiliationController extends Controller
                 'current_employer' => $input['current_employer'] ?? false
             ];
 
+            if ($input['current_employer']) {
+                $array['verification_code'] = Str::uuid()->toString();
+                $array['verification_sent_at'] = Carbon::now();
+            }
+
             $affiliation = Affiliation::create($array);
 
             return response()->json([
@@ -316,6 +321,7 @@ class AffiliationController extends Controller
 
             $array = [
                 'is_verified' => 0,
+                'verification_sent_at' => Carbon::now(),
             ];
 
             Affiliation::where('id', $id)->update($array);
