@@ -58,7 +58,7 @@ class RulesEngineManagementController
         $entityModelTypeIds = [];
 
         if (filled($validationType)) {
-            $entityModelTypeIds = EntityModelType::whereIn('name', $validationType)->pluck('id');
+            $entityModelTypeIds = EntityModelType::whereIn('name', $validationType)->pluck('id')->toArray();
         } else {
             $entityModelTypeIds = EntityModelType::whereIn('name', [
                 EntityModelType::USER_VALIDATION_RULES,
