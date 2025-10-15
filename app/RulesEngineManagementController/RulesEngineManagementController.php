@@ -4,11 +4,12 @@ namespace App\RulesEngineManagementController;
 
 use Auth;
 use App\Models\User;
+use Illuminate\Http\Request;
 use App\Models\CustodianUser;
 use App\Models\DecisionModel;
-use App\Models\CustodianModelConfig;
 use App\Models\EntityModelType;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use App\Models\CustodianModelConfig;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
@@ -62,20 +63,30 @@ class RulesEngineManagementController
             $entityModelTypeIds = EntityModelType::whereIn('name', [
                 EntityModelType::USER_VALIDATION_RULES,
                 EntityModelType::ORG_VALIDATION_RULES
-            ])->pluck('id');
+            ])->pluck('id')->toArray();
         }
 
+        Log::info('loadCustodianRules', [
+            'entityModelTypeIds' => $entityModelTypeIds
+        ]);
+        
         $modelConfig = CustodianModelConfig::where([
             'custodian_id' => $custodianId,
             'active' => 1,
         ])->select('entity_model_id')
-        ->pluck('entity_model_id');
+        ->pluck('entity_model_id')->toArray();
+        Log::info('loadCustodianRules', [
+            'modelConfig' => $modelConfig
+        ]);
 
         if (!$modelConfig) {
             return null;
         }
 
         $activeModels = DecisionModel::whereIn('id', $modelConfig)->whereIn('entity_model_type_id', $entityModelTypeIds)->get();
+        Log::info('loadCustodianRules', [
+            'activeModels' => $activeModels
+        ]);
         if (!$activeModels) {
             return null;
         }
