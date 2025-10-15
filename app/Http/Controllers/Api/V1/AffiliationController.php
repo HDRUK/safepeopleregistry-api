@@ -285,11 +285,6 @@ class AffiliationController extends Controller
                 'current_employer' => $input['current_employer'] ?? false
             ];
 
-            if ($input['current_employer']) {
-                $array['verification_code'] = Str::uuid()->toString();
-                $array['verification_sent_at'] = Carbon::now();
-            }
-
             $affiliation = Affiliation::create($array);
 
             return response()->json([
@@ -321,8 +316,6 @@ class AffiliationController extends Controller
 
             $array = [
                 'is_verified' => 0,
-                'verification_code' => Str::uuid()->toString(),
-                'verification_sent_at' => Carbon::now(),
             ];
 
             Affiliation::where('id', $id)->update($array);
@@ -479,7 +472,6 @@ class AffiliationController extends Controller
                     'is_verified'       => 0,
                     'current_employer'  => 1,
                 ])
-                ->where('verification_sent_at', '>=', now()->subMinutes((int)config('speedi.system.otp_affiliation_validity_minutes')))
                 ->first();
 
             if (is_null($affiliation)) {
