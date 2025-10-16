@@ -105,8 +105,7 @@ class CustodianHasProjectUserController extends Controller
                         ]);
                     },
                 ])
-                ->join('project_has_users', 'custodian_has_project_has_user.project_has_user_id', '=', 'project_has_users.id')
-                ->join('projects', 'project_has_users.project_id', '=', 'projects.id')
+                ->withProjectJoins()
                 ->when($request->filled('name'), function ($query) use ($searchName) {
                     $query->where(function ($subQuery) use ($searchName) {
                         $subQuery->whereHas('projectHasUser.project', function ($q) use ($searchName) {
