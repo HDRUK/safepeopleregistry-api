@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Exception;
-use TriggerEmail;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\State;
@@ -288,7 +287,7 @@ class AffiliationController extends Controller
             if ($input['current_employer']) {
                 $array['verification_code'] = Str::uuid()->toString();
                 $array['verification_sent_at'] = Carbon::now();
-                $array['verification_confirmed_at'] = NULL;
+                $array['verification_confirmed_at'] = null;
                 $array['is_verified'] = 0;
             }
 
@@ -398,22 +397,22 @@ class AffiliationController extends Controller
     public function update(UpdateAffiliation $request, int $id): JsonResponse
     {
         // try {
-            $input = $request->only(app(Affiliation::class)->getFillable());
-            $affiliation = Affiliation::findOrFail($id);
+        $input = $request->only(app(Affiliation::class)->getFillable());
+        $affiliation = Affiliation::findOrFail($id);
 
-            if ($input['current_employer'] && (isset($input['email']) && $affiliation->email !== $input['email']) ) {
-                $input['verification_code'] = Str::uuid()->toString();
-                $input['verification_sent_at'] = Carbon::now();
-                $array['verification_confirmed_at'] = NULL;
-                $array['is_verified'] = 0;
-            }
+        if ($input['current_employer'] && (isset($input['email']) && $affiliation->email !== $input['email'])) {
+            $input['verification_code'] = Str::uuid()->toString();
+            $input['verification_sent_at'] = Carbon::now();
+            $array['verification_confirmed_at'] = null;
+            $array['is_verified'] = 0;
+        }
 
-            $affiliation->update($input);
+        $affiliation->update($input);
 
-            return response()->json([
-                'message' => 'success',
-                'data' => $affiliation,
-            ], 200);
+        return response()->json([
+            'message' => 'success',
+            'data' => $affiliation,
+        ], 200);
         // } catch (Exception $e) {
         //     throw new Exception($e->getMessage());
         // }
