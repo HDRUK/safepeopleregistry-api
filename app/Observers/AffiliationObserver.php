@@ -113,15 +113,43 @@ class AffiliationObserver
             ];
 
             TriggerEmail::spawnEmail($email);
+
+            $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
         }
     }
 
-    private function setInitialState(Affiliation $affiliation): void
+    private function setInitialState(Affiliation $affiliation)
     {
         $unclaimed = $affiliation->organisation->unclaimed;
-        $affiliation->setState($unclaimed
-            ? State::STATE_AFFILIATION_INVITED
-            : State::STATE_AFFILIATION_EMAIL_VERIFY);
+
+        if ($unclaimed) {
+            return $affiliation->setState(State::STATE_AFFILIATION_INVITED);
+        }
+
+        if (!$affiliation->current_employer) {
+            return $affiliation->setState(State::STATE_AFFILIATION_INVITED);
+        }
+
+        if ($affiliation->is_verified === 1) {
+            return $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+        } else {
+            return $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
+        }
+    }
+
+    public function sendVerificationEmails(Affiliation $affiliation): void
+    {
+        if ($affiliation->current_employer && !$affiliation->is_verified && $affiliation->verification_code) {
+            $email = [
+                'type' => 'AFFILIATION_VERIFY',
+                'to' => $affiliation->id,
+                'by' => $affiliation->id,
+                'for' => $affiliation->id,
+                'identifier' => 'affiliation_user_professional_email_confirm',
+            ];
+
+            TriggerEmail::spawnEmail($email);
+        }
     }
 
     private function notifyAdmins($notification, Affiliation $affiliation): void
@@ -140,27 +168,5 @@ class AffiliationObserver
             'organisation_id' => $affiliation->organisation->id,
             'user_group' => User::GROUP_ORGANISATIONS,
         ])->get();
-    }
-
-    public function sendVerificationEmails(Affiliation $affiliation): void
-    {
-        $registryId = $affiliation->registry_id;
-
-        $user = User::where('registry_id', $registryId)->first();
-        if (is_null($user)) {
-            return;
-        }
-
-        if ($affiliation->current_employer && !$user->unclaimed) {
-            $email = [
-                'type' => 'AFFILIATION_VERIFY',
-                'to' => $affiliation->id,
-                'by' => $affiliation->id,
-                'for' => $affiliation->id,
-                'identifier' => 'affiliation_user_professional_email_confirm',
-            ];
-
-            TriggerEmail::spawnEmail($email);
-        }
     }
 }
