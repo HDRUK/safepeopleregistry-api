@@ -397,20 +397,11 @@ class AffiliationController extends Controller
      */
     public function update(UpdateAffiliation $request, int $id): JsonResponse
     {
-        try {
+        // try {
             $input = $request->only(app(Affiliation::class)->getFillable());
             $affiliation = Affiliation::findOrFail($id);
 
-            $check = false;
-            $changedFields = ['email'];
-            foreach ($changedFields as $changedField) {
-                if ($affiliation->$changedField == $input[$changedField]) {
-                    $check = true;
-                    break;
-                }
-            }
-
-            if ($input['current_employer'] && $check) {
+            if ($input['current_employer'] && (isset($input['email']) && $affiliation->email !== $input['email']) ) {
                 $input['verification_code'] = Str::uuid()->toString();
                 $input['verification_sent_at'] = Carbon::now();
                 $array['verification_confirmed_at'] = NULL;
@@ -423,9 +414,9 @@ class AffiliationController extends Controller
                 'message' => 'success',
                 'data' => $affiliation,
             ], 200);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
+        // } catch (Exception $e) {
+        //     throw new Exception($e->getMessage());
+        // }
     }
 
     /**
