@@ -138,4 +138,10 @@ class CustodianHasProjectUser extends Model
     {
         return $this->morphOne(ModelState::class, 'stateable');
     }
+
+    public function scopeWithProjectJoins($query)
+    {
+        return $query->join('project_has_users', 'custodian_has_project_has_user.project_has_user_id', '=', 'project_has_users.id')
+                    ->join('projects', 'project_has_users.project_id', '=', 'projects.id');
+    }
 }
