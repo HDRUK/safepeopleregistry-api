@@ -402,7 +402,7 @@ class AffiliationController extends Controller
             $affiliation = Affiliation::findOrFail($id);
 
             $check = false;
-            $changedFields = ['email', 'organisation_id'];
+            $changedFields = ['email'];
             foreach ($changedFields as $changedField) {
                 if ($affiliation->$changedField == $input[$changedField]) {
                     $check = true;
