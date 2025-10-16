@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Education;
 use App\Models\Affiliation;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use App\Models\Organisation;
 use App\Models\Accreditation;
 use Illuminate\Bus\Queueable;
@@ -228,10 +229,19 @@ class OrcIDScanner implements ShouldQueue
                     continue;
                 }
 
+                $isCurrent = ($dates['endDate'] === '') ? 1 : 0;
+
+                $verificationCode = null;
+                $verificationSent = null;
+                if ($isCurrent) {
+                    $verificationCode = Str::uuid()->toString();
+                    $verificationSent = Carbon::now();
+                }
+
                 Affiliation::create([
                     'from' => $dates['startDate'],
                     'to' => $dates['endDate'],
-                    'is_current' => ($dates['endDate'] === '') ? 1 : 0,
+                    'is_current' => $isCurrent,
                     'department' => Arr::get($organisation, 'department-name', ''),
                     'role' => Arr::get($organisation, 'role-title', ''),
                     'employer_address' => json_encode(Arr::get($organisation, 'organization.address', [])),
@@ -239,6 +249,8 @@ class OrcIDScanner implements ShouldQueue
                     'registry_id' => $this->user->registry_id,
                     'organisation_id' => $knownOrg->id ?? -1,
                     'member_id' => '',
+                    'verification_code' => $verificationCode,
+                    'verification_sent_at' => $verificationSent,
                 ]);
             }
         }

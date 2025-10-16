@@ -288,6 +288,8 @@ class AffiliationController extends Controller
             if ($input['current_employer']) {
                 $array['verification_code'] = Str::uuid()->toString();
                 $array['verification_sent_at'] = Carbon::now();
+                $array['verification_confirmed_at'] = NULL;
+                $array['is_verified'] = 0;
             }
 
             $affiliation = Affiliation::create($array);
@@ -326,16 +328,6 @@ class AffiliationController extends Controller
             ];
 
             Affiliation::where('id', $id)->update($array);
-
-            $email = [
-                'type' => 'AFFILIATION_VERIFY',
-                'to' => $affiliation->id,
-                'by' => $affiliation->id,
-                'for' => $affiliation->id,
-                'identifier' => 'affiliation_user_professional_email_confirm',
-            ];
-
-            TriggerEmail::spawnEmail($email);
 
             // Logic to resend the verification email
             return $this->OKResponse('Verification email resent');
@@ -408,6 +400,23 @@ class AffiliationController extends Controller
         try {
             $input = $request->only(app(Affiliation::class)->getFillable());
             $affiliation = Affiliation::findOrFail($id);
+
+            $check = false;
+            $changedFields = ['email', 'organisation_id'];
+            foreach ($changedFields as $changedField) {
+                if ($affiliation->$changedField == $input[$changedField]) {
+                    $check = true;
+                    break;
+                }
+            }
+
+            if ($input['current_employer'] && $check) {
+                $input['verification_code'] = Str::uuid()->toString();
+                $input['verification_sent_at'] = Carbon::now();
+                $array['verification_confirmed_at'] = NULL;
+                $array['is_verified'] = 0;
+            }
+
             $affiliation->update($input);
 
             return response()->json([

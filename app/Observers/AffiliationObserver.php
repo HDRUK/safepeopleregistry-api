@@ -26,15 +26,15 @@ class AffiliationObserver
             $affiliation
         ), $affiliation);
 
-        if ($affiliation->current_employer) {
-            $this->sendVerificationEmails($affiliation);
-        }
+        $this->sendVerificationEmails($affiliation);
     }
 
     public function updated(Affiliation $affiliation): void
     {
         $this->handleChange($affiliation);
         $old = new Affiliation($affiliation->getOriginal());
+
+        $this->sendVerificationEmails($affiliation);
 
         $this->notifyAdmins(new AffiliationChanged(
             $this->getUser($affiliation),
@@ -144,15 +144,23 @@ class AffiliationObserver
 
     public function sendVerificationEmails(Affiliation $affiliation): void
     {
-        $email = [
-            'type' => 'AFFILIATION_VERIFY',
-            'to' => $affiliation->id,
-            'by' => $affiliation->id,
-            'for' => $affiliation->id,
-            'identifier' => 'affiliation_user_professional_email_confirm',
-        ];
+        $registryId = $affiliation->registry_id;
 
-        TriggerEmail::spawnEmail($email);
+        $user = User::where('registry_id', $registryId)->first();
+        if (is_null($user)) {
+            return;
+        }
+
+        if ($affiliation->current_employer && !$user->unclaimed) {
+            $email = [
+                'type' => 'AFFILIATION_VERIFY',
+                'to' => $affiliation->id,
+                'by' => $affiliation->id,
+                'for' => $affiliation->id,
+                'identifier' => 'affiliation_user_professional_email_confirm',
+            ];
+
+            TriggerEmail::spawnEmail($email);
+        }
     }
-
 }
