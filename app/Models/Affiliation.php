@@ -165,11 +165,13 @@ class Affiliation extends Model
             State::STATE_AFFILIATION_PENDING
         ],
         State::STATE_AFFILIATION_PENDING => [
+            State::STATE_AFFILIATION_EMAIL_VERIFY,
             State::STATE_AFFILIATION_APPROVED,
             State::STATE_AFFILIATION_REJECTED,
             State::STATE_AFFILIATION_LEFT,
         ],
         State::STATE_AFFILIATION_APPROVED => [
+            State::STATE_AFFILIATION_EMAIL_VERIFY,
             State::STATE_AFFILIATION_REJECTED,
             State::STATE_AFFILIATION_LEFT,
         ],

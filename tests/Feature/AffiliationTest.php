@@ -299,6 +299,7 @@ class AffiliationTest extends TestCase
         $message = $response->decodeResponseJson()['message'];
         $this->assertEquals('Invalid argument(s)', $message);
     }
+    
     public function test_the_application_cannot_send_verification_email(): void
     {
         $latestAffiliation = Affiliation::query()->orderBy('id', 'desc')->first();

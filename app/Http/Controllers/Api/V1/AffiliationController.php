@@ -400,7 +400,7 @@ class AffiliationController extends Controller
             $input = $request->only(app(Affiliation::class)->getFillable());
             $affiliation = Affiliation::findOrFail($id);
 
-            if ($input['current_employer'] && (isset($input['email']) && $affiliation->email !== $input['email'])) {
+            if ($input['current_employer']) {
                 $input['verification_code'] = Str::uuid()->toString();
                 $input['verification_sent_at'] = Carbon::now();
                 $array['verification_confirmed_at'] = null;

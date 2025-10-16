@@ -34,13 +34,13 @@ class AffiliationObserver
         $this->handleChange($affiliation);
         $old = new Affiliation($affiliation->getOriginal());
 
-        $this->sendVerificationEmails($affiliation);
-
         $this->notifyAdmins(new AffiliationChanged(
             $this->getUser($affiliation),
             $old,
             $affiliation
         ), $affiliation);
+
+        $this->sendVerificationEmails($affiliation);
     }
 
     public function deleted(Affiliation $affiliation): void
@@ -127,12 +127,14 @@ class AffiliationObserver
         }
 
         if (!$affiliation->current_employer) {
-            return $affiliation->setState(State::STATE_AFFILIATION_INVITED);
+            return $affiliation->setState(State::STATE_AFFILIATION_PENDING);
         }
 
-        if ($affiliation->is_verified === 1) {
+        if ($affiliation->current_employer == 1 && $affiliation->is_verified === 1) {
             return $affiliation->setState(State::STATE_AFFILIATION_PENDING);
-        } else {
+        }
+
+        if ($affiliation->current_employer == 1 && $affiliation->is_verified === 0) {
             return $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
         }
     }
@@ -140,6 +142,8 @@ class AffiliationObserver
     public function sendVerificationEmails(Affiliation $affiliation): void
     {
         if ($affiliation->current_employer && !$affiliation->is_verified && $affiliation->verification_code) {
+            $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
+            
             $email = [
                 'type' => 'AFFILIATION_VERIFY',
                 'to' => $affiliation->id,
