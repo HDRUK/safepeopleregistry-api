@@ -19,6 +19,7 @@ class AffiliationObserver
 
     public function created(Affiliation $affiliation): void
     {
+        $this->setInitialState($affiliation);
         $this->handleChange($affiliation);
         $this->notifyAdmins(new AffiliationCreated(
             $this->getUser($affiliation),
@@ -113,26 +114,12 @@ class AffiliationObserver
         }
     }
 
-    // private function setInitialState(Affiliation $affiliation)
-    // {
-    //     $unclaimed = $affiliation->organisation->unclaimed;
-
-    //     if ($unclaimed) {
-    //         return $affiliation->setState(State::STATE_AFFILIATION_INVITED);
-    //     }
-
-    //     if (!$affiliation->current_employer) {
-    //         return $affiliation->setState(State::STATE_AFFILIATION_PENDING);
-    //     }
-
-    //     if ($affiliation->current_employer == 1 && $affiliation->is_verified === 1) {
-    //         return $affiliation->setState(State::STATE_AFFILIATION_PENDING);
-    //     }
-
-    //     if ($affiliation->current_employer == 1 && $affiliation->is_verified === 0) {
-    //         return $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
-    //     }
-    // }
+    private function setInitialState(Affiliation $affiliation)
+    {
+        if (!$affiliation->getState()) {
+            return $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+        }
+    }
 
     private function notifyAdmins($notification, Affiliation $affiliation): void
     {
