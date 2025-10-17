@@ -1032,8 +1032,6 @@ class EmailTemplatesSeeder extends Seeder
                                   A Safe People Registry affiliation has been made with this email address. If this was you, click the link below to verify your email address.
                                   If you didn\'t create this account, please contact us at [[env(SUPPORT_EMAIL)]] so that we can follow up.
                                   <div><br></div>
-                                  This link will expire within [[env(OTP_VALIDITY_HOURS)]] hours.
-                                  <div><br></div>
                                   ' . $this->supportFooter . '
                                 </mj-text>
                               </mj-column>
