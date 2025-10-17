@@ -219,8 +219,10 @@ class ProjectDetailTest extends TestCase
 
         $content = $response->decodeResponseJson()['data'];
 
+        $countProjectDetails = ProjectDetail::all()->count();
+
         $this->assertNotNull($content);
-        $this->assertTrue(count($content['data']) === 1);
+        $this->assertTrue(count($content['data']) === $countProjectDetails);
         $this->assertEquals($content['data'][0]['project_id'], $this->project->id);
     }
 
@@ -270,6 +272,8 @@ class ProjectDetailTest extends TestCase
 
     public function test_the_application_can_delete_project_detail(): void
     {
+        // int
+        $countInitProjectDetails = ProjectDetail::all()->count();
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
         ->json(
             'POST',
@@ -288,8 +292,9 @@ class ProjectDetailTest extends TestCase
 
         $response->assertStatus(200);
 
-        $details = ProjectDetail::all();
-        $this->assertTrue(count($details) === 0);
+        // final
+        $countFinalProjectDetails = ProjectDetail::all()->count();
+        $this->assertTrue(($countInitProjectDetails - $countFinalProjectDetails) === 0);
     }
 
     public function test_the_application_cannot_delete_project_detail(): void

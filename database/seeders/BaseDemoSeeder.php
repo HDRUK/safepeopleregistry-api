@@ -18,7 +18,6 @@ use App\Models\Education;
 use App\Models\Subsidiary;
 use App\Models\Affiliation;
 use App\Models\ProjectRole;
-use Illuminate\Support\Arr;
 use App\Models\Organisation;
 use App\Models\CustodianUser;
 use App\Models\ProjectHasUser;
@@ -32,7 +31,6 @@ use RegistryManagementController as RMC;
 use App\Models\OrganisationHasDepartment;
 use App\Models\OrganisationHasSubsidiary;
 use App\Models\ProjectDetail;
-use Illuminate\Queue\NullQueue;
 
 class BaseDemoSeeder extends Seeder
 {
@@ -178,21 +176,29 @@ Health Research Authority (HRA) Approval as it involves health-related research 
 
         ProjectDetail::create([
             'project_id' => $org1Proj1->id,
-            'datasets' => json_encode(['https://healthdatagateway.org/en/dataset/1375']),
-            'other_approval_committees' => NULL,
+            'datasets' => json_encode([
+                'https://doesnot.exist/datasets/1',
+                'https://doesnot.exist/datasets/2',
+                'https://doesnot.exist/datasets/3',
+            ]),
+            'other_approval_committees' => json_encode([
+                'Approval Committee 1',
+                'Approval Committee 2',
+                'Approval Committee 3',
+            ]),
             'data_sensitivity_level' => fake()->randomElement(['De-Personalised', 'Personally Identifiable', 'Anonymous']),
             'legal_basis_for_data_article6' => '(b) processing is necessary for the performance of a contract to which the data subject is party or in order to take steps at the request of the data subject prior to entering into a contract;',
             'duty_of_confidentiality' => fake()->randomElement([0, 1]),
             'national_data_optout' => fake()->randomElement([0, 1]),
             'request_frequency' => fake()->randomElement(['ONE-OFF', 'RECURRING']),
-            'dataset_linkage_description' => 'A NOVEL observational longiTudinal studY (NOVELTY) on patients with asthma and\/or COPD (Chronic Obstructive Pulmonary Disease) to describe patient characteristics, treatment patterns and the burden of illness over time and to identify phenotypes and endotypes.',
-            'data_minimisation' => 'It is estimated that approximately 7,700 patients with suspected or primary diagnosis of asthma and 7,100 patients with suspected or primary diagnosis of COPD will be enrolled by a diverse set of physicians (e.g. primary care physicians, allergists, pulmonologists) from community and hospital outpatient settings within the countries targeted for NOVELTY.',
-            'data_use_description' => 'The NOVELTY study is a multi-country, multicentre, observational, prospective, longitudinal cohort study which will include patients with a physician diagnosis, or suspected diagnosis, of asthma and/or COPD. Patients will undergo clinical assessments and receive standard medical care as determined by the treating physician. All patients enrolled in the NOVELTY study will be followed up yearly by their treating physician for a total duration of three years. In addition, patients are expected to be followed up remotely once every quarter.',
+            'dataset_linkage_description' => 'Patient records linked via NHS number with pseudonymized clinical outcome data from tertiary care facilities, cross-referenced against national mortality registry using deterministic matching algorithms.',
+            'data_minimisation' => 'Limited to diagnosis codes, treatment dates, and age groups; names and full addresses excluded; only relevant comorbidities retained.',
+            'data_use_description' => 'Data will be used to evaluate treatment efficacy and patient outcomes in cardiovascular disease management, identify risk factors for adverse events, and develop predictive models for clinical decision support systems.',
             'access_date' => now(),
-            'access_type' => NULL,
-            'data_privacy' => NULL,
-            'research_outputs' => NULL,
-            'data_assets' => NULL,
+            'access_type' => 1,
+            'data_privacy' => 'Data stored in encrypted ISO 27001-compliant servers with role-based access controls; personally identifiable information pseudonymized using irreversible hashing; access logged and audited quarterly; compliant with GDPR and NHS Data Security and Protection Toolkit requirements.',
+            'research_outputs' => '{"research_outputs": [ "https://mydomain.com/research1", "https://mydomain.com/research2"] }',
+            'data_assets' => 'Our data assets are...',
         ]);
 
         $org1Proj2 = Project::create([
@@ -220,21 +226,29 @@ National Public Health Ethics Committee for authorization to analyze population 
 
         ProjectDetail::create([
             'project_id' => $org1Proj2->id,
-            'datasets' => json_encode(['https://healthdatagateway.org/en/dataset/1375']),
-            'other_approval_committees' => NULL,
+            'datasets' => json_encode([
+                'https://doesnot.exist/datasets/1',
+                'https://doesnot.exist/datasets/2',
+                'https://doesnot.exist/datasets/3',
+            ]),
+            'other_approval_committees' => json_encode([
+                'Approval Committee 1',
+                'Approval Committee 2',
+                'Approval Committee 3',
+            ]),
             'data_sensitivity_level' => fake()->randomElement(['De-Personalised', 'Personally Identifiable', 'Anonymous']),
             'legal_basis_for_data_article6' => '(b) processing is necessary for the performance of a contract to which the data subject is party or in order to take steps at the request of the data subject prior to entering into a contract;',
             'duty_of_confidentiality' => fake()->randomElement([0, 1]),
             'national_data_optout' => fake()->randomElement([0, 1]),
             'request_frequency' => fake()->randomElement(['ONE-OFF', 'RECURRING']),
-            'dataset_linkage_description' => 'A NOVEL observational longiTudinal studY (NOVELTY) on patients with asthma and\/or COPD (Chronic Obstructive Pulmonary Disease) to describe patient characteristics, treatment patterns and the burden of illness over time and to identify phenotypes and endotypes.',
-            'data_minimisation' => 'It is estimated that approximately 7,700 patients with suspected or primary diagnosis of asthma and 7,100 patients with suspected or primary diagnosis of COPD will be enrolled by a diverse set of physicians (e.g. primary care physicians, allergists, pulmonologists) from community and hospital outpatient settings within the countries targeted for NOVELTY.',
-            'data_use_description' => 'The NOVELTY study is a multi-country, multicentre, observational, prospective, longitudinal cohort study which will include patients with a physician diagnosis, or suspected diagnosis, of asthma and/or COPD. Patients will undergo clinical assessments and receive standard medical care as determined by the treating physician. All patients enrolled in the NOVELTY study will be followed up yearly by their treating physician for a total duration of three years. In addition, patients are expected to be followed up remotely once every quarter.',
+            'dataset_linkage_description' => 'Patient records linked via NHS number with pseudonymized clinical outcome data from tertiary care facilities, cross-referenced against national mortality registry using deterministic matching algorithms.',
+            'data_minimisation' => 'Limited to diagnosis codes, treatment dates, and age groups; names and full addresses excluded; only relevant comorbidities retained.',
+            'data_use_description' => 'Data will be used to evaluate treatment efficacy and patient outcomes in cardiovascular disease management, identify risk factors for adverse events, and develop predictive models for clinical decision support systems.',
             'access_date' => now(),
-            'access_type' => NULL,
-            'data_privacy' => NULL,
-            'research_outputs' => NULL,
-            'data_assets' => NULL,
+            'access_type' => 1,
+            'data_privacy' => 'Data stored in encrypted ISO 27001-compliant servers with role-based access controls; personally identifiable information pseudonymized using irreversible hashing; access logged and audited quarterly; compliant with GDPR and NHS Data Security and Protection Toolkit requirements.',
+            'research_outputs' => '{"research_outputs": [ "https://mydomain.com/research1", "https://mydomain.com/research2"] }',
+            'data_assets' => 'Our data assets are...',
         ]);
 
         // --------------------------------------------------------------------------------
@@ -315,21 +329,29 @@ Social Media Platform’s Data Access Committee to allow access to platform data
 
         ProjectDetail::create([
             'project_id' => $org2Proj1->id,
-            'datasets' => json_encode(['https://healthdatagateway.org/en/dataset/1375']),
-            'other_approval_committees' => NULL,
+            'datasets' => json_encode([
+                'https://doesnot.exist/datasets/1',
+                'https://doesnot.exist/datasets/2',
+                'https://doesnot.exist/datasets/3',
+            ]),
+            'other_approval_committees' => json_encode([
+                'Approval Committee 1',
+                'Approval Committee 2',
+                'Approval Committee 3',
+            ]),
             'data_sensitivity_level' => fake()->randomElement(['De-Personalised', 'Personally Identifiable', 'Anonymous']),
             'legal_basis_for_data_article6' => '(b) processing is necessary for the performance of a contract to which the data subject is party or in order to take steps at the request of the data subject prior to entering into a contract;',
             'duty_of_confidentiality' => fake()->randomElement([0, 1]),
             'national_data_optout' => fake()->randomElement([0, 1]),
             'request_frequency' => fake()->randomElement(['ONE-OFF', 'RECURRING']),
-            'dataset_linkage_description' => 'A NOVEL observational longiTudinal studY (NOVELTY) on patients with asthma and\/or COPD (Chronic Obstructive Pulmonary Disease) to describe patient characteristics, treatment patterns and the burden of illness over time and to identify phenotypes and endotypes.',
-            'data_minimisation' => 'It is estimated that approximately 7,700 patients with suspected or primary diagnosis of asthma and 7,100 patients with suspected or primary diagnosis of COPD will be enrolled by a diverse set of physicians (e.g. primary care physicians, allergists, pulmonologists) from community and hospital outpatient settings within the countries targeted for NOVELTY.',
-            'data_use_description' => 'The NOVELTY study is a multi-country, multicentre, observational, prospective, longitudinal cohort study which will include patients with a physician diagnosis, or suspected diagnosis, of asthma and/or COPD. Patients will undergo clinical assessments and receive standard medical care as determined by the treating physician. All patients enrolled in the NOVELTY study will be followed up yearly by their treating physician for a total duration of three years. In addition, patients are expected to be followed up remotely once every quarter.',
+            'dataset_linkage_description' => 'Patient records linked via NHS number with pseudonymized clinical outcome data from tertiary care facilities, cross-referenced against national mortality registry using deterministic matching algorithms.',
+            'data_minimisation' => 'Limited to diagnosis codes, treatment dates, and age groups; names and full addresses excluded; only relevant comorbidities retained.',
+            'data_use_description' => 'Data will be used to evaluate treatment efficacy and patient outcomes in cardiovascular disease management, identify risk factors for adverse events, and develop predictive models for clinical decision support systems.',
             'access_date' => now(),
-            'access_type' => NULL,
-            'data_privacy' => NULL,
-            'research_outputs' => NULL,
-            'data_assets' => NULL,
+            'access_type' => 1,
+            'data_privacy' => 'Data stored in encrypted ISO 27001-compliant servers with role-based access controls; personally identifiable information pseudonymized using irreversible hashing; access logged and audited quarterly; compliant with GDPR and NHS Data Security and Protection Toolkit requirements.',
+            'research_outputs' => '{"research_outputs": [ "https://mydomain.com/research1", "https://mydomain.com/research2"] }',
+            'data_assets' => 'Our data assets are...',
         ]);
 
 
@@ -401,21 +423,29 @@ Social Media Platform’s Data Access Committee to allow access to platform data
 
         ProjectDetail::create([
             'project_id' => $proj->id,
-            'datasets' => json_encode(['https://healthdatagateway.org/en/dataset/1375']),
-            'other_approval_committees' => NULL,
+            'datasets' => json_encode([
+                'https://doesnot.exist/datasets/1',
+                'https://doesnot.exist/datasets/2',
+                'https://doesnot.exist/datasets/3',
+            ]),
+            'other_approval_committees' => json_encode([
+                'Approval Committee 1',
+                'Approval Committee 2',
+                'Approval Committee 3',
+            ]),
             'data_sensitivity_level' => fake()->randomElement(['De-Personalised', 'Personally Identifiable', 'Anonymous']),
             'legal_basis_for_data_article6' => '(b) processing is necessary for the performance of a contract to which the data subject is party or in order to take steps at the request of the data subject prior to entering into a contract;',
             'duty_of_confidentiality' => fake()->randomElement([0, 1]),
             'national_data_optout' => fake()->randomElement([0, 1]),
             'request_frequency' => fake()->randomElement(['ONE-OFF', 'RECURRING']),
-            'dataset_linkage_description' => 'A NOVEL observational longiTudinal studY (NOVELTY) on patients with asthma and\/or COPD (Chronic Obstructive Pulmonary Disease) to describe patient characteristics, treatment patterns and the burden of illness over time and to identify phenotypes and endotypes.',
-            'data_minimisation' => 'It is estimated that approximately 7,700 patients with suspected or primary diagnosis of asthma and 7,100 patients with suspected or primary diagnosis of COPD will be enrolled by a diverse set of physicians (e.g. primary care physicians, allergists, pulmonologists) from community and hospital outpatient settings within the countries targeted for NOVELTY.',
-            'data_use_description' => 'The NOVELTY study is a multi-country, multicentre, observational, prospective, longitudinal cohort study which will include patients with a physician diagnosis, or suspected diagnosis, of asthma and/or COPD. Patients will undergo clinical assessments and receive standard medical care as determined by the treating physician. All patients enrolled in the NOVELTY study will be followed up yearly by their treating physician for a total duration of three years. In addition, patients are expected to be followed up remotely once every quarter.',
+            'dataset_linkage_description' => 'Patient records linked via NHS number with pseudonymized clinical outcome data from tertiary care facilities, cross-referenced against national mortality registry using deterministic matching algorithms.',
+            'data_minimisation' => 'Limited to diagnosis codes, treatment dates, and age groups; names and full addresses excluded; only relevant comorbidities retained.',
+            'data_use_description' => 'Data will be used to evaluate treatment efficacy and patient outcomes in cardiovascular disease management, identify risk factors for adverse events, and develop predictive models for clinical decision support systems.',
             'access_date' => now(),
-            'access_type' => NULL,
-            'data_privacy' => NULL,
-            'research_outputs' => NULL,
-            'data_assets' => NULL,
+            'access_type' => 1,
+            'data_privacy' => 'Data stored in encrypted ISO 27001-compliant servers with role-based access controls; personally identifiable information pseudonymized using irreversible hashing; access logged and audited quarterly; compliant with GDPR and NHS Data Security and Protection Toolkit requirements.',
+            'research_outputs' => '{"research_outputs": [ "https://mydomain.com/research1", "https://mydomain.com/research2"] }',
+            'data_assets' => 'Our data assets are...',
         ]);
 
         $orgHDR = Organisation::create([
@@ -1041,7 +1071,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'is_delegate' =>        isset($u['is_delegate']) ? $u['is_delegate'] : 0,
                 'user_group' =>         $u['user_group'],
                 'organisation_id' =>    isset($u['organisation_id']) ? $u['organisation_id'] : 0,
-                'keycloak_id' =>        isset($u['keycloak_id']) ? $u['keycloak_id'] : NULL,
+                'keycloak_id' =>        isset($u['keycloak_id']) ? $u['keycloak_id'] : null,
                 'is_sro' =>             isset($u['is_sro']) ? $u['is_sro'] : 0,
             ]);
         }

@@ -769,9 +769,9 @@ class CustodianController extends Controller
                     });
             })
             ->with([
-                'organisations', 
-                'modelState.state', 
-                'custodianHasProjectUser' => fn($chpuq) => $chpuq
+                'organisations',
+                'modelState.state',
+                'custodianHasProjectUser' => fn ($chpuq) => $chpuq
                                 ->where('custodian_id', $custodianId)
                                 ->whereHas('projectHasUser', function ($puq) use ($user) {
                                     $puq->where('user_digital_ident', $user->registry->digi_ident);
