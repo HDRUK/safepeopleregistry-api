@@ -6,6 +6,7 @@ use OrcID;
 use Throwable;
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\State;
 use App\Models\Education;
 use App\Models\Affiliation;
 use Illuminate\Support\Arr;
@@ -13,6 +14,7 @@ use Illuminate\Support\Str;
 use App\Models\Organisation;
 use App\Models\Accreditation;
 use Illuminate\Bus\Queueable;
+use App\Traits\AffiliationManager;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use App\Models\RegistryHasAccreditation;
@@ -26,6 +28,7 @@ class OrcIDScanner implements ShouldQueue
     use InteractsWithQueue;
     use Queueable;
     use SerializesModels;
+    use AffiliationManager;
 
     private $user = null;
 
@@ -230,28 +233,58 @@ class OrcIDScanner implements ShouldQueue
                 }
 
                 $isCurrent = ($dates['endDate'] === '') ? 1 : 0;
+                $organisationId = $knownOrg ? $knownOrg->id : -1;
 
-                $verificationCode = null;
-                $verificationSent = null;
-                if ($isCurrent) {
-                    $verificationCode = Str::uuid()->toString();
-                    $verificationSent = Carbon::now();
+                if ($organisationId === -1) {
+                    $affiliation = Affiliation::create([
+                        'from' => $dates['startDate'],
+                        'to' => $dates['endDate'],
+                        'is_current' => $isCurrent,
+                        'department' => Arr::get($organisation, 'department-name', ''),
+                        'role' => Arr::get($organisation, 'role-title', ''),
+                        'employer_address' => json_encode(Arr::get($organisation, 'organization.address', [])),
+                        'ror' => Arr::get($organisation, 'organization.disambiguated-organization.disambiguated-organization-identifier', ''),
+                        'registry_id' => $this->user->registry_id,
+                        'organisation_id' => $knownOrg->id ?? -1,
+                        'member_id' => '',
+                        'verification_code' => NULL,
+                        'verification_sent_at' => NULL,
+                    ]);
+
+                    $affiliation->setState(State::STATE_AFFILIATION_PENDING);
                 }
 
-                Affiliation::create([
-                    'from' => $dates['startDate'],
-                    'to' => $dates['endDate'],
-                    'is_current' => $isCurrent,
-                    'department' => Arr::get($organisation, 'department-name', ''),
-                    'role' => Arr::get($organisation, 'role-title', ''),
-                    'employer_address' => json_encode(Arr::get($organisation, 'organization.address', [])),
-                    'ror' => Arr::get($organisation, 'organization.disambiguated-organization.disambiguated-organization-identifier', ''),
-                    'registry_id' => $this->user->registry_id,
-                    'organisation_id' => $knownOrg->id ?? -1,
-                    'member_id' => '',
-                    'verification_code' => $verificationCode,
-                    'verification_sent_at' => $verificationSent,
-                ]);
+                if ($organisationId !== -1) {
+                    $organisation = Organisation::where('id', $organisationId)->first();
+
+                    $verificationCode = null;
+                    $verificationSent = null;
+                    if ($isCurrent && !$organisation->unclaimed) {
+                        $verificationCode = Str::uuid()->toString();
+                        $verificationSent = Carbon::now();
+                    }
+
+                    $affiliation = Affiliation::create([
+                        'from' => $dates['startDate'],
+                        'to' => $dates['endDate'],
+                        'is_current' => $isCurrent,
+                        'department' => Arr::get($organisation, 'department-name', ''),
+                        'role' => Arr::get($organisation, 'role-title', ''),
+                        'employer_address' => json_encode(Arr::get($organisation, 'organization.address', [])),
+                        'ror' => Arr::get($organisation, 'organization.disambiguated-organization.disambiguated-organization-identifier', ''),
+                        'registry_id' => $this->user->registry_id,
+                        'organisation_id' => $knownOrg->id ?? -1,
+                        'member_id' => '',
+                        'verification_code' => $verificationCode,
+                        'verification_sent_at' => $verificationSent,
+                    ]);
+
+                    if ($isCurrent && !$organisation->unclaimed && !$affiliation->is_verified) {
+                        $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
+                        
+                        $this->sendEmailVerificationAffiliation($affiliation);
+                    }
+                }
             }
         }
     }

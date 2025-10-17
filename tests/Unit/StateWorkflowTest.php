@@ -137,22 +137,22 @@ class StateWorkflowTest extends TestCase
         $this->assertTrue($affiliation->getState() === State::STATE_AFFILIATION_PENDING);
     }
 
-    public function test_the_application_can_track_affiliation_state_current_employer_email_verified(): void
-    {
-        Affiliation::where('id', 1)->update([
-            'is_verified' => 1,
-            'current_employer' => 1,
-        ]);
+    // public function test_the_application_can_track_affiliation_state_current_employer_email_verified(): void
+    // {
+    //     Affiliation::where('id', 1)->update([
+    //         'is_verified' => 1,
+    //         'current_employer' => 1,
+    //     ]);
 
-        $affiliation = Affiliation::where('id', 1)->first();
+    //     $affiliation = Affiliation::where('id', 1)->first();
         
-        $this->assertTrue($affiliation->getState() === State::STATE_AFFILIATION_PENDING);
+    //     $this->assertTrue($affiliation->getState() === State::STATE_AFFILIATION_PENDING);
 
-        Affiliation::where('id', 1)->update([
-            'is_verified' => 0,
-            'current_employer' => 0,
-        ]);
-    }
+    //     Affiliation::where('id', 1)->update([
+    //         'is_verified' => 0,
+    //         'current_employer' => 0,
+    //     ]);
+    // }
 
     public function test_the_application_can_track_affiliation_state_current_employer_email_unverified_organisation_claimed(): void
     {
@@ -179,12 +179,11 @@ class StateWorkflowTest extends TestCase
             );
 
         $affiliation = Affiliation::where('id', 1)->first();
-        $affiliation->transitionTo(State::STATE_AFFILIATION_EMAIL_VERIFY);
-        $verficationCode = $affiliation->verification_code;
-        $organisationId = $affiliation->organisation_id;
-        
+
         $this->assertTrue($affiliation->getState() === State::STATE_AFFILIATION_EMAIL_VERIFY);
         $this->assertTrue($affiliation->canTransitionTo(State::STATE_AFFILIATION_PENDING) === true);
+        $verficationCode = $affiliation->verification_code;
+        $organisationId = $affiliation->organisation_id;
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(

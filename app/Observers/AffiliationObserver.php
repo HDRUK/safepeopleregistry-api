@@ -19,14 +19,11 @@ class AffiliationObserver
 
     public function created(Affiliation $affiliation): void
     {
-        $this->setInitialState($affiliation);
         $this->handleChange($affiliation);
         $this->notifyAdmins(new AffiliationCreated(
             $this->getUser($affiliation),
             $affiliation
         ), $affiliation);
-
-        $this->sendVerificationEmails($affiliation);
     }
 
     public function updated(Affiliation $affiliation): void
@@ -39,8 +36,6 @@ class AffiliationObserver
             $old,
             $affiliation
         ), $affiliation);
-
-        $this->sendVerificationEmails($affiliation);
     }
 
     public function deleted(Affiliation $affiliation): void
@@ -136,23 +131,6 @@ class AffiliationObserver
 
         if ($affiliation->current_employer == 1 && $affiliation->is_verified === 0) {
             return $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
-        }
-    }
-
-    public function sendVerificationEmails(Affiliation $affiliation): void
-    {
-        if ($affiliation->current_employer && !$affiliation->is_verified && $affiliation->verification_code) {
-            $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
-            
-            $email = [
-                'type' => 'AFFILIATION_VERIFY',
-                'to' => $affiliation->id,
-                'by' => $affiliation->id,
-                'for' => $affiliation->id,
-                'identifier' => 'affiliation_user_professional_email_confirm',
-            ];
-
-            TriggerEmail::spawnEmail($email);
         }
     }
 
