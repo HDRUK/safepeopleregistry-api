@@ -5,31 +5,33 @@ namespace Database\Seeders;
 use DB;
 use Str;
 use Keycloak;
-use RegistryManagementController as RMC;
 use Carbon\Carbon;
 use App\Models\User;
-use App\Models\Identity;
-use App\Models\Project;
-use App\Models\Registry;
-use App\Models\Education;
-use App\Models\Training;
-use App\Models\Organisation;
-use App\Models\Affiliation;
-use App\Models\OrganisationHasCharity;
-use App\Models\OrganisationHasSubsidiary;
+use App\Models\State;
 use App\Models\Charity;
+use App\Models\Project;
+use App\Models\Identity;
+use App\Models\Registry;
+use App\Models\Training;
 use App\Models\Custodian;
+use App\Models\Education;
+use App\Models\Subsidiary;
+use App\Models\Affiliation;
+use App\Models\ProjectRole;
+use Illuminate\Support\Arr;
+use App\Models\Organisation;
 use App\Models\CustodianUser;
 use App\Models\ProjectHasUser;
-use App\Models\ProjectRole;
-use App\Models\ProjectHasCustodian;
-use App\Models\RegistryHasTraining;
-use App\Models\OrganisationHasDepartment;
-use App\Models\State;
-use App\Models\Subsidiary;
 use App\Traits\CommonFunctions;
 use Illuminate\Database\Seeder;
+use App\Models\ProjectHasCustodian;
+use App\Models\RegistryHasTraining;
+use App\Models\OrganisationHasCharity;
 use Illuminate\Support\Facades\Schema;
+use RegistryManagementController as RMC;
+use App\Models\OrganisationHasDepartment;
+use App\Models\OrganisationHasSubsidiary;
+use Illuminate\Queue\NullQueue;
 
 class BaseDemoSeeder extends Seeder
 {
@@ -381,8 +383,8 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         // --------------------------------------------------------------------------------
         $org1Users = [
             [
-                'first_name' => 'Organisation',
-                'last_name' => 'Owner',
+                'first_name' => 'Health',
+                'last_name' => ' Pathways Owner',
                 'email' => 'organisation.owner@healthdataorganisation.com',
                 'is_org_admin' => 1,
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
@@ -412,8 +414,8 @@ Social Media Platform’s Data Access Committee to allow access to platform data
 
         $org2Users = [
             [
-                'first_name' => 'Organisation',
-                'last_name' => 'Owner',
+                'first_name' => 'Tandy',
+                'last_name' => 'Energy Owner',
                 'email' => 'organisation.owner@tandyenergyltd.com',
                 'is_org_admin' => 1,
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
@@ -437,19 +439,20 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'is_delegate' => 1,
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
                 'organisation_id' => $org2->id, // Needed because this is an org admin
-                'keycloak_id' => 'b4941c21-d7ca-4eba-9260-ff4c80ae695a', // Dragons ahead - needs to map 1:1 with KC users
+                'is_sro' => 1,
             ],
         ];
 
         $org3Users = [
             [
                 'first_name' => 'Tabacco',
-                'last_name' => 'Frank',
+                'last_name' => 'Frank Owner',
                 'email' => 'tobacco.frank@tobaccoeultd.com',
                 'is_org_admin' => 1,
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
                 'organisation_id' => $org3->id, // Needed because this is an org admin
                 'keycloak_id' => '57ca4c58-2582-440b-9232-e13d009d4c7e', // Dragons ahead - needs to map 1:1 with KC users
+                'is_sro' => 1,
             ],
             [
                 'first_name' => 'Admin',
@@ -957,7 +960,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
     private function createUsers(array &$input): void
     {
         foreach ($input as $u) {
-            $user = User::create([
+            User::create([
                 'first_name' =>         $u['first_name'],
                 'last_name' =>          $u['last_name'],
                 'email' =>              $u['email'],
@@ -965,7 +968,8 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'is_delegate' =>        isset($u['is_delegate']) ? $u['is_delegate'] : 0,
                 'user_group' =>         $u['user_group'],
                 'organisation_id' =>    isset($u['organisation_id']) ? $u['organisation_id'] : 0,
-                'keycloak_id' =>        $u['keycloak_id'],
+                'keycloak_id' =>        isset($u['keycloak_id']) ? $u['keycloak_id'] : NULL,
+                'is_sro' =>             isset($u['is_sro']) ? $u['is_sro'] : 0,
             ]);
         }
 
