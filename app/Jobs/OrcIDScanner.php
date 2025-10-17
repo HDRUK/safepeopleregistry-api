@@ -249,6 +249,7 @@ class OrcIDScanner implements ShouldQueue
                         'member_id' => '',
                         'verification_code' => null,
                         'verification_sent_at' => null,
+                        'is_verified' => 0,
                     ]);
 
                     $affiliation->setState(State::STATE_AFFILIATION_PENDING);
@@ -277,12 +278,19 @@ class OrcIDScanner implements ShouldQueue
                         'member_id' => '',
                         'verification_code' => $verificationCode,
                         'verification_sent_at' => $verificationSent,
+                        'is_verified' => 0,
                     ]);
+
+                    if ($organisation->unclaimed) {
+                        $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+                    }
 
                     if ($isCurrent && !$organisation->unclaimed && !$affiliation->is_verified) {
                         $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
 
                         $this->sendEmailVerificationAffiliation($affiliation);
+                    } else {
+                        $affiliation->setState(State::STATE_AFFILIATION_PENDING);
                     }
                 }
             }
