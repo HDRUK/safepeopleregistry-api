@@ -2,13 +2,11 @@
 
 namespace Tests\Unit;
 
-use Carbon\Carbon;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\State;
 use App\Models\Project;
 use App\Models\Affiliation;
-use Illuminate\Support\Str;
 use App\Models\Organisation;
 use App\Traits\CommonFunctions;
 use Tests\Traits\Authorisation;
@@ -20,7 +18,7 @@ class StateWorkflowTest extends TestCase
     use Authorisation;
     use ActingAsKeycloakUser;
     use CommonFunctions;
-    
+
     public function setUp(): void
     {
         parent::setUp();
@@ -145,7 +143,7 @@ class StateWorkflowTest extends TestCase
     //     ]);
 
     //     $affiliation = Affiliation::where('id', 1)->first();
-        
+
     //     $this->assertTrue($affiliation->getState() === State::STATE_AFFILIATION_PENDING);
 
     //     Affiliation::where('id', 1)->update([

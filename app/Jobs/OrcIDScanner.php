@@ -247,8 +247,8 @@ class OrcIDScanner implements ShouldQueue
                         'registry_id' => $this->user->registry_id,
                         'organisation_id' => $knownOrg->id ?? -1,
                         'member_id' => '',
-                        'verification_code' => NULL,
-                        'verification_sent_at' => NULL,
+                        'verification_code' => null,
+                        'verification_sent_at' => null,
                     ]);
 
                     $affiliation->setState(State::STATE_AFFILIATION_PENDING);
@@ -281,7 +281,7 @@ class OrcIDScanner implements ShouldQueue
 
                     if ($isCurrent && !$organisation->unclaimed && !$affiliation->is_verified) {
                         $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
-                        
+
                         $this->sendEmailVerificationAffiliation($affiliation);
                     }
                 }
