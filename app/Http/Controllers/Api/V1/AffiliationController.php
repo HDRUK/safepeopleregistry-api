@@ -292,8 +292,10 @@ class AffiliationController extends Controller
                 return $this->ErrorResponse('Organisation with id ' . $array['organisation_id'] . ' not found');
             }
 
+            $verificationCode = null;
             if (!$organisation->unclaimed && $input['current_employer']) {
-                $array['verification_code'] = Str::uuid()->toString();
+                $verificationCode = Str::uuid()->toString();
+                $array['verification_code'] = $verificationCode;
                 $array['verification_sent_at'] = Carbon::now();
                 $array['verification_confirmed_at'] = null;
                 $array['is_verified'] = 0;
@@ -305,10 +307,12 @@ class AffiliationController extends Controller
                 $affiliation->setState(State::STATE_AFFILIATION_INVITED);
             }
 
-            if (!$organisation->unclaimed && !$array['is_verified'] && $array['current_employer']) {
+            if (!$organisation->unclaimed && $verificationCode) {
                 $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
 
                 $this->sendEmailVerificationAffiliation($affiliation);
+            } else {
+                $affiliation->setState(State::STATE_AFFILIATION_INVITED);
             }
 
             return response()->json([
@@ -427,39 +431,40 @@ class AffiliationController extends Controller
      */
     public function update(UpdateAffiliation $request, int $id): JsonResponse
     {
-        // try {
-        $input = $request->only(app(Affiliation::class)->getFillable());
-        $affiliation = Affiliation::findOrFail($id);
+        try {
+            $input = $request->only(app(Affiliation::class)->getFillable());
+            $affiliation = Affiliation::findOrFail($id);
 
-        $unclaimed = $affiliation->organisation->unclaimed;
-        if (!$unclaimed && $input['current_employer']) {
-            $input['verification_code'] = Str::uuid()->toString();
-            $input['verification_sent_at'] = Carbon::now();
-            $array['verification_confirmed_at'] = null;
-            $array['is_verified'] = 0;
+            $unclaimed = $affiliation->organisation->unclaimed;
+            if (!$unclaimed && $input['current_employer']) {
+                $input['verification_code'] = Str::uuid()->toString();
+                $input['verification_sent_at'] = Carbon::now();
+                $array['verification_confirmed_at'] = null;
+                $array['is_verified'] = 0;
+            }
+
+            Affiliation::where('id', $id)->update($input);
+            $affiliation = Affiliation::where('id', $id)->first();
+
+            if ($unclaimed) {
+                $affiliation->setState(State::STATE_AFFILIATION_INVITED);
+            }
+
+            $affiliation = Affiliation::where('id', $id)->first();
+            if (!$unclaimed && ($affiliation->current_employer && !$affiliation->is_verified)) {
+                $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
+                $this->sendEmailVerificationAffiliation($affiliation);
+            } else {
+                $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+            }
+
+            return response()->json([
+                'message' => 'success',
+                'data' => $affiliation,
+            ], 200);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         }
-
-        $affiliation = Affiliation::where('id', $id)->update($input);
-
-        if ($unclaimed) {
-            $affiliation->setState(State::STATE_AFFILIATION_INVITED);
-        }
-
-        $affiliation = Affiliation::where('id', $id)->first();
-        if (!$unclaimed && ($affiliation->current_employer && !$affiliation->is_verified)) {
-            $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
-            $this->sendEmailVerificationAffiliation($affiliation);
-        } else {
-            $affiliation->setState(State::STATE_AFFILIATION_PENDING);
-        }
-
-        return response()->json([
-            'message' => 'success',
-            'data' => $affiliation,
-        ], 200);
-        // } catch (Exception $e) {
-        //     throw new Exception($e->getMessage());
-        // }
     }
 
     /**
