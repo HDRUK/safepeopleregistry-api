@@ -3,16 +3,17 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Exception;
-use TriggerEmail;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\State;
 use App\Models\Affiliation;
 use Illuminate\Support\Str;
+use App\Models\Organisation;
 use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
+use App\Traits\AffiliationManager;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\Affiliations\DeleteAffiliation;
@@ -28,6 +29,7 @@ class AffiliationController extends Controller
 {
     use CommonFunctions;
     use Responses;
+    use AffiliationManager;
 
     /**
      * @OA\Get(
@@ -285,12 +287,33 @@ class AffiliationController extends Controller
                 'current_employer' => $input['current_employer'] ?? false
             ];
 
-            if ($input['current_employer']) {
-                $array['verification_code'] = Str::uuid()->toString();
+            $organisation = Organisation::where('id', $array['organisation_id'])->first();
+            if (is_null($organisation)) {
+                return $this->ErrorResponse('Organisation with id ' . $array['organisation_id'] . ' not found');
+            }
+
+            $verificationCode = null;
+            if (!$organisation->unclaimed && $input['current_employer']) {
+                $verificationCode = Str::uuid()->toString();
+                $array['verification_code'] = $verificationCode;
                 $array['verification_sent_at'] = Carbon::now();
+                $array['verification_confirmed_at'] = null;
+                $array['is_verified'] = 0;
             }
 
             $affiliation = Affiliation::create($array);
+
+            if ($organisation->unclaimed) {
+                $affiliation->setState(State::STATE_AFFILIATION_INVITED);
+            }
+
+            if (!$organisation->unclaimed && $verificationCode) {
+                $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
+
+                $this->sendEmailVerificationAffiliation($affiliation);
+            } else {
+                $affiliation->setState(State::STATE_AFFILIATION_INVITED);
+            }
 
             return response()->json([
                 'message' => 'success',
@@ -319,6 +342,15 @@ class AffiliationController extends Controller
                 return $this->BadRequestResponse();
             }
 
+            $organisation = Organisation::where('id', $affiliation->organisation_id)->first();
+            if (is_null($organisation)) {
+                return $this->ErrorResponse('Organisation with id ' .  $affiliation->organisation_id . ' not found');
+            }
+
+            if ($organisation->unclaimed) {
+                return $this->ErrorResponse('Organisation Found Unclaimed');
+            }
+
             $array = [
                 'is_verified' => 0,
                 'verification_code' => Str::uuid()->toString(),
@@ -327,15 +359,9 @@ class AffiliationController extends Controller
 
             Affiliation::where('id', $id)->update($array);
 
-            $email = [
-                'type' => 'AFFILIATION_VERIFY',
-                'to' => $affiliation->id,
-                'by' => $affiliation->id,
-                'for' => $affiliation->id,
-                'identifier' => 'affiliation_user_professional_email_confirm',
-            ];
+            $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
 
-            TriggerEmail::spawnEmail($email);
+            $this->sendEmailVerificationAffiliation($affiliation);
 
             // Logic to resend the verification email
             return $this->OKResponse('Verification email resent');
@@ -408,7 +434,29 @@ class AffiliationController extends Controller
         try {
             $input = $request->only(app(Affiliation::class)->getFillable());
             $affiliation = Affiliation::findOrFail($id);
-            $affiliation->update($input);
+
+            $unclaimed = $affiliation->organisation->unclaimed;
+            if (!$unclaimed && $input['current_employer']) {
+                $input['verification_code'] = Str::uuid()->toString();
+                $input['verification_sent_at'] = Carbon::now();
+                $array['verification_confirmed_at'] = null;
+                $array['is_verified'] = 0;
+            }
+
+            Affiliation::where('id', $id)->update($input);
+            $affiliation = Affiliation::where('id', $id)->first();
+
+            if ($unclaimed) {
+                $affiliation->setState(State::STATE_AFFILIATION_INVITED);
+            }
+
+            $affiliation = Affiliation::where('id', $id)->first();
+            if (!$unclaimed && ($affiliation->current_employer && !$affiliation->is_verified)) {
+                $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
+                $this->sendEmailVerificationAffiliation($affiliation);
+            } else {
+                $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+            }
 
             return response()->json([
                 'message' => 'success',
@@ -484,6 +532,20 @@ class AffiliationController extends Controller
 
             if (is_null($affiliation)) {
                 return $this->NotFoundResponse();
+            }
+
+            $organisationId = $affiliation->organisation_id;
+            if ($organisationId === -1) {
+                return $this->ErrorResponse('Organisation Not Found');
+            }
+
+            $organisation = Organisation::where('id', $organisationId)->first();
+            if (is_null($organisation)) {
+                return $this->ErrorResponse('Organisation Not Found');
+            }
+
+            if ($organisation->unclaimed) {
+                return $this->ErrorResponse('Organisation Found Unclaimed');
             }
 
             $affiliation->setState(State::STATE_AFFILIATION_PENDING);

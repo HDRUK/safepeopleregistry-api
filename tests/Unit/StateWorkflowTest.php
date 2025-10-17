@@ -2,20 +2,28 @@
 
 namespace Tests\Unit;
 
-use App\Models\Affiliation;
+use Tests\TestCase;
 use App\Models\User;
 use App\Models\State;
 use App\Models\Project;
+use App\Models\Affiliation;
 use App\Models\Organisation;
-use Tests\TestCase;
+use App\Traits\CommonFunctions;
+use Tests\Traits\Authorisation;
 use Illuminate\Support\Facades\Config;
+use KeycloakGuard\ActingAsKeycloakUser;
 
 class StateWorkflowTest extends TestCase
 {
+    use Authorisation;
+    use ActingAsKeycloakUser;
+    use CommonFunctions;
+
     public function setUp(): void
     {
         parent::setUp();
         Config::set('workflow.transitions.enforced', true);
+        $this->withUsers();
     }
 
     public function test_the_application_can_track_user_state(): void
@@ -120,14 +128,71 @@ class StateWorkflowTest extends TestCase
         $this->assertTrue($org->canTransitionTo(State::STATE_VALIDATED) === false);
     }
 
-    public function test_the_application_can_track_affiliation_state(): void
+    public function test_the_application_can_track_affiliation_state_non_current_employer(): void
     {
+        $affiliation = Affiliation::where('id', 1)->first();
+
+        $this->assertTrue($affiliation->getState() === State::STATE_AFFILIATION_PENDING);
+    }
+
+    // public function test_the_application_can_track_affiliation_state_current_employer_email_verified(): void
+    // {
+    //     Affiliation::where('id', 1)->update([
+    //         'is_verified' => 1,
+    //         'current_employer' => 1,
+    //     ]);
+
+    //     $affiliation = Affiliation::where('id', 1)->first();
+
+    //     $this->assertTrue($affiliation->getState() === State::STATE_AFFILIATION_PENDING);
+
+    //     Affiliation::where('id', 1)->update([
+    //         'is_verified' => 0,
+    //         'current_employer' => 0,
+    //     ]);
+    // }
+
+    public function test_the_application_can_track_affiliation_state_current_employer_email_unverified_organisation_claimed(): void
+    {
+        Affiliation::where('id', 1)->update([
+            'is_verified' => 0,
+            'current_employer' => 0,
+        ]);
+        $affiliation = Affiliation::where('id', 1)->first();
+        $organisationId = $affiliation->organisation_id;
+        Organisation::where('id', $organisationId)->update([
+            'unclaimed' => 0,
+        ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                "/api/v1/affiliations/1",
+                [
+                    'member_id' => 'A1234567',
+                    'organisation_id' => 1,
+                    'current_employer' => 1,
+                    'relationship' => 'employee'
+                ]
+            );
+
         $affiliation = Affiliation::where('id', 1)->first();
 
         $this->assertTrue($affiliation->getState() === State::STATE_AFFILIATION_EMAIL_VERIFY);
         $this->assertTrue($affiliation->canTransitionTo(State::STATE_AFFILIATION_PENDING) === true);
+        $verficationCode = $affiliation->verification_code;
+        $organisationId = $affiliation->organisation_id;
 
-        $affiliation->transitionTo(State::STATE_AFFILIATION_PENDING);
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                "/api/v1/affiliations/verify_email/{$verficationCode}",
+                []
+            );
+
+        $affiliation = Affiliation::where('id', 1)->first();
+        $this->assertTrue($affiliation->is_verified === true);
+        $this->assertTrue($affiliation->getState() === State::STATE_AFFILIATION_PENDING);
 
         $this->assertDatabaseHas('model_states', [
             'state_id' => State::where('slug', State::STATE_AFFILIATION_PENDING)->first()->id,
@@ -136,6 +201,6 @@ class StateWorkflowTest extends TestCase
 
         $this->assertTrue($affiliation->canTransitionTo(State::STATE_AFFILIATION_APPROVED) === true);
         $this->assertTrue($affiliation->canTransitionTo(State::STATE_AFFILIATION_REJECTED) === true);
-        $this->assertTrue($affiliation->canTransitionTo(State::STATE_AFFILIATION_EMAIL_VERIFY) === false);
+        $this->assertTrue($affiliation->canTransitionTo(State::STATE_AFFILIATION_EMAIL_VERIFY) === true);
     }
 }
