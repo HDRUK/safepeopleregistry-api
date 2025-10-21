@@ -774,7 +774,7 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="10px 15px 0px 15px">
                                 Confirm the Organisation by clicking the button below.
                                 </mj-text>
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[ORGANISATION_PATH_PROFILE)]]" padding="10px 15px 15px 15px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[ORGANISATION_PATH_PROFILE]]" padding="10px 15px 15px 15px">
                                   Confirm Organisation
                                 </mj-button>
                               </mj-column>
