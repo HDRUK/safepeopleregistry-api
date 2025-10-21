@@ -1178,16 +1178,20 @@ class OrganisationController extends Controller
     {
         try {
             $org = Organisation::findOrFail($id);
-            // temp
-            if (Gate::allows('updateIsOrganisation', $org) && !$org->system_approved) {
-                return $this->ForbiddenResponse();
+            if (!$org->system_approved) {
+                return $this->BadRequestResponse('The organization was not approved.');
             }
 
             $input = $request->all();
             if (User::where("email", $input['email'])->exists()) {
                 return $this->ConflictResponse();
             }
+
             $loggedInUserId = $request->user()->id;
+            $loggedInUser = User::where('id', $loggedInUserId)->first();
+            if ($loggedInUser->user_group !== User::GROUP_ORGANISATIONS) {
+                return $this->BadRequestResponse('Non-organisation users cannot invite members via this endpoint.');
+            }
 
             $unclaimedUser = RMC::createUnclaimedUser([
                 'firstname' => $input['first_name'],
@@ -1214,26 +1218,12 @@ class OrganisationController extends Controller
                     'identifier' => 'delegate_invite'
                 ];
             } else {
-                $loggedInUser = User::where('id', $loggedInUserId)->first();
-
-                if ($loggedInUser->user_group === User::GROUP_CUSTODIANS) {
-                    $email = [
-                        'type' => 'USER',
-                        'to' => $unclaimedUser->id,
-                        'by' => $id,
-                        'identifier' => 'custodian_user_invite',
-                        'custodianId' => $loggedInUserId,
-                    ];
-                }
-
-                if ($loggedInUser->user_group === User::GROUP_ORGANISATIONS) {
-                    $email = [
-                        'type' => 'USER',
-                        'to' => $unclaimedUser->id,
-                        'by' => $id,
-                        'identifier' => 'organisation_user_invite',
-                    ];
-                }
+                $email = [
+                    'type' => 'USER',
+                    'to' => $unclaimedUser->id,
+                    'by' => $id,
+                    'identifier' => 'organisation_user_invite',
+                ];
 
                 Affiliation::create([
                     'organisation_id' => $id,
@@ -1341,13 +1331,14 @@ class OrganisationController extends Controller
                 return $this->BadRequestResponse('Non-custodian users cannot invite members via this endpoint.');
             }
 
+            $userGroup = isset($input['user_group']) ? $input['user_group'] : 'USERS';
             $unclaimedUser = RMC::createUnclaimedUser([
                 'firstname' => $input['first_name'],
                 'lastname' => $input['last_name'],
                 'email' => $input['email'],
                 'organisation_id' => (isset($input['user_group']) && $input['user_group'] === User::GROUP_ORGANISATIONS) ? $id : 0,
-                'is_delegate' => isset($input['is_delegate']) ? $input['is_delegate'] : 0,
-                'user_group' => isset($input['user_group']) ? $input['user_group'] : 'USERS',
+                'is_delegate' => 0,
+                'user_group' => $userGroup,
                 'role' => isset($input['role']) ? $input['role'] : null,
             ]);
 
@@ -1366,18 +1357,20 @@ class OrganisationController extends Controller
                 'custodianId' => $loggedInUserId,
             ];
 
-            Affiliation::create([
-                'organisation_id' => $id,
-                'member_id' => '',
-                'relationship' => '',
-                'from' => '',
-                'to' => '',
-                'department' => '',
-                'role' => '',
-                'email' => $input['email'],
-                'ror' => '',
-                'registry_id' => $unclaimedUser->registry_id,
-            ]);
+            if ($userGroup === 'USERS') {
+                Affiliation::create([
+                    'organisation_id' => $id,
+                    'member_id' => '',
+                    'relationship' => '',
+                    'from' => '',
+                    'to' => '',
+                    'department' => '',
+                    'role' => '',
+                    'email' => $input['email'],
+                    'ror' => '',
+                    'registry_id' => $unclaimedUser->registry_id,
+                ]);
+            }
 
             TriggerEmail::spawnEmail($email);
 
