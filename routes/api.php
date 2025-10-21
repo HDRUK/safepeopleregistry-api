@@ -351,6 +351,7 @@ Route::middleware('auth:api')
             Route::post('/unclaimed', 'storeUnclaimed');
             Route::post('/{id}/invite', 'invite');
             Route::post('/{id}/invite_user', 'inviteUser');
+            Route::post('/{id}/custodian_invite_user', 'custodianInviteUser');
 
             // Update
             Route::put('/{id}', 'update');
