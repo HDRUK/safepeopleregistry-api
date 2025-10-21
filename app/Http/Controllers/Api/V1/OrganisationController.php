@@ -1177,11 +1177,6 @@ class OrganisationController extends Controller
     public function inviteUser(OrganisationInviteUser $request, int $id): JsonResponse
     {
         try {
-            $org = Organisation::findOrFail($id);
-            if (!$org->system_approved) {
-                return $this->BadRequestResponse('The organization was not approved.');
-            }
-
             $input = $request->all();
             if (User::where("email", $input['email'])->exists()) {
                 return $this->ConflictResponse();
@@ -1315,11 +1310,6 @@ class OrganisationController extends Controller
     public function custodianInviteUser(OrganisationInviteUser $request, int $id): JsonResponse
     {
         try {
-            $org = Organisation::findOrFail($id);
-            if (!$org->system_approved) {
-                return $this->BadRequestResponse('The organization was not approved.');
-            }
-
             $input = $request->all();
             if (User::where("email", $input['email'])->exists()) {
                 return $this->ConflictResponse();

@@ -858,30 +858,6 @@ class OrganisationTest extends TestCase
         $response->assertStatus(400);
     }
 
-    public function test_the_application_cannot_invite_a_user_for_organisations_non_approved_organisation(): void
-    {
-        Queue::assertNothingPushed();
-
-        $email = fake()->email();
-        $firstName = fake()->firstName();
-        $lastName = fake()->lastName();
-        Organisation::where('id', 1)->update(['system_approved' => false]);
-
-        $response = $this->actingAs($this->organisation_admin)
-            ->json(
-                'POST',
-                self::TEST_URL . '/1/custodian_invite_user',
-                [
-                    'first_name' => $firstName,
-                    'last_name' => $lastName,
-                    'email' => $email,
-                ],
-            );
-
-        $response->assertStatus(400);
-        Organisation::where('id', 1)->update(['system_approved' => true]);
-    }
-
     public function test_the_application_can_invite_organisations(): void
     {
         $user = $this->user;
