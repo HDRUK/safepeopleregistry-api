@@ -1159,6 +1159,13 @@ class OrganisationController extends Controller
      *          )
      *      ),
      *      @OA\Response(
+     *          response=403,
+     *          description="forbidden",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="forbidden")
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=500,
      *          description="Error",
      *          @OA\JsonContent(
@@ -1320,7 +1327,7 @@ class OrganisationController extends Controller
         try {
             $org = Organisation::findOrFail($id);
             if (!$org->system_approved) {
-                return $this->ForbiddenResponse('The organization was not approved.');
+                return $this->BadRequestResponse('The organization was not approved.');
             }
 
             $input = $request->all();
@@ -1331,7 +1338,7 @@ class OrganisationController extends Controller
             $loggedInUserId = $request->user()->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();
             if ($loggedInUser->user_group !== User::GROUP_CUSTODIANS) {
-                return $this->ForbiddenResponse('Non-custodian users cannot invite members via this endpoint.');
+                return $this->BadRequestResponse('Non-custodian users cannot invite members via this endpoint.');
             }
 
             $unclaimedUser = RMC::createUnclaimedUser([

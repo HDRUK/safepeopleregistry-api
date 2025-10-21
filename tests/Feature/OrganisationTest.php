@@ -744,7 +744,7 @@ class OrganisationTest extends TestCase
                 ],
             );
 
-        $response->assertStatus(403);
+        $response->assertStatus(400);
     }
 
     public function test_the_application_cannot_invite_a_user_for_organisations_non_approved_organisation(): void
@@ -767,7 +767,7 @@ class OrganisationTest extends TestCase
                 ],
             );
 
-        $response->assertStatus(403);
+        $response->assertStatus(400);
         Organisation::where('id', 1)->update(['system_approved' => true]);
     }
 

@@ -33,11 +33,11 @@ trait Responses
         ], Response::HTTP_CREATED);
     }
 
-    public function BadRequestResponse(): JsonResponse
+    public function BadRequestResponse(mixed $data = null): JsonResponse
     {
         return response()->json([
             'message' => 'bad request',
-            'data' => null,
+            'data' => $data,
         ], Response::HTTP_BAD_REQUEST);
     }
 
