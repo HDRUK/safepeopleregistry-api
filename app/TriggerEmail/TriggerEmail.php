@@ -321,7 +321,6 @@ class TriggerEmail
                     '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
                     '[[ORGANISATION_PATH_PROFILE]]' => config('speedi.system.portal_url') . '/organisation/profile/details',
                 ];
-                // http://localhost:3000/en/organisation/profile
 
                 break;
 
