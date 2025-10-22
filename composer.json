@@ -9,7 +9,7 @@
         "darkaonline/l5-swagger": "^8.5",
         "doctrine/dbal": "^3.8",
         "guzzlehttp/guzzle": "^7.2",
-        "hdruk/laravel-mjml": "dev-feature/using-cloud-function-mjml",
+        "hdruk/laravel-mjml": "dev-main",
         "laravel/framework": "^12.0",
         "laravel/horizon": "^5.29",
         "laravel/octane": "^2.8.1",

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "add59cdaab528ceebb486985310ef53f",
+    "content-hash": "a1b39454b0a1c3bef45c3533f575544a",
     "packages": [
         {
             "name": "brick/math",
@@ -2161,21 +2161,22 @@
         },
         {
             "name": "hdruk/laravel-mjml",
-            "version": "dev-feature/using-cloud-function-mjml",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/HDRUK/laravel-mjml.git",
-                "reference": "cc4bcc2bcbc7a648896b15fe763f3e8e42652668"
+                "reference": "ced6cbdd8e6170af0dc5c03805f391d34b98b92a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/HDRUK/laravel-mjml/zipball/cc4bcc2bcbc7a648896b15fe763f3e8e42652668",
-                "reference": "cc4bcc2bcbc7a648896b15fe763f3e8e42652668",
+                "url": "https://api.github.com/repos/HDRUK/laravel-mjml/zipball/ced6cbdd8e6170af0dc5c03805f391d34b98b92a",
+                "reference": "ced6cbdd8e6170af0dc5c03805f391d34b98b92a",
                 "shasum": ""
             },
             "require": {
                 "illuminate/support": "^10.0 || ^11.0 || ^12.0"
             },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "laravel": {
@@ -2203,10 +2204,10 @@
             ],
             "description": "A Laravel extension to make use of the MJML API",
             "support": {
-                "source": "https://github.com/HDRUK/laravel-mjml/tree/feature/using-cloud-function-mjml",
+                "source": "https://github.com/HDRUK/laravel-mjml/tree/main",
                 "issues": "https://github.com/HDRUK/laravel-mjml/issues"
             },
-            "time": "2025-10-22T09:49:29+00:00"
+            "time": "2025-10-08T16:05:13+00:00"
         },
         {
             "name": "laminas/laminas-diactoros",
