@@ -1272,16 +1272,16 @@
         },
         {
             "name": "google/cloud-core",
-            "version": "v1.67.0",
+            "version": "v1.68.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-cloud-php-core.git",
-                "reference": "2405b8116dcc4ec50756cc44486c149e34b1b4e5"
+                "reference": "fef35bddabc292eb1758cafc70cb3526703f57a5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-cloud-php-core/zipball/2405b8116dcc4ec50756cc44486c149e34b1b4e5",
-                "reference": "2405b8116dcc4ec50756cc44486c149e34b1b4e5",
+                "url": "https://api.github.com/repos/googleapis/google-cloud-php-core/zipball/fef35bddabc292eb1758cafc70cb3526703f57a5",
+                "reference": "fef35bddabc292eb1758cafc70cb3526703f57a5",
                 "shasum": ""
             },
             "require": {
@@ -1332,22 +1332,22 @@
             ],
             "description": "Google Cloud PHP shared dependency, providing functionality useful to all components.",
             "support": {
-                "source": "https://github.com/googleapis/google-cloud-php-core/tree/v1.67.0"
+                "source": "https://github.com/googleapis/google-cloud-php-core/tree/v1.68.1"
             },
-            "time": "2025-10-10T18:34:03+00:00"
+            "time": "2025-10-21T22:33:33+00:00"
         },
         {
             "name": "google/cloud-storage",
-            "version": "v1.48.4",
+            "version": "v1.48.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-cloud-php-storage.git",
-                "reference": "4b81b682f6b1517c0c5f6152b2980195d23c1cef"
+                "reference": "4e522a0c087e8f9931f72c7c3eb4b7754604a690"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-cloud-php-storage/zipball/4b81b682f6b1517c0c5f6152b2980195d23c1cef",
-                "reference": "4b81b682f6b1517c0c5f6152b2980195d23c1cef",
+                "url": "https://api.github.com/repos/googleapis/google-cloud-php-storage/zipball/4e522a0c087e8f9931f72c7c3eb4b7754604a690",
+                "reference": "4e522a0c087e8f9931f72c7c3eb4b7754604a690",
                 "shasum": ""
             },
             "require": {
@@ -1389,9 +1389,9 @@
             ],
             "description": "Cloud Storage Client for PHP",
             "support": {
-                "source": "https://github.com/googleapis/google-cloud-php-storage/tree/v1.48.4"
+                "source": "https://github.com/googleapis/google-cloud-php-storage/tree/v1.48.5"
             },
-            "time": "2025-10-01T16:57:30+00:00"
+            "time": "2025-10-21T22:33:33+00:00"
         },
         {
             "name": "google/common-protos",
@@ -2165,12 +2165,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/HDRUK/laravel-mjml.git",
-                "reference": "ced6cbdd8e6170af0dc5c03805f391d34b98b92a"
+                "reference": "3544f325f31bdb26658f1ecc6896caf7d7f3f2fb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/HDRUK/laravel-mjml/zipball/ced6cbdd8e6170af0dc5c03805f391d34b98b92a",
-                "reference": "ced6cbdd8e6170af0dc5c03805f391d34b98b92a",
+                "url": "https://api.github.com/repos/HDRUK/laravel-mjml/zipball/3544f325f31bdb26658f1ecc6896caf7d7f3f2fb",
+                "reference": "3544f325f31bdb26658f1ecc6896caf7d7f3f2fb",
                 "shasum": ""
             },
             "require": {
@@ -2207,7 +2207,7 @@
                 "source": "https://github.com/HDRUK/laravel-mjml/tree/main",
                 "issues": "https://github.com/HDRUK/laravel-mjml/issues"
             },
-            "time": "2025-10-08T16:05:13+00:00"
+            "time": "2025-10-23T08:06:24+00:00"
         },
         {
             "name": "laminas/laminas-diactoros",

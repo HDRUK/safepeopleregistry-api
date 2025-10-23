@@ -43,7 +43,7 @@ class ProjectDetailSeeder extends Seeder
                 'access_date' => now(),
                 'access_type' => 1,
                 'data_privacy' => 'Data stored in encrypted ISO 27001-compliant servers with role-based access controls; personally identifiable information pseudonymized using irreversible hashing; access logged and audited quarterly; compliant with GDPR and NHS Data Security and Protection Toolkit requirements.',
-                'research_outputs' => '{"research_outputs": [ "https://mydomain.com/research1", "https://mydomain.com/research2"] }',
+                'research_outputs' => json_encode(['https://mydomain.com/research1', 'https://mydomain.com/research2']),
                 'data_assets' => 'Our data assets are...',
             ]);
         }
