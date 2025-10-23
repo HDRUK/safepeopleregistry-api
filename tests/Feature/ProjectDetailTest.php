@@ -177,7 +177,10 @@ class ProjectDetailTest extends TestCase
             'access_date' => '2025-12-02',
             'access_type' => 1,
             'data_privacy' => 'Our data privacy methods are...',
-            'research_outputs' => '{"research_outputs": [ "https://mydomain.com/research1", "https://mydomain.com/research2"] }',
+            'research_outputs' => [
+                'https://mydomain.com/research1',
+                'https://mydomain.com/research2',
+            ],
             'data_assets' => 'Our data assets are...',
         ];
     }

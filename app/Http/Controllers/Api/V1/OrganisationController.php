@@ -1314,7 +1314,7 @@ class OrganisationController extends Controller
             if (User::where("email", $input['email'])->exists()) {
                 return $this->ConflictResponse();
             }
-            
+
             $loggedInUserId = $request->user()->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();
             if ($loggedInUser->user_group !== User::GROUP_CUSTODIANS) {

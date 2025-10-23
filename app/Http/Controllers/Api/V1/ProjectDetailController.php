@@ -157,6 +157,7 @@ class ProjectDetailController extends Controller
             $input = $request->only(app(ProjectDetail::class)->getFillable());
             $input['datasets'] = $this->safeJsonArray($input['datasets'] ?? []);
             $input['other_approval_committees'] = $this->safeJsonArray($input['other_approval_committees'] ?? []);
+            $input['research_outputs'] = $this->safeJsonArray($input['research_outputs'] ?? []);
             $projectDetail = ProjectDetail::create($input);
 
             return $this->CreatedResponse($projectDetail->id);
