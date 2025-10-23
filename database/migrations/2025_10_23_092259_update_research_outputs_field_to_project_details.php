@@ -38,8 +38,17 @@ return new class extends Migration
      */
     public function down(): void
     {
+        $projectDetails = ProjectDetail::all();
+
         Schema::table('project_details', function (Blueprint $table) {
             $table->mediumText('research_outputs')->change();
         });
+
+        foreach ($projectDetails as $projectDetail) {
+            $researchOutputs = json_decode($projectDetail->research_outputs, true);
+
+            ProjectDetail::where('id', $projectDetail->id)
+                ->update(['research_outputs' => json_encode(['research_outputs' => $researchOutputs])]);
+        }
     }
 };
