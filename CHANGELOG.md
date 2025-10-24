@@ -1,3 +1,9 @@
+## [1.17.1](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.17.0...v1.17.1) (2025-10-24)
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-0000:** migration project details field (#503) ([f6d8306](https://github.com/HDRUK/safepeopleregistry-api/commit/f6d8306d00658da2a13a293a8831ce78e6ca7ea3))
+
 ## [1.17.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.16.0...v1.17.0) (2025-10-24)
 
 ### ✨ Features
