@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\State;
-use App\Models\Status;
 use App\Models\Project;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Schema;

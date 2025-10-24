@@ -157,7 +157,7 @@ class RegistryController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        if (!Gate::allows('create', Registry::class)) {
+        if (!Gate::allows('admin')) {
             return $this->ForbiddenResponse();
         }
         try {

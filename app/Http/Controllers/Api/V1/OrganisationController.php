@@ -395,7 +395,7 @@ class OrganisationController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        if (!Gate::allows('create', Organisation::class)) {
+        if (!Gate::allows('admin')) {
             return $this->ForbiddenResponse();
         }
 
@@ -1159,6 +1159,13 @@ class OrganisationController extends Controller
      *          )
      *      ),
      *      @OA\Response(
+     *          response=403,
+     *          description="forbidden",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="forbidden")
+     *          )
+     *      ),
+     *      @OA\Response(
      *          response=500,
      *          description="Error",
      *          @OA\JsonContent(
@@ -1170,17 +1177,16 @@ class OrganisationController extends Controller
     public function inviteUser(OrganisationInviteUser $request, int $id): JsonResponse
     {
         try {
-            $org = Organisation::findOrFail($id);
-            // temp
-            if (Gate::allows('updateIsOrganisation', $org) && !$org->system_approved) {
-                return $this->ForbiddenResponse();
-            }
-
             $input = $request->all();
             if (User::where("email", $input['email'])->exists()) {
                 return $this->ConflictResponse();
             }
+
             $loggedInUserId = $request->user()->id;
+            $loggedInUser = User::where('id', $loggedInUserId)->first();
+            if ($loggedInUser->user_group !== User::GROUP_ORGANISATIONS) {
+                return $this->BadRequestResponse('Non-organisation users cannot invite members via this endpoint.');
+            }
 
             $unclaimedUser = RMC::createUnclaimedUser([
                 'firstname' => $input['first_name'],
@@ -1207,27 +1213,141 @@ class OrganisationController extends Controller
                     'identifier' => 'delegate_invite'
                 ];
             } else {
-                $loggedInUser = User::where('id', $loggedInUserId)->first();
+                $email = [
+                    'type' => 'USER',
+                    'to' => $unclaimedUser->id,
+                    'by' => $id,
+                    'identifier' => 'organisation_user_invite',
+                ];
 
-                if ($loggedInUser->user_group === User::GROUP_CUSTODIANS) {
-                    $email = [
-                        'type' => 'USER',
-                        'to' => $unclaimedUser->id,
-                        'by' => $id,
-                        'identifier' => 'custodian_user_invite',
-                        'custodianId' => $loggedInUserId,
-                    ];
-                }
+                Affiliation::create([
+                    'organisation_id' => $id,
+                    'member_id' => '',
+                    'relationship' => '',
+                    'from' => '',
+                    'to' => '',
+                    'department' => '',
+                    'role' => '',
+                    'email' => $input['email'],
+                    'ror' => '',
+                    'registry_id' => $unclaimedUser->registry_id,
+                ]);
+            }
 
-                if ($loggedInUser->user_group === User::GROUP_ORGANISATIONS) {
-                    $email = [
-                        'type' => 'USER',
-                        'to' => $unclaimedUser->id,
-                        'by' => $id,
-                        'identifier' => 'organisation_user_invite',
-                    ];
-                }
+            TriggerEmail::spawnEmail($email);
 
+            return response()->json([
+                'message' => 'success',
+                'data' => $unclaimedUser->id,
+            ], 201);
+        } catch (Exception $e) {
+            DebugLog::create([
+                'class' => __CLASS__,
+                'log' => $e,
+            ]);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @OA\Post(
+     *      path="/api/v1/organisations/{id}/custodian_invite_user",
+     *      summary="Invites a user to org",
+     *      description="Invites a user to org",
+     *      tags={"organisations"},
+     *      summary="organisations@custodian_invite_user",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="organisations entry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="organisations entry ID",
+     *         ),
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="Invite definition",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="last_name", type="string", example="Smith"),
+     *              @OA\Property(property="first_name", type="string", example="John"),
+     *              @OA\Property(property="email", type="string", example="someone@somewhere.com"),
+     *              @OA\Property(property="is_delegate", type="integer", example="1"),
+     *              @OA\Property(property="department_id", type="integer", example="1"),
+     *              @OA\Property(property="role", type="string", example="admin"),
+     *              @OA\Property(property="user_group", type="string", example="USERS"),
+     *              @OA\Property(property="from_custodian", type="bool", example="true"),
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="integer", example="1"),
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=500,
+     *          description="Error",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="error")
+     *          )
+     *      )
+     * )
+     */
+    public function custodianInviteUser(OrganisationInviteUser $request, int $id): JsonResponse
+    {
+        try {
+            $input = $request->all();
+            if (User::where("email", $input['email'])->exists()) {
+                return $this->ConflictResponse();
+            }
+
+            $loggedInUserId = $request->user()->id;
+            $loggedInUser = User::where('id', $loggedInUserId)->first();
+            if ($loggedInUser->user_group !== User::GROUP_CUSTODIANS) {
+                return $this->BadRequestResponse('Non-custodian users cannot invite members via this endpoint.');
+            }
+
+            $userGroup = isset($input['user_group']) ? $input['user_group'] : 'USERS';
+            $unclaimedUser = RMC::createUnclaimedUser([
+                'firstname' => $input['first_name'],
+                'lastname' => $input['last_name'],
+                'email' => $input['email'],
+                'organisation_id' => (isset($input['user_group']) && $input['user_group'] === User::GROUP_ORGANISATIONS) ? $id : 0,
+                'is_delegate' => 0,
+                'user_group' => $userGroup,
+                'role' => isset($input['role']) ? $input['role'] : null,
+            ]);
+
+            if (isset($input['department_id']) && $input['department_id'] !== 0 && $input['department_id'] != null) {
+                UserHasDepartments::create([
+                    'user_id' => $unclaimedUser->id,
+                    'department_id' => $request['department_id'],
+                ]);
+            };
+
+            $email = [
+                'type' => 'USER',
+                'to' => $unclaimedUser->id,
+                'by' => $id,
+                'identifier' => 'custodian_user_invite',
+                'custodianId' => $loggedInUserId,
+            ];
+
+            if ($userGroup === 'USERS') {
                 Affiliation::create([
                     'organisation_id' => $id,
                     'member_id' => '',
@@ -1561,7 +1681,7 @@ class OrganisationController extends Controller
             $input = $request->only(app(Organisation::class)->getFillable());
             $org = Organisation::findOrFail($id);
 
-            if (!Gate::allows('updateIsAdmin', Organisation::class)) {
+            if (!Gate::allows('admin')) {
                 return $this->ForbiddenResponse();
             }
 
@@ -1592,7 +1712,7 @@ class OrganisationController extends Controller
             $loggerUser = User::findOrFail($loggedUserId);
             $usersToNotify = $this->getNotificationUsers($id);
             Notification::send($usersToNotify, new OrganisationApproved($org));
-            
+
 
             return $this->OKResponse($org);
         } catch (Exception $e) {

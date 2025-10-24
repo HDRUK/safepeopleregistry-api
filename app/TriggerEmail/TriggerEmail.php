@@ -308,7 +308,7 @@ class TriggerEmail
                 $template = EmailTemplate::where('identifier', $identifier)->first();
                 $organisation = Organisation::where('id', $to)->first();
                 $userAdmin = User::where('id', $by)->first();
-                
+
                 $newRecipients = [
                     'id' => $userAdmin->id,
                     'email' => $userAdmin->email,
@@ -319,6 +319,7 @@ class TriggerEmail
                     '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
                     '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
                     '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[ORGANISATION_PATH_PROFILE]]' => config('speedi.system.portal_url') . '/organisation/profile/details',
                 ];
 
                 break;

@@ -90,17 +90,23 @@ class CustodianHasProjectUserController extends Controller
             $projectId = $request->input('project_id');
 
             // candidate for eloquent optimisation by switching to raw SQL
-            $records = CustodianHasProjectUser::with([
-                'modelState.state',
-                'projectHasUser.registry.user:id,registry_id,first_name,last_name,email',
-                'projectHasUser.project:id,title',
-                'projectHasUser.role:id,name',
-                'projectHasUser.affiliation:id,organisation_id',
-                'projectHasUser.affiliation.modelState.state',
-                'projectHasUser.affiliation.organisation:id,organisation_name'
-            ])
+            $records = CustodianHasProjectUser::query()
                 ->where('custodian_id', $custodianId)
-                ->when(!empty($searchName), function ($query) use ($searchName) {
+                ->with([
+                    'modelState.state',
+                    'projectHasUser' => function ($query) {
+                        $query->with([
+                            'registry.user:id,registry_id,first_name,last_name,email',
+                            'project:id,title',
+                            'role:id,name',
+                            'affiliation:id,organisation_id',
+                            'affiliation.modelState.state',
+                            'affiliation.organisation:id,organisation_name'
+                        ]);
+                    },
+                ])
+                ->withProjectJoins()
+                ->when($request->filled('name'), function ($query) use ($searchName) {
                     $query->where(function ($subQuery) use ($searchName) {
                         $subQuery->whereHas('projectHasUser.project', function ($q) use ($searchName) {
                             /** @phpstan-ignore-next-line */
@@ -118,13 +124,11 @@ class CustodianHasProjectUserController extends Controller
                         });
                     });
                 })
-                ->when(!empty($projectId), function ($query) use ($projectId) {
+                ->when($request->filled('project_id'), function ($query) use ($projectId) {
                     $query->whereHas('projectHasUser.project', function ($q) use ($projectId) {
                         $q->where('id', $projectId);
                     });
                 })
-                ->join('project_has_users', 'custodian_has_project_has_user.project_has_user_id', '=', 'project_has_users.id')
-                ->join('projects', 'project_has_users.project_id', '=', 'projects.id')
                 ->filterByState()
                 ->applySorting()
                 ->select('custodian_has_project_has_user.*')
@@ -203,18 +207,25 @@ class CustodianHasProjectUserController extends Controller
                 return $this->ForbiddenResponse();
             }
 
-            $puhca = CustodianHasProjectUser::with([
-                'modelState.state',
-                'projectHasUser.registry.user',
-                'projectHasUser.project:id,title',
-                'projectHasUser.role:id,name',
-                'projectHasUser.affiliation:id,organisation_id,email',
-                'projectHasUser.affiliation.organisation:id,organisation_name',
-            ])
+            $puhca = CustodianHasProjectUser::query()
                 ->where([
                     'project_has_user_id' => $projectUserId,
                     'custodian_id' => $custodianId
-                ])->first();
+                ])
+                ->with([
+                    'modelState.state',
+                    'projectHasUser' => function ($query) {
+                        $query->with([
+                            'registry.user',
+                            'project:id,title',
+                            'role:id,name',
+                            'affiliation:id,organisation_id,email',
+                            'affiliation.modelState.state',
+                            'affiliation.organisation:id,organisation_name'
+                        ]);
+                    },
+                ])
+                ->first();
 
             return $this->OKResponse($puhca);
         } catch (Exception $e) {

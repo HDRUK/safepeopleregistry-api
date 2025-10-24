@@ -10,6 +10,7 @@ use App\Models\Sector;
 use App\Models\Project;
 use App\Models\ActionLog;
 use App\Jobs\SendEmailJob;
+use App\Models\Affiliation;
 use App\Models\ModelState;
 use Illuminate\Support\Str;
 use App\Models\Organisation;
@@ -19,7 +20,6 @@ use Illuminate\Support\Facades\Queue;
 use App\Models\ProjectHasOrganisation;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\OrganisationHasDepartment;
-use App\Models\CustodianHasProjectOrganisation;
 
 class OrganisationTest extends TestCase
 {
@@ -655,7 +655,7 @@ class OrganisationTest extends TestCase
         $firstName = fake()->firstName();
         $lastName = fake()->lastName();
 
-        $response = $this->actingAs($this->custodian_admin)
+        $response = $this->actingAs($this->organisation_admin)
             ->json(
                 'POST',
                 self::TEST_URL . '/1/invite_user',
@@ -685,6 +685,177 @@ class OrganisationTest extends TestCase
 
         $this->assertTrue(count($invites) === 1);
         $this->assertTrue($invites[0]->organisation_id === 1);
+    }
+
+    public function test_the_application_cannot_invite_a_user_for_organisations_by_non_organisation_admin(): void
+    {
+        Queue::assertNothingPushed();
+
+        $email = fake()->email();
+        $firstName = fake()->firstName();
+        $lastName = fake()->lastName();
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'POST',
+                self::TEST_URL . '/1/invite_user',
+                [
+                    'first_name' => $firstName,
+                    'last_name' => $lastName,
+                    'email' => $email,
+                    'identifier' => 'user_invite'
+                ],
+            );
+
+        $response->assertStatus(400);
+    }
+
+    public function test_the_application_can_invite_a_user_for_organisations_by_custodian(): void
+    {
+        Queue::assertNothingPushed();
+
+        $email = fake()->email();
+        $firstName = fake()->firstName();
+        $lastName = fake()->lastName();
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'POST',
+                self::TEST_URL . '/1/custodian_invite_user',
+                [
+                    'first_name' => $firstName,
+                    'last_name' => $lastName,
+                    'email' => $email,
+                ],
+            );
+
+        $response->assertStatus(201);
+
+        $this->assertDatabaseHas('users', [
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'email' => $email,
+            'organisation_id' => 0,
+            'is_delegate' => 0,
+            'user_group' => 'USERS',
+            'role' => null,
+        ]);
+
+        Queue::assertPushed(SendEmailJob::class);
+
+        $invites = PendingInvite::all();
+
+        $this->assertTrue(count($invites) === 1);
+        $this->assertTrue($invites[0]->organisation_id === 1);
+    }
+
+    public function test_the_application_can_invite_a_user_for_organisations_by_custodian_with_user_group_users(): void
+    {
+        Queue::assertNothingPushed();
+
+        $countAffiliationBefore = Affiliation::count();
+        $email = fake()->email();
+        $firstName = fake()->firstName();
+        $lastName = fake()->lastName();
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'POST',
+                self::TEST_URL . '/1/custodian_invite_user',
+                [
+                    'first_name' => $firstName,
+                    'last_name' => $lastName,
+                    'email' => $email,
+                    'user_group' => 'USERS',
+                ],
+            );
+
+        $response->assertStatus(201);
+
+        $this->assertDatabaseHas('users', [
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'email' => $email,
+            'organisation_id' => 0,
+            'is_delegate' => 0,
+            'user_group' => 'USERS',
+            'role' => null,
+        ]);
+
+        Queue::assertPushed(SendEmailJob::class);
+
+        $invites = PendingInvite::all();
+
+        $this->assertTrue(count($invites) === 1);
+        $this->assertTrue($invites[0]->organisation_id === 1);
+        $countAffiliationAfter = Affiliation::count();
+        $this->assertTrue($countAffiliationAfter === $countAffiliationBefore + 1);
+    }
+
+    public function test_the_application_can_invite_a_user_for_organisations_by_custodian_with_non_user_group_users(): void
+    {
+        Queue::assertNothingPushed();
+
+        $countAffiliationBefore = Affiliation::count();
+        $email = fake()->email();
+        $firstName = fake()->firstName();
+        $lastName = fake()->lastName();
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'POST',
+                self::TEST_URL . '/1/custodian_invite_user',
+                [
+                    'first_name' => $firstName,
+                    'last_name' => $lastName,
+                    'email' => $email,
+                    'user_group' => 'ORGANISATIONS',
+                ],
+            );
+
+        $response->assertStatus(201);
+
+        $this->assertDatabaseHas('users', [
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'email' => $email,
+            'organisation_id' => 1,
+            'is_delegate' => 0,
+            'user_group' => 'ORGANISATIONS',
+            'role' => null,
+        ]);
+
+        Queue::assertPushed(SendEmailJob::class);
+
+        $invites = PendingInvite::all();
+
+        $this->assertTrue(count($invites) === 1);
+        $this->assertTrue($invites[0]->organisation_id === 1);
+
+        $countAffiliationAfter = Affiliation::count();
+        $this->assertTrue($countAffiliationAfter === $countAffiliationBefore);
+    }
+
+    public function test_the_application_cannot_invite_a_user_for_organisations_by_organisation(): void
+    {
+        Queue::assertNothingPushed();
+
+        $email = fake()->email();
+        $firstName = fake()->firstName();
+        $lastName = fake()->lastName();
+
+        $response = $this->actingAs($this->organisation_admin)
+            ->json(
+                'POST',
+                self::TEST_URL . '/1/custodian_invite_user',
+                [
+                    'first_name' => $firstName,
+                    'last_name' => $lastName,
+                    'email' => $email,
+                ],
+            );
+
+        $response->assertStatus(400);
     }
 
     public function test_the_application_can_invite_organisations(): void

@@ -22,11 +22,6 @@ class CustodianPolicy
         return $this->viewAny($user);
     }
 
-    public function create(User $user): bool
-    {
-        return $user->isAdmin();
-    }
-
     public function viewDetailed(User $user, Custodian $custodian): bool
     {
         return $user->inGroup([

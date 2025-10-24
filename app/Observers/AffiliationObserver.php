@@ -25,10 +25,6 @@ class AffiliationObserver
             $this->getUser($affiliation),
             $affiliation
         ), $affiliation);
-
-        if ($affiliation->current_employer) {
-            $this->sendVerificationEmails($affiliation);
-        }
     }
 
     public function updated(Affiliation $affiliation): void
@@ -113,15 +109,16 @@ class AffiliationObserver
             ];
 
             TriggerEmail::spawnEmail($email);
+
+            $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
         }
     }
 
-    private function setInitialState(Affiliation $affiliation): void
+    private function setInitialState(Affiliation $affiliation)
     {
-        $unclaimed = $affiliation->organisation->unclaimed;
-        $affiliation->setState($unclaimed
-            ? State::STATE_AFFILIATION_INVITED
-            : State::STATE_AFFILIATION_EMAIL_VERIFY);
+        if (!$affiliation->getState()) {
+            return $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+        }
     }
 
     private function notifyAdmins($notification, Affiliation $affiliation): void
@@ -141,18 +138,4 @@ class AffiliationObserver
             'user_group' => User::GROUP_ORGANISATIONS,
         ])->get();
     }
-
-    public function sendVerificationEmails(Affiliation $affiliation): void
-    {
-        $email = [
-            'type' => 'AFFILIATION_VERIFY',
-            'to' => $affiliation->id,
-            'by' => $affiliation->id,
-            'for' => $affiliation->id,
-            'identifier' => 'affiliation_user_professional_email_confirm',
-        ];
-
-        TriggerEmail::spawnEmail($email);
-    }
-
 }

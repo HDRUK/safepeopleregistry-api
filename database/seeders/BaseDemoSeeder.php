@@ -5,31 +5,32 @@ namespace Database\Seeders;
 use DB;
 use Str;
 use Keycloak;
-use RegistryManagementController as RMC;
 use Carbon\Carbon;
 use App\Models\User;
-use App\Models\Identity;
-use App\Models\Project;
-use App\Models\Registry;
-use App\Models\Education;
-use App\Models\Training;
-use App\Models\Organisation;
-use App\Models\Affiliation;
-use App\Models\OrganisationHasCharity;
-use App\Models\OrganisationHasSubsidiary;
+use App\Models\State;
 use App\Models\Charity;
+use App\Models\Project;
+use App\Models\Identity;
+use App\Models\Registry;
+use App\Models\Training;
 use App\Models\Custodian;
+use App\Models\Education;
+use App\Models\Subsidiary;
+use App\Models\Affiliation;
+use App\Models\ProjectRole;
+use App\Models\Organisation;
 use App\Models\CustodianUser;
 use App\Models\ProjectHasUser;
-use App\Models\ProjectRole;
-use App\Models\ProjectHasCustodian;
-use App\Models\RegistryHasTraining;
-use App\Models\OrganisationHasDepartment;
-use App\Models\State;
-use App\Models\Subsidiary;
 use App\Traits\CommonFunctions;
 use Illuminate\Database\Seeder;
+use App\Models\ProjectHasCustodian;
+use App\Models\RegistryHasTraining;
+use App\Models\OrganisationHasCharity;
 use Illuminate\Support\Facades\Schema;
+use RegistryManagementController as RMC;
+use App\Models\OrganisationHasDepartment;
+use App\Models\OrganisationHasSubsidiary;
+use App\Models\ProjectDetail;
 
 class BaseDemoSeeder extends Seeder
 {
@@ -173,6 +174,35 @@ Health Research Authority (HRA) Approval as it involves health-related research 
             'custodian_id' => Custodian::first()->id,
         ]);
 
+        ProjectDetail::create([
+            'project_id' => $org1Proj1->id,
+            'datasets' => json_encode([
+                'https://doesnot.exist/datasets/1',
+                'https://doesnot.exist/datasets/2',
+                'https://doesnot.exist/datasets/3',
+            ]),
+            'other_approval_committees' => json_encode([
+                'Approval Committee 1',
+                'Approval Committee 2',
+                'Approval Committee 3',
+            ]),
+            'data_sensitivity_level' => fake()->randomElement(['De-Personalised', 'Personally Identifiable', 'Anonymous']),
+            'legal_basis_for_data_article6' => '(b) processing is necessary for the performance of a contract to which the data subject is party or in order to take steps at the request of the data subject prior to entering into a contract;',
+            'duty_of_confidentiality' => fake()->randomElement([0, 1]),
+            'national_data_optout' => fake()->randomElement([0, 1]),
+            'request_frequency' => fake()->randomElement(['ONE-OFF', 'RECURRING']),
+            'dataset_linkage_description' => 'Patient records linked via NHS number with pseudonymized clinical outcome data from tertiary care facilities, cross-referenced against national mortality registry using deterministic matching algorithms.',
+            'data_minimisation' => 'Limited to diagnosis codes, treatment dates, and age groups; names and full addresses excluded; only relevant comorbidities retained.',
+            'data_use_description' => 'Data will be used to evaluate treatment efficacy and patient outcomes in cardiovascular disease management, identify risk factors for adverse events, and develop predictive models for clinical decision support systems.',
+            'access_date' => now(),
+            'access_type' => 1,
+            'data_privacy' => 'Data stored in encrypted ISO 27001-compliant servers with role-based access controls; personally identifiable information pseudonymized using irreversible hashing; access logged and audited quarterly; compliant with GDPR and NHS Data Security and Protection Toolkit requirements.',
+            'research_outputs' => json_encode([
+                'https://mydomain.com/research1',
+                'https://mydomain.com/research2',
+            ]),
+            'data_assets' => 'Our data assets are...',
+        ]);
 
         $org1Proj2 = Project::create([
             'unique_id' => Str::random(20),
@@ -195,6 +225,36 @@ National Public Health Ethics Committee for authorization to analyze population 
         ProjectHasCustodian::create([
             'project_id' => $org1Proj2->id,
             'custodian_id' => Custodian::first()->id,
+        ]);
+
+        ProjectDetail::create([
+            'project_id' => $org1Proj2->id,
+            'datasets' => json_encode([
+                'https://doesnot.exist/datasets/1',
+                'https://doesnot.exist/datasets/2',
+                'https://doesnot.exist/datasets/3',
+            ]),
+            'other_approval_committees' => json_encode([
+                'Approval Committee 1',
+                'Approval Committee 2',
+                'Approval Committee 3',
+            ]),
+            'data_sensitivity_level' => fake()->randomElement(['De-Personalised', 'Personally Identifiable', 'Anonymous']),
+            'legal_basis_for_data_article6' => '(b) processing is necessary for the performance of a contract to which the data subject is party or in order to take steps at the request of the data subject prior to entering into a contract;',
+            'duty_of_confidentiality' => fake()->randomElement([0, 1]),
+            'national_data_optout' => fake()->randomElement([0, 1]),
+            'request_frequency' => fake()->randomElement(['ONE-OFF', 'RECURRING']),
+            'dataset_linkage_description' => 'Patient records linked via NHS number with pseudonymized clinical outcome data from tertiary care facilities, cross-referenced against national mortality registry using deterministic matching algorithms.',
+            'data_minimisation' => 'Limited to diagnosis codes, treatment dates, and age groups; names and full addresses excluded; only relevant comorbidities retained.',
+            'data_use_description' => 'Data will be used to evaluate treatment efficacy and patient outcomes in cardiovascular disease management, identify risk factors for adverse events, and develop predictive models for clinical decision support systems.',
+            'access_date' => now(),
+            'access_type' => 1,
+            'data_privacy' => 'Data stored in encrypted ISO 27001-compliant servers with role-based access controls; personally identifiable information pseudonymized using irreversible hashing; access logged and audited quarterly; compliant with GDPR and NHS Data Security and Protection Toolkit requirements.',
+            'research_outputs' => json_encode([
+                'https://mydomain.com/research1',
+                'https://mydomain.com/research2',
+            ]),
+            'data_assets' => 'Our data assets are...',
         ]);
 
         // --------------------------------------------------------------------------------
@@ -273,7 +333,35 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'custodian_id' => Custodian::first()->id,
         ]);
 
-
+        ProjectDetail::create([
+            'project_id' => $org2Proj1->id,
+            'datasets' => json_encode([
+                'https://doesnot.exist/datasets/1',
+                'https://doesnot.exist/datasets/2',
+                'https://doesnot.exist/datasets/3',
+            ]),
+            'other_approval_committees' => json_encode([
+                'Approval Committee 1',
+                'Approval Committee 2',
+                'Approval Committee 3',
+            ]),
+            'data_sensitivity_level' => fake()->randomElement(['De-Personalised', 'Personally Identifiable', 'Anonymous']),
+            'legal_basis_for_data_article6' => '(b) processing is necessary for the performance of a contract to which the data subject is party or in order to take steps at the request of the data subject prior to entering into a contract;',
+            'duty_of_confidentiality' => fake()->randomElement([0, 1]),
+            'national_data_optout' => fake()->randomElement([0, 1]),
+            'request_frequency' => fake()->randomElement(['ONE-OFF', 'RECURRING']),
+            'dataset_linkage_description' => 'Patient records linked via NHS number with pseudonymized clinical outcome data from tertiary care facilities, cross-referenced against national mortality registry using deterministic matching algorithms.',
+            'data_minimisation' => 'Limited to diagnosis codes, treatment dates, and age groups; names and full addresses excluded; only relevant comorbidities retained.',
+            'data_use_description' => 'Data will be used to evaluate treatment efficacy and patient outcomes in cardiovascular disease management, identify risk factors for adverse events, and develop predictive models for clinical decision support systems.',
+            'access_date' => now(),
+            'access_type' => 1,
+            'data_privacy' => 'Data stored in encrypted ISO 27001-compliant servers with role-based access controls; personally identifiable information pseudonymized using irreversible hashing; access logged and audited quarterly; compliant with GDPR and NHS Data Security and Protection Toolkit requirements.',
+            'research_outputs' => json_encode([
+                'https://mydomain.com/research1',
+                'https://mydomain.com/research2',
+            ]),
+            'data_assets' => 'Our data assets are...',
+        ]);
 
 
         // --------------------------------------------------------------------------------
@@ -342,6 +430,35 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'custodian_id' => Custodian::first()->id,
         ]);
 
+        ProjectDetail::create([
+            'project_id' => $proj->id,
+            'datasets' => json_encode([
+                'https://doesnot.exist/datasets/1',
+                'https://doesnot.exist/datasets/2',
+                'https://doesnot.exist/datasets/3',
+            ]),
+            'other_approval_committees' => json_encode([
+                'Approval Committee 1',
+                'Approval Committee 2',
+                'Approval Committee 3',
+            ]),
+            'data_sensitivity_level' => fake()->randomElement(['De-Personalised', 'Personally Identifiable', 'Anonymous']),
+            'legal_basis_for_data_article6' => '(b) processing is necessary for the performance of a contract to which the data subject is party or in order to take steps at the request of the data subject prior to entering into a contract;',
+            'duty_of_confidentiality' => fake()->randomElement([0, 1]),
+            'national_data_optout' => fake()->randomElement([0, 1]),
+            'request_frequency' => fake()->randomElement(['ONE-OFF', 'RECURRING']),
+            'dataset_linkage_description' => 'Patient records linked via NHS number with pseudonymized clinical outcome data from tertiary care facilities, cross-referenced against national mortality registry using deterministic matching algorithms.',
+            'data_minimisation' => 'Limited to diagnosis codes, treatment dates, and age groups; names and full addresses excluded; only relevant comorbidities retained.',
+            'data_use_description' => 'Data will be used to evaluate treatment efficacy and patient outcomes in cardiovascular disease management, identify risk factors for adverse events, and develop predictive models for clinical decision support systems.',
+            'access_date' => now(),
+            'access_type' => 1,
+            'data_privacy' => 'Data stored in encrypted ISO 27001-compliant servers with role-based access controls; personally identifiable information pseudonymized using irreversible hashing; access logged and audited quarterly; compliant with GDPR and NHS Data Security and Protection Toolkit requirements.',
+            'research_outputs' => json_encode([
+                'https://mydomain.com/research1',
+                'https://mydomain.com/research2',
+            ]),
+            'data_assets' => 'Our data assets are...',
+        ]);
 
         $orgHDR = Organisation::create([
             'organisation_name' => 'Health Data Research UK',
@@ -381,8 +498,8 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         // --------------------------------------------------------------------------------
         $org1Users = [
             [
-                'first_name' => 'Organisation',
-                'last_name' => 'Owner',
+                'first_name' => 'Health',
+                'last_name' => ' Pathways Owner',
                 'email' => 'organisation.owner@healthdataorganisation.com',
                 'is_org_admin' => 1,
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
@@ -412,8 +529,8 @@ Social Media Platform’s Data Access Committee to allow access to platform data
 
         $org2Users = [
             [
-                'first_name' => 'Organisation',
-                'last_name' => 'Owner',
+                'first_name' => 'Tandy',
+                'last_name' => 'Energy Owner',
                 'email' => 'organisation.owner@tandyenergyltd.com',
                 'is_org_admin' => 1,
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
@@ -437,19 +554,20 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'is_delegate' => 1,
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
                 'organisation_id' => $org2->id, // Needed because this is an org admin
-                'keycloak_id' => 'b4941c21-d7ca-4eba-9260-ff4c80ae695a', // Dragons ahead - needs to map 1:1 with KC users
+                'is_sro' => 1,
             ],
         ];
 
         $org3Users = [
             [
                 'first_name' => 'Tabacco',
-                'last_name' => 'Frank',
+                'last_name' => 'Frank Owner',
                 'email' => 'tobacco.frank@tobaccoeultd.com',
                 'is_org_admin' => 1,
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
                 'organisation_id' => $org3->id, // Needed because this is an org admin
                 'keycloak_id' => '57ca4c58-2582-440b-9232-e13d009d4c7e', // Dragons ahead - needs to map 1:1 with KC users
+                'is_sro' => 1,
             ],
             [
                 'first_name' => 'Admin',
@@ -957,7 +1075,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
     private function createUsers(array &$input): void
     {
         foreach ($input as $u) {
-            $user = User::create([
+            User::create([
                 'first_name' =>         $u['first_name'],
                 'last_name' =>          $u['last_name'],
                 'email' =>              $u['email'],
@@ -965,7 +1083,8 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'is_delegate' =>        isset($u['is_delegate']) ? $u['is_delegate'] : 0,
                 'user_group' =>         $u['user_group'],
                 'organisation_id' =>    isset($u['organisation_id']) ? $u['organisation_id'] : 0,
-                'keycloak_id' =>        $u['keycloak_id'],
+                'keycloak_id' =>        isset($u['keycloak_id']) ? $u['keycloak_id'] : null,
+                'is_sro' =>             isset($u['is_sro']) ? $u['is_sro'] : 0,
             ]);
         }
 

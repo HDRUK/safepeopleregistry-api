@@ -182,7 +182,8 @@ class AuthController extends Controller
     public function me(Request $request): JsonResponse
     {
         $token = Auth::token();
-        if (!$token) {
+
+        if (!$token || $token === 'null') {
             return response()->json([
                 'message' => 'unauthorised',
                 'data' => null,

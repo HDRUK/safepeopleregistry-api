@@ -264,7 +264,7 @@ class CustodianController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        if (!Gate::allows('create', Custodian::class)) {
+        if (!Gate::allows('admin')) {
             return $this->ForbiddenResponse();
         }
 
@@ -755,25 +755,33 @@ class CustodianController extends Controller
      */
     public function getUserProjects(GetUserProject $request, int $custodianId, int $userId): JsonResponse
     {
-        $user = User::with('registry')->find($userId);
-
-        if ($user) {
-            $projects = Project::searchViaRequest()
-                ->applySorting()
-                ->with(['organisations', 'modelState.state', 'custodianHasProjectUser.modelState.state'])
-                ->filterByCommon()
-                ->whereHas('custodians', function ($query) use ($custodianId) {
-                    $query->where('custodians.id', $custodianId);
-                })
-                ->whereHas('projectUsers', function ($query) use ($user) {
-                    $query->where('user_digital_ident', $user->registry->digi_ident);
-                })
-                ->paginate((int)$this->getSystemConfig('PER_PAGE'));
-
-            return $this->OKResponse($projects);
+        $user = User::with('registry')->where('id', $userId)->first();
+        if (is_null($user)) {
+            return $this->NotFoundResponse();
         }
 
-        return $this->NotFoundResponse();
+        $projects = Project::searchViaRequest()
+            ->applySorting()
+            ->whereHas('custodianHasProjectUser', function ($chpuq) use ($custodianId, $user) {
+                $chpuq->where('custodian_id', $custodianId)
+                    ->whereHas('projectHasUser', function ($puq) use ($user) {
+                        $puq->where('user_digital_ident', $user->registry->digi_ident);
+                    });
+            })
+            ->with([
+                'organisations',
+                'modelState.state',
+                'custodianHasProjectUser' => fn ($chpuq) => $chpuq
+                                ->where('custodian_id', $custodianId)
+                                ->whereHas('projectHasUser', function ($puq) use ($user) {
+                                    $puq->where('user_digital_ident', $user->registry->digi_ident);
+                                })
+                                ->with(['modelState.state']),
+            ])
+            ->filterByCommon()
+            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+
+        return $this->OKResponse($projects);
     }
 
     /**
