@@ -1,3 +1,23 @@
+## [1.17.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.16.0...v1.17.0) (2025-10-24)
+
+### ✨ Features
+
+* **REGISTRY-1930:** Custodians - invite user (#497) ([7ef2159](https://github.com/HDRUK/safepeopleregistry-api/commit/7ef215993161a12cb02f57f0d8c8ebb2aca1a51c))
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-1428:** Consistently setup Gates/Policies for endpoint permissions (#487) ([b835de3](https://github.com/HDRUK/safepeopleregistry-api/commit/b835de33175e99591bb1320a13abb7e2d2de859b))
+* **REGISTRY-1429:** Eloquent Review (#490) ([3f9400a](https://github.com/HDRUK/safepeopleregistry-api/commit/3f9400a0d5ed6580b7a0a3f963e6abf6a263b530))
+* **REGISTRY-1701:** Organisations | SRO Profile fix seeding (#493) ([cbc04e9](https://github.com/HDRUK/safepeopleregistry-api/commit/cbc04e99c7fc50d48293b59fe77bae6bc2c11f8b))
+* **REGISTRY-1908:** Fix seeding of projects to have data for all 5 Safes (#494) ([5acc7b1](https://github.com/HDRUK/safepeopleregistry-api/commit/5acc7b1f84c86c78803945ea9870fd5a9e064e37))
+* **REGISTRY-1982:** Replace MJML api with better email set-up (#499) ([0d22876](https://github.com/HDRUK/safepeopleregistry-api/commit/0d22876d4e2549f4bfef17411b825de16966b6fe))
+* **REGISTRY-2049:** update checks authorisation endpoint (#495) ([a82f22e](https://github.com/HDRUK/safepeopleregistry-api/commit/a82f22e550a2da85fbf5b17c79c14d2c517e3c94))
+* **REGISTRY-2128:** Organisation can't affiliate a user (#491) ([c33a887](https://github.com/HDRUK/safepeopleregistry-api/commit/c33a8879ea7f23016717d7e864727c8b05b15d95))
+* **REGISTRY-2144:** Custodian/User/Projects | Validation status not updated for other projects (#492) ([a7ee9e5](https://github.com/HDRUK/safepeopleregistry-api/commit/a7ee9e5b0279f53f11c07ae5c66686f5f5dde513))
+* **REGISTRY-2171:** Email - The button 'Confirm Organisation' doesn't link to anything (#496) ([7c34dc8](https://github.com/HDRUK/safepeopleregistry-api/commit/7c34dc875aacd1fbbb519b728c097a8a8d42fa70))
+* **REGISTRY-2176:** Enable User addition with an unconfirmed Organisation by a Custodian (#498) ([13b1ccd](https://github.com/HDRUK/safepeopleregistry-api/commit/13b1ccda9a6a1c06dc5677ee923af08f5b039187))
+* **REGISTRY-2177:** projects erroring on Safe Outputs (#500) ([1a33ab2](https://github.com/HDRUK/safepeopleregistry-api/commit/1a33ab2ef78a459dc7ea3c999d1ea194c119df71))
+
 ## [1.16.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.15.0...v1.16.0) (2025-10-10)
 
 ### ✨ Features
