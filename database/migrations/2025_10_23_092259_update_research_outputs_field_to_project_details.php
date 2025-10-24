@@ -11,10 +11,10 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        $projectDetails = ProjectDetail::all();
+        $projectDetails = ProjectDetail::whereNotNull('research_outputs')->get();
 
         Schema::table('project_details', function (Blueprint $table) {
-            $table->json('research_outputs')->change();
+            $table->json('research_outputs')->nullable()->change();
         });
 
         foreach ($projectDetails as $projectDetail) {
@@ -37,10 +37,10 @@ return new class () extends Migration {
      */
     public function down(): void
     {
-        $projectDetails = ProjectDetail::all();
+        $projectDetails = ProjectDetail::whereNotNull('research_outputs')->get();
 
         Schema::table('project_details', function (Blueprint $table) {
-            $table->mediumText('research_outputs')->change();
+            $table->mediumText('research_outputs')->nullable()->change();
         });
 
         foreach ($projectDetails as $projectDetail) {
