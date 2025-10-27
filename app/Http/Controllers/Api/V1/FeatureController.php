@@ -179,9 +179,7 @@ class FeatureController extends Controller
         $feature->value = !$feature->value;
         $feature->save();
 
-        // Feature::flushCache();
-
-        Feature::for($feature->scope)->forget($feature->name);
+        Feature::flushCache();
 
         return $this->OKResponse($feature);
     }
