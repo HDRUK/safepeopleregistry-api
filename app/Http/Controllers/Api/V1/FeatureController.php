@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use Illuminate\Http\Request;
 use Laravel\Pennant\Feature;
+use App\Http\Traits\Responses;
 use App\Http\Controllers\Controller;
 use App\Exceptions\NotFoundException;
 use App\Models\Feature as FeatureModel;
@@ -12,6 +13,8 @@ use App\Http\Requests\Features\ToggleByFeatureId;
 
 class FeatureController extends Controller
 {
+    use Responses;
+
     /**
      * @OA\Get(
      *    path="/api/v1/features",
