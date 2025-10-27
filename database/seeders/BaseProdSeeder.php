@@ -25,7 +25,8 @@ class BaseProdSeeder extends Seeder
             EmailTemplatesSeeder::class,
             DepartmentSeeder::class,
             WebhookEventTriggerSeeder::class,
-            ValidationCheckSeeder::class
+            ValidationCheckSeeder::class,
+            FeatureSeeder::class,
         ]);
     }
 }
