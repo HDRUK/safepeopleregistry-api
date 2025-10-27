@@ -170,16 +170,18 @@ class FeatureController extends Controller
             throw new NotFoundException();
         }
 
-        // Feature::for($feature->scope)->forget($feature->name);
-
-        $active = Feature::active($feature->name)
-        ? (Feature::deactivate($feature->name) ?? false)
-        : (Feature::activate($feature->name)   ?? true);
+        if (Feature::active($feature->name)) {
+            Feature::deactivate($feature->name);
+        } else {
+            Feature::activate($feature->name);
+        }
 
         $feature->value = !$feature->value;
         $feature->save();
 
-        Feature::flushCache();
+        // Feature::flushCache();
+
+        Feature::for($feature->scope)->forget($feature->name);
 
         return $this->OKResponse($feature);
     }
