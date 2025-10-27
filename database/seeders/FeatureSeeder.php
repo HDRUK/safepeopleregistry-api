@@ -44,8 +44,6 @@ class FeatureSeeder extends Seeder
             ]);
         }
 
-        Feature::flushCache();
-
         $this->command->newLine();
         $this->command->info('All feature flags seeded successfully!');
         $this->command->newLine();
