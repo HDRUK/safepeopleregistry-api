@@ -185,6 +185,7 @@ return [
         App\Providers\RegistryManagementControllerServiceProvider::class,
         App\Providers\RulesEngineManagementControllerServiceProvider::class,
         App\Providers\GatewayServiceProvider::class,
+        App\Providers\AppFeatureServiceProvider::class,
     ])->toArray(),
 
     /*
