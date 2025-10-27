@@ -183,4 +183,16 @@ class FeatureController extends Controller
 
         return $this->OKResponse($feature);
     }
+
+    // Hide from swagger docs
+    public function flushAllFeatures(Request $request)
+    {
+        if (!Gate::allows('admin')) {
+            return $this->ForbiddenResponse();
+        }
+
+        Feature::flushCache();
+
+        return $this->OKResponse(['message' => 'Feature cache flushed successfully.']);
+    }
 }

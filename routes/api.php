@@ -642,6 +642,7 @@ Route::middleware('auth:api')
         Route::get('/', 'index');
         Route::get('/{featureId}', 'show');
         Route::put('/{featureId}/toggle', 'toggleByFeatureId');
+        Route::get('/flush', 'flushAllFeatures');
     });
 
 // --- RULES ---
