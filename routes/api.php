@@ -624,8 +624,6 @@ Route::middleware('auth:api')
         Route::get('/workflowTransitions', 'getWorkflowTransitions');
     });
 
-
-
 // --- SYSTEM CONFIG ---
 Route::middleware('auth:api')
     ->prefix('v1/system_config')
@@ -643,9 +641,8 @@ Route::middleware('auth:api')
     ->group(function () {
         Route::get('/', 'index');
         Route::get('/{featureId}', 'show');
-        Route::post('/{featureId}/toggle', 'toggleByFeatureId');
+        Route::put('/{featureId}/toggle', 'toggleByFeatureId');
     });
-
 
 // --- RULES ---
 Route::middleware('auth:api')->get('v1/rules', [RulesEngineManagementController::class, 'getRules']);

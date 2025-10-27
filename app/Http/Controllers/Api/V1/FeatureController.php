@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Laravel\Pennant\Feature;
 use App\Http\Traits\Responses;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Gate;
 use App\Exceptions\NotFoundException;
 use App\Models\Feature as FeatureModel;
 use App\Http\Requests\Features\GetFeatureById;
@@ -51,6 +52,10 @@ class FeatureController extends Controller
      */
     public function index(Request $request)
     {
+        if (!Gate::allows('admin')) {
+            return $this->ForbiddenResponse();
+        }
+
         $features =  FeatureModel::all();
 
         return $this->OKResponse($features);
@@ -99,6 +104,10 @@ class FeatureController extends Controller
      */
     public function show(GetFeatureById $request, int $featureId)
     {
+        if (!Gate::allows('admin')) {
+            return $this->ForbiddenResponse();
+        }
+
         $feature = FeatureModel::find($featureId);
 
         if (!$feature) {
@@ -151,16 +160,26 @@ class FeatureController extends Controller
      */
     public function toggleByFeatureId(ToggleByFeatureId $request, int $featureId)
     {
-        $feature = FeatureModel::find($featureId);
+        if (!Gate::allows('admin')) {
+            return $this->ForbiddenResponse();
+        }
 
-        if (!$feature) {
+        $feature = FeatureModel::where('id', $featureId)->first();
+
+        if (is_null($feature)) {
             throw new NotFoundException();
         }
+
+        // Feature::for($feature->scope)->forget($feature->name);
+
+        $active = Feature::active($feature->name)
+        ? (Feature::deactivate($feature->name) ?? false)
+        : (Feature::activate($feature->name)   ?? true);
 
         $feature->value = !$feature->value;
         $feature->save();
 
-        Feature::for($feature->scope)->forget($feature->name);
+        Feature::flushCache();
 
         return $this->OKResponse($feature);
     }
