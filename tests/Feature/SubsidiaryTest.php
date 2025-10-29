@@ -70,14 +70,16 @@ class SubsidiaryTest extends TestCase
 
     public function test_the_application_can_create_a_subsidiary(): void
     {
+        $name = fake()->company();
         $payload = [
-            "name" => "test sub",
-            "address_1" => "Building 1",
-            "address_2" => "10 Euston Rd",
-            "town" => "London",
-            "county" => "None",
-            "country" => "United Kingdom",
-            "postcode" => "SG5 4PF"
+            'name' => $name,
+            'address_1' => 'Building 1',
+            'address_2' => '10 Euston Rd',
+            'town' => 'London',
+            'county' => 'None',
+            'country' => 'United Kingdom',
+            'postcode' => 'SG5 4PF',
+            'website' => fake()->url(),
         ];
 
         $response = $this->actingAs($this->admin)
@@ -89,26 +91,66 @@ class SubsidiaryTest extends TestCase
 
         $this->assertDatabaseHas('subsidiaries', $payload);
 
-        $subsidiaryId = Subsidiary::where('name', 'test sub')->first()->id;
+        $content = $response->decodeResponseJson();
+        $newSubsidiaryId = $content['data'];
 
         $this->assertDatabaseHas('organisation_has_subsidiaries', [
             'organisation_id' => 1,
-            'subsidiary_id' => $subsidiaryId,
+            'subsidiary_id' => $newSubsidiaryId,
         ]);
 
         $response->assertStatus(201);
     }
 
+    public function test_the_application_can_create_a_subsidiary_parent(): void
+    {
+        $name = fake()->company();
+        $payload = [
+            'name' => $name,
+            'address_1' => 'Building 1',
+            'address_2' => '10 Euston Rd',
+            'town' => 'London',
+            'county' => 'None',
+            'country' => 'United Kingdom',
+            'postcode' => 'SG5 4PF',
+            'website' => fake()->url(),
+            'is_parent' => 1,
+        ];
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'POST',
+                self::TEST_URL . '/organisations/1',
+                $payload
+            );
+
+        $this->assertDatabaseHas('subsidiaries', $payload);
+
+        $content = $response->decodeResponseJson();
+        $newSubsidiaryId = $content['data'];
+
+        $this->assertDatabaseHas('organisation_has_subsidiaries', [
+            'organisation_id' => 1,
+            'subsidiary_id' => $newSubsidiaryId,
+        ]);
+
+        $response->assertStatus(201);
+
+        $isParent = Subsidiary::where('id', $newSubsidiaryId)->first()->is_parent;
+        $this->assertEquals(1, $isParent);
+    }
+
     public function test_the_application_cannot_create_a_subsidiary(): void
     {
         $payload = [
-            "name" => "test sub",
-            "address_1" => "Building 1",
-            "address_2" => "10 Euston Rd",
-            "town" => "London",
-            "county" => "None",
-            "country" => "United Kingdom",
-            "postcode" => "SG5 4PF"
+            'name' => fake()->company(),
+            'address_1' => 'Building 1',
+            'address_2' => '10 Euston Rd',
+            'town' => 'London',
+            'county' => 'None',
+            'country' => 'United Kingdom',
+            'postcode' => 'SG5 4PF',
+            'website' => fake()->url(),
         ];
 
         $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
@@ -129,13 +171,14 @@ class SubsidiaryTest extends TestCase
     public function test_the_application_can_update_a_subsidiary(): void
     {
         $payload = [
-            "name" => "renamed test sub",
-            "address_1" => "Building 1",
-            "address_2" => "10 Euston Rd",
-            "town" => "London",
-            "county" => "None",
-            "country" => "United Kingdom",
-            "postcode" => "SG5 4PF"
+            'name' => fake()->company(),
+            'address_1' => 'Building 1',
+            'address_2' => '10 Euston Rd',
+            'town' => 'London',
+            'county' => 'None',
+            'country' => 'United Kingdom',
+            'postcode' => 'SG5 4PF',
+            'website' => fake()->url(),
         ];
 
         $response = $this->actingAs($this->admin)
@@ -147,21 +190,20 @@ class SubsidiaryTest extends TestCase
 
         $this->assertDatabaseHas('subsidiaries', $payload);
 
-        $subsidiaryId = Subsidiary::where('name', 'renamed test sub')->first()->id;
-
         $response->assertStatus(200);
     }
 
     public function test_the_application_cannot_update_a_subsidiary(): void
     {
-        $payload = [
-            "name" => "renamed test sub",
-            "address_1" => "Building 1",
-            "address_2" => "10 Euston Rd",
-            "town" => "London",
-            "county" => "None",
-            "country" => "United Kingdom",
-            "postcode" => "SG5 4PF"
+        $$payload = [
+            'name' => fake()->company(),
+            'address_1' => 'Building 1',
+            'address_2' => '10 Euston Rd',
+            'town' => 'London',
+            'county' => 'None',
+            'country' => 'United Kingdom',
+            'postcode' => 'SG5 4PF',
+            'website' => fake()->url(),
         ];
 
         $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();

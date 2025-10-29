@@ -14,10 +14,15 @@ class CreateSubsidiary extends BaseFormRequest
     public function rules(): array
     {
         return [
-            'orgId' => [
+            'organisationId' => [
                 'required',
                 'integer',
                 'exists:organisations,id',
+            ],
+            'name' => [
+                'required',
+                'string',
+                'max:255',
             ],
         ];
     }
@@ -29,6 +34,6 @@ class CreateSubsidiary extends BaseFormRequest
      */
     protected function prepareForValidation()
     {
-        $this->merge(['orgId' => $this->route('orgId')]);
+        $this->merge(['organisationId' => $this->route('organisationId')]);
     }
 }

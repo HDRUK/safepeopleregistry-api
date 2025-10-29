@@ -127,6 +127,8 @@ class BaseDemoSeeder extends Seeder
             'county' => 'Hertfordshire',
             'country' => 'United Kingdom',
             'postcode' => 'SG6 3JH',
+            'website' => fake()->url(),
+            'is_parent' => 0,
         ]);
 
         OrganisationHasSubsidiary::create([

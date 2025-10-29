@@ -14,15 +14,21 @@ class UpdateSubsidiary extends BaseFormRequest
     public function rules(): array
     {
         return [
-            'id' => [
+            'subsidiaryId' => [
                 'required',
                 'integer',
                 'exists:subsidiaries,id',
             ],
-            'orgId' => [
+            'organisationId' => [
                 'required',
                 'integer',
                 'exists:organisations,id',
+            ],
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                'unique:subsidiaries,name',
             ],
         ];
     }
@@ -34,7 +40,7 @@ class UpdateSubsidiary extends BaseFormRequest
      */
     protected function prepareForValidation()
     {
-        $this->merge(['id' => $this->route('id')]);
-        $this->merge(['orgId' => $this->route('orgId')]);
+        $this->merge(['subsidiaryId' => $this->route('subsidiaryId')]);
+        $this->merge(['organisationId' => $this->route('organisationId')]);
     }
 }
