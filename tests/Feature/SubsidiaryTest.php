@@ -195,7 +195,7 @@ class SubsidiaryTest extends TestCase
 
     public function test_the_application_cannot_update_a_subsidiary(): void
     {
-        $$payload = [
+        $payload = [
             'name' => fake()->company(),
             'address_1' => 'Building 1',
             'address_2' => '10 Euston Rd',

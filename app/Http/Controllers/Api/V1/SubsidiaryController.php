@@ -194,6 +194,7 @@ class SubsidiaryController extends Controller
                 return $this->ForbiddenResponse();
             }
 
+            $subsidiary = Subsidiary::findOrFail($subsidiaryId);
             $array = [
                 'name' => $input['name'],
                 'address_1' => $input['address_1'] ?? null,
@@ -206,7 +207,7 @@ class SubsidiaryController extends Controller
                 'is_parent' => $input['is_parent'] ?? 0,
             ];
 
-            $subsidiary = Subsidiary::where('id', $subsidiaryId)->update($array);
+            $subsidiary->update($array);
 
             return $this->OKResponse($subsidiary);
         } catch (Exception $e) {
