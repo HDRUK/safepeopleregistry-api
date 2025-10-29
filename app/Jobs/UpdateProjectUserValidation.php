@@ -18,6 +18,8 @@ class UpdateProjectUserValidation implements ShouldQueue
     use SerializesModels;
     use ValidationManager;
 
+    public $tries = 3;
+
     protected ProjectHasUser $phu;
 
     public function __construct(ProjectHasUser $phu)

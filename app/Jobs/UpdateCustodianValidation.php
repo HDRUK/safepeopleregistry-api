@@ -18,6 +18,8 @@ class UpdateCustodianValidation implements ShouldQueue
     use SerializesModels;
     use ValidationManager;
 
+    public $tries = 3;
+
     protected int $custodianId;
     protected ValidationCheckAppliesTo $appliesTo;
 
