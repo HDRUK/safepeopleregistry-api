@@ -26,6 +26,8 @@ class SendEmailJob implements ShouldQueue
     private $replacements = [];
     private $address = null;
 
+    public $tries = 3;
+
     private MicrosoftGraphService $mgs;
 
     /**
