@@ -76,4 +76,9 @@ trait StateWorkflow
         $allStates = array_unique(array_merge($keys, $values));
         return array_values($allStates);
     }
+
+    public static function getAutomatedTransitions(): array
+    {
+        return static::getAutomatedTransitions();
+    }
 }

@@ -3,12 +3,15 @@
 namespace App\Observers;
 
 use App\Models\File;
+use App\Models\User;
+use App\Models\State;
 use App\Jobs\SendEmailJob;
 use App\Models\Organisation;
-use Hdruk\LaravelMjml\Models\EmailTemplate;
 use App\Jobs\ProcessCSVSubmission;
 use App\Models\OrganisationHasFile;
-use App\Models\User;
+use App\Models\ProjectHasOrganisation;
+use Hdruk\LaravelMjml\Models\EmailTemplate;
+use App\Models\CustodianHasProjectOrganisation;
 
 class FileObserver
 {
@@ -30,7 +33,25 @@ class FileObserver
             ])->first()->organisation_id;
 
             $this->sendEmail($file, $organisationId);
+
+            $this->statusCustodianHasProjectOrganisation($organisationId);
         }
+    }
+
+    protected function statusCustodianHasProjectOrganisation(int $organisationId): void
+    {
+        $projectHasOrganisations = ProjectHasOrganisation::where([
+            'organisation_id' => $organisationId,
+        ])->pluck('id')->toArray();
+        
+        $custodianHasProjectOrganisationIds = CustodianHasProjectOrganisation::whereIn('project_has_organisation_id', $projectHasOrganisations)->pluck('id')->toArray();
+        foreach ($custodianHasProjectOrganisationIds as $custodianHasProjectOrganisationId) {
+            $custodianHasProjectOrganisation = CustodianHasProjectOrganisation::where('id', $custodianHasProjectOrganisationId)->first();
+            if ($custodianHasProjectOrganisation->getState() === State::STATE_ORG_INVITED) {
+                $custodianHasProjectOrganisation->setState(State::STATE_ORG_AWAITING_APPROVAL);
+            }
+        }
+
     }
 
     protected function sendEmail(File $file, int $organisationId): void

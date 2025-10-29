@@ -180,6 +180,8 @@ class Affiliation extends Model
         ],
         State::STATE_AFFILIATION_LEFT => []
     ];
+    
+    protected static array $transitionsAutomated = [];
 
     public $table = 'affiliations';
 
@@ -214,6 +216,11 @@ class Affiliation extends Model
     public static function getTransitions(): array
     {
         return static::$transitions;
+    }
+
+    public function getTransitionsAutomated(): array
+    {
+        return static::$transitionsAutomated;
     }
 
     public function getActivitylogOptions(): LogOptions
