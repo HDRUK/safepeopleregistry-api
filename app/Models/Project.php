@@ -149,6 +149,8 @@ class Project extends Model
         ],
     ];
 
+    protected static array $transitionsAutomated = [];
+
     protected $table = 'projects';
 
     public $timestamps = true;
@@ -228,6 +230,11 @@ class Project extends Model
     public static function getTransitions(): array
     {
         return static::$transitions;
+    }
+
+    public function getTransitionsAutomated(): array
+    {
+        return static::$transitionsAutomated;
     }
 
     public function projectHasOrganisations()

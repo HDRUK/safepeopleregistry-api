@@ -110,6 +110,11 @@ class State extends Model
     public const STATE_USER_LEFT_PROJECT = 'user_left_project'; // user left project
     public const STATE_ORG_LEFT_PROJECT = 'org_left_project'; // org left project
 
+    public const STATE_ORG_INVITED = 'org_invited';
+    public const STATE_ORG_AWAITING_APPROVAL = 'org_awaiting_approval';
+    public const STATE_ORG_REMOVED_FROM_PROJECT = 'org_removed_from_project';
+    
+
     public const STATES = [
         self::STATE_INVITED,
         self::STATE_REGISTERED,
@@ -140,5 +145,8 @@ class State extends Model
         self::STATE_ORG_VALIDATION_DECLINED,
         self::STATE_USER_LEFT_PROJECT,
         self::STATE_ORG_LEFT_PROJECT,
+        self::STATE_ORG_INVITED,
+        self::STATE_ORG_AWAITING_APPROVAL,
+        self::STATE_ORG_REMOVED_FROM_PROJECT,
     ];
 }

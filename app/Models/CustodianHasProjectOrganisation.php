@@ -60,6 +60,12 @@ class CustodianHasProjectOrganisation extends Model
     use FilterManager;
 
     protected static array $transitions = [
+        State::STATE_ORG_INVITED => [
+            State::STATE_ORG_AWAITING_APPROVAL,
+        ],
+        State::STATE_ORG_AWAITING_APPROVAL => [
+            State::STATE_PENDING, // I think we need something to move to declined too
+        ],
         State::STATE_PENDING => [
             State::STATE_VALIDATION_IN_PROGRESS,
             State::STATE_MORE_ORG_INFO_REQ_ESCALATION_MANAGER,
@@ -74,6 +80,7 @@ class CustodianHasProjectOrganisation extends Model
         State::STATE_VALIDATION_COMPLETE => [
             State::STATE_ORG_VALIDATION_DECLINED,
             State::STATE_VALIDATION_COMPLETE,
+            State::STATE_ORG_REMOVED_FROM_PROJECT,
         ],
         State::STATE_MORE_ORG_INFO_REQ_ESCALATION_MANAGER => [
             State::STATE_MORE_ORG_INFO_REQ_ESCALATION_COMMITTEE,
@@ -89,11 +96,23 @@ class CustodianHasProjectOrganisation extends Model
             State::STATE_VALIDATION_COMPLETE,
         ],
         State::STATE_ORG_LEFT_PROJECT => [],
+        State::STATE_ORG_REMOVED_FROM_PROJECT => [],
+    ];
+
+    protected static array $transitionsAutomated = [
+        State::STATE_ORG_INVITED,
+        State::STATE_ORG_AWAITING_APPROVAL,
+        State::STATE_PENDING,
     ];
 
     public static function getTransitions(): array
     {
         return static::$transitions;
+    }
+
+    public function getTransitionsAutomated(): array
+    {
+        return static::$transitionsAutomated;
     }
 
     protected $table = 'custodian_has_project_has_organisation';

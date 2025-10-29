@@ -167,6 +167,8 @@ class User extends Authenticatable
         State::STATE_VALIDATED => [],
     ];
 
+    protected static array $transitionsAutomated = [];
+
     /**
      * The attributes that are mass assignable.
      */
@@ -441,5 +443,10 @@ class User extends Authenticatable
     public static function getTransitions(): array
     {
         return static::$transitions;
+    }
+
+    public function getTransitionsAutomated(): array
+    {
+        return static::$transitionsAutomated;
     }
 }
