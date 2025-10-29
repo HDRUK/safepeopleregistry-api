@@ -2,17 +2,12 @@
 
 namespace Tests\Feature;
 
-use Carbon\Carbon;
 use Tests\TestCase;
-use App\Models\Experience;
 use Laravel\Pennant\Feature;
-use Tests\Traits\Authorisation;
 use App\Models\Feature as FeatureModel;
-use KeycloakGuard\ActingAsKeycloakUser;
 
 class FeatureTest extends TestCase
 {
-
     public const TEST_URL = '/api/v1/features';
 
     public function setUp(): void
@@ -57,7 +52,7 @@ class FeatureTest extends TestCase
                 self::TEST_URL . "/{$featureIdTest}/toggle"
             );
 
-        
+
         $response->assertStatus(400);
         $message = $response->decodeResponseJson()['message'];
         $this->assertEquals('Invalid argument(s)', $message);

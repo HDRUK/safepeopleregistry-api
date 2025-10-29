@@ -58,6 +58,18 @@ use Illuminate\Database\Eloquent\Model;
  *         type="string",
  *         example="AB12 3CD",
  *         description="Postcode of the subsidiary"
+ *     ),
+ *     @OA\Property(
+ *         property="website",
+ *         type="string",
+ *         example="https://www.subsidiary.com",
+ *         description="Website of the subsidiary"
+ *     ),
+ *     @OA\Property(
+ *         property="is_parent",
+ *         type="integer",
+ *         example="1",
+ *         description="Indicates if the subsidiary is a parent company"
  *     )
  * )
  *
@@ -99,6 +111,11 @@ class Subsidiary extends Model
         'county',
         'country',
         'postcode',
-        'website'
+        'website',
+        'is_parent',
+    ];
+
+    protected $casts = [
+        'is_parent' => 'boolean',
     ];
 }

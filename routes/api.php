@@ -374,9 +374,9 @@ Route::middleware('auth:api')
     ->prefix('v1/subsidiaries')
     ->group(function () {
         Route::controller(SubsidiaryController::class)->group(function () {
-            Route::post('organisations/{orgId}', 'store');
-            Route::put('{id}/organisations/{orgId}', 'update');
-            Route::delete('{id}/organisations/{orgId}', 'destroy');
+            Route::post('organisations/{organisationId}', 'store');
+            Route::put('{subsidiaryId}/organisations/{organisationId}', 'update');
+            Route::delete('{subsidiaryId}/organisations/{organisationId}', 'destroy');
         });
     });
 
