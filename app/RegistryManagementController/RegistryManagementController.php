@@ -232,14 +232,22 @@ class RegistryManagementController
     {
         $registry = null;
         $userData = null;
+        $isRegistry = 1;
 
         try {
-            $registry = Registry::create([
-                'dl_ident' => null,
-                'pp_ident' => null,
-                'digi_ident' => RegistryManagementController::generateDigitalIdentifierForRegistry(),
-                'verified' => 0,
-              ]);
+
+            if (isset($user['user_group']) && $user['user_group'] === 'CUSTODIANS') {
+                $isRegistry = 0;
+            }
+
+            if ($isRegistry) {
+                $registry = Registry::create([
+                    'dl_ident' => null,
+                    'pp_ident' => null,
+                    'digi_ident' => RegistryManagementController::generateDigitalIdentifierForRegistry(),
+                    'verified' => 0,
+                ]);
+            }
 
             $userData = [
                 'first_name' => $user['firstname'],
@@ -247,7 +255,7 @@ class RegistryManagementController
                 'email' => $user['email'],
                 'unclaimed' => 1,
                 'feed_source' => 'ORG',
-                'registry_id' => $registry->id,
+                'registry_id' => $isRegistry ? $registry->id : null,
                 'orc_id' => '',
                 'user_group' => $user['user_group'] ?? '',
                 'organisation_id' => $user['organisation_id'] ?? null,
