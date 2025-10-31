@@ -19,6 +19,7 @@ class FeatureSeeder extends Seeder
         $globalFeatures = [
             ['name' => 'test-feature', 'value' => true, 'description' => 'This is a test feature.'],
             ['name' => 'test-feature-user-admin', 'value' => true, 'description' => 'This feature is enabled for admin users only.'],
+            ['name' => 'horizon-access', 'value' => true, 'description' => 'Controls access to Laravel Horizon dashboard.'],
         ];
 
         foreach ($globalFeatures as $feature) {
