@@ -43,5 +43,11 @@ class AppFeatureServiceProvider extends ServiceProvider
 
             return $user->id === 1;
         });
+
+        // access laravel horizon
+        Feature::define('horizon-access', function ($user) {
+            // return $user->isAdmin();
+            return $user !== null;
+        });
     }
 }
