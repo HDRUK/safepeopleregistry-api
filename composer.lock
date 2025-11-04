@@ -2165,12 +2165,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/HDRUK/laravel-mjml.git",
-                "reference": "3544f325f31bdb26658f1ecc6896caf7d7f3f2fb"
+                "reference": "ab1cd8a034d48244e54460b68a78307cc79a0c2e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/HDRUK/laravel-mjml/zipball/3544f325f31bdb26658f1ecc6896caf7d7f3f2fb",
-                "reference": "3544f325f31bdb26658f1ecc6896caf7d7f3f2fb",
+                "url": "https://api.github.com/repos/HDRUK/laravel-mjml/zipball/ab1cd8a034d48244e54460b68a78307cc79a0c2e",
+                "reference": "ab1cd8a034d48244e54460b68a78307cc79a0c2e",
                 "shasum": ""
             },
             "require": {
@@ -2207,7 +2207,7 @@
                 "source": "https://github.com/HDRUK/laravel-mjml/tree/main",
                 "issues": "https://github.com/HDRUK/laravel-mjml/issues"
             },
-            "time": "2025-10-23T08:06:24+00:00"
+            "time": "2025-11-04T10:19:32+00:00"
         },
         {
             "name": "laminas/laminas-diactoros",
