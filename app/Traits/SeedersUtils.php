@@ -2,41 +2,15 @@
 
 namespace App\Traits;
 
-use Str;
 use Keycloak;
 use Carbon\Carbon;
 use App\Models\User;
-use App\Models\State;
-use App\Models\Charity;
-use App\Models\Project;
-use App\Models\Identity;
 use App\Models\Registry;
 use App\Models\Training;
-use App\Models\Custodian;
 use App\Models\Education;
-use App\Models\Subsidiary;
 use App\Models\Affiliation;
-use App\Models\ProjectRole;
-use App\Models\Organisation;
-use App\Models\CustodianUser;
-use App\Models\ProjectHasUser;
-use App\Traits\CommonFunctions;
-use Illuminate\Database\Seeder;
-use App\Models\ProjectHasCustodian;
 use App\Models\RegistryHasTraining;
-use App\Models\OrganisationHasCharity;
-use Illuminate\Support\Facades\Schema;
 use RegistryManagementController as RMC;
-use App\Models\OrganisationHasDepartment;
-use App\Models\OrganisationHasSubsidiary;
-use App\Models\ProjectDetail;
-use App\Models\DecisionModel;
-use App\Models\CustodianModelConfig;
-use App\Models\Permission;
-use App\Models\CustodianUserHasPermission;
-use App\Models\ValidationCheck;
-use App\Models\CustodianHasValidationCheck;
-
 
 trait SeedersUtils
 {
