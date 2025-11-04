@@ -12,19 +12,16 @@ use App\Models\Charity;
 use App\Models\Project;
 use App\Models\Identity;
 use App\Models\Registry;
-use App\Models\Training;
 use App\Models\Custodian;
-use App\Models\Education;
 use App\Models\Subsidiary;
-use App\Models\Affiliation;
 use App\Models\ProjectRole;
 use App\Models\Organisation;
 use App\Models\CustodianUser;
 use App\Models\ProjectHasUser;
 use App\Traits\CommonFunctions;
+use App\Traits\SeedersUtils;
 use Illuminate\Database\Seeder;
 use App\Models\ProjectHasCustodian;
-use App\Models\RegistryHasTraining;
 use App\Models\OrganisationHasCharity;
 use Illuminate\Support\Facades\Schema;
 use RegistryManagementController as RMC;
@@ -41,6 +38,7 @@ use App\Models\CustodianHasValidationCheck;
 class BaseDemoSeeder extends Seeder
 {
     use CommonFunctions;
+    use SeedersUtils;
 
     /**
      * Run the database seeds.
@@ -64,6 +62,7 @@ class BaseDemoSeeder extends Seeder
             ValidationCheckSeeder::class,
             CustodianHasValidationCheckSeeder::class,
             FeatureSeeder::class,
+            TestSeeder::class
         ]);
 
         // --------------------------------------------------------------------------------
@@ -998,8 +997,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         // --------------------------------------------------------------------------------
         $this->createUnclaimedCustodianUsers();
 
-        $this->createTestUsers();
-
         // --------------------------------------------------------------------------------
         // End
         // --------------------------------------------------------------------------------
@@ -1037,35 +1034,8 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         unset($input);
     }
 
-    private function createAffiliations(array &$input): void
+    private function createCustodians(array $custodians): void
     {
-        foreach ($input as $u) {
-            $user = User::where('email', $u['email'])->first();
-
-            if (!isset($u['affiliations'])) {
-                continue;
-            }
-
-            foreach ($u['affiliations'] as $e) {
-                $aff = Affiliation::create([
-                    'organisation_id' => $e['organisation_id'],
-                    'member_id' => $e['member_id'],
-                    'relationship' => $e['relationship'],
-                    'from' => $e['from'],
-                    'to' => $e['to'],
-                    'department' => $e['department'],
-                    'role' => $e['role'],
-                    'email' => $e['email'],
-                    'ror' => $e['ror'],
-                    'registry_id' => $user->registry_id,
-                ]);
-            }
-        }
-
-        unset($input);
-    }
-
-    private function createCustodians(array $custodians): void {
         foreach ($custodians as $custodian) {
             $i = Custodian::factory()->create([
                 'name' => $custodian['name'],
@@ -1119,106 +1089,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         }
     }
 
-    private function createTestUsers(): void
-    {
-        $testOrganisation = Organisation::create([
-            'organisation_name' => 'Test Organisation, LTD',
-            'address_1' => 'Floor 1',
-            'address_2' => '10 Stratton Street',
-            'town' => 'Chelsea',
-            'county' => 'London',
-            'country' => 'United Kingdom',
-            'postcode' => 'SW1X 9LB',
-            'lead_applicant_organisation_name' => 'Org User',
-            'lead_applicant_email' => 'test.user+organisation@safepeopleregistry.com',
-            'password' => null, // Ask LS "Flood********"
-            'organisation_unique_id' => Str::random(40),
-            'applicant_names' => 'Org User',
-            'funders_and_sponsors' => null,
-            'sub_license_arrangements' => '...',
-            'verified' => false,
-            'dsptk_ods_code' => '',
-            'iso_27001_certified' => false,
-            'ce_certified' => false,
-            'ce_plus_certified' => false,
-            'companies_house_no' => '012345678',
-            'sector_id' => 6, // Private/Industry
-            'ror_id' => null,
-            'smb_status' => null,
-            'organisation_size' => 1,
-            'website' => null,
-        ]);
 
-        $testOrganisationUsers = [
-            [
-                'first_name' => 'Org',
-                'last_name' => 'Admin',
-                'email' => "test.user+organisation@safepeopleregistry.com",
-                'is_org_admin' => 1,
-                'user_group' => RMC::KC_GROUP_ORGANISATIONS,
-                'organisation_id' => $testOrganisation->id,
-                'keycloak_id' => '5edbed6e-f610-4646-ad1d-c3faf155443a',
-                'is_sro' => 1,
-            ]
-        ];
-
-        $this->createUsers($testOrganisationUsers);
-
-        $testUsers = [
-            [
-                'first_name' => 'Test',
-                'last_name' => 'User',
-                'email' => "test.user+user@safepeopleregistry.com",
-                'user_group' => RMC::KC_GROUP_USERS,
-                'keycloak_id' => '5539052c-be47-4345-bfce-c67c6f3b82c5',
-                't_and_c_agreed' => true,
-                't_and_c_agreement_date' => Carbon::now(),
-                'affiliations' => [
-                    [
-                        'organisation_id' => $testOrganisation->id,
-                        'member_id' => Str::uuid(),
-                        'relationship' => 'employee',
-                        'from' => Carbon::now()->subYears(6)->toDateString(),
-                        'to' => '',
-                        'department' => 'Research & Development',
-                        'role' => 'Lobbyist',
-                        'email' => fake()->email(),
-                        'ror' => $this->generateRorID(),
-                        'registry_id' => -1,
-                    ],
-                ],
-            ]
-        ];
-
-        $this->createUsers($testUsers);
-        $this->createUserRegistry($testUsers);
-        $this->createAffiliations($testUsers);
-
-
-        $adminUsers = [
-            [
-                'first_name' => 'Admin',
-                'last_name' => 'User',
-                'email' => 'test.user+admin@safepeopleregistry.com',
-                'user_group' => RMC::KC_GROUP_ADMINS,
-                'keycloak_id' => 'b483eb56-3ac4-4e72-a9ac-fd7f217f619b'
-            ]
-        ];
-
-        $this->createAdminUsers($adminUsers);
-
-        $testCustodians = [
-            [
-                'name' => 'Custodian Admin',
-                'email' => 'test.user+custodian@safepeopleregistry.com',
-                'given_name' => 'Custodian',
-                'family_name' => 'Admin',
-                'sub' => '1575de97-4d60-435e-bf1b-a0376b7acdc2'
-            ]
-        ];
-
-        $this->createCustodians($testCustodians);
-    }
 
     private function linkUsersToProjects(array &$input): void
     {
@@ -1236,160 +1107,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         }
 
         unset($input);
-    }
-
-    private function createUsers(array &$input): void
-    {
-        foreach ($input as $u) {
-            User::create([
-                'first_name' =>         $u['first_name'],
-                'last_name' =>          $u['last_name'],
-                'email' =>              $u['email'],
-                'is_org_admin' =>       isset($u['is_org_admin']) ? $u['is_org_admin'] : 0,
-                'is_delegate' =>        isset($u['is_delegate']) ? $u['is_delegate'] : 0,
-                'user_group' =>         $u['user_group'],
-                'organisation_id' =>    isset($u['organisation_id']) ? $u['organisation_id'] : 0,
-                'keycloak_id' =>        isset($u['keycloak_id']) ? $u['keycloak_id'] : null,
-                'is_sro' =>             isset($u['is_sro']) ? $u['is_sro'] : 0,
-            ]);
-        }
-
-        unset($input);
-    }
-
-    private function createUserRegistry(array &$input, bool $legit = true): void
-    {
-        foreach ($input as $u) {
-            $reg = Registry::create([
-                'dl_ident' =>       '',
-                'pp_ident' =>       '',
-                'digi_ident' =>     RMC::generateDigitalIdentifierForRegistry(),
-                'verified' =>       0,
-            ]);
-
-            $user = User::where('email', $u['email'])->first();
-
-            $user->update([
-                'registry_id' => $reg->id,
-            ]);
-
-            if (!in_array(env('APP_ENV'), ['testing', 'ci'])) {
-                if ($user) {
-                    Keycloak::updateSoursdDigitalIdentifier($user);
-                }
-            }
-
-            if ($user->user_group !== RMC::KC_GROUP_USERS) {
-                continue;
-            }
-
-            $educations = [];
-
-            // Make up some Education entries for these users
-            if ($legit) {
-                $educations = [
-                    [
-                        'title' => 'Infectious Disease \'Omics',
-                        'from' => Carbon::now()->subYears(10)->toDateString(),
-                        'to' => Carbon::now()->subYears(6)->toDateString(),
-                        'institute_name' => 'London School of Hygiene & Tropical Medicine',
-                        'institute_address' => 'Keppel Street, London, WC1E 7HT',
-                        'institute_identifier' => '00a0jsq62', // ROR
-                        'source' => 'user',
-                        'registry_id' => $reg->id,
-                    ],
-                    [
-                        'title' => 'MSc Health Data Science',
-                        'from' => Carbon::now()->subYears(5)->toDateString(),
-                        'to' => Carbon::now()->subYears(4)->toDateString(),
-                        'institute_name' => 'University of Exeter',
-                        'institute_address' => 'Stocker Road, Exeter, Devon EX4 4SZ',
-                        'institute_identifier' => '03yghzc09',
-                        'source' => 'user',
-                        'registry_id' => $reg->id,
-                    ],
-                ];
-            } else {
-                $educations = [
-                    [
-                        'title' => 'Lobbying and Manipulation tactics for Policy',
-                        'from' => Carbon::now()->subYears(10)->toDateString(),
-                        'to' => Carbon::now()->subYears(6)->toDateString(),
-                        'institute_name' => 'London School of Lobbying',
-                        'institute_address' => 'Fake Street, London, WC1E 7HT',
-                        'institute_identifier' => '', // ROR
-                        'source' => 'user',
-                        'registry_id' => $reg->id,
-                    ],
-                ];
-            }
-
-            foreach ($educations as $edu) {
-                $ed = Education::create([
-                    'title' => $edu['title'],
-                    'from' => $edu['from'],
-                    'to' => $edu['to'],
-                    'institute_name' => $edu['institute_name'],
-                    'institute_address' => $edu['institute_address'],
-                    'institute_identifier' => $edu['institute_identifier'],
-                    'source' => $edu['source'],
-                    'registry_id' => $edu['registry_id'],
-                ]);
-            }
-
-            $trainings = [];
-
-            if ($legit) {
-                // Make up some training entries for these users
-                $trainings = [
-                    [
-                        'provider' => 'UK Data Service',
-                        'awarded_at' => Carbon::now()->subYears(2)->toDateString(),
-                        'expires_at' => Carbon::now()->addYears(3)->toDateString(),
-                        'expires_in_years' => 5,
-                        'training_name' => 'Safe Researcher Training',
-                    ],
-                    [
-                        'provider' => 'Medical Research Council (MRC)',
-                        'awarded_at' => Carbon::now()->subYears(2)->toDateString(),
-                        'expires_at' => Carbon::now()->addYears(3)->toDateString(),
-                        'expires_in_years' => 5,
-                        'training_name' => 'Research, GDPR, and Confidentiality',
-                    ],
-                ];
-            } else {
-                $trainings = [
-                    [
-                        'provider' => 'Office of National Statistics (ONS)',
-                        'awarded_at' => Carbon::now()->subYears(10)->toDateString(),
-                        'expires_at' => Carbon::now()->subYears(5)->toDateString(),
-                        'expires_in_years' => 2,
-                        'training_name' => 'Safe Researcher Training',
-                    ],
-                ];
-            }
-
-            foreach ($trainings as $tr) {
-                $training = Training::create([
-                    'provider' => $tr['provider'],
-                    'awarded_at' => $tr['awarded_at'],
-                    'expires_at' => $tr['expires_at'],
-                    'expires_in_years' => $tr['expires_in_years'],
-                    'training_name' => $tr['training_name'],
-                ]);
-
-                RegistryHasTraining::create([
-                    'registry_id' => $reg->id,
-                    'training_id' => $training->id,
-                ]);
-            }
-        }
-
-        unset($input);
-        unset($trainings);
-        unset($educations);
-        unset($reg);
-        unset($user);
     }
 
     private function createUnclaimedCustodianUsers(): void
