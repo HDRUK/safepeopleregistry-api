@@ -6,6 +6,7 @@ use DB;
 use Str;
 use Keycloak;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\State;
 use App\Models\Charity;
@@ -31,6 +32,12 @@ use RegistryManagementController as RMC;
 use App\Models\OrganisationHasDepartment;
 use App\Models\OrganisationHasSubsidiary;
 use App\Models\ProjectDetail;
+use App\Models\DecisionModel;
+use App\Models\CustodianModelConfig;
+use App\Models\Permission;
+use App\Models\CustodianUserHasPermission;
+use App\Models\ValidationCheck;
+use App\Models\CustodianHasValidationCheck;
 
 class BaseDemoSeeder extends Seeder
 {
@@ -56,8 +63,7 @@ class BaseDemoSeeder extends Seeder
             DepartmentSeeder::class,
             WebhookEventTriggerSeeder::class,
             ValidationCheckSeeder::class,
-            CustodianHasValidationCheckSeeder::class,
-            FeatureSeeder::class,
+            CustodianHasValidationCheckSeeder::class
         ]);
 
         // --------------------------------------------------------------------------------
@@ -127,8 +133,6 @@ class BaseDemoSeeder extends Seeder
             'county' => 'Hertfordshire',
             'country' => 'United Kingdom',
             'postcode' => 'SG6 3JH',
-            'website' => fake()->url(),
-            'is_parent' => 0,
         ]);
 
         OrganisationHasSubsidiary::create([
@@ -200,10 +204,7 @@ Health Research Authority (HRA) Approval as it involves health-related research 
             'access_date' => now(),
             'access_type' => 1,
             'data_privacy' => 'Data stored in encrypted ISO 27001-compliant servers with role-based access controls; personally identifiable information pseudonymized using irreversible hashing; access logged and audited quarterly; compliant with GDPR and NHS Data Security and Protection Toolkit requirements.',
-            'research_outputs' => json_encode([
-                'https://mydomain.com/research1',
-                'https://mydomain.com/research2',
-            ]),
+            'research_outputs' => '{"research_outputs": [ "https://mydomain.com/research1", "https://mydomain.com/research2"] }',
             'data_assets' => 'Our data assets are...',
         ]);
 
@@ -253,10 +254,7 @@ National Public Health Ethics Committee for authorization to analyze population 
             'access_date' => now(),
             'access_type' => 1,
             'data_privacy' => 'Data stored in encrypted ISO 27001-compliant servers with role-based access controls; personally identifiable information pseudonymized using irreversible hashing; access logged and audited quarterly; compliant with GDPR and NHS Data Security and Protection Toolkit requirements.',
-            'research_outputs' => json_encode([
-                'https://mydomain.com/research1',
-                'https://mydomain.com/research2',
-            ]),
+            'research_outputs' => '{"research_outputs": [ "https://mydomain.com/research1", "https://mydomain.com/research2"] }',
             'data_assets' => 'Our data assets are...',
         ]);
 
@@ -359,10 +357,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'access_date' => now(),
             'access_type' => 1,
             'data_privacy' => 'Data stored in encrypted ISO 27001-compliant servers with role-based access controls; personally identifiable information pseudonymized using irreversible hashing; access logged and audited quarterly; compliant with GDPR and NHS Data Security and Protection Toolkit requirements.',
-            'research_outputs' => json_encode([
-                'https://mydomain.com/research1',
-                'https://mydomain.com/research2',
-            ]),
+            'research_outputs' => '{"research_outputs": [ "https://mydomain.com/research1", "https://mydomain.com/research2"] }',
             'data_assets' => 'Our data assets are...',
         ]);
 
@@ -456,10 +451,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'access_date' => now(),
             'access_type' => 1,
             'data_privacy' => 'Data stored in encrypted ISO 27001-compliant servers with role-based access controls; personally identifiable information pseudonymized using irreversible hashing; access logged and audited quarterly; compliant with GDPR and NHS Data Security and Protection Toolkit requirements.',
-            'research_outputs' => json_encode([
-                'https://mydomain.com/research1',
-                'https://mydomain.com/research2',
-            ]),
+            'research_outputs' => '{"research_outputs": [ "https://mydomain.com/research1", "https://mydomain.com/research2"] }',
             'data_assets' => 'Our data assets are...',
         ]);
 
@@ -990,7 +982,9 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         // --------------------------------------------------------------------------------
         // Create unclaimed users from custodian_admins that have been created
         // --------------------------------------------------------------------------------
-        $this->createUnclaimedUsers();
+        $this->createUnclaimedCustodianUsers();
+
+        $this->createTestUsers();
 
         // --------------------------------------------------------------------------------
         // End
@@ -1055,6 +1049,161 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         }
 
         unset($input);
+    }
+
+    private function createCustodians(array $custodians): void {
+        foreach ($custodians as $custodian) {
+            $i = Custodian::factory()->create([
+                'name' => $custodian['name'],
+                'contact_email' => $custodian['email'],
+                'enabled' => 1,
+                'idvt_required' => 1,
+            ]);
+
+            $decisionModels = DecisionModel::all();
+
+            foreach ($decisionModels as $d) {
+                CustodianModelConfig::create([
+                    'entity_model_id' => $d->id,
+                    'active' => 1,
+                    'custodian_id' => $i->id,
+                ]);
+            }
+
+            $iu = CustodianUser::create([
+                'first_name' => $custodian['given_name'],
+                'last_name' => $custodian['family_name'],
+                'email' => $custodian['email'],
+                'password' => null,
+                'provider' => '',
+                'custodian_id' => $i->id,
+            ]);
+
+            $perm = Permission::where('name', '=', 'CUSTODIAN_ADMIN')->select(['id'])->first();
+
+            CustodianUserHasPermission::create([
+                'custodian_user_id' => $iu->id,
+                'permission_id' => $perm->id,
+            ]);
+
+            $validationCheckIds = ValidationCheck::pluck('id')->all();
+
+            foreach ($validationCheckIds as $validationCheckId) {
+                CustodianHasValidationCheck::create([
+                    'custodian_id' => $i->id,
+                    'validation_check_id' => $validationCheckId,
+                ]);
+            }
+
+            RMC::createNewUser($custodian, [
+                'account_type' => RMC::KC_GROUP_CUSTODIANS
+            ]);
+
+            User::where('email', $custodian['email'])->update([
+                'custodian_user_id' => $iu->id
+            ]);
+        }
+    }
+
+    private function createTestUsers(): void
+    {
+        $testOrganisation = Organisation::create([
+            'organisation_name' => 'Test Organisation, LTD',
+            'address_1' => 'Floor 1',
+            'address_2' => '10 Stratton Street',
+            'town' => 'Chelsea',
+            'county' => 'London',
+            'country' => 'United Kingdom',
+            'postcode' => 'SW1X 9LB',
+            'lead_applicant_organisation_name' => 'Org User',
+            'lead_applicant_email' => 'test.user+organisation@safepeopleregistry.com',
+            'password' => null, // Ask LS "Flood********"
+            'organisation_unique_id' => Str::random(40),
+            'applicant_names' => 'Org User',
+            'funders_and_sponsors' => null,
+            'sub_license_arrangements' => '...',
+            'verified' => false,
+            'dsptk_ods_code' => '',
+            'iso_27001_certified' => false,
+            'ce_certified' => false,
+            'ce_plus_certified' => false,
+            'companies_house_no' => '012345678',
+            'sector_id' => 6, // Private/Industry
+            'ror_id' => null,
+            'smb_status' => null,
+            'organisation_size' => 1,
+            'website' => null,
+        ]);
+
+        $testOrganisationUsers = [
+            [
+                'first_name' => 'Org',
+                'last_name' => 'Admin',
+                'email' => "test.user+organisation@safepeopleregistry.com",
+                'is_org_admin' => 1,
+                'user_group' => RMC::KC_GROUP_ORGANISATIONS,
+                'organisation_id' => $testOrganisation->id,
+                'keycloak_id' => '5edbed6e-f610-4646-ad1d-c3faf155443a',
+                'is_sro' => 1,
+            ]
+        ];
+
+        $this->createUsers($testOrganisationUsers);
+
+        $testUsers = [
+            [
+                'first_name' => 'Test',
+                'last_name' => 'User',
+                'email' => "test.user+user@safepeopleregistry.com",
+                'user_group' => RMC::KC_GROUP_USERS,
+                'keycloak_id' => '5539052c-be47-4345-bfce-c67c6f3b82c5',
+                't_and_c_agreed' => true,
+                't_and_c_agreement_date' => Carbon::now(),
+                'affiliations' => [
+                    [
+                        'organisation_id' => $testOrganisation->id,
+                        'member_id' => Str::uuid(),
+                        'relationship' => 'employee',
+                        'from' => Carbon::now()->subYears(6)->toDateString(),
+                        'to' => '',
+                        'department' => 'Research & Development',
+                        'role' => 'Lobbyist',
+                        'email' => fake()->email(),
+                        'ror' => $this->generateRorID(),
+                        'registry_id' => -1,
+                    ],
+                ],
+            ]
+        ];
+
+        $this->createUsers($testUsers);
+        $this->createUserRegistry($testUsers);
+        $this->createAffiliations($testUsers);
+
+
+        $adminUsers = [
+            [
+                'first_name' => 'Admin',
+                'last_name' => 'User',
+                'email' => 'test.user+admin@safepeopleregistry.com',
+                'user_group' => RMC::KC_GROUP_ADMINS,
+                'keycloak_id' => 'b483eb56-3ac4-4e72-a9ac-fd7f217f619b'
+            ]
+        ];
+
+        $this->createAdminUsers($adminUsers);
+
+        $testCustodians = [
+            [
+                'name' => 'Custodian Admin',
+                'email' => 'test.user+custodian@safepeopleregistry.com',
+                'given_name' => 'Custodian',
+                'family_name' => 'Admin',
+                'sub' => '1575de97-4d60-435e-bf1b-a0376b7acdc2'
+            ]
+        ];
+
+        $this->createCustodians($testCustodians);
     }
 
     private function linkUsersToProjects(array &$input): void
@@ -1229,7 +1378,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         unset($user);
     }
 
-    private function createUnclaimedUsers(): void
+    private function createUnclaimedCustodianUsers(): void
     {
         $custodianAdmin = CustodianUser::all();
         foreach ($custodianAdmin as $ca) {
@@ -1237,12 +1386,17 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'firstname' => $ca['first_name'],
                 'lastname' => $ca['last_name'],
                 'email' => $ca['email'],
-                'user_group' => 'CUSTODIANS',
-                'custodian_user_id' => $ca->id
+                'user_group' => RMC::KC_GROUP_CUSTODIANS,
+                'custodian_user_id' => $ca->id,
             ]);
         }
 
         unset($custodianAdmin);
+    }
+
+    private function createAdminUsers(mixed $input): void
+    {
+        $this->createUsers($input);
     }
 
     private function addRandomUsersToProject(int $projectId, ?int $nUsers): void
