@@ -6,7 +6,6 @@ use DB;
 use Str;
 use Keycloak;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\State;
 use App\Models\Charity;
@@ -63,6 +62,7 @@ class BaseDemoSeeder extends Seeder
             DepartmentSeeder::class,
             WebhookEventTriggerSeeder::class,
             ValidationCheckSeeder::class,
+            FeatureSeeder::class,
             CustodianHasValidationCheckSeeder::class
         ]);
 
