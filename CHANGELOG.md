@@ -1,3 +1,18 @@
+## [1.19.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.18.0...v1.19.0) (2025-11-04)
+
+### ✨ Features
+
+* **REGISTRY-0000:** update hdruk laravel-mjml package version ([8e9be35](https://github.com/HDRUK/safepeopleregistry-api/commit/8e9be350ea2beb16e5627aa69e289bdef41ba1ca))
+* **REGISTRY-0000:** update hdruk laravel-mjml package version (#511) ([a0a79d9](https://github.com/HDRUK/safepeopleregistry-api/commit/a0a79d9468f08ae678a6d82d51156911f8541a88))
+* **REGISTRY-1127:** Organisations - add parent organisation (subsidiaries) (#506) ([14182fd](https://github.com/HDRUK/safepeopleregistry-api/commit/14182fda2acb45031e2ace932118640007690e2d))
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-2047:** Write & test a process for using feature flags (#502) ([7be4afe](https://github.com/HDRUK/safepeopleregistry-api/commit/7be4afef4c7de29eed5b36d1894ccda8ddff9eb9))
+* **REGISTRY-2188:** Custodian users should NOT have registry_ids (#508) ([5b0aa0f](https://github.com/HDRUK/safepeopleregistry-api/commit/5b0aa0fb6675e655a7b6ef9a49ccacebb9352f4a))
+* **REGISTRY-2189:** update with tries for jobs (#507) ([77e16a9](https://github.com/HDRUK/safepeopleregistry-api/commit/77e16a9ad1f8ff76d9a16d4136c1261b5c6248cb))
+* **REGISTRY-2194:** sending email in gmail it is not visible (#510) ([7c34102](https://github.com/HDRUK/safepeopleregistry-api/commit/7c3410273bfcaf4c43904b1906e1dd70f73173e9))
+
 ## [1.18.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.17.1...v1.18.0) (2025-11-04)
 
 ### ✨ Features
