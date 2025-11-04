@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Subsidiaries;
+namespace App\Http\Requests\Features;
 
 use App\Http\Requests\BaseFormRequest;
 
-class CreateSubsidiary extends BaseFormRequest
+class ToggleByFeatureId extends BaseFormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -14,15 +14,10 @@ class CreateSubsidiary extends BaseFormRequest
     public function rules(): array
     {
         return [
-            'organisationId' => [
+            'featureId' => [
                 'required',
                 'integer',
-                'exists:organisations,id',
-            ],
-            'name' => [
-                'required',
-                'string',
-                'max:255',
+                'exists:features,id',
             ],
         ];
     }
@@ -34,6 +29,6 @@ class CreateSubsidiary extends BaseFormRequest
      */
     protected function prepareForValidation()
     {
-        $this->merge(['organisationId' => $this->route('organisationId')]);
+        $this->merge(['featureId' => $this->route('featureId')]);
     }
 }

@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Custodian;
 use App\Models\Organisation;
-use App\Models\CustodianHasOrganisation;
 use App\Models\OrganisationHasCustodianPermission;
 use App\Models\Permission;
 use Illuminate\Database\Seeder;
@@ -28,11 +27,6 @@ class OrganisationSeeder extends Seeder
         OrganisationHasCustodianPermission::create([
             'organisation_id' => $org->id,
             'permission_id' => $perms->id,
-            'custodian_id' => $custodian['id'],
-        ]);
-
-        CustodianHasOrganisation::create([
-            'organisation_id' => $org->id,
             'custodian_id' => $custodian['id'],
         ]);
     }

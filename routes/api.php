@@ -1,50 +1,51 @@
 <?php
 
-use App\Http\Controllers\Api\V1\AccreditationController;
-use App\Http\Controllers\Api\V1\AffiliationController;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\AuthController;
-use App\Http\Controllers\Api\V1\EndorsementController;
+use App\Http\Controllers\Api\V1\UserController;
+use App\Http\Controllers\Api\V1\QueryController;
+use App\Http\Controllers\Api\V1\SectorController;
+use App\Http\Controllers\Api\V1\FeatureController;
+use App\Http\Controllers\Api\V1\HistoryController;
+use App\Http\Controllers\Api\V1\ProjectController;
+use App\Http\Controllers\Api\V1\WebhookController;
+use App\Http\Controllers\Api\V1\AuditLogController;
+use App\Http\Controllers\Api\V1\IdentityController;
+use App\Http\Controllers\Api\V1\RegistryController;
+use App\Http\Controllers\Api\V1\TrainingController;
+use App\Http\Controllers\Api\V1\ActionLogController;
+use App\Http\Controllers\Api\V1\CustodianController;
+use App\Http\Controllers\Api\V1\EducationController;
+use App\Http\Controllers\Api\V1\DepartmentController;
 use App\Http\Controllers\Api\V1\ExperienceController;
 use App\Http\Controllers\Api\V1\FileUploadController;
-use App\Http\Controllers\Api\V1\HistoryController;
-use App\Http\Controllers\Api\V1\IdentityController;
-use App\Http\Controllers\Api\V1\InfringementController;
-use App\Http\Controllers\Api\V1\CustodianController;
-use App\Http\Controllers\Api\V1\CustodianUserController;
-use App\Http\Controllers\Api\V1\ONSSubmissionController;
-use App\Http\Controllers\Api\V1\OrganisationController;
 use App\Http\Controllers\Api\V1\PermissionController;
-use App\Http\Controllers\Api\V1\ProjectController;
-use App\Http\Controllers\Api\V1\QueryController;
-use App\Http\Controllers\Api\V1\RegistryController;
-use App\Http\Controllers\Api\V1\RegistryReadRequestController;
-use App\Http\Controllers\Api\V1\SystemConfigController;
-use App\Http\Controllers\Api\V1\TrainingController;
-use App\Http\Controllers\Api\V1\TriggerEmailController;
-use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\ResolutionController;
-use App\Http\Controllers\Api\V1\EducationController;
-use App\Http\Controllers\Api\V1\EmailTemplateController;
-use App\Http\Controllers\Api\V1\SectorController;
-use App\Http\Controllers\Api\V1\NotificationController;
-use App\Http\Controllers\Api\V1\ActionLogController;
-use App\Http\Controllers\Api\V1\CustodianHasProjectOrganisationController;
-use App\Http\Controllers\Api\V1\ValidationCheckController;
-use App\Http\Controllers\Api\V1\ValidationLogController;
-use App\Http\Controllers\Api\V1\ValidationLogCommentController;
-use App\Http\Controllers\Api\V1\ProfessionalRegistrationController;
-use App\Http\Controllers\Api\V1\DepartmentController;
-use App\Http\Controllers\Api\V1\WebhookController;
-use App\Http\Controllers\Api\V1\CustodianModelConfigController;
-use App\Http\Controllers\Api\V1\ProjectDetailController;
-use App\Http\Controllers\Api\V1\ProjectRoleController;
-use App\Http\Controllers\Api\V1\CustodianHasProjectUserController;
-use App\Http\Controllers\Api\V1\ProjectHasUserController;
-use App\Http\Controllers\Api\V1\ProjectHasOrganisationController;
-use App\Http\Controllers\Api\V1\AuditLogController;
-use App\Http\Controllers\Api\V1\VendorWebhookReceiverController;
 use App\Http\Controllers\Api\V1\SubsidiaryController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\AffiliationController;
+use App\Http\Controllers\Api\V1\EndorsementController;
+use App\Http\Controllers\Api\V1\ProjectRoleController;
+use App\Http\Controllers\Api\V1\InfringementController;
+use App\Http\Controllers\Api\V1\NotificationController;
+use App\Http\Controllers\Api\V1\OrganisationController;
+use App\Http\Controllers\Api\V1\SystemConfigController;
+use App\Http\Controllers\Api\V1\TriggerEmailController;
+use App\Http\Controllers\Api\V1\AccreditationController;
+use App\Http\Controllers\Api\V1\CustodianUserController;
+use App\Http\Controllers\Api\V1\EmailTemplateController;
+use App\Http\Controllers\Api\V1\ONSSubmissionController;
+use App\Http\Controllers\Api\V1\ProjectDetailController;
+use App\Http\Controllers\Api\V1\ValidationLogController;
+use App\Http\Controllers\Api\V1\ProjectHasUserController;
+use App\Http\Controllers\Api\V1\ValidationCheckController;
+use App\Http\Controllers\Api\V1\RegistryReadRequestController;
+use App\Http\Controllers\Api\V1\CustodianModelConfigController;
+use App\Http\Controllers\Api\V1\ValidationLogCommentController;
+use App\Http\Controllers\Api\V1\VendorWebhookReceiverController;
+use App\Http\Controllers\Api\V1\ProjectHasOrganisationController;
+use App\Http\Controllers\Api\V1\CustodianHasProjectUserController;
+use App\Http\Controllers\Api\V1\ProfessionalRegistrationController;
+use App\Http\Controllers\Api\V1\CustodianHasProjectOrganisationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -373,9 +374,9 @@ Route::middleware('auth:api')
     ->prefix('v1/subsidiaries')
     ->group(function () {
         Route::controller(SubsidiaryController::class)->group(function () {
-            Route::post('organisations/{orgId}', 'store');
-            Route::put('{id}/organisations/{orgId}', 'update');
-            Route::delete('{id}/organisations/{orgId}', 'destroy');
+            Route::post('organisations/{organisationId}', 'store');
+            Route::put('{subsidiaryId}/organisations/{organisationId}', 'update');
+            Route::delete('{subsidiaryId}/organisations/{organisationId}', 'destroy');
         });
     });
 
@@ -623,8 +624,6 @@ Route::middleware('auth:api')
         Route::get('/workflowTransitions', 'getWorkflowTransitions');
     });
 
-
-
 // --- SYSTEM CONFIG ---
 Route::middleware('auth:api')
     ->prefix('v1/system_config')
@@ -633,6 +632,17 @@ Route::middleware('auth:api')
         Route::get('/', 'index');
         Route::post('/', 'store');
         Route::get('{name}', 'getByName');
+    });
+
+// feature flags
+Route::middleware('auth:api')
+    ->prefix('v1/features')
+    ->controller(FeatureController::class)
+    ->group(function () {
+        Route::get('/', 'index');
+        Route::get('/{featureId}', 'show');
+        Route::put('/{featureId}/toggle', 'toggleByFeatureId');
+        Route::get('/flush', 'flushAllFeatures');
     });
 
 // --- RULES ---

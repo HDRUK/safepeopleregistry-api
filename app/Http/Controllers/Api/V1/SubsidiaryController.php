@@ -29,7 +29,7 @@ class SubsidiaryController extends Controller
      *      summary="subsidiaries@store",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
-     *         name="orgId",
+     *         name="organisationId",
      *         in="path",
      *         description="organisations entry ID",
      *         required=true,
@@ -79,19 +79,36 @@ class SubsidiaryController extends Controller
      *      )
      * )
      */
-    public function store(CreateSubsidiary $request, int $orgId): JsonResponse
+    public function store(CreateSubsidiary $request, int $organisationId): JsonResponse
     {
         try {
             $input = $request->only(app(Subsidiary::class)->getFillable());
-            $org = Organisation::findOrFail($orgId);
+            $org = Organisation::findOrFail($organisationId);
 
             if (!Gate::allows('update', $org)) {
                 return $this->ForbiddenResponse();
             }
 
-            $subsidiary = $this->addSubsidiary($orgId, $input);
+            $array = [
+                'name' => $input['name'],
+                'address_1' => $input['address_1'] ?? null,
+                'address_2' => $input['address_2'] ?? null,
+                'town' => $input['town'] ?? null,
+                'county' => $input['county'] ?? null,
+                'country' => $input['country'] ?? null,
+                'postcode' => $input['postcode'] ?? null,
+                'website' => $input['website'] ?? null,
+                'is_parent' => $input['is_parent'] ?? 0,
+            ];
 
-            return $this->CreatedResponse($subsidiary);
+            $subsidiary = Subsidiary::create($array);
+
+            OrganisationHasSubsidiary::create([
+                'organisation_id' => $organisationId,
+                'subsidiary_id' => $subsidiary->id
+            ]);
+
+            return $this->CreatedResponse($subsidiary->id);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -106,7 +123,7 @@ class SubsidiaryController extends Controller
      *      summary="subsidiaries@update",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
-     *         name="orgId",
+     *         name="organisationId",
      *         in="path",
      *         description="organisations entry ID",
      *         required=true,
@@ -117,7 +134,7 @@ class SubsidiaryController extends Controller
      *         ),
      *      ),
      *      @OA\Parameter(
-     *         name="id",
+     *         name="subsidiaryId",
      *         in="path",
      *         description="subsidiary entry ID",
      *         required=true,
@@ -167,17 +184,30 @@ class SubsidiaryController extends Controller
      *      )
      * )
      */
-    public function update(UpdateSubsidiary $request, int $id, int $orgId): JsonResponse
+    public function update(UpdateSubsidiary $request, int $subsidiaryId, int $organisationId): JsonResponse
     {
         try {
             $input = $request->only(app(Subsidiary::class)->getFillable());
-            $org = Organisation::findOrFail($orgId);
+            $org = Organisation::findOrFail($organisationId);
 
             if (!Gate::allows('update', $org)) {
                 return $this->ForbiddenResponse();
             }
 
-            $subsidiary = $this->addSubsidiary($orgId, $input);
+            $subsidiary = Subsidiary::findOrFail($subsidiaryId);
+            $array = [
+                'name' => $input['name'],
+                'address_1' => $input['address_1'] ?? null,
+                'address_2' => $input['address_2'] ?? null,
+                'town' => $input['town'] ?? null,
+                'county' => $input['county'] ?? null,
+                'country' => $input['country'] ?? null,
+                'postcode' => $input['postcode'] ?? null,
+                'website' => $input['website'] ?? null,
+                'is_parent' => $input['is_parent'] ?? 0,
+            ];
+
+            $subsidiary->update($array);
 
             return $this->OKResponse($subsidiary);
         } catch (Exception $e) {
@@ -194,7 +224,7 @@ class SubsidiaryController extends Controller
      *      summary="subsidiaries@destroy",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
-     *         name="orgId",
+     *         name="organisationId",
      *         in="path",
      *         description="organisations entry ID",
      *         required=true,
@@ -205,7 +235,7 @@ class SubsidiaryController extends Controller
      *         ),
      *      ),
      *      @OA\Parameter(
-     *         name="id",
+     *         name="subsidiaryId",
      *         in="path",
      *         description="subsidiary entry ID",
      *         required=true,
@@ -245,53 +275,20 @@ class SubsidiaryController extends Controller
      *      )
      * )
      */
-    public function destroy(DeleteSubsidiary $request, int $id, int $orgId): JsonResponse
+    public function destroy(DeleteSubsidiary $request, int $subsidiaryId, int $organisationId): JsonResponse
     {
         try {
-            $subsidiary = Subsidiary::findOrFail($id);
-            $org = Organisation::findOrFail($orgId);
+            $org = Organisation::findOrFail($organisationId);
 
             if (!Gate::allows('delete', $org)) {
                 return $this->ForbiddenResponse();
             }
 
-            $subsidiary->delete();
+            Subsidiary::where('id', $subsidiaryId)->delete();
 
             return $this->OKResponse(null);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
-    }
-
-    public function addSubsidiary(int $organisationId, array $subsidiary)
-    {
-        if (is_null($subsidiary['name'])) {
-            return;
-        }
-
-        $subsidiaryData = [
-            'name' => $subsidiary['name'],
-        ];
-
-        $subsidiaryValues = [
-            'address_1' => $subsidiary['address_1'] ?? null,
-            'address_2' => $subsidiary['address_2'] ?? null,
-            'town' => $subsidiary['town'] ?? null,
-            'county' => $subsidiary['county'] ?? null,
-            'country' => $subsidiary['country'] ?? null,
-            'postcode' => $subsidiary['postcode'] ?? null,
-            'website' => $subsidiary['website'] ?? null,
-        ];
-
-        $subsidiary = Subsidiary::updateOrCreate($subsidiaryData, $subsidiaryValues);
-
-        OrganisationHasSubsidiary::updateOrCreate(
-            [
-                'organisation_id' => $organisationId,
-                'subsidiary_id' => $subsidiary->id
-            ]
-        );
-
-        return $subsidiary;
     }
 }

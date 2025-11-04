@@ -29,6 +29,8 @@ class SubsidiaryFactory extends Factory
             'county' => fake()->state(),
             'country' => fake()->country(),
             'postcode' => fake()->postcode(),
+            'website' => fake()->url(),
+            'is_parent' => fake()->randomElement([0, 1]),
         ];
     }
 }
