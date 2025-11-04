@@ -62,8 +62,8 @@ class BaseDemoSeeder extends Seeder
             DepartmentSeeder::class,
             WebhookEventTriggerSeeder::class,
             ValidationCheckSeeder::class,
+            CustodianHasValidationCheckSeeder::class,
             FeatureSeeder::class,
-            CustodianHasValidationCheckSeeder::class
         ]);
 
         // --------------------------------------------------------------------------------
@@ -133,6 +133,8 @@ class BaseDemoSeeder extends Seeder
             'county' => 'Hertfordshire',
             'country' => 'United Kingdom',
             'postcode' => 'SG6 3JH',
+            'website' => fake()->url(),
+            'is_parent' => 0,
         ]);
 
         OrganisationHasSubsidiary::create([
