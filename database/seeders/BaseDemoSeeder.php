@@ -62,7 +62,6 @@ class BaseDemoSeeder extends Seeder
             ValidationCheckSeeder::class,
             CustodianHasValidationCheckSeeder::class,
             FeatureSeeder::class,
-            TestSeeder::class
         ]);
 
         // --------------------------------------------------------------------------------
@@ -996,6 +995,10 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         // Create unclaimed users from custodian_admins that have been created
         // --------------------------------------------------------------------------------
         $this->createUnclaimedCustodianUsers();
+
+        $this->call([
+            TestSeeder::class
+        ]);
 
         // --------------------------------------------------------------------------------
         // End
