@@ -1,3 +1,10 @@
+## [1.18.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.17.1...v1.18.0) (2025-11-04)
+
+### ✨ Features
+
+* **REGISTRY-0000:** update hdruk laravel-mjml package version (#511) ([6099b4c](https://github.com/HDRUK/safepeopleregistry-api/commit/6099b4c075c15b115e51a092bf93aa91c03befba))
+* **REGISTRY-0000:** update hdruk laravel-mjml package version (#511) (#512) ([3ce56e8](https://github.com/HDRUK/safepeopleregistry-api/commit/3ce56e87a45acc1be3787002edf7e986761c9fae))
+
 ## [1.17.1](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.17.0...v1.17.1) (2025-10-24)
 
 ### 🐛 Bug Fixes
