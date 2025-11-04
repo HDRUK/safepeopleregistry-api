@@ -1034,63 +1034,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         unset($input);
     }
 
-    private function createCustodians(array $custodians): void
-    {
-        foreach ($custodians as $custodian) {
-            $i = Custodian::factory()->create([
-                'name' => $custodian['name'],
-                'contact_email' => $custodian['email'],
-                'enabled' => 1,
-                'idvt_required' => 1,
-            ]);
-
-            $decisionModels = DecisionModel::all();
-
-            foreach ($decisionModels as $d) {
-                CustodianModelConfig::create([
-                    'entity_model_id' => $d->id,
-                    'active' => 1,
-                    'custodian_id' => $i->id,
-                ]);
-            }
-
-            $iu = CustodianUser::create([
-                'first_name' => $custodian['given_name'],
-                'last_name' => $custodian['family_name'],
-                'email' => $custodian['email'],
-                'password' => null,
-                'provider' => '',
-                'custodian_id' => $i->id,
-            ]);
-
-            $perm = Permission::where('name', '=', 'CUSTODIAN_ADMIN')->select(['id'])->first();
-
-            CustodianUserHasPermission::create([
-                'custodian_user_id' => $iu->id,
-                'permission_id' => $perm->id,
-            ]);
-
-            $validationCheckIds = ValidationCheck::pluck('id')->all();
-
-            foreach ($validationCheckIds as $validationCheckId) {
-                CustodianHasValidationCheck::create([
-                    'custodian_id' => $i->id,
-                    'validation_check_id' => $validationCheckId,
-                ]);
-            }
-
-            RMC::createNewUser($custodian, [
-                'account_type' => RMC::KC_GROUP_CUSTODIANS
-            ]);
-
-            User::where('email', $custodian['email'])->update([
-                'custodian_user_id' => $iu->id
-            ]);
-        }
-    }
-
-
-
     private function linkUsersToProjects(array &$input): void
     {
         foreach ($input as $u) {
