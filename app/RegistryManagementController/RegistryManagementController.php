@@ -69,7 +69,7 @@ class RegistryManagementController
      *      simply logging in accounts
      * @return mixed
      */
-    public static function createNewUser(array $input, mixed $request = null): mixed
+    public static function createNewUser(array $input, mixed $request): mixed
     {
         $unclaimedUser = null;
         $user = null;
