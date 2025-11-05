@@ -1,3 +1,9 @@
+## [1.19.1](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.19.0...v1.19.1) (2025-11-05)
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-2203:** fix button (#514) ([ab3b6a9](https://github.com/HDRUK/safepeopleregistry-api/commit/ab3b6a967104982c93b775252f139a1358bd5be5))
+
 ## [1.19.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.18.0...v1.19.0) (2025-11-04)
 
 ### ✨ Features
