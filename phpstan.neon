@@ -4,6 +4,7 @@ includes:
 parameters:
     paths:
         - app/
+        - database/        
     reportUnmatchedIgnoredErrors: false
     stubFiles:
         - phpstan-stubs/laravel-octane.php
