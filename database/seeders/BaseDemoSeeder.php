@@ -28,12 +28,6 @@ use RegistryManagementController as RMC;
 use App\Models\OrganisationHasDepartment;
 use App\Models\OrganisationHasSubsidiary;
 use App\Models\ProjectDetail;
-use App\Models\DecisionModel;
-use App\Models\CustodianModelConfig;
-use App\Models\Permission;
-use App\Models\CustodianUserHasPermission;
-use App\Models\ValidationCheck;
-use App\Models\CustodianHasValidationCheck;
 
 class BaseDemoSeeder extends Seeder
 {
@@ -995,10 +989,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
         // Create unclaimed users from custodian_admins that have been created
         // --------------------------------------------------------------------------------
         $this->createUnclaimedCustodianUsers();
-
-        $this->call([
-            TestSeeder::class
-        ]);
 
         // --------------------------------------------------------------------------------
         // End
