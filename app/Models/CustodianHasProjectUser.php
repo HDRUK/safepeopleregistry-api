@@ -80,9 +80,16 @@ class CustodianHasProjectUser extends Model
         State::STATE_USER_LEFT_PROJECT => [],
     ];
 
+    protected static array $transitionsAutomated = [];
+
     public static function getTransitions(): array
     {
         return static::$transitions;
+    }
+
+    public function getTransitionsAutomated(): array
+    {
+        return static::$transitionsAutomated;
     }
 
     protected static array  $searchableColumns = ['projects.title'];

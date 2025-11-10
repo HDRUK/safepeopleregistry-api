@@ -563,6 +563,8 @@ class UserController extends Controller
             $user->role = isset($input['role']) ? $input['role'] : $user->role;
             $user->save();
 
+            
+
             return response()->json([
                 'message' => 'success',
                 'data' => $user,
