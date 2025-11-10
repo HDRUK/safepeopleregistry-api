@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use Exception;
 use Closure;
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
 use Illuminate\Http\Request;
@@ -48,8 +49,8 @@ class Authenticate extends Middleware
                 if (Auth::guard($guard)->check()) {
                     return $next($request);
                 }
-            } catch (\Exception $e) {
-                // Token validation failed, continue to redirect
+            } catch (Exception $e) {
+                throw $e;
             }
         }
 
