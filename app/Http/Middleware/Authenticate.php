@@ -53,10 +53,6 @@ class Authenticate extends Middleware
             $token = $request->query('token');
         }
 
-        Log::info('Authenticate Middleware - Horizon token', [
-            'token' => $token,
-        ]);
-
         if ($token) {
             try {
                 $request->headers->set('Authorization', 'Bearer ' . $token);

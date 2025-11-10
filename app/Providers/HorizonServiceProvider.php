@@ -42,6 +42,10 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
                 return false;
             }
 
+            Log::info('HorizonServiceProvider - viewHorizon', [
+                'user' => $user,
+                'userGroup' => $user->user_group
+            ]);
             if ($user->user_group === User::GROUP_ADMINS) {
                 return true;
             }
