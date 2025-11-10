@@ -36,6 +36,7 @@ class Authenticate extends Middleware
         $token = $request->bearerToken();
         Log::info('Authenticate', [
             'request' => $request,
+            'guard' => $guard,
         ]);
         
         // Fallback to query parameter
@@ -45,6 +46,7 @@ class Authenticate extends Middleware
 
         Log::info('Authenticate', [
             'token' => $token,
+            'guard' => $guard,
             'request' => $request,
         ]);
 
@@ -52,6 +54,13 @@ class Authenticate extends Middleware
         if ($token) {
             try {
                 $request->headers->set('Authorization', 'Bearer ' . $token);
+                
+                Log::info('Authenticate', [
+                    'token' => $token,
+                    'request' => $request,
+                    'guard' => $guard,
+                    'guardIsAuthenticated' => Auth::guard($guard)->check(),
+                ]);
                 
                 if (Auth::guard($guard)->check()) {
                     return $next($request);
