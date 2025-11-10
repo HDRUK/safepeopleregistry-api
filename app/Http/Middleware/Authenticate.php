@@ -60,6 +60,7 @@ class Authenticate extends Middleware
                     'request' => $request,
                     'guard' => $guard,
                     'guardIsAuthenticated' => Auth::guard($guard)->check(),
+                    'obj' => json_decode(Auth::token(), true),
                 ]);
                 
                 if (Auth::guard($guard)->check()) {
