@@ -39,13 +39,13 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
             // }
 
             if (!$user) {
-                Log::info('TerminateRequest', [
+                Log::info('HorizonServiceProvider', [
                     'user' => 'no user found',
                 ]);
                 return false;
             }
 
-            Log::info('TerminateRequest', [
+            Log::info('HorizonServiceProvider', [
                 'user' => $user->id,
             ]);
 
