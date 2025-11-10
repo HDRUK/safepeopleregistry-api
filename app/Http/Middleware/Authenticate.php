@@ -2,11 +2,12 @@
 
 namespace App\Http\Middleware;
 
-use Exception;
 use Closure;
-use Illuminate\Auth\Middleware\Authenticate as Middleware;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Auth\Middleware\Authenticate as Middleware;
 
 class Authenticate extends Middleware
 {
@@ -33,11 +34,19 @@ class Authenticate extends Middleware
 
         // Try bearer token from header
         $token = $request->bearerToken();
+        Log::info('Authenticate', [
+            'request' => $request,
+        ]);
         
         // Fallback to query parameter
         if (!$token) {
             $token = $request->query('token');
         }
+
+        Log::info('Authenticate', [
+            'token' => $token,
+            'request' => $request,
+        ]);
 
         // If we have a token, try to authenticate
         if ($token) {
