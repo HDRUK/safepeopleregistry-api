@@ -33,21 +33,6 @@ class Authenticate extends Middleware
     {
         $guard = $guards[0] ?? 'api';
 
-        if (session()->has('horizon_authenticated') && session('horizon_authenticated') === true) {
-            $userId = session('horizon_user_id');
-            Log::info('Authenticate Middleware - Horizon userId from session', [
-                'userId' => $userId,
-            ]);
-            if ($userId) {
-                $user = User::find($userId);
-                if ($user) {
-                    Auth::guard($guard)->setUser($user);
-                    Auth::setUser($user);
-                    return $next($request);
-                }
-            }
-        }
-
         $token = null;
         if ($request->has('token')) {
             $token = $request->query('token');
@@ -67,10 +52,17 @@ class Authenticate extends Middleware
                     'user' => $user,
                 ]);
             
+                
                 if ($user) {
-                    Log::info('Authenticate Middleware - Horizon userId to session', [
-                        'userId' => $user->id,
-                    ]);
+                    $sessionUserId = session('horizon_user_id');
+                    
+                    if ($sessionUserId && $sessionUserId !== $user->id) {
+                        Log::info('Authenticate Middleware - User changed, updating session', [
+                            'old_user_id' => $sessionUserId,
+                            'new_user_id' => $user->id,
+                        ]);
+                    }
+
                     session([
                         'horizon_authenticated' => true,
                         'horizon_user_id' => $user->id,
@@ -80,8 +72,31 @@ class Authenticate extends Middleware
                     Auth::setUser($user);
                     return $next($request);
                 }
+
             } catch (Exception $e) {
                 throw $e;
+            }
+        }
+
+        if (session()->has('horizon_authenticated') && session('horizon_authenticated') === true) {
+            $userId = session('horizon_user_id');
+            if ($userId) {
+                $user = User::find($userId);
+                if ($user) {
+                    Log::info('Authenticate Middleware - Using session authentication', [
+                        'user_id' => $user->id,
+                    ]);
+
+                    Auth::guard($guard)->setUser($user);
+                    Auth::setUser($user);
+                    return $next($request);
+                } else {
+                    // User no longer exists in database
+                    Log::warning('Authenticate Middleware - Session user not found in database', [
+                        'user_id' => $userId,
+                    ]);
+                    session()->forget(['horizon_authenticated', 'horizon_user_id']);
+                }
             }
         }
 
