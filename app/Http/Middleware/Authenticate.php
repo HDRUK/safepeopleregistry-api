@@ -33,11 +33,23 @@ class Authenticate extends Middleware
     {
         $guard = $guards[0] ?? 'api';
 
-        $token = $request->bearerToken() ?? $request->query('token');
+        $token = $request->bearerToken();
+
+        if (!$token) {
+            $token = $request->query('token');
+        }
+
+        Log::info('Authenticate Middleware - Horizon token', [
+            'token' => $token,
+        ]);
 
         if ($token) {
             try {
                 $request->headers->set('Authorization', 'Bearer ' . $token);
+
+                Log::info('Authenticate Middleware - Horizon Request', [
+                    'request' => $request,
+                ]);
                 
                 $isTokenExpired = $this->isTokenExpired($token);
                 if ($isTokenExpired) {
@@ -45,6 +57,10 @@ class Authenticate extends Middleware
                 }
 
                 $user = $this->getUserFromToken($token);
+
+                Log::info('Authenticate Middleware - Horizon User', [
+                    'user' => $user,
+                ]);
             
                 if ($user) {
                     Auth::guard($guard)->setUser($user);
@@ -91,25 +107,23 @@ class Authenticate extends Middleware
     protected function isTokenExpired(string $token): bool
     {
         try {
-            // Decode JWT token (without verification for expiration check)
             $parts = explode('.', $token);
             
             if (count($parts) !== 3) {
                 return true; // Invalid token format
             }
 
-            // Decode payload
             $payload = json_decode(base64_decode(strtr($parts[1], '-_', '+/')), true);
             
             if (!$payload || !isset($payload['exp'])) {
-                return true; // No expiration claim
+                return true;
             }
 
             // Check if token is expired
             return $payload['exp'] < time();
             
         } catch (Exception $e) {
-            return true; // Consider invalid tokens as expired
+            return true;
         }
     }
 
