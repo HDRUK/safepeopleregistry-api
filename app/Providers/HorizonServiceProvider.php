@@ -52,7 +52,7 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
 
             return true;
 
-            // if ($user->isAdmin()) {
+            // if ($user->user_group === User::GROUP_ADMINS) {
             //     return true;
             // }
 
