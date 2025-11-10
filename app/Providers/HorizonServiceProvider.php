@@ -46,7 +46,7 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
             }
 
             Log::info('HorizonServiceProvider', [
-                'user' => $user->id,
+                'user' => $user,
                 'userIsAdmin' => $user->isAdmin(),
             ]);
 

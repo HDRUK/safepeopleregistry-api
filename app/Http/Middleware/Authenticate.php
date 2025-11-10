@@ -64,7 +64,11 @@ class Authenticate extends Middleware
                     'user' => $this->getUserFromToken($token),
                 ]);
                 
-                if (Auth::guard($guard)->check()) {
+                $user = $this->getUserFromToken($token);
+            
+                if ($user) {
+                    Auth::guard($guard)->setUser($user);
+                    Auth::setUser($user);
                     return $next($request);
                 }
             } catch (Exception $e) {
