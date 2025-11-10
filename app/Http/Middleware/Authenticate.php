@@ -33,8 +33,22 @@ class Authenticate extends Middleware
     {
         $guard = $guards[0] ?? 'api';
 
-        $token = null;
+        if (session()->has('horizon_authenticated') && session('horizon_authenticated') === true) {
+            $userId = session('horizon_user_id');
+            Log::info('Authenticate Middleware - Horizon userId from session', [
+                'userId' => $userId,
+            ]);
+            if ($userId) {
+                $user = User::find($userId);
+                if ($user) {
+                    Auth::guard($guard)->setUser($user);
+                    Auth::setUser($user);
+                    return $next($request);
+                }
+            }
+        }
 
+        $token = null;
         if ($request->has('token')) {
             $token = $request->query('token');
         }
@@ -58,6 +72,14 @@ class Authenticate extends Middleware
                 ]);
             
                 if ($user) {
+                    Log::info('Authenticate Middleware - Horizon userId to session', [
+                        'userId' => $userId,
+                    ]);
+                    session([
+                        'horizon_authenticated' => true,
+                        'horizon_user_id' => $user->id,
+                    ]);
+
                     Auth::guard($guard)->setUser($user);
                     Auth::setUser($user);
                     return $next($request);
