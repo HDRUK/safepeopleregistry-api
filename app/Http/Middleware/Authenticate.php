@@ -31,7 +31,7 @@ class Authenticate extends Middleware
         $guard = $guards[0] ?? 'api';
 
         // Try bearer token from header
-        $token = $request->bearerToken();
+        $token = $request->bearerToken() ?? $request->query('token');
         
         // Fallback to query parameter
         if (!$token) {
