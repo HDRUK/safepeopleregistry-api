@@ -50,11 +50,6 @@ class Authenticate extends Middleware
                 Log::info('Authenticate Middleware - Horizon Request', [
                     'request' => $request,
                 ]);
-                
-                $isTokenExpired = $this->isTokenExpired($token);
-                if ($isTokenExpired) {
-                    return redirect()->away(config('speedi.system.portal_url'));
-                }
 
                 $user = $this->getUserFromToken($token);
 
@@ -101,29 +96,6 @@ class Authenticate extends Middleware
             
         } catch (Exception $e) {
             return null;
-        }
-    }
-
-    protected function isTokenExpired(string $token): bool
-    {
-        try {
-            $parts = explode('.', $token);
-            
-            if (count($parts) !== 3) {
-                return true; // Invalid token format
-            }
-
-            $payload = json_decode(base64_decode(strtr($parts[1], '-_', '+/')), true);
-            
-            if (!$payload || !isset($payload['exp'])) {
-                return true;
-            }
-
-            // Check if token is expired
-            return $payload['exp'] < time();
-            
-        } catch (Exception $e) {
-            return true;
         }
     }
 

@@ -38,16 +38,21 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
             //     return true;
             // }
 
-            if (!$user) {
-                return false;
-            }
+            // if (!$user) {
+            //     return false;
+            // }
 
-            if ($user->user_group === User::GROUP_ADMINS) {
-                return true;
-            }
+            // if ($user->user_group === User::GROUP_ADMINS) {
+            //     return true;
+            // }
 
-            return false;
+            // return false;
 
+            Log::info('HorizonServiceProvider - Authorizing Horizon access', [
+                'user' => $user,
+            ]);
+
+            return true;
         });
     }
 }
