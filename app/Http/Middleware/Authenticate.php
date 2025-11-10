@@ -33,13 +33,17 @@ class Authenticate extends Middleware
     {
         $guard = $guards[0] ?? 'api';
 
-
         $token = $request->bearerToken() ?? $request->query('token');
 
         if ($token) {
             try {
                 $request->headers->set('Authorization', 'Bearer ' . $token);
                 
+                $isTokenExpired = $this->isTokenExpired($token);
+                if ($isTokenExpired) {
+                    return redirect()->away(config('speedi.system.portal_url'));
+                }
+
                 $user = $this->getUserFromToken($token);
             
                 if ($user) {
@@ -81,6 +85,31 @@ class Authenticate extends Middleware
             
         } catch (Exception $e) {
             return null;
+        }
+    }
+
+    protected function isTokenExpired(string $token): bool
+    {
+        try {
+            // Decode JWT token (without verification for expiration check)
+            $parts = explode('.', $token);
+            
+            if (count($parts) !== 3) {
+                return true; // Invalid token format
+            }
+
+            // Decode payload
+            $payload = json_decode(base64_decode(strtr($parts[1], '-_', '+/')), true);
+            
+            if (!$payload || !isset($payload['exp'])) {
+                return true; // No expiration claim
+            }
+
+            // Check if token is expired
+            return $payload['exp'] < time();
+            
+        } catch (Exception $e) {
+            return true; // Consider invalid tokens as expired
         }
     }
 

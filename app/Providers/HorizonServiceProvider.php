@@ -34,21 +34,13 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
     protected function gate(): void
     {
         Gate::define('viewHorizon', function (?User $user = null) {
-            // if (config('app.env') !== 'prod') {
-            //     return true;
-            // }
-
-            if (!$user) {
-                Log::info('HorizonServiceProvider', [
-                    'user' => 'no user found',
-                ]);
-                return false;
+            if (config('app.env') !== 'prod') {
+                return true;
             }
 
-            Log::info('HorizonServiceProvider', [
-                'user' => $user,
-                'userIsAdmin' => $user->isAdmin(),
-            ]);
+            if (!$user) {
+                return false;
+            }
 
             if ($user->user_group === User::GROUP_ADMINS) {
                 return true;
