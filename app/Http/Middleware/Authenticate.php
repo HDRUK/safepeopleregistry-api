@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Exception;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -60,7 +61,7 @@ class Authenticate extends Middleware
                     'request' => $request,
                     'guard' => $guard,
                     'guardIsAuthenticated' => Auth::guard($guard)->check(),
-                    'obj' => json_decode(Auth::token(), true),
+                    'user' => $this->getUserFromToken($token),
                 ]);
                 
                 if (Auth::guard($guard)->check()) {
@@ -76,6 +77,31 @@ class Authenticate extends Middleware
         }
 
         return redirect()->away(config('speedi.system.portal_url'));
+    }
+
+    protected function getUserFromToken(string $token): ?User
+    {
+        try {
+            // Decode JWT payload
+            $parts = explode('.', $token);
+            
+            if (count($parts) !== 3) {
+                return null;
+            }
+
+            $payload = json_decode(base64_decode(strtr($parts[1], '-_', '+/')), true);
+            
+            if (!$payload || !isset($payload['sub'])) {
+                return null;
+            }
+
+            $userId = $payload['sub'];
+            
+            return User::where('keycloak_id', $userId)->first();
+            
+        } catch (Exception $e) {
+            return null;
+        }
     }
 
     /**
