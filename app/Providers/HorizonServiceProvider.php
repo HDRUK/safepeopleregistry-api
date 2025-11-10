@@ -50,7 +50,13 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
                 'userIsAdmin' => $user->isAdmin(),
             ]);
 
-            return (bool) $user->isAdmin();
+            return true;
+
+            // if ($user->isAdmin()) {
+            //     return true;
+            // }
+
+            // return false;
         });
     }
 }
