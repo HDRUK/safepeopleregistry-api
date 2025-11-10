@@ -33,19 +33,12 @@ class Authenticate extends Middleware
 
         // Try bearer token from header
         $token = $request->bearerToken() ?? $request->query('token');
-        
-        // Fallback to query parameter
-        if (!$token) {
-            $token = $request->query('token');
-        }
 
         // If we have a token, try to authenticate
         if ($token) {
             try {
-                // Set the token in the request for your JWT middleware/guard
                 $request->headers->set('Authorization', 'Bearer ' . $token);
                 
-                // Attempt to authenticate
                 if (Auth::guard($guard)->check()) {
                     return $next($request);
                 }
@@ -54,12 +47,10 @@ class Authenticate extends Middleware
             }
         }
 
-        // Check if already authenticated via session
         if (Auth::guard('web')->check() || Auth::guard($guard)->check()) {
             return $next($request);
         }
 
-        // Not authenticated, redirect to portal
         return redirect()->away(config('speedi.system.portal_url'));
     }
 

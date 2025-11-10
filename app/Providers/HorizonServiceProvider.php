@@ -3,8 +3,9 @@
 namespace App\Providers;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Gate;
 use Laravel\Horizon\Horizon;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Gate;
 use Laravel\Horizon\HorizonApplicationServiceProvider;
 
 class HorizonServiceProvider extends HorizonApplicationServiceProvider
@@ -33,15 +34,22 @@ class HorizonServiceProvider extends HorizonApplicationServiceProvider
     protected function gate(): void
     {
         Gate::define('viewHorizon', function (?User $user = null) {
+            // if (config('app.env') !== 'prod') {
+            //     return true;
+            // }
+
             if (!$user) {
+                Log::info('TerminateRequest', [
+                    'user' => 'no user found',
+                ]);
                 return false;
             }
 
-            // if ($user->isAdmin()) {
-            //     return true;
-            // }
-            // return config('app.env') !== 'prod';
-            return true;
+            Log::info('TerminateRequest', [
+                'user' => $user->id,
+            ]);
+
+            return (bool) $user->isAdmin();
         });
     }
 }
