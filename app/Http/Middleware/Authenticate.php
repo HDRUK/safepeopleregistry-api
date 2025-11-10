@@ -6,7 +6,6 @@ use Closure;
 use Exception;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
 
@@ -22,7 +21,6 @@ class Authenticate extends Middleware
             return $this->handleHorizonAuth($request, $next, $guards);
         }
 
-        // Default authentication handling
         return parent::handle($request, $next, ...$guards);
     }
 
@@ -42,27 +40,9 @@ class Authenticate extends Middleware
             try {
                 $request->headers->set('Authorization', 'Bearer ' . $token);
 
-                Log::info('Authenticate Middleware - Horizon Request', [
-                    'request' => $request,
-                ]);
-
                 $user = $this->getUserFromToken($token);
-
-                Log::info('Authenticate Middleware - Horizon User', [
-                    'user' => $user,
-                ]);
-            
                 
                 if ($user) {
-                    $sessionUserId = session('horizon_user_id');
-                    
-                    if ($sessionUserId && $sessionUserId !== $user->id) {
-                        Log::info('Authenticate Middleware - User changed, updating session', [
-                            'old_user_id' => $sessionUserId,
-                            'new_user_id' => $user->id,
-                        ]);
-                    }
-
                     session([
                         'horizon_authenticated' => true,
                         'horizon_user_id' => $user->id,
@@ -83,18 +63,10 @@ class Authenticate extends Middleware
             if ($userId) {
                 $user = User::find($userId);
                 if ($user) {
-                    Log::info('Authenticate Middleware - Using session authentication', [
-                        'user_id' => $user->id,
-                    ]);
-
                     Auth::guard($guard)->setUser($user);
                     Auth::setUser($user);
                     return $next($request);
                 } else {
-                    // User no longer exists in database
-                    Log::warning('Authenticate Middleware - Session user not found in database', [
-                        'user_id' => $userId,
-                    ]);
                     session()->forget(['horizon_authenticated', 'horizon_user_id']);
                 }
             }
