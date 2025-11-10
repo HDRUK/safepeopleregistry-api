@@ -73,7 +73,7 @@ class Authenticate extends Middleware
             
                 if ($user) {
                     Log::info('Authenticate Middleware - Horizon userId to session', [
-                        'userId' => $userId,
+                        'userId' => $user->id,
                     ]);
                     session([
                         'horizon_authenticated' => true,
