@@ -33,36 +33,12 @@ class Authenticate extends Middleware
     {
         $guard = $guards[0] ?? 'api';
 
-        // Try bearer token from header
-        $token = $request->bearerToken();
-        Log::info('Authenticate', [
-            'request' => $request,
-            'guard' => $guard,
-        ]);
-        
-        // Fallback to query parameter
-        if (!$token) {
-            $token = $request->query('token');
-        }
 
-        Log::info('Authenticate', [
-            'token' => $token,
-            'guard' => $guard,
-            'request' => $request,
-        ]);
+        $token = $request->bearerToken() ?? $request->query('token');
 
-        // If we have a token, try to authenticate
         if ($token) {
             try {
                 $request->headers->set('Authorization', 'Bearer ' . $token);
-                
-                Log::info('Authenticate', [
-                    'token' => $token,
-                    'request' => $request,
-                    'guard' => $guard,
-                    'guardIsAuthenticated' => Auth::guard($guard)->check(),
-                    'user' => $this->getUserFromToken($token),
-                ]);
                 
                 $user = $this->getUserFromToken($token);
             
@@ -85,8 +61,8 @@ class Authenticate extends Middleware
 
     protected function getUserFromToken(string $token): ?User
     {
+        // Decode JWT payload
         try {
-            // Decode JWT payload
             $parts = explode('.', $token);
             
             if (count($parts) !== 3) {
