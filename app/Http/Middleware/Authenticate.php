@@ -33,9 +33,9 @@ class Authenticate extends Middleware
     {
         $guard = $guards[0] ?? 'api';
 
-        $token = $request->bearerToken();
+        $token = null;
 
-        if (!$token) {
+        if ($request->has('token')) {
             $token = $request->query('token');
         }
 
