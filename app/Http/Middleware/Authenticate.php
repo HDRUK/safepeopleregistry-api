@@ -70,7 +70,7 @@ class Authenticate extends Middleware
             }
         }
 
-        if (Auth::guard('web')->check() || Auth::guard($guard)->check()) {
+        if (Auth::guard($guard)->check()) {
             return $next($request);
         }
 
