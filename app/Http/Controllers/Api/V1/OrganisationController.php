@@ -1184,7 +1184,7 @@ class OrganisationController extends Controller
 
             $loggedInUserId = $request->user()->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();
-            if ($loggedInUser->user_group !== User::GROUP_ORGANISATIONS) {
+            if ($loggedInUser->user_group !== User::GROUP_ORGANISATIONS && $loggedInUser->user_group !== User::GROUP_ADMINS) {
                 return $this->BadRequestResponse('Non-organisation users cannot invite members via this endpoint.');
             }
 

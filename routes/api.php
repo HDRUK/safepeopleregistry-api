@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\QueryController;
 use App\Http\Controllers\Api\V1\SectorController;
+use App\Http\Controllers\Api\V1\PendingInviteController;
 use App\Http\Controllers\Api\V1\FeatureController;
 use App\Http\Controllers\Api\V1\HistoryController;
 use App\Http\Controllers\Api\V1\ProjectController;
@@ -102,15 +103,30 @@ Route::middleware(['auth:api'])
         Route::patch('/{id}/notifications/read', [NotificationController::class, 'markUserNotificationsAsRead']);
         Route::patch('/{id}/notifications/{notificationId}/read', [NotificationController::class, 'markUserNotificationAsRead']);
         Route::patch('/{id}/notifications/{notificationId}/unread', [NotificationController::class, 'markUserNotificationAsUnread']);
+
+        // resend invite
+        
     });
 
 // --- ACTION LOGS ---
 Route::middleware('auth:api')
     ->prefix('v1')
+    ->controller(ValidationLogCommentController::class)
     ->group(function () {
         Route::get('{entity}/{id}/action_log', [ActionLogController::class, 'getEntityActionLog']);
         Route::put('action_log/{id}', [ActionLogController::class, 'update']);
     });
+
+
+// --- Pending Invites ---
+Route::middleware('auth:api')
+    ->prefix('v1/pending_invites')
+    ->controller(PendingInviteController::class)
+    ->group(function () {
+        Route::get('/', 'index');
+        Route::get('{inviteId}/resend_invite', 'resendInvite');
+    });
+
 
 
 // --- VALIDATION LOGS ---

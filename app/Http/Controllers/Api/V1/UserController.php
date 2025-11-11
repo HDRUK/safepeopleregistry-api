@@ -30,6 +30,7 @@ use App\Models\UserHasCustodianPermission;
 use App\Http\Requests\Users\GetUserProject;
 use App\Http\Requests\Users\CheckUserInviteCode;
 use App\Services\DecisionEvaluatorService as DES;
+use App\Http\Requests\PendingInvites\CheckPendingInvite;
 
 class UserController extends Controller
 {
