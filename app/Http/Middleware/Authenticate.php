@@ -16,6 +16,10 @@ class Authenticate extends Middleware
      */
     public function handle($request, Closure $next, ...$guards)
     {
+        if (config('app.env') !== 'prod') {
+            return parent::handle($request, $next, ...$guards);
+        }
+
         // Check if this is a Horizon request
         if ($request->is('horizon') || $request->is('horizon/*')) {
             return $this->handleHorizonAuth($request, $next, $guards);
