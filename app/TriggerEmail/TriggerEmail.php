@@ -333,6 +333,7 @@ class TriggerEmail
                 ];
 
                 $replacements = [
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
                     '[[organisation_name]]' => $organisation->organisation_name,
                     '[[ORGANISATION_PATH_PROFILE]]' => config('speedi.system.portal_url') . '/organisation/profile/details',
                     '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
