@@ -94,62 +94,62 @@ class PendingInviteController extends Controller
 
         $email = [];
 
-        if ($user->user_group === User::GROUP_CUSTODIANS) {
-            $email = [
-                'type' => 'CUSTODIAN',
-                'to' => $user->custodian_id,
-                'unclaimed_user_id' => $user->id,
-                'by' => $user->id,
-                'identifier' => 'custodian_invite',
-                'inviteId' => $inviteId,
-            ];
-        }
-
-        if ($user->user_group === User::GROUP_USERS) {
-            $affiliation = Affiliation::where([
-                'registry_id' => $user->registry_id,
-            ])->first();
-        
-            if (is_null($affiliation)) {
-                return $this->NotFoundResponse();
-            }
-
-            if ($user->is_delegate) {
+        switch ($user->user_group) {
+            case User::GROUP_CUSTODIANS:
                 $email = [
-                    'type' => 'USER_DELEGATE',
-                    'to' => $user->id,
-                    'by' => $affiliation->organisation_id,
-                    'identifier' => 'delegate_invite',
+                    'type' => 'CUSTODIAN',
+                    'to' => $user->custodian_id,
+                    'unclaimed_user_id' => $user->id,
+                    'by' => $user->id,
+                    'identifier' => 'custodian_invite',
                     'inviteId' => $inviteId,
                 ];
-            } else {
+
+                break;
+                
+            case User::GROUP_USERS:
+                $affiliation = Affiliation::where([
+                    'registry_id' => $user->registry_id,
+                ])->first();
+            
+                if (is_null($affiliation)) {
+                    return $this->NotFoundResponse();
+                }
+
+                if ($user->is_delegate) {
+                    $email = [
+                        'type' => 'USER_DELEGATE',
+                        'to' => $user->id,
+                        'by' => $affiliation->organisation_id,
+                        'identifier' => 'delegate_invite',
+                        'inviteId' => $inviteId,
+                    ];
+                } else {
+                    $email = [
+                        'type' => 'USER',
+                        'to' => $user->id,
+                        'by' => $affiliation->organisation_id,
+                        'identifier' => 'organisation_user_invite',
+                        'inviteId' => $inviteId,
+                    ];
+                }
+
+                break;
+
+            case User::GROUP_ORGANISATIONS:
                 $email = [
-                    'type' => 'USER',
-                    'to' => $user->id,
-                    'by' => $affiliation->organisation_id,
-                    'identifier' => 'organisation_user_invite',
+                    'type' => 'ORGANISATION',
+                    'to' => $user->organisation_id,
+                    'unclaimed_user_id' => $user->id,
+                    'by' => $user->organisation_id,
+                    'identifier' => 'organisation_invite',
                     'inviteId' => $inviteId,
                 ];
-            }
-        }
 
-        if ($user->user_group === User::GROUP_ORGANISATIONS) {
-            $affiliation = Affiliation::where([
-                'registry_id' => $user->registry_id,
-            ])->first();
-        
-            if (is_null($affiliation)) {
-                return $this->NotFoundResponse();
-            }
+                break;
 
-            $email = [
-                'type' => 'ORGANISATION',
-                'to' => $user->organisation_id,
-                'unclaimed_user_id' => $user->id,
-                'by' => $user->organisation_id,
-                'identifier' => 'organisation_invite',
-                'inviteId' => $inviteId,
-            ];
+            default:
+                break;
         }
 
         if (!count($email)) {
