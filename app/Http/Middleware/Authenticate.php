@@ -48,7 +48,6 @@ class Authenticate extends Middleware
                         'horizon_user_id' => $user->id,
                     ]);
 
-                    Auth::guard($guard)->setUser($user);
                     Auth::setUser($user);
                     return $next($request);
                 }
@@ -63,7 +62,6 @@ class Authenticate extends Middleware
             if ($userId) {
                 $user = User::find($userId);
                 if ($user) {
-                    Auth::guard($guard)->setUser($user);
                     Auth::setUser($user);
                     return $next($request);
                 } else {
