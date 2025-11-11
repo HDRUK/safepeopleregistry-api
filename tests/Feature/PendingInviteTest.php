@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
 
-class PendinInviteTest extends TestCase
+class PendingInviteTest extends TestCase
 {
     use Authorisation;
 
@@ -26,8 +26,5 @@ class PendinInviteTest extends TestCase
                 self::TEST_URL
             );
         $response->assertStatus(200);
-        $content = $response->decodeResponseJson();
-
-        dd($content);
     }
 }
