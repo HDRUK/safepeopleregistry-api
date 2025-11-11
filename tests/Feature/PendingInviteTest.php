@@ -20,7 +20,7 @@ class PendingInviteTest extends TestCase
 
     public function test_the_application_can_list_pending_invites(): void
     {
-        $response = $this->actingAs($this->organisation_admin)
+        $response = $this->actingAs($this->admin)
             ->json(
                 'GET',
                 self::TEST_URL
