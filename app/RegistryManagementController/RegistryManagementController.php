@@ -277,7 +277,17 @@ class RegistryManagementController
                     }
                     return $existingUser;
                 }
-                return User::create($userData);
+
+                if ($isRegistry) {
+                    return User::create($userData);
+                } else {
+                    return User::firstOrCreate(
+                        [
+                            'email' => $user['email'],
+                        ],
+                        $userData
+                    );
+                }
             }
         } catch (Exception $e) {
             DebugLog::create([
