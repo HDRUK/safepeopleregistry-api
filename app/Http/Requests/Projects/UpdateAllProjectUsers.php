@@ -19,6 +19,7 @@ class UpdateAllProjectUsers extends BaseFormRequest
                 'integer',
                 'exists:projects,id',
             ],
+            'users' => 'required|array',
         ];
     }
 

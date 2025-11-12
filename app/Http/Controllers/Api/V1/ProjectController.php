@@ -1007,8 +1007,9 @@ class ProjectController extends Controller
     public function updateAllProjectUsers(UpdateAllProjectUsers $request, int $projectId): JsonResponse
     {
         try {
-            $validated = $request->validate(['users' => 'required|array']);
-            $users = collect($validated['users']);
+            $input = $request->all();
+            $inputUsers = $input['users'];
+            $users = collect($inputUsers);
 
             $registryIds = $users->pluck('registry_id')->unique();
             $registries = Registry::with('user')->whereIn('id', $registryIds)->get()->keyBy('id');
