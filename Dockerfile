@@ -26,7 +26,8 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install sockets \
     && docker-php-ext-install exif \
     && docker-php-ext-configure pcntl --enable-pcntl \
-    && docker-php-ext-install pcntl
+    && docker-php-ext-install pcntl \
+    $PHPIZE_DEPS
 
 RUN mkdir -p /etc/pki/tls/certs && \
     ln -s /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt
