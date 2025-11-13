@@ -38,7 +38,7 @@ RUN mkdir -p /etc/pki/tls/certs && \
 #     && rm -rf redis-5.3.7.tgz \
 #     && rm -rf /tmp/pear \
 #     && docker-php-ext-enable redis
-RUN apk --no-cache add \
+RUN apt-get update && apt-get install -y \
     autoconf \
     g++ \
     make \
