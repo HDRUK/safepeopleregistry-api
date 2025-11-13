@@ -186,6 +186,7 @@ return [
         App\Providers\RulesEngineManagementControllerServiceProvider::class,
         App\Providers\GatewayServiceProvider::class,
         App\Providers\AppFeatureServiceProvider::class,
+        App\Providers\FrankenPhpServiceProvider::class,
     ])->toArray(),
 
     /*
