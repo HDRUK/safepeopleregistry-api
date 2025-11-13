@@ -20,7 +20,6 @@ RUN apt-get update && apt-get install -y \
     zlib1g-dev \
     zip \
     default-mysql-client \
-    $PHPIZE_DEPS \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j"$(nproc)" gd pdo pdo_mysql soap zip iconv bcmath \
     && docker-php-ext-configure pdo_mysql --with-pdo-mysql=mysqlnd \
@@ -39,9 +38,13 @@ RUN mkdir -p /etc/pki/tls/certs && \
 #     && rm -rf redis-5.3.7.tgz \
 #     && rm -rf /tmp/pear \
 #     && docker-php-ext-enable redis
-RUN pecl install redis \
-    & docker-php-ext-enable redis \
-    && rm -rf /tmp/pear
+RUN apk --no-cache add \
+    autoconf \
+    g++ \
+    make \
+    && pecl install -o -f redis \
+    && rm -rf /tmp/pear \
+    && docker-php-ext-enable redis
 
 
 # Install Composer
