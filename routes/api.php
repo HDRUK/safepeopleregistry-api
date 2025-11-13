@@ -124,7 +124,7 @@ Route::middleware('auth:api')
     ->controller(PendingInviteController::class)
     ->group(function () {
         Route::get('/', 'index');
-        Route::get('{inviteId}/resend_invite', 'resendInvite');
+        Route::post('{inviteId}/resend_invite', 'resendInvite');
     });
 
 
