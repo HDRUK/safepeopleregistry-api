@@ -62,7 +62,7 @@ class PendingInviteController extends Controller
     {
         $pendingInvites = PendingInvite::query()
             ->with([
-                'user:id,name,user_group,unclaimed'
+                'user:id,name,email,user_group,unclaimed'
             ])
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
