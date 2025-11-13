@@ -7,6 +7,7 @@ use Http;
 use Keycloak;
 use Exception;
 use TriggerEmail;
+use Str;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Charity;
@@ -436,6 +437,7 @@ class OrganisationController extends Controller
                 'organisation_size' => $input['organisation_size'],
                 'system_approved' => $input['system_approved'] ?? 0,
                 'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
+                'organisation_unique_id' => Str::random(40),
             ]);
 
             if (isset($input['departments'])) {
@@ -529,6 +531,7 @@ class OrganisationController extends Controller
                 'unclaimed' => $input['unclaimed'] ?? 1,
                 'system_approved' => $input['system_approved'] ?? 0,
                 'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
+                'organisation_unique_id' => Str::random(40),
             ];
 
             $organisation = Organisation::create($organisationsData);
@@ -608,6 +611,7 @@ class OrganisationController extends Controller
                 'unclaimed' => $input['unclaimed'] ?? 1,
                 'system_approved' => $input['system_approved'] ?? 0,
                 'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
+                'organisation_unique_id' => Str::random(40),
             ]);
 
             return $this->CreatedResponse($organisation->id);
