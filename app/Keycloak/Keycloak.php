@@ -429,7 +429,7 @@ class Keycloak
 
     public static function updateUserEmail(string $token, string $keycloakId, string $email): bool
     {
-        $url = env('KEYCLOAK_BASE_URL').'/admin/realms/'.env('KEYCLOAK_REALM').'/users/' . $keycloakId;
+        $url = config('speedi.system.keycloak_base_url').'/admin/realms/'.config('speedi.system.keycloak_realm').'/users/' . $keycloakId;
 
         try {
             $response = Http::withToken($token)
@@ -455,7 +455,7 @@ class Keycloak
 
     public static function sendVerifyEmail(string $token, string $keycloakId): bool
     {
-        $url = env('KEYCLOAK_BASE_URL').'/admin/realms/'.env('KEYCLOAK_REALM').'/users/' . $keycloakId . '/execute-actions-email';
+        $url = config('speedi.system.keycloak_base_url').'/admin/realms/'.config('speedi.system.keycloak_realm').'/users/' . $keycloakId . '/execute-actions-email';
 
         try {
             $response = Http::withToken($token)
