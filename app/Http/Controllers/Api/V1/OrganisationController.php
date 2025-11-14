@@ -129,13 +129,6 @@ class OrganisationController extends Controller
                         $query->whereDoesntHave('delegates');
                     }
                 })
-                ->filterWhen('has_soursd_id', function ($query, $hasSoursdId) {
-                    if ($hasSoursdId) {
-                        $query->whereNot('organisation_unique_id', '')->whereNotNull('organisation_unique_id');
-                    } else {
-                        $query->where('organisation_unique_id', '')->orWhereNull('organisation_unique_id');
-                    }
-                })
                 ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
             $evaluations = $this->decisionEvaluator->evaluate($organisations->items(), true);
