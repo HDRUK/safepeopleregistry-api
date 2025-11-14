@@ -95,6 +95,9 @@ class CustodianHasProjectOrganisationController extends Controller
                 'modelState.state',
                 'projectOrganisation.organisation.sroOfficer',
                 'projectOrganisation.project',
+                'projectOrganisation.organisation' =>  function ($query) {
+                    $query->withCount('affiliations');
+                }
             ])
                 ->where('custodian_id', $custodianId)
                 ->when(!empty($searchName), function ($query) use ($searchName) {
