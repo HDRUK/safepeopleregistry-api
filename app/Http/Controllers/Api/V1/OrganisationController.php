@@ -437,7 +437,6 @@ class OrganisationController extends Controller
                 'organisation_size' => $input['organisation_size'],
                 'system_approved' => $input['system_approved'] ?? 0,
                 'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
-                'organisation_unique_id' => Str::random(40),
             ]);
 
             if (isset($input['departments'])) {
@@ -505,7 +504,6 @@ class OrganisationController extends Controller
                 'postcode' => '',
                 'lead_applicant_organisation_name' => '',
                 'lead_applicant_email' => $input['lead_applicant_email'],
-                'organisation_unique_id' => '',
                 'applicant_names' => '',
                 'funders_and_sponsors' => '',
                 'sub_license_arrangements' => '',
@@ -585,7 +583,6 @@ class OrganisationController extends Controller
                 'postcode' => '',
                 'lead_applicant_organisation_name' => '',
                 'lead_applicant_email' => $input['lead_applicant_email'],
-                'organisation_unique_id' => '',
                 'applicant_names' => '',
                 'funders_and_sponsors' => '',
                 'sub_license_arrangements' => '',
