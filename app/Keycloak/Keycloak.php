@@ -477,4 +477,29 @@ class Keycloak
             throw new Exception($e);
         }
     }
+
+    public static function resetUserPassword(string $token, string $keycloakId): bool
+    {
+        $url = config('speedi.system.keycloak_base_url').'/admin/realms/'.config('speedi.system.keycloak_realm').'/users/' . $keycloakId . '/execute-actions-email';
+
+        try {
+            $response = Http::withToken($token)
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                ])->put(
+                    $url,
+                    [
+                        'UPDATE_PASSWORD',
+                    ],
+                );
+
+            if (!$response->successful()) {
+                throw new Exception('Failed to send verification email');
+            }
+
+            return true;
+        } catch (Exception $e) {
+            throw new Exception($e);
+        }
+    }
 }
