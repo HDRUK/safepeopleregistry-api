@@ -16,6 +16,7 @@ use Illuminate\Http\Response;
 use App\Http\Traits\Responses;
 use App\Models\EntityModelType;
 use App\Traits\CommonFunctions;
+use Tests\Traits\Authorisation;
 use App\Traits\CheckPermissions;
 use Illuminate\Http\JsonResponse;
 use App\Models\UserHasDepartments;
@@ -37,6 +38,7 @@ class UserController extends Controller
     use CommonFunctions;
     use CheckPermissions;
     use Responses;
+    use Authorisation;
 
     protected $decisionEvaluator = null;
 
@@ -408,7 +410,7 @@ class UserController extends Controller
     }
 
 
-    //Hide from swagger docs
+    // Hide from swagger docs
     public function invite(Request $request): JsonResponse
     {
         if (!Gate::allows('invite', User::class)) {
@@ -801,5 +803,18 @@ class UserController extends Controller
             'message' => 'success',
             'data' => $users,
         ], Response::HTTP_OK);
+    }
+
+    // Hide from swagger docs
+    public function updateKeycloakUserEmailById(GetUser $request, int $id)
+    {
+        $user = User::where('id', $id)->first();
+
+        $keycloakToken = $this->getAuthToken();
+
+        Keycloak::updateUserEmail($keycloakToken, $user->keycloak_id, $user->email);
+        Keycloak::sendVerifyEmail($keycloakToken, $user->keycloak_id);
+
+        return $this->OKResponse('Verification email has been sent.');
     }
 }

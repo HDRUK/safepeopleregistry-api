@@ -426,4 +426,55 @@ class Keycloak
             unset($payload);
         }
     }
+
+    public static function updateUserEmail(string $token, string $keycloakId, string $email): bool
+    {
+        $url = config('speedi.system.keycloak_base_url').'/admin/realms/'.config('speedi.system.keycloak_realm').'/users/' . $keycloakId;
+
+        try {
+            $response = Http::withToken($token)
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                ])->put(
+                    $url,
+                    [
+                        'email' => $email,
+                        'emailVerified' => false,
+                    ],
+                );
+
+            if (!$response->successful()) {
+                throw new Exception('Failed to update email: ' . $email);
+            }
+
+            return true;
+        } catch (Exception $e) {
+            throw new Exception($e);
+        }
+    }
+
+    public static function sendVerifyEmail(string $token, string $keycloakId): bool
+    {
+        $url = config('speedi.system.keycloak_base_url').'/admin/realms/'.config('speedi.system.keycloak_realm').'/users/' . $keycloakId . '/execute-actions-email';
+
+        try {
+            $response = Http::withToken($token)
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                ])->put(
+                    $url,
+                    [
+                        'VERIFY_EMAIL',
+                    ],
+                );
+
+            if (!$response->successful()) {
+                throw new Exception('Failed to send verification email');
+            }
+
+            return true;
+        } catch (Exception $e) {
+            throw new Exception($e);
+        }
+    }
 }

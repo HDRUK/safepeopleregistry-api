@@ -104,7 +104,8 @@ Route::middleware(['auth:api'])
         Route::patch('/{id}/notifications/{notificationId}/read', [NotificationController::class, 'markUserNotificationAsRead']);
         Route::patch('/{id}/notifications/{notificationId}/unread', [NotificationController::class, 'markUserNotificationAsUnread']);
 
-        // resend invite
+        // keycloak
+        Route::put('/{id}/keycloak/update_email', [UserController::class, 'updateKeycloakUserEmailById']);
         
     });
 
