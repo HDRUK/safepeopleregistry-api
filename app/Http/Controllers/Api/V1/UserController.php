@@ -817,4 +817,17 @@ class UserController extends Controller
 
         return $this->OKResponse('Verification email has been sent.');
     }
+
+    // Hide from swagger docs
+    public function resetPasswordById(GetUser $request, int $id)
+    {
+        $user = User::where('id', $id)->first();
+
+        $keycloakToken = $this->getAuthToken();
+
+        Keycloak::resetUserPassword($keycloakToken, $user->keycloak_id);
+
+        return $this->OKResponse('Email has been sent.');
+    }
+
 }
