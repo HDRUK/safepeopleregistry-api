@@ -7,6 +7,7 @@ use Http;
 use Keycloak;
 use Exception;
 use TriggerEmail;
+use Str;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Charity;
@@ -126,13 +127,6 @@ class OrganisationController extends Controller
                         $query->whereHas('delegates');
                     } else {
                         $query->whereDoesntHave('delegates');
-                    }
-                })
-                ->filterWhen('has_soursd_id', function ($query, $hasSoursdId) {
-                    if ($hasSoursdId) {
-                        $query->whereNot('organisation_unique_id', '')->whereNotNull('organisation_unique_id');
-                    } else {
-                        $query->where('organisation_unique_id', '')->orWhereNull('organisation_unique_id');
                     }
                 })
                 ->paginate((int)$this->getSystemConfig('PER_PAGE'));
@@ -503,7 +497,6 @@ class OrganisationController extends Controller
                 'postcode' => '',
                 'lead_applicant_organisation_name' => '',
                 'lead_applicant_email' => $input['lead_applicant_email'],
-                'organisation_unique_id' => '',
                 'applicant_names' => '',
                 'funders_and_sponsors' => '',
                 'sub_license_arrangements' => '',
@@ -529,6 +522,7 @@ class OrganisationController extends Controller
                 'unclaimed' => $input['unclaimed'] ?? 1,
                 'system_approved' => $input['system_approved'] ?? 0,
                 'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
+                'organisation_unique_id' => Str::random(40),
             ];
 
             $organisation = Organisation::create($organisationsData);
@@ -582,7 +576,6 @@ class OrganisationController extends Controller
                 'postcode' => '',
                 'lead_applicant_organisation_name' => '',
                 'lead_applicant_email' => $input['lead_applicant_email'],
-                'organisation_unique_id' => '',
                 'applicant_names' => '',
                 'funders_and_sponsors' => '',
                 'sub_license_arrangements' => '',
@@ -608,6 +601,7 @@ class OrganisationController extends Controller
                 'unclaimed' => $input['unclaimed'] ?? 1,
                 'system_approved' => $input['system_approved'] ?? 0,
                 'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
+                'organisation_unique_id' => Str::random(40),
             ]);
 
             return $this->CreatedResponse($organisation->id);
