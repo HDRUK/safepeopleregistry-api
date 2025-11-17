@@ -107,6 +107,7 @@ Route::middleware(['auth:api'])
         // keycloak
         Route::put('/{id}/keycloak/update_email', [UserController::class, 'updateKeycloakUserEmailById']);
         Route::put('/{id}/keycloak/reset_password', [UserController::class, 'resetPasswordById']);
+        Route::put('/keycloak/resend_verify_email', [UserController::class, 'resendKeycloakVerificationEmailById']);
         
     });
 
