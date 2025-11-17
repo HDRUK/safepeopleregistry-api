@@ -830,4 +830,42 @@ class UserController extends Controller
         return $this->OKResponse('Email has been sent.');
     }
 
+    public function resendKeycloakVerificationEmailById(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => 'required|email|max:255',
+        ]);
+        $email = $validated['email'];
+
+        $user = User::where('email', $email)->first();
+        if (!is_null($user) && $user->unclaimed === 0) {
+            return $this->ErrorResponse('User with email ' . $email . ' already claimed');
+        }
+
+        $keycloakToken = $this->getAuthToken();
+
+        $user = Keycloak::searchUserByEmail($keycloakToken, $email);
+        if (count($user) === 0) {
+            return $this->ErrorResponse('User with email ' . $email . ' not found in Keycloak');
+        }
+
+        $keycloakEmailVeifiedState = $user[0]['emailVerified'] ?? null;
+        if (is_null($keycloakEmailVeifiedState)) {
+            return $this->ErrorResponse('Unable to determine email verified state for user with email ' . $email . ' in Keycloak'); 
+        }
+
+        if ($keycloakEmailVeifiedState === true) {
+            return $this->ErrorResponse('User with email ' . $email . ' already verified in Keycloak');
+        }
+
+        $keycloakUserId = $user[0]['id'] ?? null;
+        if (is_null($keycloakUserId)) {
+            return $this->ErrorResponse('Unable to determine Keycloak user ID for user with email ' . $email);
+        }
+
+        Keycloak::resendVerifyEmail($keycloakToken, $keycloakUserId);
+
+        return $this->OKResponse('Verification email has been re-sent.');
+    }
+
 }

@@ -502,4 +502,47 @@ class Keycloak
             throw new Exception($e);
         }
     }
+
+    public static function searchUserByEmail(string $token, string $email): array
+    {
+        $url = config('speedi.system.keycloak_base_url').'/admin/realms/'.config('speedi.system.keycloak_realm').'/users';
+
+        try {
+            $response = Http::withToken($token)
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                ])->get(
+                    $url,
+                    [
+                        'email' => $email,
+                    ],
+                );
+
+            if (!$response->successful()) {
+                throw new Exception('Failed to search user by email: ' . $email);
+            }
+
+            return $response->json();
+        } catch (Exception $e) {
+            throw new Exception($e);
+        }
+    }
+
+    public static function resendVerifyEmail(string $token, string $keycloakId): bool
+    {
+        $url = config('speedi.system.keycloak_base_url').'/admin/realms/'.config('speedi.system.keycloak_realm').'/users/'.$keycloakId.'/send-verify-email';
+
+        try {
+            $response = Http::withToken($token)
+                ->put($url);
+
+            if (!$response->successful()) {
+                throw new Exception('Failed to resend verification email for user ID: ' . $keycloakId);
+            }
+
+            return true;
+        } catch (Exception $e) {
+            throw new Exception($e);
+        }
+    }
 }
