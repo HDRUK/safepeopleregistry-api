@@ -235,8 +235,7 @@ class RegistryManagementController
         $isRegistry = 1;
 
         try {
-
-            if (isset($user['user_group']) && $user['user_group'] === 'CUSTODIANS') {
+            if (isset($user['user_group']) && ($user['user_group'] === 'CUSTODIANS' || $user['user_group'] === 'ORGANISATIONS')) {
                 $isRegistry = 0;
             }
 
