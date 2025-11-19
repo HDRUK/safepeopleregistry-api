@@ -384,12 +384,18 @@ class CustodianHasProjectUserController extends Controller
 
     public function sendNotifications(int $custodianId, int $projectUserId, ?string $newState, ?string $oldState)
     {
-        $projectUser = ProjectHasUser::where('id', $projectUserId)->first();
-        $project = Project::where('id', $projectUser->project_id)->first();
-        $registry = Registry::where('digi_ident', $projectUser->user_digital_ident)->first();
-        $user = User::where('registry_id', $registry->id)->first();
-        $affiliation = Affiliation::where('registry_id', $registry->id)->first();
-        $organisation = Organisation::where('id', $affiliation->organisation_id)->first();
+        $projectUser = ProjectHasUser::with([
+            'project',
+            'registry.user',
+            'affiliation',
+            'affiliation.organisation'
+        ])->findOrFail($projectUserId);
+
+        $project = $projectUser->project;
+        $registry = $projectUser->registry;
+        $user = $registry->user;
+        $affiliation = $projectUser->affiliation;
+        $organisation = $affiliation->organisation;
         $userOrganisation = User::where('organisation_id', $affiliation->organisation_id)->first();
         $userCustodian = User::where('custodian_user_id', $custodianId)->first();
 
