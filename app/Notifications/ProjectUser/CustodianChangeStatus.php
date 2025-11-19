@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Notifications\ProjectHasUser;
+namespace App\Notifications\ProjectUser;
 
+use App\Models\State;
 use Illuminate\Bus\Queueable;
+use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
 
 class CustodianChangeStatus extends Notification
 {
@@ -13,46 +14,60 @@ class CustodianChangeStatus extends Notification
 
     private $message;
     private $details;
+    private $type;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($user, $changes)
+    public function __construct($user, $changes, $type)
     {
-        $this->message = "$user->first_name $user->last_name details changed!";
         $this->details = $changes;
+        $this->type = $type;
+        $this->message = $this->generateMessage();
     }
 
     /**
-     * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
+     * Specify the delivery channels.
      */
-    public function via(object $notifiable): array
+    public function via($notifiable)
     {
-        return ['mail'];
+        return ['database'];
     }
 
     /**
-     * Get the mail representation of the notification.
+     * Store the notification in the database.
      */
-    public function toMail(object $notifiable): MailMessage
-    {
-        return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', url('/'))
-            ->line('Thank you for using our application!');
-    }
-
-    /**
-     * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
-     */
-    public function toArray(object $notifiable): array
+    public function toDatabase($notifiable)
     {
         return [
-            //
+            'message' => $this->message,
+            'details' => $this->details,
+            'time' => now(),
         ];
+    }
+
+    public function generateMessage()
+    {
+        $state = $this->details['new_state'];
+
+        $oldState = convertStates($this->details['old_state']);
+        $newState = convertStates($this->details['new_state']);
+
+        if ($state === State::STATE_MORE_USER_INFO_REQ) {
+            switch ($this->type) {
+                case 'user':
+                    return "Data Custodian {$this->details['custodian_name']} changed your validation status, for project {$this->details['project_title']}, from {$oldState} to {$newState}.";
+
+                case 'organisation':
+                    return "Data Custodian {$this->details['custodian_name']} changed the validation status of user {$this->details['user_name']}, for project {$this->details['project_title']}, from {$oldState} to {$newState}.";
+
+                case 'custodian':
+                    return "You changed the validation status of user {$this->details['user_name']}, for project {$this->details['project_title']}, from {$oldState} to {$newState}.";
+
+                default:
+                    break;
+            }
+
+        }
     }
 }

@@ -3,19 +3,26 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Exception;
+use App\Models\User;
+use App\Models\State;
+use App\Models\Project;
+use App\Models\Registry;
 use App\Models\Custodian;
+use App\Models\Affiliation;
+use App\Models\Organisation;
 use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
+use App\Models\ProjectHasUser;
 use App\Traits\CommonFunctions;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use App\Models\CustodianHasProjectUser;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\ProjectUser\CustodianChangeStatus;
 use App\Http\Requests\CustodianHasProjectUser\GetCustodianHasProjectUser;
 use App\Http\Requests\CustodianHasProjectUser\GetAllCustodianHasProjectUser;
 use App\Http\Requests\CustodianHasProjectUser\UpdateCustodianHasProjectUser;
-
-use function activity;
 
 class CustodianHasProjectUserController extends Controller
 {
@@ -329,6 +336,8 @@ class CustodianHasProjectUserController extends Controller
                 $originalStatus = $phuca->getState();
                 if ($phuca->canTransitionTo($status)) {
                     $phuca->transitionTo($status);
+
+                    $this->sendNotifications($custodianId, $projectUserId, $status, $originalStatus);
                 } else {
                     return $this->ErrorResponse('cannot transition to state = ' . $status);
                 }
@@ -371,5 +380,37 @@ class CustodianHasProjectUserController extends Controller
     public function getWorkflowTransitions(Request $request)
     {
         return $this->OKResponse(CustodianHasProjectUser::getTransitions());
+    }
+
+    public function sendNotifications(int $custodianId, int $projectUserId, string $newState, string $oldState)
+    {
+        $projectUser = ProjectHasUser::where('id', $projectUserId)->first();
+        $project = Project::where('id', $projectUser->project_id)->first();
+        $registry = Registry::where('digi_ident', $projectUser->user_digital_ident)->first();
+        $user = User::where('registry_id', $registry->id)->first();
+        $affiliation = Affiliation::where('registry_id', $registry->id)->first();
+        $organisation = Organisation::where('id', $affiliation->organisation_id)->first();
+        $userOrganisation = User::where('organisation_id', $affiliation->organisation_id)->first();
+        $userCustodian = User::where('custodian_user_id', $custodianId)->first();
+
+        $details = [
+            'custodian_name' => $userCustodian->first_name . ' ' . $userCustodian->last_name,
+            'user_name' => $user->first_name . ' ' . $user->last_name,
+            'project_title' => $project->title,
+            'organisation_name' => $organisation->organisation_name,
+            'old_state' => $oldState,
+            'new_state' => $newState,
+        ];
+            
+        if ($newState === State::STATE_MORE_USER_INFO_REQ) {
+            // user
+            Notification::send($user, new CustodianChangeStatus($user, $details, 'user'));
+
+            // organisation
+            Notification::send($userOrganisation, new CustodianChangeStatus($user, $details, 'organisation'));
+
+            // custodians
+            Notification::send($userCustodian, new CustodianChangeStatus($user, $details, 'custodian'));
+        }
     }
 }

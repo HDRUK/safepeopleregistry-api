@@ -49,7 +49,10 @@
             "Database\\Seeders\\": "database/seeders/",
             "Hdruk\\LaravelMjml\\": "hdruk/laravel-mjml/src/",
             "App\\PHPStan\\": "phpstan/Extensions/"
-        }
+        },
+        "files": [
+            "app/Helpers/helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
