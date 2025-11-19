@@ -392,7 +392,6 @@ class CustodianHasProjectUserController extends Controller
         ])->findOrFail($projectUserId);
 
         $project = $projectUser->project;
-        $registry = $projectUser->registry;
         $user = $projectUser->registry->user;
         $affiliation = $projectUser->affiliation;
         $organisation = $affiliation->organisation;
