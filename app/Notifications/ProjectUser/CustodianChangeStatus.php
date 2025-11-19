@@ -19,7 +19,7 @@ class CustodianChangeStatus extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct($user, $changes, $type)
+    public function __construct($changes, $type)
     {
         $this->details = $changes;
         $this->type = $type;

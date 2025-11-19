@@ -404,13 +404,13 @@ class CustodianHasProjectUserController extends Controller
             
         if ($newState === State::STATE_MORE_USER_INFO_REQ) {
             // user
-            Notification::send($user, new CustodianChangeStatus($user, $details, 'user'));
+            Notification::send($user, new CustodianChangeStatus($details, 'user'));
 
             // organisation
-            Notification::send($userOrganisation, new CustodianChangeStatus($user, $details, 'organisation'));
+            Notification::send($userOrganisation, new CustodianChangeStatus($details, 'organisation'));
 
             // custodians
-            Notification::send($userCustodian, new CustodianChangeStatus($user, $details, 'custodian'));
+            Notification::send($userCustodian, new CustodianChangeStatus($details, 'custodian'));
         }
     }
 }
