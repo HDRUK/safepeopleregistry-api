@@ -382,7 +382,7 @@ class CustodianHasProjectUserController extends Controller
         return $this->OKResponse(CustodianHasProjectUser::getTransitions());
     }
 
-    public function sendNotifications(int $custodianId, int $projectUserId, string $newState, string $oldState)
+    public function sendNotifications(int $custodianId, int $projectUserId, ?string $newState, ?string $oldState)
     {
         $projectUser = ProjectHasUser::where('id', $projectUserId)->first();
         $project = Project::where('id', $projectUser->project_id)->first();
