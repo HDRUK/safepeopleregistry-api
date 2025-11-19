@@ -52,17 +52,20 @@ class CustodianChangeStatus extends Notification
 
         $oldState = convertStates($this->details['old_state']);
         $newState = convertStates($this->details['new_state']);
+        $custodianName = $this->details['custodian_name'];
+        $userName = $this->details['user_name'];
+        $projectTitle = $this->details['project_title'];
 
         if ($state === State::STATE_MORE_USER_INFO_REQ) {
             switch ($this->type) {
                 case 'user':
-                    return "Data Custodian {$this->details['custodian_name']} changed your validation status, for project {$this->details['project_title']}, from {$oldState} to {$newState}.";
+                    return "Data Custodian {$custodianName} changed your validation status, for project {$projectTitle}, from {$oldState} to {$newState}.";
 
                 case 'organisation':
-                    return "Data Custodian {$this->details['custodian_name']} changed the validation status of user {$this->details['user_name']}, for project {$this->details['project_title']}, from {$oldState} to {$newState}.";
+                    return "Data Custodian {$custodianName} changed the validation status of user {$userName}, for project {$projectTitle}, from {$oldState} to {$newState}.";
 
                 case 'custodian':
-                    return "You changed the validation status of user {$this->details['user_name']}, for project {$this->details['project_title']}, from {$oldState} to {$newState}.";
+                    return "You changed the validation status of user {$userName}, for project {$projectTitle}, from {$oldState} to {$newState}.";
 
                 default:
                     break;
