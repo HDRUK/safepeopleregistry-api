@@ -81,7 +81,7 @@ class PendingInviteController extends Controller
             'status' => config('speedi.invite_status.PENDING'),
         ])->first();
         if (is_null($pendingInvite)) {
-            return $this->NotFoundResponse();
+            return $this->ErrorResponse('The invitation could not be found.');
         }
 
         $user = User::where([
@@ -89,74 +89,66 @@ class PendingInviteController extends Controller
             'unclaimed' => 1,
         ])->first();
         if (is_null($user)) {
+            return $this->ErrorResponse('The unclaimed user, and the invitation could not be found.');
+        }
+
+        $sendEmail = null;
+
+        if ($user->user_group === User::GROUP_CUSTODIANS) {
+            $sendEmail = [
+                'type' => 'CUSTODIAN',
+                'to' => $user->custodian_id,
+                'unclaimed_user_id' => $user->id,
+                'by' => $user->id,
+                'identifier' => 'custodian_invite',
+                'inviteId' => $inviteId,
+            ];
+        }
+
+        if ($user->user_group === User::GROUP_USERS) {
+             $affiliation = Affiliation::where([
+                'registry_id' => $user->registry_id,
+            ])->latest()->first();
+        
+            if (is_null($affiliation)) {
+                return $this->ErrorResponse('Affiliation could not be found.');
+            }
+
+            if ($user->is_delegate) {
+                $sendEmail = [
+                    'type' => 'USER_DELEGATE',
+                    'to' => $user->id,
+                    'by' => $affiliation->organisation_id,
+                    'identifier' => 'delegate_invite',
+                    'inviteId' => $inviteId,
+                ];
+            } else {
+                $sendEmail = [
+                    'type' => 'USER',
+                    'to' => $user->id,
+                    'by' => $affiliation->organisation_id,
+                    'identifier' => 'organisation_user_invite',
+                    'inviteId' => $inviteId,
+                ];
+            }
+        }
+    
+        if ($user->user_group === User::GROUP_ORGANISATIONS) {
+            $sendEmail = [
+                'type' => 'ORGANISATION',
+                'to' => $user->organisation_id,
+                'unclaimed_user_id' => $user->id,
+                'by' => $user->organisation_id,
+                'identifier' => 'organisation_invite',
+                'inviteId' => $inviteId,
+            ];
+        }
+
+        if (is_null($sendEmail)) {
             return $this->NotFoundResponse();
         }
 
-        $email = [];
-
-        switch ($user->user_group) {
-            case User::GROUP_CUSTODIANS:
-                $email = [
-                    'type' => 'CUSTODIAN',
-                    'to' => $user->custodian_id,
-                    'unclaimed_user_id' => $user->id,
-                    'by' => $user->id,
-                    'identifier' => 'custodian_invite',
-                    'inviteId' => $inviteId,
-                ];
-
-                break;
-                
-            case User::GROUP_USERS:
-                $affiliation = Affiliation::where([
-                    'registry_id' => $user->registry_id,
-                ])->first();
-            
-                if (is_null($affiliation)) {
-                    return $this->NotFoundResponse();
-                }
-
-                if ($user->is_delegate) {
-                    $email = [
-                        'type' => 'USER_DELEGATE',
-                        'to' => $user->id,
-                        'by' => $affiliation->organisation_id,
-                        'identifier' => 'delegate_invite',
-                        'inviteId' => $inviteId,
-                    ];
-                } else {
-                    $email = [
-                        'type' => 'USER',
-                        'to' => $user->id,
-                        'by' => $affiliation->organisation_id,
-                        'identifier' => 'organisation_user_invite',
-                        'inviteId' => $inviteId,
-                    ];
-                }
-
-                break;
-
-            case User::GROUP_ORGANISATIONS:
-                $email = [
-                    'type' => 'ORGANISATION',
-                    'to' => $user->organisation_id,
-                    'unclaimed_user_id' => $user->id,
-                    'by' => $user->organisation_id,
-                    'identifier' => 'organisation_invite',
-                    'inviteId' => $inviteId,
-                ];
-
-                break;
-
-            default:
-                break;
-        }
-
-        if (!count($email)) {
-            return $this->NotFoundResponse();
-        }
-
-        TriggerEmail::spawnEmail($email);
+        TriggerEmail::spawnEmail($sendEmail);
 
         return $this->OKResponse('Email invite resent');
     }
