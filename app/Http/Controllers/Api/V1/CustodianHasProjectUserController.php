@@ -394,15 +394,15 @@ class CustodianHasProjectUserController extends Controller
         $project = $projectUser->project;
         $user = $projectUser->registry->user;
         $affiliation = $projectUser->affiliation;
-        $organisation = $affiliation->organisation;
-        $userOrganisation = User::where('organisation_id', $affiliation->organisation_id)->first();
+        $organisation = $affiliation?->organisation;
+        $userOrganisation = User::where('organisation_id', $affiliation?->organisation_id)->first();
         $userCustodian = User::where('custodian_user_id', $custodianId)->first();
 
         $details = [
             'custodian_name' => $userCustodian->first_name . ' ' . $userCustodian->last_name,
             'user_name' => $user->first_name . ' ' . $user->last_name,
             'project_title' => $project->title,
-            'organisation_name' => $organisation->organisation_name,
+            'organisation_name' => $organisation?->organisation_name,
             'old_state' => $oldState,
             'new_state' => $newState,
         ];

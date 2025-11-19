@@ -94,6 +94,8 @@ class CustodianProjectUserTest extends TestCase
         $response = $this->actingAs($this->admin)
             ->json('PUT', self::TEST_URL . "/1/projectUsers/{$this->projectUser->id}", $payload);
 
+        dd($response);
+
         $response->assertStatus(200);
     }
 
