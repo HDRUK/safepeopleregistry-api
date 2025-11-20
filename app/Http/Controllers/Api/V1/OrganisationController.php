@@ -3,13 +3,14 @@
 namespace App\Http\Controllers\Api\V1;
 
 use DB;
+use Str;
 use Http;
 use Keycloak;
 use Exception;
 use TriggerEmail;
-use Str;
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\State;
 use App\Models\Charity;
 use App\Models\Project;
 use App\Models\DebugLog;
@@ -1332,6 +1333,9 @@ class OrganisationController extends Controller
                     'department_id' => $request['department_id'],
                 ]);
             };
+
+            $user = User::where('id', $unclaimedUser->id)->first();
+            $user->setState(State::STATE_INVITED);
 
             $email = [
                 'type' => 'USER',
