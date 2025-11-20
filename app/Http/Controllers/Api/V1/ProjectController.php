@@ -615,17 +615,20 @@ class ProjectController extends Controller
             return $this->ForbiddenResponse();
         };
 
-        $projectFilter = request()->get('user_project_filter');
+        $userProjectFilter = request()->get('user_project_filter');
+        if ($userProjectFilter && !in_array($userProjectFilter, ['in', 'out'])) {
+            return $this->ErrorResponse('Invalid project_filter.');
+        }
 
         $users = User::searchViaRequest()
             ->where('user_group', User::GROUP_USERS)
             ->filterByState()
-            ->when($projectFilter === 'in', function ($query) use ($projectId) {
+            ->when($userProjectFilter === 'in', function ($query) use ($projectId) {
                 $query->whereHas('registry.projectUsers', function ($q) use ($projectId) {
                     $q->where('project_id', $projectId);
                 });
             })
-            ->when($projectFilter === 'out', function ($query) use ($projectId) {
+            ->when($userProjectFilter === 'out', function ($query) use ($projectId) {
                 $query->whereDoesntHave('registry.projectUsers', function ($q) use ($projectId) {
                     $q->where('project_id', $projectId);
                 });
