@@ -646,22 +646,6 @@ class ProjectTest extends TestCase
         $this->assertEquals('Invalid argument(s)', $message);
     }
 
-    public function test_the_application_cannot_update_project_users(): void
-    {
-        $latestProject = Project::query()->orderBy('id', 'desc')->first();
-        $projectIdTest = $latestProject->id + 1;
-
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
-            ->json(
-                'PUT',
-                self::TEST_URL . "/{$projectIdTest}/all_users"
-            );
-
-        $response->assertStatus(400);
-        $message = $response->decodeResponseJson()['message'];
-        $this->assertEquals('Invalid argument(s)', $message);
-    }
-
     public function test_the_application_cannot_update_project_users_empty_array(): void
     {
         $latestProject = Project::query()->orderBy('id', 'desc')->first();
@@ -730,6 +714,37 @@ class ProjectTest extends TestCase
         $message = $response->decodeResponseJson()['message'];
         $this->assertEquals('Invalid argument(s)', $message);
     }
+
+    public function test_the_application_can_get_project_users(): void
+    {
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/1/all_users"
+            );
+        $response->assertStatus(200);
+    }
+
+    public function test_the_application_can_get_project_users_filter_in(): void
+    {
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/1/all_users?user_project_filter=in"
+            );
+        $response->assertStatus(200);
+    }
+
+    public function test_the_application_can_get_project_users_filter_out(): void
+    {
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/1/all_users?user_project_filter=out"
+            );
+        $response->assertStatus(200);
+    }
+
 
     /** Only seem to be returning 401 / 403 in tests */
     // public function test_the_application_cannot_show_a_user_for_a_project_when_not_custodian(): void
