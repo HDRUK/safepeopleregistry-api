@@ -54,12 +54,6 @@ trait ValidationManager
 
                 $user = $registry->user;
                 $userUnclaimed = $user->unclaimed;
-                \Log::info('updateCustodianProjectUserValidation', [
-                    'user_digital_ident' => $phu->user_digital_ident,
-                    'custodian_id' => $custodian->id,
-                    'user_unclaimed' => $userUnclaimed,
-                    'user' => $user,
-                ]);
                 if ($userUnclaimed) {
                     $custodianHasProjectUser->setState(State::STATE_INVITED);
                 }
