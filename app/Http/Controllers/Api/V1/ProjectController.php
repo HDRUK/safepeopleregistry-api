@@ -616,14 +616,14 @@ class ProjectController extends Controller
         };
 
         $userProjectFilter = request()->get('user_project_filter');
-        if ($userProjectFilter && !in_array($userProjectFilter, ['in'])) {
-            return $this->ErrorResponse('Invalid project_filter.');
+        if ($userProjectFilter && !in_array(strtoupper($userProjectFilter), ['IN'])) {
+            return $this->ErrorResponse('Invalid project filter.');
         }
 
         $users = User::searchViaRequest()
             ->where('user_group', User::GROUP_USERS)
             ->filterByState()
-            ->when($userProjectFilter === 'in', function ($query) use ($projectId) {
+            ->when(strtoupper($userProjectFilter) === ProjectHasUser::USER_IN_PROJECT, function ($query) use ($projectId) {
                 $query->whereHas('registry.projectUsers', function ($q) use ($projectId) {
                     $q->where('project_id', $projectId);
                 });
