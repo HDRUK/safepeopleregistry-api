@@ -755,10 +755,52 @@ class ProjectTest extends TestCase
         $this->assertEquals($responseData, $projectHasUsers);
     }
 
-    // public function test_the_application_can_asssign_claimed_users_to_project(): void
-    // {
+    public function test_the_application_can_asssign_claimed_users_to_project(): void
+    {
+        $responseUsersInProjectBefore = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/1/all_users?user_project_filter=in"
+            );
 
-    // }
+        $responseUsersInProjectBefore->assertStatus(200);
+        $responseDataUsersInProjectBefore = $responseUsersInProjectBefore->decodeResponseJson()['data']['data'];
+
+        $responseAllUsers = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/1/all_users"
+            );
+
+        $responseAllUsers->assertStatus(200);
+        $responseDataAllUsers = $responseAllUsers->decodeResponseJson()['data']['data'];
+        
+        $payload = $this->createPayloadForAddNewUserToProject($responseDataUsersInProjectBefore, $responseDataAllUsers);
+        
+        $responseAddNewUserInProject =  $this->actingAs($this->custodian_admin)
+            ->json(
+                'PUT',
+                self::TEST_URL . '/1/all_users',
+                [
+                    'users' => $payload,
+                ]
+            );
+        $responseAddNewUserInProject->assertStatus(200);
+    }
+
+    public function createPayloadForAddNewUserToProject(array $usersInProject, array $allUsers): array
+    {
+        $userIds = array_values(array_column($usersInProject, 'id'));
+        
+        foreach ($allUsers as $allUser) {
+            if (!in_array($allUser['id'], $userIds)) {
+                $usersInProject[] = $allUser;
+                break;
+            }
+        }
+
+        return $usersInProject;
+    }
 
     /** Only seem to be returning 401 / 403 in tests */
     // public function test_the_application_cannot_show_a_user_for_a_project_when_not_custodian(): void
