@@ -301,7 +301,7 @@ class UserTest extends TestCase
             // Test that when a user is created, our observer sets the initial
             // entity status for workflows
             $user = User::where('id', $response['data'])->first();
-            $this->assertTrue($user->isInState(State::STATE_FORM_RECEIVED));
+            $this->assertTrue($user->isInState(State::STATE_INVITED));
         });
     }
 

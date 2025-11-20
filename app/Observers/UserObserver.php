@@ -30,7 +30,7 @@ class UserObserver
     public function created(User $user): void
     {
         if (!$user->getState()) {
-            $user->setState(State::STATE_FORM_RECEIVED);
+            $user->setState(State::STATE_INVITED);
         }
 
         foreach (User::getDefaultActions() as $action) {
