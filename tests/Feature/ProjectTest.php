@@ -664,6 +664,22 @@ class ProjectTest extends TestCase
         $message = $response->decodeResponseJson()['message'];
         $this->assertEquals('Invalid argument(s)', $message);
     }
+    
+    public function test_the_application_cannot_update_project_users(): void
+    {
+        $latestProject = Project::query()->orderBy('id', 'desc')->first();
+        $projectIdTest = $latestProject->id + 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . "/{$projectIdTest}/all_users"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
 
     public function test_the_application_cannot_delete_project(): void
     {
