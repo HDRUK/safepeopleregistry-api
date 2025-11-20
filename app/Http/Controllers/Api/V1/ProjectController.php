@@ -608,7 +608,7 @@ class ProjectController extends Controller
     }
 
     public function getAllUsersFlagProject(Request $request, int $projectId): JsonResponse
-    {
+        {
         $project = Project::find($projectId);
 
         if (!Gate::allows('viewProjectUserDetails', $project)) {
@@ -616,7 +616,7 @@ class ProjectController extends Controller
         };
 
         $userProjectFilter = request()->get('user_project_filter');
-        if ($userProjectFilter && !in_array($userProjectFilter, ['in', 'out'])) {
+        if ($userProjectFilter && !in_array($userProjectFilter, ['in'])) {
             return $this->ErrorResponse('Invalid project_filter.');
         }
 
@@ -625,11 +625,6 @@ class ProjectController extends Controller
             ->filterByState()
             ->when($userProjectFilter === 'in', function ($query) use ($projectId) {
                 $query->whereHas('registry.projectUsers', function ($q) use ($projectId) {
-                    $q->where('project_id', $projectId);
-                });
-            })
-            ->when($userProjectFilter === 'out', function ($query) use ($projectId) {
-                $query->whereDoesntHave('registry.projectUsers', function ($q) use ($projectId) {
                     $q->where('project_id', $projectId);
                 });
             })
@@ -642,26 +637,22 @@ class ProjectController extends Controller
             ])
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
-        $idCounter = 1;
-        /** @phpstan-ignore-next-line */
-        $expandedUsers = $users->flatMap(function ($user) use ($projectId, &$idCounter) {
-            // LS - Even though the return types match, phpstan sees them as not covariant.
-            /** @phpstan-ignore-next-line */
-            return $user->registry->affiliations->map(function ($affiliation) use ($user, $projectId, &$idCounter) {
-                return $this->formatProjectUserAffiliation($affiliation, $user, $projectId, $idCounter++);
-            });
+        $users->getCollection()->transform(function ($user) use ($projectId, &$idCounter) {
+            return $user->registry->affiliations
+                ->filter(function ($affiliation) use ($user) {
+                    return $user->registry->projectUsers->contains(function ($projectUser) use ($affiliation) {
+                        return $projectUser->affiliation_id == $affiliation->id;
+                    });
+                })
+                ->map(function ($affiliation) use ($user, $projectId, &$idCounter) {
+                    return $this->formatProjectUserAffiliation($affiliation, $user, $projectId, $idCounter++);
+                })
+                ->values();
         });
 
-        $paginatedResult = new LengthAwarePaginator(
-            $expandedUsers->values()->all(),
-            $users->total(),
-            $users->perPage(),
-            $users->currentPage(),
-            ['path' => $request->url(), 'query' => $request->query()]
-        );
+        $users->setCollection($users->getCollection()->flatten(1)->values());
 
-
-        return $this->OKResponse($paginatedResult);
+        return $this->OKResponse($users);
     }
 
     /**
@@ -1300,4 +1291,5 @@ class ProjectController extends Controller
             'role' => $matchingProjectUser?->role,
         ];
     }
+
 }
