@@ -637,7 +637,9 @@ class ProjectController extends Controller
             ])
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
-        $users->getCollection()->transform(function ($user) use ($projectId, &$idCounter) {
+        $idCounter = 1;
+    
+        $expandedUsers = $users->getCollection()->flatMap(function ($user) use ($projectId, &$idCounter) {
             return $user->registry->affiliations
                 ->filter(function ($affiliation) use ($user) {
                     return $user->registry->projectUsers->contains(function ($projectUser) use ($affiliation) {
@@ -646,13 +648,18 @@ class ProjectController extends Controller
                 })
                 ->map(function ($affiliation) use ($user, $projectId, &$idCounter) {
                     return $this->formatProjectUserAffiliation($affiliation, $user, $projectId, $idCounter++);
-                })
-                ->values();
+                });
         });
+        
+        $paginatedResult = new \Illuminate\Pagination\LengthAwarePaginator(
+            $expandedUsers,
+            $users->total(),
+            $users->perPage(),
+            $users->currentPage(),
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
 
-        $users->setCollection($users->getCollection()->flatten(1)->values());
-
-        return $this->OKResponse($users);
+        return $this->OKResponse($paginatedResult);
     }
 
     /**
