@@ -1413,9 +1413,9 @@ class OrganisationTest extends TestCase
     public function test_the_application_update_organisations_approved_by_admin(): void
     {
         $organisationIdTest = 1;
-        $initSystemApproved = Organisation::where('id', $organisationIdTest)->first()->system_approved;
+        $initSystemApproved = Organisation::where('id', $organisationIdTest)->value('system_approved');
 
-        if ($initSystemApproved === true) {
+        if ($initSystemApproved) {
             Organisation::where('id', $organisationIdTest)->update(['system_approved' => 0]);
         }
 
@@ -1431,8 +1431,8 @@ class OrganisationTest extends TestCase
         $response->assertStatus(200);
         $message = $response->decodeResponseJson()['message'];
         $this->assertEquals('success', $message);
-        $finalSystemApproved = Organisation::where('id', $organisationIdTest)->first()->system_approved;
-        $this->assertEquals($finalSystemApproved, true);
+        $finalSystemApproved = Organisation::where('id', $organisationIdTest)->value('system_approved');
+        $this->assertTrue($finalSystemApproved);
 
         Organisation::where('id', $organisationIdTest)->update(['system_approved' => $initSystemApproved]);
     }
