@@ -5,8 +5,6 @@ namespace App\Notifications\ProjectUser;
 use App\Models\State;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 
 class CustodianChangeStatus extends Notification
 {

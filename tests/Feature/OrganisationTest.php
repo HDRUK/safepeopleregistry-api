@@ -11,7 +11,6 @@ use App\Models\Project;
 use App\Models\ActionLog;
 use App\Jobs\SendEmailJob;
 use App\Models\ModelState;
-use App\Models\ActivityLog;
 use App\Models\Affiliation;
 use Illuminate\Support\Str;
 use App\Models\Organisation;

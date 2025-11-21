@@ -774,9 +774,9 @@ class ProjectTest extends TestCase
 
         $responseAllUsers->assertStatus(200);
         $responseDataAllUsers = $responseAllUsers->decodeResponseJson()['data']['data'];
-        
+
         $payload = $this->createPayloadForAddNewUserToProject($responseDataUsersInProjectBefore, $responseDataAllUsers);
-        
+
         $responseAddNewUserInProject =  $this->actingAs($this->custodian_admin)
             ->json(
                 'PUT',
@@ -791,7 +791,7 @@ class ProjectTest extends TestCase
     public function createPayloadForAddNewUserToProject(array $usersInProject, array $allUsers): array
     {
         $userIds = array_values(array_column($usersInProject, 'id'));
-        
+
         foreach ($allUsers as $allUser) {
             if (!in_array($allUser['id'], $userIds)) {
                 $usersInProject[] = $allUser;

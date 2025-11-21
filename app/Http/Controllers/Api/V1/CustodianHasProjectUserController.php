@@ -6,9 +6,7 @@ use Exception;
 use App\Models\User;
 use App\Models\State;
 use App\Models\Project;
-use App\Models\Registry;
 use App\Models\Custodian;
-use App\Models\Affiliation;
 use App\Models\Organisation;
 use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
@@ -406,7 +404,7 @@ class CustodianHasProjectUserController extends Controller
             'old_state' => $oldState,
             'new_state' => $newState,
         ];
-            
+
         if ($newState === State::STATE_MORE_USER_INFO_REQ) {
             // user
             Notification::send($user, new CustodianChangeStatus($details, 'user'));
