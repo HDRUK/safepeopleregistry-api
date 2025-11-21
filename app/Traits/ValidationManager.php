@@ -2,17 +2,18 @@
 
 namespace App\Traits;
 
+use App\Models\State;
 use RuntimeException;
-use InvalidArgumentException;
-use App\Models\ValidationLog;
-use App\Models\Custodian;
-use App\Models\CustodianHasValidationCheck;
 use App\Models\Project;
-use App\Models\ProjectHasCustodian;
-use App\Models\ProjectHasUser;
-use App\Models\CustodianHasProjectUser;
 use App\Models\Registry;
+use App\Models\Custodian;
 use App\Models\Organisation;
+use App\Models\ValidationLog;
+use InvalidArgumentException;
+use App\Models\ProjectHasUser;
+use App\Models\ProjectHasCustodian;
+use App\Models\CustodianHasProjectUser;
+use App\Models\CustodianHasValidationCheck;
 
 /**
  * ValidationManager
@@ -44,12 +45,18 @@ trait ValidationManager
             foreach ($phcs as $phc) {
                 $custodian = $phc->custodian;
 
-                CustodianHasProjectUser::firstOrCreate(
+                $custodianHasProjectUser = CustodianHasProjectUser::firstOrCreate(
                     [
                         'project_has_user_id' => $phu->id,
                         'custodian_id' => $custodian->id,
                     ]
                 );
+
+                $user = $registry->user;
+                $userUnclaimed = $user->unclaimed;
+                if ($userUnclaimed) {
+                    $custodianHasProjectUser->setState(State::STATE_INVITED);
+                }
 
                 $vchecks = CustodianHasValidationCheck::with("validationCheck")
                     ->where([
