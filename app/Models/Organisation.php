@@ -389,6 +389,7 @@ class Organisation extends Model
         'system_approved',
         'sro_profile_uri',
         'is_sro',
+        'system_approved_at',
     ];
 
     protected $casts = [
