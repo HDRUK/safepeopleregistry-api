@@ -22,7 +22,6 @@ use App\Http\Requests\Projects\GetProject;
 use App\Http\Requests\Projects\DeleteProject;
 use App\Http\Requests\Projects\UpdateProject;
 use App\Http\Requests\Projects\GetProjectUsers;
-use Illuminate\Pagination\LengthAwarePaginator;
 use App\Http\Requests\Projects\UpdateProjectUser;
 use App\Http\Requests\Projects\MakePrimaryContact;
 use App\Http\Requests\Projects\GetValidatedProjects;
@@ -608,7 +607,7 @@ class ProjectController extends Controller
     }
 
     public function getAllUsersFlagProject(Request $request, int $projectId): JsonResponse
-        {
+    {
         $project = Project::find($projectId);
 
         if (!Gate::allows('viewProjectUserDetails', $project)) {
@@ -638,7 +637,7 @@ class ProjectController extends Controller
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         $idCounter = 1;
-    
+
         $expandedUsers = $users->getCollection()->flatMap(function ($user) use ($projectId, &$idCounter) {
             return $user->registry->affiliations
                 ->filter(function ($affiliation) use ($user) {
@@ -650,7 +649,7 @@ class ProjectController extends Controller
                     return $this->formatProjectUserAffiliation($affiliation, $user, $projectId, $idCounter++);
                 });
         });
-        
+
         $paginatedResult = new \Illuminate\Pagination\LengthAwarePaginator(
             $expandedUsers,
             $users->total(),

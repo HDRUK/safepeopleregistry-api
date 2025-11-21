@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1;
 
 use TriggerEmail;
-
 use App\Models\User;
 use App\Models\Affiliation;
 use Illuminate\Http\Request;
@@ -68,7 +67,7 @@ class PendingInviteController extends Controller
 
         return $this->OKResponse($pendingInvites);
     }
-    
+
     //Hide from swagger docs
     public function resendInvite(CheckPendingInvite $request, int $inviteId)
     {
@@ -106,10 +105,10 @@ class PendingInviteController extends Controller
         }
 
         if ($user->user_group === User::GROUP_USERS) {
-             $affiliation = Affiliation::where([
-                'registry_id' => $user->registry_id,
+            $affiliation = Affiliation::where([
+               'registry_id' => $user->registry_id,
             ])->latest()->first();
-        
+
             if (is_null($affiliation)) {
                 return $this->ErrorResponse('Affiliation could not be found.');
             }
@@ -132,7 +131,7 @@ class PendingInviteController extends Controller
                 ];
             }
         }
-    
+
         if ($user->user_group === User::GROUP_ORGANISATIONS) {
             $sendEmail = [
                 'type' => 'ORGANISATION',

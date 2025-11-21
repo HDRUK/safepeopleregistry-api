@@ -1692,7 +1692,8 @@ class OrganisationController extends Controller
             }
 
             $org->update([
-                'system_approved' => $input['system_approved']
+                'system_approved' => $input['system_approved'],
+                'system_approved_at' => Carbon::now(),
             ]);
 
             // email
@@ -1711,8 +1712,7 @@ class OrganisationController extends Controller
             $usersToNotify = $this->getNotificationUsers($id);
             Notification::send($usersToNotify, new OrganisationApproved($org));
 
-
-            return $this->OKResponse($org);
+            return $this->OKResponse(Organisation::findOrFail($id));
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }

@@ -10,7 +10,7 @@ class PendingInviteTest extends TestCase
     use Authorisation;
 
     public const TEST_URL = '/api/v1/pending_invites';
-    
+
     public function setUp(): void
     {
         parent::setUp();

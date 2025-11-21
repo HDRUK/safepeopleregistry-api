@@ -31,7 +31,6 @@ use App\Models\UserHasCustodianPermission;
 use App\Http\Requests\Users\GetUserProject;
 use App\Http\Requests\Users\CheckUserInviteCode;
 use App\Services\DecisionEvaluatorService as DES;
-use App\Http\Requests\PendingInvites\CheckPendingInvite;
 
 class UserController extends Controller
 {
@@ -851,7 +850,7 @@ class UserController extends Controller
 
         $keycloakEmailVeifiedState = $user[0]['emailVerified'] ?? null;
         if (is_null($keycloakEmailVeifiedState)) {
-            return $this->ErrorResponse('Unable to determine email verified state for user with email ' . $email . ' in Keycloak'); 
+            return $this->ErrorResponse('Unable to determine email verified state for user with email ' . $email . ' in Keycloak');
         }
 
         if ($keycloakEmailVeifiedState === true) {

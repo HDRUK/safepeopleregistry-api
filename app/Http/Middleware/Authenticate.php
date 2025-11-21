@@ -11,7 +11,7 @@ use Illuminate\Auth\Middleware\Authenticate as Middleware;
 
 class Authenticate extends Middleware
 {
-        /**
+    /**
      * Handle an incoming request.
      */
     public function handle($request, Closure $next, ...$guards)
@@ -45,7 +45,7 @@ class Authenticate extends Middleware
                 $request->headers->set('Authorization', 'Bearer ' . $token);
 
                 $user = $this->getUserFromToken($token);
-                
+
                 if ($user) {
                     session([
                         'horizon_authenticated' => true,
@@ -86,21 +86,21 @@ class Authenticate extends Middleware
         // Decode JWT payload
         try {
             $parts = explode('.', $token);
-            
+
             if (count($parts) !== 3) {
                 return null;
             }
 
             $payload = json_decode(base64_decode(strtr($parts[1], '-_', '+/')), true);
-            
+
             if (!$payload || !isset($payload['sub'])) {
                 return null;
             }
 
             $userId = $payload['sub'];
-            
+
             return User::where('keycloak_id', $userId)->first();
-            
+
         } catch (Exception $e) {
             return null;
         }

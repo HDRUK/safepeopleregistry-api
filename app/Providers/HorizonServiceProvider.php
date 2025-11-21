@@ -4,7 +4,6 @@ namespace App\Providers;
 
 use App\Models\User;
 use Laravel\Horizon\Horizon;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Gate;
 use Laravel\Horizon\HorizonApplicationServiceProvider;
 
