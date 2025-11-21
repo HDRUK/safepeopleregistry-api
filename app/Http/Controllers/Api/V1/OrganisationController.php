@@ -25,6 +25,7 @@ use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use App\Models\UserHasDepartments;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use App\Exceptions\NotFoundException;
 use RegistryManagementController as RMC;
@@ -1710,7 +1711,6 @@ class OrganisationController extends Controller
             $loggerUser = User::findOrFail($loggedUserId);
             $usersToNotify = $this->getNotificationUsers($id);
             Notification::send($usersToNotify, new OrganisationApproved($org));
-
 
             return $this->OKResponse($org);
         } catch (Exception $e) {
