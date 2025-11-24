@@ -1400,12 +1400,16 @@ class OrganisationController extends Controller
                 ], 400);
             }
 
+            $loggedInUserId = $request->user()?->id;
+            $loggedInUser = User::where('id', $loggedInUserId)->first();
+
             $input = [
                 'type' => 'ORGANISATION',
                 'to' => $organisation->id,
                 'unclaimed_user_id' => $unclaimedUser->id,
                 'by' => $id,
-                'identifier' => 'organisation_invite'
+                'identifier' => 'organisation_invite',
+                'userName' => $loggedInUser->name,
             ];
 
             TriggerEmail::spawnEmail($input);
