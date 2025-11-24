@@ -1,4 +1,4 @@
-FROM php:8.3.3-fpm
+FROM dunglas/frankenphp:php8.4
 
 ENV COMPOSER_PROCESS_TIMEOUT=600
 ENV REBUILD_DB=1
@@ -51,10 +51,6 @@ COPY ./init/php.development.ini /usr/local/etc/php/php.ini
 
 # Copy the application
 COPY . /var/www
-
-RUN curl https://frankenphp.dev/install.sh | sh \
-    && mv frankenphp /usr/local/bin/frankenphp \
-    && chmod +x /usr/local/bin/frankenphp
 
 # Composer & laravel
 RUN composer install \
