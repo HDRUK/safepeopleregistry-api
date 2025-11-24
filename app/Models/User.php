@@ -197,6 +197,9 @@ class User extends Authenticatable
         't_and_c_agreement_date',
         'uksa_registered',
         'is_sro',
+        'invited_by_custodian', 
+        'invited_by_org',
+        'invited_by_user',
     ];
 
     public function getActivitylogOptions(): LogOptions
@@ -254,6 +257,9 @@ class User extends Authenticatable
         'uksa_registered' => 'boolean',
         'declaration_signed' => 'boolean',
         'is_sro' => 'boolean',
+        'invited_by_custodian' => 'boolean',
+        'invited_by_org' => 'boolean',
+        'invited_by_user' => 'boolean',
     ];
 
     protected $appends = ['status', 'evaluation'];
