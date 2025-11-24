@@ -321,7 +321,7 @@ class CustodianUserController extends Controller
                 'email' => $user['email'],
                 'user_group' => 'CUSTODIANS',
                 'custodian_user_id' => $id,
-                'invited_by_custodian' => true,
+                'invited_by' => $request->user()->id,
             ]);
 
             $emailIdentifier = '';
