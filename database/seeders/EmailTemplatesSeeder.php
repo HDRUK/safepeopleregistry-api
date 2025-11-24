@@ -199,16 +199,16 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="20px 0px 20px 0px">
                                   [[organisation.organisation_name]]
                                   <div><br></div>
-                                  You"ve been invited to sign-up as a trusted Organisation, for the [[env(APP_NAME)]]. 
+                                  You\'ve been invited to sign-up as a trusted Organisation, for the [[env(APP_NAME)]]. 
                                   <div><br></div>
                                   ' . $this->whatIsBlurb . '
                                   <div><br></div>
                                   Therefore, making an Organisation account will enable Data Custodians to validate you and your staff/students to gain access to sensitive data.
-
-                                  How to make an account
+                                  <div><br></div>
+                                  <b>How to make an account</b>
                                   <ol>
                                     <li>
-                                      <b>Identify an SRO:</b> You will need to identify a Senior Responsible Officer (or SRO). The SRO is a named individual who is responsible for your organisations Safe People Registry account. In practice this person will vary between organisations, this could be a member of your organisations leadership team, an appropriate Head of College, or a Head of HR. This is the person who creates this account. While there is a single account owner, you can also invite numerous Delegates across an Organisation to help administer the account day-to-day.
+                                      <b>Identify an SRO:</b> You will need to identify a Senior Responsible Officer (or SRO). The SRO is a named individual who is responsible for your Organisation\'s Safe People Registry account. In practice, this person will vary between Organisations. This could be a member of your Organisation\'s leadership team, an appropriate Head of College, or a Head of Human Resources. Ultimately, this is the person who creates this account. While there is a single account owner, the SRO can also invite numerous Delegates across an Organisation to help administer the account day-to-day.
                                     </li>
                                     <li>
                                       <b>Forward this email to the SRO:</b> If you are not the right person for the role, forward this email to an appropriate individual, as the account will be connected with this email invitation. We recommend using an "official" email inbox, such as "headofdepartment@domain.org", or similar, to enable handover of the account as needed.
