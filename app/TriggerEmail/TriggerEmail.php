@@ -59,6 +59,7 @@ class TriggerEmail
         $identifier = $input['identifier'];
         $inviteId = isset($input['inviteId']) ? $input['inviteId'] : null;
         $inviteCode = $this->generateInviteCode();
+        $userName = isset($input['userName']) ? $input['userName'] : null;
 
         switch (strtoupper($type)) {
             case 'AFFILIATION':
@@ -271,6 +272,8 @@ class TriggerEmail
                     // '[[digi_ident]]' => User::where('id', $unclaimedUserId)->first()->registry->digi_ident,
                     '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
                     '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[USER_NAME]]' => $userName,
+                    '[[SRO_TEMPLATE_DECLARATION_URL]]' => config('speedi.system.portal_url') . '/Registry_SRO_Declaration.pdf',
                 ];
 
                 if (!$inviteId) {
