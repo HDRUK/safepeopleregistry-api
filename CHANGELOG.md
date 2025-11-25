@@ -1,3 +1,34 @@
+## [1.20.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.19.1...v1.20.0) (2025-11-25)
+
+### ✨ Features
+
+* **REGISTRY-1422:** update the email in keycloak when is updated in profile (#527) ([3a9e8ec](https://github.com/HDRUK/safepeopleregistry-api/commit/3a9e8ec381e1a2f77f3881e8f3aae3942a84a24f))
+* **REGISTRY-1705:** Custodian | Add 1 status (#533) ([ad4593e](https://github.com/HDRUK/safepeopleregistry-api/commit/ad4593e2f381de700689d70f8205f4abb809627a))
+* **REGISTRY-1875:** Organisation (SRO application) super-admin interface - notifications (#538) ([2f894c4](https://github.com/HDRUK/safepeopleregistry-api/commit/2f894c4b14ce3baaa3e00364e594743091922e4f))
+* **REGISTRY-2028:** add count of affiliation (#526) ([756c898](https://github.com/HDRUK/safepeopleregistry-api/commit/756c898ef173d2a8505adc98537724fc59e90e90))
+* **REGISTRY-2190:** Give Registry team permissions to view Horizon-prod email statuses (#517) ([8e15c52](https://github.com/HDRUK/safepeopleregistry-api/commit/8e15c528361cc65b7e022e0eb2e252faeb5fabd5))
+* **REGISTRY-2208:** test users (#515) ([99431ea](https://github.com/HDRUK/safepeopleregistry-api/commit/99431ea130cd2e85cbd9804e27bd388887b6a647))
+* **REGISTRY-2217:** Make super-admin custodian invites intelligent (#521) ([451907d](https://github.com/HDRUK/safepeopleregistry-api/commit/451907dd3f312bb999ab2c2fd70a219e25d514b4))
+* **REGISTRY-2224:** Admins > resend invites (#519) ([f9a279e](https://github.com/HDRUK/safepeopleregistry-api/commit/f9a279e6b26195feb4c7a873e55a2278d7232c46))
+* **REGISTRY-2226:** Keycloak - enable resend of email verification (#530) ([7b96c92](https://github.com/HDRUK/safepeopleregistry-api/commit/7b96c92d42980a7d773b49bb11f1f308767e11f6))
+* **REGISTRY-2237:** switch to post (#524) ([9be2170](https://github.com/HDRUK/safepeopleregistry-api/commit/9be2170e05fef09b8567690f726db73185201728))
+* **REGISTRY-2256:** add users needs filter users (#536) ([d6a0b70](https://github.com/HDRUK/safepeopleregistry-api/commit/d6a0b70335cfe364ffeb0986e7d5502cd5d5b2bc))
+* **REGISTRY-2276:** Update Organisation invite email template (from both Custodian or User) (#540) ([6d22b1c](https://github.com/HDRUK/safepeopleregistry-api/commit/6d22b1cda0d7e7e38a38867b24eaaecd319ad875))
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-0000:** update 18nov (#532) ([9015a8f](https://github.com/HDRUK/safepeopleregistry-api/commit/9015a8f1fb8eaee4d0b8390f76b8ed02f2ed32b2))
+* **REGISTRY-0000:** update docker file for frankenphp (#542) ([a257911](https://github.com/HDRUK/safepeopleregistry-api/commit/a257911b8c51ff37105c9e1a5e5f1b574a557a29))
+* **REGISTRY-0000:** update organisation invite by custodian or user (#541) ([fa535e7](https://github.com/HDRUK/safepeopleregistry-api/commit/fa535e7868361ca259106d9586c307f7313a7d2d))
+* **REGISTRY-1834:** Custodian | Add 2 User validation statuses (#537) ([de48d5d](https://github.com/HDRUK/safepeopleregistry-api/commit/de48d5d24a621888e79fe75a42b64e2efdb73d84))
+* **REGISTRY-1929:** Registration - all users are getting registry entries (#531) ([d56e99a](https://github.com/HDRUK/safepeopleregistry-api/commit/d56e99a04cc34c207bef3030de0d9580f2ab5815))
+* **REGISTRY-2044:** missing org unique id (#525) ([5e6c7ed](https://github.com/HDRUK/safepeopleregistry-api/commit/5e6c7edd9752c3b1f8a09454bdab415fef5ec32a))
+* **REGISTRY-2210:** missing var (#518) ([1fc78d8](https://github.com/HDRUK/safepeopleregistry-api/commit/1fc78d8e8acaf81ac97140e1c22441dd9ef1a197))
+* **REGISTRY-2214:** Custodian/Project/Safe People/Add new User | Fail when on page 1 of rota when inviting new (#520) ([12e39c7](https://github.com/HDRUK/safepeopleregistry-api/commit/12e39c7470ea8b95c887bf8a7202860dfb15e4bb))
+* **REGISTRY-2225:** reset keycloak password (#528) ([2d9d7ab](https://github.com/HDRUK/safepeopleregistry-api/commit/2d9d7aba872ca781cd23fc98f14c6c90eb97b988))
+* **REGISTRY-2238:** predis to phpredis (#523) ([52b9c19](https://github.com/HDRUK/safepeopleregistry-api/commit/52b9c19505dd81031e931a831dee1aa3f21a731e))
+* **REGISTRY-2259:** Resend invites from admin generate 404 errors (#534) ([00df534](https://github.com/HDRUK/safepeopleregistry-api/commit/00df5347fc2b9ad3b23eae0723c4e7af9cae86d3))
+
 ## [1.19.1](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.19.0...v1.19.1) (2025-11-05)
 
 ### 🐛 Bug Fixes
