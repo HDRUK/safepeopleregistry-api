@@ -6,7 +6,9 @@ use Exception;
 use TriggerEmail;
 use App\Models\File;
 use App\Models\User;
+use App\Models\State;
 use App\Models\Registry;
+use App\Models\Affiliation;
 use App\Jobs\ScanFileUpload;
 use App\Models\Organisation;
 use Illuminate\Http\Request;
@@ -292,6 +294,8 @@ class FileUploadController extends Controller
 
                     TriggerEmail::spawnEmail($input);
                 }
+
+                $this->changeAffiliationState($organisation->id);
             } else {
                 throw new Exception('Invalid or missing registry ID or organisation ID');
             }
@@ -304,6 +308,17 @@ class FileUploadController extends Controller
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
+        }
+    }
+
+    public function changeAffiliationState($organisationId)
+    {
+        $affiliations = Affiliation::where("organisation_id", $organisationId)->get();
+
+        foreach ($affiliations as $affiliation) {
+            if ($affiliation->getState() === State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS) {
+                $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+            }
         }
     }
 }
