@@ -521,7 +521,7 @@ class AffiliationController extends Controller
      */
     public function verifyEmail(VerificationEmail $request, string $verificationCode): JsonResponse
     {
-        // try {
+        try {
             $loggedInUserId = $request->user()?->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();
 
@@ -568,9 +568,9 @@ class AffiliationController extends Controller
             $updatedAffiliation = Affiliation::where('id', $affiliation->id)->update($array);
 
             return $this->OKResponse($updatedAffiliation);
-        // } catch (Exception $e) {
-        //     throw new Exception($e->getMessage());
-        // }
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
     }
 
     /**
