@@ -279,15 +279,26 @@ class CustodianController extends Controller
                     ':' . config('speedi.system.custodian_salt_2')
             );
 
-            $custodian = Custodian::create([
-                'name' => $input['name'],
-                'unique_identifier' => $signature,
-                'calculated_hash' => $calculatedHash,
-                'contact_email' => $input['contact_email'],
-                'enabled' => $input['enabled'],
-                'idvt_required' => (isset($input['idvt_required']) ? $input['idvt_required'] : false),
-                'client_id' => $uuid,
-            ]);
+            $user = User::where([
+                'email' => $input['contact_email'],
+                'unclaimed' => 0,
+            ])->first();
+
+            if (!is_null($user)) {
+                $this->ErrorResponse('A user has already registered and claimed this email address.');
+            }
+
+            $custodian = Custodian::firstOrCreate(
+                ['contact_email' => $input['contact_email']],
+                [
+                    'name' => $input['name'],
+                    'unique_identifier' => $signature,
+                    'calculated_hash' => $calculatedHash,
+                    'enabled' => $input['enabled'],
+                    'idvt_required' => (isset($input['idvt_required']) ? $input['idvt_required'] : false),
+                    'client_id' => $uuid,
+                ]
+            );
 
             return response()->json([
                 'message' => 'success',
@@ -1228,23 +1239,33 @@ class CustodianController extends Controller
             // CustodianModelConfig - test
             $decisionModels = DecisionModel::all();
             foreach ($decisionModels as $decisionModel) {
-                CustodianModelConfig::create([
-                    'entity_model_id' => $decisionModel->id,
-                    'active' => 1,
-                    'custodian_id' => $id,
-                ]);
+                CustodianModelConfig::firstOrCreate(
+                    [
+                        'custodian_id' => $id,
+                    ],
+                    [
+                        'entity_model_id' => $decisionModel->id,
+                        'active' => 1,
+                        'custodian_id' => $id,
+                    ]
+                );
             }
 
             // CustodianUser - test
-            $custodianUser = CustodianUser::create([
-                'first_name' => 'Custodian', // I should update it upon activation.
-                'last_name' => 'User', // I should update it upon activation.
-                'email' => $custodian['contact_email'],
-                'password' => Hash::make('t3mpP4ssword!'),
-                'provider' => '',
-                'keycloak_id' => '',
-                'custodian_id' => $id,
-            ]);
+            $custodianUser = CustodianUser::firstOrCreate(
+                [
+                    'email' => $custodian['contact_email'],
+                ],
+                [
+                    'first_name' => 'Custodian', // I should update it upon activation.
+                    'last_name' => 'User', // I should update it upon activation.
+                    'email' => $custodian['contact_email'],
+                    'password' => Hash::make('t3mpP4ssword!'),
+                    'provider' => '',
+                    'keycloak_id' => '',
+                    'custodian_id' => $id,
+                ]
+            );
 
             // update User - test
             User::where('id', $unclaimedUser->id)->update([
@@ -1253,28 +1274,46 @@ class CustodianController extends Controller
 
             // Permission - test
             $permission = Permission::where('name', '=', 'CUSTODIAN_ADMIN')->first();
-            CustodianUserHasPermission::create([
-                'custodian_user_id' => $custodianUser->id,
-                'permission_id' => $permission->id,
-            ]);
+            CustodianUserHasPermission::firstOrCreate(
+                [
+                    'custodian_user_id' => $custodianUser->id,
+                    'permission_id' => $permission->id,
+                ],
+                [
+                    'custodian_user_id' => $custodianUser->id,
+                    'permission_id' => $permission->id,
+                ]
+            );
 
             // webhooks - test
             $webhookEventTriggers = WebhookEventTrigger::where('enabled', true)->get();
             foreach ($webhookEventTriggers as $webhookEventTrigger) {
-                CustodianWebhookReceiver::create([
-                    'custodian_id' => $id,
-                    'url' => 'https://webhook.site/4c812c72-3db1-4162-9160-5a798b52306c', // free webhook receiver
-                    'webhook_event' => $webhookEventTrigger->id,
-                ]);
+                CustodianWebhookReceiver::firstOrCreate(
+                    [
+                        'custodian_id' => $id,
+                        'webhook_event' => $webhookEventTrigger->id,
+                    ],
+                    [
+                        'custodian_id' => $id,
+                        'url' => 'https://webhook.site/4c812c72-3db1-4162-9160-5a798b52306c', // free webhook receiver
+                        'webhook_event' => $webhookEventTrigger->id,
+                    ]
+                );
             }
 
             // custodian has validations check
             $validationCheckIds = ValidationCheck::pluck('id')->all();
             foreach ($validationCheckIds as $validationCheckId) {
-                CustodianHasValidationCheck::create([
-                    'custodian_id' => $id,
-                    'validation_check_id' => $validationCheckId,
-                ]);
+                CustodianHasValidationCheck::firstOrCreate(
+                    [
+                        'custodian_id' => $id,
+                        'validation_check_id' => $validationCheckId,
+                    ],
+                    [
+                        'custodian_id' => $id,
+                        'validation_check_id' => $validationCheckId,
+                    ]
+                );
             }
 
             $input = [

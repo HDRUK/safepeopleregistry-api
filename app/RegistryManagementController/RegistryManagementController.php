@@ -69,7 +69,7 @@ class RegistryManagementController
      *      simply logging in accounts
      * @return mixed
      */
-    public static function createNewUser(array $input, Request $request): mixed
+    public static function createNewUser(array $input, mixed $request): mixed
     {
         $unclaimedUser = null;
         $user = null;
@@ -235,8 +235,7 @@ class RegistryManagementController
         $isRegistry = 1;
 
         try {
-
-            if (isset($user['user_group']) && $user['user_group'] === 'CUSTODIANS') {
+            if (isset($user['user_group']) && ($user['user_group'] === 'CUSTODIANS' || $user['user_group'] === 'ORGANISATIONS')) {
                 $isRegistry = 0;
             }
 
@@ -277,7 +276,17 @@ class RegistryManagementController
                     }
                     return $existingUser;
                 }
-                return User::create($userData);
+
+                if ($isRegistry) {
+                    return User::create($userData);
+                } else {
+                    return User::firstOrCreate(
+                        [
+                            'email' => $user['email'],
+                        ],
+                        $userData
+                    );
+                }
             }
         } catch (Exception $e) {
             DebugLog::create([

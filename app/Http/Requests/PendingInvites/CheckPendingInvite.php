@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Projects;
+namespace App\Http\Requests\PendingInvites;
 
 use App\Http\Requests\BaseFormRequest;
 
-class UpdateAllProjectUsers extends BaseFormRequest
+class CheckPendingInvite extends BaseFormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -14,12 +14,11 @@ class UpdateAllProjectUsers extends BaseFormRequest
     public function rules(): array
     {
         return [
-            'projectId' => [
+            'inviteId' => [
                 'required',
                 'integer',
-                'exists:projects,id',
+                'exists:pending_invites,id',
             ],
-            'users' => 'required|array',
         ];
     }
 
@@ -30,6 +29,6 @@ class UpdateAllProjectUsers extends BaseFormRequest
      */
     protected function prepareForValidation()
     {
-        $this->merge(['projectId' => $this->route('projectId')]);
+        $this->merge(['inviteId' => $this->route('inviteId')]);
     }
 }

@@ -4,6 +4,7 @@ includes:
 parameters:
     paths:
         - app/
+        - database/seeders/
     reportUnmatchedIgnoredErrors: false
     stubFiles:
         - phpstan-stubs/laravel-octane.php
@@ -36,6 +37,7 @@ parameters:
         - '#Method App\\Models\\Organisation::registries\(\) should return Illuminate\\Database\\Eloquent\\Relations\\HasManyThrough<.*,.*,.*> but returns Illuminate\\Database\\Eloquent\\Relations\\HasManyThrough<.*,.*,.*>\.#'
         - '#Generic type Illuminate\\Database\\Eloquent\\Relations\\MorphOne<App\\Models\\ModelState> in PHPDoc tag @return does not specify all template types of class Illuminate\\Database\\Eloquent\\Relations\\MorphOne: TRelatedModel, TDeclaringModel#'
         - '#Method App\\Models\\RegistryHasAffiliation::modelState\(\) should return Illuminate\\Database\\Eloquent\\Relations\\MorphOne<App\\Models\\ModelState> but returns Illuminate\\Database\\Eloquent\\Relations\\MorphOne<App\\Models\\ModelState, .*?>\.#'
+        - '#Trait App\\Traits\\SeedersUtils is used zero times and is not analysed\.#'
 #
 #    excludePaths:
 #        - ./*/*/FileToBeExcluded.php

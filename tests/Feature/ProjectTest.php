@@ -646,6 +646,25 @@ class ProjectTest extends TestCase
         $this->assertEquals('Invalid argument(s)', $message);
     }
 
+    public function test_the_application_cannot_update_project_users_empty_array(): void
+    {
+        $latestProject = Project::query()->orderBy('id', 'desc')->first();
+        $projectIdTest = $latestProject->id + 1;
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                self::TEST_URL . "/{$projectIdTest}/all_users",
+                [
+                    'users' => [],
+                ]
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
     public function test_the_application_cannot_update_project_users(): void
     {
         $latestProject = Project::query()->orderBy('id', 'desc')->first();
@@ -710,6 +729,77 @@ class ProjectTest extends TestCase
         $response->assertStatus(400);
         $message = $response->decodeResponseJson()['message'];
         $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_can_get_project_users(): void
+    {
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/1/all_users"
+            );
+        $response->assertStatus(200);
+    }
+
+    public function test_the_application_can_get_project_users_filter_in(): void
+    {
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/1/all_users?user_project_filter=in"
+            );
+        $response->assertStatus(200);
+        $responseData = count($response->decodeResponseJson()['data']['data']);
+        $projectHasUsers = ProjectHasUser::where('project_id', 1)->count();
+
+        $this->assertEquals($responseData, $projectHasUsers);
+    }
+
+    public function test_the_application_can_asssign_claimed_users_to_project(): void
+    {
+        $responseUsersInProjectBefore = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/1/all_users?user_project_filter=in"
+            );
+
+        $responseUsersInProjectBefore->assertStatus(200);
+        $responseDataUsersInProjectBefore = $responseUsersInProjectBefore->decodeResponseJson()['data']['data'];
+
+        $responseAllUsers = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/1/all_users"
+            );
+
+        $responseAllUsers->assertStatus(200);
+        $responseDataAllUsers = $responseAllUsers->decodeResponseJson()['data']['data'];
+
+        $payload = $this->createPayloadForAddNewUserToProject($responseDataUsersInProjectBefore, $responseDataAllUsers);
+
+        $responseAddNewUserInProject =  $this->actingAs($this->custodian_admin)
+            ->json(
+                'PUT',
+                self::TEST_URL . '/1/all_users',
+                [
+                    'users' => $payload,
+                ]
+            );
+        $responseAddNewUserInProject->assertStatus(200);
+    }
+
+    public function createPayloadForAddNewUserToProject(array $usersInProject, array $allUsers): array
+    {
+        $userIds = array_values(array_column($usersInProject, 'id'));
+
+        foreach ($allUsers as $allUser) {
+            if (!in_array($allUser['id'], $userIds)) {
+                $usersInProject[] = $allUser;
+                break;
+            }
+        }
+
+        return $usersInProject;
     }
 
     /** Only seem to be returning 401 / 403 in tests */

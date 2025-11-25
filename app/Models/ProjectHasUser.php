@@ -39,6 +39,8 @@ class ProjectHasUser extends Model
 {
     use HasFactory;
 
+    public const USER_IN_PROJECT = 'IN';
+
     public $incrementing = true;
 
     protected $table = 'project_has_users';

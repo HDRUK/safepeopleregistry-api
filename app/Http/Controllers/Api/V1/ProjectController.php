@@ -22,7 +22,6 @@ use App\Http\Requests\Projects\GetProject;
 use App\Http\Requests\Projects\DeleteProject;
 use App\Http\Requests\Projects\UpdateProject;
 use App\Http\Requests\Projects\GetProjectUsers;
-use Illuminate\Pagination\LengthAwarePaginator;
 use App\Http\Requests\Projects\UpdateProjectUser;
 use App\Http\Requests\Projects\MakePrimaryContact;
 use App\Http\Requests\Projects\GetValidatedProjects;
@@ -615,9 +614,19 @@ class ProjectController extends Controller
             return $this->ForbiddenResponse();
         };
 
+        $userProjectFilter = request()->get('user_project_filter');
+        if ($userProjectFilter && !in_array(strtoupper($userProjectFilter), ['IN'])) {
+            return $this->ErrorResponse('Invalid project filter.');
+        }
+
         $users = User::searchViaRequest()
             ->where('user_group', User::GROUP_USERS)
             ->filterByState()
+            ->when(strtoupper($userProjectFilter) === ProjectHasUser::USER_IN_PROJECT, function ($query) use ($projectId) {
+                $query->whereHas('registry.projectUsers', function ($q) use ($projectId) {
+                    $q->where('project_id', $projectId);
+                });
+            })
             ->with([
                 'modelState',
                 'registry.affiliations',
@@ -628,23 +637,26 @@ class ProjectController extends Controller
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         $idCounter = 1;
-        /** @phpstan-ignore-next-line */
-        $expandedUsers = $users->flatMap(function ($user) use ($projectId, &$idCounter) {
-            // LS - Even though the return types match, phpstan sees them as not covariant.
-            /** @phpstan-ignore-next-line */
-            return $user->registry->affiliations->map(function ($affiliation) use ($user, $projectId, &$idCounter) {
-                return $this->formatProjectUserAffiliation($affiliation, $user, $projectId, $idCounter++);
-            });
+
+        $expandedUsers = $users->getCollection()->flatMap(function ($user) use ($projectId, &$idCounter) {
+            return $user->registry->affiliations
+                ->filter(function ($affiliation) use ($user) {
+                    return $user->registry->projectUsers->contains(function ($projectUser) use ($affiliation) {
+                        return $projectUser->affiliation_id == $affiliation->id;
+                    });
+                })
+                ->map(function ($affiliation) use ($user, $projectId, &$idCounter) {
+                    return $this->formatProjectUserAffiliation($affiliation, $user, $projectId, $idCounter++);
+                });
         });
 
-        $paginatedResult = new LengthAwarePaginator(
-            $expandedUsers->values()->all(),
+        $paginatedResult = new \Illuminate\Pagination\LengthAwarePaginator(
+            $expandedUsers,
             $users->total(),
             $users->perPage(),
             $users->currentPage(),
             ['path' => $request->url(), 'query' => $request->query()]
         );
-
 
         return $this->OKResponse($paginatedResult);
     }
@@ -1007,8 +1019,9 @@ class ProjectController extends Controller
     public function updateAllProjectUsers(UpdateAllProjectUsers $request, int $projectId): JsonResponse
     {
         try {
-            $validated = $request->validate(['users' => 'required|array']);
-            $users = collect($validated['users']);
+            $input = $request->all();
+            $inputUsers = $input['users'];
+            $users = collect($inputUsers);
 
             $registryIds = $users->pluck('registry_id')->unique();
             $registries = Registry::with('user')->whereIn('id', $registryIds)->get()->keyBy('id');
@@ -1284,4 +1297,5 @@ class ProjectController extends Controller
             'role' => $matchingProjectUser?->role,
         ];
     }
+
 }

@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Api\V1;
 
 use DB;
+use Str;
 use Http;
 use Keycloak;
 use Exception;
 use TriggerEmail;
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\State;
 use App\Models\Charity;
 use App\Models\Project;
 use App\Models\DebugLog;
@@ -126,13 +128,6 @@ class OrganisationController extends Controller
                         $query->whereHas('delegates');
                     } else {
                         $query->whereDoesntHave('delegates');
-                    }
-                })
-                ->filterWhen('has_soursd_id', function ($query, $hasSoursdId) {
-                    if ($hasSoursdId) {
-                        $query->whereNot('organisation_unique_id', '')->whereNotNull('organisation_unique_id');
-                    } else {
-                        $query->where('organisation_unique_id', '')->orWhereNull('organisation_unique_id');
                     }
                 })
                 ->paginate((int)$this->getSystemConfig('PER_PAGE'));
@@ -503,7 +498,6 @@ class OrganisationController extends Controller
                 'postcode' => '',
                 'lead_applicant_organisation_name' => '',
                 'lead_applicant_email' => $input['lead_applicant_email'],
-                'organisation_unique_id' => '',
                 'applicant_names' => '',
                 'funders_and_sponsors' => '',
                 'sub_license_arrangements' => '',
@@ -529,6 +523,7 @@ class OrganisationController extends Controller
                 'unclaimed' => $input['unclaimed'] ?? 1,
                 'system_approved' => $input['system_approved'] ?? 0,
                 'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
+                'organisation_unique_id' => Str::random(40),
             ];
 
             $organisation = Organisation::create($organisationsData);
@@ -582,7 +577,6 @@ class OrganisationController extends Controller
                 'postcode' => '',
                 'lead_applicant_organisation_name' => '',
                 'lead_applicant_email' => $input['lead_applicant_email'],
-                'organisation_unique_id' => '',
                 'applicant_names' => '',
                 'funders_and_sponsors' => '',
                 'sub_license_arrangements' => '',
@@ -608,6 +602,7 @@ class OrganisationController extends Controller
                 'unclaimed' => $input['unclaimed'] ?? 1,
                 'system_approved' => $input['system_approved'] ?? 0,
                 'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
+                'organisation_unique_id' => Str::random(40),
             ]);
 
             return $this->CreatedResponse($organisation->id);
@@ -1184,7 +1179,7 @@ class OrganisationController extends Controller
 
             $loggedInUserId = $request->user()->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();
-            if ($loggedInUser->user_group !== User::GROUP_ORGANISATIONS) {
+            if ($loggedInUser->user_group !== User::GROUP_ORGANISATIONS && $loggedInUser->user_group !== User::GROUP_ADMINS) {
                 return $this->BadRequestResponse('Non-organisation users cannot invite members via this endpoint.');
             }
 
@@ -1339,6 +1334,9 @@ class OrganisationController extends Controller
                 ]);
             };
 
+            $user = User::where('id', $unclaimedUser->id)->first();
+            $user->setState(State::STATE_INVITED);
+
             $email = [
                 'type' => 'USER',
                 'to' => $unclaimedUser->id,
@@ -1402,12 +1400,16 @@ class OrganisationController extends Controller
                 ], 400);
             }
 
+            $loggedInUserId = $request->user()?->id;
+            $loggedInUser = User::where('id', $loggedInUserId)->first();
+
             $input = [
                 'type' => 'ORGANISATION',
                 'to' => $organisation->id,
                 'unclaimed_user_id' => $unclaimedUser->id,
                 'by' => $id,
-                'identifier' => 'organisation_invite'
+                'identifier' => 'organisation_invite',
+                'userName' => $loggedInUser->name,
             ];
 
             TriggerEmail::spawnEmail($input);
@@ -1694,7 +1696,8 @@ class OrganisationController extends Controller
             }
 
             $org->update([
-                'system_approved' => $input['system_approved']
+                'system_approved' => $input['system_approved'],
+                'system_approved_at' => Carbon::now(),
             ]);
 
             // email
@@ -1713,8 +1716,7 @@ class OrganisationController extends Controller
             $usersToNotify = $this->getNotificationUsers($id);
             Notification::send($usersToNotify, new OrganisationApproved($org));
 
-
-            return $this->OKResponse($org);
+            return $this->OKResponse(Organisation::findOrFail($id));
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }

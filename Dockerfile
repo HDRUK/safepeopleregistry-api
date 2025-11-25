@@ -1,4 +1,4 @@
-FROM php:8.3.3-fpm
+FROM dunglas/frankenphp:php8.4
 
 ENV COMPOSER_PROCESS_TIMEOUT=600
 ENV REBUILD_DB=1
@@ -21,22 +21,26 @@ RUN apt-get update && apt-get install -y \
     zip \
     default-mysql-client \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) gd pdo pdo_mysql soap zip iconv bcmath \
+    && docker-php-ext-install -j"$(nproc)" gd pdo pdo_mysql soap zip iconv bcmath \
     && docker-php-ext-configure pdo_mysql --with-pdo-mysql=mysqlnd \
     && docker-php-ext-install sockets \
     && docker-php-ext-install exif \
     && docker-php-ext-configure pcntl --enable-pcntl \
-    && docker-php-ext-install pcntl
+    && docker-php-ext-install pcntl \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /etc/pki/tls/certs && \
     ln -s /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt
 
-# Install Redis and Imagick
-RUN wget -O redis-5.3.7.tgz 'https://pecl.php.net/get/redis-5.3.7.tgz' \
-    && pecl install redis-5.3.7.tgz \
-    && rm -rf redis-5.3.7.tgz \
+# Install Redis
+RUN apt-get update && apt-get install -y \
+    autoconf \
+    g++ \
+    make \
+    && pecl install -o -f redis \
     && rm -rf /tmp/pear \
     && docker-php-ext-enable redis
+
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- \
@@ -47,10 +51,6 @@ COPY ./init/php.development.ini /usr/local/etc/php/php.ini
 
 # Copy the application
 COPY . /var/www
-
-RUN curl https://frankenphp.dev/install.sh | sh \
-    && mv frankenphp /usr/local/bin/frankenphp \
-    && chmod +x /usr/local/bin/frankenphp
 
 # Composer & laravel
 RUN composer install \

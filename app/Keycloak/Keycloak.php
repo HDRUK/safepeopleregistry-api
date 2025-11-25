@@ -426,4 +426,123 @@ class Keycloak
             unset($payload);
         }
     }
+
+    public static function updateUserEmail(string $token, string $keycloakId, string $email): bool
+    {
+        $url = config('speedi.system.keycloak_base_url').'/admin/realms/'.config('speedi.system.keycloak_realm').'/users/' . $keycloakId;
+
+        try {
+            $response = Http::withToken($token)
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                ])->put(
+                    $url,
+                    [
+                        'email' => $email,
+                        'emailVerified' => false,
+                    ],
+                );
+
+            if (!$response->successful()) {
+                throw new Exception('Failed to update email: ' . $email);
+            }
+
+            return true;
+        } catch (Exception $e) {
+            throw new Exception($e);
+        }
+    }
+
+    public static function sendVerifyEmail(string $token, string $keycloakId): bool
+    {
+        $url = config('speedi.system.keycloak_base_url').'/admin/realms/'.config('speedi.system.keycloak_realm').'/users/' . $keycloakId . '/execute-actions-email';
+
+        try {
+            $response = Http::withToken($token)
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                ])->put(
+                    $url,
+                    [
+                        'VERIFY_EMAIL',
+                    ],
+                );
+
+            if (!$response->successful()) {
+                throw new Exception('Failed to send verification email');
+            }
+
+            return true;
+        } catch (Exception $e) {
+            throw new Exception($e);
+        }
+    }
+
+    public static function resetUserPassword(string $token, string $keycloakId): bool
+    {
+        $url = config('speedi.system.keycloak_base_url').'/admin/realms/'.config('speedi.system.keycloak_realm').'/users/' . $keycloakId . '/execute-actions-email';
+
+        try {
+            $response = Http::withToken($token)
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                ])->put(
+                    $url,
+                    [
+                        'UPDATE_PASSWORD',
+                    ],
+                );
+
+            if (!$response->successful()) {
+                throw new Exception('Failed to send verification email');
+            }
+
+            return true;
+        } catch (Exception $e) {
+            throw new Exception($e);
+        }
+    }
+
+    public static function searchUserByEmail(string $token, string $email): array
+    {
+        $url = config('speedi.system.keycloak_base_url').'/admin/realms/'.config('speedi.system.keycloak_realm').'/users';
+
+        try {
+            $response = Http::withToken($token)
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                ])->get(
+                    $url,
+                    [
+                        'email' => $email,
+                    ],
+                );
+
+            if (!$response->successful()) {
+                throw new Exception('Failed to search user by email: ' . $email);
+            }
+
+            return $response->json();
+        } catch (Exception $e) {
+            throw new Exception($e);
+        }
+    }
+
+    public static function resendVerifyEmail(string $token, string $keycloakId): bool
+    {
+        $url = config('speedi.system.keycloak_base_url').'/admin/realms/'.config('speedi.system.keycloak_realm').'/users/'.$keycloakId.'/send-verify-email';
+
+        try {
+            $response = Http::withToken($token)
+                ->put($url);
+
+            if (!$response->successful()) {
+                throw new Exception('Failed to resend verification email for user ID: ' . $keycloakId);
+            }
+
+            return true;
+        } catch (Exception $e) {
+            throw new Exception($e);
+        }
+    }
 }

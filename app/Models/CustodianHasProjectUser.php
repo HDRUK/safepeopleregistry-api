@@ -45,37 +45,56 @@ class CustodianHasProjectUser extends Model
     use FilterManager;
 
     protected static array $transitions = [
-        State::STATE_FORM_RECEIVED => [
+        State::STATE_INVITED => [
+            State::STATE_PENDING,
+        ],
+        State::STATE_PENDING => [
             State::STATE_VALIDATION_IN_PROGRESS,
+            State::STATE_MORE_USER_INFO_REQ,
             State::STATE_MORE_USER_INFO_REQ_ESCALATION_MANAGER,
             State::STATE_MORE_USER_INFO_REQ_ESCALATION_COMMITTEE,
             State::STATE_USER_LEFT_PROJECT,
         ],
         State::STATE_VALIDATION_IN_PROGRESS => [
             State::STATE_VALIDATION_COMPLETE,
+            State::STATE_MORE_USER_INFO_REQ,
             State::STATE_MORE_USER_INFO_REQ_ESCALATION_MANAGER,
             State::STATE_MORE_USER_INFO_REQ_ESCALATION_COMMITTEE,
+            State::STATE_VALIDATION_COMPLETE,
             State::STATE_USER_VALIDATION_DECLINED,
             State::STATE_USER_LEFT_PROJECT,
         ],
         State::STATE_VALIDATION_COMPLETE => [
+            State::STATE_MORE_USER_INFO_REQ,
             State::STATE_MORE_USER_INFO_REQ_ESCALATION_MANAGER,
             State::STATE_MORE_USER_INFO_REQ_ESCALATION_COMMITTEE,
+            State::STATE_VALIDATION_COMPLETE,
             State::STATE_USER_VALIDATION_DECLINED,
             State::STATE_USER_LEFT_PROJECT,
         ],
         State::STATE_MORE_USER_INFO_REQ_ESCALATION_MANAGER => [
+            State::STATE_MORE_USER_INFO_REQ,
             State::STATE_MORE_USER_INFO_REQ_ESCALATION_COMMITTEE,
+            State::STATE_VALIDATION_COMPLETE,
             State::STATE_USER_VALIDATION_DECLINED,
             State::STATE_USER_LEFT_PROJECT,
         ],
         State::STATE_MORE_USER_INFO_REQ_ESCALATION_COMMITTEE => [
+            State::STATE_MORE_USER_INFO_REQ,
             State::STATE_MORE_USER_INFO_REQ_ESCALATION_MANAGER,
+            State::STATE_VALIDATION_COMPLETE,
+            State::STATE_USER_VALIDATION_DECLINED,
+            State::STATE_USER_LEFT_PROJECT,
+        ],
+        State::STATE_MORE_USER_INFO_REQ => [
+            State::STATE_MORE_USER_INFO_REQ_ESCALATION_MANAGER,
+            State::STATE_MORE_USER_INFO_REQ_ESCALATION_COMMITTEE,
+            State::STATE_VALIDATION_COMPLETE,
             State::STATE_USER_VALIDATION_DECLINED,
             State::STATE_USER_LEFT_PROJECT,
         ],
         State::STATE_USER_VALIDATION_DECLINED => [
-            State::STATE_VALIDATION_COMPLETE
+            State::STATE_VALIDATION_COMPLETE,
         ],
         State::STATE_USER_LEFT_PROJECT => [],
     ];
@@ -112,7 +131,14 @@ class CustodianHasProjectUser extends Model
 
         static::created(function ($model) {
             if (in_array(StateWorkflow::class, class_uses($model))) {
-                $model->setState(State::STATE_FORM_RECEIVED);
+                $projectUser = ProjectHasUser::where('id', $model->project_has_user_id)->first();
+                $user = $projectUser->registry->user;
+                if ($user->unclaimed) {
+                    $model->setState(State::STATE_INVITED);
+                } else {
+                    $model->setState(State::STATE_PENDING);
+                }
+
                 $model->save();
             }
         });

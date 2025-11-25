@@ -10,8 +10,8 @@ use App\Models\Sector;
 use App\Models\Project;
 use App\Models\ActionLog;
 use App\Jobs\SendEmailJob;
-use App\Models\Affiliation;
 use App\Models\ModelState;
+use App\Models\Affiliation;
 use Illuminate\Support\Str;
 use App\Models\Organisation;
 use App\Models\PendingInvite;
@@ -1408,6 +1408,33 @@ class OrganisationTest extends TestCase
         $response->assertStatus(400);
         $message = $response->decodeResponseJson()['message'];
         $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_update_organisations_approved_by_admin(): void
+    {
+        $organisationIdTest = 1;
+        $initSystemApproved = Organisation::where('id', $organisationIdTest)->value('system_approved');
+
+        if ($initSystemApproved) {
+            Organisation::where('id', $organisationIdTest)->update(['system_approved' => 0]);
+        }
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'PUT',
+                self::TEST_URL . "/{$organisationIdTest}/approved",
+                [
+                    'system_approved' => true,
+                ]
+            );
+
+        $response->assertStatus(200);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('success', $message);
+        $finalSystemApproved = Organisation::where('id', $organisationIdTest)->value('system_approved');
+        $this->assertTrue($finalSystemApproved);
+
+        Organisation::where('id', $organisationIdTest)->update(['system_approved' => $initSystemApproved]);
     }
 
     public function test_the_application_cannot_delete_organisations(): void
