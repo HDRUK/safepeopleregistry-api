@@ -1,6 +1,6 @@
 {
   "name": "soursd-api",
-  "version": "1.19.1",
+  "version": "1.20.0",
   "private": true,
   "scripts": {
     "semi": "npx semantic-release"
