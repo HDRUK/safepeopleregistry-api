@@ -104,13 +104,12 @@ class AuthController extends Controller
         ], 400);
     }
 
-    public function claimUser(Request $request): JsonResponse
+    public function claimUser(Request $request, int $userId): JsonResponse
     {
         $response = Keycloak::getUserInfo($request->headers->get('Authorization'));
         $input = $response->json();
-        $registryId = $request->input('registry_id');
 
-        $userToReplace = User::where('registry_id', $registryId)->first();
+        $userToReplace = User::where('id', $userId)->first();
 
         if (!$userToReplace) {
             return response()->json([
