@@ -164,7 +164,8 @@ class StateWorkflowTest extends TestCase
             'unclaimed' => 0,
         ]);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $userId = $this->user->id;
+        $response = $this->actingAsKeycloakUser($this->user)
             ->json(
                 'PUT',
                 "/api/v1/affiliations/1",
@@ -183,12 +184,14 @@ class StateWorkflowTest extends TestCase
         $verficationCode = $affiliation->verification_code;
         $organisationId = $affiliation->organisation_id;
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->user)
             ->json(
                 'PUT',
                 "/api/v1/affiliations/verify_email/{$verficationCode}",
                 []
             );
+
+        $response->assertStatus(200);
 
         $affiliation = Affiliation::where('id', 1)->first();
         $this->assertTrue($affiliation->is_verified === true);

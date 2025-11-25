@@ -677,6 +677,7 @@ class OrganisationTest extends TestCase
             'is_delegate' => 0,
             'user_group' => 'USERS',
             'role' => null,
+            'invited_by' => $this->organisation_admin->id,
         ]);
 
         Queue::assertPushed(SendEmailJob::class);

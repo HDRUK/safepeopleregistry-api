@@ -262,6 +262,7 @@ class RegistryManagementController
                 'custodian_user_id' => $user['custodian_user_id'] ?? null,
                 'is_delegate' => $user['is_delegate'] ?? 0,
                 'role' => $user['role'] ?? null,
+                'invited_by' => $user['invited_by'] ?? null,
             ];
 
             if ($strictCreate) {

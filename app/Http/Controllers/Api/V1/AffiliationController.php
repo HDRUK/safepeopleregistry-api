@@ -522,6 +522,9 @@ class AffiliationController extends Controller
     public function verifyEmail(VerificationEmail $request, string $verificationCode): JsonResponse
     {
         try {
+            $loggedInUserId = $request->user()?->id;
+            $loggedInUser = User::where('id', $loggedInUserId)->first();
+
             $affiliation = Affiliation::with('organisation')->where([
                     'verification_code' => $verificationCode,
                     'is_verified'       => 0,
@@ -548,7 +551,13 @@ class AffiliationController extends Controller
                 return $this->ErrorResponse('Organisation Found Unclaimed');
             }
 
-            $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+            $userGroupInvitedBy = User::where('id', $loggedInUser?->invited_by)->first()?->user_group;
+
+            if ($userGroupInvitedBy === 'ORGANISATIONS') {
+                $affiliation->setState(State::STATE_AFFILIATION_APPROVED);
+            } else {
+                $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+            }
 
             $array = [
                 'verification_code' => null,
