@@ -705,7 +705,7 @@ class OrganisationController extends Controller
                 $this->updateOrganisationCharities($id, $request->input('charities'));
             }
 
-            if ($org->wasChanged()) {
+            if ($org->isDirty()) {
                 Organisation::where('id', $org->id)->update([
                     'system_approved' => 0,
                 ]);
@@ -724,7 +724,7 @@ class OrganisationController extends Controller
 
             }
 
-            return $this->OKResponse($org);
+            return $this->OKResponse($org->refresh());
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
