@@ -1,3 +1,16 @@
+## [1.21.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.20.0...v1.21.0) (2025-11-26)
+
+### ✨ Features
+
+* **REGISTRY-1851:** Affiliation status - Org invites User (#539) ([4298331](https://github.com/HDRUK/safepeopleregistry-api/commit/4298331fd79fd77f27d3acfcaaf452cdefb4addb))
+* **REGISTRY-2260:** Affiliation status - User invites Org (#546) ([f556748](https://github.com/HDRUK/safepeopleregistry-api/commit/f556748075315ca98d6f671c30bed442522fb1bd))
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-0000:** change column type in table (#544) ([5792e60](https://github.com/HDRUK/safepeopleregistry-api/commit/5792e602a81c881558dbbd27f2c6a1fb5b138fc1))
+* **REGISTRY-2284:** change claim user endpoint ([49351ce](https://github.com/HDRUK/safepeopleregistry-api/commit/49351ce393e4d364b511990625719a55b05710cc))
+* **REGISTRY-2284:** change claim user endpoint (#545) ([c3da40e](https://github.com/HDRUK/safepeopleregistry-api/commit/c3da40ee1c958d6e5e3d12af40c9bf2cb98e386b))
+
 ## [1.20.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.19.1...v1.20.0) (2025-11-25)
 
 ### ✨ Features
