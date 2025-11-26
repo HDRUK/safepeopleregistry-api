@@ -109,6 +109,7 @@ class State extends Model
 
     public const STATE_USER_LEFT_PROJECT = 'user_left_project'; // user left project
     public const STATE_ORG_LEFT_PROJECT = 'org_left_project'; // org left project
+    public const STATE_AFFILIATION_ACCOUNT_IN_PROGRESS = 'affiliation_account_in_progress';
 
     public const STATES = [
         self::STATE_INVITED,
@@ -140,5 +141,6 @@ class State extends Model
         self::STATE_ORG_VALIDATION_DECLINED,
         self::STATE_USER_LEFT_PROJECT,
         self::STATE_ORG_LEFT_PROJECT,
+        self::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS,
     ];
 }
