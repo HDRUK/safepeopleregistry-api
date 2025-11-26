@@ -702,10 +702,10 @@ class OrganisationController extends Controller
             $org->update($input);
 
             if ($request->has('charities')) {
-                $this->updateOrganisationCharities($id, $input['charities']);
+                $this->updateOrganisationCharities($id, $request->input('charities'));
             }
 
-            if ($org->isDirty()) {
+            if ($org->wasChanged()) {
                 Organisation::where('id', $org->id)->update([
                     'system_approved' => 0,
                 ]);
