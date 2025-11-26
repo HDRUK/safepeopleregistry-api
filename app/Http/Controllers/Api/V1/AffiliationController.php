@@ -548,10 +548,6 @@ class AffiliationController extends Controller
                 return $this->ErrorResponse('Organisation Not Found');
             }
 
-            // if ($organisation->unclaimed) {
-            //     return $this->ErrorResponse('Organisation Found Unclaimed');
-            // }
-
             $userGroupInvitedBy = User::where('id', $loggedInUser?->invited_by)->first()?->user_group;
 
             if ($userGroupInvitedBy === 'ORGANISATIONS') {
