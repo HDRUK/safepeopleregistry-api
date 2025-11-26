@@ -1350,7 +1350,7 @@ class OrganisationController extends Controller
             ];
 
             if ($userGroup === 'USERS') {
-                Affiliation::create([
+                $affiliation = Affiliation::create([
                     'organisation_id' => $id,
                     'member_id' => '',
                     'relationship' => '',
@@ -1362,6 +1362,7 @@ class OrganisationController extends Controller
                     'ror' => '',
                     'registry_id' => $unclaimedUser->registry_id,
                 ]);
+                $affiliation->setState(State::STATE_INVITED);
             }
 
             TriggerEmail::spawnEmail($email);
