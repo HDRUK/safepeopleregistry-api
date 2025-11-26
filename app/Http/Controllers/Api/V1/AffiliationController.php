@@ -436,7 +436,8 @@ class AffiliationController extends Controller
             $affiliation = Affiliation::findOrFail($id);
 
             $unclaimed = $affiliation->organisation->unclaimed;
-            if (!$unclaimed && $input['current_employer']) {
+
+            if (!$affiliation->is_verified && $input['current_employer']) {
                 $input['verification_code'] = Str::uuid()->toString();
                 $input['verification_sent_at'] = Carbon::now();
                 $array['verification_confirmed_at'] = null;
@@ -451,7 +452,7 @@ class AffiliationController extends Controller
             }
 
             $affiliation = Affiliation::where('id', $id)->first();
-            if (!$unclaimed && ($affiliation->current_employer && !$affiliation->is_verified)) {
+            if ($affiliation->current_employer && !$affiliation->is_verified) {
                 $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
                 $this->sendEmailVerificationAffiliation($affiliation);
             } else {
