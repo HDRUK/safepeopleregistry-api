@@ -702,7 +702,7 @@ class OrganisationController extends Controller
             $org->update($input);
 
             if ($request->has('charities')) {
-                $this->updateOrganisationCharities($id, $request->input('charities'));
+                $this->updateOrganisationCharities($id, $input['charities']);
             }
 
             if ($org->isDirty()) {
