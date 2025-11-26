@@ -688,7 +688,7 @@ class AffiliationController extends Controller
                     'is_verified' => 1,
                     'verification_confirmed_at' => Carbon::now(),
                 ]);
-            } 
+            }
 
             $affiliation->transitionTo($newStateSlug);
 
