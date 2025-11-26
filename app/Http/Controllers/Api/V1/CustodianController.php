@@ -1233,7 +1233,8 @@ class CustodianController extends Controller
                 'lastname' => '',
                 'email' => $custodian['contact_email'],
                 'user_group' => 'CUSTODIANS',
-                'custodian_id' => $id
+                'custodian_id' => $id,
+                'invited_by' => $request->user()->id,
             ]);
 
             // CustodianModelConfig - test

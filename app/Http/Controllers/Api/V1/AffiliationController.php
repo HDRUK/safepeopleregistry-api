@@ -522,6 +522,9 @@ class AffiliationController extends Controller
     public function verifyEmail(VerificationEmail $request, string $verificationCode): JsonResponse
     {
         try {
+            $loggedInUserId = $request->user()?->id;
+            $loggedInUser = User::where('id', $loggedInUserId)->first();
+
             $affiliation = Affiliation::with('organisation')->where([
                     'verification_code' => $verificationCode,
                     'is_verified'       => 0,
@@ -548,7 +551,13 @@ class AffiliationController extends Controller
                 return $this->ErrorResponse('Organisation Found Unclaimed');
             }
 
-            $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+            $userGroupInvitedBy = User::where('id', $loggedInUser?->invited_by)->first()?->user_group;
+
+            if ($userGroupInvitedBy === 'ORGANISATIONS') {
+                $affiliation->setState(State::STATE_AFFILIATION_APPROVED);
+            } else {
+                $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+            }
 
             $array = [
                 'verification_code' => null,
@@ -630,6 +639,10 @@ class AffiliationController extends Controller
     public function updateRegistryAffiliation(UpdateAffiliationByRegistry $request, int $registryId, int $id): JsonResponse
     {
         try {
+            $loggedInUserId = $request->user()?->id;
+            $loggedUser = User::where('id', $loggedInUserId)->first();
+            $loggedUserOrgId = $loggedUser?->organisation_id;
+            $loggedUserGroup = $loggedUser?->user_group;
 
             $validated = $request->validate([
                 'status' => 'required|string|in:approved,rejected',
@@ -647,7 +660,7 @@ class AffiliationController extends Controller
                 return $this->NotFoundResponse();
             }
 
-            if (!$affiliation->is_verified && $affiliation->current_employer && $status === 'approved') {
+            if ((!$affiliation->is_verified && $affiliation->current_employer && $status === 'approved') && ((int)$loggedUserOrgId !== (int)$affiliation->organisation_id)) {
                 return $this->ErrorResponse('Affiliation is not verified');
             }
 
@@ -669,6 +682,13 @@ class AffiliationController extends Controller
                         ' => ' . $newStateSlug
                 );
             }
+
+            if ($status === 'approved') {
+                $affiliation->update([
+                    'is_verified' => 1,
+                    'verification_confirmed_at' => Carbon::now(),
+                ]);
+            } 
 
             $affiliation->transitionTo($newStateSlug);
 

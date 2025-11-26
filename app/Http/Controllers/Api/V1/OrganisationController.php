@@ -1191,6 +1191,7 @@ class OrganisationController extends Controller
                 'is_delegate' => isset($input['is_delegate']) ? $input['is_delegate'] : 0,
                 'user_group' => isset($input['user_group']) ? $input['user_group'] : 'USERS',
                 'role' => isset($input['role']) ? $input['role'] : null,
+                'invited_by' => $request->user()->id,
             ]);
 
             if (isset($input['department_id']) && $input['department_id'] !== 0 && $input['department_id'] != null) {
@@ -1215,7 +1216,7 @@ class OrganisationController extends Controller
                     'identifier' => 'organisation_user_invite',
                 ];
 
-                Affiliation::create([
+                $affiliation = Affiliation::create([
                     'organisation_id' => $id,
                     'member_id' => '',
                     'relationship' => '',
@@ -1227,6 +1228,8 @@ class OrganisationController extends Controller
                     'ror' => '',
                     'registry_id' => $unclaimedUser->registry_id,
                 ]);
+
+                $affiliation->setState(State::STATE_AFFILIATION_INVITED);
             }
 
             TriggerEmail::spawnEmail($email);
@@ -1325,6 +1328,7 @@ class OrganisationController extends Controller
                 'is_delegate' => 0,
                 'user_group' => $userGroup,
                 'role' => isset($input['role']) ? $input['role'] : null,
+                'invited_by' => $request->user()->id,
             ]);
 
             if (isset($input['department_id']) && $input['department_id'] !== 0 && $input['department_id'] != null) {
@@ -1391,7 +1395,8 @@ class OrganisationController extends Controller
                 'lastname' => '',
                 'email' => $organisation['lead_applicant_email'],
                 'user_group' => User::GROUP_ORGANISATIONS,
-                'organisation_id' => $id
+                'organisation_id' => $id,
+                'invited_by' => $request->user()->id,
             ]);
 
             if (!$unclaimedUser->unclaimed) {

@@ -1055,6 +1055,7 @@ Social Media Platform’s Data Access Committee to allow access to platform data
                 'email' => $ca['email'],
                 'user_group' => RMC::KC_GROUP_CUSTODIANS,
                 'custodian_user_id' => $ca->id,
+                'invited_by' => $ca->id,
             ]);
         }
 
