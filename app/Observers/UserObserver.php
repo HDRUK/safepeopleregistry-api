@@ -105,7 +105,7 @@ class UserObserver
         }
 
         if (!empty($changes)) {
-            $this->sendNotificationUpdate($user, $changes);
+            $this->sendNotificationOnUpdate($user, $changes);
         }
 
         if ($user->isDirty($this->profileCompleteFields)) {
@@ -171,18 +171,17 @@ class UserObserver
         //
     }
 
-    public function sendNotificationUpdate(User $user, array $changes)
+    public function sendNotificationOnUpdate(User $user, array $changes)
     {
         if ($user->user_group !== User::GROUP_USERS) {
             // current user
             Notification::send($user, new UpdateProfileDetails($user, $changes, 'user'));
 
             // organisation
-            $organisation = User::where([
-                'organisation_id' => $user->organisation_id,
-                'is_sro' => 1
-            ])->first();
-            if (!is_null($organisation)) {
+            $organisations = User::where([
+                'organisation_id' => $user->organisation_id
+            ])->get();
+            foreach ($organisations as $organisation) {
                 Notification::send($organisation, new UpdateProfileDetails($user, $changes, 'organisation'));
             }
 
@@ -195,9 +194,9 @@ class UserObserver
                 ->pluck('custodian_id')->toArray();
 
             foreach (array_unique($custodianIds) as $custodianId) {
-                $custodianUser = User::where('custodian_user_id', $custodianId)->first();
-                if ($custodianUser) {
-                    Notification::send($custodianUser, new UpdateProfileDetails($user, $changes, 'custodian'));
+                $custodian = User::where('custodian_user_id', $custodianId)->first();
+                if ($custodian) {
+                    Notification::send($custodian, new UpdateProfileDetails($user, $changes, 'custodian'));
                 }
             }
         } else {

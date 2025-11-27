@@ -2,16 +2,17 @@
 
 namespace App\Observers;
 
-use App\Jobs\MergeUserAccounts;
 use TriggerEmail;
 use App\Models\User;
-use App\Models\Affiliation;
 use App\Models\State;
+use App\Models\Affiliation;
+use App\Jobs\MergeUserAccounts;
+use App\Models\CustodianHasProjectUser;
 use App\Traits\AffiliationCompletionManager;
 use Illuminate\Support\Facades\Notification;
+use App\Notifications\Affiliations\AffiliationChanged;
 use App\Notifications\Affiliations\AffiliationCreated;
 use App\Notifications\Affiliations\AffiliationDeleted;
-use App\Notifications\Affiliations\AffiliationChanged;
 
 class AffiliationObserver
 {
@@ -31,12 +32,42 @@ class AffiliationObserver
     {
         $this->handleChange($affiliation);
         $old = new Affiliation($affiliation->getOriginal());
+        $this->sendNotificationOnUpdate($affiliation, $old);
+    }
 
-        $this->notifyAdmins(new AffiliationChanged(
-            $this->getUser($affiliation),
-            $old,
-            $affiliation
-        ), $affiliation);
+    public function sendNotificationOnUpdate(Affiliation $affiliation, $old): void
+    {
+        $user = $this->getUser($affiliation);
+        if (!$user) {
+            return;
+        }
+
+        // user
+        $this->notifyAdmins(new AffiliationChanged($user,$old,$affiliation,'user'), $affiliation);
+
+        // organisation
+        $organisations = User::where([
+            'organisation_id' => $user->organisation_id
+        ])->get();
+        foreach ($organisations as $organisation) {
+            $this->notifyAdmins(new AffiliationChanged($organisation,$old,$affiliation,'organisation'), $affiliation);
+        }
+
+        // custodian
+        $custodianIds = CustodianHasProjectUser::query()
+            ->whereHas('projectHasUser.registry.user', function ($query) use ($user) {
+                $query->where('id', $user->id);
+            })
+            ->select('custodian_id')
+            ->pluck('custodian_id')->toArray();
+
+        foreach (array_unique($custodianIds) as $custodianId) {
+            $custodian = User::where('custodian_user_id', $custodianId)->first();
+            if ($custodian) {
+                $this->notifyAdmins(new AffiliationChanged($custodian,$old,$affiliation,'custodian'), $affiliation);
+            }
+        }
+        
     }
 
     public function deleted(Affiliation $affiliation): void

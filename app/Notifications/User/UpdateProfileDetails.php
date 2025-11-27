@@ -22,7 +22,7 @@ class UpdateProfileDetails extends Notification
         $this->user = $user;
         $this->details = $changes;
         $this->type = $type;
-        $this->message = $this->generateMessage();
+        $this->message = $this->buildMessage();
     }
 
     /**
@@ -45,7 +45,7 @@ class UpdateProfileDetails extends Notification
         ];
     }
 
-    public function generateMessage()
+    public function buildMessage()
     {
         switch ($this->type) {
             case 'user':

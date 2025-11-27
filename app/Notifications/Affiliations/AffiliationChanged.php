@@ -13,7 +13,7 @@ class AffiliationChanged extends Notification
     use Queueable;
     use AffiliationNotification;
 
-    public function __construct(User $user, Affiliation $oldAffiliation, Affiliation $newAffiliation)
+    public function __construct(User $user, Affiliation $oldAffiliation, Affiliation $newAffiliation, $type)
     {
         $oldDetails = $this->getAffiliationDetails($oldAffiliation);
         $newDetails = $this->getAffiliationDetails($newAffiliation);
@@ -29,9 +29,26 @@ class AffiliationChanged extends Notification
         }
 
         $this->payload = [
-            'message' => "{$user->first_name} {$user->last_name} affiliation details have been changed",
+            'message' => $this->buildMessage($user, $type),
             'details' => $changes,
             'time' => now(),
         ];
+    }
+
+    public function buildMessage($user, $type)
+    {
+        switch ($type) {
+            case 'user':
+                return "You changed your affiliation.";
+
+            case 'organisation':
+                return "Person {$user->first_name} {$user->last_name} has changed their affiliation.";
+
+            case 'custodian':
+                return "Person {$user->first_name} {$user->last_name} has changed their affiliation.";
+
+            default:
+                break;
+        }
     }
 }
