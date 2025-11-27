@@ -143,7 +143,7 @@ class AffiliationObserver
         }
 
         // user
-        Notification::send($user, new AffiliationChanged($user,$old,$affiliation,'user'), $affiliation);
+        Notification::send($user, new AffiliationChanged($user,$old,$affiliation,'user'));
 
         // organisation
         $organisations = User::where([
@@ -151,7 +151,7 @@ class AffiliationObserver
             'user_group' => User::GROUP_ORGANISATIONS,
         ])->get();
         foreach ($organisations as $organisation) {
-            Notification::send($organisation, new AffiliationChanged($organisation,$old,$affiliation,'organisation'), $affiliation);
+            Notification::send($organisation, new AffiliationChanged($organisation,$old,$affiliation,'organisation'));
         }
 
         // custodian
@@ -165,7 +165,7 @@ class AffiliationObserver
         foreach (array_unique($custodianIds) as $custodianId) {
             $custodian = User::where('custodian_user_id', $custodianId)->first();
             if ($custodian) {
-                Notification::send($custodian, new AffiliationChanged($custodian,$old,$affiliation,'custodian'), $affiliation);
+                Notification::send($custodian, new AffiliationChanged($custodian,$old,$affiliation,'custodian'));
             }
         }
         
