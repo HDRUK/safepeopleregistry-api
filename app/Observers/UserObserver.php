@@ -173,13 +173,14 @@ class UserObserver
 
     public function sendNotificationOnUpdate(User $user, array $changes)
     {
-        if ($user->user_group !== User::GROUP_USERS) {
+        if ($user->user_group === User::GROUP_USERS) {
             // current user
             Notification::send($user, new UpdateProfileDetails($user, $changes, 'user'));
 
             // organisation
             $organisations = User::where([
-                'organisation_id' => $user->organisation_id
+                'organisation_id' => $user->organisation_id,
+                'user_group' => User::GROUP_ORGANISATIONS,
             ])->get();
             foreach ($organisations as $organisation) {
                 Notification::send($organisation, new UpdateProfileDetails($user, $changes, 'organisation'));
