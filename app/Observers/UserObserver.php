@@ -14,8 +14,8 @@ use App\Jobs\OrcIDScanner;
 use App\Models\Organisation;
 use App\Models\CustodianHasProjectUser;
 use App\Notifications\AdminUserChanged;
-use App\Notifications\User\UpdateProfile;
 use Illuminate\Support\Facades\Notification;
+use App\Notifications\User\UpdateProfileDetails;
 
 class UserObserver
 {
@@ -175,7 +175,7 @@ class UserObserver
     {
         if ($user->user_group !== User::GROUP_USERS) {
             // current user
-            Notification::send($user, new UpdateProfile($user, $changes, 'user'));
+            Notification::send($user, new UpdateProfileDetails($user, $changes, 'user'));
 
             // organisation
             $organisation = User::where([
@@ -183,7 +183,7 @@ class UserObserver
                 'is_sro' => 1
             ])->first();
             if (!is_null($organisation)) {
-                Notification::send($organisation, new UpdateProfile($user, $changes, 'organisation'));
+                Notification::send($organisation, new UpdateProfileDetails($user, $changes, 'organisation'));
             }
 
             // custodians
@@ -197,7 +197,7 @@ class UserObserver
             foreach (array_unique($custodianIds) as $custodianId) {
                 $custodianUser = User::where('custodian_user_id', $custodianId)->first();
                 if ($custodianUser) {
-                    Notification::send($custodianUser, new UpdateProfile($user, $changes, 'custodian'));
+                    Notification::send($custodianUser, new UpdateProfileDetails($user, $changes, 'custodian'));
                 }
             }
         } else {
