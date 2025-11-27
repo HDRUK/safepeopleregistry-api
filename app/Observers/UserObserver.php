@@ -201,13 +201,13 @@ class UserObserver
         }
     }
 
-    private function getOrganisationAdminUsers(array|int $orgId)
-    {
-        if (!is_array($orgId)) {
-            $orgId = [$orgId];
-        }
-        return User::where('is_org_admin', 1)
-            ->whereIn("organisation_id", $orgId)
-            ->get();
-    }
+    // private function getOrganisationAdminUsers(array|int $orgId)
+    // {
+    //     if (!is_array($orgId)) {
+    //         $orgId = [$orgId];
+    //     }
+    //     return User::where('is_org_admin', 1)
+    //         ->whereIn("organisation_id", $orgId)
+    //         ->get();
+    // }
 }
