@@ -14,12 +14,8 @@ use App\Jobs\OrcIDScanner;
 use App\Models\Organisation;
 use App\Models\CustodianHasProjectUser;
 use App\Notifications\AdminUserChanged;
-use App\Notifications\UserUpdateProfile;
 use App\Notifications\User\UpdateProfile;
 use Illuminate\Support\Facades\Notification;
-use App\Notifications\User\UserUpdateProfileForUser;
-use App\Notifications\User\UserUpdateProfileForCustodian;
-use App\Notifications\User\UserUpdateProfileForOrganisation;
 
 class UserObserver
 {
@@ -189,7 +185,7 @@ class UserObserver
             if (!is_null($organisation)) {
                 Notification::send($organisation, new UpdateProfile($user, $changes, 'organisation'));
             }
-            
+
             // custodians
             $custodianIds = CustodianHasProjectUser::query()
                 ->whereHas('projectHasUser.registry.user', function ($query) use ($user) {
@@ -197,7 +193,7 @@ class UserObserver
                 })
                 ->select('custodian_id')
                 ->pluck('custodian_id')->toArray();
-            
+
             foreach (array_unique($custodianIds) as $custodianId) {
                 $custodianUser = User::where('custodian_user_id', $custodianId)->first();
                 if ($custodianUser) {
@@ -214,7 +210,7 @@ class UserObserver
 
             Notification::send($usersToNotify, new AdminUserChanged($user, $changes));
         }
-        
+
     }
 
     private function getOrganisationAdminUsers(array|int $orgId)

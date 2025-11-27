@@ -26,8 +26,6 @@ use App\Models\ProjectHasOrganisation;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\OrganisationHasSubsidiary;
 use App\Models\CustodianHasProjectOrganisation;
-use Illuminate\Support\Facades\Notification;
-
 
 class ActionLogTest extends TestCase
 {
@@ -712,7 +710,6 @@ class ActionLogTest extends TestCase
             'user_id' => $this->user->id,
             'department_id' => $dep->id,
         ]);
-
 
         $response = $this->actingAs($this->admin)
             ->json(
