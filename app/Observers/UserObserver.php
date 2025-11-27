@@ -13,6 +13,7 @@ use App\Models\ActionLog;
 use App\Jobs\OrcIDScanner;
 use App\Models\Organisation;
 use App\Models\CustodianHasProjectUser;
+use App\Notifications\AdminUserChanged;
 use App\Notifications\UserUpdateProfile;
 use Illuminate\Support\Facades\Notification;
 
@@ -173,41 +174,49 @@ class UserObserver
     public function sendNotificationUpdate(User $user, array $changes)
     {
         if ($user->user_group !== User::GROUP_USERS) {
-            return;
-        }
+            // current user
+            Notification::send($user, new UserUpdateProfile($user, $changes, 'user'));
 
-        // current user
-        Notification::send($user, new UserUpdateProfile($user, $changes, 'user'));
-
-        // organisation
-        $organisation = Organisation::where('id', $user->organisation_id)->first();
-        if (!is_null($organisation)) {
-            Notification::send($organisation, new UserUpdateProfile($user, $changes, 'orgasnisation'));
-        }
-        
-        // custodians
-        $custodianIds = CustodianHasProjectUser::query()
-            ->whereHas('projectHasUser.registry.user', function ($query) use ($user) {
-                $query->where('id', $user->id);
-            })
-            ->select('custodian_id')
-            ->pluck('custodian_id')->toArray();
-        
-        foreach (array_unique($custodianIds) as $custodianId) {
-            $custodianUser = User::where('custodian_user_id', $custodianId)->first();
-            if ($custodianUser) {
-                Notification::send($custodianUser, new UserUpdateProfile($user, $changes, 'custodian'));
+            // organisation
+            $organisation = Organisation::where('id', $user->organisation_id)->first();
+            if (!is_null($organisation)) {
+                Notification::send($organisation, new UserUpdateProfile($user, $changes, 'orgasnisation'));
             }
+            
+            // custodians
+            $custodianIds = CustodianHasProjectUser::query()
+                ->whereHas('projectHasUser.registry.user', function ($query) use ($user) {
+                    $query->where('id', $user->id);
+                })
+                ->select('custodian_id')
+                ->pluck('custodian_id')->toArray();
+            
+            foreach (array_unique($custodianIds) as $custodianId) {
+                $custodianUser = User::where('custodian_user_id', $custodianId)->first();
+                if ($custodianUser) {
+                    Notification::send($custodianUser, new UserUpdateProfile($user, $changes, 'custodian'));
+                }
+            }
+        } else {
+            $usersToNotify = $this->getOrganisationAdminUsers(
+                [
+                    $user->organisation_id,
+                    $user->getOriginal('organisation_id')
+                ]
+            );
+
+            Notification::send($usersToNotify, new AdminUserChanged($user, $changes));
         }
+        
     }
 
-    // private function getOrganisationAdminUsers(array|int $orgId)
-    // {
-    //     if (!is_array($orgId)) {
-    //         $orgId = [$orgId];
-    //     }
-    //     return User::where('is_org_admin', 1)
-    //         ->whereIn("organisation_id", $orgId)
-    //         ->get();
-    // }
+    private function getOrganisationAdminUsers(array|int $orgId)
+    {
+        if (!is_array($orgId)) {
+            $orgId = [$orgId];
+        }
+        return User::where('is_org_admin', 1)
+            ->whereIn("organisation_id", $orgId)
+            ->get();
+    }
 }
