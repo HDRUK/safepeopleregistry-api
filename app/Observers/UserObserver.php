@@ -15,7 +15,11 @@ use App\Models\Organisation;
 use App\Models\CustodianHasProjectUser;
 use App\Notifications\AdminUserChanged;
 use App\Notifications\UserUpdateProfile;
+use App\Notifications\User\UpdateProfile;
 use Illuminate\Support\Facades\Notification;
+use App\Notifications\User\UserUpdateProfileForUser;
+use App\Notifications\User\UserUpdateProfileForCustodian;
+use App\Notifications\User\UserUpdateProfileForOrganisation;
 
 class UserObserver
 {
@@ -175,12 +179,15 @@ class UserObserver
     {
         if ($user->user_group !== User::GROUP_USERS) {
             // current user
-            Notification::send($user, new UserUpdateProfile($user, $changes, 'user'));
+            Notification::send($user, new UpdateProfile($user, $changes, 'user'));
 
             // organisation
-            $organisation = Organisation::where('id', $user->organisation_id)->first();
+            $organisation = User::where([
+                'organisation_id' => $user->organisation_id,
+                'is_sro' => 1
+            ])->first();
             if (!is_null($organisation)) {
-                Notification::send($organisation, new UserUpdateProfile($user, $changes, 'orgasnisation'));
+                Notification::send($organisation, new UpdateProfile($user, $changes, 'organisation'));
             }
             
             // custodians
@@ -194,7 +201,7 @@ class UserObserver
             foreach (array_unique($custodianIds) as $custodianId) {
                 $custodianUser = User::where('custodian_user_id', $custodianId)->first();
                 if ($custodianUser) {
-                    Notification::send($custodianUser, new UserUpdateProfile($user, $changes, 'custodian'));
+                    Notification::send($custodianUser, new UpdateProfile($user, $changes, 'custodian'));
                 }
             }
         } else {

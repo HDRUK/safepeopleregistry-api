@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Notifications\User;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
-class UserUpdateProfile extends Notification
+class UpdateProfile extends Notification
 {
     use Queueable;
 
