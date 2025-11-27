@@ -444,14 +444,15 @@ class AffiliationController extends Controller
                 $array['is_verified'] = 0;
             }
 
-            Affiliation::where('id', $id)->update($input);
-            $affiliation = Affiliation::where('id', $id)->first();
+            $affiliation->fill($input);
+            $affiliation->save();
+            $affiliation->refresh();
 
             if ($unclaimed) {
                 $affiliation->setState(State::STATE_AFFILIATION_INVITED);
             }
 
-            $affiliation = Affiliation::where('id', $id)->first();
+            // $affiliation = Affiliation::where('id', $id)->first();
             if ($affiliation->current_employer && !$affiliation->is_verified) {
                 $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
                 $this->sendEmailVerificationAffiliation($affiliation);
@@ -461,7 +462,7 @@ class AffiliationController extends Controller
 
             return response()->json([
                 'message' => 'success',
-                'data' => $affiliation,
+                'data' => $affiliation->refresh(),
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());

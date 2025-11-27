@@ -39,13 +39,13 @@ class AffiliationChanged extends Notification
     {
         switch ($type) {
             case 'user':
-                return "You changed your affiliation.";
+                return "You updated your affiliation.";
 
             case 'organisation':
-                return "Person {$user->first_name} {$user->last_name} has changed their affiliation.";
+                return "Person {$user->first_name} {$user->last_name} has updated their affiliation.";
 
             case 'custodian':
-                return "Person {$user->first_name} {$user->last_name} has changed their affiliation.";
+                return "Person {$user->first_name} {$user->last_name} has updated their affiliation.";
 
             default:
                 break;
