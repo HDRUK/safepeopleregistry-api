@@ -12,7 +12,8 @@ use App\Models\DebugLog;
 use App\Models\ActionLog;
 use App\Jobs\OrcIDScanner;
 use App\Models\Organisation;
-use App\Notifications\AdminUserChanged;
+use App\Models\CustodianHasProjectUser;
+use App\Notifications\UserUpdateProfile;
 use Illuminate\Support\Facades\Notification;
 
 class UserObserver
@@ -79,7 +80,7 @@ class UserObserver
 
         $changes = [];
 
-        $fieldsToTrack = ['first_name', 'last_name', 'email', 'role'];
+        $fieldsToTrack = ['first_name', 'last_name', 'email', 'role', 'location'];
 
         foreach ($fieldsToTrack as $field) {
             if ($user->isDirty($field)) {
@@ -102,16 +103,8 @@ class UserObserver
             ];
         }
 
-
         if (!empty($changes)) {
-            $usersToNotify = $this->getOrganisationAdminUsers(
-                [
-                    $user->organisation_id,
-                    $user->getOriginal('organisation_id')
-                ]
-            );
-
-            Notification::send($usersToNotify, new AdminUserChanged($user, $changes));
+            $this->sendNotificationUpdate($user, $changes);
         }
 
         if ($user->isDirty($this->profileCompleteFields)) {
@@ -175,6 +168,37 @@ class UserObserver
     public function forceDeleted(User $user): void
     {
         //
+    }
+
+    public function sendNotificationUpdate(User $user, array $changes)
+    {
+        if ($user->user_group !== User::GROUP_USERS) {
+            return;
+        }
+
+        // current user
+        Notification::send($user, new UserUpdateProfile($user, $changes, 'user'));
+
+        // organisation
+        $organisation = Organisation::where('id', $user->organisation_id)->first();
+        if (!is_null($organisation)) {
+            Notification::send($organisation, new UserUpdateProfile($user, $changes, 'orgasnisation'));
+        }
+        
+        // custodians
+        $custodianIds = CustodianHasProjectUser::query()
+            ->whereHas('projectHasUser.registry.user', function ($query) use ($user) {
+                $query->where('id', $user->id);
+            })
+            ->select('custodian_id')
+            ->pluck('custodian_id')->toArray();
+        
+        foreach (array_unique($custodianIds) as $custodianId) {
+            $custodianUser = User::where('custodian_user_id', $custodianId)->first();
+            if ($custodianUser) {
+                Notification::send($custodianUser, new UserUpdateProfile($user, $changes, 'custodian'));
+            }
+        }
     }
 
     private function getOrganisationAdminUsers(array|int $orgId)
