@@ -2,30 +2,30 @@
 
 namespace Tests\Feature;
 
-use KeycloakGuard\ActingAsKeycloakUser;
-use App\Models\ActionLog;
-use App\Models\User;
-use App\Models\Organisation;
-use App\Models\Custodian;
-use App\Models\CustodianUser;
-use App\Models\Department;
-use App\Models\UserHasDepartments;
-use App\Models\Subsidiary;
-use App\Models\OrganisationHasSubsidiary;
-use App\Models\Affiliation;
-use App\Models\CustodianHasProjectOrganisation;
-use App\Models\CustodianModelConfig;
-use App\Models\Registry;
-use App\Models\Project;
-use App\Models\ProjectHasCustodian;
-use App\Models\File;
-use App\Models\ProjectHasOrganisation;
-use App\Models\RegistryHasTraining;
-use App\Models\State;
-use App\Models\Training;
-use Tests\TestCase;
-use Tests\Traits\Authorisation;
 use Carbon\Carbon;
+use Tests\TestCase;
+use App\Models\File;
+use App\Models\User;
+use App\Models\State;
+use App\Models\Project;
+use App\Models\Registry;
+use App\Models\Training;
+use App\Models\ActionLog;
+use App\Models\Custodian;
+use App\Models\Department;
+use App\Models\Subsidiary;
+use App\Models\Affiliation;
+use App\Models\Organisation;
+use App\Models\CustodianUser;
+use Tests\Traits\Authorisation;
+use App\Models\UserHasDepartments;
+use App\Models\ProjectHasCustodian;
+use App\Models\RegistryHasTraining;
+use App\Models\CustodianModelConfig;
+use App\Models\ProjectHasOrganisation;
+use KeycloakGuard\ActingAsKeycloakUser;
+use App\Models\OrganisationHasSubsidiary;
+use App\Models\CustodianHasProjectOrganisation;
 
 class ActionLogTest extends TestCase
 {
@@ -710,7 +710,6 @@ class ActionLogTest extends TestCase
             'user_id' => $this->user->id,
             'department_id' => $dep->id,
         ]);
-
 
         $response = $this->actingAs($this->admin)
             ->json(
