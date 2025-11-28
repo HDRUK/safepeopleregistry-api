@@ -15,15 +15,17 @@ class AffiliationCreated extends Notification
     private $user;
     private $affiliation;
     private $type;
+    private $affiliationRequest;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($user, Affiliation $affiliation, $type)
+    public function __construct($user, Affiliation $affiliation, $type, $affiliationRequest = false)
     {
         $this->user = $user;
         $this->affiliation = $affiliation;
         $this->type = $type;
+        $this->affiliationRequest = $affiliationRequest;
     }
 
     /**
@@ -51,18 +53,35 @@ class AffiliationCreated extends Notification
 
     public function generateMessage()
     {
-        switch ($this->type) {
-            case 'user':
-                return "You send an affiliation request to Organisation {$this->affiliation->organisation->organisation_name}.";
+        if ($this->affiliationRequest) {
+            switch ($this->type) {
+                case 'user':
+                    return "You send an affiliation request to Organisation {$this->affiliation->organisation->organisation_name}.";
 
-            case 'organisation':
-                return "You have been sent an affiliation request from Person {$this->user->first_name} {$this->user->last_name}. [Button: Go to User profile]";
+                case 'organisation':
+                    return "You have been sent an affiliation request from Person {$this->user->first_name} {$this->user->last_name}. [Button: Go to User profile]";
 
-            case 'custodian':
-                return "Person {$this->user->first_name} {$this->user->last_name} sent an affiliation request to Organisation {$this->affiliation->organisation->organisation_name}.";
+                case 'custodian':
+                    return "Person {$this->user->first_name} {$this->user->last_name} sent an affiliation request to Organisation {$this->affiliation->organisation->organisation_name}.";
 
-            default:
-                break;
+                default:
+                    break;
+            }
+        } else {
+            switch ($this->type) {
+                case 'user':
+                    return "You created a new affiliation.";
+
+                case 'organisation':
+                    return "Person {$this->user->first_name} {$this->user->last_name} created a new affiliation.";
+
+                case 'custodian':
+                    return "Person {$this->user->first_name} {$this->user->last_name} created a new affiliation.";
+
+                default:
+                    break;
+            }
+
         }
     }
 

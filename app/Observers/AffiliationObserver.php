@@ -113,8 +113,9 @@ class AffiliationObserver
 
     public function sendNotificationOnCreate(Affiliation $affiliation): void
     {
-        if (!$affiliation->current_employer) {
-            return;
+        $sendAffiliationNotification = false;
+        if ($affiliation->current_employer) {
+            $sendAffiliationNotification = true;
         }
 
         $user = $this->getUser($affiliation);
@@ -123,42 +124,65 @@ class AffiliationObserver
         }
 
         // user
-        Notification::send($user, new AffiliationCreated($user,$affiliation,'user'));
+        Notification::send($user, new AffiliationCreated($user, $affiliation, 'user'));
+        if (!$sendAffiliationNotification) {
+            Notification::send($user, new AffiliationCreated($user, $affiliation, 'user', $sendAffiliationNotification));
+        }
 
         // organisation
         foreach ($this->getUserOrganisation($affiliation) as $organisation) {
-            Notification::send($organisation, new AffiliationCreated($organisation,$affiliation,'organisation'));
+            Notification::send($organisation, new AffiliationCreated($user, $affiliation, 'organisation'));
+            if (!$sendAffiliationNotification) {
+                Notification::send($organisation, new AffiliationCreated($user, $affiliation, 'organisation', $sendAffiliationNotification));
+            }
         }
 
         // custodian
         foreach (array_unique($this->getUserCustodian($affiliation)) as $custodianId) {
             $custodian = User::where('custodian_user_id', $custodianId)->first();
             if ($custodian) {
-                Notification::send($custodian, new AffiliationCreated($custodian,$affiliation,'custodian'));
+                Notification::send($custodian, new AffiliationCreated($user, $affiliation, 'custodian'));
+                if (!$sendAffiliationNotification) {
+                    Notification::send($custodian, new AffiliationCreated($user, $affiliation, 'custodian', $sendAffiliationNotification));
+                }
             }
         }
     }
 
     public function sendNotificationOnUpdate(Affiliation $affiliation, $old): void
     {
+        $sendAffiliationNotification = false;
+        if ($affiliation->current_employer && $old->current_employer !== $affiliation->current_employer) {
+            $sendAffiliationNotification = true;
+        }
+
         $user = $this->getUser($affiliation);
         if (!$user) {
             return;
         }
 
         // user
-        Notification::send($user, new AffiliationChanged($user,$old,$affiliation,'user'));
+        Notification::send($user, new AffiliationChanged($user, $old, $affiliation, 'user'));
+        if ($sendAffiliationNotification) {
+            Notification::send($user, new AffiliationChanged($user, $old, $affiliation, 'user', $sendAffiliationNotification));
+        }
 
         // organisation
         foreach ($this->getUserOrganisation($affiliation) as $organisation) {
-            Notification::send($organisation, new AffiliationChanged($organisation,$old,$affiliation,'organisation'));
+            Notification::send($organisation, new AffiliationChanged($user, $old, $affiliation, 'organisation'));
+            if ($sendAffiliationNotification) {
+                Notification::send($organisation, new AffiliationChanged($user, $old, $affiliation, 'organisation', $sendAffiliationNotification));
+            }
         }
 
         // custodian
         foreach (array_unique($this->getUserCustodian($affiliation)) as $custodianId) {
             $custodian = User::where('custodian_user_id', $custodianId)->first();
             if ($custodian) {
-                Notification::send($custodian, new AffiliationChanged($custodian,$old,$affiliation,'custodian'));
+                Notification::send($custodian, new AffiliationChanged($user, $old, $affiliation, 'custodian'));
+                if ($sendAffiliationNotification) {
+                    Notification::send($custodian, new AffiliationChanged($user, $old, $affiliation, 'custodian', $sendAffiliationNotification));
+                }
             }
         }
     }

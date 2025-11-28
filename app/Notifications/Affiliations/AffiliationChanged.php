@@ -18,13 +18,15 @@ class AffiliationChanged extends Notification
     private $oldAffiliation;
     private $newAffiliation;
     private $type;
+    private $affiliationRequest;
 
-    public function __construct(User $user, Affiliation $oldAffiliation, Affiliation $newAffiliation, $type)
+    public function __construct(User $user, Affiliation $oldAffiliation, Affiliation $newAffiliation, $type, $affiliationRequest = false)
     {
         $this->user = $user;
         $this->oldAffiliation = $oldAffiliation;
         $this->newAffiliation = $newAffiliation;
         $this->type = $type;
+        $this->affiliationRequest = $affiliationRequest;
     }
 
     /**
@@ -53,18 +55,36 @@ class AffiliationChanged extends Notification
 
     public function buildMessage()
     {
-        switch ($this->type) {
-            case 'user':
-                return "You updated your affiliation.";
+        $url = config('speedi.system.portal_url') . '/en/organisation/profile/user-administration/employees-and-students/' . $this->user->id . '/affiliations';
+        if ($this->affiliationRequest) {
+            switch ($this->type) {
+                case 'user':
+                    return "You send an affiliation request to Organisation {$this->newAffiliation->organisation->organisation_name}.";
 
-            case 'organisation':
-                return "Person {$this->user->first_name} {$this->user->last_name} has updated their affiliation.";
+                case 'organisation':
+                        return "You have been sent an affiliation request from Person {$this->user->first_name} {$this->user->last_name}. [<a href=\"{$url}\">Go to User profile</a>]";
 
-            case 'custodian':
-                return "Person {$this->user->first_name} {$this->user->last_name} has updated their affiliation.";
+                case 'custodian':
+                    return "Person {$this->user->first_name} {$this->user->last_name} sent an affiliation request to Organisation {$this->newAffiliation->organisation->organisation_name}.";
 
-            default:
-                break;
+                default:
+                    break;
+            }
+        } else {
+            switch ($this->type) {
+                case 'user':
+                    return "You updated your affiliation.";
+
+                case 'organisation':
+                    return "Person {$this->user->first_name} {$this->user->last_name} has updated their affiliation.";
+
+                case 'custodian':
+                    return "Person {$this->user->first_name} {$this->user->last_name} has updated their affiliation.";
+
+                default:
+                    break;
+            }
         }
+
     }
 }
