@@ -5,15 +5,16 @@ namespace App\Notifications\Affiliations;
 use App\Models\Affiliation;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use App\Notifications\Affiliations\Traits\AffiliationNotification;
 
 class AffiliationCreated extends Notification
 {
     use Queueable;
+    use AffiliationNotification;
 
     private $user;
     private $affiliation;
     private $type;
-    private $message;
 
     /**
      * Create a new notification instance.
@@ -23,7 +24,6 @@ class AffiliationCreated extends Notification
         $this->user = $user;
         $this->affiliation = $affiliation;
         $this->type = $type;
-        $this->message = $this->generateMessage($affiliation);
     }
 
     /**
@@ -40,22 +40,12 @@ class AffiliationCreated extends Notification
     public function toDatabase($notifiable)
     {
         return [
-            'message' => $this->message,
-            'details' => $this->getAffiliationDetails(),
+            'message' => $this->generateMessage(),
+            'details' => [
+                'new' => $this->getAffiliationDetails($this->affiliation),
+                'time' => now(),
+            ],
             'time' => now(),
-        ];
-    }
-
-    protected function getAffiliationDetails(): array
-    {
-        return [
-            'Organisation' => optional($this->affiliation->organisation)->organisation_name,
-            'Start Date' => $this->affiliation->from,
-            'End Date' => $this->affiliation->to,
-            'Relationship' => $this->affiliation->relationship,
-            'Department' => $this->affiliation->department,
-            'Role' => $this->affiliation->role,
-            'Email' => $this->affiliation->email,
         ];
     }
 

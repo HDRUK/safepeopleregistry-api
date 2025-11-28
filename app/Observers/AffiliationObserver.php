@@ -110,21 +110,12 @@ class AffiliationObserver
         }
     }
 
-    // private function notifyAdmins($notification, Affiliation $affiliation): void
-    // {
-    //     Notification::send($this->getOrgAdminsAndDelegates($affiliation), $notification);
-    // }
-
-    private function getOrgAdminsAndDelegates(Affiliation $affiliation)
-    {
-        return User::where([
-            'organisation_id' => $affiliation->organisation->id,
-            'user_group' => User::GROUP_ORGANISATIONS,
-        ])->get();
-    }
-
     public function sendNotificationOnCreate(Affiliation $affiliation): void
     {
+        if (!$affiliation->current_employer) {
+            return;
+        }
+
         $user = $this->getUser($affiliation);
         if (!$user) {
             return;
