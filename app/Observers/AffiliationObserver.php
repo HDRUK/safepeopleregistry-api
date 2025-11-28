@@ -146,7 +146,7 @@ class AffiliationObserver
         }
 
         // user
-        Notification::send($user, new AffiliationChanged($user,$old,$affiliation,'user', false));
+        Notification::send($user, new AffiliationChanged($user,$old,$affiliation,'user'));
 
         // organisation
         foreach ($this->getUserOrganisation($affiliation) as $organisation) {
