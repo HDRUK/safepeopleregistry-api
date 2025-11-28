@@ -167,7 +167,7 @@ class AffiliationObserver
         return $affiliation->registry?->user;
     }
 
-    private function getUserOrganisation(Affiliation $affiliation): ?User
+    private function getUserOrganisation(Affiliation $affiliation): User
     {
         return User::where([
             'organisation_id' => $affiliation->organisation->id,
