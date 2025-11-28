@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Notification;
 use App\Notifications\Affiliations\AffiliationChanged;
 use App\Notifications\Affiliations\AffiliationCreated;
 use App\Notifications\Affiliations\AffiliationDeleted;
+use Illuminate\Support\Collection;
 
 class AffiliationObserver
 {
@@ -167,7 +168,7 @@ class AffiliationObserver
         return $affiliation->registry?->user;
     }
 
-    private function getUserOrganisation(Affiliation $affiliation): User
+    private function getUserOrganisation(Affiliation $affiliation): ?Collection
     {
         return User::where([
             'organisation_id' => $affiliation->organisation->id,
