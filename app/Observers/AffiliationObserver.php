@@ -22,10 +22,7 @@ class AffiliationObserver
     {
         $this->setInitialState($affiliation);
         $this->handleChange($affiliation);
-        $this->notifyAdmins(new AffiliationCreated(
-            $this->getUser($affiliation),
-            $affiliation
-        ), $affiliation);
+        $this->sendNotificationOnCreate($affiliation);
     }
 
     public function updated(Affiliation $affiliation): void
@@ -38,10 +35,6 @@ class AffiliationObserver
     public function deleted(Affiliation $affiliation): void
     {
         $this->handleChange($affiliation);
-        $this->notifyAdmins(new AffiliationDeleted(
-            $this->getUser($affiliation),
-            $affiliation
-        ), $affiliation);
     }
 
     protected function handleChange(Affiliation $affiliation): void
@@ -117,15 +110,10 @@ class AffiliationObserver
         }
     }
 
-    private function notifyAdmins($notification, Affiliation $affiliation): void
-    {
-        Notification::send($this->getOrgAdminsAndDelegates($affiliation), $notification);
-    }
-
-    private function getUser(Affiliation $affiliation): ?User
-    {
-        return $affiliation->registry?->user;
-    }
+    // private function notifyAdmins($notification, Affiliation $affiliation): void
+    // {
+    //     Notification::send($this->getOrgAdminsAndDelegates($affiliation), $notification);
+    // }
 
     private function getOrgAdminsAndDelegates(Affiliation $affiliation)
     {
@@ -133,6 +121,30 @@ class AffiliationObserver
             'organisation_id' => $affiliation->organisation->id,
             'user_group' => User::GROUP_ORGANISATIONS,
         ])->get();
+    }
+
+    public function sendNotificationOnCreate(Affiliation $affiliation): void
+    {
+        $user = $this->getUser($affiliation);
+        if (!$user) {
+            return;
+        }
+
+        // user
+        Notification::send($user, new AffiliationCreated($user,$affiliation,'user'));
+
+        // organisation
+        foreach ($this->getUserOrganisation($affiliation) as $organisation) {
+            Notification::send($organisation, new AffiliationCreated($organisation,$affiliation,'organisation'));
+        }
+
+        // custodian
+        foreach (array_unique($this->getUserCustodian($affiliation)) as $custodianId) {
+            $custodian = User::where('custodian_user_id', $custodianId)->first();
+            if ($custodian) {
+                Notification::send($custodian, new AffiliationCreated($custodian,$affiliation,'custodian'));
+            }
+        }
     }
 
     public function sendNotificationOnUpdate(Affiliation $affiliation, $old): void
@@ -143,32 +155,43 @@ class AffiliationObserver
         }
 
         // user
-        Notification::send($user, new AffiliationChanged($user,$old,$affiliation,'user'));
+        Notification::send($user, new AffiliationChanged($user,$old,$affiliation,'user', false));
 
         // organisation
-        $organisations = User::where([
-            'organisation_id' => $user->organisation_id,
-            'user_group' => User::GROUP_ORGANISATIONS,
-        ])->get();
-        foreach ($organisations as $organisation) {
+        foreach ($this->getUserOrganisation($affiliation) as $organisation) {
             Notification::send($organisation, new AffiliationChanged($organisation,$old,$affiliation,'organisation'));
         }
 
         // custodian
-        $custodianIds = CustodianHasProjectUser::query()
-            ->whereHas('projectHasUser.registry.user', function ($query) use ($user) {
-                $query->where('id', $user->id);
-            })
-            ->select('custodian_id')
-            ->pluck('custodian_id')->toArray();
-
-        foreach (array_unique($custodianIds) as $custodianId) {
+        foreach (array_unique($this->getUserCustodian($affiliation)) as $custodianId) {
             $custodian = User::where('custodian_user_id', $custodianId)->first();
             if ($custodian) {
                 Notification::send($custodian, new AffiliationChanged($custodian,$old,$affiliation,'custodian'));
             }
         }
-        
+    }
+
+    private function getUser(Affiliation $affiliation): ?User
+    {
+        return $affiliation->registry?->user;
+    }
+
+    private function getUserOrganisation(Affiliation $affiliation): ?User
+    {
+        return User::where([
+            'organisation_id' => $affiliation->organisation->id,
+            'user_group' => User::GROUP_ORGANISATIONS,
+        ])->get();
+    }
+
+    private function getUserCustodian(Affiliation $affiliation): array
+    {
+        return CustodianHasProjectUser::query()
+            ->whereHas('projectHasUser.registry.user', function ($query) use ($affiliation) {
+                $query->where('id', $affiliation->registry?->user->id);
+            })
+            ->select('custodian_id')
+            ->pluck('custodian_id')->toArray();
     }
 
 }

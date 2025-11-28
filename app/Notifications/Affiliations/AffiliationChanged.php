@@ -29,13 +29,13 @@ class AffiliationChanged extends Notification
         }
 
         $this->payload = [
-            'message' => $this->generateMessage($user, $type),
+            'message' => $this->buildMessage($user, $type),
             'details' => $changes,
             'time' => now(),
         ];
     }
 
-    public function generateMessage($user, $type)
+    public function buildMessage($user, $type)
     {
         switch ($type) {
             case 'user':
