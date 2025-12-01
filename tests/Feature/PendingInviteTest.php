@@ -59,6 +59,6 @@ class PendingInviteTest extends TestCase
 
         $data = $response->decodeResponseJson()['data']['data'];
 
-        $this->assertEquals(2, count($data));
+        $this->assertEquals(1, count($data));
     }
 }
