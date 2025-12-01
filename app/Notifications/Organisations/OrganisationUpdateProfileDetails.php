@@ -10,7 +10,6 @@ class OrganisationUpdateProfileDetails extends Notification
     use Queueable;
 
     private $message;
-    private $details;
     private $user;
     private $newOrganisation;
     private $oldOrganisation;

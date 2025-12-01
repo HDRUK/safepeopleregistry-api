@@ -688,7 +688,7 @@ class OrganisationController extends Controller
      */
     public function update(UpdateOrganisation $request, int $id): JsonResponse
     {
-        try {
+        // try {
             $input = $request->only(app(Organisation::class)->getFillable());
             $org = Organisation::findOrFail($id);
 
@@ -732,9 +732,9 @@ class OrganisationController extends Controller
             }
 
             return $this->OKResponse($org->refresh());
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
+        // } catch (Exception $e) {
+        //     throw new Exception($e->getMessage());
+        // }
     }
 
     public function sendNotificationOnUpdate($loggedInUser, $newOrgDetails, $oldOrgDetails)
@@ -756,7 +756,7 @@ class OrganisationController extends Controller
 
         if ($userCustodianIds) {
             $userCustodians = User::whereIn('custodian_user_id', $userCustodianIds)->get();
-            Notification::send($userCustodians, new OrganisationUpdateProfileDetails($loggedInUser, $newOrgDetails, $oldOrgDetails, 'organisation'));
+            Notification::send($userCustodians, new OrganisationUpdateProfileDetails($loggedInUser, $newOrgDetails, $oldOrgDetails, 'custodian'));
         }
     }
 
