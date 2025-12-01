@@ -194,7 +194,10 @@ class AuthController extends Controller
         if (!isset($arr['sub'])) {
             return response()->json([
                 'message' => 'not found',
-                'data' => null,
+                'data' => [
+                    'reason' => 'missing_sub',
+                    'details' => 'No sub field provided in the request'
+                ],
             ], Response::HTTP_NOT_FOUND);
         }
 
@@ -205,7 +208,10 @@ class AuthController extends Controller
         if (!$user) {
             return response()->json([
                 'message' => 'not found',
-                'data' => null,
+                'data' => [
+                    'reason' => 'missing_user',
+                    'details' => 'No users in that db r kid'
+                ],
             ], Response::HTTP_NOT_FOUND);
         }
 
