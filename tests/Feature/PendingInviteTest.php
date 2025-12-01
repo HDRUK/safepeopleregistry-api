@@ -4,12 +4,7 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
-use Tests\Feature\TestResponse;
-use RegistryManagementController as RMC;
-use App\Models\User;
-use App\Models\PendingInvite;
 use App\Models\Affiliation;
-use Carbon\Carbon;
 
 class PendingInviteTest extends TestCase
 {
@@ -65,5 +60,5 @@ class PendingInviteTest extends TestCase
         $data = $response->decodeResponseJson()['data']['data'];
 
         $this->assertEquals(2, count($data));
-    } 
+    }
 }
