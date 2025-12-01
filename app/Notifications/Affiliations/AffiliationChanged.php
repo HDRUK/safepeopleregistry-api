@@ -62,7 +62,7 @@ class AffiliationChanged extends Notification
                     return "You send an affiliation request to Organisation {$this->newAffiliation->organisation->organisation_name}.";
 
                 case 'organisation':
-                        return "You have been sent an affiliation request from Person {$this->user->first_name} {$this->user->last_name}. [<a href=\"{$url}\">Go to User profile</a>]";
+                    return "You have been sent an affiliation request from Person {$this->user->first_name} {$this->user->last_name}. [<a href=\"{$url}\">Go to User profile</a>]";
 
                 case 'custodian':
                     return "Person {$this->user->first_name} {$this->user->last_name} sent an affiliation request to Organisation {$this->newAffiliation->organisation->organisation_name}.";

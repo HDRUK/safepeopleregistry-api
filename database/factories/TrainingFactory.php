@@ -18,8 +18,8 @@ class TrainingFactory extends Factory
     {
         return [
             'provider' => fake()->name(),
-            'awarded_at' => fake()->dateTime(),
-            'expires_at' => fake()->dateTime(),
+            'awarded_at' => fake()->date('Y-m-d', '-1 year'),
+            'expires_at' => fake()->date(),
             'expires_in_years' => fake()->numberBetween(1, 5),
             'training_name' => fake()->name(),
             'certification_id' => null,

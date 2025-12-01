@@ -12,7 +12,6 @@ use App\Traits\AffiliationCompletionManager;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\Affiliations\AffiliationChanged;
 use App\Notifications\Affiliations\AffiliationCreated;
-use App\Notifications\Affiliations\AffiliationDeleted;
 use Illuminate\Support\Collection;
 
 class AffiliationObserver

@@ -105,6 +105,11 @@ class Training extends Model
         'pro_registration',
     ];
 
+    protected $casts = [
+        'awarded_at' => 'date',
+        'expires_at' => 'date',
+    ];
+
     protected static array $searchableColumns = [
         'provider',
         'training_name',
@@ -126,5 +131,10 @@ class Training extends Model
             'training_id',
             'file_id'
         );
+    }
+
+    public function scopeExpiresToday($query)
+    {
+        return $query->whereRaw('DATE(expires_at) = CURDATE()');
     }
 }
