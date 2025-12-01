@@ -4,6 +4,12 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
+use Tests\Feature\TestResponse;
+use RegistryManagementController as RMC;
+use App\Models\User;
+use App\Models\PendingInvite;
+use App\Models\Affiliation;
+use Carbon\Carbon;
 
 class PendingInviteTest extends TestCase
 {
@@ -18,13 +24,46 @@ class PendingInviteTest extends TestCase
         $this->withUsers();
     }
 
+    private function inviteUser(array $user): mixed
+    {
+        return $this->actingAs($this->admin)
+            ->json(
+                'POST',
+                '/api/v1/organisations/1/invite_user',
+                $user
+            );
+    }
+
     public function test_the_application_can_list_pending_invites(): void
     {
+        $response = $this->inviteUser([
+            'first_name' => "Alice",
+            'last_name' => "Johnson",
+            'email' => "alice.johnson@hdruk.ac.uk",
+        ]);
+
+        $response->assertStatus(201);
+
+        $response = $this->inviteUser([
+            'first_name' => "John",
+            'last_name' => "Smith",
+            'email' => "john.smith@hdruk.ac.uk",
+        ]);
+
+        $response->assertStatus(201);
+
+        Affiliation::latest()->take(1)->delete();
+
         $response = $this->actingAs($this->admin)
             ->json(
                 'GET',
                 self::TEST_URL
             );
+
         $response->assertStatus(200);
-    }
+
+        $data = $response->decodeResponseJson()['data']['data'];
+
+        $this->assertEquals(2, count($data));
+    } 
 }
