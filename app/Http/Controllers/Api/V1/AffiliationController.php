@@ -452,7 +452,7 @@ class AffiliationController extends Controller
                 $affiliation->setState(State::STATE_AFFILIATION_INVITED);
             }
 
-            // $affiliation = Affiliation::where('id', $id)->first();
+            $affiliation = $affiliation->refresh();
             if ($affiliation->current_employer && !$affiliation->is_verified) {
                 $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
                 $this->sendEmailVerificationAffiliation($affiliation);
