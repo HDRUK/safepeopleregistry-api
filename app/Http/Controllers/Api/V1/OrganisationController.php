@@ -29,7 +29,7 @@ use Illuminate\Support\Facades\Gate;
 use App\Exceptions\NotFoundException;
 use RegistryManagementController as RMC;
 use App\Models\OrganisationHasDepartment;
-use App\Notifications\OrganisationApproved;
+use App\Notifications\Organisations\OrganisationApproved;
 use App\Http\Requests\Organisations\GetUser;
 use Illuminate\Support\Facades\Notification;
 use App\Http\Requests\Organisations\GetProject;
@@ -1717,8 +1717,6 @@ class OrganisationController extends Controller
             TriggerEmail::spawnEmail($input);
 
             // notification
-            $loggedUserId = $request->user()->id;
-            $loggerUser = User::findOrFail($loggedUserId);
             $usersToNotify = $this->getNotificationUsers($id);
             Notification::send($usersToNotify, new OrganisationApproved($org));
 

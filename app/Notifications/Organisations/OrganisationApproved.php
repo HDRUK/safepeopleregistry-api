@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Notifications\Organisations;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
@@ -16,7 +16,7 @@ class OrganisationApproved extends Notification
      */
     public function __construct($org)
     {
-        $this->message = "$org->organisation_name was approved by the admin!";
+        $this->message = "$org->organisation_name was approved by the admin. You can now start inviting delegates and affiliationg users";
         $this->details = 'The organization was approved by the admin.';
     }
 
