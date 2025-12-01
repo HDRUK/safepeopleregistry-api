@@ -197,7 +197,7 @@ class User extends Authenticatable
         't_and_c_agreement_date',
         'uksa_registered',
         'is_sro',
-        'invited_by', 
+        'invited_by',
     ];
 
     public function getActivitylogOptions(): LogOptions
