@@ -21,7 +21,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Notification;
 use App\Http\Requests\FileUploads\GetFileUpload;
-use App\Notifications\Orgasnisations\UploadSroDoc;
+use App\Notifications\Organisations\UploadSroDoc;
 use App\Http\Requests\FileUploads\GetDownloadFileUpload;
 
 class FileUploadController extends Controller
