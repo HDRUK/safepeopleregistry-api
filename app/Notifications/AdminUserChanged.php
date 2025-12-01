@@ -17,7 +17,7 @@ class AdminUserChanged extends Notification
      */
     public function __construct($user, $changes)
     {
-        $this->message = "$user->first_name $user->last_name details changed!";
+        $this->message = "$user->first_name $user->last_name details changed.";
         $this->details = $changes;
     }
 

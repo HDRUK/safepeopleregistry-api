@@ -51,13 +51,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        Event::listen('eloquent.*', function ($eventName, $payload) {
-            $model = $payload[0] ?? null;
+        // Event::listen('eloquent.*', function ($eventName, $payload) {
+        //     $model = $payload[0] ?? null;
 
-            if ($model instanceof Model) {
-                App::make(AuditModelObserver::class)->handle($eventName, $model);
-            }
-        });
+        //     if ($model instanceof Model) {
+        //         App::make(AuditModelObserver::class)->handle($eventName, $model);
+        //     }
+        // });
     }
     /**
      * Bootstrap any application services.

@@ -29,10 +29,10 @@ use Illuminate\Support\Facades\Gate;
 use App\Exceptions\NotFoundException;
 use RegistryManagementController as RMC;
 use App\Models\OrganisationHasDepartment;
-use App\Notifications\Organisations\OrganisationApproved;
 use App\Http\Requests\Organisations\GetUser;
 use Illuminate\Support\Facades\Notification;
 use App\Http\Requests\Organisations\GetProject;
+use App\Models\CustodianHasProjectOrganisation;
 use App\Http\Requests\Organisations\GetDelegate;
 use App\Http\Requests\Organisations\GetRegistry;
 use App\Services\DecisionEvaluatorService as DES;
@@ -46,11 +46,13 @@ use App\Http\Requests\Organisations\OrganisationInvite;
 use App\Http\Requests\Organisations\UpdateOrganisation;
 use App\Http\Requests\Organisations\GetCountPastProject;
 use App\Http\Requests\Organisations\GetOrganisationIdvt;
+use App\Notifications\Organisations\OrganisationApproved;
 use App\Http\Requests\Organisations\GetCountCertifications;
 use App\Http\Requests\Organisations\GetCountPresentProject;
 use App\Http\Requests\Organisations\OrganisationInviteUser;
 use App\Http\Requests\Organisations\OrganisationValidateRor;
 use App\Http\Requests\Organisations\OrganisationUpdateApprover;
+use App\Notifications\Organisations\OrganisationUpdateProfileDetails;
 
 class OrganisationController extends Controller
 {
@@ -701,11 +703,14 @@ class OrganisationController extends Controller
 
             $org->update($input);
 
+            $loggedInUserId = $request->user()->id;
+            $loggedInUser = User::where('id', $loggedInUserId)->first();
+
             if ($request->has('charities')) {
                 $this->updateOrganisationCharities($id, $request->input('charities'));
             }
 
-            if ($org->isDirty()) {
+            if ($org->wasChanged()) {
                 Organisation::where('id', $org->id)->update([
                     'system_approved' => 0,
                 ]);
@@ -722,11 +727,36 @@ class OrganisationController extends Controller
                     TriggerEmail::spawnEmail($input);
                 }
 
+                $this->sendNotificationOnUpdate($loggedInUser, $org, $org->getOriginal());
+
             }
 
             return $this->OKResponse($org->refresh());
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
+        }
+    }
+
+    public function sendNotificationOnUpdate($loggedInUser, $newOrgDetails, $oldOrgDetails)
+    {
+        $orgasnisationId = $newOrgDetails->id;
+        // organisation
+        $users = User::where([
+            'organisation_id' => $orgasnisationId
+        ])->get();
+        Notification::send($users, new OrganisationUpdateProfileDetails($loggedInUser, $newOrgDetails, $oldOrgDetails, 'organisation'));
+
+        // data custodian
+        $userCustodianIds = CustodianHasProjectOrganisation::query()
+            ->whereHas('projectOrganisation', function ($query) use ($orgasnisationId) {
+                $query->where('organisation_id', $orgasnisationId);
+            })
+            ->select(['custodian_id'])
+            ->pluck('custodian_id')->toArray();
+
+        if ($userCustodianIds) {
+            $userCustodians = User::whereIn('custodian_user_id', $userCustodianIds)->get();
+            Notification::send($userCustodians, new OrganisationUpdateProfileDetails($loggedInUser, $newOrgDetails, $oldOrgDetails, 'organisation'));
         }
     }
 
