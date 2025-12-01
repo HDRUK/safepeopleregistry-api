@@ -63,6 +63,13 @@ class PendingInviteController extends Controller
             ->with([
                 'user:id,name,email,user_group,unclaimed'
             ])
+            ->whereHas('user', function ($query) {
+                $query->where([
+                    'user_group' => User::GROUP_USERS,
+                ])
+                ->whereHas('registry.affiliations')
+                ->orWhere('user_group', '!=', User::GROUP_USERS);
+            })
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return $this->OKResponse($pendingInvites);
