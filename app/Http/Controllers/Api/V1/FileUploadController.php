@@ -297,8 +297,7 @@ class FileUploadController extends Controller
                     TriggerEmail::spawnEmail($input);
                 }
 
-                // send notifications to users.is_sro
-                $this->changeAffiliationState($organisation->id, $fileIn->id);
+                $this->sendNotificationOnUploadSroDoc($organisation->id, $fileIn->id);
             } else {
                 throw new Exception('Invalid or missing registry ID or organisation ID');
             }
