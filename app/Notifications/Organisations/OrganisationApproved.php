@@ -4,10 +4,12 @@ namespace App\Notifications\Organisations;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class OrganisationApproved extends Notification
+class OrganisationApproved extends Notification implements ShouldQueue
 {
     use Queueable;
+
     private $message;
     private $details;
 

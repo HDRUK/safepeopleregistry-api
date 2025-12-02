@@ -5,9 +5,10 @@ namespace App\Notifications\Affiliations;
 use App\Models\Affiliation;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Notifications\Affiliations\Traits\AffiliationNotification;
 
-class AffiliationCreated extends Notification
+class AffiliationCreated extends Notification implements ShouldQueue
 {
     use Queueable;
     use AffiliationNotification;

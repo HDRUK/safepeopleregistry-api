@@ -51,8 +51,8 @@ use App\Http\Requests\Organisations\GetCountCertifications;
 use App\Http\Requests\Organisations\GetCountPresentProject;
 use App\Http\Requests\Organisations\OrganisationInviteUser;
 use App\Http\Requests\Organisations\OrganisationValidateRor;
+use App\Notifications\Organisations\OrganisationUpdateProfile;
 use App\Http\Requests\Organisations\OrganisationUpdateApprover;
-use App\Notifications\Organisations\OrganisationUpdateProfileDetails;
 
 class OrganisationController extends Controller
 {
@@ -711,6 +711,8 @@ class OrganisationController extends Controller
         }
 
         if ($org->wasChanged()) {
+            $this->sendNotificationOnUpdate($loggedInUser, $org, $org->getOriginal());
+
             Organisation::where('id', $org->id)->update([
                 'system_approved' => 0,
             ]);
@@ -727,8 +729,6 @@ class OrganisationController extends Controller
                 TriggerEmail::spawnEmail($input);
             }
 
-            $this->sendNotificationOnUpdate($loggedInUser, $org, $org->getOriginal());
-
         }
 
         return $this->OKResponse($org->refresh());
@@ -739,24 +739,25 @@ class OrganisationController extends Controller
 
     public function sendNotificationOnUpdate($loggedInUser, $newOrgDetails, $oldOrgDetails)
     {
-        $orgasnisationId = $newOrgDetails->id;
+        $organisationId = $newOrgDetails->id;
+
         // organisation
         $users = User::where([
-            'organisation_id' => $orgasnisationId
+            'organisation_id' => $organisationId
         ])->get();
-        Notification::send($users, new OrganisationUpdateProfileDetails($loggedInUser, $newOrgDetails, $oldOrgDetails, 'organisation'));
+        Notification::send($users, new OrganisationUpdateProfile($loggedInUser, $newOrgDetails, $oldOrgDetails, 'organisation'));
 
         // data custodian
         $userCustodianIds = CustodianHasProjectOrganisation::query()
-            ->whereHas('projectOrganisation', function ($query) use ($orgasnisationId) {
-                $query->where('organisation_id', $orgasnisationId);
+            ->whereHas('projectOrganisation', function ($query) use ($organisationId) {
+                $query->where('organisation_id', $organisationId);
             })
             ->select(['custodian_id'])
             ->pluck('custodian_id')->toArray();
 
         if ($userCustodianIds) {
             $userCustodians = User::whereIn('custodian_user_id', $userCustodianIds)->get();
-            Notification::send($userCustodians, new OrganisationUpdateProfileDetails($loggedInUser, $newOrgDetails, $oldOrgDetails, 'custodian'));
+            Notification::send($userCustodians, new OrganisationUpdateProfile($loggedInUser, $newOrgDetails, $oldOrgDetails, 'custodian'));
         }
     }
 

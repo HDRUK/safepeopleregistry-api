@@ -6,9 +6,10 @@ use App\Models\User;
 use App\Models\Affiliation;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Notifications\Affiliations\Traits\AffiliationNotification;
 
-class AffiliationChanged extends Notification
+class AffiliationChanged extends Notification implements ShouldQueue
 {
     use Queueable;
 
