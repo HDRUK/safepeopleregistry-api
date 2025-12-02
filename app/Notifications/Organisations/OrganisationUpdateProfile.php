@@ -13,16 +13,16 @@ class OrganisationUpdateProfile extends Notification implements ShouldQueue
     private $message;
     private $newOrganisation;
     private $oldOrganisation;
-    private $type;
+    private $for;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($user, $newOrganisation, $oldOrganisation, $type)
+    public function __construct($user, $newOrganisation, $oldOrganisation, $for)
     {
         $this->newOrganisation = $newOrganisation;
         $this->oldOrganisation = $oldOrganisation;
-        $this->type = $type;
+        $this->for = $for;
         $this->message = $this->generateMessage($user);
     }
 
@@ -52,7 +52,7 @@ class OrganisationUpdateProfile extends Notification implements ShouldQueue
 
     public function generateMessage($user)
     {
-        switch ($this->type) {
+        switch ($this->for) {
             case 'organisation':
                 return "{$user->first_name} {$user->last_name} changed organisation profile.";
 
@@ -65,65 +65,3 @@ class OrganisationUpdateProfile extends Notification implements ShouldQueue
     }
 
 }
-
-
-// class OrganisationUpdateProfileDetails extends Notification
-// {
-//     use Queueable;
-
-//     private $message;
-//     private $user;
-//     private $newOrganisation;
-//     private $oldOrganisation;
-//     private $type;
-
-//     /**
-//      * Create a new notification instance.
-//      */
-//     public function __construct($user, $newOrganisation, $oldOrganisation, $type)
-//     {
-//         $this->newOrganisation = $newOrganisation;
-//         $this->oldOrganisation = $oldOrganisation;
-//         $this->type = $type;
-//         $this->message = $this->generateMessage($user);
-//     }
-
-//     /**
-//      * Specify the delivery channels.
-//      */
-//     public function via($notifiable)
-//     {
-//         return ['database'];
-//     }
-
-//     /**
-//      * Store the notification in the database.
-//      */
-//     public function toDatabase($notifiable)
-//     {
-//         return [
-//             'message' => $this->message,
-//             'details' => [
-//                 'old' => $this->oldOrganisation,
-//                 'new' => $this->newOrganisation,
-//                 'time' => now(),
-//             ],
-//             'time' => now(),
-//         ];
-//     }
-
-//     public function generateMessage($user)
-//     {
-//         switch ($this->type) {
-//             case 'organisation':
-//                 return "{$user->first_name} {$user->last_name} changed organisation profile.";
-
-//             case 'custodian':
-//                 return "Organisation {$this->newOrganisation->organisation_name} has changed their profile.";
-
-//             default:
-//                 break;
-//         }
-//     }
-
-// }

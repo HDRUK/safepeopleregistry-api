@@ -15,17 +15,17 @@ class AffiliationCreated extends Notification implements ShouldQueue
 
     private $user;
     private $affiliation;
-    private $type;
+    private $for;
     private $affiliationRequest;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($user, Affiliation $affiliation, $type, $affiliationRequest = false)
+    public function __construct($user, Affiliation $affiliation, $for, $affiliationRequest = false)
     {
         $this->user = $user;
         $this->affiliation = $affiliation;
-        $this->type = $type;
+        $this->for = $for;
         $this->affiliationRequest = $affiliationRequest;
     }
 
@@ -55,7 +55,7 @@ class AffiliationCreated extends Notification implements ShouldQueue
     public function generateMessage()
     {
         if ($this->affiliationRequest) {
-            switch ($this->type) {
+            switch ($this->for) {
                 case 'user':
                     return "You send an affiliation request to Organisation {$this->affiliation->organisation->organisation_name}.";
 
@@ -69,7 +69,7 @@ class AffiliationCreated extends Notification implements ShouldQueue
                     break;
             }
         } else {
-            switch ($this->type) {
+            switch ($this->for) {
                 case 'user':
                     return "You created a new affiliation.";
 

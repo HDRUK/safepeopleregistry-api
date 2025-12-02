@@ -12,15 +12,15 @@ class CustodianChangeStatus extends Notification
 
     private $message;
     private $details;
-    private $type;
+    private $for;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($changes, $type)
+    public function __construct($changes, $for)
     {
         $this->details = $changes;
-        $this->type = $type;
+        $this->for = $for;
         $this->message = $this->generateMessage();
     }
 
@@ -55,7 +55,7 @@ class CustodianChangeStatus extends Notification
         $projectTitle = $this->details['project_title'];
 
         if ($state === State::STATE_MORE_USER_INFO_REQ) {
-            switch ($this->type) {
+            switch ($this->for) {
                 case 'user':
                     return "Data Custodian {$custodianName} changed your validation status, for project {$projectTitle}, from {$oldState} to {$newState}.";
 

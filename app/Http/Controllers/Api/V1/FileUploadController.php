@@ -326,7 +326,10 @@ class FileUploadController extends Controller
 
     public function sendNotificationOnUploadSroDoc($organisationId, $fileId)
     {
-        $files = File::where('id', $fileId)->first();
+        $file = File::where('id', $fileId)->first();
+        if ($file->type !== File::FILE_TYPE_DECLARATION_SRO) {
+            return;
+        }
 
         $sroUsers = User::where([
             'is_sro' => 1,
@@ -334,7 +337,7 @@ class FileUploadController extends Controller
         ])->get();
 
         foreach ($sroUsers as $sroUser) {
-            Notification::send($sroUser, new UploadSroDoc($sroUser, $files));
+            Notification::send($sroUser, new UploadSroDoc($sroUser, $file));
         }
     }
 }

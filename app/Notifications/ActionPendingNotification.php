@@ -16,15 +16,15 @@ class ActionPendingNotification extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct($type, $actions)
+    public function __construct($for, $actions)
     {
-        $this->message = $this->generateMessage($type);
+        $this->message = $this->generateMessage($for);
         $this->actions = $actions;
     }
 
-    private function generateMessage($type): string
+    private function generateMessage($for): string
     {
-        return match ($type) {
+        return match ($for) {
             User::GROUP_USERS           => 'Your profile is incomplete.',
             User::GROUP_ORGANISATIONS   => 'Your organisation\'s profile is incomplete.',
             User::GROUP_CUSTODIANS      => 'Your custodian\'s profile is incomplete.',
