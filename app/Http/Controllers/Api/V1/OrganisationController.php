@@ -47,6 +47,7 @@ use App\Http\Requests\Organisations\UpdateOrganisation;
 use App\Http\Requests\Organisations\GetCountPastProject;
 use App\Http\Requests\Organisations\GetOrganisationIdvt;
 use App\Notifications\Organisations\OrganisationApproved;
+use App\Notifications\Organisations\OrganisationDelegates;
 use App\Http\Requests\Organisations\GetCountCertifications;
 use App\Http\Requests\Organisations\GetCountPresentProject;
 use App\Http\Requests\Organisations\OrganisationInviteUser;
@@ -1265,6 +1266,10 @@ class OrganisationController extends Controller
 
             TriggerEmail::spawnEmail($email);
 
+            if ($unclaimedUser->is_delegate) {
+                $this->sendNotificationOnDelegate($loggedInUser, $unclaimedUser);
+            }
+
             return response()->json([
                 'message' => 'success',
                 'data' => $unclaimedUser->id,
@@ -1760,6 +1765,15 @@ class OrganisationController extends Controller
     private function getNotificationUsers(int $orgId)
     {
         return User::where("organisation_id", $orgId)->get();
+    }
+
+    private function sendNotificationOnDelegate($loggedInUser, $delegate)
+    {
+        $userNotifiy = User::where('organisation_id', $delegate->organisation_id)
+            ->where('id', '<>', $delegate->id)
+            ->get();
+
+        Notification::send($userNotifiy, new OrganisationDelegates($loggedInUser, $delegate, 'add'));
     }
 
 }

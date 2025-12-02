@@ -29,8 +29,10 @@ use App\Http\Requests\Users\UpdateUser;
 use RegistryManagementController as RMC;
 use App\Models\UserHasCustodianPermission;
 use App\Http\Requests\Users\GetUserProject;
+use Illuminate\Support\Facades\Notification;
 use App\Http\Requests\Users\CheckUserInviteCode;
 use App\Services\DecisionEvaluatorService as DES;
+use App\Notifications\Organisations\OrganisationDelegates;
 
 class UserController extends Controller
 {
@@ -530,6 +532,8 @@ class UserController extends Controller
         try {
             $input = $request->all();
 
+            $loggedInUserId = $request->user()->id;
+            $loggedInUser = User::where('id', $loggedInUserId)->first();
             $user = User::where('id', $id)->first();
 
             if (!Gate::allows('update', $user)) {
@@ -564,6 +568,10 @@ class UserController extends Controller
             $user->is_delegate = isset($input['is_delegate']) ? $input['is_delegate'] : $user->is_delegate;
             $user->role = isset($input['role']) ? $input['role'] : $user->role;
             $user->save();
+            
+            if (!$user->is_delegate) {
+                $this->sendNotificationOnDelegate($loggedInUser, $user);
+            }
 
             return response()->json([
                 'message' => 'success',
@@ -573,6 +581,15 @@ class UserController extends Controller
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
+    }
+
+    private function sendNotificationOnDelegate($loggedInUser, $delegate)
+    {
+        $userNotifiy = User::where('organisation_id', $delegate->organisation_id)
+            ->where('id', '<>', $delegate->id)
+            ->get();
+
+        Notification::send($userNotifiy, new OrganisationDelegates($loggedInUser, $delegate, 'remove'));
     }
 
     public function getPendingInviteByInviteCode(CheckUserInviteCode $request, String $inviteCode): JsonResponse
