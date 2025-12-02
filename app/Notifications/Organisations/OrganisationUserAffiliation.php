@@ -15,7 +15,7 @@ class OrganisationUserAffiliation extends Notification implements ShouldQueue
     private $status;
     private $for;
 
-    public function __constructor($user, $organisation, $status, $for)
+    public function __construct($user, $organisation, $status, $for)
     {
         $this->user = $user;
         $this->organisation = $organisation;
