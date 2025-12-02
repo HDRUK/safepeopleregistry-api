@@ -11,7 +11,6 @@ class OrganisationUpdateProfile extends Notification implements ShouldQueue
     use Queueable;
 
     private $message;
-    private $user;
     private $newOrganisation;
     private $oldOrganisation;
     private $type;
