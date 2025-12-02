@@ -688,53 +688,53 @@ class OrganisationController extends Controller
      */
     public function update(UpdateOrganisation $request, int $id): JsonResponse
     {
-        // try {
-        $input = $request->only(app(Organisation::class)->getFillable());
-        $org = Organisation::findOrFail($id);
+        try {
+            $input = $request->only(app(Organisation::class)->getFillable());
+            $org = Organisation::findOrFail($id);
 
-        if (!Gate::allows('update', $org)) {
-            return $this->ForbiddenResponse();
-        }
-
-        // we need more discussion aroud this disable
-        // if (!$org->system_approved && (!isset($input['system_approved']) || $input['system_approved'] === false)) {
-        //     return $this->ForbiddenResponse();
-        // }
-
-        $org->update($input);
-
-        $loggedInUserId = $request->user()->id;
-        $loggedInUser = User::where('id', $loggedInUserId)->first();
-
-        if ($request->has('charities')) {
-            $this->updateOrganisationCharities($id, $request->input('charities'));
-        }
-
-        if ($org->wasChanged()) {
-            $this->sendNotificationOnUpdate($loggedInUser, $org, $org->getOriginal());
-
-            Organisation::where('id', $org->id)->update([
-                'system_approved' => 0,
-            ]);
-
-            $userAdmins = User::where('user_group', User::GROUP_ADMINS)->select(['id'])->get();
-            foreach ($userAdmins as $userAdmin) {
-                $input = [
-                    'type' => 'ORGANISATION_NEEDS_CONFIRMATION',
-                    'to' => $id,
-                    'by' => $userAdmin->id,
-                    'identifier' => 'organisation_confirmation_needed'
-                ];
-
-                TriggerEmail::spawnEmail($input);
+            if (!Gate::allows('update', $org)) {
+                return $this->ForbiddenResponse();
             }
 
-        }
+            // we need more discussion aroud this disable
+            // if (!$org->system_approved && (!isset($input['system_approved']) || $input['system_approved'] === false)) {
+            //     return $this->ForbiddenResponse();
+            // }
 
-        return $this->OKResponse($org->refresh());
-        // } catch (Exception $e) {
-        //     throw new Exception($e->getMessage());
-        // }
+            $org->update($input);
+
+            $loggedInUserId = $request->user()->id;
+            $loggedInUser = User::where('id', $loggedInUserId)->first();
+
+            if ($request->has('charities')) {
+                $this->updateOrganisationCharities($id, $request->input('charities'));
+            }
+
+            if ($org->wasChanged()) {
+                $this->sendNotificationOnUpdate($loggedInUser, $org, $org->getOriginal());
+
+                Organisation::where('id', $org->id)->update([
+                    'system_approved' => 0,
+                ]);
+
+                $userAdmins = User::where('user_group', User::GROUP_ADMINS)->select(['id'])->get();
+                foreach ($userAdmins as $userAdmin) {
+                    $input = [
+                        'type' => 'ORGANISATION_NEEDS_CONFIRMATION',
+                        'to' => $id,
+                        'by' => $userAdmin->id,
+                        'identifier' => 'organisation_confirmation_needed'
+                    ];
+
+                    TriggerEmail::spawnEmail($input);
+                }
+
+            }
+
+            return $this->OKResponse($org->refresh());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
     }
 
     public function sendNotificationOnUpdate($loggedInUser, $newOrgDetails, $oldOrgDetails)
