@@ -2,13 +2,14 @@
 
 namespace App\Notifications\ProjectHasUser;
 
-use App\Models\Affiliation;
 use App\Models\Project;
+use App\Models\Affiliation;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Notifications\ProjectHasUser\Traits\ProjectHasUserNotification;
 
-class ProjectHasUserCreatedEntityOrganisation extends Notification
+class ProjectHasUserCreatedEntityOrganisation extends Notification implements ShouldQueue
 {
     use Queueable;
     use ProjectHasUserNotification;

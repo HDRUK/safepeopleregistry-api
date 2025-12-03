@@ -4,24 +4,25 @@ namespace App\Notifications\User;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class UpdateProfileDetails extends Notification
+class UpdateProfileDetails extends Notification implements ShouldQueue
 {
     use Queueable;
 
     private $user;
     private $message;
     private $details;
-    private $type;
+    private $for;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($user, $changes, $type)
+    public function __construct($user, $changes, $for)
     {
         $this->user = $user;
         $this->details = $changes;
-        $this->type = $type;
+        $this->for = $for;
         $this->message = $this->generateMessage();
     }
 
@@ -47,7 +48,7 @@ class UpdateProfileDetails extends Notification
 
     public function generateMessage()
     {
-        switch ($this->type) {
+        switch ($this->for) {
             case 'user':
                 return "You changed your profile.";
 

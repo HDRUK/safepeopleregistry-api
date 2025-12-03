@@ -495,7 +495,7 @@ class OrganisationTest extends TestCase
                     'smb_status' => false,
                     'organisation_size' => 2,
                     'website' => 'https://www.website.com/',
-                    'system_approved' => true,
+                    'system_approved' => false,
                 ]
             );
 
@@ -504,7 +504,7 @@ class OrganisationTest extends TestCase
         $this->assertDatabaseHas('organisations', [
             'id' => $responseUpdate['data']['id'],
             'verified' => true,
-            'system_approved' => true,
+            'system_approved' => false,
         ]);
 
         $responseActionLog = $this->actingAs($this->organisation_admin)

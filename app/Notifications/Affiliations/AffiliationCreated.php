@@ -5,26 +5,27 @@ namespace App\Notifications\Affiliations;
 use App\Models\Affiliation;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Notifications\Affiliations\Traits\AffiliationNotification;
 
-class AffiliationCreated extends Notification
+class AffiliationCreated extends Notification implements ShouldQueue
 {
     use Queueable;
     use AffiliationNotification;
 
     private $user;
     private $affiliation;
-    private $type;
+    private $for;
     private $affiliationRequest;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($user, Affiliation $affiliation, $type, $affiliationRequest = false)
+    public function __construct($user, Affiliation $affiliation, $for, $affiliationRequest = false)
     {
         $this->user = $user;
         $this->affiliation = $affiliation;
-        $this->type = $type;
+        $this->for = $for;
         $this->affiliationRequest = $affiliationRequest;
     }
 
@@ -54,7 +55,7 @@ class AffiliationCreated extends Notification
     public function generateMessage()
     {
         if ($this->affiliationRequest) {
-            switch ($this->type) {
+            switch ($this->for) {
                 case 'user':
                     return "You send an affiliation request to Organisation {$this->affiliation->organisation->organisation_name}.";
 
@@ -68,7 +69,7 @@ class AffiliationCreated extends Notification
                     break;
             }
         } else {
-            switch ($this->type) {
+            switch ($this->for) {
                 case 'user':
                     return "You created a new affiliation.";
 

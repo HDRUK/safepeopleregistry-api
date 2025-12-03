@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Notifications\Organisations;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class AdminUserChanged extends Notification implements ShouldQueue
+class OrganisationApproved extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -16,14 +16,16 @@ class AdminUserChanged extends Notification implements ShouldQueue
     /**
      * Create a new notification instance.
      */
-    public function __construct($user, $changes)
+    public function __construct($org)
     {
-        $this->message = "$user->first_name $user->last_name details changed.";
-        $this->details = $changes;
+        $this->message = "$org->organisation_name was approved by the admin. You can now start inviting delegates and affiliationg users";
+        $this->details = 'The organization was approved by the admin.';
     }
 
     /**
-     * Specify the delivery channels.
+     * Get the notification's delivery channels.
+     *
+     * @return array<int, string>
      */
     public function via($notifiable)
     {

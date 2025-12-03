@@ -93,6 +93,11 @@ class File extends Model
     public const FILE_TYPE_TRAINING_EVIDENCE = 'training_evidence';
     public const FILE_TYPE_DECLARATION_SRO = 'declaration_sro';
 
+    public const FILE_TYPE_CERTIFICATION_CECERTIFIED = 'certification_cecertified';
+    public const FILE_TYPE_CERTIFICATION_CEPLUSCERTIFIED = 'certification_cepluscertified';
+    public const FILE_TYPE_CERTIFICATION_ISO27001CERTIFIED = 'certification_iso27001certified';
+    public const FILE_TYPE_CERTIFICATION_DSPTKCERTIFIED = 'certification_dsptkcertified';
+
     protected $fillable = [
         'name',
         'type',

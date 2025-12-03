@@ -17,7 +17,7 @@
         "laravel/pennant": "^1.18",
         "laravel/socialite": "^5.14",
         "laravel/tinker": "^2.8",
-        "phpoffice/phpspreadsheet": "^4.1",
+        "phpoffice/phpspreadsheet": "^5.0",
         "robsontenorio/laravel-keycloak-guard": "*",
         "seshac/otp-generator": "^0.0.8",
         "socialiteproviders/keycloak": "^5.3",

@@ -6,9 +6,10 @@ use App\Models\User;
 use App\Models\Affiliation;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Notifications\Affiliations\Traits\AffiliationNotification;
 
-class AffiliationChanged extends Notification
+class AffiliationChanged extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -17,15 +18,15 @@ class AffiliationChanged extends Notification
     private $user;
     private $oldAffiliation;
     private $newAffiliation;
-    private $type;
+    private $for;
     private $affiliationRequest;
 
-    public function __construct(User $user, Affiliation $oldAffiliation, Affiliation $newAffiliation, $type, $affiliationRequest = false)
+    public function __construct(User $user, Affiliation $oldAffiliation, Affiliation $newAffiliation, $for, $affiliationRequest = false)
     {
         $this->user = $user;
         $this->oldAffiliation = $oldAffiliation;
         $this->newAffiliation = $newAffiliation;
-        $this->type = $type;
+        $this->for = $for;
         $this->affiliationRequest = $affiliationRequest;
     }
 
@@ -57,7 +58,7 @@ class AffiliationChanged extends Notification
     {
         $url = config('speedi.system.portal_url') . '/en/organisation/profile/user-administration/employees-and-students/' . $this->user->id . '/affiliations';
         if ($this->affiliationRequest) {
-            switch ($this->type) {
+            switch ($this->for) {
                 case 'user':
                     return "You send an affiliation request to Organisation {$this->newAffiliation->organisation->organisation_name}.";
 
@@ -71,7 +72,7 @@ class AffiliationChanged extends Notification
                     break;
             }
         } else {
-            switch ($this->type) {
+            switch ($this->for) {
                 case 'user':
                     return "You updated your affiliation.";
 

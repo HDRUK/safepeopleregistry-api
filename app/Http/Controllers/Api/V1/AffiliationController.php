@@ -16,6 +16,8 @@ use Illuminate\Http\JsonResponse;
 use App\Traits\AffiliationManager;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Notification;
+use App\Models\CustodianHasProjectOrganisation;
 use App\Http\Requests\Affiliations\DeleteAffiliation;
 use App\Http\Requests\Affiliations\UpdateAffiliation;
 use App\Http\Requests\Affiliations\VerificationEmail;
@@ -24,6 +26,7 @@ use App\Http\Requests\Affiliations\GetAffiliationByRegistry;
 use App\Http\Requests\Affiliations\GetOrganisationAffiliation;
 use App\Http\Requests\Affiliations\CreateAffiliationByRegistry;
 use App\Http\Requests\Affiliations\UpdateAffiliationByRegistry;
+use App\Notifications\Organisations\OrganisationUserAffiliation;
 
 class AffiliationController extends Controller
 {
@@ -685,13 +688,50 @@ class AffiliationController extends Controller
                     'is_verified' => 1,
                     'verification_confirmed_at' => Carbon::now(),
                 ]);
+
             }
 
             $affiliation->transitionTo($newStateSlug);
 
+            // send notification
+            $this->sendNotificationOnApprove($status, $registryId, $affiliation);
+
             return $this->OKResponse($affiliation->getState());
         } catch (Exception $e) {
             return $this->ErrorResponse($e->getMessage());
+        }
+    }
+
+    public function sendNotificationOnApprove($status, $registryId, $affiliation)
+    {
+        $organisationId = $affiliation->organisation_id;
+        $orgasnisation = Organisation::where('id', $organisationId)->first();
+        $user = User::where([
+            'registry_id' => $registryId
+        ])->first();
+
+        // user
+        Notification::send($user, new OrganisationUserAffiliation($user, $orgasnisation, $status, 'user'));
+
+        // organisation
+        $userOrganisations = User::where('organisation_id', $organisationId)->get();
+        foreach ($userOrganisations as $userOrganisation) {
+            Notification::send($userOrganisation, new OrganisationUserAffiliation($user, $orgasnisation, $status, 'organisation'));
+        }
+
+        // custodian
+        $userCustodianIds = CustodianHasProjectOrganisation::query()
+            ->whereHas('projectOrganisation', function ($query) use ($organisationId) {
+                $query->where('organisation_id', $organisationId);
+            })
+            ->select(['custodian_id'])
+            ->pluck('custodian_id')->toArray();
+
+        if ($userCustodianIds) {
+            $userCustodians = User::whereIn('custodian_user_id', $userCustodianIds)->get();
+            foreach ($userCustodians as $userCustodian) {
+                Notification::send($userCustodian, new OrganisationUserAffiliation($user, $orgasnisation, $status, 'custodian'));
+            }
         }
     }
 

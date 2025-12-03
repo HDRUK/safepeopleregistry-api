@@ -1,29 +1,26 @@
 <?php
 
-namespace App\Notifications;
+namespace App\Notifications\Organisations;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class OrganisationApproved extends Notification
+class UploadSroDoc extends Notification implements ShouldQueue
 {
     use Queueable;
+
     private $message;
     private $details;
 
-    /**
-     * Create a new notification instance.
-     */
-    public function __construct($org)
+    public function __construct($user, $files)
     {
-        $this->message = "$org->organisation_name was approved by the admin!";
-        $this->details = 'The organization was approved by the admin.';
+        $this->message = "$user->first_name $user->last_name uploaded the SRO declaration";
+        $this->details = $files;
     }
 
     /**
-     * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
+     * Specify the delivery channels.
      */
     public function via($notifiable)
     {
@@ -41,4 +38,5 @@ class OrganisationApproved extends Notification
             'time' => now(),
         ];
     }
+
 }
