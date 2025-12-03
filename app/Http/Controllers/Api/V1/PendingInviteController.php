@@ -59,19 +59,19 @@ class PendingInviteController extends Controller
      */
     public function index(Request $request)
     {
+        $userGroupFilter = request()->has('user_group') ? request()->get('user_group') : null;
+
         $pendingInvites = PendingInvite::query()
+            ->searchViaRequest()
             ->with([
                 'user:id,name,email,user_group,unclaimed'
             ])
-            ->whereHas('user', function ($q1) {
-                $q1->where(function ($q2) {
-                    $q2->where([
-                        'user_group' => User::GROUP_USERS,
-                    ])
-                    ->whereHas('registry.affiliations');
-                })
-                ->orWhere('user_group', '!=', User::GROUP_USERS);
+            ->whereHas('user', function ($q1) use ($userGroupFilter) {
+                if ($userGroupFilter !== null) {
+                    $q1->where('user_group', strtoupper($userGroupFilter));
+                }
             })
+            ->applySorting()
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return $this->OKResponse($pendingInvites);
@@ -157,6 +157,9 @@ class PendingInviteController extends Controller
         }
 
         TriggerEmail::spawnEmail($sendEmail);
+
+        $pendingInvite->updated_at = now();
+        $pendingInvite->save();
 
         return $this->OKResponse('Email invite resent');
     }
