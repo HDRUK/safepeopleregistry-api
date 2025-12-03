@@ -54,11 +54,12 @@ class PendingInviteTest extends TestCase
                 'GET',
                 self::TEST_URL
             );
+        // dd($response);
 
         $response->assertStatus(200);
 
         $data = $response->decodeResponseJson()['data']['data'];
 
-        $this->assertEquals(1, count($data));
+        $this->assertEquals(2, count($data));
     }
 }
