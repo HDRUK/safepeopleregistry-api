@@ -10,7 +10,7 @@ trait TracksModelChanges
     {
         $changes = [];
 
-        $fieldsToTrack = ['first_name', 'last_name', 'email', 'role', 'location'];
+        $fieldsToTrack = ['first_name', 'last_name', 'email', 'role'];
 
         foreach ($fieldsToTrack as $field) {
             if ($oldUser[$field] !== $newUser[$field]) {
