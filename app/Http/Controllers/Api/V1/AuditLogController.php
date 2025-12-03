@@ -97,7 +97,7 @@ class AuditLogController extends Controller
             ->get()
             ->map(function ($activityLog) use ($loggedInUser) {
                 if ($loggedInUser->user_group === User::GROUP_CUSTODIANS && ($activityLog->causer_id !== null && $activityLog->causer_id !== $loggedInUser->id)) {
-                    $activityLog->description = null;
+                    $activityLog->description = '';
                 }
 
                 return $activityLog;
