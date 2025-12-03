@@ -1769,11 +1769,11 @@ class OrganisationController extends Controller
 
     private function sendNotificationOnDelegate($loggedInUser, $delegate)
     {
-        $userNotifiy = User::where('organisation_id', $delegate->organisation_id)
+        $user = User::where('organisation_id', $delegate->organisation_id)
             ->where('id', '<>', $delegate->id)
             ->get();
 
-        Notification::send($userNotifiy, new OrganisationDelegates($loggedInUser, $delegate, 'add'));
+        Notification::send($user, new OrganisationDelegates($loggedInUser, $delegate, 'add'));
     }
 
 }

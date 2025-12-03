@@ -12,6 +12,7 @@ use App\Models\DebugLog;
 use App\Models\ActionLog;
 use App\Jobs\OrcIDScanner;
 use App\Models\Organisation;
+use App\Traits\TracksModelChanges;
 use App\Models\CustodianHasProjectUser;
 use App\Notifications\AdminUserChanged;
 use Illuminate\Support\Facades\Notification;
@@ -19,6 +20,8 @@ use App\Notifications\User\UpdateProfileDetails;
 
 class UserObserver
 {
+    use TracksModelChanges;
+    
     protected array $profileCompleteFields = [
         'first_name',
         'last_name',
@@ -79,30 +82,7 @@ class UserObserver
             'log' => 'User updated ::' . json_encode($user->getChanges()),
         ]);
 
-        $changes = [];
-
-        $fieldsToTrack = ['first_name', 'last_name', 'email', 'role', 'location'];
-
-        foreach ($fieldsToTrack as $field) {
-            if ($user->isDirty($field)) {
-                $changes[$field] = [
-                    'old' => $user->getOriginal($field),
-                    'new' => $user->$field,
-                ];
-            }
-        }
-
-        if ($user->isDirty('organisation_id')) {
-            $oldOrganisation = $user->getOriginal('organisation_id')
-                ? Organisation::find($user->getOriginal('organisation_id'))
-                : null;
-            $newOrganisation = $user->organisation;
-
-            $changes['organisation'] = [
-                'old' => $oldOrganisation->organisation_name ?? 'N/A',
-                'new' => $newOrganisation->organisation_name ?? 'N/A',
-            ];
-        }
+        $changes = $this->getUserTrackedChanges($user->getOriginal(), $user);
 
         if (!empty($changes)) {
             $this->sendNotificationOnUpdate($user, $changes);
