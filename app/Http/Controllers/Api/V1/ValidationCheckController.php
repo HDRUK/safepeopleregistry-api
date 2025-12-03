@@ -323,10 +323,11 @@ class ValidationCheckController extends Controller
             }
 
             $input = $request->only(app(ValidationCheck::class)->getFillable());
+            $input['custodian_id'] = $custodianId;
             $check = ValidationCheck::create($input);
 
             CustodianHasValidationCheck::create([
-                'custodian_id' => $custodian->id,
+                'custodian_id' => $custodianId,
                 'validation_check_id' => $check->id,
             ]);
 
