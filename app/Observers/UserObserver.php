@@ -21,7 +21,7 @@ use App\Notifications\User\UpdateProfileDetails;
 class UserObserver
 {
     use TracksModelChanges;
-    
+
     protected array $profileCompleteFields = [
         'first_name',
         'last_name',

@@ -575,7 +575,7 @@ class UserController extends Controller
             $user->role = isset($input['role']) ? $input['role'] : $user->role;
             $user->save();
             $newUserData = $user->fresh();
-            
+
             if (!$user->is_delegate) {
                 $this->sendNotificationOnDelegate($loggedInUser, $user);
             }

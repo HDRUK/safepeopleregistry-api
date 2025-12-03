@@ -5,8 +5,9 @@ namespace App\Notifications\ProjectUser;
 use App\Models\State;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class CustodianChangeStatus extends Notification
+class CustodianChangeStatus extends Notification implements ShouldQueue
 {
     use Queueable;
 

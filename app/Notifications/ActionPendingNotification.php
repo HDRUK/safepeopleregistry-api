@@ -2,11 +2,12 @@
 
 namespace App\Notifications;
 
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
-use App\Models\User;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class ActionPendingNotification extends Notification
+class ActionPendingNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 

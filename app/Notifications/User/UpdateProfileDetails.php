@@ -4,8 +4,9 @@ namespace App\Notifications\User;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class UpdateProfileDetails extends Notification
+class UpdateProfileDetails extends Notification implements ShouldQueue
 {
     use Queueable;
 
