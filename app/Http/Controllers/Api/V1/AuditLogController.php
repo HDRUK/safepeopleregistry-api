@@ -33,6 +33,9 @@ class AuditLogController extends Controller
 
     public function showUserHistory(GetUserHistory $request, int $id)
     {
+        $loggedInUserId = $request->user()?->id;
+        $loggedInUser = User::where('id', $loggedInUserId)->first();
+
         $user = User::find($id);
 
         if (!$user) {
@@ -91,7 +94,14 @@ class AuditLogController extends Controller
                 },
             ])
             ->latest('created_at')
-            ->get();
+            ->get()
+            ->map(function ($activityLog) use ($loggedInUser) {
+                if ($loggedInUser->user_group === User::GROUP_CUSTODIANS && ($activityLog->causer_id !== null && $activityLog->causer_id !== $loggedInUser->id)) {
+                    $activityLog->description = null;
+                }
+
+                return $activityLog;
+            });
 
         // return $this->OKResponse($logs);
         // trim the output
@@ -100,6 +110,9 @@ class AuditLogController extends Controller
 
     public function showOrganisationHistory(GetOrganisationHistory $request, int $id)
     {
+        $loggedInUserId = $request->user()?->id;
+        $loggedInUser = User::where('id', $loggedInUserId)->first();
+
         $organisation = Organisation::find($id);
 
         if (!$organisation) {
