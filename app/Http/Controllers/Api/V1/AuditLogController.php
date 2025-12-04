@@ -98,12 +98,12 @@ class AuditLogController extends Controller
             ->map(function ($activityLog) use ($loggedInUser) {
                 if (
                     in_array($loggedInUser->user_group, [User::GROUP_ORGANISATIONS, User::GROUP_CUSTODIANS]) &&
-                    $activityLog->causer_id !== null && 
+                    $activityLog->causer_id !== null &&
                     $activityLog->causer_id !== $loggedInUser->id
                 ) {
                     $activityLog->description = '';
                 }
-                
+
                 return $activityLog;
             });
 
