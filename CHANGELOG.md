@@ -1,3 +1,22 @@
+## [1.22.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.21.0...v1.22.0) (2025-12-04)
+
+### ✨ Features
+
+* **REGISTRY-1234:** remove ; from example ([a26f101](https://github.com/HDRUK/safepeopleregistry-api/commit/a26f1013687c17a2ee7c87ce92fcbc4ad32e99b5))
+* **REGISTRY-1234:** remove ; from example (#550) ([aca2806](https://github.com/HDRUK/safepeopleregistry-api/commit/aca2806d604a09efacec39caee1a5c42be9bbda9))
+* **REGISTRY-1853:** Notifications: minimum content (#549) ([e43b81a](https://github.com/HDRUK/safepeopleregistry-api/commit/e43b81a57ab455a75d7271f729363173c07dc0a4))
+* **REGISTRY-2207:** Super-admin: Add ability to filter invites by user group and new data (#556) ([c44fd36](https://github.com/HDRUK/safepeopleregistry-api/commit/c44fd368f6f7e9d9e26de37ffa6414c0ffd20f0f))
+* **REGISTRY-2237:** filter no affilliations (#551) ([2b18d12](https://github.com/HDRUK/safepeopleregistry-api/commit/2b18d12cdee8645bfd7e92c40ef5c3bedfc56f0f))
+* **REGISTRY-2261:** Affiliation status - Custodian invites User and Org (#548) ([4c28e73](https://github.com/HDRUK/safepeopleregistry-api/commit/4c28e73b2928847a3ba9c22c7e246ad3e7be6033))
+* **REGISTRY-2289:** Notifications: minimum content for Organisation actions (#552) ([ca649eb](https://github.com/HDRUK/safepeopleregistry-api/commit/ca649eb3c8e53db2f24ea88e77a034c35bf68625))
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-2300:** Custodians show that manual checks look like they are overwriting for… (#553) ([44d84c5](https://github.com/HDRUK/safepeopleregistry-api/commit/44d84c5e82c448f9a9059aa2121d96025327558b))
+* **REGISTRY-2306:** Custodian comments on Validation status (#554) ([e34503c](https://github.com/HDRUK/safepeopleregistry-api/commit/e34503c7f76213073d7de71be2fbaec6c1a0d54a))
+* **REGISTRY-2306:** Custodian comments on Validation status changes should ONLY be viewab… (#557) ([abcc015](https://github.com/HDRUK/safepeopleregistry-api/commit/abcc015b264fbf3850bb906acb7e7d39933dd3df))
+* **REGISTRY-2308:** Email verification link not working (#555) ([67ef7c7](https://github.com/HDRUK/safepeopleregistry-api/commit/67ef7c761d60e771348141f47ad205b0bbad615d))
+
 ## [1.21.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.20.0...v1.21.0) (2025-11-26)
 
 ### ✨ Features
