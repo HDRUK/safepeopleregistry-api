@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\FilterManager;
+use App\Traits\SearchManager;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * @OA\Schema(
@@ -101,6 +103,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class PendingInvite extends Model
 {
     use HasFactory;
+    use FilterManager;
+    use SearchManager;
 
     protected $table = 'pending_invites';
 
@@ -113,6 +117,16 @@ class PendingInvite extends Model
         'invite_accepted_at',
         'invite_sent_at',
         'invite_code',
+    ];
+
+    protected static array $searchableColumns = [
+        'status',
+        'updated_at',
+        'invite_sent_at',
+    ];
+
+    protected static array $sortableColumns = [
+        'invite_sent_at',
     ];
 
     /**

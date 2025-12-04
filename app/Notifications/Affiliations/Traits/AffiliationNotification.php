@@ -22,24 +22,24 @@ trait AffiliationNotification
         ];
     }
 
-    protected function buildNotification(User $user, Affiliation $affiliation, string $initMessage)
-    {
-        $message = "{$user->first_name} {$user->last_name} $initMessage";
-        $details = $this->getAffiliationDetails($affiliation);
-        $this->payload = [
-            'message' => $message,
-            'details' => $details,
-            'time' => now(),
-        ];
-    }
+    // protected function buildNotification(User $user, Affiliation $affiliation, string $initMessage)
+    // {
+    //     $message = "{$user->first_name} {$user->last_name} $initMessage";
+    //     $details = $this->getAffiliationDetails($affiliation);
+    //     $this->payload = [
+    //         'message' => $message,
+    //         'details' => $details,
+    //         'time' => now(),
+    //     ];
+    // }
 
-    public function via($notifiable)
-    {
-        return ['database'];
-    }
+    // public function via($notifiable)
+    // {
+    //     return ['database'];
+    // }
 
-    public function toDatabase($notifiable)
-    {
-        return $this->payload;
-    }
+    // public function toDatabase($notifiable)
+    // {
+    //     return $this->payload;
+    // }
 }

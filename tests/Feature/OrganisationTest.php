@@ -467,12 +467,12 @@ class OrganisationTest extends TestCase
         $this->assertNull($actionLog['completed_at']);
 
         $newDate = Carbon::now()->subYears(2);
-        $response = $this->actingAs($this->organisation_admin)
+        $responseUpdate = $this->actingAs($this->organisation_admin)
             ->json(
                 'PUT',
                 self::TEST_URL . '/' . 1,
                 [
-                    'organisation_name' => 'Test Organisation',
+                    'organisation_name' => 'Test Organisation bla',
                     'address_1' => '123 Blah blah',
                     'address_2' => '',
                     'town' => 'Town',
@@ -495,27 +495,26 @@ class OrganisationTest extends TestCase
                     'smb_status' => false,
                     'organisation_size' => 2,
                     'website' => 'https://www.website.com/',
-                    'system_approved' => true,
+                    'system_approved' => false,
                 ]
             );
 
-        $response->assertStatus(200);
-        $this->assertArrayHasKey('data', $response);
-
+        $responseUpdate->assertStatus(200);
+        $this->assertArrayHasKey('data', $responseUpdate);
         $this->assertDatabaseHas('organisations', [
-            'id' => $response['data']['id'],
+            'id' => $responseUpdate['data']['id'],
             'verified' => true,
-            'system_approved' => true,
+            'system_approved' => false,
         ]);
 
-        $response = $this->actingAs($this->organisation_admin)
+        $responseActionLog = $this->actingAs($this->organisation_admin)
             ->json(
                 'GET',
                 self::TEST_URL . '/' . 1 . '/action_log'
             );
 
-        $response->assertStatus(200);
-        $responseData = $response['data'];
+        $responseActionLog->assertStatus(200);
+        $responseData = $responseActionLog['data'];
         $actionLog = collect($responseData)
             ->firstWhere('action', Organisation::ACTION_NAME_ADDRESS_COMPLETED);
 

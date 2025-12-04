@@ -29,10 +29,10 @@ use Illuminate\Support\Facades\Gate;
 use App\Exceptions\NotFoundException;
 use RegistryManagementController as RMC;
 use App\Models\OrganisationHasDepartment;
-use App\Notifications\OrganisationApproved;
 use App\Http\Requests\Organisations\GetUser;
 use Illuminate\Support\Facades\Notification;
 use App\Http\Requests\Organisations\GetProject;
+use App\Models\CustodianHasProjectOrganisation;
 use App\Http\Requests\Organisations\GetDelegate;
 use App\Http\Requests\Organisations\GetRegistry;
 use App\Services\DecisionEvaluatorService as DES;
@@ -46,10 +46,13 @@ use App\Http\Requests\Organisations\OrganisationInvite;
 use App\Http\Requests\Organisations\UpdateOrganisation;
 use App\Http\Requests\Organisations\GetCountPastProject;
 use App\Http\Requests\Organisations\GetOrganisationIdvt;
+use App\Notifications\Organisations\OrganisationApproved;
+use App\Notifications\Organisations\OrganisationDelegates;
 use App\Http\Requests\Organisations\GetCountCertifications;
 use App\Http\Requests\Organisations\GetCountPresentProject;
 use App\Http\Requests\Organisations\OrganisationInviteUser;
 use App\Http\Requests\Organisations\OrganisationValidateRor;
+use App\Notifications\Organisations\OrganisationUpdateProfile;
 use App\Http\Requests\Organisations\OrganisationUpdateApprover;
 
 class OrganisationController extends Controller
@@ -701,11 +704,16 @@ class OrganisationController extends Controller
 
             $org->update($input);
 
+            $loggedInUserId = $request->user()->id;
+            $loggedInUser = User::where('id', $loggedInUserId)->first();
+
             if ($request->has('charities')) {
                 $this->updateOrganisationCharities($id, $request->input('charities'));
             }
 
-            if ($org->isDirty()) {
+            if ($org->wasChanged()) {
+                $this->sendNotificationOnUpdate($loggedInUser, $org, $org->getOriginal());
+
                 Organisation::where('id', $org->id)->update([
                     'system_approved' => 0,
                 ]);
@@ -724,9 +732,33 @@ class OrganisationController extends Controller
 
             }
 
-            return $this->OKResponse($org);
+            return $this->OKResponse($org->refresh());
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
+        }
+    }
+
+    public function sendNotificationOnUpdate($loggedInUser, $newOrgDetails, $oldOrgDetails)
+    {
+        $organisationId = $newOrgDetails->id;
+
+        // organisation
+        $users = User::where([
+            'organisation_id' => $organisationId
+        ])->get();
+        Notification::send($users, new OrganisationUpdateProfile($loggedInUser, $newOrgDetails, $oldOrgDetails, 'organisation'));
+
+        // data custodian
+        $userCustodianIds = CustodianHasProjectOrganisation::query()
+            ->whereHas('projectOrganisation', function ($query) use ($organisationId) {
+                $query->where('organisation_id', $organisationId);
+            })
+            ->select(['custodian_id'])
+            ->pluck('custodian_id')->toArray();
+
+        if ($userCustodianIds) {
+            $userCustodians = User::whereIn('custodian_user_id', $userCustodianIds)->get();
+            Notification::send($userCustodians, new OrganisationUpdateProfile($loggedInUser, $newOrgDetails, $oldOrgDetails, 'custodian'));
         }
     }
 
@@ -1234,6 +1266,10 @@ class OrganisationController extends Controller
 
             TriggerEmail::spawnEmail($email);
 
+            if ($unclaimedUser->is_delegate) {
+                $this->sendNotificationOnDelegate($loggedInUser, $unclaimedUser);
+            }
+
             return response()->json([
                 'message' => 'success',
                 'data' => $unclaimedUser->id,
@@ -1350,7 +1386,7 @@ class OrganisationController extends Controller
             ];
 
             if ($userGroup === 'USERS') {
-                Affiliation::create([
+                $affiliation = Affiliation::create([
                     'organisation_id' => $id,
                     'member_id' => '',
                     'relationship' => '',
@@ -1362,6 +1398,7 @@ class OrganisationController extends Controller
                     'ror' => '',
                     'registry_id' => $unclaimedUser->registry_id,
                 ]);
+                $affiliation->setState(State::STATE_INVITED);
             }
 
             TriggerEmail::spawnEmail($email);
@@ -1716,8 +1753,6 @@ class OrganisationController extends Controller
             TriggerEmail::spawnEmail($input);
 
             // notification
-            $loggedUserId = $request->user()->id;
-            $loggerUser = User::findOrFail($loggedUserId);
             $usersToNotify = $this->getNotificationUsers($id);
             Notification::send($usersToNotify, new OrganisationApproved($org));
 
@@ -1730,6 +1765,15 @@ class OrganisationController extends Controller
     private function getNotificationUsers(int $orgId)
     {
         return User::where("organisation_id", $orgId)->get();
+    }
+
+    private function sendNotificationOnDelegate($loggedInUser, $delegate)
+    {
+        $user = User::where('organisation_id', $delegate->organisation_id)
+            ->where('id', '<>', $delegate->id)
+            ->get();
+
+        Notification::send($user, new OrganisationDelegates($loggedInUser, $delegate, 'add'));
     }
 
 }

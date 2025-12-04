@@ -19,7 +19,9 @@ use Illuminate\Http\JsonResponse;
 use App\Models\OrganisationHasFile;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Notification;
 use App\Http\Requests\FileUploads\GetFileUpload;
+use App\Notifications\Organisations\UploadSroDoc;
 use App\Http\Requests\FileUploads\GetDownloadFileUpload;
 
 class FileUploadController extends Controller
@@ -295,7 +297,7 @@ class FileUploadController extends Controller
                     TriggerEmail::spawnEmail($input);
                 }
 
-                $this->changeAffiliationState($organisation->id);
+                $this->sendNotificationOnUploadSroDoc($organisation->id, $fileIn->id);
             } else {
                 throw new Exception('Invalid or missing registry ID or organisation ID');
             }
@@ -319,6 +321,23 @@ class FileUploadController extends Controller
             if ($affiliation->getState() === State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS) {
                 $affiliation->setState(State::STATE_AFFILIATION_PENDING);
             }
+        }
+    }
+
+    public function sendNotificationOnUploadSroDoc($organisationId, $fileId)
+    {
+        $file = File::where('id', $fileId)->first();
+        if ($file->type !== File::FILE_TYPE_DECLARATION_SRO) {
+            return;
+        }
+
+        $sroUsers = User::where([
+            'is_sro' => 1,
+            'organisation_id' => $organisationId,
+        ])->get();
+
+        foreach ($sroUsers as $sroUser) {
+            Notification::send($sroUser, new UploadSroDoc($sroUser, $file));
         }
     }
 }

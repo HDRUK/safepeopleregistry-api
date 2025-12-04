@@ -5,8 +5,9 @@ namespace App\Notifications;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class RegistryReadRequestNotification extends Notification
+class RegistryReadRequestNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 

@@ -10,6 +10,7 @@ use TriggerEmail;
 use App\Models\User;
 use App\Models\Project;
 use App\Models\Registry;
+use App\Models\Organisation;
 use Illuminate\Http\Request;
 use App\Models\PendingInvite;
 use Illuminate\Http\Response;
@@ -20,6 +21,7 @@ use Tests\Traits\Authorisation;
 use App\Traits\CheckPermissions;
 use Illuminate\Http\JsonResponse;
 use App\Models\UserHasDepartments;
+use App\Traits\TracksModelChanges;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Users\GetUser;
 use Illuminate\Support\Facades\Gate;
@@ -29,8 +31,12 @@ use App\Http\Requests\Users\UpdateUser;
 use RegistryManagementController as RMC;
 use App\Models\UserHasCustodianPermission;
 use App\Http\Requests\Users\GetUserProject;
+use Illuminate\Support\Facades\Notification;
+use App\Models\CustodianHasProjectOrganisation;
 use App\Http\Requests\Users\CheckUserInviteCode;
 use App\Services\DecisionEvaluatorService as DES;
+use App\Notifications\Organisations\OrganisationDelegates;
+use App\Notifications\Organisations\OrganisationUpdateProfileSro;
 
 class UserController extends Controller
 {
@@ -38,6 +44,7 @@ class UserController extends Controller
     use CheckPermissions;
     use Responses;
     use Authorisation;
+    use TracksModelChanges;
 
     protected $decisionEvaluator = null;
 
@@ -530,7 +537,10 @@ class UserController extends Controller
         try {
             $input = $request->all();
 
+            $loggedInUserId = $request->user()->id;
+            $loggedInUser = User::where('id', $loggedInUserId)->first();
             $user = User::where('id', $id)->first();
+            $originalUserData = $user->getOriginal();
 
             if (!Gate::allows('update', $user)) {
                 return $this->ForbiddenResponse();
@@ -564,6 +574,16 @@ class UserController extends Controller
             $user->is_delegate = isset($input['is_delegate']) ? $input['is_delegate'] : $user->is_delegate;
             $user->role = isset($input['role']) ? $input['role'] : $user->role;
             $user->save();
+            $newUserData = $user->fresh();
+
+            if (!$user->is_delegate) {
+                $this->sendNotificationOnDelegate($loggedInUser, $user);
+            }
+
+            if ($user->is_sro) {
+                $changes = $this->getUserTrackedChanges($originalUserData, $newUserData);
+                $this->sendNotificationOnSroUpdate($changes, $loggedInUser, $user);
+            }
 
             return response()->json([
                 'message' => 'success',
@@ -572,6 +592,49 @@ class UserController extends Controller
 
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
+        }
+    }
+
+    private function sendNotificationOnDelegate($loggedInUser, $delegate)
+    {
+        $userNotifiy = User::where('organisation_id', $delegate->organisation_id)
+            ->where('id', '<>', $delegate->id)
+            ->get();
+
+        Notification::send($userNotifiy, new OrganisationDelegates($loggedInUser, $delegate, 'remove'));
+    }
+
+    private function sendNotificationOnSroUpdate($changes, $loggedInUser, $user)
+    {
+        if (!$changes) {
+            return;
+        }
+
+        $organisationId = $user->orgasnisation_id;
+        $organisation = Organisation::where('id', $organisationId)->first();
+
+        // organisation
+        $useOrgasnisations = User::where([
+            'organisation_id' => $organisationId,
+            'user_group' => User::GROUP_ORGANISATIONS
+        ])->get();
+
+        foreach ($useOrgasnisations as $useOrgasnisation) {
+            Notification::send($useOrgasnisation, new OrganisationUpdateProfileSro($loggedInUser, $organisation, $changes, 'organisation'));
+        }
+
+        // custodian
+        $userCustodianIds = CustodianHasProjectOrganisation::query()
+            ->whereHas('projectOrganisation', function ($query) use ($organisationId) {
+                $query->where('organisation_id', $organisationId);
+            })
+            ->select(['custodian_id'])
+            ->pluck('custodian_id')->toArray();
+        if ($userCustodianIds) {
+            $userCustodians = User::whereIn('custodian_user_id', $userCustodianIds)->get();
+            foreach ($userCustodians as $userCustodian) {
+                Notification::send($userCustodian, new OrganisationUpdateProfileSro($loggedInUser, $organisation, $changes, 'custodian'));
+            }
         }
     }
 

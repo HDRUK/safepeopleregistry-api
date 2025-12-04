@@ -57,6 +57,12 @@ use App\Traits\SearchManager;
  *         format="date-time",
  *         example="2024-01-01T00:00:00Z",
  *         description="Timestamp when the validation check was last updated"
+ *     ),
+ *     @OA\Property(
+ *         property="custodian_id",
+ *         type="integer",
+ *         example="1",
+ *         description="Custodian id or null"
  *     )
  * )
  *
@@ -100,6 +106,7 @@ class ValidationCheck extends Model
         'description',
         'applies_to',
         'enabled',
+        'custodian_id'
     ];
 
     protected static array $searchableColumns = [

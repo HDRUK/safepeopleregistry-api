@@ -10,8 +10,9 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->integer('invited_by')->nullable()->default(null)->change();
+        Schema::table('trainings', function (Blueprint $table) {
+            $table->date('awarded_at')->change();
+            $table->date('expires_at')->change();
         });
     }
 
@@ -20,8 +21,9 @@ return new class () extends Migration {
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->tinyInteger('invited_by')->nullable()->default(null)->change();
+        Schema::table('trainings', function (Blueprint $table) {
+            $table->dateTime('awarded_at')->change();
+            $table->dateTime('expires_at')->change();
         });
     }
 };

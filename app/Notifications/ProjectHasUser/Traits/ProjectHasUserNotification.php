@@ -41,7 +41,7 @@ trait ProjectHasUserNotification
         $replacements = [
             '[[project_name]]' => $message['[[project.title]]'],
             '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
-            '[[link_project]]' => config('speedi.system.portal_url') . 'user/profile/projects/' . $message['[[project.id]]'] . '/safe-project',
+            '[[link_project]]' => config('speedi.system.portal_url') . '/user/profile/projects/' . $message['[[project.id]]'] . '/safe-project',
             '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
         ];
 
