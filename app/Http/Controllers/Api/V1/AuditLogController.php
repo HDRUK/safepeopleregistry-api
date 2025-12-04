@@ -96,10 +96,14 @@ class AuditLogController extends Controller
             ->latest('created_at')
             ->get()
             ->map(function ($activityLog) use ($loggedInUser) {
-                if ($loggedInUser->user_group === User::GROUP_CUSTODIANS && ($activityLog->causer_id !== null && $activityLog->causer_id !== $loggedInUser->id)) {
+                if (
+                    in_array($loggedInUser->user_group, [User::GROUP_ORGANISATIONS, User::GROUP_CUSTODIANS]) &&
+                    $activityLog->causer_id !== null && 
+                    $activityLog->causer_id !== $loggedInUser->id
+                ) {
                     $activityLog->description = '';
                 }
-
+                
                 return $activityLog;
             });
 
