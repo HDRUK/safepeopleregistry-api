@@ -14,6 +14,7 @@ use App\Http\Traits\Responses;
 use App\Models\ProjectHasUser;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
+use App\Traits\NotificationManager;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
 use App\Exceptions\NotFoundException;
@@ -22,6 +23,7 @@ use App\Http\Requests\Projects\GetProject;
 use App\Http\Requests\Projects\DeleteProject;
 use App\Http\Requests\Projects\UpdateProject;
 use App\Http\Requests\Projects\GetProjectUsers;
+use App\Models\CustodianHasProjectOrganisation;
 use App\Http\Requests\Projects\UpdateProjectUser;
 use App\Http\Requests\Projects\MakePrimaryContact;
 use App\Http\Requests\Projects\GetValidatedProjects;
@@ -36,6 +38,7 @@ class ProjectController extends Controller
     use CommonFunctions;
     use FilterManager;
     use Responses;
+    use NotificationManager;
 
     /**
      * @OA\Get(
@@ -798,6 +801,7 @@ class ProjectController extends Controller
     public function update(UpdateProject $request, int $id): JsonResponse
     {
         try {
+            $loggedInUserId = $request->user()?->id;
             $input = $request->only(app(Project::class)->getFillable());
             $project = Project::findOrFail($id);
 
@@ -807,7 +811,9 @@ class ProjectController extends Controller
 
                 if (isset($status)) {
                     if ($project->canTransitionTo($status)) {
+                        $oldStatus = $project->getState();
                         $project->transitionTo($status);
+                        $this->notifyOnProjectStateChange($loggedInUserId, $oldStatus, $status);
                     } else {
                         return $this->BadRequestResponse();
                     }
