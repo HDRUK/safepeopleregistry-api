@@ -38,6 +38,8 @@ class AuditLogController extends Controller
         $loggedInUserId = $request->user()?->id;
         $loggedInUser = User::where('id', $loggedInUserId)->first();
 
+        $perPage = $request->integer('per_page', (int)$this->getSystemConfig('PER_PAGE'));
+
         $user = User::find($id);
 
         if (!$user) {
@@ -96,7 +98,7 @@ class AuditLogController extends Controller
                 },
             ])
             ->latest('created_at')
-            ->paginate((int)$this->getSystemConfig('PER_PAGE'))
+            ->paginate($perPage)
             ->through(function ($activityLog) use ($loggedInUser) {
                 if (
                     in_array($loggedInUser->user_group, [User::GROUP_ORGANISATIONS, User::GROUP_CUSTODIANS]) &&
