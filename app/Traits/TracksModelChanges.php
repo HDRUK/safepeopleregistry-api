@@ -13,6 +13,9 @@ trait TracksModelChanges
         $fieldsToTrack = ['first_name', 'last_name', 'email', 'role'];
 
         foreach ($fieldsToTrack as $field) {
+            if (!array_key_exists($field, $oldUser) || !array_key_exists($field, $newUser)) {
+                continue;
+            }
             if ($oldUser[$field] !== $newUser[$field]) {
                 $changes[$field] = [
                     'old' => $oldUser[$field],
