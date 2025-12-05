@@ -2,10 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\TestController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\QueryController;
 use App\Http\Controllers\Api\V1\SectorController;
-use App\Http\Controllers\Api\V1\PendingInviteController;
 use App\Http\Controllers\Api\V1\FeatureController;
 use App\Http\Controllers\Api\V1\HistoryController;
 use App\Http\Controllers\Api\V1\ProjectController;
@@ -35,6 +35,7 @@ use App\Http\Controllers\Api\V1\AccreditationController;
 use App\Http\Controllers\Api\V1\CustodianUserController;
 use App\Http\Controllers\Api\V1\EmailTemplateController;
 use App\Http\Controllers\Api\V1\ONSSubmissionController;
+use App\Http\Controllers\Api\V1\PendingInviteController;
 use App\Http\Controllers\Api\V1\ProjectDetailController;
 use App\Http\Controllers\Api\V1\ValidationLogController;
 use App\Http\Controllers\Api\V1\ProjectHasUserController;
@@ -669,6 +670,8 @@ Route::middleware('auth:api')->get('v1/rules', [RulesEngineManagementController:
 
 // ONS CSV RESEARCHER FEED
 Route::post('v1/ons_researcher_feed', [ONSSubmissionController::class, 'receiveCSV']);
+
+Route::get('v1/test', [TestController::class, 'test']);
 
 // stop all all other routes
 Route::fallback(function () {

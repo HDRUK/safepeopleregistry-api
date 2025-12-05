@@ -14,7 +14,7 @@ use App\Http\Traits\Responses;
 use App\Models\ProjectHasUser;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
-use App\Traits\NotificationManager;
+use App\Traits\NotificationCustodianManager;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
 use App\Exceptions\NotFoundException;
@@ -38,7 +38,7 @@ class ProjectController extends Controller
     use CommonFunctions;
     use FilterManager;
     use Responses;
-    use NotificationManager;
+    use NotificationCustodianManager;
 
     /**
      * @OA\Get(
@@ -813,7 +813,7 @@ class ProjectController extends Controller
                     if ($project->canTransitionTo($status)) {
                         $oldStatus = $project->getState();
                         $project->transitionTo($status);
-                        $this->notifyOnProjectStateChange($loggedInUserId, $oldStatus, $status);
+                        $this->notifyOnProjectStateChange($loggedInUserId, $id, $oldStatus, $status);
                     } else {
                         return $this->BadRequestResponse();
                     }
