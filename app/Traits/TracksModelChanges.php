@@ -13,31 +13,31 @@ trait TracksModelChanges
         $fieldsToTrack = ['first_name', 'last_name', 'email', 'role'];
 
         foreach ($fieldsToTrack as $field) {
-            if (!array_key_exists($field, $oldUser) || !array_key_exists($field, $newUser)) {
+            if (!isset($oldUser->$field) || !isset($field, $newUser->$field)) {
                 continue;
             }
-            if ($oldUser[$field] !== $newUser[$field]) {
+            if ($oldUser->$field !== $newUser->$field) {
                 $changes[$field] = [
-                    'old' => $oldUser[$field],
-                    'new' => $newUser[$field],
+                    'old' => $oldUser->$field,
+                    'new' => $newUser->$field,
                 ];
             }
         }
 
-        if ($oldUser['organisation_id'] !== $newUser['organisation_id']) {
-            $old = $oldUser['organisation_id']
-                ? Organisation::find($oldUser['organisation_id'])
-                : null;
+        // if ($oldUser->organisation_id !== $newUser->organisation_id) {
+        //     $old = $oldUser->organisation_id
+        //         ? Organisation::find($oldUser->organisation_id)
+        //         : null;
 
-            $new = $newUser['organisation_id']
-                ? Organisation::find($newUser['organisation_id'])
-                : null;
+        //     $new = $newUser->organisation_id
+        //         ? Organisation::find($newUser->organisation_id)
+        //         : null;
 
-            $changes['organisation'] = [
-                'old' => $old->organisation_name ?? 'N/A',
-                'new' => $new->organisation_name ?? 'N/A',
-            ];
-        }
+        //     $changes['organisation'] = [
+        //         'old' => $old->organisation_name ?? 'N/A',
+        //         'new' => $new->organisation_name ?? 'N/A',
+        //     ];
+        // }
 
         return $changes;
     }
