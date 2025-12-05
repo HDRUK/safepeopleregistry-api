@@ -13,7 +13,7 @@ trait TracksModelChanges
         $fieldsToTrack = ['first_name', 'last_name', 'email', 'role'];
 
         foreach ($fieldsToTrack as $field) {
-            if (!isset($oldUser->$field) || !isset($field, $newUser->$field)) {
+            if (!isset($oldUser->$field) || !isset($newUser->$field)) {
                 continue;
             }
             if ($oldUser->$field !== $newUser->$field) {
