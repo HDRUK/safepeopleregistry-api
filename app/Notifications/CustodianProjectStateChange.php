@@ -6,7 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class CustodianUpdateProjectState extends Notification implements ShouldQueue
+class CustodianProjectStateChange extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -19,7 +19,7 @@ class CustodianUpdateProjectState extends Notification implements ShouldQueue
     /**
      * Create a new notification instance.
      */
-    public function __construct($user, $project, $newState, $oldState, $for)
+    public function __construct($user, $project, $oldState, $newState, $for)
     {
         $this->user = $user;
         $this->project = $project;
