@@ -82,7 +82,31 @@ class UserObserver
             'log' => 'User updated ::' . json_encode($user->getChanges()),
         ]);
 
-        $changes = $this->getUserTrackedChanges($user->getOriginal(), $user);
+        // $changes = $this->getUserTrackedChanges($user->getOriginal(), $user);
+        $changes = [];
+
+        $fieldsToTrack = ['first_name', 'last_name', 'email', 'role', 'location'];
+
+        foreach ($fieldsToTrack as $field) {
+            if ($user->isDirty($field)) {
+                $changes[$field] = [
+                    'old' => $user->getOriginal($field),
+                    'new' => $user->$field,
+                ];
+            }
+        }
+
+        if ($user->isDirty('organisation_id')) {
+            $oldOrganisation = $user->getOriginal('organisation_id')
+                ? Organisation::find($user->getOriginal('organisation_id'))
+                : null;
+            $newOrganisation = $user->organisation;
+
+            $changes['organisation'] = [
+                'old' => $oldOrganisation->organisation_name ?? 'N/A',
+                'new' => $newOrganisation->organisation_name ?? 'N/A',
+            ];
+        }
 
         if (!empty($changes)) {
             $this->sendNotificationOnUpdate($user, $changes);
