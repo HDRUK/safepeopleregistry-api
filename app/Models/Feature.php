@@ -25,11 +25,4 @@ class Feature extends Model
         'value',
         'description',
     ];
-
-    /**
-     * The attributes that should be cast.
-     */
-    protected $casts = [
-        'value' => 'boolean',
-    ];
 }
