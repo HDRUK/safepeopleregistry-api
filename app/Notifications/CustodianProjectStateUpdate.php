@@ -6,7 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class CustodianProjectStateChange extends Notification implements ShouldQueue
+class CustodianProjectStateUpdate extends Notification implements ShouldQueue
 {
     use Queueable;
 

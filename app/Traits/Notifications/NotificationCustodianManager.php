@@ -8,7 +8,7 @@ use App\Models\CustodianUser;
 use App\Models\CustodianHasProjectUser;
 use Illuminate\Support\Facades\Notification;
 use App\Models\CustodianHasProjectOrganisation;
-use App\Notifications\CustodianProjectStateChange;
+use App\Notifications\CustodianProjectStateUpdate;
 
 trait NotificationCustodianManager
 {
@@ -42,7 +42,7 @@ trait NotificationCustodianManager
                 ->whereIn('organisation_id', $userIds)
                 ->get();
             foreach ($users as $user) {
-                Notification::send($user, new CustodianProjectStateChange($loggedInUser, $project, $oldStatus, $newStatus, 'organisation'));
+                Notification::send($user, new CustodianProjectStateUpdate($loggedInUser, $project, $oldStatus, $newStatus, 'organisation'));
             }  
         }
 
@@ -63,7 +63,7 @@ trait NotificationCustodianManager
                 ->get();
 
             foreach ($userOrganisations as $userOrganisation) {
-                Notification::send($userOrganisation, new CustodianProjectStateChange($loggedInUser, $project, $oldStatus, $newStatus, 'organisation'));
+                Notification::send($userOrganisation, new CustodianProjectStateUpdate($loggedInUser, $project, $oldStatus, $newStatus, 'organisation'));
             }       
         }
 
@@ -75,9 +75,9 @@ trait NotificationCustodianManager
 
         foreach ($userCustodians as $userCustodian) {
             if ((int)$userCustodian->id === (int)$loggedInUserId) {
-                Notification::send($userCustodian, new CustodianProjectStateChange($loggedInUser, $project, $oldStatus, $newStatus, 'current_custodian'));
+                Notification::send($userCustodian, new CustodianProjectStateUpdate($loggedInUser, $project, $oldStatus, $newStatus, 'current_custodian'));
             } else {
-                Notification::send($userCustodian, new CustodianProjectStateChange($loggedInUser, $project, $oldStatus, $newStatus, 'custodian'));
+                Notification::send($userCustodian, new CustodianProjectStateUpdate($loggedInUser, $project, $oldStatus, $newStatus, 'custodian'));
             }
         }
 
