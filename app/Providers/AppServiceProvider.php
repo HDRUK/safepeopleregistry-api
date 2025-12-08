@@ -43,7 +43,6 @@ use App\Observers\ProjectHasOrganisationObserver;
 use App\Observers\OrganisationHasSubsidiaryObserver;
 use App\Observers\CustodianHasValidationCheckObserver;
 use App\Observers\CustodianHasProjectOrganisationObserver;
-use Laravel\Pennant\Feature;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -85,7 +84,5 @@ class AppServiceProvider extends ServiceProvider
         RegistryHasTraining::observe(RegistryHasTrainingObserver::class);
         // currently Training but is to be moved to RegistryHasTraining...
         // RegistryHasTraining::observe(RegistryHasTrainingObserver::class);
-
-
     }
 }
