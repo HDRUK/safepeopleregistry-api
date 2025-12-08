@@ -22,7 +22,7 @@ use App\Traits\Notifications\NotificationCustodianManager;
 class CustodianUserController extends Controller
 {
     use NotificationCustodianManager;
-    
+
     /**
      * @OA\Get(
      *      path="/api/v1/custodian_users",
@@ -199,7 +199,7 @@ class CustodianUserController extends Controller
                 $perms = Permission::whereIn('id', $input['permissions'])->get();
 
                 foreach ($perms as $perm) {
-                    if ($perm->name === 'CUSTODIAN_APPROVER'){
+                    if ($perm->name === 'CUSTODIAN_APPROVER') {
                         $isApprover = true;
                     }
                     $p = CustodianUserHasPermission::create([

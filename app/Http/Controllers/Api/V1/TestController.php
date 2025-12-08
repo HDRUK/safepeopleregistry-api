@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Models\User;
 use Illuminate\Http\Request;
-use App\Models\CustodianUser;
 use App\Http\Controllers\Controller;
 use App\Models\CustodianHasProjectOrganisation;
 use App\Models\ProjectHasOrganisation;
@@ -40,9 +38,9 @@ class TestController extends Controller
                 'projectHasUser.registry.user:id,registry_id,first_name,last_name,email',
                 'projectHasUser.project',
             ])
-            ->whereHas('projectHasUser.project', function ($query){
-                    $query->where('id', 1);
-                })
+            ->whereHas('projectHasUser.project', function ($query) {
+                $query->where('id', 1);
+            })
             ->get()->pluck('projectHasUser.registry.user.id')->toArray();
 
         return response()->json([
