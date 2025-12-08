@@ -7,7 +7,9 @@ use App\Models\Project;
 use App\Models\CustodianUser;
 use App\Models\ProjectHasUser;
 use App\Models\CustodianHasProjectUser;
+use App\Notifications\CustodianAddApprover;
 use Illuminate\Support\Facades\Notification;
+use App\Notifications\CustodianRemoveApprover;
 use App\Models\CustodianHasProjectOrganisation;
 use App\Notifications\CustodianUserStatusUpdate;
 use App\Notifications\CustodianProjectStateUpdate;
@@ -261,6 +263,52 @@ trait NotificationCustodianManager
                 Notification::send($userCustodian, new CustodianProjectDetailsUpdate($loggedInUser, $project, $changes, 'current_custodian'));
             } else {
                 Notification::send($userCustodian, new CustodianProjectDetailsUpdate($loggedInUser, $project, $changes, 'custodian'));
+            }
+        }
+    }
+
+    // custodian adds approver
+    // send notification to custodians
+    public function notifyOnAddedApprover($loggedInUserId, $approver)
+    {
+        $loggedInUser = User::where('id', $loggedInUserId)->first();
+
+        $userCustodians = User::whereIn('custodian_user_id', 
+            CustodianUser::where('custodian_id', $loggedInUser?->custodian_user_id)
+                ->pluck('id')
+        )->get();
+
+        foreach ($userCustodians as $userCustodian) {
+            if ((int)$userCustodian->id === (int)$loggedInUserId) {
+                Notification::send($userCustodian, new CustodianAddApprover($loggedInUser, $approver, 'current_custodian'));
+            } else {
+                Notification::send($userCustodian, new CustodianAddApprover($loggedInUser, $approver, 'custodian'));
+            }
+        }
+    }
+
+    // Custodian remove approver
+    // send notification to custodians
+    public function notifyOnRemovedApprover($loggedInUserId, $approver)
+    {
+        $loggedInUser = User::where('id', $loggedInUserId)->first();
+
+        $userCustodians = User::whereIn('custodian_user_id', 
+            CustodianUser::where('custodian_id', $loggedInUser?->custodian_user_id)
+                ->whereNot('id', $approver->id)
+                ->pluck('id')
+        )->get();
+
+        \Log::info('notifyOnRemovedApprover', [
+            'userCustodians' => $userCustodians,
+            'approver' => $approver,
+        ]);
+
+        foreach ($userCustodians as $userCustodian) {
+            if ((int)$userCustodian->id === (int)$loggedInUserId) {
+                Notification::send($userCustodian, new CustodianRemoveApprover($loggedInUser, $approver, 'current_custodian'));
+            } else {
+                Notification::send($userCustodian, new CustodianRemoveApprover($loggedInUser, $approver, 'custodian'));
             }
         }
     }
