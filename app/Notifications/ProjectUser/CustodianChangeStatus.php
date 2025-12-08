@@ -55,21 +55,21 @@ class CustodianChangeStatus extends Notification implements ShouldQueue
         $userName = $this->details['user_name'];
         $projectTitle = $this->details['project_title'];
 
-        if ($state === State::STATE_MORE_USER_INFO_REQ) {
-            switch ($this->for) {
-                case 'user':
-                    return "Data Custodian {$custodianName} changed your validation status, for project {$projectTitle}, from {$oldState} to {$newState}.";
+        switch ($this->for) {
+            case 'user':
+                return "Data Custodian {$custodianName} changed your validation status, for project {$projectTitle}, from {$oldState} to {$newState}.";
 
-                case 'organisation':
-                    return "Data Custodian {$custodianName} changed the validation status of user {$userName}, for project {$projectTitle}, from {$oldState} to {$newState}.";
+            case 'organisation':
+                return "Data Custodian {$custodianName} changed the validation status of user {$userName}, for project {$projectTitle}, from {$oldState} to {$newState}.";
 
-                case 'custodian':
-                    return "You changed the validation status of user {$userName}, for project {$projectTitle}, from {$oldState} to {$newState}.";
+            case 'current_custodian':
+                return "You changed the validation status of user {$userName}, for project {$projectTitle}, from {$oldState} to {$newState}.";
 
-                default:
-                    break;
-            }
+            case 'custodian':
+                return "Data Custodian {$custodianName} changed the validation status of user {$userName}, for project {$projectTitle}, from {$oldState} to {$newState}.";
 
+            default:
+                break;
         }
     }
 }

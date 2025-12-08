@@ -5,10 +5,12 @@ namespace App\Traits\Notifications;
 use App\Models\User;
 use App\Models\Project;
 use App\Models\CustodianUser;
+use App\Models\ProjectHasUser;
 use App\Models\CustodianHasProjectUser;
 use Illuminate\Support\Facades\Notification;
 use App\Models\CustodianHasProjectOrganisation;
 use App\Notifications\CustodianProjectStateUpdate;
+use App\Notifications\ProjectUser\CustodianChangeStatus;
 
 trait NotificationCustodianManager
 {
@@ -81,5 +83,50 @@ trait NotificationCustodianManager
             }
         }
 
+    }
+
+    public function notifyOnUserStateChange(int $loggedInUserId, int $custodianId, int $projectUserId, ?string $newState, ?string $oldState)
+    {
+        $projectUser = ProjectHasUser::with([
+            'project',
+            'registry.user',
+            'affiliation',
+            'affiliation.organisation'
+        ])->findOrFail($projectUserId);
+
+        $project = $projectUser->project;
+        $user = $projectUser->registry->user;
+        $affiliation = $projectUser->affiliation;
+        $organisation = $affiliation?->organisation;
+        $userOrganisation = User::where('organisation_id', $affiliation?->organisation_id)->first();
+        $userCurr = User::where('id', $loggedInUserId)->first();
+        $userCustodians = User::whereIn('custodian_user_id', 
+            CustodianUser::where('custodian_id', $custodianId)
+                ->pluck('id')
+        )->get();
+
+        $details = [
+            'custodian_name' => $userCurr->first_name . ' ' . $userCurr->last_name,
+            'user_name' => $user->first_name . ' ' . $user->last_name,
+            'project_title' => $project->title,
+            'organisation_name' => $organisation?->organisation_name,
+            'old_state' => $oldState,
+            'new_state' => $newState,
+        ];
+
+        // user
+        Notification::send($user, new CustodianChangeStatus($details, 'user'));
+
+        // organisation
+        Notification::send($userOrganisation, new CustodianChangeStatus($details, 'organisation'));
+
+        // custodians
+        foreach ($userCustodians as $userCustodian) {
+            if ((int)$userCustodian->id === (int)$loggedInUserId) {
+                Notification::send($userCustodian, new CustodianChangeStatus($details, 'current_custodian'));
+            } else {
+                Notification::send($userCustodian, new CustodianChangeStatus($details, 'custodian'));
+            }
+        }
     }
 }
