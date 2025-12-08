@@ -47,6 +47,7 @@ use App\Http\Controllers\Api\V1\ProjectHasOrganisationController;
 use App\Http\Controllers\Api\V1\CustodianHasProjectUserController;
 use App\Http\Controllers\Api\V1\ProfessionalRegistrationController;
 use App\Http\Controllers\Api\V1\CustodianHasProjectOrganisationController;
+use App\Http\Controllers\Api\V1\TestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -669,6 +670,9 @@ Route::middleware('auth:api')->get('v1/rules', [RulesEngineManagementController:
 
 // ONS CSV RESEARCHER FEED
 Route::post('v1/ons_researcher_feed', [ONSSubmissionController::class, 'receiveCSV']);
+
+// test
+Route::get('v1/test', [TestController::class, 'test']);
 
 // stop all all other routes
 Route::fallback(function () {
