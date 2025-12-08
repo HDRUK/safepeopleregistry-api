@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use App\Models\ProjectHasOrganisation;
 use App\Models\CustodianHasProjectOrganisation;
+use App\Traits\Notifications\NotificationCustodianManager;
 use App\Http\Requests\CustodianHasProjectOrganisation\GetCustodianHasProjectOrganisation;
 use App\Http\Requests\CustodianHasProjectOrganisation\GetAllCustodianHasProjectOrganisation;
 use App\Http\Requests\CustodianHasProjectOrganisation\UpdateCustodianHasProjectOrganisation;
@@ -22,6 +23,7 @@ class CustodianHasProjectOrganisationController extends Controller
 {
     use Responses;
     use CommonFunctions;
+    use NotificationCustodianManager;
 
     /**
      * @OA\Get(
@@ -294,6 +296,7 @@ class CustodianHasProjectOrganisationController extends Controller
         int $projectOrganisationId,
     ) {
         try {
+            $loggedInUserId = $request->user()?->id;
             $custodian = Custodian::findOrFail($custodianId);
             if (!Gate::allows('update', $custodian)) {
                 return $this->ForbiddenResponse();
@@ -327,6 +330,7 @@ class CustodianHasProjectOrganisationController extends Controller
                 $originalStatus = $cho->getState();
                 if ($cho->canTransitionTo($status)) {
                     $cho->transitionTo($status);
+                    $this->notifyOnOrganisationStateChange($loggedInUserId, $custodianId, $projectOrganisationId, $status, $originalStatus);
                 } else {
                     return $this->ErrorResponse('cannot transition to state = ' . $status);
                 }
