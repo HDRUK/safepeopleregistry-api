@@ -10,7 +10,7 @@ use App\Models\CustodianHasProjectUser;
 use Illuminate\Support\Facades\Notification;
 use App\Models\CustodianHasProjectOrganisation;
 use App\Notifications\CustodianProjectStateUpdate;
-use App\Notifications\ProjectUser\CustodianChangeStatus;
+use App\Notifications\CustodianUserStatusUpdate;
 
 trait NotificationCustodianManager
 {
@@ -115,17 +115,17 @@ trait NotificationCustodianManager
         ];
 
         // user
-        Notification::send($user, new CustodianChangeStatus($details, 'user'));
+        Notification::send($user, new CustodianUserStatusUpdate($details, 'user'));
 
         // organisation
-        Notification::send($userOrganisation, new CustodianChangeStatus($details, 'organisation'));
+        Notification::send($userOrganisation, new CustodianUserStatusUpdate($details, 'organisation'));
 
         // custodians
         foreach ($userCustodians as $userCustodian) {
             if ((int)$userCustodian->id === (int)$loggedInUserId) {
-                Notification::send($userCustodian, new CustodianChangeStatus($details, 'current_custodian'));
+                Notification::send($userCustodian, new CustodianUserStatusUpdate($details, 'current_custodian'));
             } else {
-                Notification::send($userCustodian, new CustodianChangeStatus($details, 'custodian'));
+                Notification::send($userCustodian, new CustodianUserStatusUpdate($details, 'custodian'));
             }
         }
     }

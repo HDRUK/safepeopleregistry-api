@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Notifications\ProjectUser;
+namespace App\Notifications;
 
 use App\Models\State;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class CustodianChangeStatus extends Notification implements ShouldQueue
+class CustodianUserStatusUpdate extends Notification implements ShouldQueue
 {
     use Queueable;
 
