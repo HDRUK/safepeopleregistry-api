@@ -14,6 +14,7 @@ use App\Http\Traits\Responses;
 use App\Models\ProjectHasUser;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
+use App\Traits\TracksModelChanges;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
 use App\Exceptions\NotFoundException;
@@ -38,6 +39,7 @@ class ProjectController extends Controller
     use FilterManager;
     use Responses;
     use NotificationCustodianManager;
+    use TracksModelChanges;
 
     /**
      * @OA\Get(
@@ -803,16 +805,31 @@ class ProjectController extends Controller
             $loggedInUserId = $request->user()?->id;
             $input = $request->only(app(Project::class)->getFillable());
             $project = Project::findOrFail($id);
+            $before = $project->toArray();
 
             if (!is_null($project)) {
                 $project->update($input);
+                $after = $project->fresh();
+                $projectChanges = collect($project->getChanges())->except('updated_at')->toArray();
+                $changes = $this->getProjectTrackedChanges($before, $projectChanges);
+
+                if ($changes) {
+                    \Log::info('update - 2', [
+                        'changes' => $changes,
+                        'after' => $after,
+                    ]);
+                    $this->notifyOnProjectDetailsChange($loggedInUserId, $after, $changes);
+                }
+
                 $status = $request->get('status');
 
                 if (isset($status)) {
                     if ($project->canTransitionTo($status)) {
                         $oldStatus = $project->getState();
                         $project->transitionTo($status);
-                        $this->notifyOnProjectStateChange($loggedInUserId, $id, $oldStatus, $status);
+                        if ($oldStatus !== $status) {
+                            $this->notifyOnProjectStateChange($loggedInUserId, $id, $oldStatus, $status);
+                        }
                     } else {
                         return $this->BadRequestResponse();
                     }
