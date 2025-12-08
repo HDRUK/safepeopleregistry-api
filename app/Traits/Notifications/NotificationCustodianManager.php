@@ -208,7 +208,7 @@ trait NotificationCustodianManager
 
         // user
         $userIds = CustodianHasProjectUser::query()
-            ->where('custodian_id', $loggedInUser->custodian_user_id)
+            ->where('custodian_id', $loggedInUser?->custodian_user_id)
             ->with([
                 'projectHasUser.registry.user:id,registry_id,first_name,last_name,email',
                 'projectHasUser.project',
@@ -230,7 +230,7 @@ trait NotificationCustodianManager
 
         // organisation
         $organisationIds = CustodianHasProjectOrganisation::query()
-            ->where('custodian_id', $loggedInUser->custodian_user_id)
+            ->where('custodian_id', $loggedInUser?->custodian_user_id)
             ->with([
                 'projectOrganisation',
             ])
@@ -252,7 +252,7 @@ trait NotificationCustodianManager
 
         // custodian
         $userCustodians = User::whereIn('custodian_user_id', 
-            CustodianUser::where('custodian_id', $loggedInUser->custodian_user_id)
+            CustodianUser::where('custodian_id', $loggedInUser?->custodian_user_id)
                 ->pluck('id')
         )->get();
 
