@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('projects', function (Blueprint $table) {
-            $table->date('start_date')->change();
-            $table->date('end_date')->change();
+            $table->date('start_date')->nullable()->change();
+            $table->date('end_date')->nullable()->change();
         });
     }
 

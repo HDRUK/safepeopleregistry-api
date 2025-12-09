@@ -213,7 +213,7 @@ trait NotificationCustodianManager
                 'projectHasUser.project',
             ])
             ->whereHas('projectHasUser.project', function ($query) use ($project) {
-                $query->where('id', $project->id);
+                $query->where('id', $project?->id);
             })
             ->get()->pluck('projectHasUser.registry.user.id')->filter()->unique()->values()->toArray();
 
@@ -232,7 +232,7 @@ trait NotificationCustodianManager
                 'projectOrganisation',
             ])
             ->whereHas('projectOrganisation.project', function ($query) use ($project) {
-                $query->where('id', $project->id);
+                $query->where('id', $project?->id);
             })
             ->get()->pluck('projectOrganisation.organisation_id')->filter()->unique()->values()->toArray();
 
@@ -309,6 +309,8 @@ trait NotificationCustodianManager
         }
     }
 
+    // Project end date is reached
+    // send notification to users & organisations & custodians
     public function notifyOnProjectEndDate($project)
     {
         // user

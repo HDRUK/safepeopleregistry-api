@@ -679,7 +679,7 @@ class CustodianController extends Controller
      */
     public function addProject(GetCustodian $request, int $custodianId): JsonResponse
     {
-        try {
+        // try {
             $input = $request->only(app(Project::class)->getFillable());
 
             $project = Project::create($input);
@@ -690,9 +690,9 @@ class CustodianController extends Controller
             ]);
 
             return $this->CreatedResponse($project->id);
-        } catch (Exception $e) {
-            return $this->ErrorResponse($e);
-        }
+        // } catch (Exception $e) {
+        //     return $this->ErrorResponse($e);
+        // }
     }
 
     /**
