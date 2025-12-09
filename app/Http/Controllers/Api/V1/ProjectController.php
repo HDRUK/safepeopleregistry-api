@@ -814,10 +814,6 @@ class ProjectController extends Controller
                 $changes = $this->getProjectTrackedChanges($before, $projectChanges);
 
                 if ($changes) {
-                    \Log::info('update - 2', [
-                        'changes' => $changes,
-                        'after' => $after,
-                    ]);
                     $this->notifyOnProjectDetailsChange($loggedInUserId, $after, $changes);
                 }
 
