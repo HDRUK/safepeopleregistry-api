@@ -17,8 +17,8 @@ class FeatureSeeder extends Seeder
 
         // Seed features with global scope
         $globalFeatures = [
-            ['name' => 'test-feature', 'value' => true, 'description' => 'This is a test feature.'],
-            ['name' => 'test-feature-user-admin', 'value' => true, 'description' => 'This feature is enabled for admin users only.'],
+            ['name' => 'test-feature', 'value' => 'true', 'description' => 'This is a test feature.'],
+            ['name' => 'test-feature-user-admin', 'value' => 'true', 'description' => 'This feature is enabled for admin users only.'],
         ];
 
         foreach ($globalFeatures as $feature) {
