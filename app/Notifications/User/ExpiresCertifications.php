@@ -43,7 +43,6 @@ class ExpiresCertifications extends Notification implements ShouldQueue
             'message' => $this->generateMessage(),
             'details' => [
                 'new' => $this->training,
-                'time' => now(),
             ],
             'time' => now(),
         ];

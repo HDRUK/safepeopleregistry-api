@@ -7,10 +7,12 @@ use App\Models\Project;
 use App\Models\CustodianUser;
 use App\Models\ProjectHasUser;
 use App\Models\CustodianHasProjectUser;
+use App\Notifications\CustodianEndProject;
 use App\Notifications\CustodianAddApprover;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\CustodianRemoveApprover;
 use App\Models\CustodianHasProjectOrganisation;
+use App\Models\ProjectHasCustodian;
 use App\Notifications\CustodianUserStatusUpdate;
 use App\Notifications\CustodianProjectStateUpdate;
 use App\Notifications\CustodianProjectDetailsUpdate;
@@ -41,15 +43,13 @@ trait NotificationCustodianManager
             ->whereHas('projectHasUser.project', function ($query) use ($project) {
                 $query->where('id', $project->id);
             })
-            ->get()->pluck('projectHasUser.registry.user.id')->toArray();
+            ->get()->pluck('projectHasUser.registry.user.id')->filter()->unique()->values()->toArray();
         if ($userIds) {
             $users = User::query()
                 ->where('user_group', User::GROUP_ORGANISATIONS)
                 ->whereIn('organisation_id', $userIds)
                 ->get();
-            foreach ($users as $user) {
-                Notification::send($user, new CustodianProjectStateUpdate($loggedInUser, $project, $oldStatus, $newStatus, 'organisation'));
-            }
+            Notification::send($users, new CustodianProjectStateUpdate($loggedInUser, $project, $oldStatus, $newStatus, 'user'));
         }
 
         // organisation
@@ -61,16 +61,14 @@ trait NotificationCustodianManager
             ->whereHas('projectOrganisation.project', function ($query) use ($project) {
                 $query->where('id', $project->id);
             })
-            ->get()->pluck('projectOrganisation.organisation_id')->toArray();
+            ->get()->pluck('projectOrganisation.organisation_id')->filter()->unique()->values()->toArray();
         if ($organisationIds) {
             $userOrganisations = User::query()
                 ->where('user_group', User::GROUP_ORGANISATIONS)
                 ->whereIn('organisation_id', $organisationIds)
                 ->get();
 
-            foreach ($userOrganisations as $userOrganisation) {
-                Notification::send($userOrganisation, new CustodianProjectStateUpdate($loggedInUser, $project, $oldStatus, $newStatus, 'organisation'));
-            }
+            Notification::send($userOrganisations, new CustodianProjectStateUpdate($loggedInUser, $project, $oldStatus, $newStatus, 'organisation'));
         }
 
         // custodian
@@ -105,7 +103,7 @@ trait NotificationCustodianManager
         $user = $projectUser->registry->user;
         $affiliation = $projectUser->affiliation;
         $organisation = $affiliation?->organisation;
-        $userOrganisation = User::where('organisation_id', $affiliation?->organisation_id)->first();
+        $userOrganisations = User::where('organisation_id', $affiliation?->organisation_id)->get();
         $userCurr = User::where('id', $loggedInUserId)->first();
         $userCustodians = User::whereIn(
             'custodian_user_id',
@@ -126,7 +124,7 @@ trait NotificationCustodianManager
         Notification::send($user, new CustodianUserStatusUpdate($details, 'user'));
 
         // organisation
-        Notification::send($userOrganisation, new CustodianUserStatusUpdate($details, 'organisation'));
+        Notification::send($userOrganisations, new CustodianUserStatusUpdate($details, 'organisation'));
 
         // custodians
         foreach ($userCustodians as $userCustodian) {
@@ -168,16 +166,14 @@ trait NotificationCustodianManager
             ->whereHas('projectHasUser.project', function ($query) use ($project) {
                 $query->where('id', $project->id);
             })
-            ->get()->pluck('projectHasUser.registry.user.id')->toArray();
+            ->get()->pluck('projectHasUser.registry.user.id')->filter()->unique()->values()->toArray();
 
         if ($userIds) {
             $users = User::query()
                 ->where('user_group', User::GROUP_ORGANISATIONS)
                 ->whereIn('organisation_id', $userIds)
                 ->get();
-            foreach ($users as $user) {
-                Notification::send($user, new CustodianOrganisationStatusUpdate($loggedInUser, $project, $organisation, $oldState, $newState, 'custodian'));
-            }
+            Notification::send($users, new CustodianOrganisationStatusUpdate($loggedInUser, $project, $organisation, $oldState, $newState, 'user'));
         }
 
         // organisation
@@ -185,9 +181,7 @@ trait NotificationCustodianManager
             'user_group' => User::GROUP_ORGANISATIONS,
             'organisation_id' => $organisation->id
         ])->get();
-        foreach ($userOrgaisations as $userOrgaisation) {
-            Notification::send($userOrgaisation, new CustodianOrganisationStatusUpdate($loggedInUser, $project, $organisation, $oldState, $newState, 'custodian'));
-        }
+        Notification::send($userOrgaisations, new CustodianOrganisationStatusUpdate($loggedInUser, $project, $organisation, $oldState, $newState, 'organisation'));
 
         // custodian
         $userCustodians = User::whereIn(
@@ -221,16 +215,14 @@ trait NotificationCustodianManager
             ->whereHas('projectHasUser.project', function ($query) use ($project) {
                 $query->where('id', $project->id);
             })
-            ->get()->pluck('projectHasUser.registry.user.id')->toArray();
+            ->get()->pluck('projectHasUser.registry.user.id')->filter()->unique()->values()->toArray();
 
         if ($userIds) {
             $users = User::query()
                 ->where('user_group', User::GROUP_ORGANISATIONS)
                 ->whereIn('organisation_id', $userIds)
                 ->get();
-            foreach ($users as $user) {
-                Notification::send($user, new CustodianProjectDetailsUpdate($loggedInUser, $project, $changes, 'user'));
-            }
+            Notification::send($users, new CustodianProjectDetailsUpdate($loggedInUser, $project, $changes, 'user'));
         }
 
         // organisation
@@ -242,7 +234,7 @@ trait NotificationCustodianManager
             ->whereHas('projectOrganisation.project', function ($query) use ($project) {
                 $query->where('id', $project->id);
             })
-            ->get()->pluck('projectOrganisation.organisation_id')->toArray();
+            ->get()->pluck('projectOrganisation.organisation_id')->filter()->unique()->values()->toArray();
 
         if ($organisationIds) {
             $userOrganisations = User::query()
@@ -250,9 +242,7 @@ trait NotificationCustodianManager
                 ->whereIn('organisation_id', $organisationIds)
                 ->get();
 
-            foreach ($userOrganisations as $userOrganisation) {
-                Notification::send($userOrganisation, new CustodianProjectDetailsUpdate($loggedInUser, $project, $changes, 'organisation'));
-            }
+            Notification::send($userOrganisations, new CustodianProjectDetailsUpdate($loggedInUser, $project, $changes, 'organisation'));
         }
 
         // custodian
@@ -317,5 +307,63 @@ trait NotificationCustodianManager
                 Notification::send($userCustodian, new CustodianRemoveApprover($loggedInUser, $approver, 'custodian'));
             }
         }
+    }
+
+    public function notifyOnProjectEndDate($project)
+    {
+        // user
+        $userIds = CustodianHasProjectUser::query()
+            ->with([
+                'projectHasUser.registry.user:id,registry_id,first_name,last_name,email',
+                'projectHasUser.project',
+            ])
+            ->whereHas('projectHasUser.project', function ($query) use ($project) {
+                $query->where('id', $project->id);
+            })
+            ->get()
+            ->pluck('projectHasUser.registry.user.id')
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
+        if (count($userIds)) {
+            $users = User::whereIn('id', $userIds)->get();
+            Notification::send($users, new CustodianEndProject($project, 'user'));
+        }
+
+        // organisation
+        $organisationIds = CustodianHasProjectOrganisation::query()
+            ->with([
+                'projectOrganisation.organisation',
+            ])
+            ->whereHas('projectOrganisation.project', function ($query) use ($project) {
+                $query->where('id', $project->id);
+            })
+            ->get()
+            ->pluck('projectOrganisation.organisation.id')
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
+        $userOrganisations = User::where('user_group', User::GROUP_ORGANISATIONS)->whereIn('organisation_id', $organisationIds)->get();
+        Notification::send($userOrganisations, new CustodianEndProject($project, 'organisation'));
+
+        // custodian
+        $projectCustodianIds = ProjectHasCustodian::query()
+            ->where('project_id', $project->id)
+            ->get()
+            ->pluck('custodian_id')
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
+        $userCustodians = User::where('user_group', 'CUSTODIANS')
+            ->whereIn('custodian_user_id', function ($query) use ($projectCustodianIds) {
+                $query->select('id')
+                    ->from('custodian_users')
+                    ->whereIn('custodian_id', $projectCustodianIds);
+            })
+            ->get();
+        Notification::send($userCustodians, new CustodianEndProject($project, 'custodian'));
     }
 }
