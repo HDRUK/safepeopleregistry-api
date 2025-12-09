@@ -6,17 +6,20 @@ use App\Models\User;
 use App\Models\Project;
 use App\Models\CustodianUser;
 use App\Models\ProjectHasUser;
+use App\Models\ProjectHasCustodian;
 use App\Models\CustodianHasProjectUser;
 use App\Notifications\CustodianEndProject;
 use App\Notifications\CustodianAddApprover;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\CustodianRemoveApprover;
 use App\Models\CustodianHasProjectOrganisation;
-use App\Models\ProjectHasCustodian;
 use App\Notifications\CustodianUserStatusUpdate;
 use App\Notifications\CustodianProjectStateUpdate;
+use App\Notifications\CustodianConfigurationUpdate;
 use App\Notifications\CustodianProjectDetailsUpdate;
 use App\Notifications\CustodianOrganisationStatusUpdate;
+use App\Notifications\CustodianConfigurationManualChecksAdded;
+use App\Notifications\CustodianConfigurationManualChecksUpdate;
 
 trait NotificationCustodianManager
 {
@@ -367,5 +370,68 @@ trait NotificationCustodianManager
             })
             ->get();
         Notification::send($userCustodians, new CustodianEndProject($project, 'custodian'));
+    }
+
+    // Custodian updated the configuration
+    // send notification to custodians
+    public function notifyOnConfirationWasUpdated($loggedInUserId)
+    {
+        $loggedInUser = User::where('id', $loggedInUserId)->first();
+
+        $userCustodians = User::whereIn(
+            'custodian_user_id',
+            CustodianUser::where('custodian_id', $loggedInUser?->custodian_user_id)
+                ->pluck('id')
+        )->get();
+
+        foreach ($userCustodians as $userCustodian) {
+            if ((int)$userCustodian->id === (int)$loggedInUserId) {
+                Notification::send($userCustodian, new CustodianConfigurationUpdate($loggedInUser, 'current_custodian'));
+            } else {
+                Notification::send($userCustodian, new CustodianConfigurationUpdate($loggedInUser, 'custodian'));
+            }
+        }
+    }
+
+    // Custodian updated the manual checks configuration
+    // send notification to custodians
+    public function notifyOnConfirationManualChecksWasUpdated($loggedInUserId)
+    {
+        $loggedInUser = User::where('id', $loggedInUserId)->first();
+
+        $userCustodians = User::whereIn(
+            'custodian_user_id',
+            CustodianUser::where('custodian_id', $loggedInUser?->custodian_user_id)
+                ->pluck('id')
+        )->get();
+
+        foreach ($userCustodians as $userCustodian) {
+            if ((int)$userCustodian->id === (int)$loggedInUserId) {
+                Notification::send($userCustodian, new CustodianConfigurationManualChecksUpdate($loggedInUser, 'current_custodian'));
+            } else {
+                Notification::send($userCustodian, new CustodianConfigurationManualChecksUpdate($loggedInUser, 'custodian'));
+            }
+        }
+    }
+
+    // Custodian added a new manual checks in the configuration
+    // send notification to custodians
+    public function notifyOnConfigurationManualChecksWasAdded($loggedInUserId)
+    {
+        $loggedInUser = User::where('id', $loggedInUserId)->first();
+
+        $userCustodians = User::whereIn(
+            'custodian_user_id',
+            CustodianUser::where('custodian_id', $loggedInUser?->custodian_user_id)
+                ->pluck('id')
+        )->get();
+
+        foreach ($userCustodians as $userCustodian) {
+            if ((int)$userCustodian->id === (int)$loggedInUserId) {
+                Notification::send($userCustodian, new CustodianConfigurationManualChecksAdded($loggedInUser, 'current_custodian'));
+            } else {
+                Notification::send($userCustodian, new CustodianConfigurationManualChecksAdded($loggedInUser, 'custodian'));
+            }
+        }
     }
 }

@@ -10,8 +10,9 @@ use App\Models\ValidationCheck;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\CustodianHasValidationCheck;
-use App\Http\Requests\ValidationChecks\DeleteValidationCheck;
 use App\Http\Requests\ValidationChecks\GetValidationCheck;
+use App\Traits\Notifications\NotificationCustodianManager;
+use App\Http\Requests\ValidationChecks\DeleteValidationCheck;
 use App\Http\Requests\ValidationChecks\UpdateValidationCheck;
 use App\Http\Requests\ValidationChecks\CreateValidationCheckRequest;
 use App\Http\Requests\ValidationChecks\GetByCustodianValidationCheck;
@@ -19,6 +20,7 @@ use App\Http\Requests\ValidationChecks\GetByCustodianValidationCheck;
 class ValidationCheckController extends Controller
 {
     use Responses;
+    use NotificationCustodianManager;
 
     /**
      * @OA\Get(
@@ -116,6 +118,8 @@ class ValidationCheckController extends Controller
         $input = $request->only(app(ValidationCheck::class)->getFillable());
 
         $check = ValidationCheck::create($input);
+
+
         return $this->CreatedResponse($check);
     }
 
@@ -162,13 +166,26 @@ class ValidationCheckController extends Controller
     public function update(UpdateValidationCheck $request, $id): JsonResponse
     {
         try {
+            $loggedInUserId = $request->user()?->id;
             $input = $request->only(app(ValidationCheck::class)->getFillable());
             $check = ValidationCheck::find($id);
             if (!$check) {
                 return $this->NotFoundResponse();
             }
 
+            $hasChanges = false;
+            if (isset($input['enabled']) && ((bool)$check->enabled !== $input['enabled'])) {
+                $hasChanges = true;
+            }
+            if (isset($input['description']) && ((bool)$check->description !== $input['description'])) {
+                $hasChanges = true;
+            }
+
             $check->update($input);
+
+            if ($hasChanges) {
+                $this->notifyOnConfirationManualChecksWasUpdated($loggedInUserId);
+            }
 
             return $this->OKResponse($check);
         } catch (Exception $e) {

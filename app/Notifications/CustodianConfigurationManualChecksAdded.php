@@ -6,18 +6,16 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class CustodianAddApprover extends Notification implements ShouldQueue
+class CustodianConfigurationManualChecksAdded extends Notification implements ShouldQueue
 {
     use Queueable;
 
     protected $user;
-    protected $approver;
     protected $for;
 
-    public function __construct($user, $approver, $for)
+    public function __construct($user, $for)
     {
         $this->user = $user;
-        $this->approver = $approver;
         $this->for = $for;
     }
 
@@ -37,8 +35,8 @@ class CustodianAddApprover extends Notification implements ShouldQueue
         return [
             'message' => $this->generateMessage(),
             'details' => [
-                'first_name' => $this->approver->first_name,
-                'last_name' => $this->approver->last_name,
+                'first_name' => $this->user->first_name,
+                'last_name' => $this->user->last_name,
             ],
             'time' => now(),
         ];
@@ -48,10 +46,10 @@ class CustodianAddApprover extends Notification implements ShouldQueue
     {
         switch ($this->for) {
             case 'current_custodian':
-                return "You added {$this->approver->first_name} {$this->approver->last_name} as an Approver.";
+                return "You have added a new manual checks in the configuration.";
 
             case 'custodian':
-                return "Data Custodian {$this->user->first_name} {$this->user->last_name} added {$this->approver->first_name} {$this->approver->last_name} as an Approver.";
+                return "{$this->user->first_name} {$this->user->last_name} from the data custodian added a new manual checks in the configuration.";
 
             default:
                 break;
