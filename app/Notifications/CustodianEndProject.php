@@ -44,19 +44,7 @@ class CustodianEndProject extends Notification implements ShouldQueue
 
     public function generateMessage()
     {
-        switch ($this->for) {
-            case 'user':
-                return "Project {$this->project->title} has ended.";
-
-            case 'organisation':
-                return "Project {$this->project->title} has ended.";
-
-            case 'custodian':
-                return "Project {$this->project->title} has ended.";
-
-            default:
-                break;
-        }
+        return "Project {$this->project->title} has ended.";
     }
 
     public function getUrl()
