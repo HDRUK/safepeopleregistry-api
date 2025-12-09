@@ -17,9 +17,12 @@ use App\Http\Requests\CustodianUsers\GetCustodianUser;
 use App\Http\Requests\CustodianUsers\DeleteCustodianUser;
 use App\Http\Requests\CustodianUsers\InviteCustodianUser;
 use App\Http\Requests\CustodianUsers\UpdateCustodianUser;
+use App\Traits\Notifications\NotificationCustodianManager;
 
 class CustodianUserController extends Controller
 {
+    use NotificationCustodianManager;
+
     /**
      * @OA\Get(
      *      path="/api/v1/custodian_users",
@@ -176,6 +179,8 @@ class CustodianUserController extends Controller
     {
         try {
             $input = $request->all();
+            $loggedInUserId = $request->user()?->id;
+            $isApprover = false;
 
             $user = CustodianUser::create([
                 'first_name' => $input['first_name'],
@@ -194,11 +199,18 @@ class CustodianUserController extends Controller
                 $perms = Permission::whereIn('id', $input['permissions'])->get();
 
                 foreach ($perms as $perm) {
+                    if ($perm->name === 'CUSTODIAN_APPROVER') {
+                        $isApprover = true;
+                    }
                     $p = CustodianUserHasPermission::create([
                         'custodian_user_id' => $user->id,
                         'permission_id' => $perm->id,
                     ]);
                 }
+            }
+
+            if ($isApprover) {
+                $this->notifyOnAddedApprover($loggedInUserId, $user);
             }
 
             return response()->json([
@@ -404,7 +416,19 @@ class CustodianUserController extends Controller
     public function destroy(DeleteCustodianUser $request, int $id): JsonResponse
     {
         try {
+            $loggedInUserId = $request->user()?->id;
             $user = CustodianUser::where('id', $id)->first();
+
+            $perm = Permission::where('name', 'CUSTODIAN_APPROVER')->first();
+            $checking = CustodianUserHasPermission::where([
+                'custodian_user_id' => $user->id,
+                'permission_id' => $perm->id,
+            ])->first();
+
+            if (!is_null($checking)) {
+                $this->notifyOnRemovedApprover($loggedInUserId, $user);
+            }
+
             CustodianUserHasPermission::where('custodian_user_id', $user->id)->delete();
 
             $user->delete();

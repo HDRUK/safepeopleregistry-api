@@ -41,4 +41,18 @@ trait TracksModelChanges
 
         return $changes;
     }
+
+    public function getProjectTrackedChanges($beforeProject, $changes)
+    {
+        $return = [];
+
+        foreach ($changes as $key => $change) {
+            $return[$key] = [
+                'old' => $beforeProject[$key],
+                'new' => $change,
+            ];
+        }
+
+        return $return;
+    }
 }
