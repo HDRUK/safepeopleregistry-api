@@ -11,9 +11,12 @@ use App\Exceptions\NotFoundException;
 use App\Models\Feature as FeatureModel;
 use App\Http\Requests\Features\GetFeatureById;
 use App\Http\Requests\Features\ToggleByFeatureId;
+use App\Traits\CommonFunctions;
+
 
 class FeatureController extends Controller
 {
+    use CommonFunctions;
     use Responses;
 
     /**
@@ -52,11 +55,9 @@ class FeatureController extends Controller
      */
     public function index(Request $request)
     {
-        if (!Gate::allows('admin')) {
-            return $this->ForbiddenResponse();
-        }
+        $perPage = $request->integer('per_page', (int)$this->getSystemConfig('PER_PAGE'));
 
-        $features =  FeatureModel::all();
+        $features = FeatureModel::paginate($perPage);
 
         return $this->OKResponse($features);
     }
@@ -118,7 +119,7 @@ class FeatureController extends Controller
     }
 
     /**
-     * @OA\Post(
+     * @OA\Put(
      *    path="/api/v1/features/{featureId}/toggle",
      *    summary="Toggle and return a Feature entry by its ID",
      *    description="Toggle and return a Feature entry by its ID",
@@ -170,14 +171,20 @@ class FeatureController extends Controller
             throw new NotFoundException();
         }
 
+        $hasScope = 
+        (!empty($feature->scope) && $feature->scope !== '__laravel_null') ||
+        !empty($feature->scope_id) ||
+        !empty($feature->scope_type);
+
+        if ($hasScope) {
+            return $this->ForbiddenResponse("Feature has user/tenant scope and can't be toggled globally.");
+        }
+
         if (Feature::active($feature->name)) {
             Feature::deactivate($feature->name);
         } else {
             Feature::activate($feature->name);
         }
-
-        $feature->value = !$feature->value;
-        $feature->save();
 
         Feature::flushCache();
 

@@ -24,24 +24,24 @@ class FeatureSeeder extends Seeder
         foreach ($globalFeatures as $feature) {
             Feature::create([
                 'name' => $feature['name'],
-                'scope' => null,
+                'scope' => '__laravel_null',
                 'value' => $feature['value'],
                 'description' => $feature['description'],
             ]);
         }
 
-        $scopedFeatures = [
-            ['name' => 'test-feature-user-1', 'scope' => 'App\\Models\\User:1', 'value' => true, 'description' => 'This feature is enabled for user with ID 1.'],
-        ];
+        // $scopedFeatures = [
+        //     ['name' => 'test-feature-user-1', 'scope' => 'App\\Models\\User:1', 'value' => true, 'description' => 'This feature is enabled for user with ID 1.'],
+        // ];
 
-        foreach ($scopedFeatures as $feature) {
-            Feature::create([
-                'name' => $feature['name'],
-                'scope' => $feature['scope'],
-                'value' => $feature['value'],
-                'description' => $feature['description'],
-            ]);
-        }
+        // foreach ($scopedFeatures as $feature) {
+        //     Feature::create([
+        //         'name' => $feature['name'],
+        //         'scope' => $feature['scope'],
+        //         'value' => $feature['value'],
+        //         'description' => $feature['description'],
+        //     ]);
+        // }
 
         $this->command->newLine();
         $this->command->info('All feature flags seeded successfully!');
