@@ -284,12 +284,30 @@ class Project extends Model
         return $query->with(['custodians.custodianUsers.user'])->find($projectId);
     }
 
-    public function projectHasSponsorhips()
+    /**
+     * @return HasMany<ProjectHasSponsorship>
+     */
+    public function projectHasSponsorships(): HasMany
     {
         return $this->hasMany(
             ProjectHasSponsorship::class,
-            'project_id',    // FK on project_has_sponsorships
-            'id'             // local key on projects
+            'project_id',
+            'id'
+        );
+    }
+
+    /**
+     * Shortcut: All of the raw pivot rows linking this Project ↔ Organisation ↔ Custodian
+     */
+    public function custodianHasProjectSponsorships(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            CustodianHasProjectHasSponsorship::class,  // final model
+            ProjectHasSponsorship::class,              // through model
+            'project_id',                              // FK on project_has_sponsorships → projects.id
+            'project_has_sponsorship_id',              // FK on custodian_has_project_has_sponsorships → project_has_sponsorships.id
+            'id',                                      // local key on projects
+            'id'                                       // local key on project_has_sponsorships
         );
     }
 }

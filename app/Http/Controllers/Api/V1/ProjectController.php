@@ -850,8 +850,8 @@ class ProjectController extends Controller
             $returnProject = Project::query()
                 ->where('id', $id)
                 ->with([
-                    'projectHasSponsorhips.sponsor',
-                    'projectHasSponsorhips.custodianHasProjectHasSponsorship.modelState.state',
+                    'projectHasSponsorships.sponsor',
+                    'projectHasSponsorships.custodianHasProjectHasSponsorship.modelState.state',
                     ])
                 ->first();
             return $this->OKResponse($returnProject);

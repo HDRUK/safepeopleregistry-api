@@ -14,8 +14,8 @@ class TestController extends Controller
         $projects = Project::query()
             ->where('id', 5)
             ->with([
-                'projectHasSponsorhips.sponsor',
-                'projectHasSponsorhips.custodianHasProjectHasSponsorship.modelState.state',
+                'projectHasSponsorships.sponsor',
+                'custodianHasProjectSponsorships.modelState.state',
             ])
             ->get();
 
