@@ -15,13 +15,16 @@ class TestController extends Controller
 {
     public function test(Request $request)
     {
-
-        if (Feature::active('sponsorship')) {
-            return $this->OKResponse('active');
+       if (Feature::active('sponsorship')) {
+            return response()->json([
+                'message' => 'active',
+            ], 200);
         }
 
         if (Feature::inactive('sponsorship')) {
-            return $this->OKResponse('inactive');
+            return response()->json([
+                'message' => 'inactive',
+            ], 200);
         }
         
         return response()->json([
