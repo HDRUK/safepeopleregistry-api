@@ -804,13 +804,13 @@ class ProjectController extends Controller
     {
         try {
 
-            if (Feature::active('sponsorship')) {
-                return $this->OKResponse('active');
-            }
+            // if (Feature::active('sponsorship')) {
+            //     return $this->OKResponse('active');
+            // }
 
-            if (Feature::inactive('sponsorship')) {
-                return $this->OKResponse('inactive');
-            }
+            // if (Feature::inactive('sponsorship')) {
+            //     return $this->OKResponse('inactive');
+            // }
 
             $loggedInUserId = $request->user()?->id;
             $input = $request->only(app(Project::class)->getFillable());
