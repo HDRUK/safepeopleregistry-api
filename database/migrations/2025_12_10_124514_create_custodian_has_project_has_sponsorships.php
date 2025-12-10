@@ -16,11 +16,11 @@ return new class extends Migration
             $table->unsignedBigInteger('project_has_sponsorship_id');
             $table->unsignedBigInteger('custodian_id');
 
-            $table->foreign('project_has_sponsorship_id')->references('id')->on('project_has_sponsorships')->onDelete('cascade');
-            $table->foreign('custodian_id')->references('id')->on('custodians')->onDelete('cascade');
+            $table->foreign('project_has_sponsorship_id', 'fk_chphs_project_sponsorship')->references('id')->on('project_has_sponsorships')->onDelete('cascade');
+            $table->foreign('custodian_id', 'fk_chphs_custodian')->references('id')->on('custodians')->onDelete('cascade');
 
-            $table->index(['project_has_sponsorship_id', 'custodian_id']);
-            $table->unique(['project_has_sponsorship_id', 'custodian_id']);
+            $table->index(['project_has_sponsorship_id', 'custodian_id'], 'idx_chphs_composite');
+            $table->unique(['project_has_sponsorship_id', 'custodian_id'], 'uq_chphs_composite');
         });
     }
 

@@ -32,7 +32,7 @@ use App\Traits\Notifications\NotificationCustodianManager;
 use App\Http\Requests\Projects\GetAllUsersFlagProjectByUserId;
 use App\Http\Requests\Projects\GetProjectByIdAndOrganisationId;
 use App\Http\Requests\Projects\GetProjectUsersByOrganisationId;
-use Laravel\Pennant\Feature;
+
 
 class ProjectController extends Controller
 {
@@ -803,15 +803,6 @@ class ProjectController extends Controller
     public function update(UpdateProject $request, int $id): JsonResponse
     {
         try {
-
-            // if (Feature::active('sponsorship')) {
-            //     return $this->OKResponse('active');
-            // }
-
-            // if (Feature::inactive('sponsorship')) {
-            //     return $this->OKResponse('inactive');
-            // }
-
             $loggedInUserId = $request->user()?->id;
             $input = $request->only(app(Project::class)->getFillable());
             $project = Project::findOrFail($id);
