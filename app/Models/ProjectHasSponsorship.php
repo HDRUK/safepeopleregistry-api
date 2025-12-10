@@ -2,10 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\Project;
-use App\Models\Organisation;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\CustodianHasProjectHasSponsorship;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ProjectHasSponsorship extends Model

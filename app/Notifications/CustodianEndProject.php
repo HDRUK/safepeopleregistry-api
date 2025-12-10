@@ -16,7 +16,7 @@ class CustodianEndProject extends Notification implements ShouldQueue
     public function __construct($project, $for)
     {
         $this->project = $project;
-        $this->for= $for;
+        $this->for = $for;
     }
 
     /**

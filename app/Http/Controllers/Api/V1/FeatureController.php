@@ -13,7 +13,6 @@ use App\Http\Requests\Features\GetFeatureById;
 use App\Http\Requests\Features\ToggleByFeatureId;
 use App\Traits\CommonFunctions;
 
-
 class FeatureController extends Controller
 {
     use CommonFunctions;
@@ -171,7 +170,7 @@ class FeatureController extends Controller
             throw new NotFoundException();
         }
 
-        $hasScope = 
+        $hasScope =
         (!empty($feature->scope) && $feature->scope !== '__laravel_null') ||
         !empty($feature->scope_id) ||
         !empty($feature->scope_type);

@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class CustodianHasProjectHasSponsorship extends Model
 {
     use StateWorkflow;
-    
+
     protected $table = 'custodian_has_project_has_sponsorships';
 
     public $timestamps = true;
@@ -30,7 +30,7 @@ class CustodianHasProjectHasSponsorship extends Model
         State::STATE_SPONSORSHIP_APPROVED => [],
         State::STATE_SPONSORSHIP_REJECTED => [],
     ];
-    
+
     /**
      * Get the project sponsorship
      */

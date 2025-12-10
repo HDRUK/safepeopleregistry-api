@@ -74,7 +74,7 @@ class ExpiresCertifications extends Notification implements ShouldQueue
         if ($this->for === 'organisation') {
             return $url;
         }
-        
+
         return null;
     }
 

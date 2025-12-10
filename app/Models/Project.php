@@ -288,7 +288,7 @@ class Project extends Model
     {
         return $this->hasMany(
             ProjectHasSponsorship::class,
-            'project_id',    // FK on project_has_organisations
+            'project_id',    // FK on project_has_sponsorships
             'id'             // local key on projects
         );
     }
