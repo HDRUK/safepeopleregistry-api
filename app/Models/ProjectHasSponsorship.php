@@ -2,15 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Project;
 use App\Models\Organisation;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\CustodianHasProjectHasSponsorship;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ProjectHasSponsorship extends Model
 {
     protected $table = 'project_has_sponsorships';
 
-    public $timestamps = false;
+    public $timestamps = true;
 
     protected $fillable = [
         'project_id',
@@ -31,5 +33,13 @@ class ProjectHasSponsorship extends Model
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class, 'project_id');
+    }
+
+    /**
+     * Get all custodian relationships for this sponsorship
+     */
+    public function custodianHasProjectHasSponsorship()
+    {
+        return $this->hasMany(CustodianHasProjectHasSponsorship::class, 'project_has_sponsorship_id');
     }
 }

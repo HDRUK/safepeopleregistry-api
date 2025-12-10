@@ -13,6 +13,8 @@ class CustodianHasProjectHasSponsorship extends Model
     
     protected $table = 'custodian_has_project_has_sponsorships';
 
+    public $timestamps = true;
+
     protected $fillable = [
         'project_has_sponsorship_id',
         'custodian_id',

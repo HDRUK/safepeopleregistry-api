@@ -8,6 +8,7 @@ use App\Models\State;
 use App\Models\Project;
 use App\Models\Registry;
 use App\Models\Affiliation;
+use App\Models\Organisation;
 use Illuminate\Http\Request;
 use App\Traits\FilterManager;
 use App\Http\Traits\Responses;
@@ -15,15 +16,18 @@ use App\Models\ProjectHasUser;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use App\Traits\TracksModelChanges;
+use App\Models\ProjectHasCustodian;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
 use App\Exceptions\NotFoundException;
+use App\Models\ProjectHasSponsorship;
 use App\Models\CustodianHasProjectUser;
 use App\Http\Requests\Projects\GetProject;
 use App\Http\Requests\Projects\DeleteProject;
 use App\Http\Requests\Projects\UpdateProject;
 use App\Http\Requests\Projects\GetProjectUsers;
 use App\Http\Requests\Projects\UpdateProjectUser;
+use App\Models\CustodianHasProjectHasSponsorship;
 use App\Http\Requests\Projects\MakePrimaryContact;
 use App\Http\Requests\Projects\GetValidatedProjects;
 use App\Http\Requests\Projects\UpdateAllProjectUsers;
@@ -32,7 +36,6 @@ use App\Traits\Notifications\NotificationCustodianManager;
 use App\Http\Requests\Projects\GetAllUsersFlagProjectByUserId;
 use App\Http\Requests\Projects\GetProjectByIdAndOrganisationId;
 use App\Http\Requests\Projects\GetProjectUsersByOrganisationId;
-
 
 class ProjectController extends Controller
 {
@@ -808,37 +811,79 @@ class ProjectController extends Controller
             $project = Project::findOrFail($id);
             $before = $project->toArray();
 
-            if (!is_null($project)) {
-                $project->update($input);
-                $after = $project->fresh();
-                $projectChanges = collect($project->getChanges())->except('updated_at')->toArray();
-                $changes = $this->getProjectTrackedChanges($before, $projectChanges);
+            $project->update($input);
+            $after = $project->fresh();
+            $projectChanges = collect($project->getChanges())->except('updated_at')->toArray();
+            $changes = $this->getProjectTrackedChanges($before, $projectChanges);
 
-                if ($changes) {
-                    $this->notifyOnProjectDetailsChange($loggedInUserId, $after, $changes);
-                }
-
-                $status = $request->get('status');
-
-                if (isset($status)) {
-                    if ($project->canTransitionTo($status)) {
-                        $oldStatus = $project->getState();
-                        $project->transitionTo($status);
-                        if ($oldStatus !== $status) {
-                            $this->notifyOnProjectStateChange($loggedInUserId, $id, $oldStatus, $status);
-                        }
-                    } else {
-                        return $this->BadRequestResponse();
-                    }
-                }
-
-                return $this->OKResponse(Project::where('id', $id)->first());
+            if ($changes) {
+                $this->notifyOnProjectDetailsChange($loggedInUserId, $after, $changes);
             }
 
-            return $this->NotFoundResponse();
+            $status = $request->get('status');
+
+            if (isset($status)) {
+                if ($project->canTransitionTo($status)) {
+                    $oldStatus = $project->getState();
+                    $project->transitionTo($status);
+                    if ($oldStatus !== $status) {
+                        $this->notifyOnProjectStateChange($loggedInUserId, $id, $oldStatus, $status);
+                    }
+                } else {
+                    return $this->BadRequestResponse();
+                }
+            }
+
+            $sponsorId = $request->get('sponsor_id');
+
+            if ($sponsorId) {
+                $projectHasCustodian = ProjectHasCustodian::where('project_id', $id)->first();
+                $checkProjectSponsor = ProjectHasSponsorship::where('project_id', $id)->first();
+
+                if (!is_null($checkProjectSponsor) && (int)$sponsorId !== (int)$checkProjectSponsor->sponsor_id) {
+                    $checkProjectSponsor->delete();
+                }
+
+                $this->sponsorToProject($id, $sponsorId, $projectHasCustodian->custodian_id);
+            }
+
+            $returnProject = Project::query()
+                ->where('id', $id)
+                ->with([
+                    'projectHasSponsorhips.sponsor',
+                    'projectHasSponsorhips.custodianHasProjectHasSponsorship.modelState.state',
+                    ])
+                ->first();
+            return $this->OKResponse($returnProject);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
+    }
+
+    public function sponsorToProject(int $projectId, int $sponsorId, int $custodianId)
+    {
+        $checkProjectSponsor = ProjectHasSponsorship::where([
+            'project_id' => $projectId,
+            'sponsor_id' => $sponsorId,
+        ])->first();
+
+        if (!is_null($checkProjectSponsor)) {
+            return;
+        }
+
+        $projectHasSponsorship = ProjectHasSponsorship::create([
+            'project_id' => $projectId,
+            'sponsor_id' => $sponsorId,
+        ]);
+
+        $custodianHasProjectHasSponsorship = CustodianHasProjectHasSponsorship::create([
+            'project_has_sponsorship_id' => $projectHasSponsorship->id,
+            'custodian_id' => $custodianId,
+        ]);
+
+        $custodianHasProjectHasSponsorship->transitionTo(State::STATE_SPONSORSHIP_PENDING);
+
+        return true;
     }
 
     /**

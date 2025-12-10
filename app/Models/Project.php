@@ -283,4 +283,13 @@ class Project extends Model
     {
         return $query->with(['custodians.custodianUsers.user'])->find($projectId);
     }
+
+    public function projectHasSponsorhips()
+    {
+        return $this->hasMany(
+            ProjectHasSponsorship::class,
+            'project_id',    // FK on project_has_organisations
+            'id'             // local key on projects
+        );
+    }
 }

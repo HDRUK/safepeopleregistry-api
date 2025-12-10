@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('project_has_sponsorship_id');
             $table->unsignedBigInteger('custodian_id');
+            $table->timestamps();
 
             $table->foreign('project_has_sponsorship_id', 'fk_chphs_project_sponsorship')->references('id')->on('project_has_sponsorships')->onDelete('cascade');
             $table->foreign('custodian_id', 'fk_chphs_custodian')->references('id')->on('custodians')->onDelete('cascade');
