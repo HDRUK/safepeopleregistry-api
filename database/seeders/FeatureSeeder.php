@@ -19,6 +19,7 @@ class FeatureSeeder extends Seeder
         $globalFeatures = [
             ['name' => 'test-feature', 'value' => 'true', 'description' => 'This is a test feature.'],
             ['name' => 'test-feature-user-admin', 'value' => 'true', 'description' => 'This feature is enabled for admin users only.'],
+            ['name' => 'sponsorship', 'value' => 'true', 'description' => 'sponsorship feature'],
         ];
 
         foreach ($globalFeatures as $feature) {
@@ -29,19 +30,6 @@ class FeatureSeeder extends Seeder
                 'description' => $feature['description'],
             ]);
         }
-
-        // $scopedFeatures = [
-        //     ['name' => 'test-feature-user-1', 'scope' => 'App\\Models\\User:1', 'value' => true, 'description' => 'This feature is enabled for user with ID 1.'],
-        // ];
-
-        // foreach ($scopedFeatures as $feature) {
-        //     Feature::create([
-        //         'name' => $feature['name'],
-        //         'scope' => $feature['scope'],
-        //         'value' => $feature['value'],
-        //         'description' => $feature['description'],
-        //     ]);
-        // }
 
         $this->command->newLine();
         $this->command->info('All feature flags seeded successfully!');

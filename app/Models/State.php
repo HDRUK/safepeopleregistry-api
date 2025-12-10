@@ -111,6 +111,10 @@ class State extends Model
     public const STATE_ORG_LEFT_PROJECT = 'org_left_project'; // org left project
     public const STATE_AFFILIATION_ACCOUNT_IN_PROGRESS = 'affiliation_account_in_progress';
 
+    public const STATE_SPONSORSHIP_PENDING = 'sponsorship_pending';
+    public const STATE_SPONSORSHIP_APPROVED = 'sponsorship_approved';
+    public const STATE_SPONSORSHIP_REJECTED = 'sponsorship_rejected';
+
     public const STATES = [
         self::STATE_INVITED,
         self::STATE_REGISTERED,
@@ -142,5 +146,8 @@ class State extends Model
         self::STATE_USER_LEFT_PROJECT,
         self::STATE_ORG_LEFT_PROJECT,
         self::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS,
+        self::STATE_SPONSORSHIP_PENDING,
+        self::STATE_SPONSORSHIP_APPROVED,
+        self::STATE_SPONSORSHIP_REJECTED,
     ];
 }
