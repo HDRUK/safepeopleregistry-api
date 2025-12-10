@@ -804,11 +804,11 @@ class ProjectController extends Controller
     {
         try {
 
-            if (Feature::active()) {
+            if (Feature::active('sponsorship')) {
                 return $this->OKResponse('active');
             }
 
-            if (Feature::inactive()) {
+            if (Feature::inactive('sponsorship')) {
                 return $this->OKResponse('inactive');
             }
 
