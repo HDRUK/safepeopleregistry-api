@@ -9,7 +9,7 @@ use App\Traits\Notifications\NotificationCustodianManager;
 class CheckingProjects extends Command
 {
     use NotificationCustodianManager;
-    
+
     /**
      * The name and signature of the console command.
      *

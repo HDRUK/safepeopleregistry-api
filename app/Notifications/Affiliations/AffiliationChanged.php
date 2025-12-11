@@ -94,7 +94,7 @@ class AffiliationChanged extends Notification implements ShouldQueue
         if ($this->affiliationRequest && $this->for === 'organisation') {
             return $url;
         }
-        
+
         return null;
     }
 }
