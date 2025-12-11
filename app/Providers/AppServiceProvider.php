@@ -35,7 +35,6 @@ use App\Models\OrganisationHasSubsidiary;
 use App\Observers\ProjectHasUserObserver;
 use App\Models\CustodianHasValidationCheck;
 use App\Observers\UserHasDepartmentsObserver;
-use App\Notification\Channels\DatabaseChannel;
 use App\Observers\ProjectHasCustodianObserver;
 use App\Observers\RegistryHasTrainingObserver;
 use App\Observers\RegistryReadRequestObserver;

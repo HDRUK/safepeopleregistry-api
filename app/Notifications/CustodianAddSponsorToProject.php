@@ -5,8 +5,6 @@ namespace App\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use App\Notification\Channels\DatabaseChannel;
-use Illuminate\Notifications\Messages\DatabaseMessage;
 
 class CustodianAddSponsorToProject extends Notification implements ShouldQueue
 {
@@ -17,7 +15,7 @@ class CustodianAddSponsorToProject extends Notification implements ShouldQueue
     protected $organisation;
     protected $for;
 
-    public function __construct($user, $project, $organisation, $for, )
+    public function __construct($user, $project, $organisation, $for)
     {
         $this->user = $user;
         $this->project = $project;
@@ -58,7 +56,7 @@ class CustodianAddSponsorToProject extends Notification implements ShouldQueue
 
             case 'organisation':
                 return "Data Custodian {$this->user->first_name} {$this->user->last_name} has requested Sponsorship from your Organisation {$this->organisation->organisation_name} for your Project {$this->project->title}.";
-            
+
             case 'current_custodian':
                 return "You requested Sponsorship from Organisation {$this->organisation->organisation_name} for Project {$this->project->title}.";
 

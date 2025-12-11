@@ -855,7 +855,7 @@ class ProjectController extends Controller
 
                 if ($notifySponsor) {
                     $this->notifyOnAddSponsorToProject($loggedInUserId, $id, $sponsorId);
-                    $this->emailOnAddSponsorToProject($loggedInUserId, $id, $sponsorId); 
+                    $this->emailOnAddSponsorToProject($loggedInUserId, $id, $sponsorId);
                 }
 
             }
