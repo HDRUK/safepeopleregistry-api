@@ -1083,24 +1083,21 @@ class EmailTemplatesSeeder extends Seeder
                             <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
                               <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
                                 <mj-text align="left" padding="20px 0px 20px 0px">
-                                  You\'re asked to sponsor a project!
-                                  <div><br></div>
                                   [[delegate_name]]
                                   <div><br></div>
                                   As a Delegate for [[organisation_name]] on the [[env(APP_NAME)]], you are requested to sponsor a project.
                                   <div><br></div>
-                                  Name: [[data_custodian_name]]
-                                  <div><br></div>
+                                  Name: [[data_custodian_name]]<br>
                                   Project: [[project_name]]
                                   <div><br></div>
                                   When confirming sponsorship of a project, you are formally accepting legal accountability on behalf of your Organisation for ensuring that:
                                   <ul>
                                     <li>The research project ([[project_name]]) has been reviewed and is appropriately designed, managed, and monitored.</li>
                                     <li>The Chief Investigator of the project is suitably qualified and supported to lead the research.</li>
-                                    <li>All relevant legal, ethical, and regulatory responsibilities are being met by your [[organisation_name]]</li>
+                                    <li>All relevant legal, ethical and regulatory responsibilities are being met by your Organisation: [[organisation_name]]</li>
                                     <li>Any delegation of Sponsor responsibilities is clearly documented and agreed.</li>
                                   </ul>
-                                  We ask that you please confirm this to be true by clicking the button below.
+                                  We ask that you confirm this to be true by following the link below to confirm sponsorship.
                                   <div><br></div>
                                   ' . $this->supportFooter . '
                                 </mj-text>

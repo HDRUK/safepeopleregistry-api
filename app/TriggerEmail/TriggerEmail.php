@@ -400,6 +400,7 @@ class TriggerEmail
                 ];
 
                 $replacements = [
+                    '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
                     '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
                     '[[data_custodian_name]]' => $dataCustodian-> first_name . ' ' . $dataCustodian->last_name,
                     '[[organisation_name]]' => $organisation->organisation_name,
