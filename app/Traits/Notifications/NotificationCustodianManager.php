@@ -4,6 +4,7 @@ namespace App\Traits\Notifications;
 
 use App\Models\User;
 use App\Models\Project;
+use App\Models\Organisation;
 use App\Models\CustodianUser;
 use App\Models\ProjectHasUser;
 use App\Models\ProjectHasCustodian;
@@ -15,6 +16,7 @@ use App\Notifications\CustodianRemoveApprover;
 use App\Models\CustodianHasProjectOrganisation;
 use App\Notifications\CustodianUserStatusUpdate;
 use App\Notifications\CustodianProjectStateUpdate;
+use App\Notifications\CustodianAddSponsorToProject;
 use App\Notifications\CustodianConfigurationUpdate;
 use App\Notifications\CustodianProjectDetailsUpdate;
 use App\Notifications\CustodianOrganisationStatusUpdate;
@@ -25,7 +27,7 @@ trait NotificationCustodianManager
 {
     // custodian change project state
     // send notification to users & organisations & custodians
-    public function notifyOnProjectStateChange($loggedInUserId, $projectId, $oldStatus, $newStatus)
+    public function notifyOnProjectStateChange($loggedInUserId, $projectId, $oldStatus, $newStatus): void
     {
         $loggedInUser = User::where('id', $loggedInUserId)->first();
         $project = Project::where('id', $projectId)->first();
@@ -93,7 +95,7 @@ trait NotificationCustodianManager
 
     // custodian changes validation status of user
     // send notification to users & organisations & custodians
-    public function notifyOnUserStateChange(int $loggedInUserId, int $custodianId, int $projectUserId, ?string $newState, ?string $oldState)
+    public function notifyOnUserStateChange(int $loggedInUserId, int $custodianId, int $projectUserId, ?string $newState, ?string $oldState): void
     {
         $projectUser = ProjectHasUser::with([
             'project',
@@ -141,7 +143,7 @@ trait NotificationCustodianManager
 
     // custodian changes validation status of organisation
     // send notification to users & organisations & custodians
-    public function notifyOnOrganisationStateChange(int $loggedInUserId, int $custodianId, int $projectOrganisationId, ?string $newState, ?string $oldState)
+    public function notifyOnOrganisationStateChange(int $loggedInUserId, int $custodianId, int $projectOrganisationId, ?string $newState, ?string $oldState): void
     {
         $loggedInUser = User::where('id', $loggedInUserId)->first();
 
@@ -204,7 +206,7 @@ trait NotificationCustodianManager
 
     // custodian changes fields in a project
     // send notification to users & organisations & custodians
-    public function notifyOnProjectDetailsChange($loggedInUserId, $project, $changes)
+    public function notifyOnProjectDetailsChange($loggedInUserId, $project, $changes): void
     {
         $loggedInUser = User::where('id', $loggedInUserId)->first();
 
@@ -266,7 +268,7 @@ trait NotificationCustodianManager
 
     // custodian adds approver
     // send notification to custodians
-    public function notifyOnAddedApprover($loggedInUserId, $approver)
+    public function notifyOnAddedApprover($loggedInUserId, $approver): void
     {
         $loggedInUser = User::where('id', $loggedInUserId)->first();
 
@@ -287,7 +289,7 @@ trait NotificationCustodianManager
 
     // Custodian remove approver
     // send notification to custodians
-    public function notifyOnRemovedApprover($loggedInUserId, $approver)
+    public function notifyOnRemovedApprover($loggedInUserId, $approver): void
     {
         $loggedInUser = User::where('id', $loggedInUserId)->first();
 
@@ -314,7 +316,7 @@ trait NotificationCustodianManager
 
     // Project end date is reached
     // send notification to users & organisations & custodians
-    public function notifyOnProjectEndDate($project)
+    public function notifyOnProjectEndDate($project): void
     {
         // user
         $userIds = CustodianHasProjectUser::query()
@@ -374,7 +376,7 @@ trait NotificationCustodianManager
 
     // Custodian updated the configuration
     // send notification to custodians
-    public function notifyOnConfirationWasUpdated($loggedInUserId)
+    public function notifyOnConfirationWasUpdated($loggedInUserId): void
     {
         $loggedInUser = User::where('id', $loggedInUserId)->first();
 
@@ -395,7 +397,7 @@ trait NotificationCustodianManager
 
     // Custodian updated the manual checks configuration
     // send notification to custodians
-    public function notifyOnConfirationManualChecksWasUpdated($loggedInUserId)
+    public function notifyOnConfirationManualChecksWasUpdated($loggedInUserId): void
     {
         $loggedInUser = User::where('id', $loggedInUserId)->first();
 
@@ -416,7 +418,7 @@ trait NotificationCustodianManager
 
     // Custodian added a new manual checks in the configuration
     // send notification to custodians
-    public function notifyOnConfigurationManualChecksWasAdded($loggedInUserId)
+    public function notifyOnConfigurationManualChecksWasAdded($loggedInUserId): void
     {
         $loggedInUser = User::where('id', $loggedInUserId)->first();
 
@@ -431,6 +433,56 @@ trait NotificationCustodianManager
                 Notification::send($userCustodian, new CustodianConfigurationManualChecksAdded($loggedInUser, 'current_custodian'));
             } else {
                 Notification::send($userCustodian, new CustodianConfigurationManualChecksAdded($loggedInUser, 'custodian'));
+            }
+        }
+    }
+
+    // Custodian add soponsorship to the project
+    // send notification to users & organisations & custodians
+    public function notifyOnAddSponsorToProject($loggedInUserId, $projectId, $organisationId): void
+    {
+        $loggedInUser = User::where('id', $loggedInUserId)->first();
+        $project = Project::where('id', $projectId)->first();
+        $organisation = Organisation::where('id', $organisationId)->first();
+
+        // user
+        $userIds = CustodianHasProjectUser::query()
+            ->with([
+                'projectHasUser.registry.user:id,registry_id,first_name,last_name,email',
+                'projectHasUser.project',
+            ])
+            ->whereHas('projectHasUser.project', function ($query) use ($projectId) {
+                $query->where('id', $projectId);
+            })
+            ->get()
+            ->pluck('projectHasUser.registry.user.id')
+            ->filter()
+            ->unique()
+            ->values()
+            ->toArray();
+        if (count($userIds)) {
+            $users = User::whereIn('id', $userIds)->get();
+            Notification::send($users, new CustodianAddSponsorToProject($loggedInUser, $project, $organisation, 'user'));
+        }
+
+        // organisation
+        $userOrganisations = User::where([
+            'organisation_id' => $organisationId,
+            'user_group' => User::GROUP_ORGANISATIONS,
+        ])->get();
+        Notification::send($userOrganisations, new CustodianAddSponsorToProject($loggedInUser, $project, $organisation, 'organisation'));
+
+        // custodian
+        $userCustodians = User::whereIn(
+            'custodian_user_id',
+            CustodianUser::where('custodian_id', $loggedInUser?->custodian_user_id)
+                ->pluck('id')
+        )->get();
+        foreach ($userCustodians as $userCustodian) {
+            if ((int)$userCustodian->id === (int)$loggedInUserId) {
+                Notification::send($userCustodian, new CustodianAddSponsorToProject($loggedInUser, $project, $organisation, 'current_custodian'));
+            } else {
+                Notification::send($userCustodian, new CustodianAddSponsorToProject($loggedInUser, $project, $organisation, 'custodian'));
             }
         }
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use TriggerEmail;
 use Exception;
 use App\Models\User;
 use App\Models\State;
@@ -834,17 +835,29 @@ class ProjectController extends Controller
                 }
             }
 
+            $notifySponsor = false;
             $sponsorId = $request->get('sponsor_id');
 
             if ($sponsorId) {
                 $projectHasCustodian = ProjectHasCustodian::where('project_id', $id)->first();
                 $checkProjectSponsor = ProjectHasSponsorship::where('project_id', $id)->first();
 
+                if (is_null($checkProjectSponsor)) {
+                    $notifySponsor = true;
+                }
+
                 if (!is_null($checkProjectSponsor) && (int)$sponsorId !== (int)$checkProjectSponsor->sponsor_id) {
+                    $notifySponsor = true;
                     $checkProjectSponsor->delete();
                 }
 
                 $this->sponsorToProject($id, $sponsorId, $projectHasCustodian->custodian_id);
+
+                if ($notifySponsor) {
+                    $this->notifyOnAddSponsorToProject($loggedInUserId, $id, $sponsorId);
+                    $this->emailOnAddSponsorToProject($loggedInUserId, $id, $sponsorId); 
+                }
+
             }
 
             $returnProject = Project::query()
@@ -858,6 +871,32 @@ class ProjectController extends Controller
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
+    }
+
+    public function emailOnAddSponsorToProject($loggedInUserId, $projectId, $organisationId)
+    {
+        $userDelegates = User::query()
+            ->where([
+                'organisation_id' => $organisationId,
+                'is_delegate' => 1
+            ])
+            ->select(['id'])
+            ->get();
+
+        foreach ($userDelegates as $userDelegate) {
+            $email = [
+                'type' => 'CUSTODIAN_SPONSORSHIP_REQUEST',
+                'to' => $userDelegate->id,
+                'by' => $loggedInUserId,
+                'organisationId' => $organisationId,
+                'projectId' => $projectId,
+                'identifier' => 'custodian_sponsorship_request',
+            ];
+
+            TriggerEmail::spawnEmail($email);
+        }
+
+        return true;
     }
 
     public function sponsorToProject(int $projectId, int $sponsorId, int $custodianId)

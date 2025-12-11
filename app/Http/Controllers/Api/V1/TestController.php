@@ -15,7 +15,7 @@ class TestController extends Controller
             ->where('id', 5)
             ->with([
                 'projectHasSponsorships.sponsor',
-                'custodianHasProjectSponsorships.modelState.state',
+                'projectHasSponsorships.custodianHasProjectHasSponsorship.modelState.state',
             ])
             ->get();
 
