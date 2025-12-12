@@ -2,24 +2,25 @@
 
 namespace Tests\Feature;
 
-use App\Models\Affiliation;
-use KeycloakGuard\ActingAsKeycloakUser;
 use Carbon\Carbon;
-use App\Models\State;
+use Tests\TestCase;
 use App\Models\User;
+use App\Models\State;
+use App\Models\Project;
 use App\Models\Registry;
 use App\Models\Custodian;
-use App\Models\CustodianHasProjectUser;
-use App\Models\Organisation;
-use App\Models\Project;
-use App\Models\ProjectHasUser;
-use App\Models\ProjectHasCustodian;
-use App\Models\CustodianUser;
+use App\Models\Affiliation;
 use Illuminate\Support\Str;
-use Tests\TestCase;
+use App\Models\Organisation;
+use App\Models\CustodianUser;
+use App\Models\ProjectHasUser;
 use Tests\Traits\Authorisation;
-use Spatie\WebhookServer\CallWebhookJob;
+use App\Models\ProjectHasCustodian;
+use App\Models\ProjectHasSponsorship;
 use Illuminate\Support\Facades\Queue;
+use App\Models\CustodianHasProjectUser;
+use KeycloakGuard\ActingAsKeycloakUser;
+use Spatie\WebhookServer\CallWebhookJob;
 
 class ProjectTest extends TestCase
 {
@@ -801,6 +802,73 @@ class ProjectTest extends TestCase
 
         return $usersInProject;
     }
+
+    public function test_the_application_can_list_projects_with_sponsor(): void
+    {
+        $custodian = Custodian::first();
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'POST',
+                '/api/v1/custodians/' . $custodian->id . '/projects',
+                [
+                    'title' => 'New project',
+                    'request_category_type' => '',
+                    'start_date' => '',
+                    'end_date' => '',
+                    'lay_summary' => '',
+                    'public_benefit' => '',
+                    'technical_summary' => '',
+                    'status' => 'project_pending',
+                ]
+            );
+
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
+        $content = $response->decodeResponseJson();
+        $projectId = $content['data'];
+        $newDate = Carbon::now()->addYears(2);
+
+        $responseUpdateProject = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                '/api/v1/projects/' . $projectId,
+                [
+                    'unique_id' => Str::random(30),
+                    'title' => 'This is an Old Project',
+                    'lay_summary' => 'Sample lay summary',
+                    'public_benefit' => 'This will benefit the public',
+                    'request_category_type' => 'Category type',
+                    'technical_summary' => 'Sample technical summary',
+                    'other_approval_committees' => 'Bodies on a board panel',
+                    'start_date' => Carbon::now(),
+                    'end_date' => Carbon::now()->addYears(2),
+                    'affiliate_id' => 1,
+                    'status' => 'project_approved',
+                    'sponsor_id' => $this->organisation_admin->id,
+                ]
+            );
+        $responseUpdateProject->assertStatus(200);
+
+        $contentUpdateProject = $responseUpdateProject->decodeResponseJson()['data'];
+        $this->assertEquals($contentUpdateProject['title'], 'This is an Old Project');
+        $this->assertEquals(Carbon::parse($contentUpdateProject['end_date'])->toDateTimeString(), $newDate->toDateTimeString());
+
+        $projectHasSponsor = ProjectHasSponsorship::where('project_id', $projectId)->first();
+        $this->assertEquals((int)$projectHasSponsor->sponsor_id, (int)$this->organisation_admin->id);
+
+        
+        $responseListProjects = $this->actingAsKeycloakUser($this->organisation_admin)
+            ->json(
+                'GET',
+                '/api/v1/organisations/' .  $this->organisation_admin->id . '/projects/sponsorships',
+            );
+        $responseListProjects->assertStatus(200);
+        $contentListProjects = $responseListProjects->decodeResponseJson()['data']['data'];
+        $this->assertEquals(count($contentListProjects), 1);
+        $this->assertEquals((int)$contentListProjects[0]['sponsors'][0]['id'], (int)$this->organisation_admin->id);
+        $this->assertEquals($contentListProjects[0]['custodian_has_project_sponsorships']['model_state']['state']['slug'], State::STATE_SPONSORSHIP_PENDING);
+    }
+
 
     /** Only seem to be returning 401 / 403 in tests */
     // public function test_the_application_cannot_show_a_user_for_a_project_when_not_custodian(): void

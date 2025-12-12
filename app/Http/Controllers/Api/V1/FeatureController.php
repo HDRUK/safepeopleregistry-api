@@ -170,15 +170,6 @@ class FeatureController extends Controller
             throw new NotFoundException();
         }
 
-        $hasScope =
-        (!empty($feature->scope) && $feature->scope !== '__laravel_null') ||
-        !empty($feature->scope_id) ||
-        !empty($feature->scope_type);
-
-        if ($hasScope) {
-            return $this->ForbiddenResponse("Feature has user/tenant scope and can't be toggled globally.");
-        }
-
         if (Feature::active($feature->name)) {
             Feature::deactivate($feature->name);
         } else {
