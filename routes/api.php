@@ -361,6 +361,7 @@ Route::middleware('auth:api')
             Route::get('/{id}/projects/past', 'pastProjects');
             Route::get('/{id}/projects/future', 'futureProjects');
             Route::get('/{id}/projects', 'getProjects');
+            Route::get('/{id}/projects/sponsorships', 'getSponsorshipsProjects');
             Route::get('/{id}/users', 'getUsers');
             Route::get('/{id}/delegates', 'getDelegates');
             Route::get('/{id}/registries', 'getRegistries');

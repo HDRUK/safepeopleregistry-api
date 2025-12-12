@@ -34,7 +34,7 @@ class CustodianHasProjectHasSponsorship extends Model
     /**
      * Get the project sponsorship
      */
-    public function projectSponsorship(): BelongsTo
+    public function projectHasSponsorships(): BelongsTo
     {
         return $this->belongsTo(ProjectHasSponsorship::class, 'project_has_sponsorship_id');
     }

@@ -146,8 +146,8 @@ class ProjectController extends Controller
     public function show(GetProject $request, int $id): JsonResponse
     {
         $project = Project::with([
-                'projectDetail', 
-                'custodians', 
+                'projectDetail',
+                'custodians',
                 'modelState.state',
                 'projectHasSponsorships.sponsor',
                 'projectHasSponsorships.custodianHasProjectHasSponsorship.modelState.state',
@@ -869,8 +869,7 @@ class ProjectController extends Controller
             $returnProject = Project::query()
                 ->where('id', $id)
                 ->with([
-                    'projectHasSponsorships.sponsor',
-                    'projectHasSponsorships.custodianHasProjectHasSponsorship.modelState.state',
+                    'sponsors:id,organisation_name',
                     ])
                 ->first();
             return $this->OKResponse($returnProject);
