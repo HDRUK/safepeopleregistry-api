@@ -856,7 +856,7 @@ class ProjectTest extends TestCase
         $projectHasSponsor = ProjectHasSponsorship::where('project_id', $projectId)->first();
         $this->assertEquals((int)$projectHasSponsor->sponsor_id, (int)$this->organisation_admin->id);
 
-        
+
         $responseListProjects = $this->actingAsKeycloakUser($this->organisation_admin)
             ->json(
                 'GET',
