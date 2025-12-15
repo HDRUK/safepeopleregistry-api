@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use TriggerEmail;
 use Exception;
+use TriggerEmail;
 use App\Models\User;
 use App\Models\State;
 use App\Models\Project;
@@ -11,6 +11,7 @@ use App\Models\Registry;
 use App\Models\Affiliation;
 use App\Models\Organisation;
 use Illuminate\Http\Request;
+use App\Models\PendingInvite;
 use App\Traits\FilterManager;
 use App\Http\Traits\Responses;
 use App\Models\ProjectHasUser;
@@ -873,6 +874,40 @@ class ProjectController extends Controller
                     ])
                 ->first();
             return $this->OKResponse($returnProject);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    public function resendSponsorshipRequest(Request $request, int $projectId)
+    {
+        try {
+            $loggedInUserId = $request->user()?->id;
+
+            $pendingInvites = PendingInvite::where([
+                'project_id' => $projectId,
+                'status' => PendingInvite::STATE_PENDING,
+                'type' => 'sponsorship_request'
+            ])->first();
+
+            if (is_null($pendingInvites)) {
+                throw new Exception('Invite not found');
+            }
+
+            $organisationId = $pendingInvites->organisation_id;
+
+            $projectHasSponsorships = ProjectHasSponsorship::where([
+                'project_id' => $projectId,
+                'sponsor_id' => $organisationId,
+            ])->first();
+
+            if (is_null($projectHasSponsorships)) {
+                throw new Exception('Sponsorship not found');
+            }
+
+            $this->emailOnAddSponsorToProject($loggedInUserId, $projectId, $organisationId);
+
+            return $this->OKResponse('Sponsorship request email resent.');
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }

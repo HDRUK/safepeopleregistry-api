@@ -35,7 +35,7 @@ class AuthController extends Controller
 
         if ($pendingInvite) {
             $pendingInvite->invite_accepted_at = Carbon::now();
-            $pendingInvite->status = config('speedi.invite_status.COMPLETE');
+            $pendingInvite->status = PendingInvite::STATE_COMPLETE;
             $pendingInvite->save();
         }
 

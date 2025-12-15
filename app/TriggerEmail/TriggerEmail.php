@@ -109,7 +109,7 @@ class TriggerEmail
                     PendingInvite::create([
                         'user_id' => $user->id,
                         'invite_sent_at' => Carbon::now(),
-                        'status' => config('speedi.invite_status.PENDING'),
+                        'status' => PendingInvite::STATE_PENDING,
                     ]);
                 }
 
@@ -143,7 +143,7 @@ class TriggerEmail
                         'user_id' => $user->id,
                         'organisation_id' => $organisation->id,
                         'invite_sent_at' => Carbon::now(),
-                        'status' => config('speedi.invite_status.PENDING'),
+                        'status' => PendingInvite::STATE_PENDING,
                     ]);
                 }
 
@@ -182,7 +182,7 @@ class TriggerEmail
                         'user_id' => $delegate->id,
                         'organisation_id' => $organisation->id,
                         'invite_sent_at' => Carbon::now(),
-                        'status' => config('speedi.invite_status.PENDING'),
+                        'status' => PendingInvite::STATE_PENDING,
                     ]);
                 }
 
@@ -208,7 +208,7 @@ class TriggerEmail
                 if (!$inviteId) {
                     PendingInvite::create([
                         'user_id' => $unclaimedUserId,
-                        'status' => config('speedi.invite_status.PENDING'),
+                        'status' => PendingInvite::STATE_PENDING,
                         'invite_sent_at' => Carbon::now()
                     ]);
                 }
@@ -252,7 +252,7 @@ class TriggerEmail
                 if (!$inviteId) {
                     PendingInvite::create([
                         'user_id' => $unclaimedUserId,
-                        'status' => config('speedi.invite_status.PENDING'),
+                        'status' => PendingInvite::STATE_PENDING,
                         'invite_sent_at' => Carbon::now()
                     ]);
                 }
@@ -283,7 +283,7 @@ class TriggerEmail
                 if (!$inviteId) {
                     PendingInvite::create([
                         'user_id' => $unclaimedUserId,
-                        'status' => config('speedi.invite_status.PENDING'),
+                        'status' => PendingInvite::STATE_PENDING,
                         'invite_sent_at' => Carbon::now(),
                         'invite_code' => $inviteCode
                     ]);
@@ -322,7 +322,7 @@ class TriggerEmail
                         'user_id' => $delegate->id,
                         'organisation_id' => $organisation->id,
                         'invite_sent_at' => Carbon::now(),
-                        'status' => config('speedi.invite_status.PENDING'),
+                        'status' => PendingInvite::STATE_PENDING,
                     ]);
                 }
 
@@ -410,6 +410,15 @@ class TriggerEmail
                     '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
                     '[[SPONSOR_PROJECT_PATH]]' => config('speedi.system.portal_url'),
                 ];
+
+                PendingInvite::create([
+                    'user_id' => $userDelegate->id,
+                    'organisation_id' => $organisationId,
+                    'project_id' => $projectId,
+                    'invite_sent_at' => Carbon::now(),
+                    'status' => PendingInvite::STATE_PENDING,
+                    'type' => 'sponsorship_request'
+                ]);
 
                 break;
             default: // Unknown type.

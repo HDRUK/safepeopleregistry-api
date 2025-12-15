@@ -1746,7 +1746,7 @@ class OrganisationController extends Controller
                     if ($showPending) {
                         $pendingInviteUserIds = PendingInvite::where([
                             'organisation_id' => $id,
-                            'status' => config('speedi.invite_status.PENDING')
+                            'status' => PendingInvite::STATE_PENDING,
                         ])->pluck('user_id');
 
                         $query->orWhereIn('id', $pendingInviteUserIds);
@@ -1875,15 +1875,32 @@ class OrganisationController extends Controller
 
             if ($input['status'] === 'approved') {
                 $chphSponsorship->setState(State::STATE_SPONSORSHIP_APPROVED);
+                PendingInvite::where([
+                    'organisation_id' => $id,
+                    'project_id' => $projectId,
+                    'type' => 'sponsorship_request',
+                    'state' => PendingInvite::STATE_PENDING,
+                ])->update([
+                    'status' => PendingInvite::STATE_COMPLETE,
+                ]);
             }
 
             if ($input['status'] === 'rejected') {
                 $chphSponsorship->setState(State::STATE_SPONSORSHIP_REJECTED);
+                PendingInvite::where([
+                    'organisation_id' => $id,
+                    'project_id' => $projectId,
+                    'type' => 'sponsorship_request',
+                    'state' => PendingInvite::STATE_PENDING,
+                ])->update([
+                    'status' => PendingInvite::STATE_COMPLETE,
+                ]);
             }
 
             $finalState = $chphSponsorship->fresh()->getState();
             if ($finalState !== $initState) {
                 $this->notifyOnProjectSponsorStateChange($loggedInUserId, $id, $projectId, $input['status']);
+
             }
 
             return $this->OKResponse($finalState);

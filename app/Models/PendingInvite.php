@@ -108,12 +108,17 @@ class PendingInvite extends Model
 
     protected $table = 'pending_invites';
 
+    public const STATE_PENDING = 'PENDING';
+    public const STATE_COMPLETE = 'COMPLETE';
+
     public $timestamps = true;
 
     protected $fillable = [
         'user_id',
         'organisation_id',
+        'project_id',
         'status',
+        'type',
         'invite_accepted_at',
         'invite_sent_at',
         'invite_code',
