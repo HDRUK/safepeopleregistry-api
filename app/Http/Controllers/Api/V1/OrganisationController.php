@@ -1874,11 +1874,11 @@ class OrganisationController extends Controller
             $initState = $chphSponsorship->getState();
 
             if ($input['status'] === 'approved') {
-                $chphSponsorship->setStatus(State::STATE_SPONSORSHIP_APPROVED);
+                $chphSponsorship->setState(State::STATE_SPONSORSHIP_APPROVED);
             } 
 
             if ($input['status'] === 'rejected') {
-                $chphSponsorship->setStatus(State::STATE_SPONSORSHIP_REJECTED);
+                $chphSponsorship->setState(State::STATE_SPONSORSHIP_REJECTED);
             }
 
             $finalState = $chphSponsorship->fresh()->getState();
