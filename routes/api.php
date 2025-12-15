@@ -383,6 +383,8 @@ Route::middleware('auth:api')
             Route::delete('/{id}', 'destroy');
 
             Route::get('/{id}/history', [AuditLogController::class, 'showOrganisationHistory'])->whereNumber('id');
+
+            Route::patch('/{id}/sponsorships/statuses', 'updateSponsorshipStatuses');
         });
 
         Route::controller(PermissionController::class)->group(function () {
