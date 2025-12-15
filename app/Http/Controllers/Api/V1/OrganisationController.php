@@ -1869,13 +1869,13 @@ class OrganisationController extends Controller
             if (is_null($projectHasSponsorship)) {
                 throw new Exception('The assigned sponsorship for the project was not found.');
             }
-            
+
             $chphSponsorship = CustodianHasProjectHasSponsorship::where('project_has_sponsorship_id', $projectHasSponsorship->id)->first();
             $initState = $chphSponsorship->getState();
 
             if ($input['status'] === 'approved') {
                 $chphSponsorship->setState(State::STATE_SPONSORSHIP_APPROVED);
-            } 
+            }
 
             if ($input['status'] === 'rejected') {
                 $chphSponsorship->setState(State::STATE_SPONSORSHIP_REJECTED);

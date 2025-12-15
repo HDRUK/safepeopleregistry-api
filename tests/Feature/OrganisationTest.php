@@ -22,7 +22,6 @@ use Illuminate\Support\Facades\Queue;
 use App\Models\ProjectHasOrganisation;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\OrganisationHasDepartment;
-use App\Models\CustodianHasProjectHasSponsorship;
 
 class OrganisationTest extends TestCase
 {

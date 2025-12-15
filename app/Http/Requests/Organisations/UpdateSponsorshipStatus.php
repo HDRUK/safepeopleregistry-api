@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Organisations;
 
 use App\Http\Requests\BaseFormRequest;
-use App\Models\State;
 
 class UpdateSponsorshipStatus extends BaseFormRequest
 {

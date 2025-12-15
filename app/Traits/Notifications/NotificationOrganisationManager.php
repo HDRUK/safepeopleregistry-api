@@ -3,7 +3,6 @@
 namespace App\Traits\Notifications;
 
 use App\Models\User;
-use App\Models\State;
 use App\Models\Project;
 use App\Models\Organisation;
 use App\Models\CustodianUser;
