@@ -129,6 +129,7 @@ Route::middleware('auth:api')
     ->group(function () {
         Route::get('/', 'index');
         Route::post('{inviteId}/resend_invite', 'resendInvite');
+        Route::post('organisation/{organisationId}/resend_invite', 'resendInviteByOrganisation');
     });
 
 

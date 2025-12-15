@@ -78,7 +78,7 @@ class OrganisationObserver
             OrganisationHasDepartment::insert($data);
         }
 
-
+        $organisation->setState(State::STATE_INVITED);
 
         // Force completeness checks on creation
         $this->checkIsComplete(

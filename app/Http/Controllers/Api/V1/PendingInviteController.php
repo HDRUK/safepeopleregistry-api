@@ -12,77 +12,17 @@ use App\Traits\CommonFunctions;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\PendingInvites\CheckPendingInvite;
+use App\Http\Requests\PendingInvites\CheckOrganisationPendingInvite;
 
 class PendingInviteController extends Controller
 {
     use CommonFunctions;
     use Responses;
 
-    /**
-     * @OA\Get(
-     *      path="/api/v1/pending_invites",
-     *      summary="Return a list of pending invites",
-     *      description="Return a list of pending invites",
-     *      tags={"pending invites"},
-     *      summary="PendingInvite@index",
-     *      security={{"bearerAuth":{}}},
-     *      @OA\Response(
-     *          response=200,
-     *          description="Success",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string"),
-     *              @OA\Property(property="data",
-     *                  ref="#/components/schemas/PendingInvite",
-     *                  @OA\Property(property="charities", type="array",
-     *                      @OA\Items(
-     *                          @OA\Property(property="id", type="integer", example="1"),
-     *                          @OA\Property(property="user_id", type="integer", example="1186569"),
-     *                          @OA\Property(property="name", type="string", example="Health Pathways UK Charity"),
-     *                          @OA\Property(property="organisation_id", type="integer", example="1"),
-     *                          @OA\Property(property="status", type="string", example="3 WATERHOUSE SQUARE"),
-     *                          @OA\Property(property="invite_accepted_at", type="string", format="date-time"),
-     *                          @OA\Property(property="invite_sent_at", type="string", format="date-time"),
-     *                          @OA\Property(property="invite_code", type="string", example="test"),
-     *                      ),
-     *                  ),
-     *              )
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found"),
-     *          )
-     *      )
-     * )
-     */
-    public function index(Request $request)
-    {
-        $userGroupFilter = request()->has('user_group') ? request()->get('user_group') : null;
-
-        $pendingInvites = PendingInvite::query()
-            ->searchViaRequest()
-            ->with([
-                'user:id,name,email,user_group,unclaimed'
-            ])
-            ->whereHas('user', function ($q1) use ($userGroupFilter) {
-                if ($userGroupFilter !== null) {
-                    $q1->where('user_group', strtoupper($userGroupFilter));
-                }
-            })
-            ->applySorting()
-            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
-
-        return $this->OKResponse($pendingInvites);
-    }
-
-    //Hide from swagger docs
-    public function resendInvite(CheckPendingInvite $request, int $inviteId)
-    {
-        if (!Gate::allows('admin')) {
-            return $this->ForbiddenResponse();
-        }
+    private function resend(Request $request, int $inviteId) {
+        // if (!Gate::allows('admin')) {
+        //     return $this->ForbiddenResponse();
+        // }
 
         $pendingInvite = PendingInvite::where([
             'id' => $inviteId,
@@ -162,5 +102,80 @@ class PendingInviteController extends Controller
         $pendingInvite->save();
 
         return $this->OKResponse('Email invite resent');
+    }
+
+    /**
+     * @OA\Get(
+     *      path="/api/v1/pending_invites",
+     *      summary="Return a list of pending invites",
+     *      description="Return a list of pending invites",
+     *      tags={"pending invites"},
+     *      summary="PendingInvite@index",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string"),
+     *              @OA\Property(property="data",
+     *                  ref="#/components/schemas/PendingInvite",
+     *                  @OA\Property(property="charities", type="array",
+     *                      @OA\Items(
+     *                          @OA\Property(property="id", type="integer", example="1"),
+     *                          @OA\Property(property="user_id", type="integer", example="1186569"),
+     *                          @OA\Property(property="name", type="string", example="Health Pathways UK Charity"),
+     *                          @OA\Property(property="organisation_id", type="integer", example="1"),
+     *                          @OA\Property(property="status", type="string", example="3 WATERHOUSE SQUARE"),
+     *                          @OA\Property(property="invite_accepted_at", type="string", format="date-time"),
+     *                          @OA\Property(property="invite_sent_at", type="string", format="date-time"),
+     *                          @OA\Property(property="invite_code", type="string", example="test"),
+     *                      ),
+     *                  ),
+     *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found"),
+     *          )
+     *      )
+     * )
+     */
+    public function index(Request $request)
+    {
+        $userGroupFilter = request()->has('user_group') ? request()->get('user_group') : null;
+
+        $pendingInvites = PendingInvite::query()
+            ->searchViaRequest()
+            ->with([
+                'user:id,name,email,user_group,unclaimed'
+            ])
+            ->whereHas('user', function ($q1) use ($userGroupFilter) {
+                if ($userGroupFilter !== null) {
+                    $q1->where('user_group', strtoupper($userGroupFilter));
+                }
+            })
+            ->applySorting()
+            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+
+        return $this->OKResponse($pendingInvites);
+    }  
+
+    //Hide from swagger docs
+    public function resendInvite(CheckPendingInvite $request, int $inviteId)
+    {
+        return $this->resend($request, $inviteId);
+    }
+
+    //Hide from swagger docs
+    public function resendInviteByOrganisation(CheckOrganisationPendingInvite $request, int $organisationId)
+    {
+        $pendingInvite = PendingInvite::with(['user' => function ($query) use ($organisationId) {
+            $query->where('organisation_id', '=', $organisationId);
+        }])->first();        
+
+        return $this->resend($request, $pendingInvite->id);
     }
 }

@@ -42,5 +42,9 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('admin', function (User $user) {
             return $user->user_group === User::GROUP_ADMINS;
         });
+
+                Gate::define('admin', function (User $user) {
+            return $user->user_group === User::GROUP_ADMINS;
+        });
     }
 }
