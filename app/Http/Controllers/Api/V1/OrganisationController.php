@@ -27,6 +27,7 @@ use App\Models\UserHasDepartments;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
 use App\Exceptions\NotFoundException;
+use App\Models\ProjectHasSponsorship;
 use RegistryManagementController as RMC;
 use App\Models\OrganisationHasDepartment;
 use App\Http\Requests\Organisations\GetUser;
@@ -35,6 +36,7 @@ use App\Http\Requests\Organisations\GetProject;
 use App\Models\CustodianHasProjectOrganisation;
 use App\Http\Requests\Organisations\GetDelegate;
 use App\Http\Requests\Organisations\GetRegistry;
+use App\Models\CustodianHasProjectHasSponsorship;
 use App\Services\DecisionEvaluatorService as DES;
 use App\Http\Requests\Organisations\GetCountUsers;
 use App\Http\Requests\Organisations\GetPastProject;
@@ -52,6 +54,8 @@ use App\Http\Requests\Organisations\GetCountCertifications;
 use App\Http\Requests\Organisations\GetCountPresentProject;
 use App\Http\Requests\Organisations\OrganisationInviteUser;
 use App\Http\Requests\Organisations\OrganisationValidateRor;
+use App\Http\Requests\Organisations\UpdateSponsorshipStatus;
+use App\Traits\Notifications\NotificationOrganisationManager;
 use App\Notifications\Organisations\OrganisationUpdateProfile;
 use App\Http\Requests\Organisations\OrganisationUpdateApprover;
 
@@ -59,6 +63,7 @@ class OrganisationController extends Controller
 {
     use CommonFunctions;
     use Responses;
+    use NotificationOrganisationManager;
 
     protected $decisionEvaluator = null;
 
@@ -1847,6 +1852,43 @@ class OrganisationController extends Controller
             return $this->OKResponse(Organisation::findOrFail($id));
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
+        }
+    }
+
+    public function updateSponsorshipStatuses(UpdateSponsorshipStatus $request, int $id)
+    {
+        $input = $request->all();
+        $loggedInUserId = $request->user()->id;
+
+        try {
+            $projectId = $input['project_id'];
+            $projectHasSponsorship = ProjectHasSponsorship::where([
+                'project_id' => $projectId,
+                'sponsor_id' => $id,
+            ])->first();
+            if (is_null($projectHasSponsorship)) {
+                throw new Exception('The assigned sponsorship for the project was not found.');
+            }
+            
+            $chphSponsorship = CustodianHasProjectHasSponsorship::where('project_has_sponsorship_id', $projectHasSponsorship->id)->first();
+            $initState = $chphSponsorship->getState();
+
+            if ($input['status'] === 'approved') {
+                $chphSponsorship->setState(State::STATE_SPONSORSHIP_APPROVED);
+            } 
+
+            if ($input['status'] === 'rejected') {
+                $chphSponsorship->setState(State::STATE_SPONSORSHIP_REJECTED);
+            }
+
+            $finalState = $chphSponsorship->fresh()->getState();
+            if ($finalState !== $initState) {
+                $this->notifyOnProjectSponsorStateChange($loggedInUserId, $id, $projectId, $input['status']);
+            }
+
+            return $this->OKResponse($finalState);
+        } catch (Exception $e) {
+            return $this->ErrorResponse($e->getMessage());
         }
     }
 
