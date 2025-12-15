@@ -21,7 +21,7 @@ trait NotificationOrganisationManager
         $organisation = Organisation::where('id', $organisationId)->first();
         $project = Project::where('id', $projectId)->first();
 
-        if ($newState === 'approved') {
+        if ($newState === State::STATE_SPONSORSHIP_APPROVED) {
             // user
             $users = $this->getUsersByProjectId($projectId);
             if ($users) {
@@ -36,7 +36,7 @@ trait NotificationOrganisationManager
             Notification::send($userCustodians, new OrganisationSponsorProjectApproved($loggedInUser, $organisation, $project, 'custodian'));
         }
 
-        if ($newState === 'rejected') {
+        if ($newState === State::STATE_SPONSORSHIP_REJECTED) {
             // user
             $users = $this->getUsersByProjectId($projectId);
             if ($users) {

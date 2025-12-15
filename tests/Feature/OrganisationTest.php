@@ -1453,6 +1453,8 @@ class OrganisationTest extends TestCase
         $this->assertEquals('Invalid argument(s)', $message);
     }
 
+    
+
     // LS - Removed as doesn't run in GH - possibly blocked by ROR
     // needs investigation
     //
