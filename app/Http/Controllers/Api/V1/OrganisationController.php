@@ -1873,11 +1873,11 @@ class OrganisationController extends Controller
             $chphSponsorship = CustodianHasProjectHasSponsorship::where('project_has_sponsorship_id', $projectHasSponsorship->id)->first();
             $initState = $chphSponsorship->getState();
 
-            if ($input['status'] === State::STATE_SPONSORSHIP_APPROVED) {
+            if ($input['status'] === 'approved') {
                 $chphSponsorship->setState(State::STATE_SPONSORSHIP_APPROVED);
             } 
 
-            if ($input['status'] === State::STATE_SPONSORSHIP_REJECTED) {
+            if ($input['status'] === 'rejected') {
                 $chphSponsorship->setState(State::STATE_SPONSORSHIP_REJECTED);
             }
 
