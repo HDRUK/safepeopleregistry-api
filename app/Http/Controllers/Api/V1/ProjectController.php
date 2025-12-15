@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use Carbon\Carbon;
 use Exception;
 use TriggerEmail;
 use App\Models\User;
@@ -906,6 +907,10 @@ class ProjectController extends Controller
             }
 
             $this->emailOnAddSponsorToProject($loggedInUserId, $projectId, $organisationId);
+
+            PendingInvite::where('id', $pendingInvites->id)->update([
+                'updated_at' => Carbon::now(),
+            ]);
 
             return $this->OKResponse('Sponsorship request email resent.');
         } catch (Exception $e) {
