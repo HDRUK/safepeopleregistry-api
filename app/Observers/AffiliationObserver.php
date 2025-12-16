@@ -122,27 +122,4 @@ class AffiliationObserver
         $this->notifyOnUserChangeAffiliation($affiliation, $old);
     }
 
-    private function getUser(Affiliation $affiliation): ?User
-    {
-        return $affiliation->registry?->user;
-    }
-
-    private function getUserOrganisation(Affiliation $affiliation): Collection
-    {
-        return User::where([
-            'organisation_id' => $affiliation->organisation->id,
-            'user_group' => User::GROUP_ORGANISATIONS,
-        ])->get();
-    }
-
-    private function getUserCustodian(Affiliation $affiliation): array
-    {
-        return CustodianHasProjectUser::query()
-            ->whereHas('projectHasUser.registry.user', function ($query) use ($affiliation) {
-                $query->where('id', $affiliation->registry?->user->id);
-            })
-            ->select('custodian_id')
-            ->pluck('custodian_id')->toArray();
-    }
-
 }
