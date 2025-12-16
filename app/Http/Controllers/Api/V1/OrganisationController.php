@@ -24,6 +24,7 @@ use App\Models\EntityModelType;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use App\Models\UserHasDepartments;
+use App\Http\Requests\ResentInvite;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
 use App\Exceptions\NotFoundException;
@@ -1553,6 +1554,41 @@ class OrganisationController extends Controller
                 'message' => 'success',
                 'data' => $organisation,
             ], 201);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    //Hide from swagger docs
+    public function resentInvite(ResentInvite $request, int $id)
+    {
+        try {
+            $loggedInUserId = $request->user()?->id;
+            $loggedInUser = User::where('id', $loggedInUserId)->first();
+
+            $pendingInvites = PendingInvite::where([
+                'organisation_id' => $id, 
+                'status' => PendingInvite::STATE_PENDING,
+                'type' => 'organisation_invite'
+            ])->first();
+
+            if (is_null($pendingInvites)) {
+                throw new Exception('Invite not found');
+            }
+
+            $input = [
+                'type' => 'ORGANISATION',
+                'to' => $id,
+                'unclaimed_user_id' => $pendingInvites->user_id,
+                'by' => $id,
+                'identifier' => 'organisation_invite',
+                'userName' => $loggedInUser->name,
+                '$inviteId' => $pendingInvites->id,
+            ];
+
+            TriggerEmail::spawnEmail($input);
+
+            return $this->OKResponse('Organisation invite resent.');
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
