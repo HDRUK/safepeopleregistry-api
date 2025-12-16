@@ -307,7 +307,7 @@ Route::middleware('auth:api')
         Route::get('{projectId}/organisations/{organisationId}', 'getProjectByIdAndOrganisationId');
         Route::get('{projectId}/organisations/{organisationId}/users', 'getProjectUsersByOrganisationId');
 
-        Route::patch('{projectId}/sponsorship/resendRequest', 'resendSponsorshipRequest');
+        Route::patch('{projectId}/organisations/{organisationId}/sponsorship/resendRequest', 'resendSponsorshipRequest');
     });
 
 // --- REGISTRIES ---

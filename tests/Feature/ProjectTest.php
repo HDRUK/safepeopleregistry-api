@@ -938,7 +938,7 @@ class ProjectTest extends TestCase
         $responseResendInvite = $this->actingAsKeycloakUser($this->custodian_admin)
             ->json(
                 'PATCH',
-                '/api/v1/projects/' .  $projectId . '/sponsorship/resendRequest',
+                '/api/v1/projects/' .  $projectId . '/organisations/' . $this->organisation_admin->id . '/sponsorship/resendRequest',
             );
         $contenResendInvite = $responseResendInvite->decodeResponseJson()['data'];
 

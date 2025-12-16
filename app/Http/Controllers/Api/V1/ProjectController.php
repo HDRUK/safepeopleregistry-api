@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use Carbon\Carbon;
 use Exception;
 use TriggerEmail;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\State;
 use App\Models\Project;
@@ -35,6 +35,7 @@ use App\Http\Requests\Projects\MakePrimaryContact;
 use App\Http\Requests\Projects\GetValidatedProjects;
 use App\Http\Requests\Projects\UpdateAllProjectUsers;
 use App\Http\Requests\Projects\GetProjectByIdAndUserId;
+use App\Http\Requests\Projects\SponsorshipResendRequest;
 use App\Traits\Notifications\NotificationCustodianManager;
 use App\Http\Requests\Projects\GetAllUsersFlagProjectByUserId;
 use App\Http\Requests\Projects\GetProjectByIdAndOrganisationId;
@@ -880,13 +881,14 @@ class ProjectController extends Controller
         }
     }
 
-    public function resendSponsorshipRequest(Request $request, int $projectId)
+    public function resendSponsorshipRequest(SponsorshipResendRequest $request, int $projectId, int $organisationId)
     {
         try {
             $loggedInUserId = $request->user()?->id;
 
             $pendingInvites = PendingInvite::where([
                 'project_id' => $projectId,
+                'organisation_id' => $organisationId,
                 'status' => PendingInvite::STATE_PENDING,
                 'type' => 'sponsorship_request'
             ])->first();
@@ -894,8 +896,6 @@ class ProjectController extends Controller
             if (is_null($pendingInvites)) {
                 throw new Exception('Invite not found');
             }
-
-            $organisationId = $pendingInvites->organisation_id;
 
             $projectHasSponsorships = ProjectHasSponsorship::where([
                 'project_id' => $projectId,
