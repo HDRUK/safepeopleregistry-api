@@ -114,6 +114,7 @@ class OrganisationController extends Controller
         $this->decisionEvaluator = new DES($request, [EntityModelType::ORG_VALIDATION_RULES]);
 
         $custodianId = $request->get('custodian_id');
+        $perPage = $request->get('per_page');        
 
         if (!$custodianId) {
             $organisations = Organisation::searchViaRequest()
@@ -129,7 +130,8 @@ class OrganisationController extends Controller
                     'registries.user',
                     'registries.user.permissions',
                     'delegates',
-                    'sroOfficer'
+                    'sroOfficer',
+                    'modelState.state'
                 ])
                 ->filterWhen('has_delegates', function ($query, $hasDelegates) {
                     if ($hasDelegates) {
@@ -138,7 +140,7 @@ class OrganisationController extends Controller
                         $query->whereDoesntHave('delegates');
                     }
                 })
-                ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+                ->paginate($perPage ?? (int)$this->getSystemConfig('PER_PAGE'));
 
             $evaluations = $this->decisionEvaluator->evaluate($organisations->items(), true);
             $organisations->setCollection($organisations->getCollection()->map(function ($organisation) use ($evaluations) {
@@ -612,6 +614,8 @@ class OrganisationController extends Controller
                 'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
                 'organisation_unique_id' => Str::random(40),
             ]);
+
+            $organisation->setState(State::STATE_INVITED);
 
             return $this->CreatedResponse($organisation->id);
         } catch (Exception $e) {
