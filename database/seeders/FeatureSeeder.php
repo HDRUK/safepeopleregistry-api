@@ -20,7 +20,7 @@ class FeatureSeeder extends Seeder
             ['name' => 'test-feature', 'value' => 'true', 'description' => 'This is a test feature.'],
             ['name' => 'test-feature-user-admin', 'value' => 'true', 'description' => 'This feature is enabled for admin users only.'],
             ['name' => 'sponsorship', 'value' => 'true', 'description' => 'sponsorship feature'],
-            ['name' => 'christmas-banner', 'value' => 'true', 'description' => 'Enable the Christmas banner across the site.'],
+            ['name' => 'christmas-banner', 'value' => 'false', 'description' => 'Enable the Christmas banner across the site.'],
         ];
 
         foreach ($globalFeatures as $feature) {
