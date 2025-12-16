@@ -119,40 +119,7 @@ class AffiliationObserver
 
     public function sendNotificationOnUpdate(Affiliation $affiliation, $old): void
     {
-        $sendAffiliationNotification = false;
-        if ($affiliation->current_employer && $old->current_employer !== $affiliation->current_employer) {
-            $sendAffiliationNotification = true;
-        }
-
-        $user = $this->getUser($affiliation);
-        if (!$user) {
-            return;
-        }
-
-        // user
-        Notification::send($user, new AffiliationChanged($user, $old, $affiliation, 'user'));
-        if ($sendAffiliationNotification) {
-            Notification::send($user, new AffiliationChanged($user, $old, $affiliation, 'user', $sendAffiliationNotification));
-        }
-
-        // organisation
-        foreach ($this->getUserOrganisation($affiliation) as $organisation) {
-            Notification::send($organisation, new AffiliationChanged($user, $old, $affiliation, 'organisation'));
-            if ($sendAffiliationNotification) {
-                Notification::send($organisation, new AffiliationChanged($user, $old, $affiliation, 'organisation', $sendAffiliationNotification));
-            }
-        }
-
-        // custodian
-        foreach (array_unique($this->getUserCustodian($affiliation)) as $custodianId) {
-            $custodian = User::where('custodian_user_id', $custodianId)->first();
-            if ($custodian) {
-                Notification::send($custodian, new AffiliationChanged($user, $old, $affiliation, 'custodian'));
-                if ($sendAffiliationNotification) {
-                    Notification::send($custodian, new AffiliationChanged($user, $old, $affiliation, 'custodian', $sendAffiliationNotification));
-                }
-            }
-        }
+        $this->notifyOnUserChangeAffiliation($affiliation, $old);
     }
 
     private function getUser(Affiliation $affiliation): ?User

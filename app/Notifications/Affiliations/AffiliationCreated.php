@@ -8,9 +8,8 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Notifications\Affiliations\Traits\AffiliationNotification;
 
-class AffiliationCreated extends Notification implements ShouldQueue
+class AffiliationCreated extends Notification
 {
-    use Queueable;
     use AffiliationNotification;
 
     private $user;
