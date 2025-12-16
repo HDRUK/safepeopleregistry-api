@@ -24,7 +24,7 @@ use App\Models\EntityModelType;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use App\Models\UserHasDepartments;
-use App\Http\Requests\ResentInvite;
+use App\Http\Requests\Organisations\ResentInvite;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
 use App\Exceptions\NotFoundException;
