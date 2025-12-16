@@ -7,13 +7,8 @@ use App\Models\User;
 use App\Models\State;
 use App\Models\Affiliation;
 use App\Jobs\MergeUserAccounts;
-use Illuminate\Support\Collection;
-use App\Models\CustodianHasProjectUser;
 use App\Traits\AffiliationCompletionManager;
-use Illuminate\Support\Facades\Notification;
 use App\Traits\Notifications\NotificationUserManager;
-use App\Notifications\Affiliations\AffiliationChanged;
-use App\Notifications\Affiliations\AffiliationCreated;
 
 class AffiliationObserver
 {

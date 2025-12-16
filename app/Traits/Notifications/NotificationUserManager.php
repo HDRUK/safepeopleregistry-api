@@ -30,7 +30,7 @@ trait NotificationUserManager
 
         // organisation
         $userOrganisations = $this->getAffiliationUserOrganisation($affiliation);
-        if ($userOrganisations->isNotEmpty()){
+        if ($userOrganisations->isNotEmpty()) {
             foreach ($userOrganisations as $userOrganisation) {
                 Notification::send($userOrganisation, new AffiliationCreated($user, $affiliation, 'organisation', $sendAffiliationNotification));
             }
@@ -62,7 +62,7 @@ trait NotificationUserManager
 
         // organisation
         $userOrganisations = $this->getAffiliationUserOrganisation($affiliation);
-        if ($userOrganisations->isNotEmpty()){
+        if ($userOrganisations->isNotEmpty()) {
             foreach ($userOrganisations as $userOrganisation) {
                 Notification::send($userOrganisation, new AffiliationChanged($user, $old, $affiliation, 'organisation', $sendAffiliationNotification));
             }
@@ -113,7 +113,7 @@ trait NotificationUserManager
 
         $custodianIds = CustodianHasProjectUser::query()
             ->with([
-                'projectHasUser.affiliation.organisation' => function($query) use ($organisationId) {
+                'projectHasUser.affiliation.organisation' => function ($query) use ($organisationId) {
                     $query->where('id', $organisationId);
                 }
             ])

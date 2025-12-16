@@ -14,7 +14,7 @@ class TestController extends Controller
     {
         $custodianIds = CustodianHasProjectUser::query()
             ->with([
-                'projectHasUser.affiliation.organisation' => function($query) {
+                'projectHasUser.affiliation.organisation' => function ($query) {
                     $query->where('id', 1);
                 }
             ])
