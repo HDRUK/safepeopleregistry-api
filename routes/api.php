@@ -387,6 +387,8 @@ Route::middleware('auth:api')
             Route::get('/{id}/history', [AuditLogController::class, 'showOrganisationHistory'])->whereNumber('id');
 
             Route::patch('/{id}/sponsorships/statuses', 'updateSponsorshipStatuses');
+
+            Route::patch('/{id}/resendInvite', 'resentInvite');
         });
 
         Route::controller(PermissionController::class)->group(function () {

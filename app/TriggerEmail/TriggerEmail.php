@@ -285,7 +285,9 @@ class TriggerEmail
                         'user_id' => $unclaimedUserId,
                         'status' => PendingInvite::STATE_PENDING,
                         'invite_sent_at' => Carbon::now(),
-                        'invite_code' => $inviteCode
+                        'invite_code' => $inviteCode,
+                        'organisation_id' => $to,
+                        'type' => 'organisation_invite',
                     ]);
                 }
 
