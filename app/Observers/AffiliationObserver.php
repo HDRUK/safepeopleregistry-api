@@ -7,16 +7,13 @@ use App\Models\User;
 use App\Models\State;
 use App\Models\Affiliation;
 use App\Jobs\MergeUserAccounts;
-use App\Models\CustodianHasProjectUser;
 use App\Traits\AffiliationCompletionManager;
-use Illuminate\Support\Facades\Notification;
-use App\Notifications\Affiliations\AffiliationChanged;
-use App\Notifications\Affiliations\AffiliationCreated;
-use Illuminate\Support\Collection;
+use App\Traits\Notifications\NotificationUserManager;
 
 class AffiliationObserver
 {
     use AffiliationCompletionManager;
+    use NotificationUserManager;
 
     public function created(Affiliation $affiliation): void
     {
@@ -112,101 +109,12 @@ class AffiliationObserver
 
     public function sendNotificationOnCreate(Affiliation $affiliation): void
     {
-        $sendAffiliationNotification = false;
-        if ($affiliation->current_employer) {
-            $sendAffiliationNotification = true;
-        }
-
-        $user = $this->getUser($affiliation);
-        if (!$user) {
-            return;
-        }
-
-        // user
-        Notification::send($user, new AffiliationCreated($user, $affiliation, 'user'));
-        if (!$sendAffiliationNotification) {
-            Notification::send($user, new AffiliationCreated($user, $affiliation, 'user', $sendAffiliationNotification));
-        }
-
-        // organisation
-        foreach ($this->getUserOrganisation($affiliation) as $organisation) {
-            Notification::send($organisation, new AffiliationCreated($user, $affiliation, 'organisation'));
-            if (!$sendAffiliationNotification) {
-                Notification::send($organisation, new AffiliationCreated($user, $affiliation, 'organisation', $sendAffiliationNotification));
-            }
-        }
-
-        // custodian
-        foreach (array_unique($this->getUserCustodian($affiliation)) as $custodianId) {
-            $custodian = User::where('custodian_user_id', $custodianId)->first();
-            if ($custodian) {
-                Notification::send($custodian, new AffiliationCreated($user, $affiliation, 'custodian'));
-                if (!$sendAffiliationNotification) {
-                    Notification::send($custodian, new AffiliationCreated($user, $affiliation, 'custodian', $sendAffiliationNotification));
-                }
-            }
-        }
+        $this->notifyOnUserCreateAffiliation($affiliation);
     }
 
     public function sendNotificationOnUpdate(Affiliation $affiliation, $old): void
     {
-        $sendAffiliationNotification = false;
-        if ($affiliation->current_employer && $old->current_employer !== $affiliation->current_employer) {
-            $sendAffiliationNotification = true;
-        }
-
-        $user = $this->getUser($affiliation);
-        if (!$user) {
-            return;
-        }
-
-        // user
-        Notification::send($user, new AffiliationChanged($user, $old, $affiliation, 'user'));
-        if ($sendAffiliationNotification) {
-            Notification::send($user, new AffiliationChanged($user, $old, $affiliation, 'user', $sendAffiliationNotification));
-        }
-
-        // organisation
-        foreach ($this->getUserOrganisation($affiliation) as $organisation) {
-            Notification::send($organisation, new AffiliationChanged($user, $old, $affiliation, 'organisation'));
-            if ($sendAffiliationNotification) {
-                Notification::send($organisation, new AffiliationChanged($user, $old, $affiliation, 'organisation', $sendAffiliationNotification));
-            }
-        }
-
-        // custodian
-        foreach (array_unique($this->getUserCustodian($affiliation)) as $custodianId) {
-            $custodian = User::where('custodian_user_id', $custodianId)->first();
-            if ($custodian) {
-                Notification::send($custodian, new AffiliationChanged($user, $old, $affiliation, 'custodian'));
-                if ($sendAffiliationNotification) {
-                    Notification::send($custodian, new AffiliationChanged($user, $old, $affiliation, 'custodian', $sendAffiliationNotification));
-                }
-            }
-        }
-    }
-
-    private function getUser(Affiliation $affiliation): ?User
-    {
-        return $affiliation->registry?->user;
-    }
-
-    private function getUserOrganisation(Affiliation $affiliation): Collection
-    {
-        return User::where([
-            'organisation_id' => $affiliation->organisation->id,
-            'user_group' => User::GROUP_ORGANISATIONS,
-        ])->get();
-    }
-
-    private function getUserCustodian(Affiliation $affiliation): array
-    {
-        return CustodianHasProjectUser::query()
-            ->whereHas('projectHasUser.registry.user', function ($query) use ($affiliation) {
-                $query->where('id', $affiliation->registry?->user->id);
-            })
-            ->select('custodian_id')
-            ->pluck('custodian_id')->toArray();
+        $this->notifyOnUserChangeAffiliation($affiliation, $old);
     }
 
 }

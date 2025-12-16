@@ -4,7 +4,6 @@ namespace App\Http\Requests\Projects;
 
 use App\Http\Requests\BaseFormRequest;
 
-
 class SponsorshipResendRequest extends BaseFormRequest
 {
     /**
