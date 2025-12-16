@@ -33,7 +33,6 @@ trait NotificationUserManager
 
         // organisation
         $userOrganisations = $this->getAffiliationUserOrganisation($affiliation);
-        \Log::info('notifyOnUserCreateAffiliation', [$userOrganisations]);
         if ($userOrganisations->isNotEmpty()){
             foreach ($userOrganisations as $userOrganisation) {
                 Notification::send($userOrganisation, new AffiliationCreated($user, $affiliation, 'organisation'));
@@ -75,10 +74,12 @@ trait NotificationUserManager
 
         // organisation
         $userOrganisations = $this->getAffiliationUserOrganisation($affiliation);
-        foreach ($this->getAffiliationUserOrganisation($affiliation) as $userOrganisation) {
-            Notification::send($userOrganisation, new AffiliationChanged($user, $old, $affiliation, 'organisation'));
-            if (!$sendAffiliationNotification) {
-                Notification::send($userOrganisation, new AffiliationChanged($user, $old, $affiliation, 'organisation', $sendAffiliationNotification));
+        if ($userOrganisations->isNotEmpty()){
+            foreach ($userOrganisations as $userOrganisation) {
+                Notification::send($userOrganisation, new AffiliationChanged($user, $old, $affiliation, 'organisation'));
+                if (!$sendAffiliationNotification) {
+                    Notification::send($userOrganisation, new AffiliationChanged($user, $old, $affiliation, 'organisation', $sendAffiliationNotification));
+                }
             }
         }
 
