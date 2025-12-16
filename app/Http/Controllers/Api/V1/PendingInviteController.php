@@ -86,7 +86,7 @@ class PendingInviteController extends Controller
 
         $pendingInvite = PendingInvite::where([
             'id' => $inviteId,
-            'status' => config('speedi.invite_status.PENDING'),
+            'status' => PendingInvite::STATE_PENDING,
         ])->first();
         if (is_null($pendingInvite)) {
             return $this->ErrorResponse('The invitation could not be found.');

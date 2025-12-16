@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use TriggerEmail;
 use Exception;
+use TriggerEmail;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\State;
 use App\Models\Project;
@@ -11,6 +12,7 @@ use App\Models\Registry;
 use App\Models\Affiliation;
 use App\Models\Organisation;
 use Illuminate\Http\Request;
+use App\Models\PendingInvite;
 use App\Traits\FilterManager;
 use App\Http\Traits\Responses;
 use App\Models\ProjectHasUser;
@@ -33,6 +35,7 @@ use App\Http\Requests\Projects\MakePrimaryContact;
 use App\Http\Requests\Projects\GetValidatedProjects;
 use App\Http\Requests\Projects\UpdateAllProjectUsers;
 use App\Http\Requests\Projects\GetProjectByIdAndUserId;
+use App\Http\Requests\Projects\SponsorshipResendRequest;
 use App\Traits\Notifications\NotificationCustodianManager;
 use App\Http\Requests\Projects\GetAllUsersFlagProjectByUserId;
 use App\Http\Requests\Projects\GetProjectByIdAndOrganisationId;
@@ -873,6 +876,43 @@ class ProjectController extends Controller
                     ])
                 ->first();
             return $this->OKResponse($returnProject);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    public function resendSponsorshipRequest(SponsorshipResendRequest $request, int $projectId, int $organisationId)
+    {
+        try {
+            $loggedInUserId = $request->user()?->id;
+
+            $pendingInvites = PendingInvite::where([
+                'project_id' => $projectId,
+                'organisation_id' => $organisationId,
+                'status' => PendingInvite::STATE_PENDING,
+                'type' => 'sponsorship_request'
+            ])->first();
+
+            if (is_null($pendingInvites)) {
+                throw new Exception('Invite not found');
+            }
+
+            $projectHasSponsorships = ProjectHasSponsorship::where([
+                'project_id' => $projectId,
+                'sponsor_id' => $organisationId,
+            ])->first();
+
+            if (is_null($projectHasSponsorships)) {
+                throw new Exception('Sponsorship not found');
+            }
+
+            $this->emailOnAddSponsorToProject($loggedInUserId, $projectId, $organisationId);
+
+            PendingInvite::where('id', $pendingInvites->id)->update([
+                'updated_at' => Carbon::now(),
+            ]);
+
+            return $this->OKResponse('Sponsorship request email resent.');
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
