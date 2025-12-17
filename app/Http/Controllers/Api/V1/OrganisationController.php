@@ -1010,6 +1010,8 @@ class OrganisationController extends Controller
      */
     public function getSponsorshipsProjects(GetProject $request, int $organisationId): JsonResponse
     {
+        $perPage = $request->get('per_page');     
+
         $projects = Project::searchViaRequest()
             ->applySorting()
             ->filterByCommon()
@@ -1030,7 +1032,7 @@ class OrganisationController extends Controller
                 $query->where('organisations.id', $organisationId);
             })
             ->withCount('projectUsers')
-            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+            ->paginate($perPage ?? (int)$this->getSystemConfig('PER_PAGE'));
 
         if ($projects) {
             return response()->json([
