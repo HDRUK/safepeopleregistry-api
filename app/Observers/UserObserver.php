@@ -157,26 +157,17 @@ class UserObserver
             'status' => PendingInvite::STATE_PENDING,
         ])->first();
 
-        \Log::info('user observer update', [
-            'pendingInvites' => $pendingInvites,
-            'user_group' => $user->user_group,
-            'isDirty' => $user->isDirty('unclaimed'),
-            'getOriginal' => $user->getOriginal('unclaimed') === 1,
-            'unclaimedCurrent' => $user->unclaimed === 0,
-            'checkInArray' => $pendingInvites && in_array($pendingInvites->type, ['custodian_user_invite', 'organisation_user_invite', 'delegate_invite']),
-        ]);
         if ($user->user_group === User::GROUP_USERS &&
             $user->isDirty('unclaimed') &&
             $user->getOriginal('unclaimed') === 1 &&
             $user->unclaimed === 0 &&
-            ($pendingInvites && in_array($pendingInvites->type, ['custodian_user_invite', 'organisation_user_invite', 'delegate_invite']))) {
+            ($pendingInvites && in_array($pendingInvites->type, ['custodian_user_invite', 'organisation_user_invite']))) {
+
             $affiliations = Affiliation::where('registry_id', $user->registry_id)->first();
-            \Log::info('user observer update', [
-                'affiliations' => $affiliations,
-            ]);
             if ($affiliations->getState() === State::STATE_AFFILIATION_INVITED) {
                 $affiliations->setState(State::STATE_AFFILIATION_INFO_REQUIRED);
             }
+
         }
 
     }
