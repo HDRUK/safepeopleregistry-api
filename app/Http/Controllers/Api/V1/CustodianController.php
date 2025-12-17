@@ -1450,14 +1450,16 @@ class CustodianController extends Controller
     // // Hide from swagger docs
     private function getOrganisationStatus(int $custodianId, int $projectUserId)
     {
-        $records = CustodianHasProjectOrganisation::with([
-            'modelState.state',
-        ])
-        ->where('custodian_has_project_has_organisation.custodian_id', $custodianId)
-        ->join('project_has_organisations', 'custodian_has_project_has_organisation.project_has_organisation_id', '=', 'project_has_organisations.id')
-        ->join('project_has_users', 'project_has_organisations.project_id', '=', 'project_has_users.project_id')
-        ->where('project_has_users.id', $projectUserId)
-        ->first();
+        $projectHasUser = ProjectHasUser::where('id', $projectUserId)->first();
+        $records = CustodianHasProjectOrganisation::query()
+            ->where('custodian_id', $custodianId)
+            ->with([
+                'modelState.state',
+            ])
+            ->join('project_has_organisations', 'custodian_has_project_has_organisation.project_has_organisation_id', '=', 'project_has_organisations.id')
+            ->join('project_has_users', 'project_has_organisations.project_id', '=', 'project_has_users.project_id')
+            ->where('project_has_users.project_id', $projectHasUser->project_id)
+            ->first();
 
         return $records->modelState ?? null;
     }
