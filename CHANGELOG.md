@@ -1,3 +1,35 @@
+## [1.23.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.22.0...v1.23.0) (2025-12-17)
+
+### ✨ Features
+
+* **REGISTRY-0000:** Sponsorship approved or rejected (#573) ([32bd354](https://github.com/HDRUK/safepeopleregistry-api/commit/32bd35496f7a9166638cfc28236d7183e66c07db))
+* **REGISTRY-1709:** Add sponsorship to project (#571) ([f8a0eb6](https://github.com/HDRUK/safepeopleregistry-api/commit/f8a0eb63009da3522451486e1e1560ec464047b3))
+* **REGISTRY-1710:** tweaks for sponsorship (#580) ([5b4909d](https://github.com/HDRUK/safepeopleregistry-api/commit/5b4909decbc26927cdc78e6312a9ccc386a65748))
+* **REGISTRY-1713:** List projects with sponsorships (#572) ([c11e409](https://github.com/HDRUK/safepeopleregistry-api/commit/c11e4097852ed7f6e6ff972afe25a50abdc88479))
+* **REGISTRY-2289:** BIG TASK: Notifications: minimum content for Custodian actions (#564) ([d10fc73](https://github.com/HDRUK/safepeopleregistry-api/commit/d10fc730920dcd2d2727027b4d1a53d39725ea80))
+* **REGISTRY-2333:** Update swagger title (#565) ([799b003](https://github.com/HDRUK/safepeopleregistry-api/commit/799b00307890e5f0ec1f23d8668e03c1f46af75c))
+* **REGISTRY-2345:** Update affiliation flow: Organisation invites User (#578) ([c49a085](https://github.com/HDRUK/safepeopleregistry-api/commit/c49a0855b9f30a88d7414a8da70795037d59eb41))
+* **REGISTRY-2356:** Christmas Seeder (#575) ([2289a13](https://github.com/HDRUK/safepeopleregistry-api/commit/2289a13615648c0be948dd2533c4ee7add062176))
+* **REGISTRY-2356:** Christmas Seeder (#577) ([152764e](https://github.com/HDRUK/safepeopleregistry-api/commit/152764e9261c674378f152bd2b7beb7ae4d485da))
+* **REGISTRY-2365:** Resend Sponsorship request (#576) ([9acbf5c](https://github.com/HDRUK/safepeopleregistry-api/commit/9acbf5c4ff3cbd9d5318e170c711d0bf3fa6ce81))
+* **REGISTRY-2366:** resend an invite based on organisation id (#579) ([d44dbb9](https://github.com/HDRUK/safepeopleregistry-api/commit/d44dbb9ec3c5021a702c2e67642ac4eb044c31de))
+* **REGISTRY-2367:** new affiliation state (#581) ([29a5315](https://github.com/HDRUK/safepeopleregistry-api/commit/29a5315af5836c22e1adbaeefbf0ca5d7c779cea))
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-0000:** change to text (#569) ([dc4cb0e](https://github.com/HDRUK/safepeopleregistry-api/commit/dc4cb0e92efbbb828f74f754afa0203acccf3897))
+* **REGISTRY-0000:** fix pending invites column name (#583) ([71bd0f3](https://github.com/HDRUK/safepeopleregistry-api/commit/71bd0f33b9a991508fc1208094c8823d54b04542))
+* **REGISTRY-0000:** Migrate features to text (#567) ([a32ff5b](https://github.com/HDRUK/safepeopleregistry-api/commit/a32ff5bde3dd1269bccdcf6e58c7d2e313f34034))
+* **REGISTRY-0000:** update url to notifications (#568) ([0d40645](https://github.com/HDRUK/safepeopleregistry-api/commit/0d406453ebdaba989fa505001f279496ad4b348d))
+* **REGISTRY-0000:** user registry (#563) ([17f89ec](https://github.com/HDRUK/safepeopleregistry-api/commit/17f89ecde8234729a97e687cb74ab15dc610de94))
+* **REGISTRY-2258:** Fix for pennant and feature controller (#566) ([f316b43](https://github.com/HDRUK/safepeopleregistry-api/commit/f316b43e566f999ab156501fda43688cf120e2b1))
+* **REGISTRY-2275:** Custodian/Project/User/Automated flags | Affiliation flag (#570) ([08963e1](https://github.com/HDRUK/safepeopleregistry-api/commit/08963e10250a4fab262aca2570df193ca016259d))
+* **REGISTRY-2316:** Error 500 when we call history endpoint user history (#560) ([bad054a](https://github.com/HDRUK/safepeopleregistry-api/commit/bad054ae0d1f664e1d6dd8708522df4d74aaa08c))
+* **REGISTRY-2316:** update per page in history (#561) ([b476cd4](https://github.com/HDRUK/safepeopleregistry-api/commit/b476cd42b8cd94f5967e0fcb4eba7fc70ff34e83))
+* **REGISTRY-2346:** add users in project (#582) ([05a50df](https://github.com/HDRUK/safepeopleregistry-api/commit/05a50df2e970e6f4db2f65d6de53b9655c2f6be9))
+* **REGISTRY-2346:** fix organisation status (#584) ([6bedd22](https://github.com/HDRUK/safepeopleregistry-api/commit/6bedd222a8ec55b0a04420b7c0bd4bc10607ea78))
+* **REGISTRY-2364:** Automated flags: Sanctioned country failed (#574) ([af8ff30](https://github.com/HDRUK/safepeopleregistry-api/commit/af8ff308db62784218c98915d28bb1bc2026cf69))
+
 ## [1.22.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.21.0...v1.22.0) (2025-12-04)
 
 ### ✨ Features
