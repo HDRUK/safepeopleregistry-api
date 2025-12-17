@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Projects;
+namespace App\Http\Requests\Organisations;
 
 use App\Http\Requests\BaseFormRequest;
 
-class SponsorshipResendRequest extends BaseFormRequest
+class ResentInvite extends BaseFormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -14,11 +14,6 @@ class SponsorshipResendRequest extends BaseFormRequest
     public function rules(): array
     {
         return [
-            'projectId' => [
-                'required',
-                'integer',
-                'exists:projects,id',
-            ],
             'organisationId' => [
                 'required',
                 'integer',
@@ -34,7 +29,6 @@ class SponsorshipResendRequest extends BaseFormRequest
      */
     protected function prepareForValidation()
     {
-        $this->merge(['projectId' => $this->route('projectId')]);
-        $this->merge(['organisationId' => $this->route('organisationId')]);
+        $this->merge(['organisationId' => $this->route('id')]);
     }
 }

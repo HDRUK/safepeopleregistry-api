@@ -13,7 +13,6 @@ use App\Models\Affiliation;
 use Illuminate\Support\Str;
 use App\Models\Organisation;
 use App\Models\CustodianUser;
-use App\Models\PendingInvite;
 use App\Models\ProjectHasUser;
 use Tests\Traits\Authorisation;
 use App\Models\ProjectHasCustodian;
