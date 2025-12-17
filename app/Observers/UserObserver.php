@@ -11,7 +11,9 @@ use App\Models\State;
 use App\Models\DebugLog;
 use App\Models\ActionLog;
 use App\Jobs\OrcIDScanner;
+use App\Models\Affiliation;
 use App\Models\Organisation;
+use App\Models\PendingInvite;
 use App\Traits\TracksModelChanges;
 use App\Models\CustodianHasProjectUser;
 use App\Notifications\AdminUserChanged;
@@ -82,7 +84,31 @@ class UserObserver
             'log' => 'User updated ::' . json_encode($user->getChanges()),
         ]);
 
-        $changes = $this->getUserTrackedChanges($user->getOriginal(), $user);
+        // $changes = $this->getUserTrackedChanges($user->getOriginal(), $user);
+        $changes = [];
+
+        $fieldsToTrack = ['first_name', 'last_name', 'email', 'role', 'location'];
+
+        foreach ($fieldsToTrack as $field) {
+            if ($user->isDirty($field)) {
+                $changes[$field] = [
+                    'old' => $user->getOriginal($field),
+                    'new' => $user->$field,
+                ];
+            }
+        }
+
+        if ($user->isDirty('organisation_id')) {
+            $oldOrganisation = $user->getOriginal('organisation_id')
+                ? Organisation::find($user->getOriginal('organisation_id'))
+                : null;
+            $newOrganisation = $user->organisation;
+
+            $changes['organisation'] = [
+                'old' => $oldOrganisation->organisation_name ?? 'N/A',
+                'new' => $newOrganisation->organisation_name ?? 'N/A',
+            ];
+        }
 
         if (!empty($changes)) {
             $this->sendNotificationOnUpdate($user, $changes);
@@ -123,6 +149,25 @@ class UserObserver
 
         if ($user->consent_scrape && filled($user->orc_id) && ($user->isDirty('orc_id') || $user->isDirty('consent_scrape'))) {
             OrcIDScanner::dispatch($user);
+        }
+
+        // change state for affiliation
+        $pendingInvites = PendingInvite::where([
+            'user_id' => $user->id,
+            'status' => PendingInvite::STATE_PENDING,
+        ])->first();
+
+        if ($user->user_group === User::GROUP_USERS &&
+            $user->isDirty('unclaimed') &&
+            $user->getOriginal('unclaimed') === 1 &&
+            $user->unclaimed === 0 &&
+            ($pendingInvites && in_array($pendingInvites->type, ['custodian_user_invite', 'organisation_user_invite']))) {
+
+            $affiliations = Affiliation::where('registry_id', $user->registry_id)->first();
+            if ($affiliations->getState() === State::STATE_AFFILIATION_INVITED) {
+                $affiliations->setState(State::STATE_AFFILIATION_INFO_REQUIRED);
+            }
+
         }
 
     }

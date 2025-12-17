@@ -41,9 +41,9 @@ class ExpiresCertifications extends Notification implements ShouldQueue
     {
         return [
             'message' => $this->generateMessage(),
+            'action_url' => $this->getUrl(),
             'details' => [
                 'new' => $this->training,
-                'time' => now(),
             ],
             'time' => now(),
         ];
@@ -66,6 +66,16 @@ class ExpiresCertifications extends Notification implements ShouldQueue
             default:
                 break;
         }
+    }
+
+    public function getUrl()
+    {
+        $url = config('speedi.system.portal_url') . '/en/organisation/profile/user-administration/employees-and-students/' . $this->user->id . '/affiliations';
+        if ($this->for === 'organisation') {
+            return $url;
+        }
+
+        return null;
     }
 
 }

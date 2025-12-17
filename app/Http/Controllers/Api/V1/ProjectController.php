@@ -3,30 +3,40 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Exception;
+use TriggerEmail;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\State;
 use App\Models\Project;
 use App\Models\Registry;
 use App\Models\Affiliation;
+use App\Models\Organisation;
 use Illuminate\Http\Request;
+use App\Models\PendingInvite;
 use App\Traits\FilterManager;
 use App\Http\Traits\Responses;
 use App\Models\ProjectHasUser;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
+use App\Traits\TracksModelChanges;
+use App\Models\ProjectHasCustodian;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
 use App\Exceptions\NotFoundException;
+use App\Models\ProjectHasSponsorship;
 use App\Models\CustodianHasProjectUser;
 use App\Http\Requests\Projects\GetProject;
 use App\Http\Requests\Projects\DeleteProject;
 use App\Http\Requests\Projects\UpdateProject;
 use App\Http\Requests\Projects\GetProjectUsers;
 use App\Http\Requests\Projects\UpdateProjectUser;
+use App\Models\CustodianHasProjectHasSponsorship;
 use App\Http\Requests\Projects\MakePrimaryContact;
 use App\Http\Requests\Projects\GetValidatedProjects;
 use App\Http\Requests\Projects\UpdateAllProjectUsers;
 use App\Http\Requests\Projects\GetProjectByIdAndUserId;
+use App\Http\Requests\Projects\SponsorshipResendRequest;
+use App\Traits\Notifications\NotificationCustodianManager;
 use App\Http\Requests\Projects\GetAllUsersFlagProjectByUserId;
 use App\Http\Requests\Projects\GetProjectByIdAndOrganisationId;
 use App\Http\Requests\Projects\GetProjectUsersByOrganisationId;
@@ -36,6 +46,8 @@ class ProjectController extends Controller
     use CommonFunctions;
     use FilterManager;
     use Responses;
+    use NotificationCustodianManager;
+    use TracksModelChanges;
 
     /**
      * @OA\Get(
@@ -136,7 +148,13 @@ class ProjectController extends Controller
      */
     public function show(GetProject $request, int $id): JsonResponse
     {
-        $project = Project::with(['projectDetail', 'custodians', 'modelState.state'])->findOrFail($id);
+        $project = Project::with([
+                'projectDetail',
+                'custodians',
+                'modelState.state',
+                'projectHasSponsorships.sponsor',
+                'projectHasSponsorships.custodianHasProjectHasSponsorship.modelState.state',
+            ])->findOrFail($id);
 
         if ($project) {
             return response()->json([
@@ -798,28 +816,158 @@ class ProjectController extends Controller
     public function update(UpdateProject $request, int $id): JsonResponse
     {
         try {
+            $loggedInUserId = $request->user()?->id;
             $input = $request->only(app(Project::class)->getFillable());
             $project = Project::findOrFail($id);
+            $before = $project->toArray();
 
-            if (!is_null($project)) {
-                $project->update($input);
-                $status = $request->get('status');
+            $project->update($input);
+            $after = $project->fresh();
+            $projectChanges = collect($project->getChanges())->except('updated_at')->toArray();
+            $changes = $this->getProjectTrackedChanges($before, $projectChanges);
 
-                if (isset($status)) {
-                    if ($project->canTransitionTo($status)) {
-                        $project->transitionTo($status);
-                    } else {
-                        return $this->BadRequestResponse();
-                    }
-                }
-
-                return $this->OKResponse(Project::where('id', $id)->first());
+            if ($changes) {
+                $this->notifyOnProjectDetailsChange($loggedInUserId, $after, $changes);
             }
 
-            return $this->NotFoundResponse();
+            $status = $request->get('status');
+
+            if (isset($status)) {
+                if ($project->canTransitionTo($status)) {
+                    $oldStatus = $project->getState();
+                    $project->transitionTo($status);
+                    if ($oldStatus !== $status) {
+                        $this->notifyOnProjectStateChange($loggedInUserId, $id, $oldStatus, $status);
+                    }
+                } else {
+                    return $this->BadRequestResponse();
+                }
+            }
+
+            $notifySponsor = false;
+            $sponsorId = $request->get('sponsor_id');
+
+            if ($sponsorId) {
+                $projectHasCustodian = ProjectHasCustodian::where('project_id', $id)->first();
+                $checkProjectSponsor = ProjectHasSponsorship::where('project_id', $id)->first();
+
+                if (is_null($checkProjectSponsor)) {
+                    $notifySponsor = true;
+                }
+
+                if (!is_null($checkProjectSponsor) && (int)$sponsorId !== (int)$checkProjectSponsor->sponsor_id) {
+                    $notifySponsor = true;
+                    $checkProjectSponsor->delete();
+                }
+
+                $this->sponsorToProject($id, $sponsorId, $projectHasCustodian->custodian_id);
+
+                if ($notifySponsor) {
+                    $this->notifyOnAddSponsorToProject($loggedInUserId, $id, $sponsorId);
+                    $this->emailOnAddSponsorToProject($loggedInUserId, $id, $sponsorId);
+                }
+
+            }
+
+            $returnProject = Project::query()
+                ->where('id', $id)
+                ->with([
+                    'sponsors:id,organisation_name',
+                    ])
+                ->first();
+            return $this->OKResponse($returnProject);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
+    }
+
+    public function resendSponsorshipRequest(SponsorshipResendRequest $request, int $projectId, int $organisationId)
+    {
+        try {
+            $loggedInUserId = $request->user()?->id;
+
+            $pendingInvites = PendingInvite::where([
+                'project_id' => $projectId,
+                'organisation_id' => $organisationId,
+                'status' => PendingInvite::STATE_PENDING,
+                'type' => 'sponsorship_request'
+            ])->first();
+
+            if (is_null($pendingInvites)) {
+                throw new Exception('Invite not found');
+            }
+
+            $projectHasSponsorships = ProjectHasSponsorship::where([
+                'project_id' => $projectId,
+                'sponsor_id' => $organisationId,
+            ])->first();
+
+            if (is_null($projectHasSponsorships)) {
+                throw new Exception('Sponsorship not found');
+            }
+
+            $this->emailOnAddSponsorToProject($loggedInUserId, $projectId, $organisationId);
+
+            PendingInvite::where('id', $pendingInvites->id)->update([
+                'updated_at' => Carbon::now(),
+            ]);
+
+            return $this->OKResponse('Sponsorship request email resent.');
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    public function emailOnAddSponsorToProject($loggedInUserId, $projectId, $organisationId)
+    {
+        $userDelegates = User::query()
+            ->where([
+                'organisation_id' => $organisationId,
+                'is_delegate' => 1
+            ])
+            ->select(['id'])
+            ->get();
+
+        foreach ($userDelegates as $userDelegate) {
+            $email = [
+                'type' => 'CUSTODIAN_SPONSORSHIP_REQUEST',
+                'to' => $userDelegate->id,
+                'by' => $loggedInUserId,
+                'organisationId' => $organisationId,
+                'projectId' => $projectId,
+                'identifier' => 'custodian_sponsorship_request',
+            ];
+
+            TriggerEmail::spawnEmail($email);
+        }
+
+        return true;
+    }
+
+    public function sponsorToProject(int $projectId, int $sponsorId, int $custodianId)
+    {
+        $checkProjectSponsor = ProjectHasSponsorship::where([
+            'project_id' => $projectId,
+            'sponsor_id' => $sponsorId,
+        ])->first();
+
+        if (!is_null($checkProjectSponsor)) {
+            return;
+        }
+
+        $projectHasSponsorship = ProjectHasSponsorship::create([
+            'project_id' => $projectId,
+            'sponsor_id' => $sponsorId,
+        ]);
+
+        $custodianHasProjectHasSponsorship = CustodianHasProjectHasSponsorship::create([
+            'project_has_sponsorship_id' => $projectHasSponsorship->id,
+            'custodian_id' => $custodianId,
+        ]);
+
+        $custodianHasProjectHasSponsorship->transitionTo(State::STATE_SPONSORSHIP_PENDING);
+
+        return true;
     }
 
     /**

@@ -49,8 +49,9 @@ class ProjectHasUserObserver
             ]);
         }
 
-        UpdateProjectUserValidation::dispatch(
-            $projectHasUser
+        $this->updateCustodianProjectUserValidation(
+            $projectHasUser->project_id,
+            $projectHasUser->user_digital_ident
         );
 
         if ((app()->bound('seeding') && app()->make('seeding') === true)) {
@@ -135,7 +136,6 @@ class ProjectHasUserObserver
             CustodianHasProjectUser::insert($insertData);
         }
 
-
         if ($affiliation) {
             $organisationId = $affiliation->organisation->id;
             ProjectHasOrganisation::firstOrCreate([
@@ -161,8 +161,9 @@ class ProjectHasUserObserver
             ->useLog('project_has_user')
             ->log('user_updated_on_project');
 
-        UpdateProjectUserValidation::dispatch(
-            $projectHasUser
+        $this->updateCustodianProjectUserValidation(
+            $projectHasUser->project_id,
+            $projectHasUser->user_digital_ident
         );
     }
 

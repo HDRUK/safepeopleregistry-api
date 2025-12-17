@@ -9,6 +9,7 @@ use App\Models\State;
 use App\Models\Sector;
 use App\Models\Project;
 use App\Models\ActionLog;
+use App\Models\Custodian;
 use App\Jobs\SendEmailJob;
 use App\Models\ModelState;
 use App\Models\Affiliation;
@@ -16,6 +17,7 @@ use Illuminate\Support\Str;
 use App\Models\Organisation;
 use App\Models\PendingInvite;
 use Tests\Traits\Authorisation;
+use App\Models\ProjectHasSponsorship;
 use Illuminate\Support\Facades\Queue;
 use App\Models\ProjectHasOrganisation;
 use KeycloakGuard\ActingAsKeycloakUser;
@@ -1451,6 +1453,174 @@ class OrganisationTest extends TestCase
         $response->assertStatus(400);
         $message = $response->decodeResponseJson()['message'];
         $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_the_application_can_approve_sponsorship()
+    {
+        $organisationId = $this->organisation_admin->id;
+        $custodianId = $this->custodian_admin->id;
+
+        $custodian = Custodian::first();
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'POST',
+                '/api/v1/custodians/' . $custodian->id . '/projects',
+                [
+                    'title' => 'New project',
+                    'request_category_type' => '',
+                    'start_date' => '',
+                    'end_date' => '',
+                    'lay_summary' => '',
+                    'public_benefit' => '',
+                    'technical_summary' => '',
+                    'status' => 'project_pending',
+                ]
+            );
+
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
+        $content = $response->decodeResponseJson();
+        $projectId = $content['data'];
+        $newDate = Carbon::now()->addYears(2);
+
+        $responseUpdateProject = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                '/api/v1/projects/' . $projectId,
+                [
+                    'unique_id' => Str::random(30),
+                    'title' => 'This is an Old Project',
+                    'lay_summary' => 'Sample lay summary',
+                    'public_benefit' => 'This will benefit the public',
+                    'request_category_type' => 'Category type',
+                    'technical_summary' => 'Sample technical summary',
+                    'other_approval_committees' => 'Bodies on a board panel',
+                    'start_date' => Carbon::now(),
+                    'end_date' => Carbon::now()->addYears(2),
+                    'affiliate_id' => 1,
+                    'status' => 'project_approved',
+                    'sponsor_id' => $organisationId,
+                ]
+            );
+        $responseUpdateProject->assertStatus(200);
+
+        $contentUpdateProject = $responseUpdateProject->decodeResponseJson()['data'];
+        $this->assertEquals($contentUpdateProject['title'], 'This is an Old Project');
+        $this->assertEquals(Carbon::parse($contentUpdateProject['end_date'])->toDateTimeString(), $newDate->toDateTimeString());
+
+        $projectHasSponsor = ProjectHasSponsorship::where('project_id', $projectId)->first();
+        $this->assertEquals((int)$projectHasSponsor->sponsor_id, (int)$this->organisation_admin->id);
+
+
+        $responseListProjects = $this->actingAsKeycloakUser($this->organisation_admin)
+            ->json(
+                'GET',
+                '/api/v1/organisations/' .  $this->organisation_admin->id . '/projects/sponsorships',
+            );
+        $responseListProjects->assertStatus(200);
+        $contentListProjects = $responseListProjects->decodeResponseJson()['data']['data'];
+        $this->assertEquals(count($contentListProjects), 1);
+        $this->assertEquals((int)$contentListProjects[0]['sponsors'][0]['id'], (int)$this->organisation_admin->id);
+        $this->assertEquals($contentListProjects[0]['custodian_has_project_sponsorships']['model_state']['state']['slug'], State::STATE_SPONSORSHIP_PENDING);
+
+        // approve
+        $responseApproveProjects = $this->actingAsKeycloakUser($this->organisation_admin)
+            ->json(
+                'PATCH',
+                '/api/v1/organisations/' .  $organisationId . '/sponsorships/statuses',
+                [
+                    'project_id' => $projectId,
+                    'status' => 'approved',
+                ]
+            );
+        $responseApproveProjects->assertStatus(200);
+        $contentResponseApproveProjects = $responseApproveProjects->decodeResponseJson();
+
+        $this->assertEquals($contentResponseApproveProjects['data'], State::STATE_SPONSORSHIP_APPROVED);
+    }
+
+    public function test_the_application_can_rejected_sponsorship()
+    {
+        $organisationId = $this->organisation_admin->id;
+        $custodianId = $this->custodian_admin->id;
+
+        $custodian = Custodian::first();
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'POST',
+                '/api/v1/custodians/' . $custodian->id . '/projects',
+                [
+                    'title' => 'New project',
+                    'request_category_type' => '',
+                    'start_date' => '',
+                    'end_date' => '',
+                    'lay_summary' => '',
+                    'public_benefit' => '',
+                    'technical_summary' => '',
+                    'status' => 'project_pending',
+                ]
+            );
+
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
+        $content = $response->decodeResponseJson();
+        $projectId = $content['data'];
+        $newDate = Carbon::now()->addYears(2);
+
+        $responseUpdateProject = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'PUT',
+                '/api/v1/projects/' . $projectId,
+                [
+                    'unique_id' => Str::random(30),
+                    'title' => 'This is an Old Project',
+                    'lay_summary' => 'Sample lay summary',
+                    'public_benefit' => 'This will benefit the public',
+                    'request_category_type' => 'Category type',
+                    'technical_summary' => 'Sample technical summary',
+                    'other_approval_committees' => 'Bodies on a board panel',
+                    'start_date' => Carbon::now(),
+                    'end_date' => Carbon::now()->addYears(2),
+                    'affiliate_id' => 1,
+                    'status' => 'project_approved',
+                    'sponsor_id' => $organisationId,
+                ]
+            );
+        $responseUpdateProject->assertStatus(200);
+
+        $contentUpdateProject = $responseUpdateProject->decodeResponseJson()['data'];
+        $this->assertEquals($contentUpdateProject['title'], 'This is an Old Project');
+        $this->assertEquals(Carbon::parse($contentUpdateProject['end_date'])->toDateTimeString(), $newDate->toDateTimeString());
+
+        $projectHasSponsor = ProjectHasSponsorship::where('project_id', $projectId)->first();
+        $this->assertEquals((int)$projectHasSponsor->sponsor_id, (int)$this->organisation_admin->id);
+
+
+        $responseListProjects = $this->actingAsKeycloakUser($this->organisation_admin)
+            ->json(
+                'GET',
+                '/api/v1/organisations/' .  $this->organisation_admin->id . '/projects/sponsorships',
+            );
+        $responseListProjects->assertStatus(200);
+        $contentListProjects = $responseListProjects->decodeResponseJson()['data']['data'];
+        $this->assertEquals(count($contentListProjects), 1);
+        $this->assertEquals((int)$contentListProjects[0]['sponsors'][0]['id'], (int)$this->organisation_admin->id);
+        $this->assertEquals($contentListProjects[0]['custodian_has_project_sponsorships']['model_state']['state']['slug'], State::STATE_SPONSORSHIP_PENDING);
+
+        // approve
+        $responseApproveProjects = $this->actingAsKeycloakUser($this->organisation_admin)
+            ->json(
+                'PATCH',
+                '/api/v1/organisations/' .  $organisationId . '/sponsorships/statuses',
+                [
+                    'project_id' => $projectId,
+                    'status' => 'rejected',
+                ]
+            );
+        $responseApproveProjects->assertStatus(200);
+        $contentResponseApproveProjects = $responseApproveProjects->decodeResponseJson();
+
+        $this->assertEquals($contentResponseApproveProjects['data'], State::STATE_SPONSORSHIP_REJECTED);
     }
 
     // LS - Removed as doesn't run in GH - possibly blocked by ROR

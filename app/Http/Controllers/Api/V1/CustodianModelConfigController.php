@@ -12,6 +12,7 @@ use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\CustodianModelConfig;
+use App\Traits\Notifications\NotificationCustodianManager;
 use App\Http\Requests\CustodianModelConfig\GetEntityModelsRequest;
 use App\Http\Requests\CustodianModelConfig\UpdateEntityModelsRequest;
 use App\Http\Requests\CustodianModelConfig\DeleteCustodianModelConfig;
@@ -23,6 +24,7 @@ class CustodianModelConfigController extends Controller
 {
     use CommonFunctions;
     use Responses;
+    use NotificationCustodianManager;
 
     /**
      * @OA\Get(
@@ -427,6 +429,7 @@ class CustodianModelConfigController extends Controller
     public function updateEntityModels(UpdateEntityModelsRequest $request, int $id): JsonResponse
     {
         try {
+            $loggedInUserId = $request->user()?->id;
             $request->validate([
                 'configs' => 'required|array',
                 'configs.*.entity_model_id' => 'required|integer|exists:decision_models,id',
@@ -435,6 +438,7 @@ class CustodianModelConfigController extends Controller
 
             $configs = $request->input('configs');
             $updatedConfigs = [];
+            $hasChanges = false;
 
             foreach ($configs as $config) {
                 $custodianModelConfig = CustodianModelConfig::where('custodian_id', $id)
@@ -442,13 +446,21 @@ class CustodianModelConfigController extends Controller
                     ->first();
 
                 if ($custodianModelConfig) {
+                    if ((bool)$custodianModelConfig->active !== (bool)$config['active']) {
+                        $hasChanges = true;
+                    }
                     $custodianModelConfig->active = $config['active'];
                     $custodianModelConfig->save();
+
                     $updatedConfigs[] = [
                         'entity_model_id' => $custodianModelConfig->entity_model_id,
                         'active' => $custodianModelConfig->active,
                     ];
                 }
+            }
+
+            if ($hasChanges) {
+                $this->notifyOnConfirationWasUpdated($loggedInUserId);
             }
 
             if (count($updatedConfigs) !== count($configs)) {

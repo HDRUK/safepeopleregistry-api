@@ -26,6 +26,7 @@ use App\Observers\AuditModelObserver;
 use Illuminate\Support\Facades\Event;
 use App\Models\ProjectHasOrganisation;
 use App\Observers\AffiliationObserver;
+use App\Observers\NotificationObserver;
 use App\Observers\OrganisationObserver;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
@@ -40,6 +41,7 @@ use App\Observers\RegistryReadRequestObserver;
 use App\Models\CustodianHasProjectOrganisation;
 use App\Observers\CustodianModelConfigObserver;
 use App\Observers\ProjectHasOrganisationObserver;
+use Illuminate\Notifications\DatabaseNotification;
 use App\Observers\OrganisationHasSubsidiaryObserver;
 use App\Observers\CustodianHasValidationCheckObserver;
 use App\Observers\CustodianHasProjectOrganisationObserver;
@@ -84,5 +86,7 @@ class AppServiceProvider extends ServiceProvider
         RegistryHasTraining::observe(RegistryHasTrainingObserver::class);
         // currently Training but is to be moved to RegistryHasTraining...
         // RegistryHasTraining::observe(RegistryHasTrainingObserver::class);
+        DatabaseNotification::observe(NotificationObserver::class);
+
     }
 }

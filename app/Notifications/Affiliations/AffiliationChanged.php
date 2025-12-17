@@ -4,15 +4,11 @@ namespace App\Notifications\Affiliations;
 
 use App\Models\User;
 use App\Models\Affiliation;
-use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Notifications\Affiliations\Traits\AffiliationNotification;
 
-class AffiliationChanged extends Notification implements ShouldQueue
+class AffiliationChanged extends Notification
 {
-    use Queueable;
-
     use AffiliationNotification;
 
     private $user;
@@ -45,10 +41,10 @@ class AffiliationChanged extends Notification implements ShouldQueue
     {
         return [
             'message' => $this->buildMessage(),
+            'action_url' => $this->getUrl(),
             'details' => [
                 'old' => $this->getAffiliationDetails($this->oldAffiliation),
                 'new' => $this->getAffiliationDetails($this->newAffiliation),
-                'time' => now(),
             ],
             'time' => now(),
         ];
@@ -56,14 +52,13 @@ class AffiliationChanged extends Notification implements ShouldQueue
 
     public function buildMessage()
     {
-        $url = config('speedi.system.portal_url') . '/en/organisation/profile/user-administration/employees-and-students/' . $this->user->id . '/affiliations';
         if ($this->affiliationRequest) {
             switch ($this->for) {
                 case 'user':
                     return "You send an affiliation request to Organisation {$this->newAffiliation->organisation->organisation_name}.";
 
                 case 'organisation':
-                    return "You have been sent an affiliation request from Person {$this->user->first_name} {$this->user->last_name}. [<a href=\"{$url}\">Go to User profile</a>]";
+                    return "You have been sent an affiliation request from Person {$this->user->first_name} {$this->user->last_name}.";
 
                 case 'custodian':
                     return "Person {$this->user->first_name} {$this->user->last_name} sent an affiliation request to Organisation {$this->newAffiliation->organisation->organisation_name}.";
@@ -87,5 +82,15 @@ class AffiliationChanged extends Notification implements ShouldQueue
             }
         }
 
+    }
+
+    public function getUrl()
+    {
+        $url = config('speedi.system.portal_url') . '/en/organisation/profile/user-administration/employees-and-students/' . $this->user->id . '/affiliations';
+        if ($this->affiliationRequest && $this->for === 'organisation') {
+            return $url;
+        }
+
+        return null;
     }
 }

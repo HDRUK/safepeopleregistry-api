@@ -1070,6 +1070,57 @@ class EmailTemplatesSeeder extends Seeder
                       </mjml >',
             'buttons' => '',
           ],
+          [
+            'identifier' => 'custodian_sponsorship_request',
+            'subject' => 'Safe People Registry | Sponsorship request',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#f6dff1" width="600px" >
+
+                          ' . $this->titleBar('Sponsorship request') . '
+
+                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                                <mj-text align="left" padding="20px 0px 20px 0px">
+                                  [[delegate_name]]
+                                  <div><br></div>
+                                  As a Delegate for [[organisation_name]] on the [[env(APP_NAME)]], you are requested to sponsor a project.
+                                  <div><br></div>
+                                  Name: [[data_custodian_name]]<br>
+                                  Project: [[project_name]]
+                                  <div><br></div>
+                                  When confirming sponsorship of a project, you are formally accepting legal accountability on behalf of your Organisation for ensuring that:
+                                  <ul>
+                                    <li>The research project ([[project_name]]) has been reviewed and is appropriately designed, managed, and monitored.</li>
+                                    <li>The Chief Investigator of the project is suitably qualified and supported to lead the research.</li>
+                                    <li>All relevant legal, ethical and regulatory responsibilities are being met by your Organisation: [[organisation_name]]</li>
+                                    <li>Any delegation of Sponsor responsibilities is clearly documented and agreed.</li>
+                                  </ul>
+                                  We ask that you confirm this to be true by following the link below to confirm sponsorship.
+                                  <div><br></div>
+                                  ' . $this->supportFooter . '
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+                                    
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
+                              <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
+                                <mj-text align="left" padding="10px 15px 0px 15px">
+                                  I confirm sponsorship on behalf of [[organisation_name]]! of the project [[project_name]]!
+                                </mj-text>
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[SPONSOR_PROJECT_PATH]]" padding="10px 15px 15px 15px">
+                                  Sponsor project
+                                </mj-button>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+
+                        </mj-body>
+                      </mjml >',
+            'buttons' => '',
+          ],
+
         ];
 
         foreach ($templates as $template) {

@@ -7,6 +7,7 @@ use App\Models\Affiliation;
 use App\Models\Organisation;
 use App\Models\ValidationLog;
 use App\Http\Traits\Responses;
+use App\Traits\CommonFunctions;
 use App\Http\Controllers\Controller;
 use Spatie\Activitylog\Models\Activity;
 use App\Http\Resources\ActivityResource;
@@ -23,6 +24,7 @@ use App\Http\Requests\AuditLog\GetOrganisationHistory;
  */
 class AuditLogController extends Controller
 {
+    use CommonFunctions;
     use Responses;
     protected const ALLOWED_TYPES = [
         User::class,
@@ -35,6 +37,8 @@ class AuditLogController extends Controller
     {
         $loggedInUserId = $request->user()?->id;
         $loggedInUser = User::where('id', $loggedInUserId)->first();
+
+        $perPage = $request->integer('per_page', (int)$this->getSystemConfig('PER_PAGE'));
 
         $user = User::find($id);
 
@@ -94,16 +98,16 @@ class AuditLogController extends Controller
                 },
             ])
             ->latest('created_at')
-            ->get()
-            ->map(function ($activityLog) use ($loggedInUser) {
+            ->paginate($perPage)
+            ->through(function ($activityLog) use ($loggedInUser) {
                 if (
                     in_array($loggedInUser->user_group, [User::GROUP_ORGANISATIONS, User::GROUP_CUSTODIANS]) &&
-                    $activityLog->causer_id !== null && 
+                    $activityLog->causer_id !== null &&
                     $activityLog->causer_id !== $loggedInUser->id
                 ) {
                     $activityLog->description = '';
                 }
-                
+
                 return $activityLog;
             });
 

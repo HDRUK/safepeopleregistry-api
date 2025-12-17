@@ -3,15 +3,16 @@
 namespace App\TriggerEmail;
 
 use Str;
-use App\Jobs\SendEmailJob;
-use App\Models\Affiliation;
-use App\Models\Custodian;
-use App\Models\CustodianUser;
-use App\Models\Organisation;
-use App\Models\PendingInvite;
-use App\Models\Permission;
-use App\Models\User;
 use Carbon\Carbon;
+use App\Models\User;
+use App\Models\Project;
+use App\Models\Custodian;
+use App\Jobs\SendEmailJob;
+use App\Models\Permission;
+use App\Models\Affiliation;
+use App\Models\Organisation;
+use App\Models\CustodianUser;
+use App\Models\PendingInvite;
 use Hdruk\LaravelMjml\Models\EmailTemplate;
 
 class TriggerEmail
@@ -60,6 +61,10 @@ class TriggerEmail
         $inviteId = isset($input['inviteId']) ? $input['inviteId'] : null;
         $inviteCode = $this->generateInviteCode();
         $userName = isset($input['userName']) ? $input['userName'] : null;
+        $organisationId = isset($input['organisationId']) ? $input['organisationId'] : null;
+        $projectId = isset($input['projectId']) ? $input['projectId'] : null;
+        $typeInvite = isset($input['typeInvite']) ? $input['typeInvite'] : null;
+
 
         switch (strtoupper($type)) {
             case 'AFFILIATION':
@@ -105,7 +110,7 @@ class TriggerEmail
                     PendingInvite::create([
                         'user_id' => $user->id,
                         'invite_sent_at' => Carbon::now(),
-                        'status' => config('speedi.invite_status.PENDING'),
+                        'status' => PendingInvite::STATE_PENDING,
                     ]);
                 }
 
@@ -139,7 +144,8 @@ class TriggerEmail
                         'user_id' => $user->id,
                         'organisation_id' => $organisation->id,
                         'invite_sent_at' => Carbon::now(),
-                        'status' => config('speedi.invite_status.PENDING'),
+                        'status' => PendingInvite::STATE_PENDING,
+                        'type' => $typeInvite,
                     ]);
                 }
 
@@ -178,7 +184,8 @@ class TriggerEmail
                         'user_id' => $delegate->id,
                         'organisation_id' => $organisation->id,
                         'invite_sent_at' => Carbon::now(),
-                        'status' => config('speedi.invite_status.PENDING'),
+                        'status' => PendingInvite::STATE_PENDING,
+                        'type' => $typeInvite,
                     ]);
                 }
 
@@ -204,7 +211,7 @@ class TriggerEmail
                 if (!$inviteId) {
                     PendingInvite::create([
                         'user_id' => $unclaimedUserId,
-                        'status' => config('speedi.invite_status.PENDING'),
+                        'status' => PendingInvite::STATE_PENDING,
                         'invite_sent_at' => Carbon::now()
                     ]);
                 }
@@ -248,7 +255,7 @@ class TriggerEmail
                 if (!$inviteId) {
                     PendingInvite::create([
                         'user_id' => $unclaimedUserId,
-                        'status' => config('speedi.invite_status.PENDING'),
+                        'status' => PendingInvite::STATE_PENDING,
                         'invite_sent_at' => Carbon::now()
                     ]);
                 }
@@ -279,9 +286,11 @@ class TriggerEmail
                 if (!$inviteId) {
                     PendingInvite::create([
                         'user_id' => $unclaimedUserId,
-                        'status' => config('speedi.invite_status.PENDING'),
+                        'status' => PendingInvite::STATE_PENDING,
                         'invite_sent_at' => Carbon::now(),
-                        'invite_code' => $inviteCode
+                        'invite_code' => $inviteCode,
+                        'organisation_id' => $to,
+                        'type' => 'organisation_invite',
                     ]);
                 }
 
@@ -318,7 +327,7 @@ class TriggerEmail
                         'user_id' => $delegate->id,
                         'organisation_id' => $organisation->id,
                         'invite_sent_at' => Carbon::now(),
-                        'status' => config('speedi.invite_status.PENDING'),
+                        'status' => PendingInvite::STATE_PENDING,
                     ]);
                 }
 
@@ -381,6 +390,40 @@ class TriggerEmail
                     '[[AFFILIATION_VERIFICATION_PATH]]' => config('speedi.system.portal_url') . '/user/profile/affiliations?verify=' . $affiliation->verification_code,
                     '[[env(OTP_AFFILIATION_VALIDITY_HOURS)]]' => $validationHours,
                 ];
+
+                break;
+            case 'CUSTODIAN_SPONSORSHIP_REQUEST':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $dataCustodian = User::where('id', $by)->first();
+                $userDelegate = User::where('id', $to)->first();
+                $organisation = Organisation::where('id', $organisationId)->select(['organisation_name'])->first();
+                $project = Project::where('id', $projectId)->select(['title'])->first();
+
+                $newRecipients = [
+                    'id' => $to,
+                    'email' => $userDelegate->email,
+                ];
+
+                $replacements = [
+                    '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[data_custodian_name]]' => $dataCustodian-> first_name . ' ' . $dataCustodian->last_name,
+                    '[[organisation_name]]' => $organisation->organisation_name,
+                    '[[delegate_name]]' => $userDelegate-> first_name . ' ' . $userDelegate->last_name,
+                    '[[project_name]]' => $project->title,
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                    '[[SPONSOR_PROJECT_PATH]]' => config('speedi.system.portal_url'),
+                ];
+
+                PendingInvite::create([
+                    'user_id' => $userDelegate->id,
+                    'organisation_id' => $organisationId,
+                    'project_id' => $projectId,
+                    'invite_sent_at' => Carbon::now(),
+                    'status' => PendingInvite::STATE_PENDING,
+                    'type' => 'sponsorship_request'
+                ]);
 
                 break;
             default: // Unknown type.

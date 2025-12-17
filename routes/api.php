@@ -47,6 +47,7 @@ use App\Http\Controllers\Api\V1\ProjectHasOrganisationController;
 use App\Http\Controllers\Api\V1\CustodianHasProjectUserController;
 use App\Http\Controllers\Api\V1\ProfessionalRegistrationController;
 use App\Http\Controllers\Api\V1\CustodianHasProjectOrganisationController;
+use App\Http\Controllers\Api\V1\TestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -305,6 +306,8 @@ Route::middleware('auth:api')
 
         Route::get('{projectId}/organisations/{organisationId}', 'getProjectByIdAndOrganisationId');
         Route::get('{projectId}/organisations/{organisationId}/users', 'getProjectUsersByOrganisationId');
+
+        Route::patch('{projectId}/organisations/{organisationId}/sponsorship/resendRequest', 'resendSponsorshipRequest');
     });
 
 // --- REGISTRIES ---
@@ -360,6 +363,7 @@ Route::middleware('auth:api')
             Route::get('/{id}/projects/past', 'pastProjects');
             Route::get('/{id}/projects/future', 'futureProjects');
             Route::get('/{id}/projects', 'getProjects');
+            Route::get('/{id}/projects/sponsorships', 'getSponsorshipsProjects');
             Route::get('/{id}/users', 'getUsers');
             Route::get('/{id}/delegates', 'getDelegates');
             Route::get('/{id}/registries', 'getRegistries');
@@ -381,6 +385,10 @@ Route::middleware('auth:api')
             Route::delete('/{id}', 'destroy');
 
             Route::get('/{id}/history', [AuditLogController::class, 'showOrganisationHistory'])->whereNumber('id');
+
+            Route::patch('/{id}/sponsorships/statuses', 'updateSponsorshipStatuses');
+
+            Route::patch('/{id}/resendInvite', 'resentInvite');
         });
 
         Route::controller(PermissionController::class)->group(function () {
@@ -669,6 +677,9 @@ Route::middleware('auth:api')->get('v1/rules', [RulesEngineManagementController:
 
 // ONS CSV RESEARCHER FEED
 Route::post('v1/ons_researcher_feed', [ONSSubmissionController::class, 'receiveCSV']);
+
+// test
+Route::get('v1/test', [TestController::class, 'test']);
 
 // stop all all other routes
 Route::fallback(function () {

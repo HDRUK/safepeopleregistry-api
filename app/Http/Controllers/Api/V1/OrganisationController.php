@@ -24,9 +24,11 @@ use App\Models\EntityModelType;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use App\Models\UserHasDepartments;
+use App\Http\Requests\Organisations\ResentInvite;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
 use App\Exceptions\NotFoundException;
+use App\Models\ProjectHasSponsorship;
 use RegistryManagementController as RMC;
 use App\Models\OrganisationHasDepartment;
 use App\Http\Requests\Organisations\GetUser;
@@ -35,6 +37,7 @@ use App\Http\Requests\Organisations\GetProject;
 use App\Models\CustodianHasProjectOrganisation;
 use App\Http\Requests\Organisations\GetDelegate;
 use App\Http\Requests\Organisations\GetRegistry;
+use App\Models\CustodianHasProjectHasSponsorship;
 use App\Services\DecisionEvaluatorService as DES;
 use App\Http\Requests\Organisations\GetCountUsers;
 use App\Http\Requests\Organisations\GetPastProject;
@@ -52,6 +55,8 @@ use App\Http\Requests\Organisations\GetCountCertifications;
 use App\Http\Requests\Organisations\GetCountPresentProject;
 use App\Http\Requests\Organisations\OrganisationInviteUser;
 use App\Http\Requests\Organisations\OrganisationValidateRor;
+use App\Http\Requests\Organisations\UpdateSponsorshipStatus;
+use App\Traits\Notifications\NotificationOrganisationManager;
 use App\Notifications\Organisations\OrganisationUpdateProfile;
 use App\Http\Requests\Organisations\OrganisationUpdateApprover;
 
@@ -59,6 +64,7 @@ class OrganisationController extends Controller
 {
     use CommonFunctions;
     use Responses;
+    use NotificationOrganisationManager;
 
     protected $decisionEvaluator = null;
 
@@ -109,6 +115,7 @@ class OrganisationController extends Controller
         $this->decisionEvaluator = new DES($request, [EntityModelType::ORG_VALIDATION_RULES]);
 
         $custodianId = $request->get('custodian_id');
+        $perPage = $request->get('per_page');        
 
         if (!$custodianId) {
             $organisations = Organisation::searchViaRequest()
@@ -124,7 +131,8 @@ class OrganisationController extends Controller
                     'registries.user',
                     'registries.user.permissions',
                     'delegates',
-                    'sroOfficer'
+                    'sroOfficer',
+                    'modelState.state'
                 ])
                 ->filterWhen('has_delegates', function ($query, $hasDelegates) {
                     if ($hasDelegates) {
@@ -133,7 +141,7 @@ class OrganisationController extends Controller
                         $query->whereDoesntHave('delegates');
                     }
                 })
-                ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+                ->paginate($perPage ?? (int)$this->getSystemConfig('PER_PAGE'));
 
             $evaluations = $this->decisionEvaluator->evaluate($organisations->items(), true);
             $organisations->setCollection($organisations->getCollection()->map(function ($organisation) use ($evaluations) {
@@ -608,6 +616,8 @@ class OrganisationController extends Controller
                 'organisation_unique_id' => Str::random(40),
             ]);
 
+            $organisation->setState(State::STATE_INVITED);
+
             return $this->CreatedResponse($organisation->id);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -949,6 +959,96 @@ class OrganisationController extends Controller
 
     /**
      * @OA\Get(
+     *      path="/api/v1/organisations/{id}/projects/sponsorships",
+     *      summary="Return an all projects associated with an organisation with sponsorships",
+     *      description="Return an all projects associated with an organisation with sponsorships (i.e. data-custodian)",
+     *      tags={"organisation"},
+     *      summary="organisation@getSponsorshipsProjects",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Organisation ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Organisation ID",
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string"),
+     *              @OA\Property(property="data", type="object",
+     *                  @OA\Property(property="id", type="integer", example="123"),
+     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
+     *                  @OA\Property(property="registry_id", type="integer", example="1"),
+     *                  @OA\Property(property="name", type="string", example="My First Research Project"),
+     *                  @OA\Property(property="public_benefit", type="string", example="A public benefit statement"),
+     *                  @OA\Property(property="runs_to", type="string", example="2026-02-04"),
+     *                  @OA\Property(property="affiliate_id", type="integer", example="2"),
+     *              ),
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *           @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *           @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found"),
+     *          )
+     *      )
+     * )
+     */
+    public function getSponsorshipsProjects(GetProject $request, int $organisationId): JsonResponse
+    {
+        $perPage = $request->get('per_page');     
+
+        $projects = Project::searchViaRequest()
+            ->applySorting()
+            ->filterByCommon()
+            ->filterByState()
+            ->with([
+                'sponsors' => function ($query) use ($organisationId) {
+                    $query->where('organisations.id', $organisationId);
+                },
+                'modelState.state',
+                'custodianHasProjectSponsorships' => function ($query) use ($organisationId) {
+                    $query->whereHas('projectHasSponsorships', function ($query2) use ($organisationId) {
+                        $query2->where('sponsor_id', $organisationId);
+                    })
+                    ->with('modelState.state');
+                },
+            ])
+            ->whereHas('sponsors', function ($query) use ($organisationId) {
+                $query->where('organisations.id', $organisationId);
+            })
+            ->withCount('projectUsers')
+            ->paginate($perPage ?? (int)$this->getSystemConfig('PER_PAGE'));
+
+        if ($projects) {
+            return response()->json([
+                'message' => 'success',
+                'data' => $projects,
+            ], 200);
+        }
+
+        return response()->json([
+            'message' => 'not found',
+            'data' => null,
+        ], 404);
+    }
+    /**
+     * @OA\Get(
      *      path="/api/v1/organisations/{id}/users",
      *      summary="Return all users associated with an organisation",
      *      description="Return all users associated with an organisation",
@@ -1238,7 +1338,8 @@ class OrganisationController extends Controller
                     'type' => 'USER_DELEGATE',
                     'to' => $unclaimedUser->id,
                     'by' => $id,
-                    'identifier' => 'delegate_invite'
+                    'identifier' => 'delegate_invite',
+                    'typeInvite' => 'delegate_invite',
                 ];
             } else {
                 $email = [
@@ -1246,6 +1347,7 @@ class OrganisationController extends Controller
                     'to' => $unclaimedUser->id,
                     'by' => $id,
                     'identifier' => 'organisation_user_invite',
+                    'typeInvite' => 'organisation_user_invite',
                 ];
 
                 $affiliation = Affiliation::create([
@@ -1383,6 +1485,7 @@ class OrganisationController extends Controller
                 'by' => $id,
                 'identifier' => 'custodian_user_invite',
                 'custodianId' => $loggedInUserId,
+                'typeInvite' => 'custodian_user_invite',
             ];
 
             if ($userGroup === 'USERS') {
@@ -1460,6 +1563,41 @@ class OrganisationController extends Controller
                 'message' => 'success',
                 'data' => $organisation,
             ], 201);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    //Hide from swagger docs
+    public function resentInvite(ResentInvite $request, int $id)
+    {
+        try {
+            $loggedInUserId = $request->user()?->id;
+            $loggedInUser = User::where('id', $loggedInUserId)->first();
+
+            $pendingInvites = PendingInvite::where([
+                'organisation_id' => $id,
+                'status' => PendingInvite::STATE_PENDING,
+                'type' => 'organisation_invite'
+            ])->first();
+
+            if (is_null($pendingInvites)) {
+                throw new Exception('Invite not found');
+            }
+
+            $input = [
+                'type' => 'ORGANISATION',
+                'to' => $id,
+                'unclaimed_user_id' => $pendingInvites->user_id,
+                'by' => $id,
+                'identifier' => 'organisation_invite',
+                'userName' => $loggedInUser->name,
+                '$inviteId' => $pendingInvites->id,
+            ];
+
+            TriggerEmail::spawnEmail($input);
+
+            return $this->OKResponse('Organisation invite resent.');
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -1653,7 +1791,7 @@ class OrganisationController extends Controller
                     if ($showPending) {
                         $pendingInviteUserIds = PendingInvite::where([
                             'organisation_id' => $id,
-                            'status' => config('speedi.invite_status.PENDING')
+                            'status' => PendingInvite::STATE_PENDING,
                         ])->pluck('user_id');
 
                         $query->orWhereIn('id', $pendingInviteUserIds);
@@ -1759,6 +1897,60 @@ class OrganisationController extends Controller
             return $this->OKResponse(Organisation::findOrFail($id));
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
+        }
+    }
+
+    public function updateSponsorshipStatuses(UpdateSponsorshipStatus $request, int $id)
+    {
+        $input = $request->all();
+        $loggedInUserId = $request->user()->id;
+
+        try {
+            $projectId = $input['project_id'];
+            $projectHasSponsorship = ProjectHasSponsorship::where([
+                'project_id' => $projectId,
+                'sponsor_id' => $id,
+            ])->first();
+            if (is_null($projectHasSponsorship)) {
+                throw new Exception('The assigned sponsorship for the project was not found.');
+            }
+
+            $chphSponsorship = CustodianHasProjectHasSponsorship::where('project_has_sponsorship_id', $projectHasSponsorship->id)->first();
+            $initState = $chphSponsorship->getState();
+
+            if ($input['status'] === 'approved') {
+                $chphSponsorship->setState(State::STATE_SPONSORSHIP_APPROVED);
+                PendingInvite::where([
+                    'organisation_id' => $id,
+                    'project_id' => $projectId,
+                    'type' => 'sponsorship_request',
+                    'status' => PendingInvite::STATE_PENDING,
+                ])->update([
+                    'status' => PendingInvite::STATE_COMPLETE,
+                ]);
+            }
+
+            if ($input['status'] === 'rejected') {
+                $chphSponsorship->setState(State::STATE_SPONSORSHIP_REJECTED);
+                PendingInvite::where([
+                    'organisation_id' => $id,
+                    'project_id' => $projectId,
+                    'type' => 'sponsorship_request',
+                    'status' => PendingInvite::STATE_PENDING,
+                ])->update([
+                    'status' => PendingInvite::STATE_COMPLETE,
+                ]);
+            }
+
+            $finalState = $chphSponsorship->fresh()->getState();
+            if ($finalState !== $initState) {
+                $this->notifyOnProjectSponsorStateChange($loggedInUserId, $id, $projectId, $input['status']);
+
+            }
+
+            return $this->OKResponse($finalState);
+        } catch (Exception $e) {
+            return $this->ErrorResponse($e->getMessage());
         }
     }
 

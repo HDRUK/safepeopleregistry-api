@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
@@ -220,6 +221,19 @@ class Project extends Model
         );
     }
 
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\Organisation>
+     */
+    public function sponsors(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Organisation::class,
+            'project_has_sponsorships',
+            'project_id',
+            'sponsor_id'
+        );
+    }
+
     public function modelState(): MorphOne
     {
         return $this->morphOne(ModelState::class, 'stateable');
@@ -266,7 +280,6 @@ class Project extends Model
         );
     }
 
-
     public function scopeCustodianHasProjectUser($query, $userDigitalIdent)
     {
         $query->with([
@@ -282,5 +295,32 @@ class Project extends Model
     public function scopeCustodianUsers($query, $projectId)
     {
         return $query->with(['custodians.custodianUsers.user'])->find($projectId);
+    }
+
+    /**
+     * @return HasMany<ProjectHasSponsorship>
+     */
+    public function projectHasSponsorships(): HasMany
+    {
+        return $this->hasMany(
+            ProjectHasSponsorship::class,
+            'project_id',
+            'id'
+        );
+    }
+
+    /**
+     * Shortcut: All of the raw pivot rows linking this Project ↔ Organisation ↔ Custodian
+     */
+    public function custodianHasProjectSponsorships(): HasOneThrough
+    {
+        return $this->hasOneThrough(
+            CustodianHasProjectHasSponsorship::class,  // final model
+            ProjectHasSponsorship::class,              // through model
+            'project_id',                              // FK on project_has_sponsorships → projects.id
+            'project_has_sponsorship_id',              // FK on custodian_has_project_has_sponsorships → project_has_sponsorships.id
+            'id',                                      // local key on projects
+            'id'                                       // local key on project_has_sponsorships
+        );
     }
 }

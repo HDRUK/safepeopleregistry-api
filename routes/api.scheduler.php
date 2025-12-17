@@ -10,9 +10,16 @@ Route::get('/checking_certificates', function (Request $request) {
     ], 200);
 });
 
-
 Route::get('/cheking_security_compliance', function (Request $request) {
     Artisan::call('app:cheking-security-compliance');
+
+    return response()->json([
+        'message' => 'ok',
+    ], 200);
+});
+
+Route::get('/cheking_end_projects', function (Request $request) {
+    Artisan::call('app:checking-projects');
 
     return response()->json([
         'message' => 'ok',
