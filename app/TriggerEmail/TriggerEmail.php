@@ -63,6 +63,7 @@ class TriggerEmail
         $userName = isset($input['userName']) ? $input['userName'] : null;
         $organisationId = isset($input['organisationId']) ? $input['organisationId'] : null;
         $projectId = isset($input['projectId']) ? $input['projectId'] : null;
+        $typeInvite = isset($input['typeInvite']) ? $input['typeInvite'] : null;
 
 
         switch (strtoupper($type)) {
@@ -144,6 +145,7 @@ class TriggerEmail
                         'organisation_id' => $organisation->id,
                         'invite_sent_at' => Carbon::now(),
                         'status' => PendingInvite::STATE_PENDING,
+                        'type' => $typeInvite,
                     ]);
                 }
 
@@ -183,6 +185,7 @@ class TriggerEmail
                         'organisation_id' => $organisation->id,
                         'invite_sent_at' => Carbon::now(),
                         'status' => PendingInvite::STATE_PENDING,
+                        'type' => $typeInvite,
                     ]);
                 }
 
