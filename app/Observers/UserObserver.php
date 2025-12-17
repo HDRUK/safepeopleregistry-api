@@ -156,7 +156,7 @@ class UserObserver
             'user_id' => $user->id,
             'status' => PendingInvite::STATE_PENDING,
         ])->first();
-            
+
         \Log::info('user observer update', [
             'pendingInvites' => $pendingInvites,
             'user_group' => $user->user_group,
@@ -166,9 +166,9 @@ class UserObserver
             'checkInArray' => $pendingInvites && in_array($pendingInvites->type, ['custodian_user_invite', 'organisation_user_invite', 'delegate_invite']),
         ]);
         if ($user->user_group === User::GROUP_USERS &&
-            $user->isDirty('unclaimed') && 
-            $user->getOriginal('unclaimed') === 1 && 
-            $user->unclaimed === 0 && 
+            $user->isDirty('unclaimed') &&
+            $user->getOriginal('unclaimed') === 1 &&
+            $user->unclaimed === 0 &&
             ($pendingInvites && in_array($pendingInvites->type, ['custodian_user_invite', 'organisation_user_invite', 'delegate_invite']))) {
             $affiliations = Affiliation::where('registry_id', $user->registry_id)->first();
             \Log::info('user observer update', [

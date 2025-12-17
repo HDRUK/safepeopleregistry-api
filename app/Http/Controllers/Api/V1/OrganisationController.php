@@ -1570,7 +1570,7 @@ class OrganisationController extends Controller
             $loggedInUser = User::where('id', $loggedInUserId)->first();
 
             $pendingInvites = PendingInvite::where([
-                'organisation_id' => $id, 
+                'organisation_id' => $id,
                 'status' => PendingInvite::STATE_PENDING,
                 'type' => 'organisation_invite'
             ])->first();
