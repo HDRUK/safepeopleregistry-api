@@ -1924,7 +1924,7 @@ class OrganisationController extends Controller
                     'organisation_id' => $id,
                     'project_id' => $projectId,
                     'type' => 'sponsorship_request',
-                    'state' => PendingInvite::STATE_PENDING,
+                    'status' => PendingInvite::STATE_PENDING,
                 ])->update([
                     'status' => PendingInvite::STATE_COMPLETE,
                 ]);
@@ -1936,7 +1936,7 @@ class OrganisationController extends Controller
                     'organisation_id' => $id,
                     'project_id' => $projectId,
                     'type' => 'sponsorship_request',
-                    'state' => PendingInvite::STATE_PENDING,
+                    'status' => PendingInvite::STATE_PENDING,
                 ])->update([
                     'status' => PendingInvite::STATE_COMPLETE,
                 ]);
