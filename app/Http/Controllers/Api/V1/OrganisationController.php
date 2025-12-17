@@ -115,6 +115,7 @@ class OrganisationController extends Controller
         $this->decisionEvaluator = new DES($request, [EntityModelType::ORG_VALIDATION_RULES]);
 
         $custodianId = $request->get('custodian_id');
+        $perPage = $request->get('per_page');        
 
         if (!$custodianId) {
             $organisations = Organisation::searchViaRequest()
@@ -130,7 +131,8 @@ class OrganisationController extends Controller
                     'registries.user',
                     'registries.user.permissions',
                     'delegates',
-                    'sroOfficer'
+                    'sroOfficer',
+                    'modelState.state'
                 ])
                 ->filterWhen('has_delegates', function ($query, $hasDelegates) {
                     if ($hasDelegates) {
@@ -139,7 +141,7 @@ class OrganisationController extends Controller
                         $query->whereDoesntHave('delegates');
                     }
                 })
-                ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+                ->paginate($perPage ?? (int)$this->getSystemConfig('PER_PAGE'));
 
             $evaluations = $this->decisionEvaluator->evaluate($organisations->items(), true);
             $organisations->setCollection($organisations->getCollection()->map(function ($organisation) use ($evaluations) {
@@ -614,6 +616,8 @@ class OrganisationController extends Controller
                 'organisation_unique_id' => Str::random(40),
             ]);
 
+            $organisation->setState(State::STATE_INVITED);
+
             return $this->CreatedResponse($organisation->id);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -1007,6 +1011,8 @@ class OrganisationController extends Controller
      */
     public function getSponsorshipsProjects(GetProject $request, int $organisationId): JsonResponse
     {
+        $perPage = $request->get('per_page');     
+
         $projects = Project::searchViaRequest()
             ->applySorting()
             ->filterByCommon()
@@ -1027,7 +1033,7 @@ class OrganisationController extends Controller
                 $query->where('organisations.id', $organisationId);
             })
             ->withCount('projectUsers')
-            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+            ->paginate($perPage ?? (int)$this->getSystemConfig('PER_PAGE'));
 
         if ($projects) {
             return response()->json([
