@@ -1338,7 +1338,8 @@ class OrganisationController extends Controller
                     'type' => 'USER_DELEGATE',
                     'to' => $unclaimedUser->id,
                     'by' => $id,
-                    'identifier' => 'delegate_invite'
+                    'identifier' => 'delegate_invite',
+                    'typeInvite' => 'delegate_invite',
                 ];
             } else {
                 $email = [
@@ -1346,6 +1347,7 @@ class OrganisationController extends Controller
                     'to' => $unclaimedUser->id,
                     'by' => $id,
                     'identifier' => 'organisation_user_invite',
+                    'typeInvite' => 'organisation_user_invite',
                 ];
 
                 $affiliation = Affiliation::create([
@@ -1483,6 +1485,7 @@ class OrganisationController extends Controller
                 'by' => $id,
                 'identifier' => 'custodian_user_invite',
                 'custodianId' => $loggedInUserId,
+                'typeInvite' => 'custodian_user_invite',
             ];
 
             if ($userGroup === 'USERS') {
@@ -1573,7 +1576,7 @@ class OrganisationController extends Controller
             $loggedInUser = User::where('id', $loggedInUserId)->first();
 
             $pendingInvites = PendingInvite::where([
-                'organisation_id' => $id, 
+                'organisation_id' => $id,
                 'status' => PendingInvite::STATE_PENDING,
                 'type' => 'organisation_invite'
             ])->first();
