@@ -164,7 +164,7 @@ class OrganisationObserver
             Organisation::ACTION_DATA_SECURITY_COMPLETED
         );
 
-        $this->manageAffiliationStates($organisation);
+        // $this->manageAffiliationStates($organisation);
     }
 
     private function checkIsComplete(Organisation $organisation, array $fields, string $action, bool $force = false): void

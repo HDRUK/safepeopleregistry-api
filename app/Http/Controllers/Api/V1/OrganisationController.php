@@ -1899,7 +1899,7 @@ class OrganisationController extends Controller
                 'is_verified' => 1,
             ])->get();
             foreach ($affiliations as $affiliation) {
-                if ($affiliations === State::STATE_AFFILIATION_ORGANISATION_INVITED) {
+                if ($affiliation->getState() === State::STATE_AFFILIATION_ORGANISATION_INVITED) {
                     $affiliation->setState(State::STATE_AFFILIATION_PENDING);
                 }
             }
