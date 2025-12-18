@@ -920,7 +920,7 @@ class ProjectController extends Controller
 
     public function emailOnAddSponsorToProject($loggedInUserId, $projectId, $organisationId)
     {
-        $userDelegates = User::query()
+        $users = User::query()
             ->where([
                 'organisation_id' => $organisationId,
                 'is_delegate' => 1
@@ -928,10 +928,20 @@ class ProjectController extends Controller
             ->select(['id'])
             ->get();
 
-        foreach ($userDelegates as $userDelegate) {
+        if ($users->isEmpty()) {
+            $users = User::query()
+                ->where([
+                    'organisation_id' => $organisationId,
+                    'is_sro' => 1
+                ])
+                ->select(['id'])
+                ->get();
+        }
+
+        foreach ($users as $user) {
             $email = [
                 'type' => 'CUSTODIAN_SPONSORSHIP_REQUEST',
-                'to' => $userDelegate->id,
+                'to' => $user->id,
                 'by' => $loggedInUserId,
                 'organisationId' => $organisationId,
                 'projectId' => $projectId,
