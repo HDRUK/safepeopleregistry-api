@@ -413,7 +413,7 @@ class TriggerEmail
                     '[[project_name]]' => $project->title,
                     '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
                     '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
-                    '[[SPONSOR_PROJECT_PATH]]' => config('speedi.system.portal_url'),
+                    '[[SPONSOR_PROJECT_URL]]' => str_replace("{id}", $projectId, config('speedi.system.sponsor_project_url'))
                 ];
 
                 PendingInvite::create([
