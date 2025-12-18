@@ -430,6 +430,6 @@ class TriggerEmail
                 break;
         }
 
-        SendEmailJob::dispatch($newRecipients, $template, $replacements, $newRecipients['email']);
+        SendEmailJob::dispatch($newRecipients, $template, $replacements, $newRecipients['email'])->onQueue('critical');
     }
 }
