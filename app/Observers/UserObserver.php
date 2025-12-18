@@ -158,13 +158,14 @@ class UserObserver
         ])->first();
 
         if ($user->user_group === User::GROUP_USERS &&
-            $user->isDirty('unclaimed') &&
+            $user->isDirty('unclaimed') && 
             $user->getOriginal('unclaimed') === 1 &&
             $user->unclaimed === 0 &&
             ($pendingInvites && in_array($pendingInvites->type, ['custodian_user_invite', 'organisation_user_invite']))) {
 
             $affiliations = Affiliation::where('registry_id', $user->registry_id)->first();
             if ($affiliations->getState() === State::STATE_AFFILIATION_INVITED) {
+                \Log::info('affiliation state change for user claim - affiliation id: ' . $affiliations->id);
                 $affiliations->setState(State::STATE_AFFILIATION_INFO_REQUIRED);
             }
 

@@ -553,11 +553,22 @@ class AffiliationController extends Controller
 
             $userGroupInvitedBy = User::where('id', $loggedInUser?->invited_by)->first()?->user_group;
 
+            // if ($userGroupInvitedBy === 'ORGANISATIONS') {
+            //     $affiliation->setState(State::STATE_AFFILIATION_APPROVED);
+            // } else {
+            //     $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+            // }
+
             if ($userGroupInvitedBy === 'ORGANISATIONS') {
                 $affiliation->setState(State::STATE_AFFILIATION_APPROVED);
             } else {
-                $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+                if (!$organisation->system_approved) {
+                    $affiliation->setState(State::STATE_AFFILIATION_ORGANISATION_INVITED);
+                } else {
+                    $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+                }
             }
+
 
             $array = [
                 'verification_code' => null,
