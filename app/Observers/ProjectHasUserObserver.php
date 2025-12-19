@@ -16,7 +16,6 @@ use App\Models\ProjectHasOrganisation;
 use Spatie\WebhookServer\WebhookCall;
 use App\Traits\ValidationManager;
 use Illuminate\Support\Facades\Auth;
-use App\Jobs\UpdateProjectUserValidation;
 use App\Models\CustodianHasProjectUser;
 use Illuminate\Support\Facades\Notification;
 use Carbon\Carbon;

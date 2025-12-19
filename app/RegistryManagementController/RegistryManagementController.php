@@ -169,7 +169,7 @@ class RegistryManagementController
                             'user_id' => $user->id
                         ];
                     }
-                    
+
                     $checkUser = User::where('email', $input['email'])->where('keycloak_id', $input['sub'])->first();
                     if (!is_null($checkUser)) {
                         DebugLog::create([

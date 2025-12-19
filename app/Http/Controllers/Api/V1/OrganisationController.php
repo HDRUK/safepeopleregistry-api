@@ -115,7 +115,7 @@ class OrganisationController extends Controller
         $this->decisionEvaluator = new DES($request, [EntityModelType::ORG_VALIDATION_RULES]);
 
         $custodianId = $request->get('custodian_id');
-        $perPage = $request->get('per_page');        
+        $perPage = $request->get('per_page');
 
         if (!$custodianId) {
             $organisations = Organisation::searchViaRequest()
@@ -1011,7 +1011,7 @@ class OrganisationController extends Controller
      */
     public function getSponsorshipsProjects(GetProject $request, int $organisationId): JsonResponse
     {
-        $perPage = $request->get('per_page');     
+        $perPage = $request->get('per_page');
 
         $projects = Project::searchViaRequest()
             ->applySorting()
