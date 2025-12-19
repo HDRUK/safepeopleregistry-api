@@ -46,11 +46,20 @@ class AuthController extends Controller
     {
         $response = Keycloak::getUserInfo($request->headers->get('Authorization'));
         $payload = $response->json();
+        \Log::info('registerKeycloakUser - Keycloak response', [
+            'payload' => $payload,
+        ]);
 
         $createdUser = RMC::createNewUser($payload, $request);
+        \Log::info('registerKeycloakUser - createNewUser', [
+            'payload' => $payload,
+        ]);
 
         if ($createdUser) {
             $userId = isset($createdUser['unclaimed_user_id']) ? $createdUser['unclaimed_user_id'] : $createdUser['user_id'];
+            \Log::info('registerKeycloakUser - userId', [
+                'userId' => $userId,
+            ]);
 
             $user = User::where('id', $userId)->first();
 
@@ -85,7 +94,6 @@ class AuthController extends Controller
                     }
                 }
 
-
                 return response()->json([
                     'message' => 'success',
                     'data' => $user,
@@ -94,7 +102,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'message' => 'success',
-                'data' => null,
+                'data' => $user,
             ], 201);
         }
 

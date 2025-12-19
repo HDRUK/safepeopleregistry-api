@@ -74,8 +74,11 @@ class RegistryManagementController
         $unclaimedUser = null;
         $user = null;
 
-        try {
+        // try {
             $unclaimedUser = User::where('email', $input['email'])->whereNull('keycloak_id')->first();
+            \Log::info('RMC - createNewUser', [
+                'unclaimedUser' => $unclaimedUser,
+            ]);
 
             if ($unclaimedUser) {
                 Log::debug('unclaimed user detected - {id}', ['id' => $unclaimedUser->id]);
@@ -97,6 +100,7 @@ class RegistryManagementController
                 $unclaimedUser->t_and_c_agreement_date = now();
 
                 $unclaimedUser->save();
+                $unclaimedUser->fresh();
 
                 return [
                     'unclaimed_user_id' => $unclaimedUser->id
@@ -161,11 +165,29 @@ class RegistryManagementController
                                 'log' => 'unable to update user ' . $user->id . ' with registry_id ' . $registryId,
                             ]);
                         }
+
+                        \Log::info('RMC - createUser', [
+                            'user' => $user,
+                            'userId' => $user->id,
+                        ]);
                         Keycloak::updateSoursdDigitalIdentifier($user);
 
                         return [
                             'user_id' => $user->id
                         ];
+                    } else {
+                        DebugLog::create([
+                            'class' => RegistryManagementController::class,
+                            'log' => 'user detected - ' . $input['sub'],
+                        ]);
+
+                        $user = User::where('email', $input['email'])->where('keycloak_id', $input['sub'])->first();
+
+                        if (!is_null($user)) {
+                            return [
+                                'user_id' => $user->id
+                            ];
+                        }
                     }
 
                     return false;
@@ -195,16 +217,16 @@ class RegistryManagementController
             }
 
             return false;
-        } catch (Exception $e) {
-            DebugLog::create([
-                'class' => RegistryManagementController::class,
-                'log' => 'exception ' . json_encode($e),
-            ]);
-            throw new Exception($e);
-        } finally {
-            unset($unclaimedUser);
-            unset($user);
-        }
+        // } catch (Exception $e) {
+        //     DebugLog::create([
+        //         'class' => RegistryManagementController::class,
+        //         'log' => 'exception ' . json_encode($e),
+        //     ]);
+        //     throw new Exception($e);
+        // } finally {
+        //     unset($unclaimedUser);
+        //     unset($user);
+        // }
     }
 
     /**
