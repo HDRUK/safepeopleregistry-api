@@ -501,7 +501,7 @@ class EmailTemplatesSeeder extends Seeder
                               <mj-text padding="10px 25px 10px 25px" align="left">
                               The above code is only valid for [[env(OTP_VALIDITY_MINUTES)]] minute(s).
                               <br><br>
-                              If you didn"t request this email, worry not, you can safely ignore it.
+                              If you didn\'t request this email, worry not, you can safely ignore it.
                               </mj-text>
                             </mj-column>
                           </mj-section>
@@ -545,7 +545,7 @@ class EmailTemplatesSeeder extends Seeder
                                   <div><br></div>
                                   The above code is only valid for [[env(OTP_VALIDITY_MINUTES)]] minute(s).
                                   <div><br></div>
-                                  If you didn"t request this email, worry not, you can safely ignore it.
+                                  If you didn\'t request this email, worry not, you can safely ignore it.
                                   <div><br></div>
                                   ' . $this->supportFooter . '
 
@@ -1048,9 +1048,9 @@ class EmailTemplatesSeeder extends Seeder
                                   Verify your [[env(APP_NAME)]] Affiliation Email address
                                   <div><br></div>
                                   A Safe People Registry affiliation has been made with this email address. If this was you, click the link below to verify your email address.
-                                  If you didn"t create this account, please contact us at [[env(SUPPORT_EMAIL)]] so that we can follow up.
+                                  If you didn\'t create this account, please contact us at [[env(SUPPORT_EMAIL)]] so that we can follow up.
                                   <div><br></div>
-                                  This link will expire within [[env(OTP_VALIDITY_HOURS)]] hours.
+                                  This link will expire within [[env(OTP_AFFILIATION_VALIDITY_HOURS)]] hours.
                                   <div><br></div>
                                   ' . $this->supportFooter . '
                                 </mj-text>

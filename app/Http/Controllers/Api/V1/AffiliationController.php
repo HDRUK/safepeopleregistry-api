@@ -556,8 +556,13 @@ class AffiliationController extends Controller
             if ($userGroupInvitedBy === 'ORGANISATIONS') {
                 $affiliation->setState(State::STATE_AFFILIATION_APPROVED);
             } else {
-                $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+                if (!$organisation->system_approved) {
+                    $affiliation->setState(State::STATE_AFFILIATION_ORGANISATION_INVITED);
+                } else {
+                    $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+                }
             }
+
 
             $array = [
                 'verification_code' => null,

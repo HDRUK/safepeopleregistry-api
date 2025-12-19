@@ -118,6 +118,7 @@ class State extends Model
     public const STATE_ORGANISATION_REGISTERED = 'organisation_registered';  
 
     public const STATE_AFFILIATION_INFO_REQUIRED = 'affiliation_info_required';
+    public const STATE_AFFILIATION_ORGANISATION_INVITED = 'affiliation_organisation_invited';
 
     public const STATES = [
         self::STATE_INVITED,
@@ -155,5 +156,6 @@ class State extends Model
         self::STATE_SPONSORSHIP_REJECTED,
         self::STATE_AFFILIATION_INFO_REQUIRED,
         self::STATE_ORGANISATION_REGISTERED
+        self::STATE_AFFILIATION_ORGANISATION_INVITED,
     ];
 }

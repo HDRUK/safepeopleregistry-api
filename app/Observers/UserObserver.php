@@ -165,6 +165,7 @@ class UserObserver
 
             $affiliations = Affiliation::where('registry_id', $user->registry_id)->first();
             if ($affiliations->getState() === State::STATE_AFFILIATION_INVITED) {
+                \Log::info('affiliation state change for user claim - affiliation id: ' . $affiliations->id);
                 $affiliations->setState(State::STATE_AFFILIATION_INFO_REQUIRED);
             }
 
