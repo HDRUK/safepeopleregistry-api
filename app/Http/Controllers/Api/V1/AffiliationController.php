@@ -296,7 +296,7 @@ class AffiliationController extends Controller
             }
 
             $verificationCode = null;
-            if (!$organisation->unclaimed && $input['current_employer']) {
+            if ($input['current_employer']) {
                 $verificationCode = Str::uuid()->toString();
                 $array['verification_code'] = $verificationCode;
                 $array['verification_sent_at'] = Carbon::now();
@@ -306,16 +306,11 @@ class AffiliationController extends Controller
 
             $affiliation = Affiliation::create($array);
 
-            if ($organisation->unclaimed) {
-                $affiliation->setState(State::STATE_AFFILIATION_INVITED);
-            }
-
-            if (!$organisation->unclaimed && $verificationCode) {
+            if ($input['current_employer'] && $verificationCode) {
                 $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
-
                 $this->sendEmailVerificationAffiliation($affiliation);
             } else {
-                $affiliation->setState(State::STATE_AFFILIATION_INVITED);
+                $affiliation->setState(State::STATE_AFFILIATION_PENDING);
             }
 
             return response()->json([
