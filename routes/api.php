@@ -665,7 +665,7 @@ Route::middleware('auth:api')
 Route::prefix('v1/features')
     ->controller(FeatureController::class)
     ->group(function () {
-        Route::get('/', 'index')->withoutMiddleware('auth:api');
+        Route::get('/', 'index');
         Route::middleware('auth:api')->group(function () {
             Route::get('/{featureId}', 'show');
             Route::put('/{featureId}/toggle', 'toggleByFeatureId');
