@@ -662,14 +662,15 @@ Route::middleware('auth:api')
     });
 
 // feature flags
-Route::middleware('auth:api')
-    ->prefix('v1/features')
+Route::prefix('v1/features')
     ->controller(FeatureController::class)
     ->group(function () {
-        Route::get('/', 'index');
-        Route::get('/{featureId}', 'show');
-        Route::put('/{featureId}/toggle', 'toggleByFeatureId');
-        Route::get('/flush', 'flushAllFeatures');
+        Route::get('/', 'index')->withoutMiddleware('auth:api');
+        Route::middleware('auth:api')->group(function () {
+            Route::get('/{featureId}', 'show');
+            Route::put('/{featureId}/toggle', 'toggleByFeatureId');
+            Route::get('/flush', 'flushAllFeatures');
+        });
     });
 
 // --- RULES ---
