@@ -712,7 +712,10 @@ class OrganisationController extends Controller
             //     return $this->ForbiddenResponse();
             // }
 
+            $isRegistering = isset($input['unclaimed']) && $input['unclaimed'] === 0 && $org->unclaimed;
+
             $org->update($input);
+            if($isRegistering) $org->setState(State::STATE_ORGANISATION_REGISTERED);
 
             $loggedInUserId = $request->user()->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();

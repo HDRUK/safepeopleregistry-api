@@ -88,7 +88,10 @@ class BaseDemoSeeder extends Seeder
             'organisation_size' => 2,
             'website' => 'https://www.website1.com/',
             'system_approved' => true,
+            'unclaimed' => 0
         ]);
+
+        $org1->setState(State::STATE_ORGANISATION_REGISTERED);
 
         /*CustodianHasOrganisation::create([
             'organisation_id' => $org1->id,
@@ -291,7 +294,10 @@ National Public Health Ethics Committee for authorization to analyze population 
             'smb_status' => true,
             'organisation_size' => 2,
             'website' => 'https://www.website2.com/',
+            'unclaimed' => 0
         ]);
+
+        $org2->setState(State::STATE_ORGANISATION_REGISTERED);
 
         OrganisationHasCharity::create([
             'organisation_id' => $org2->id,
@@ -398,7 +404,10 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'smb_status' => null,
             'organisation_size' => 2,
             'website' => null,
+            'unclaimed' => 0
         ]);
+
+        $org3->setState(State::STATE_ORGANISATION_REGISTERED);
 
         $org3Depts = [
             11,
@@ -487,7 +496,10 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'smb_status' => true,
             'organisation_size' => 2,
             'website' => 'https://www.hdruk.ac.uk/',
+            'unclaimed' => 0
         ]);
+
+        $orgHDR->setState(State::STATE_ORGANISATION_REGISTERED);
 
 
         // --------------------------------------------------------------------------------
