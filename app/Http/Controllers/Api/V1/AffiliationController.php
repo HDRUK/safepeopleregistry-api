@@ -276,6 +276,7 @@ class AffiliationController extends Controller
         try {
             $input = $request->only(app(Affiliation::class)->getFillable());
 
+            $currentEmployer = isset($input['current_employer']) ? $input['current_employer'] : false;
             $array = [
                 'organisation_id' => $input['organisation_id'],
                 'member_id' => $request['member_id'],
@@ -287,7 +288,7 @@ class AffiliationController extends Controller
                 'email' => $input['email'],
                 'ror' => $input['ror'],
                 'registry_id' => $registryId,
-                'current_employer' => $input['current_employer'] ?? false
+                'current_employer' => $currentEmployer
             ];
 
             $organisation = Organisation::where('id', $array['organisation_id'])->first();
@@ -296,7 +297,7 @@ class AffiliationController extends Controller
             }
 
             $verificationCode = null;
-            if ($input['current_employer']) {
+            if ($currentEmployer) {
                 $verificationCode = Str::uuid()->toString();
                 $array['verification_code'] = $verificationCode;
                 $array['verification_sent_at'] = Carbon::now();
@@ -306,7 +307,7 @@ class AffiliationController extends Controller
 
             $affiliation = Affiliation::create($array);
 
-            if ($input['current_employer'] && $verificationCode) {
+            if ($currentEmployer && $verificationCode) {
                 $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
                 $this->sendEmailVerificationAffiliation($affiliation);
             } else {
