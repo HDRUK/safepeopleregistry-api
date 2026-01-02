@@ -715,7 +715,9 @@ class OrganisationController extends Controller
             $isRegistering = isset($input['unclaimed']) && $input['unclaimed'] === 0 && $org->unclaimed;
 
             $org->update($input);
-            if($isRegistering) $org->setState(State::STATE_ORGANISATION_REGISTERED);
+            if ($isRegistering) {
+                $org->setState(State::STATE_ORGANISATION_REGISTERED);
+            }
 
             $loggedInUserId = $request->user()->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();
@@ -1902,7 +1904,7 @@ class OrganisationController extends Controller
                 'is_verified' => 1,
             ])->get();
             foreach ($affiliations as $affiliation) {
-                if ($affiliation->getState() === State::STATE_AFFILIATION_ORGANISATION_INVITED) {
+                if ($affiliation->getState() === State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS) {
                     $affiliation->setState(State::STATE_AFFILIATION_PENDING);
                 }
             }
