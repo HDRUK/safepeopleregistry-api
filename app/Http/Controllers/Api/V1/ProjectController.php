@@ -666,7 +666,7 @@ class ProjectController extends Controller
             $projectAffiliations = $user->registry->affiliations
                 ->filter(function ($affiliation) use ($user, $projectId) {
                     return $user->registry->projectUsers->contains(function ($projectUser) use ($affiliation, $projectId) {
-                        return $projectUser->affiliation_id == $affiliation->id 
+                        return $projectUser->affiliation_id == $affiliation->id
                             && $projectUser->project_id == $projectId; // Added project check
                     });
                 });
