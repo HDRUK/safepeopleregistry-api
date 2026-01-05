@@ -40,6 +40,7 @@ class ProjectHasUser extends Model
     use HasFactory;
 
     public const USER_IN_PROJECT = 'IN';
+    public const USER_NOT_IN_PROJECT = 'NOT_IN';
 
     public $incrementing = true;
 
