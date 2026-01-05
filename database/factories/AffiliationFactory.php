@@ -34,7 +34,7 @@ class AffiliationFactory extends Factory
             'department' => null,
             'role' => fake()->randomElement(ProjectRole::PROJECT_ROLES),
             'email' => fake()->email(),
-            'ror' => $this->generateRorID(),
+            'ror' => generateRorID(),
             'registry_id' => 1,
         ];
     }
