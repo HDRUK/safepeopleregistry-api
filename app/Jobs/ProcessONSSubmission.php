@@ -40,7 +40,7 @@ class ProcessONSSubmission implements ShouldQueue
     {
         $path = storage_path().'/app/public/scanned/'.$this->file->path;
         $file = fopen($path, 'r');
-        $allData = $this->csvToArray($path);
+        $allData = csvToArray($path);
 
         foreach ($allData as $row) {
             $user = User::where([
