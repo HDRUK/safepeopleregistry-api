@@ -157,7 +157,7 @@ class TestSeeder extends Seeder
                         'department' => 'Research & Development',
                         'role' => 'Lobbyist',
                         'email' => fake()->email(),
-                        'ror' => $this->generateRorID(),
+                        'ror' => generateRorID(),
                         'registry_id' => -1,
                     ],
                 ],

@@ -99,7 +99,7 @@ class AffiliationTest extends TestCase
                     'department' => 'Research',
                     'role' => 'Researcher',
                     'email' => fake()->email(),
-                    'ror' => $this->generateRorID(),
+                    'ror' => generateRorID(),
                     'registry_id' => 1,
                     'current_employer' => false,
                 ]
@@ -128,7 +128,7 @@ class AffiliationTest extends TestCase
                     'department' => 'Research',
                     'role' => 'Researcher',
                     'email' => fake()->email(),
-                    'ror' => $this->generateRorID(),
+                    'ror' => generateRorID(),
                     'registry_id' => 1,
                     'current_employer' => false,
                 ]
