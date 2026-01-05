@@ -29,6 +29,7 @@ use App\Http\Requests\Projects\GetProject;
 use App\Http\Requests\Projects\DeleteProject;
 use App\Http\Requests\Projects\UpdateProject;
 use App\Http\Requests\Projects\GetProjectUsers;
+use Illuminate\Pagination\LengthAwarePaginator;
 use App\Http\Requests\Projects\UpdateProjectUser;
 use App\Models\CustodianHasProjectHasSponsorship;
 use App\Http\Requests\Projects\MakePrimaryContact;
@@ -633,7 +634,7 @@ class ProjectController extends Controller
         };
 
         $userProjectFilter = request()->get('user_project_filter');
-        if ($userProjectFilter && !in_array(strtoupper($userProjectFilter), ['IN'])) {
+        if ($userProjectFilter && !in_array(strtoupper($userProjectFilter), ['IN', 'NOT_IN'])) {
             return $this->ErrorResponse('Invalid project filter.');
         }
 
@@ -645,6 +646,11 @@ class ProjectController extends Controller
                     $q->where('project_id', $projectId);
                 });
             })
+            ->when(strtoupper($userProjectFilter) === ProjectHasUser::USER_NOT_IN_PROJECT, function ($query) use ($projectId) {
+                $query->whereDoesntHave('registry.projectUsers', function ($q) use ($projectId) {
+                    $q->where('project_id', $projectId);
+                });
+            })
             ->with([
                 'modelState',
                 'registry.affiliations',
@@ -652,31 +658,42 @@ class ProjectController extends Controller
                 'registry.projectUsers.role',
                 'registry.projectUsers.affiliation'
             ])
-            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+            ->get();
 
         $idCounter = 1;
 
-        $expandedUsers = $users->getCollection()->flatMap(function ($user) use ($projectId, &$idCounter) {
-            return $user->registry->affiliations
-                ->filter(function ($affiliation) use ($user) {
-                    return $user->registry->projectUsers->contains(function ($projectUser) use ($affiliation) {
-                        return $projectUser->affiliation_id == $affiliation->id;
+        $expandedUsers = $users->flatMap(function ($user) use ($projectId, &$idCounter) {
+            $projectAffiliations = $user->registry->affiliations
+                ->filter(function ($affiliation) use ($user, $projectId) {
+                    return $user->registry->projectUsers->contains(function ($projectUser) use ($affiliation, $projectId) {
+                        return $projectUser->affiliation_id == $affiliation->id
+                            && $projectUser->project_id == $projectId; // Added project check
                     });
-                })
-                ->map(function ($affiliation) use ($user, $projectId, &$idCounter) {
-                    return $this->formatProjectUserAffiliation($affiliation, $user, $projectId, $idCounter++);
                 });
+
+            // If no affiliations for this project
+            if ($projectAffiliations->isEmpty()) {
+                $projectAffiliations = $user->registry->affiliations; // or return empty, depends on your needs
+            }
+
+            return $projectAffiliations->map(function ($affiliation) use ($user, $projectId, &$idCounter) {
+                return $this->formatProjectUserAffiliation($affiliation, $user, $projectId, $idCounter++);
+            });
         });
 
-        $paginatedResult = new \Illuminate\Pagination\LengthAwarePaginator(
-            $expandedUsers,
-            $users->total(),
-            $users->perPage(),
-            $users->currentPage(),
-            ['path' => $request->url(), 'query' => $request->query()]
+        $perPage = request()->get('per_page', (int)$this->getSystemConfig('PER_PAGE'));
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $currentItems = $expandedUsers->slice(($currentPage - 1) * $perPage, $perPage)->values();
+
+        $paginatedUsers = new LengthAwarePaginator(
+            $currentItems,
+            $expandedUsers->count(),
+            $perPage,
+            $currentPage,
+            ['path' => LengthAwarePaginator::resolveCurrentPath(), 'query' => $request->query()]
         );
 
-        return $this->OKResponse($paginatedResult);
+        return $this->OKResponse($paginatedUsers);
     }
 
     /**
