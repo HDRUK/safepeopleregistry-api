@@ -64,7 +64,7 @@ class PendingInviteController extends Controller
         $pendingInvites = PendingInvite::query()
             ->searchViaRequest()
             ->with([
-                'user:id,name,email,user_group,unclaimed',
+                'user:id,name,email,user_group,unclaimed'
             ])
             ->whereHas('user', function ($q1) use ($userGroupFilter) {
                 if ($userGroupFilter !== null) {
