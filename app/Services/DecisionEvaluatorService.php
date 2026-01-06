@@ -12,9 +12,9 @@ class DecisionEvaluatorService
 {
     private $custodianRules = [];
 
-    public function __construct(Request $request, array $validationType)
+    public function __construct(array $validationType)
     {
-        $this->custodianRules = REMC::loadCustodianRules($request, $validationType);
+        $this->custodianRules = REMC::loadCustodianRules($validationType);
     }
 
     public function evaluate($models, $batch = false)
@@ -77,6 +77,7 @@ class DecisionEvaluatorService
 
         if (!$ruleClass->evaluate($model, $conditions)) {
             $retVal['passed'] = false;
+            $retVal['ruleId'] = $rule->id;
             $retVal['failed_rules'] = [
                 'rule' => class_basename($ruleClass),
                 'status' => 'failed',
@@ -85,6 +86,7 @@ class DecisionEvaluatorService
             ];
         } else {
             $retVal = [
+                'ruleId' => $rule->id,
                 'rule' => class_basename($ruleClass),
                 'conditions' => $conditions,
                 'actual' => is_array($actual) ? json_encode($actual) : $actual,

@@ -112,7 +112,7 @@ class OrganisationController extends Controller
     public function index(Request $request): JsonResponse
     {
         $organisations = [];
-        $this->decisionEvaluator = new DES($request, [EntityModelType::ORG_VALIDATION_RULES]);
+        $this->decisionEvaluator = new DES([EntityModelType::ORG_VALIDATION_RULES]);
 
         $custodianId = $request->get('custodian_id');
         $perPage = $request->get('per_page');
@@ -214,7 +214,7 @@ class OrganisationController extends Controller
      */
     public function show(GetOrganisation $request, int $id): JsonResponse
     {
-        $this->decisionEvaluator = new DES($request, [EntityModelType::ORG_VALIDATION_RULES]);
+        $this->decisionEvaluator = new DES([EntityModelType::ORG_VALIDATION_RULES]);
 
         $organisation = Organisation::with([
             'departments',

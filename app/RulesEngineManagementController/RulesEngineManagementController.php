@@ -47,7 +47,7 @@ class RulesEngineManagementController
         return $custodianId;
     }
 
-    public static function loadCustodianRules(Request $request, array $validationType): ?Collection
+    public static function loadCustodianRules(array $validationType): ?Collection
     {
         $custodianId = self::determineUserCustodian();
         if (!$custodianId) {
