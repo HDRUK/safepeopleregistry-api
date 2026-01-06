@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
- * @method static \Illuminate\Database\Eloquent\Collection|null loadCustodianRules(\Illuminate\Http\Request $request, array $validationType)
+ * @method static \Illuminate\Database\Eloquent\Collection|null loadCustodianRules(array $validationType)
  */
 class RulesEngineManagementController
 {
