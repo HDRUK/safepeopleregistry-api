@@ -69,7 +69,7 @@ class OrcIDScanner implements ShouldQueue
 
         $this->sendLog('OrcIDScanner - OrcID scanning started. ', 'orcid_scan.job_started', 'job_started', 'start');
 
-        // try {
+        try {
             if ($this->user->consent_scrape && $this->user->orc_id !== null && $this->user->user_group === User::GROUP_USERS) {
                 $this->user->orcid_scanning = 1;
                 $this->user->save();
@@ -91,11 +91,11 @@ class OrcIDScanner implements ShouldQueue
                 $this->user->orcid_scanning_completed_at = Carbon::now();
                 $this->user->save();
             }
-        // } catch (Throwable $e) {
-        //     Log::error('OrcID Scanner failed', [
-        //         'message' => $e->getMessage(),
-        //     ]);
-        // }
+        } catch (Throwable $e) {
+            Log::error('OrcID Scanner failed', [
+                'message' => $e->getMessage(),
+            ]);
+        }
 
         return;
     }
