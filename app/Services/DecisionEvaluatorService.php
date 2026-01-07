@@ -12,9 +12,9 @@ class DecisionEvaluatorService
 {
     private $custodianRules = [];
 
-    public function __construct(array $validationType)
+    public function __construct(array $validationType, ?int $custodianId = null)
     {
-        $this->custodianRules = REMC::loadCustodianRules($validationType);
+        $this->custodianRules = REMC::loadCustodianRules($validationType, $custodianId);
     }
 
     public function evaluate($models, $batch = false)
