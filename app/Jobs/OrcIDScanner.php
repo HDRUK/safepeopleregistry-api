@@ -214,10 +214,6 @@ class OrcIDScanner implements ShouldQueue
 
                 $knownOrg = $this->isAKnownOrganisation(Arr::get($organisation, 'organization.name', ''));
 
-                \Log::info('getEmployers', [
-                    'knowOrg' => $knownOrg
-                ]);
-
                 $dates = [
                     'startDate' => $this->normaliseDate($organisation['start-date']),
                     'endDate' => $this->normaliseDate($organisation['end-date']),
@@ -259,13 +255,7 @@ class OrcIDScanner implements ShouldQueue
                         'orcid_organisation' => Arr::get($organisation, 'organization.name', ''),
                     ]);
 
-                    // $affiliation->setState(State::STATE_AFFILIATION_PENDING);
                     $affiliation->setState(State::STATE_AFFILIATION_INFO_REQUIRED);
-
-                    \Log::info('getEmployers new', [
-                        'affiliation' => $affiliation,
-                        'status' => $affiliation->getState(),
-                    ]);
                 }
 
                 if ($organisationId !== -1) {
@@ -296,7 +286,6 @@ class OrcIDScanner implements ShouldQueue
                     ]);
 
                     if ($organisation->unclaimed) {
-                        // $affiliation->setState(State::STATE_AFFILIATION_PENDING);
                         $affiliation->setState(State::STATE_AFFILIATION_INFO_REQUIRED);
                     }
 
@@ -305,17 +294,8 @@ class OrcIDScanner implements ShouldQueue
 
                         $this->sendEmailVerificationAffiliation($affiliation);
                     } else {
-                        // $affiliation->setState(State::STATE_AFFILIATION_PENDING);
                         $affiliation->setState(State::STATE_AFFILIATION_INFO_REQUIRED);
                     }
-
-                    \Log::info('getEmployers exists', [
-                        'affiliation' => $affiliation,
-                        'organisation' => $organisation,
-                        'isCurrent' => $isCurrent,
-                        'status' => $affiliation->getState(),
-                    ]);
-
                 }
             }
         }
