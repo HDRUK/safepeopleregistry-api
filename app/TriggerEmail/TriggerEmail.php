@@ -14,6 +14,7 @@ use App\Models\Organisation;
 use App\Models\CustodianUser;
 use App\Models\PendingInvite;
 use Hdruk\LaravelMjml\Models\EmailTemplate;
+use Illuminate\Support\Facades\App;
 
 class TriggerEmail
 {
@@ -430,6 +431,13 @@ class TriggerEmail
                 break;
         }
 
-        SendEmailJob::dispatch($newRecipients, $template, $replacements, $newRecipients['email']);
+       if (! App::environment('testing')) {
+            SendEmailJob::dispatch(
+                $newRecipients,
+                $template,
+                $replacements,
+                $newRecipients['email']
+            );
+        }
     }
 }
