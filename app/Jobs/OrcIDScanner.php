@@ -69,7 +69,7 @@ class OrcIDScanner implements ShouldQueue
 
         $this->sendLog('OrcIDScanner - OrcID scanning started. ', 'orcid_scan.job_started', 'job_started', 'start');
 
-        try {
+        // try {
             if ($this->user->consent_scrape && $this->user->orc_id !== null && $this->user->user_group === User::GROUP_USERS) {
                 $this->user->orcid_scanning = 1;
                 $this->user->save();
@@ -91,11 +91,11 @@ class OrcIDScanner implements ShouldQueue
                 $this->user->orcid_scanning_completed_at = Carbon::now();
                 $this->user->save();
             }
-        } catch (Throwable $e) {
-            Log::error('OrcID Scanner failed', [
-                'message' => $e->getMessage(),
-            ]);
-        }
+        // } catch (Throwable $e) {
+        //     Log::error('OrcID Scanner failed', [
+        //         'message' => $e->getMessage(),
+        //     ]);
+        // }
 
         return;
     }
@@ -214,6 +214,10 @@ class OrcIDScanner implements ShouldQueue
 
                 $knownOrg = $this->isAKnownOrganisation(Arr::get($organisation, 'organization.name', ''));
 
+                \Log::info('getEmployers', [
+                    'knowOrg' => $knownOrg
+                ]);
+
                 $dates = [
                     'startDate' => $this->normaliseDate($organisation['start-date']),
                     'endDate' => $this->normaliseDate($organisation['end-date']),
@@ -235,7 +239,7 @@ class OrcIDScanner implements ShouldQueue
                 }
 
                 $isCurrent = ($dates['endDate'] === '') ? 1 : 0;
-                $organisationId = $knownOrg ? $knownOrg->id : -1;
+                $organisationId = is_null($knownOrg) ? -1 : $knownOrg->id;
 
                 if ($organisationId === -1) {
                     $affiliation = Affiliation::create([
@@ -252,9 +256,16 @@ class OrcIDScanner implements ShouldQueue
                         'verification_code' => null,
                         'verification_sent_at' => null,
                         'is_verified' => 0,
+                        'orcid_organisation' => Arr::get($organisation, 'organization.name', ''),
                     ]);
 
-                    $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+                    // $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+                    $affiliation->setState(State::STATE_AFFILIATION_INFO_REQUIRED);
+
+                    \Log::info('getEmployers new', [
+                        'affiliation' => $affiliation,
+                        'status' => $affiliation->getState(),
+                    ]);
                 }
 
                 if ($organisationId !== -1) {
@@ -281,10 +292,12 @@ class OrcIDScanner implements ShouldQueue
                         'verification_code' => $verificationCode,
                         'verification_sent_at' => $verificationSent,
                         'is_verified' => 0,
+                        'orcid_organisation' => $organisation->organisation_name,
                     ]);
 
                     if ($organisation->unclaimed) {
-                        $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+                        // $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+                        $affiliation->setState(State::STATE_AFFILIATION_INFO_REQUIRED);
                     }
 
                     if ($isCurrent && !$organisation->unclaimed && !$affiliation->is_verified) {
@@ -292,8 +305,17 @@ class OrcIDScanner implements ShouldQueue
 
                         $this->sendEmailVerificationAffiliation($affiliation);
                     } else {
-                        $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+                        // $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+                        $affiliation->setState(State::STATE_AFFILIATION_INFO_REQUIRED);
                     }
+
+                    \Log::info('getEmployers exists', [
+                        'affiliation' => $affiliation,
+                        'organisation' => $organisation,
+                        'isCurrent' => $isCurrent,
+                        'status' => $affiliation->getState(),
+                    ]);
+
                 }
             }
         }

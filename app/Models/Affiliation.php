@@ -216,6 +216,7 @@ class Affiliation extends Model
         'verification_confirmed_at',
         'is_verified',
         'current_employer',
+        'orcid_organisation',
     ];
 
     protected $casts = [
