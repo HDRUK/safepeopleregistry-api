@@ -235,7 +235,7 @@ class OrcIDScanner implements ShouldQueue
                 }
 
                 $isCurrent = ($dates['endDate'] === '') ? 1 : 0;
-                $organisationId = $knownOrg ? $knownOrg->id : -1;
+                $organisationId = is_null($knownOrg) ? -1 : $knownOrg->id;
 
                 if ($organisationId === -1) {
                     $affiliation = Affiliation::create([
@@ -252,9 +252,10 @@ class OrcIDScanner implements ShouldQueue
                         'verification_code' => null,
                         'verification_sent_at' => null,
                         'is_verified' => 0,
+                        'orcid_organisation' => Arr::get($organisation, 'organization.name', ''),
                     ]);
 
-                    $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+                    $affiliation->setState(State::STATE_AFFILIATION_INFO_REQUIRED);
                 }
 
                 if ($organisationId !== -1) {
@@ -281,10 +282,11 @@ class OrcIDScanner implements ShouldQueue
                         'verification_code' => $verificationCode,
                         'verification_sent_at' => $verificationSent,
                         'is_verified' => 0,
+                        'orcid_organisation' => $organisation->organisation_name,
                     ]);
 
                     if ($organisation->unclaimed) {
-                        $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+                        $affiliation->setState(State::STATE_AFFILIATION_INFO_REQUIRED);
                     }
 
                     if ($isCurrent && !$organisation->unclaimed && !$affiliation->is_verified) {
@@ -292,7 +294,7 @@ class OrcIDScanner implements ShouldQueue
 
                         $this->sendEmailVerificationAffiliation($affiliation);
                     } else {
-                        $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+                        $affiliation->setState(State::STATE_AFFILIATION_INFO_REQUIRED);
                     }
                 }
             }
