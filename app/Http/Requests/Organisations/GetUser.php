@@ -19,6 +19,11 @@ class GetUser extends BaseFormRequest
                 'integer',
                 'exists:organisations,id',
             ],
+            'email' => [
+                'required',
+                'email',
+                'exists:users,email',
+            ],
         ];
     }
 

@@ -870,14 +870,22 @@ class UserController extends Controller
     // Hide from swagger docs
     public function updateKeycloakUserEmailById(GetUser $request, int $id)
     {
-        $user = User::where('id', $id)->first();
+        try {
+            $input = $request->all();
+            $email = $input['email'];
+            $keycloakToken = $this->getAuthToken();
 
-        $keycloakToken = $this->getAuthToken();
+            Keycloak::updateUserEmail($keycloakToken, $user->keycloak_id, $email);
+            Keycloak::sendVerifyEmail($keycloakToken, $user->keycloak_id);
 
-        Keycloak::updateUserEmail($keycloakToken, $user->keycloak_id, $user->email);
-        Keycloak::sendVerifyEmail($keycloakToken, $user->keycloak_id);
+            User::where('id', $id)->update([
+               'email' => $email
+            ]);
 
-        return $this->OKResponse('Verification email has been sent.');
+            return $this->OKResponse('Verification email has been sent.');
+        } catch (Exception $e) {
+            return $this->ErrorResponse($e->getMessage());
+        }
     }
 
     // Hide from swagger docs
