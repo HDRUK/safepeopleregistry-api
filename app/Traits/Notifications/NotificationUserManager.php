@@ -84,8 +84,13 @@ trait NotificationUserManager
 
     private function getAffiliationUserOrganisation(Affiliation $affiliation): Collection
     {
+        $organisationId = $affiliation->organisation?->id;
+        if (!$organisationId) {
+            return collect();
+        }
+
         $userDelegates = User::where([
-            'organisation_id' => $affiliation?->organisation?->id,
+            'organisation_id' => $organisationId,
             'user_group' => User::GROUP_ORGANISATIONS,
             'is_delegate' => 1,
         ])->get();
@@ -95,7 +100,7 @@ trait NotificationUserManager
         }
 
         $userSros = User::where([
-            'organisation_id' => $affiliation?->organisation?->id,
+            'organisation_id' => $organisationId,
             'user_group' => User::GROUP_ORGANISATIONS,
             'is_sro' => 1,
         ])->get();
@@ -109,7 +114,10 @@ trait NotificationUserManager
 
     private function getAffiliationUserCustodian(Affiliation $affiliation): array
     {
-        $organisationId = $affiliation?->organisation?->id;
+        $organisationId = $affiliation->organisation?->id;
+        if (!$organisationId) {
+            return [];
+        }
 
         $custodianIds = CustodianHasProjectUser::query()
             ->with([
