@@ -431,7 +431,7 @@ class TriggerEmail
                 break;
         }
 
-       if (! App::environment('testing')) {
+       if (! App::environment('cypress')) {
             SendEmailJob::dispatch(
                 $newRecipients,
                 $template,
