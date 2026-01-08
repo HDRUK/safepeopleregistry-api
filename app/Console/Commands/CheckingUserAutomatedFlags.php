@@ -83,17 +83,17 @@ class CheckingUserAutomatedFlags extends Command
         $this->decisionEvaluator = new DecisionEvaluatorService([EntityModelType::USER_VALIDATION_RULES], $cId);
 
         $user = User::with([
-                'permissions',
-                'registry',
-                'registry.files',
-                'registry.affiliations',
-                'pendingInvites',
-                'organisation',
-                'departments',
-                'registry.identity',
-                'registry.education',
-                'registry.trainings',
-            ])->where('id', $uId)->first();
+                    'permissions',
+                    'registry',
+                    'registry.files',
+                    'registry.affiliations',
+                    'pendingInvites',
+                    'organisation',
+                    'departments',
+                    'registry.identity',
+                    'registry.education',
+                    'registry.trainings',
+                ])->where('id', $uId)->first();
         $rules = $this->decisionEvaluator->evaluate($user);
 
         foreach ($rules as $rule) {

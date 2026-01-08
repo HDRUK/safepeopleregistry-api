@@ -81,20 +81,20 @@ class CheckingOrganisationAutomatedFlags extends Command
         $this->decisionEvaluator = new DecisionEvaluatorService([EntityModelType::ORG_VALIDATION_RULES], $cId);
 
         $organisation = Organisation::with([
-                'departments',
-                'subsidiaries',
-                'permissions',
-                'ceExpiryEvidence',
-                'cePlusExpiryEvidence',
-                'isoExpiryEvidence',
-                'dsptkExpiryEvidence',
-                'charities',
-                'registries',
-                'registries.user',
-                'registries.user.permissions',
-                'sector',
-                'files',
-            ])->where('id', $oId)->first();
+                            'departments',
+                            'subsidiaries',
+                            'permissions',
+                            'ceExpiryEvidence',
+                            'cePlusExpiryEvidence',
+                            'isoExpiryEvidence',
+                            'dsptkExpiryEvidence',
+                            'charities',
+                            'registries',
+                            'registries.user',
+                            'registries.user.permissions',
+                            'sector',
+                            'files',
+                        ])->where('id', $oId)->first();
         $rules = $this->decisionEvaluator->evaluate($organisation);
 
         foreach ($rules as $rule) {
