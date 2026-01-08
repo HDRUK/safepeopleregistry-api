@@ -3,7 +3,6 @@
 namespace App\Traits\Notifications;
 
 use App\Models\User;
-use App\Models\Custodian;
 use App\Models\Affiliation;
 use App\Models\CustodianUser;
 use App\Models\DecisionModel;
@@ -13,6 +12,7 @@ use Illuminate\Support\Facades\Notification;
 use App\Notifications\UserChangeAutomatedFlags;
 use App\Notifications\Affiliations\AffiliationChanged;
 use App\Notifications\Affiliations\AffiliationCreated;
+use App\Models\Custodian;
 
 trait NotificationUserManager
 {
@@ -85,7 +85,10 @@ trait NotificationUserManager
         $userId = $decisionModelLog->subject_id;
         $user = User::where('id', $userId)->first();
         $custodianId = $decisionModelLog->custodian_id;
-        $userCustodian = User::where('custodian_user_id', $custodianId)->first();
+        $userCustodian = User::where([
+            'custodian_user_id' => $custodianId,
+            'user_group' => User::GROUP_CUSTODIANS,
+        ])->first();
         $custodian = Custodian::where('id', $custodianId)->first();
         $ruleId = $decisionModelLog->decision_model_id;
         $decisionModel = DecisionModel::where('id', $ruleId)->first();
