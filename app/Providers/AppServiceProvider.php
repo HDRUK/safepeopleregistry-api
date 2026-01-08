@@ -13,6 +13,7 @@ use App\Models\CustodianUser;
 use App\Models\ProjectHasUser;
 use App\Observers\FileObserver;
 use App\Observers\UserObserver;
+use App\Models\DecisionModelLog;
 use App\Models\UserHasDepartments;
 use App\Observers\ONSFileObserver;
 use App\Models\ProjectHasCustodian;
@@ -34,6 +35,7 @@ use App\Observers\CustodianUserObserver;
 use App\Models\OrganisationHasSubsidiary;
 use App\Observers\ProjectHasUserObserver;
 use App\Models\CustodianHasValidationCheck;
+use App\Observers\DecisionModelLogObserver;
 use App\Observers\UserHasDepartmentsObserver;
 use App\Observers\ProjectHasCustodianObserver;
 use App\Observers\RegistryHasTrainingObserver;
@@ -87,6 +89,6 @@ class AppServiceProvider extends ServiceProvider
         // currently Training but is to be moved to RegistryHasTraining...
         // RegistryHasTraining::observe(RegistryHasTrainingObserver::class);
         DatabaseNotification::observe(NotificationObserver::class);
-
+        DecisionModelLog::observe(DecisionModelLogObserver::class);
     }
 }

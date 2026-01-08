@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('decision_model_logs', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('decision_model_id');
-            $table->string('model_type');
+            $table->unsignedBigInteger('custodian_id');
             $table->unsignedBigInteger('subject_id');
+            $table->string('model_type')->nullable();
             $table->tinyInteger('status')->default(false);
-            $table->timestamps();
         });
     }
 

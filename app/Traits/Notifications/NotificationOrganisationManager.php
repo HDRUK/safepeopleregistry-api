@@ -52,6 +52,11 @@ trait NotificationOrganisationManager
         }
     }
 
+    public function notifyOnOrganisationChangeAutomatedFlags($decisionModelLog)
+    {
+
+    }
+
     public function getUsersByProjectId($projectId)
     {
         $userIds = CustodianHasProjectUser::query()

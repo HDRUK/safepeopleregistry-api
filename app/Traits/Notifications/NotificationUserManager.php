@@ -5,9 +5,11 @@ namespace App\Traits\Notifications;
 use App\Models\User;
 use App\Models\Affiliation;
 use App\Models\CustodianUser;
+use App\Models\DecisionModel;
 use Illuminate\Support\Collection;
 use App\Models\CustodianHasProjectUser;
 use Illuminate\Support\Facades\Notification;
+use App\Notifications\UserChangeAutomatedFlags;
 use App\Notifications\Affiliations\AffiliationChanged;
 use App\Notifications\Affiliations\AffiliationCreated;
 
@@ -75,6 +77,18 @@ trait NotificationUserManager
                 Notification::send($custodian, new AffiliationChanged($user, $old, $affiliation, 'custodian', $sendAffiliationNotification));
             }
         }
+    }
+
+    public function notifyOnUserChangeAutomatedFlags($decisionModelLog)
+    {
+        $userId = $decisionModelLog->subject_id;
+        $user = User::where('id', $userId)->first();
+        $custodianId = $decisionModelLog->custodian_id;
+        $userCustodian = user::where('custodian_user_id', $custodianId)->first();
+        $ruleId = $decisionModelLog->decision_model_id;
+        $decisionModel = DecisionModel::where('id', $ruleId)->first();
+
+        Notification::send($userCustodian, new UserChangeAutomatedFlags($user, $userCustodian, $decisionModel));
     }
 
     public function getAffiliationUser(Affiliation $affiliation): ?User

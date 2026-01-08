@@ -4,9 +4,13 @@ namespace App\Console\Commands;
 
 use App\Models\User;
 use App\Models\Custodian;
+use Illuminate\Support\Arr;
 use App\Models\EntityModelType;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\App;
 use App\Models\CustodianHasProjectUser;
+use App\Models\DecisionModelLog;
+use App\Models\Notification;
 use App\Services\DecisionEvaluatorService;
 
 class CheckingUserAutomatedFlags extends Command
@@ -53,6 +57,7 @@ class CheckingUserAutomatedFlags extends Command
 
             foreach ($userIds as $userId) {
                 $this->getUserById($custodianId, $userId);
+                $this->info("checking rules for user id :: {$userId} :: done");
             }
 
         }
@@ -78,11 +83,15 @@ class CheckingUserAutomatedFlags extends Command
             ])->where('id', $uId)->first();
         $rules = $this->decisionEvaluator->evaluate($user);
 
-        dd([
-            'uid' => $uId,
-            // 'rules' => $decisionEvaluator->evaluate($user),
-            'rules' => $rules,
-        ]);
-
+        foreach ($rules as $rule) {
+            DecisionModelLog::updateOrCreate([
+                'decision_model_id' => $rule['ruleId'],
+                'custodian_id' => $cId,
+                'subject_id' => $uId,
+                'model_type' => 'User',
+            ],[
+                'status' => $rule['status'],
+            ]);
+        }
     }
 }

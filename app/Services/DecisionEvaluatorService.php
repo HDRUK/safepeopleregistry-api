@@ -76,8 +76,8 @@ class DecisionEvaluatorService
         }
 
         if (!$ruleClass->evaluate($model, $conditions)) {
-            $retVal['passed'] = false;
             $retVal['ruleId'] = $rule->id;
+            $retVal['status'] = false;
             $retVal['failed_rules'] = [
                 'rule' => class_basename($ruleClass),
                 'status' => 'failed',
