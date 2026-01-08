@@ -102,7 +102,7 @@ class CheckingOrganisationAutomatedFlags extends Command
                 'decision_model_id' => $rule['ruleId'],
                 'custodian_id' => $cId,
                 'subject_id' => $oId,
-                'model_type' => 'Organisation',
+                'model_type' => DecisionModelLog::DECISION_MODEL_ORGANISATIONS,
             ], [
                 'status' => $rule['status'],
             ]);

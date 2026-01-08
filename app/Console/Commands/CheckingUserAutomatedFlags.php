@@ -101,7 +101,7 @@ class CheckingUserAutomatedFlags extends Command
                 'decision_model_id' => $rule['ruleId'],
                 'custodian_id' => $cId,
                 'subject_id' => $uId,
-                'model_type' => 'User',
+                'model_type' => DecisionModelLog::DECISION_MODEL_USERS,
             ], [
                 'status' => $rule['status'],
             ]);

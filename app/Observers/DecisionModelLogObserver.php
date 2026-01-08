@@ -14,11 +14,11 @@ class DecisionModelLogObserver
     public function updated(DecisionModelLog $decisionModelLog)
     {
         if ((bool)$decisionModelLog->getOriginal('status') !== (bool)$decisionModelLog->status) {
-            if ($decisionModelLog->model_type === 'User') {
+            if ($decisionModelLog->model_type === DecisionModelLog::DECISION_MODEL_USERS) {
                 $this->notifyOnUserChangeAutomatedFlags($decisionModelLog);
             }
 
-            if ($decisionModelLog->model_type === 'Organisation') {
+            if ($decisionModelLog->model_type === DecisionModelLog::DECISION_MODEL_ORGANISATIONS) {
                 $this->notifyOnOrganisationChangeAutomatedFlags($decisionModelLog);
             }
         }

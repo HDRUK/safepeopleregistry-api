@@ -10,6 +10,9 @@ class DecisionModelLog extends Model
 
     public $timestamps = false;
 
+    public const DECISION_MODEL_USERS = 'USERS';
+    public const DECISION_MODEL_ORGANISATIONS = 'ORGANISATIONS';
+
     protected $fillable = [
         'decision_model_id',
         'custodian_id',
