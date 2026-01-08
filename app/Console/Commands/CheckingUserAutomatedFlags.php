@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Exception;
 use App\Models\User;
 use App\Models\Custodian;
 use App\Models\EntityModelType;
@@ -9,6 +10,7 @@ use Illuminate\Console\Command;
 use App\Models\CustodianHasProjectUser;
 use App\Models\DecisionModelLog;
 use App\Services\DecisionEvaluatorService;
+use Illuminate\Support\Facades\Log;
 
 class CheckingUserAutomatedFlags extends Command
 {
@@ -33,33 +35,47 @@ class CheckingUserAutomatedFlags extends Command
      */
     public function handle()
     {
-        $custodianIds = Custodian::query()
-            ->pluck('id')
-            ->toArray();
-
-        foreach ($custodianIds as $custodianId) {
-            $userIds = CustodianHasProjectUser::query()
-                ->where([
-                    'custodian_id' => $custodianId,
-                ])
-                ->with([
-                    'projectHasUser.registry.user'
-                ])
-                ->get()
-                ->map(fn ($item) => $item->projectHasUser->registry?->user?->id)
-                ->filter()
-                ->unique()
-                ->values()
+        try {
+            $custodianIds = Custodian::query()
+                ->pluck('id')
                 ->toArray();
 
-            foreach ($userIds as $userId) {
-                $this->checkUserById($custodianId, $userId);
-                $this->info("checking rules for user id :: {$userId} :: done");
+            foreach ($custodianIds as $custodianId) {
+                $userIds = CustodianHasProjectUser::query()
+                    ->where([
+                        'custodian_id' => $custodianId,
+                    ])
+                    ->with([
+                        'projectHasUser.registry.user'
+                    ])
+                    ->get()
+                    ->map(fn ($item) => $item->projectHasUser->registry?->user?->id)
+                    ->filter()
+                    ->unique()
+                    ->values()
+                    ->toArray();
+
+                foreach ($userIds as $userId) {
+                    $this->checkUserById($custodianId, $userId);
+                    $this->info("checking rules for user id :: {$userId} :: done");
+                }
+
             }
 
-        }
+            return Command::SUCCESS;
+        } catch (Exception $e) {
+            $this->error('An error occurred: ' . $e->getMessage());
+            $this->newLine();
+            $this->line('Stack trace:');
+            $this->line($e->getTraceAsString());
 
-        return Command::SUCCESS;
+                        
+            Log::error('Command checking user automated flags', [
+                'message' => $e->getMessage()
+            ]);
+            
+            return Command::FAILURE;
+        }
     }
 
     public function checkUserById(int $cId, int $uId)

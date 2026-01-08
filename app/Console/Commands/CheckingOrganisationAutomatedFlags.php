@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Exception;
 use App\Models\Custodian;
 use App\Models\Organisation;
 use App\Models\EntityModelType;
@@ -9,6 +10,7 @@ use Illuminate\Console\Command;
 use App\Models\DecisionModelLog;
 use App\Services\DecisionEvaluatorService;
 use App\Models\CustodianHasProjectOrganisation;
+use Illuminate\Support\Facades\Log;
 
 class CheckingOrganisationAutomatedFlags extends Command
 {
@@ -33,32 +35,45 @@ class CheckingOrganisationAutomatedFlags extends Command
      */
     public function handle()
     {
-        $custodianIds = Custodian::query()
-            ->pluck('id')
-            ->toArray();
-
-        foreach ($custodianIds as $custodianId) {
-            $organisationIds = CustodianHasProjectOrganisation::query()
-                ->where([
-                    'custodian_id' => $custodianId,
-                ])
-                ->with([
-                    'projectOrganisation.organisation'
-                ])
-                ->get()
-                ->map(fn ($item) => $item->projectOrganisation?->organisation?->id)
-                ->filter()
-                ->unique()
-                ->values()
+        try {
+            $custodianIds = Custodian::query()
+                ->pluck('id')
                 ->toArray();
 
-            foreach ($organisationIds as $organisationId) {
-                $this->checkOrganisationById($custodianId, $organisationId);
-                $this->info("checking rules for organisation id :: {$organisationId} :: done");
-            }
-        }
+            foreach ($custodianIds as $custodianId) {
+                $organisationIds = CustodianHasProjectOrganisation::query()
+                    ->where([
+                        'custodian_id' => $custodianId,
+                    ])
+                    ->with([
+                        'projectOrganisation.organisation'
+                    ])
+                    ->get()
+                    ->map(fn ($item) => $item->projectOrganisation?->organisation?->id)
+                    ->filter()
+                    ->unique()
+                    ->values()
+                    ->toArray();
 
-        return Command::SUCCESS;
+                foreach ($organisationIds as $organisationId) {
+                    $this->checkOrganisationById($custodianId, $organisationId);
+                    $this->info("checking rules for organisation id :: {$organisationId} :: done");
+                }
+            }
+
+            return Command::SUCCESS;
+        } catch (Exception $e) {
+            $this->error('An error occurred: ' . $e->getMessage());
+            $this->newLine();
+            $this->line('Stack trace:');
+            $this->line($e->getTraceAsString());
+            
+            Log::error('Command checking organisation automated flags', [
+                'message' => $e->getMessage()
+            ]);
+
+            return Command::FAILURE;
+        }
     }
 
     public function checkOrganisationById(int $cId, int $oId)
