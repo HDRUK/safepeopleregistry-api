@@ -49,7 +49,7 @@ class CheckingUserAutomatedFlags extends Command
                     'projectHasUser.registry.user'
                 ])
                 ->get()
-                ->map(fn($item) => $item->projectHasUser?->registry?->user?->id)
+                ->map(fn($item) => $item->projectHasUser->registry?->user?->id)
                 ->filter()
                 ->unique()
                 ->values()
