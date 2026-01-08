@@ -19,7 +19,7 @@ class DecisionModelLogObserver
             }
 
             if ($decisionModelLog->model_type === 'Organisation') {
-                // $this->notifyOnOrganisationChangeAutomatedFlags($decisionModelLog);
+                $this->notifyOnOrganisationChangeAutomatedFlags($decisionModelLog);
             }
         }
     }
