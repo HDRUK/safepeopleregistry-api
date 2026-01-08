@@ -60,7 +60,7 @@ trait NotificationOrganisationManager
         $organisationId = $decisionModelLog->subject_id;
         $organisation = Organisation::where('id', $organisationId)->first();
         $custodianId = $decisionModelLog->custodian_id;
-        $userCustodian =         $userCustodian = User::where([
+        $userCustodian = User::where([
             'custodian_user_id' => $custodianId,
             'user_group' => User::GROUP_CUSTODIANS,
         ])->first();
