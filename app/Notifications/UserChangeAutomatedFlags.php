@@ -40,7 +40,7 @@ class UserChangeAutomatedFlags extends Notification implements ShouldQueue
             'causer_action' => 'automated_flags',
             'message' => $this->generateMessage(),
             'details' => [
-                'custodian_name' => $this->user->first_name . ' ' . $this->user->last_name,
+                'custodian_name' => $this->custodian->name,
                 'user_name' => $this->user->first_name . ' ' . $this->user->last_name,
                 'decision_model_name' => $this->decisionModel->name,
             ],

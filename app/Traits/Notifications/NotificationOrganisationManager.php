@@ -4,6 +4,7 @@ namespace App\Traits\Notifications;
 
 use App\Models\User;
 use App\Models\Project;
+use App\Models\Custodian;
 use App\Models\Organisation;
 use App\Models\CustodianUser;
 use App\Models\DecisionModel;
@@ -60,10 +61,11 @@ trait NotificationOrganisationManager
         $organisation = Organisation::where('id', $organisationId)->first();
         $custodianId = $decisionModelLog->custodian_id;
         $userCustodian = User::where('custodian_user_id', $custodianId)->first();
+        $custodian = Custodian::where('id', $custodianId)->first();
         $ruleId = $decisionModelLog->decision_model_id;
         $decisionModel = DecisionModel::where('id', $ruleId)->first();
 
-        Notification::send($userCustodian, new OrganisationChangeAutomatedFlags($organisation, $userCustodian, $decisionModel));
+        Notification::send($userCustodian, new OrganisationChangeAutomatedFlags($organisation, $custodian, $decisionModel));
     }
 
     public function getUsersByProjectId($projectId)

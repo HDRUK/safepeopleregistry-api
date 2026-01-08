@@ -40,7 +40,7 @@ class OrganisationChangeAutomatedFlags extends Notification implements ShouldQue
             'causer_action' => 'automated_flags',
             'message' => $this->generateMessage(),
             'details' => [
-                'custodian_name' => $this->custodian->first_name . ' ' . $this->custodian->last_name,
+                'custodian_name' => $this->custodian->name,
                 'organisation_name' => $this->organisation->organisation_name,
                 'decision_model_name' => $this->decisionModel->name,
             ],
