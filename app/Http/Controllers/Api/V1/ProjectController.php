@@ -232,6 +232,8 @@ class ProjectController extends Controller
                 'projectDetail',
                 'custodians',
                 'modelState.state',
+                'projectHasSponsorships.sponsor.modelState.state',
+                'projectHasSponsorships.custodianHasProjectHasSponsorship.modelState.state',
                 'custodianHasProjectUser' => function ($query) use ($digiIdent) {
                     $query->whereHas('projectHasUser', function ($query2) use ($digiIdent) {
                         $query2->where('user_digital_ident', $digiIdent);
