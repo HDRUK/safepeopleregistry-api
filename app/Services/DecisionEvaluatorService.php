@@ -6,7 +6,6 @@ use RulesEngineManagementController as REMC;
 use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
-use Illuminate\Http\Request;
 
 class DecisionEvaluatorService
 {

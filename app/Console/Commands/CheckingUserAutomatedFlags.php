@@ -4,13 +4,10 @@ namespace App\Console\Commands;
 
 use App\Models\User;
 use App\Models\Custodian;
-use Illuminate\Support\Arr;
 use App\Models\EntityModelType;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\App;
 use App\Models\CustodianHasProjectUser;
 use App\Models\DecisionModelLog;
-use App\Models\Notification;
 use App\Services\DecisionEvaluatorService;
 
 class CheckingUserAutomatedFlags extends Command
@@ -49,7 +46,7 @@ class CheckingUserAutomatedFlags extends Command
                     'projectHasUser.registry.user'
                 ])
                 ->get()
-                ->map(fn($item) => $item->projectHasUser->registry?->user?->id)
+                ->map(fn ($item) => $item->projectHasUser->registry?->user?->id)
                 ->filter()
                 ->unique()
                 ->values()
@@ -89,7 +86,7 @@ class CheckingUserAutomatedFlags extends Command
                 'custodian_id' => $cId,
                 'subject_id' => $uId,
                 'model_type' => 'User',
-            ],[
+            ], [
                 'status' => $rule['status'],
             ]);
         }

@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 class TestController extends Controller
 {
     protected $decisionEvaluator = null;
-    
+
     public function test(Request $request)
     {
         return response()->json([

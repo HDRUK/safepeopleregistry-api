@@ -46,7 +46,7 @@ class CheckingOrganisationAutomatedFlags extends Command
                     'projectOrganisation.organisation'
                 ])
                 ->get()
-                ->map(fn($item) => $item->projectOrganisation?->organisation?->id)
+                ->map(fn ($item) => $item->projectOrganisation?->organisation?->id)
                 ->filter()
                 ->unique()
                 ->values()
@@ -62,35 +62,35 @@ class CheckingOrganisationAutomatedFlags extends Command
     }
 
     public function checkOrganisationById(int $cId, int $oId)
-        {
-            $this->decisionEvaluator = new DecisionEvaluatorService([EntityModelType::ORG_VALIDATION_RULES], $cId);
+    {
+        $this->decisionEvaluator = new DecisionEvaluatorService([EntityModelType::ORG_VALIDATION_RULES], $cId);
 
-            $organisation = Organisation::with([
-                    'departments',
-                    'subsidiaries',
-                    'permissions',
-                    'ceExpiryEvidence',
-                    'cePlusExpiryEvidence',
-                    'isoExpiryEvidence',
-                    'dsptkExpiryEvidence',
-                    'charities',
-                    'registries',
-                    'registries.user',
-                    'registries.user.permissions',
-                    'sector',
-                    'files',
-                ])->where('id', $oId)->first();
-            $rules = $this->decisionEvaluator->evaluate($organisation);
+        $organisation = Organisation::with([
+                'departments',
+                'subsidiaries',
+                'permissions',
+                'ceExpiryEvidence',
+                'cePlusExpiryEvidence',
+                'isoExpiryEvidence',
+                'dsptkExpiryEvidence',
+                'charities',
+                'registries',
+                'registries.user',
+                'registries.user.permissions',
+                'sector',
+                'files',
+            ])->where('id', $oId)->first();
+        $rules = $this->decisionEvaluator->evaluate($organisation);
 
-            foreach ($rules as $rule) {
-                DecisionModelLog::updateOrCreate([
-                    'decision_model_id' => $rule['ruleId'],
-                    'custodian_id' => $cId,
-                    'subject_id' => $oId,
-                    'model_type' => 'Organisation',
-                ],[
-                    'status' => $rule['status'],
-                ]);
-            }
+        foreach ($rules as $rule) {
+            DecisionModelLog::updateOrCreate([
+                'decision_model_id' => $rule['ruleId'],
+                'custodian_id' => $cId,
+                'subject_id' => $oId,
+                'model_type' => 'Organisation',
+            ], [
+                'status' => $rule['status'],
+            ]);
         }
+    }
 }
