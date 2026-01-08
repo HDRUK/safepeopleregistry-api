@@ -17,6 +17,11 @@ return new class () extends Migration {
             $table->unsignedBigInteger('subject_id');
             $table->string('model_type')->nullable();
             $table->tinyInteger('status')->default(false);
+
+            $table->index(
+                ['decision_model_id', 'custodian_id', 'subject_id', 'model_type'], 
+                'dml_lookup_idx'
+            );
         });
     }
 
