@@ -84,7 +84,7 @@ trait NotificationUserManager
         $userId = $decisionModelLog->subject_id;
         $user = User::where('id', $userId)->first();
         $custodianId = $decisionModelLog->custodian_id;
-        $userCustodian = user::where('custodian_user_id', $custodianId)->first();
+        $userCustodian = User::where('custodian_user_id', $custodianId)->first();
         $ruleId = $decisionModelLog->decision_model_id;
         $decisionModel = DecisionModel::where('id', $ruleId)->first();
 

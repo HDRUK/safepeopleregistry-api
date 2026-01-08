@@ -6,18 +6,18 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class UserChangeAutomatedFlags extends Notification implements ShouldQueue
+class OrganisationChangeAutomatedFlags extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected $user;
+    protected $organisation;
     protected $custodian;
     protected $decisionModel;
     protected $for;
 
-    public function __construct($user, $custodian, $decisionModel)
+    public function __construct($organisation, $custodian, $decisionModel)
     {
-        $this->user = $user;
+        $this->organisation = $organisation;
         $this->custodian = $custodian;
         $this->decisionModel = $decisionModel;
     }
@@ -36,12 +36,12 @@ class UserChangeAutomatedFlags extends Notification implements ShouldQueue
     public function toDatabase($notifiable)
     {
         return [
-            'causer_id' => $this->user->id,
+            'causer_id' => $this->organisation->id,
             'causer_action' => 'automated_flags',
             'message' => $this->generateMessage(),
             'details' => [
-                'custodian_name' => $this->user->first_name . ' ' . $this->user->last_name,
-                'user_name' => $this->user->first_name . ' ' . $this->user->last_name,
+                'custodian_name' => $this->custodian->first_name . ' ' . $this->custodian->last_name,
+                'organisation_name' => $this->organisation->organisation_name,
                 'decision_model_name' => $this->decisionModel->name,
             ],
             'time' => now(),
@@ -50,6 +50,6 @@ class UserChangeAutomatedFlags extends Notification implements ShouldQueue
 
     public function generateMessage()
     {
-        return "User {$this->user->first_name} {$this->user->last_name} changed {$this->decisionModel->name} in their user profile which is flagged by your configuration.";
+        return "Organisation {$this->organisation->organisation_name} changed {$this->decisionModel->name} in their organisation profile which is flagged by your configuration.";
     }
 }

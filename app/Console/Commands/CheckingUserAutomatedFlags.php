@@ -56,7 +56,7 @@ class CheckingUserAutomatedFlags extends Command
                 ->toArray();
 
             foreach ($userIds as $userId) {
-                $this->getUserById($custodianId, $userId);
+                $this->checkUserById($custodianId, $userId);
                 $this->info("checking rules for user id :: {$userId} :: done");
             }
 
@@ -65,7 +65,7 @@ class CheckingUserAutomatedFlags extends Command
         return Command::SUCCESS;
     }
 
-    public function getUserById(int $cId, int $uId)
+    public function checkUserById(int $cId, int $uId)
     {
         $this->decisionEvaluator = new DecisionEvaluatorService([EntityModelType::USER_VALIDATION_RULES], $cId);
 

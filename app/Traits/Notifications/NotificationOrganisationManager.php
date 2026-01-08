@@ -6,9 +6,11 @@ use App\Models\User;
 use App\Models\Project;
 use App\Models\Organisation;
 use App\Models\CustodianUser;
+use App\Models\DecisionModel;
 use App\Models\ProjectHasCustodian;
 use App\Models\CustodianHasProjectUser;
 use Illuminate\Support\Facades\Notification;
+use App\Notifications\OrganisationChangeAutomatedFlags;
 use App\Notifications\OrganisationSponsorProjectApproved;
 use App\Notifications\OrganisationSponsorProjectRejected;
 
@@ -54,7 +56,14 @@ trait NotificationOrganisationManager
 
     public function notifyOnOrganisationChangeAutomatedFlags($decisionModelLog)
     {
+        $organisationId = $decisionModelLog->subject_id;
+        $organisation = Organisation::where('id', $organisationId)->first();
+        $custodianId = $decisionModelLog->custodian_id;
+        $userCustodian = User::where('custodian_user_id', $custodianId)->first();
+        $ruleId = $decisionModelLog->decision_model_id;
+        $decisionModel = DecisionModel::where('id', $ruleId)->first();
 
+        Notification::send($userCustodian, new OrganisationChangeAutomatedFlags($organisation, $userCustodian, $decisionModel));
     }
 
     public function getUsersByProjectId($projectId)
