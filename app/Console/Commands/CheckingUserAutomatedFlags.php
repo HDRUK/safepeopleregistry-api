@@ -57,7 +57,7 @@ class CheckingUserAutomatedFlags extends Command
 
                 foreach ($userIds as $userId) {
                     $this->checkUserById($custodianId, $userId);
-                    $this->info("checking rules for user id :: {$userId} :: done");
+                    $this->info("checking rules for user id {$userId} and custodian id {$custodianId} :: done");
                 }
 
             }
@@ -69,11 +69,11 @@ class CheckingUserAutomatedFlags extends Command
             $this->line('Stack trace:');
             $this->line($e->getTraceAsString());
 
-                        
+
             Log::error('Command checking user automated flags', [
                 'message' => $e->getMessage()
             ]);
-            
+
             return Command::FAILURE;
         }
     }

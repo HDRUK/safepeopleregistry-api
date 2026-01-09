@@ -50,6 +50,6 @@ class UserChangeAutomatedFlags extends Notification implements ShouldQueue
 
     public function generateMessage()
     {
-        return "User {$this->user->first_name} {$this->user->last_name} changed {$this->decisionModel->name} in their user profile which is flagged by your configuration.";
+        return "{$this->user->first_name} {$this->user->last_name} changed their profile, which has changed the result of your automated: {$this->decisionModel->name} flag.";
     }
 }

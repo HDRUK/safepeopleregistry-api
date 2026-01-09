@@ -19,7 +19,7 @@ return new class () extends Migration {
             $table->tinyInteger('status')->default(false);
 
             $table->index(
-                ['decision_model_id', 'custodian_id', 'subject_id', 'model_type'], 
+                ['decision_model_id', 'custodian_id', 'subject_id', 'model_type'],
                 'dml_lookup_idx'
             );
         });

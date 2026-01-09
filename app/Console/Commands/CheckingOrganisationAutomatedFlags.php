@@ -57,7 +57,7 @@ class CheckingOrganisationAutomatedFlags extends Command
 
                 foreach ($organisationIds as $organisationId) {
                     $this->checkOrganisationById($custodianId, $organisationId);
-                    $this->info("checking rules for organisation id :: {$organisationId} :: done");
+                    $this->info("checking rules for organisation id {$organisationId} and custodian id {$custodianId} :: done");
                 }
             }
 
@@ -67,7 +67,7 @@ class CheckingOrganisationAutomatedFlags extends Command
             $this->newLine();
             $this->line('Stack trace:');
             $this->line($e->getTraceAsString());
-            
+
             Log::error('Command checking organisation automated flags', [
                 'message' => $e->getMessage()
             ]);
