@@ -11,7 +11,7 @@ use App\Models\EntityModelType;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
- * @method static \Illuminate\Database\Eloquent\Collection|null loadCustodianRules(array $validationType, ?int $cId)
+ * @method static \Illuminate\Database\Eloquent\Collection|null loadCustodianRules(array $validationType, ?int $custId)
  */
 class RulesEngineManagementController
 {
@@ -46,9 +46,9 @@ class RulesEngineManagementController
         return $custodianId;
     }
 
-    public static function loadCustodianRules(array $validationType, ?int $cId): ?Collection
+    public static function loadCustodianRules(array $validationType, ?int $custId): ?Collection
     {
-        $custodianId = $cId ? $cId : self::determineUserCustodian();
+        $custodianId = $custId ? $custId : self::determineUserCustodian();
         if (!$custodianId) {
             return null;
         }
