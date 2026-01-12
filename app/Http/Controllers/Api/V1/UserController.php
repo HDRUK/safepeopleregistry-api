@@ -24,6 +24,7 @@ use App\Models\UserHasDepartments;
 use App\Traits\TracksModelChanges;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Users\GetUser;
+use App\Http\Requests\Users\UpdateUserKeycloak;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\Users\CreateUser;
 use App\Http\Requests\Users\DeleteUser;
@@ -868,16 +869,26 @@ class UserController extends Controller
     }
 
     // Hide from swagger docs
-    public function updateKeycloakUserEmailById(GetUser $request, int $id)
+    public function updateKeycloakUserEmailById(UpdateUserKeycloak $request, int $id)
     {
-        $user = User::where('id', $id)->first();
+        try {
+            $input = $request->all();
+            $email = $input['email'];
+            $keycloakToken = $this->getAuthToken();
+            $user = User::where('id', $id)->first();;
 
-        $keycloakToken = $this->getAuthToken();
+            Keycloak::updateUserEmail($keycloakToken, $user->keycloak_id, $email);
 
-        Keycloak::updateUserEmail($keycloakToken, $user->keycloak_id, $user->email);
-        Keycloak::sendVerifyEmail($keycloakToken, $user->keycloak_id);
+            $user->update([
+               'email' => $email
+            ]);
 
-        return $this->OKResponse('Verification email has been sent.');
+            Keycloak::sendVerifyEmail($keycloakToken, $user->keycloak_id);
+
+            return $this->OKResponse('Verification email has been sent.');
+        } catch (Exception $e) {
+            return $this->ErrorResponse($e->getMessage());
+        }
     }
 
     // Hide from swagger docs
