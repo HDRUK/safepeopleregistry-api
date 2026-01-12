@@ -55,12 +55,28 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        Event::listen('eloquent.*', function ($eventName, $payload) {
-            $model = $payload[0] ?? null;
+        // Event::listen('eloquent.*', function ($eventName, $payload) {
+        //     $model = $payload[0] ?? null;
 
-            if ($model instanceof Model) {
-                App::make(AuditModelObserver::class)->handle($eventName, $model);
+        //     if ($model instanceof Model) {
+        //         App::make(AuditModelObserver::class)->handle($eventName, $model);
+        //     }
+        // });
+        \DB::listen(function ($query) {
+            $bindings = [];
+            foreach ($query->bindings as $i => $binding) {
+                if ($binding instanceof \DateTime) {
+                    $bindings[$i] = $binding->format('\'Y-m-d H:i:s\'');
+                } elseif (is_string($binding)) {
+                    $bindings[$i] = "'$binding'";
+                } else {
+                    $bindings[$i] = "'$binding'";
+                }
             }
+
+            $sql = str_replace(array('%', '?'), array('%%', '%s'), $query->sql);
+            $sql = vsprintf($sql, $bindings);
+            \Log::warning("SQL query: " . $sql, ['time' => $query->time]);
         });
     }
     /**

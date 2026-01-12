@@ -7,7 +7,7 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Notifications\Affiliations\Traits\AffiliationNotification;
 
-class ExpiresCertifications extends Notification implements ShouldQueue
+class ExpiresTrainings extends Notification implements ShouldQueue
 {
     use Queueable;
     use AffiliationNotification;

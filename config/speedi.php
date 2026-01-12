@@ -68,5 +68,6 @@ return [
         'otp_affiliation_validity_minutes' => env('OTP_AFFILIATION_VALIDITY_MINUTES', 60),
         'clamav_basic_auth_username' => env('CLAMAV_BASIC_AUTH_USERNAME', ''),
         'clamav_basic_auth_password' => env('CLAMAV_BASIC_AUTH_PASSWORD', ''),
+        'training_expire_days' => env('TRAINING_EXPIRE_DAYS', 30),
     ],
 ];

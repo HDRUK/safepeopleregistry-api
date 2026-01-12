@@ -64,7 +64,7 @@ class TriggerEmail
         $organisationId = isset($input['organisationId']) ? $input['organisationId'] : null;
         $projectId = isset($input['projectId']) ? $input['projectId'] : null;
         $typeInvite = isset($input['typeInvite']) ? $input['typeInvite'] : null;
-
+        $userId = isset($input['userId']) ? $input['userId'] : null;
 
         switch (strtoupper($type)) {
             case 'AFFILIATION':
@@ -424,6 +424,61 @@ class TriggerEmail
                     'status' => PendingInvite::STATE_PENDING,
                     'type' => 'sponsorship_request'
                 ]);
+
+                break;
+            case 'USER_WARNING_TRAINING_EXPIRE':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $user = User::where('id', $to)->first();
+
+                $newRecipients = [
+                    'id' => $to,
+                    'email' => $user->email,
+                ];
+
+                $replacements = [
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[TRAINING_EXPIRE_DAYS]]' => config('speedi.system.training_expire_days'),
+                ];
+
+                break;
+
+            case 'USER_TRAINING_EXPIRED':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $user = User::where('id', $to)->first();
+                $userTraining = User::where('id', $userId)->first();
+
+                $newRecipients = [
+                    'id' => $to,
+                    'email' => $user->email,
+                ];
+
+                $replacements = [
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                ];
+
+                break;
+
+            
+            case 'CUST_ORG_TRAINING_EXPIRED':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $user = User::where('id', $to)->first();
+                $userTraining = User::where('id', $userId)->first();
+
+                $newRecipients = [
+                    'id' => $to,
+                    'email' => $user->email,
+                ];
+
+                $replacements = [
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[training_user_name]]' => $userTraining-> first_name . ' ' . $userTraining->last_name,
+                ];
 
                 break;
             default: // Unknown type.
