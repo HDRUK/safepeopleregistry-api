@@ -85,7 +85,6 @@ class AuthController extends Controller
                     }
                 }
 
-
                 return response()->json([
                     'message' => 'success',
                     'data' => $user,
@@ -94,7 +93,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'message' => 'success',
-                'data' => null,
+                'data' => $user,
             ], 201);
         }
 

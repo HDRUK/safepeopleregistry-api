@@ -6,15 +6,14 @@ use RulesEngineManagementController as REMC;
 use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
-use Illuminate\Http\Request;
 
 class DecisionEvaluatorService
 {
     private $custodianRules = [];
 
-    public function __construct(Request $request, array $validationType)
+    public function __construct(array $validationType, ?int $custodianId = null)
     {
-        $this->custodianRules = REMC::loadCustodianRules($request, $validationType);
+        $this->custodianRules = REMC::loadCustodianRules($validationType, $custodianId);
     }
 
     public function evaluate($models, $batch = false)
@@ -76,7 +75,8 @@ class DecisionEvaluatorService
         }
 
         if (!$ruleClass->evaluate($model, $conditions)) {
-            $retVal['passed'] = false;
+            $retVal['ruleId'] = $rule->id;
+            $retVal['status'] = false;
             $retVal['failed_rules'] = [
                 'rule' => class_basename($ruleClass),
                 'status' => 'failed',
@@ -85,6 +85,7 @@ class DecisionEvaluatorService
             ];
         } else {
             $retVal = [
+                'ruleId' => $rule->id,
                 'rule' => class_basename($ruleClass),
                 'conditions' => $conditions,
                 'actual' => is_array($actual) ? json_encode($actual) : $actual,

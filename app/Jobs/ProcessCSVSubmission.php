@@ -42,7 +42,7 @@ class ProcessCSVSubmission implements ShouldQueue
     {
         $path = storage_path().'/app/public/scanned/'.$this->file->path;
         $file = fopen($path, 'r');
-        $allData = $this->csvToArray($path);
+        $allData = csvToArray($path);
         fclose($file);
 
         foreach ($allData as $row) {

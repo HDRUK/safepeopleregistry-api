@@ -24,6 +24,7 @@ use App\Models\UserHasDepartments;
 use App\Traits\TracksModelChanges;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Users\GetUser;
+use App\Http\Requests\Users\UpdateUserKeycloak;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\Users\CreateUser;
 use App\Http\Requests\Users\DeleteUser;
@@ -104,7 +105,7 @@ class UserController extends Controller
         if (!Gate::allows('viewAny', User::class)) {
             return $this->ForbiddenResponse();
         }
-        $this->decisionEvaluator = new DES($request, [EntityModelType::USER_VALIDATION_RULES]);
+        $this->decisionEvaluator = new DES([EntityModelType::USER_VALIDATION_RULES]);
 
         $users = User::searchViaRequest()
             ->filterByState()
@@ -242,7 +243,7 @@ class UserController extends Controller
     public function show(GetUser $request, int $id): JsonResponse
     {
         try {
-            $this->decisionEvaluator = new DES($request, [EntityModelType::USER_VALIDATION_RULES]);
+            $this->decisionEvaluator = new DES([EntityModelType::USER_VALIDATION_RULES]);
 
             $loggedInUserId = $request->user()->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();
@@ -868,16 +869,26 @@ class UserController extends Controller
     }
 
     // Hide from swagger docs
-    public function updateKeycloakUserEmailById(GetUser $request, int $id)
+    public function updateKeycloakUserEmailById(UpdateUserKeycloak $request, int $id)
     {
-        $user = User::where('id', $id)->first();
+        try {
+            $input = $request->all();
+            $email = $input['email'];
+            $keycloakToken = $this->getAuthToken();
+            $user = User::where('id', $id)->first();;
 
-        $keycloakToken = $this->getAuthToken();
+            Keycloak::updateUserEmail($keycloakToken, $user->keycloak_id, $email);
 
-        Keycloak::updateUserEmail($keycloakToken, $user->keycloak_id, $user->email);
-        Keycloak::sendVerifyEmail($keycloakToken, $user->keycloak_id);
+            $user->update([
+               'email' => $email
+            ]);
 
-        return $this->OKResponse('Verification email has been sent.');
+            Keycloak::sendVerifyEmail($keycloakToken, $user->keycloak_id);
+
+            return $this->OKResponse('Verification email has been sent.');
+        } catch (Exception $e) {
+            return $this->ErrorResponse($e->getMessage());
+        }
     }
 
     // Hide from swagger docs

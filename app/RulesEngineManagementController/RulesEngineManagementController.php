@@ -8,11 +8,10 @@ use App\Models\CustodianUser;
 use App\Models\DecisionModel;
 use App\Models\CustodianModelConfig;
 use App\Models\EntityModelType;
-use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
- * @method static \Illuminate\Database\Eloquent\Collection|null loadCustodianRules(\Illuminate\Http\Request $request, array $validationType)
+ * @method static \Illuminate\Database\Eloquent\Collection|null loadCustodianRules(array $validationType, ?int $custId)
  */
 class RulesEngineManagementController
 {
@@ -47,9 +46,9 @@ class RulesEngineManagementController
         return $custodianId;
     }
 
-    public static function loadCustodianRules(Request $request, array $validationType): ?Collection
+    public static function loadCustodianRules(array $validationType, ?int $custId): ?Collection
     {
-        $custodianId = self::determineUserCustodian();
+        $custodianId = $custId ? $custId : self::determineUserCustodian();
         if (!$custodianId) {
             return null;
         }

@@ -18,6 +18,7 @@ use App\Models\Permission;
 use App\Models\CustodianUserHasPermission;
 use App\Models\ValidationCheck;
 use App\Models\CustodianHasValidationCheck;
+use App\Models\State;
 
 class TestSeeder extends Seeder
 {
@@ -117,7 +118,10 @@ class TestSeeder extends Seeder
             'smb_status' => null,
             'organisation_size' => 1,
             'website' => null,
+            'unclaimed' => 0,
         ]);
+
+        $testOrganisation->setState(State::STATE_ORGANISATION_REGISTERED);
 
         $testOrganisationUsers = [
             [
@@ -153,7 +157,7 @@ class TestSeeder extends Seeder
                         'department' => 'Research & Development',
                         'role' => 'Lobbyist',
                         'email' => fake()->email(),
-                        'ror' => $this->generateRorID(),
+                        'ror' => generateRorID(),
                         'registry_id' => -1,
                     ],
                 ],

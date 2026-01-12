@@ -119,8 +119,9 @@ class AuditLogController extends Controller
     public function showOrganisationHistory(GetOrganisationHistory $request, int $id)
     {
         $loggedInUserId = $request->user()?->id;
-        $loggedInUser = User::where('id', $loggedInUserId)->first();
+        $perPage = $request->integer('per_page', (int)$this->getSystemConfig('PER_PAGE'));
 
+        $loggedInUser = User::where('id', $loggedInUserId)->first();
         $organisation = Organisation::find($id);
 
         if (!$organisation) {
@@ -179,7 +180,7 @@ class AuditLogController extends Controller
                 },
             ])
             ->latest('created_at')
-            ->get();
+            ->paginate($perPage);
 
         // return $this->OKResponse($logs);
         // trim the output

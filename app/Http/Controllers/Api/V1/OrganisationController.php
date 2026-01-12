@@ -112,10 +112,10 @@ class OrganisationController extends Controller
     public function index(Request $request): JsonResponse
     {
         $organisations = [];
-        $this->decisionEvaluator = new DES($request, [EntityModelType::ORG_VALIDATION_RULES]);
+        $this->decisionEvaluator = new DES([EntityModelType::ORG_VALIDATION_RULES]);
 
         $custodianId = $request->get('custodian_id');
-        $perPage = $request->get('per_page');        
+        $perPage = $request->get('per_page');
 
         if (!$custodianId) {
             $organisations = Organisation::searchViaRequest()
@@ -214,7 +214,7 @@ class OrganisationController extends Controller
      */
     public function show(GetOrganisation $request, int $id): JsonResponse
     {
-        $this->decisionEvaluator = new DES($request, [EntityModelType::ORG_VALIDATION_RULES]);
+        $this->decisionEvaluator = new DES([EntityModelType::ORG_VALIDATION_RULES]);
 
         $organisation = Organisation::with([
             'departments',
@@ -712,7 +712,12 @@ class OrganisationController extends Controller
             //     return $this->ForbiddenResponse();
             // }
 
+            $isRegistering = isset($input['unclaimed']) && $input['unclaimed'] === 0 && $org->unclaimed;
+
             $org->update($input);
+            if ($isRegistering) {
+                $org->setState(State::STATE_ORGANISATION_REGISTERED);
+            }
 
             $loggedInUserId = $request->user()->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();
@@ -1011,7 +1016,7 @@ class OrganisationController extends Controller
      */
     public function getSponsorshipsProjects(GetProject $request, int $organisationId): JsonResponse
     {
-        $perPage = $request->get('per_page');     
+        $perPage = $request->get('per_page');
 
         $projects = Project::searchViaRequest()
             ->applySorting()
@@ -1501,7 +1506,7 @@ class OrganisationController extends Controller
                     'ror' => '',
                     'registry_id' => $unclaimedUser->registry_id,
                 ]);
-                $affiliation->setState(State::STATE_INVITED);
+                $affiliation->setState(State::STATE_AFFILIATION_INVITED);
             }
 
             TriggerEmail::spawnEmail($email);
@@ -1893,6 +1898,16 @@ class OrganisationController extends Controller
             // notification
             $usersToNotify = $this->getNotificationUsers($id);
             Notification::send($usersToNotify, new OrganisationApproved($org));
+
+            $affiliations = Affiliation::where([
+                'organisation_id' => $id,
+                'is_verified' => 1,
+            ])->get();
+            foreach ($affiliations as $affiliation) {
+                if ($affiliation->getState() === State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS) {
+                    $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+                }
+            }
 
             return $this->OKResponse(Organisation::findOrFail($id));
         } catch (Exception $e) {

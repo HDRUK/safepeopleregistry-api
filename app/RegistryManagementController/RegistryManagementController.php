@@ -97,6 +97,7 @@ class RegistryManagementController
                 $unclaimedUser->t_and_c_agreement_date = now();
 
                 $unclaimedUser->save();
+                $unclaimedUser->fresh();
 
                 return [
                     'unclaimed_user_id' => $unclaimedUser->id
@@ -161,10 +162,23 @@ class RegistryManagementController
                                 'log' => 'unable to update user ' . $user->id . ' with registry_id ' . $registryId,
                             ]);
                         }
+
                         Keycloak::updateSoursdDigitalIdentifier($user);
 
                         return [
                             'user_id' => $user->id
+                        ];
+                    }
+
+                    $checkUser = User::where('email', $input['email'])->where('keycloak_id', $input['sub'])->first();
+                    if (!is_null($checkUser)) {
+                        DebugLog::create([
+                            'class' => RegistryManagementController::class,
+                            'log' => 'user detected - ' . $input['sub'],
+                        ]);
+
+                        return [
+                            'user_id' => $checkUser->id
                         ];
                     }
 

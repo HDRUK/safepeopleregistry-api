@@ -25,3 +25,19 @@ Route::get('/cheking_end_projects', function (Request $request) {
         'message' => 'ok',
     ], 200);
 });
+
+Route::get('/cheking_user_automated_flags', function (Request $request) {
+    Artisan::call('aapp:checking-user-automated-flags');
+
+    return response()->json([
+        'message' => 'ok',
+    ], 200);
+});
+
+Route::get('/cheking_organisation_automated_flags', function (Request $request) {
+    Artisan::call('app:checking-organisation-automated-flags');
+
+    return response()->json([
+        'message' => 'ok',
+    ], 200);
+});

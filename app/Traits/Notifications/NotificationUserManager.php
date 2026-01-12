@@ -5,11 +5,14 @@ namespace App\Traits\Notifications;
 use App\Models\User;
 use App\Models\Affiliation;
 use App\Models\CustodianUser;
+use App\Models\DecisionModel;
 use Illuminate\Support\Collection;
 use App\Models\CustodianHasProjectUser;
 use Illuminate\Support\Facades\Notification;
+use App\Notifications\UserChangeAutomatedFlags;
 use App\Notifications\Affiliations\AffiliationChanged;
 use App\Notifications\Affiliations\AffiliationCreated;
+use App\Models\Custodian;
 
 trait NotificationUserManager
 {
@@ -77,6 +80,22 @@ trait NotificationUserManager
         }
     }
 
+    public function notifyOnUserChangeAutomatedFlags($decisionModelLog)
+    {
+        $userId = $decisionModelLog->subject_id;
+        $user = User::where('id', $userId)->first();
+        $custodianId = $decisionModelLog->custodian_id;
+        $userCustodian = User::where([
+            'custodian_user_id' => $custodianId,
+            'user_group' => User::GROUP_CUSTODIANS,
+        ])->first();
+        $custodian = Custodian::where('id', $custodianId)->first();
+        $ruleId = $decisionModelLog->decision_model_id;
+        $decisionModel = DecisionModel::where('id', $ruleId)->first();
+
+        Notification::send($userCustodian, new UserChangeAutomatedFlags($user, $custodian, $decisionModel));
+    }
+
     public function getAffiliationUser(Affiliation $affiliation): ?User
     {
         return $affiliation->registry?->user;
@@ -84,8 +103,13 @@ trait NotificationUserManager
 
     private function getAffiliationUserOrganisation(Affiliation $affiliation): Collection
     {
+        $organisationId = $affiliation->organisation?->id;
+        if (!$organisationId) {
+            return collect();
+        }
+
         $userDelegates = User::where([
-            'organisation_id' => $affiliation->organisation->id,
+            'organisation_id' => $organisationId,
             'user_group' => User::GROUP_ORGANISATIONS,
             'is_delegate' => 1,
         ])->get();
@@ -95,7 +119,7 @@ trait NotificationUserManager
         }
 
         $userSros = User::where([
-            'organisation_id' => $affiliation->organisation->id,
+            'organisation_id' => $organisationId,
             'user_group' => User::GROUP_ORGANISATIONS,
             'is_sro' => 1,
         ])->get();
@@ -109,7 +133,10 @@ trait NotificationUserManager
 
     private function getAffiliationUserCustodian(Affiliation $affiliation): array
     {
-        $organisationId = $affiliation->organisation->id;
+        $organisationId = $affiliation->organisation?->id;
+        if (!$organisationId) {
+            return [];
+        }
 
         $custodianIds = CustodianHasProjectUser::query()
             ->with([

@@ -43,6 +43,8 @@ class CustodianAddSponsorToProject extends Notification implements ShouldQueue
             'details' => [
                 'custodian_name' => $this->user->first_name . ' ' . $this->user->last_name,
                 'organisation' => $this->organisation->organisation_name,
+                'project_id' => $this->project->id,
+                'project_name' => $this->project->title,
             ],
             'time' => now(),
         ];
