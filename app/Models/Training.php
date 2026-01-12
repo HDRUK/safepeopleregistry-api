@@ -36,11 +36,11 @@ use App\Traits\SearchManager;
  *      ),
  *      @OA\Property(property="awarded_at",
  *          type="string",
- *          example="2024-02-04 12:10:00"
+ *          example="2024-02-04"
  *      ),
  *      @OA\Property(property="expires_at",
  *          type="string",
- *          example="2026-02-04 12:09:59"
+ *          example="2026-02-04"
  *      ),
  *      @OA\Property(property="expires_in_years",
  *          type="integer",
