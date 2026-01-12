@@ -462,7 +462,7 @@ class TriggerEmail
 
                 break;
 
-            
+
             case 'CUST_ORG_TRAINING_EXPIRED':
                 $template = EmailTemplate::where('identifier', $identifier)->first();
                 $user = User::where('id', $to)->first();

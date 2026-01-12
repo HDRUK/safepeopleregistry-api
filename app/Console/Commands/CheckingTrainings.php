@@ -62,13 +62,13 @@ class CheckingTrainings extends Command
                 })
                 ->get();
 
-            
+
             foreach ($users as $user) {
                 $this->sendWarningTrainingsExpireEmailToUser($user);
                 $this->info("checking warning trainings expire for user id {$user->id} :: done");
             }
 
-            return Command::SUCCESS;            
+            return Command::SUCCESS;
         } catch (Exception $e) {
             $this->error('An error occurred: ' . $e->getMessage());
             $this->newLine();
@@ -111,7 +111,7 @@ class CheckingTrainings extends Command
                 $this->info("checking trainings expire for user id {$user->id} :: done");
             }
 
-            return Command::SUCCESS;            
+            return Command::SUCCESS;
         } catch (Exception $e) {
             $this->error('An error occurred: ' . $e->getMessage());
             $this->newLine();
