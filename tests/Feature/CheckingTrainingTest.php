@@ -56,7 +56,7 @@ class CheckingTrainingTest extends TestCase
 
         $todayAddDays = Carbon::now()->addDays((int)$warningTrainingExpireDays)->format('Y-m-d');
 
-        $trainingExpiredUsers = User::query()
+        $trainingExpiredWarningUsers = User::query()
             ->where([
                 'user_group' => User::GROUP_USERS,
             ])
@@ -71,7 +71,7 @@ class CheckingTrainingTest extends TestCase
             ->get();
 
         $command = $this->artisan('app:checking-trainings');
-        foreach ($trainingExpiredUsers as $item) {
+        foreach ($trainingExpiredWarningUsers as $item) {
             $command->expectsOutput('checking warning trainings expire for user id ' . $item->id . ' :: done');
         }
 
