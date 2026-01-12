@@ -874,7 +874,7 @@ class UserController extends Controller
             $input = $request->all();
             $email = $input['email'];
             $keycloakToken = $this->getAuthToken();
-            $user = User::where('id', $id);
+            $user = User::where('id', $id)->first();;
 
             Keycloak::updateUserEmail($keycloakToken, $user->keycloak_id, $email);
             Keycloak::sendVerifyEmail($keycloakToken, $user->keycloak_id);
