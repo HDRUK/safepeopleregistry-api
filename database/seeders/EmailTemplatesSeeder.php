@@ -1120,10 +1120,9 @@ class EmailTemplatesSeeder extends Seeder
                       </mjml >',
             'buttons' => '',
           ],
-
           [
-            'identifier' => 'user_training_expired',
-            'subject' => 'Safe People Registry | Training expired',
+            'identifier' => 'user_training_expiry_warning',
+            'subject' => 'Safe People Registry | Training expiry warning',
             'body' => '<mjml>
                         ' . $this->mjmlHead . '
                         <mj-body background-color="#f6dff1" width="600px" >
@@ -1134,7 +1133,7 @@ class EmailTemplatesSeeder extends Seeder
                             <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
                               <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
                                 <mj-text align="left" padding="20px 0px 20px 0px">
-                                  Your training has expired. Please update your training profile below. 
+                                  Your training till expire in [[TRAINING_EXPIRE_DAYS]] days. Please update your training profile below.
                                   <div><br></div>
                                   Thanks,
                                   <br/>
@@ -1157,8 +1156,8 @@ class EmailTemplatesSeeder extends Seeder
             'buttons' => '',
           ],
           [
-            'identifier' => 'user_training_expiry_warning',
-            'subject' => 'Safe People Registry | Training expiry warning',
+            'identifier' => 'user_training_expired',
+            'subject' => 'Safe People Registry | Training expired',
             'body' => '<mjml>
                         ' . $this->mjmlHead . '
                         <mj-body background-color="#f6dff1" width="600px" >
@@ -1169,7 +1168,7 @@ class EmailTemplatesSeeder extends Seeder
                             <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
                               <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
                                 <mj-text align="left" padding="20px 0px 20px 0px">
-                                  Your training till expire in [[TRAINING_EXPIRE_DAYS]] days. Please update your training profile below.
+                                  Your training has expired. Please update your training profile below. 
                                   <div><br></div>
                                   Thanks,
                                   <br/>
