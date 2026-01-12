@@ -2,8 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/checking_certificates', function (Request $request) {
-    Artisan::call('app:checking-certificates');
+Route::get('/checking_trainings', function (Request $request) {
+    Artisan::call('app:checking-trainings');
 
     return response()->json([
         'message' => 'ok',
