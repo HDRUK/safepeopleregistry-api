@@ -1,3 +1,28 @@
+## [1.24.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.23.0...v1.24.0) (2026-01-12)
+
+### ✨ Features
+
+* **REGISTRY-1716:** email change (#587) ([f6e1e3b](https://github.com/HDRUK/safepeopleregistry-api/commit/f6e1e3b3350910764b745c93a31bad2a5d09622a))
+* **REGISTRY-1717:** orcid user affiliation (#599) ([02ed97d](https://github.com/HDRUK/safepeopleregistry-api/commit/02ed97d9d1e9b6470ef6c93994c57a4ebd616800))
+* **REGISTRY-2244:** modify org history endpoint (#603) ([72fb43f](https://github.com/HDRUK/safepeopleregistry-api/commit/72fb43f576256b16040d5f6820f12233c8bc9acf))
+* **REGISTRY-2295:** user and organisation notifications automated flags (#598) ([9679d41](https://github.com/HDRUK/safepeopleregistry-api/commit/9679d4181eec2379dc86d07f64a06c993b9b84e4))
+* **REGISTRY-2431:** model state for sponsor (#601) ([5c03eb6](https://github.com/HDRUK/safepeopleregistry-api/commit/5c03eb61a0ace5c2a4b984dbd14b7ffe79d9db31))
+* **REGISTRY-2433:** sponsorship add project id in notifications (#602) ([c0664b0](https://github.com/HDRUK/safepeopleregistry-api/commit/c0664b014598079930f4d16b36ad0f9c22cbce2a))
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-0000:** fix emails and register users (#590) ([5b38d6b](https://github.com/HDRUK/safepeopleregistry-api/commit/5b38d6b5d1bea4a4f68d4a97eee1686282bb8d69))
+* **REGISTRY-0000:** send email sponsorship request (#588) ([ebdf355](https://github.com/HDRUK/safepeopleregistry-api/commit/ebdf35558e9a66096e8f96c33cbde4972a9e29a6))
+* **REGISTRY-1853:** update notifications send to organisations (#595) ([1430a3b](https://github.com/HDRUK/safepeopleregistry-api/commit/1430a3b35917edbba1ef694894989f7a88595f6a))
+* **REGISTRY-1988:** pagination to org history (#597) ([df2653f](https://github.com/HDRUK/safepeopleregistry-api/commit/df2653f8de38c6557ad1fe1103126c9a97f6a4ab))
+* **REGISTRY-2258:** auth required for get all features (#592) ([1afbe0c](https://github.com/HDRUK/safepeopleregistry-api/commit/1afbe0c92135b2dd13000a49c3844f8ca6292343))
+* **REGISTRY-2314:** Update affiliation flow (#589) ([0a99743](https://github.com/HDRUK/safepeopleregistry-api/commit/0a99743299076d6780e365091b0bb72f4aacc6de))
+* **REGISTRY-2314:** Update affiliation flow: User invites Organisation Part 3 (#591) ([4767482](https://github.com/HDRUK/safepeopleregistry-api/commit/476748223e1c6180ee30e2c9d075766d26858f5c))
+* **REGISTRY-2346:** Update affiliation flow (#593) ([7a5aadb](https://github.com/HDRUK/safepeopleregistry-api/commit/7a5aadb46326a2841976593239c7d3fa60823f36))
+* **REGISTRY-2346:** Update affiliation flow: Custodian invites User (#586) ([a0d53d8](https://github.com/HDRUK/safepeopleregistry-api/commit/a0d53d8ca61d9f7d5162ac12d48e50c38d00bc69))
+* **REGISTRY-2346:** update states custodian invite user and organisation (#594) ([f67fb22](https://github.com/HDRUK/safepeopleregistry-api/commit/f67fb225218917bc06bafe5c902991178cf1646b))
+* **REGISTRY-2410:** Custodian - cannot find new User in add User list (#596) ([1f142ac](https://github.com/HDRUK/safepeopleregistry-api/commit/1f142ac7912ac219e8dc5b245c81da640a595b09))
+
 ## [1.23.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.22.0...v1.23.0) (2025-12-17)
 
 ### ✨ Features
