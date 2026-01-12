@@ -5,13 +5,14 @@ namespace App\Console\Commands;
 use Config;
 use Exception;
 use TriggerEmail;
+use Carbon\Carbon;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
-use App\Models\CustodianHasProjectUser;
-use Illuminate\Support\Facades\Notification;
-use App\Notifications\User\ExpiresTrainings;
 use Illuminate\Support\Facades\Log;
+use App\Models\CustodianHasProjectUser;
+use App\Notifications\User\ExpiresTrainings;
+use Illuminate\Support\Facades\Notification;
 
 class CheckingTrainings extends Command
 {
@@ -35,12 +36,13 @@ class CheckingTrainings extends Command
     public function handle()
     {
         $this->warningTrainingsExpire();
-        $this->trainingsExpire();
+        $this->trainingsExpired();
     }
 
     public function warningTrainingsExpire()
     {
         $warningTrainingExpireDays = Config::get('speedi.system.training_expire_days');
+        $todayAddDays = Carbon::now()->addDays((int)$warningTrainingExpireDays)->format('Y-m-d');
 
         try {
             $users = User::query()
@@ -48,15 +50,15 @@ class CheckingTrainings extends Command
                     'user_group' => User::GROUP_USERS,
                 ])
                 ->with([
-                    'registry.trainings' => function ($query) use ($warningTrainingExpireDays) {
-                        $query->whereRaw('DATE(expires_at) = DATE_ADD(CURDATE(), INTERVAL ' . $warningTrainingExpireDays . ' DAY)');
+                    'registry.trainings' => function ($query) use ($todayAddDays) {
+                        $query->whereRaw('DATE(expires_at) = ?', [$todayAddDays]);
                     },
                     'registry.affiliations' => function ($query) {
                         $query->where('current_employer', 1);
                     },
                 ])
-                ->whereHas('registry.trainings', function ($query) use ($warningTrainingExpireDays) {
-                    $query->whereRaw('DATE(expires_at) = DATE_ADD(CURDATE(), INTERVAL ' . $warningTrainingExpireDays . ' DAY)');
+                ->whereHas('registry.trainings', function ($query) use ($todayAddDays) {
+                    $query->whereRaw('DATE(expires_at) = ?', [$todayAddDays]);
                 })
                 ->get();
 
@@ -82,23 +84,25 @@ class CheckingTrainings extends Command
         }
     }
 
-    public function trainingsExpire()
+    public function trainingsExpired()
     {
+        $today = Carbon::now()->format('Y-m-d');
+
         try {
             $users = User::query()
                 ->where([
                     'user_group' => User::GROUP_USERS,
                 ])
                 ->with([
-                    'registry.trainings' => function ($query) {
-                        $query->whereRaw('DATE(expires_at) = CURDATE()');
+                    'registry.trainings' => function ($query) use ($today) {
+                        $query->whereRaw('DATE(expires_at) = ?', [$today]);
                     },
                     'registry.affiliations' => function ($query) {
                         $query->where('current_employer', 1);
                     },
                 ])
-                ->whereHas('registry.trainings', function ($query) {
-                    $query->whereRaw('DATE(expires_at) = CURDATE()');
+                ->whereHas('registry.trainings', function ($query) use ($today) {
+                    $query->whereRaw('DATE(expires_at) = ?', [$today]);
                 })
                 ->get();
 
