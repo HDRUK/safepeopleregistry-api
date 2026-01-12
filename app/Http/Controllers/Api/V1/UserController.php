@@ -101,9 +101,6 @@ class UserController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        if (!Gate::allows('viewAny', User::class)) {
-            return $this->ForbiddenResponse();
-        }
         $this->decisionEvaluator = new DES([EntityModelType::USER_VALIDATION_RULES]);
 
         $users = User::searchViaRequest()
