@@ -2,11 +2,12 @@
 
 namespace Tests\Feature;
 
+use Carbon\Carbon;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Training;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Notification;
 
 class CheckingTrainingTest extends TestCase
 {
@@ -76,5 +77,29 @@ class CheckingTrainingTest extends TestCase
         }
 
         $command->assertExitCode(Command::SUCCESS);
+    }
+
+    public function test_it_does_nothing_when_no_training_is_expiring(): void
+    {
+        Notification::fake();
+
+        Training::query()->update([
+            'expires_at' => now()->addDays(25),
+        ]);
+        
+        $this->artisan('app:checking-trainings')->assertExitCode(0);
+        
+        Notification::assertNothingSent();
+    }
+
+    public function test_handles_exception_when_query_fails()
+    {
+        \DB::disconnect();
+        
+        \Log::shouldReceive('error');
+
+        $this->artisan('app:checking-trainings')->assertExitCode(0);
+            
+        \DB::reconnect();
     }
 }
