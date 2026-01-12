@@ -119,7 +119,7 @@ class CheckingTrainings extends Command
             $this->line($e->getTraceAsString());
 
 
-            Log::error('Command checking trainings expire', [
+            Log::error('Command checking trainings expired', [
                 'message' => $e->getMessage()
             ]);
 
