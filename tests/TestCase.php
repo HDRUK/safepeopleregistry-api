@@ -5,6 +5,7 @@ namespace Tests;
 use Closure;
 use Keycloak;
 use App\Models\User;
+use App\Models\CustodianUser;
 use Tests\Traits\RefreshDatabaseLite;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
