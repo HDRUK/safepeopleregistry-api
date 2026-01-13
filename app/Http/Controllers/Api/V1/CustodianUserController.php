@@ -179,7 +179,11 @@ class CustodianUserController extends Controller
     {
         try {
             $input = $request->all();
-            $loggedInUserId = $request->user()?->id;
+            $loggedInUser =  $request->user();
+            $loggedInUserId =  $loggedInUser->id;
+            $loggedInCustodianUserId =  $loggedInUser->custodian_user_id;
+            $custodianId = CustodianUser::where('id', $loggedInCustodianUserId)->first()->custodian_id;
+
             $isApprover = false;
 
             $user = CustodianUser::create([
@@ -188,7 +192,7 @@ class CustodianUserController extends Controller
                 'email' => $input['email'],
                 'provider' => '',
                 'keycloak_id' => '',
-                'custodian_id' => $input['custodian_id'],
+                'custodian_id' => $custodianId,
             ]);
 
             if (isset($input['permissions'])) {
@@ -274,6 +278,10 @@ class CustodianUserController extends Controller
     {
         try {
             $input = $request->all();
+            $loggedInUser =  $request->user();
+            $loggedInUserId =  $loggedInUser->id;
+            $loggedInCustodianUserId =  $loggedInUser->custodian_user_id;
+            $custodianId = CustodianUser::where('id', $loggedInCustodianUserId)->first()->custodian_id;
 
             $user = CustodianUser::where('id', $id)->first();
             $user->first_name = isset($input['first_name']) ? $input['first_name'] : $user->first_name;
@@ -282,7 +290,7 @@ class CustodianUserController extends Controller
             $user->password = isset($input['password']) ? Hash::make($input['password']) : $user->password;
             $user->provider = isset($input['provider']) ? $input['provider'] : $user->provider;
             $user->keycloak_id = isset($input['keycloak_id']) ? $input['keycloak_id'] : $user->keycloak_id;
-            $user->custodian_id = isset($input['custodian_id']) ? $input['custodian_id'] : $user->custodian_id;
+            $user->custodian_id = isset($custodianId) ? $custodianId : $user->custodian_id;
 
             if (isset($input['permissions'])) {
                 CustodianUserHasPermission::where([
