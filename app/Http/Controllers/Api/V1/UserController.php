@@ -876,7 +876,6 @@ class UserController extends Controller
             $email = $input['email'];
             $keycloakToken = $this->getAuthToken();
             $user = User::where('id', $id)->first();
-            ;
 
             Keycloak::updateUserEmail($keycloakToken, $user->keycloak_id, $email);
 
