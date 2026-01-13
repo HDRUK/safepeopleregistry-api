@@ -88,8 +88,7 @@ class CustodianUserTest extends TestCase
                     'email' => fake()->email(),
                     'password' => Str::random(12),
                     'provider' => fake()->word(),
-                    'keycloak_id' => '',
-                    'custodian_id' => 1,
+                    'keycloak_id' => ''
                 ]
             );
 
@@ -109,8 +108,7 @@ class CustodianUserTest extends TestCase
                     'email' => fake()->email(),
                     'password' => Str::random(12),
                     'provider' => fake()->word(),
-                    'keycloak_id' => '',
-                    'custodian_id' => 1,
+                    'keycloak_id' => ''
                 ]
             );
 
@@ -171,8 +169,7 @@ class CustodianUserTest extends TestCase
                     'email' => fake()->email(),
                     'password' => Str::random(12),
                     'provider' => fake()->word(),
-                    'keycloak_id' => '',
-                    'custodian_id' => 1,
+                    'keycloak_id' => ''
                 ]
             );
 
@@ -223,8 +220,7 @@ class CustodianUserTest extends TestCase
                     'email' => fake()->email(),
                     'password' => Str::random(12),
                     'provider' => fake()->word(),
-                    'keycloak_id' => '',
-                    'custodian_id' => 1,
+                    'keycloak_id' => ''
                 ]
             );
 
@@ -272,7 +268,6 @@ class CustodianUserTest extends TestCase
                     'password' => Str::random(12),
                     'provider' => fake()->word(),
                     'keycloak_id' => '',
-                    'custodian_id' => 1,
                     'permissions' => [
                         1,
                         3,
