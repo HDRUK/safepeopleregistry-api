@@ -86,20 +86,9 @@ class CheckingTrainingTest extends TestCase
         Training::query()->update([
             'expires_at' => now()->addDays(25),
         ]);
-        
+
         $this->artisan('app:checking-trainings')->assertExitCode(0);
-        
+
         Notification::assertNothingSent();
     }
-
-    // public function test_handles_exception_when_query_fails()
-    // {
-    //     \DB::disconnect();
-        
-    //     \Log::shouldReceive('error');
-
-    //     $this->artisan('app:checking-trainings')->assertExitCode(0);
-            
-    //     \DB::reconnect();
-    // }
 }
