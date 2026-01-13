@@ -70,7 +70,9 @@ class UserObserver
         }
 
         if ($user->consent_scrape && filled($user->orc_id)) {
-            OrcIDScanner::dispatch($user);
+            // The OrcID scanner has been temporarily stopped.
+            \Log::info('OrcID scanner - temporarily stopped');
+            // OrcIDScanner::dispatch($user);
         }
     }
 
@@ -148,7 +150,9 @@ class UserObserver
         }
 
         if ($user->consent_scrape && filled($user->orc_id) && ($user->isDirty('orc_id') || $user->isDirty('consent_scrape'))) {
-            OrcIDScanner::dispatch($user);
+            // The OrcID scanner has been temporarily stopped.
+            \Log::info('OrcID scanner - temporarily stopped');
+            // OrcIDScanner::dispatch($user);
         }
 
         // change state for affiliation
