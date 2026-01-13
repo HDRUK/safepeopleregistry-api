@@ -5,7 +5,6 @@ namespace Tests;
 use Closure;
 use Keycloak;
 use App\Models\User;
-use App\Models\CustodianUser;
 use Tests\Traits\RefreshDatabaseLite;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
@@ -44,7 +43,7 @@ abstract class TestCase extends BaseTestCase
         }
     }
 
-    protected function withUsers(bool $withCustodianUser = false): void
+    protected function withUsers(): void
     {
         $this->user = User::where('user_group', User::GROUP_USERS)->first();
         $this->custodian_admin = User::where('user_group', User::GROUP_CUSTODIANS)->first();
@@ -52,23 +51,6 @@ abstract class TestCase extends BaseTestCase
             'keycloak_id' => (string) Str::uuid(),
             'unclaimed' => 0,
         ]);
-
-        if ($withCustodianUser) {
-            $custodianUser = CustodianUser::where(
-                'email',
-                $this->custodian_admin->email
-            )->first();
-
-            if (! $custodianUser) {
-                $custodianUser = CustodianUser::factory()->create([
-                    'email' => $this->custodian_admin->email,
-                ]);
-            }
-
-            $this->custodian_admin->update([
-                'custodian_user_id' => $custodianUser->id,
-            ]);
-        }
         $this->organisation_admin = User::where('user_group', User::GROUP_ORGANISATIONS)->where("is_delegate", 0)->first();
         $this->organisation_delegate = User::where('user_group', User::GROUP_ORGANISATIONS)->where("is_delegate", 1)->first();
 

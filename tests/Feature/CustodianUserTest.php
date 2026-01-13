@@ -23,7 +23,7 @@ class CustodianUserTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->withUsers(true);
+        $this->withUsers();
 
         Http::fake([
             env('KEYCLOAK_BASE_URL') . '/*' => Http::response([
