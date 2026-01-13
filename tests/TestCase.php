@@ -43,7 +43,7 @@ abstract class TestCase extends BaseTestCase
         }
     }
 
-    protected function withUsers(): void
+    protected function withUsers(bool $withCustodianUser = false): void
     {
         $this->user = User::where('user_group', User::GROUP_USERS)->first();
         $this->custodian_admin = User::where('user_group', User::GROUP_CUSTODIANS)->first();
@@ -51,6 +51,16 @@ abstract class TestCase extends BaseTestCase
             'keycloak_id' => (string) Str::uuid(),
             'unclaimed' => 0,
         ]);
+
+         if ($withCustodianUser) {
+            $custodianUser = CustodianUser::factory()->create([
+                'email' => $this->custodian_admin->email,
+        ]);
+
+        $this->custodian_admin->update([
+            'custodian_user_id' => $custodianUser->id,
+        ]);
+    }
         $this->organisation_admin = User::where('user_group', User::GROUP_ORGANISATIONS)->where("is_delegate", 0)->first();
         $this->organisation_delegate = User::where('user_group', User::GROUP_ORGANISATIONS)->where("is_delegate", 1)->first();
 
