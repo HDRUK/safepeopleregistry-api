@@ -23,7 +23,7 @@ class UpdateUserKeycloak extends BaseFormRequest
                 'required',
                 'email',
                 'exists:users,email',
-            ],            
+            ],
         ];
     }
 

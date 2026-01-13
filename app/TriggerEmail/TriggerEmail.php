@@ -65,6 +65,9 @@ class TriggerEmail
         $projectId = isset($input['projectId']) ? $input['projectId'] : null;
         $typeInvite = isset($input['typeInvite']) ? $input['typeInvite'] : null;
         $userId = isset($input['userId']) ? $input['userId'] : null;
+        $typeName = isset($input['typeName']) ? $input['typeName'] : null;
+        $expiryDate = isset($input['expiryDate']) ? $input['expiryDate'] : null;
+        $typeCode = isset($input['typeCode']) ? $input['typeCode'] : null;
 
         switch (strtoupper($type)) {
             case 'AFFILIATION':
@@ -462,7 +465,6 @@ class TriggerEmail
 
                 break;
 
-
             case 'CUST_ORG_TRAINING_EXPIRED':
                 $template = EmailTemplate::where('identifier', $identifier)->first();
                 $user = User::where('id', $to)->first();
@@ -481,6 +483,49 @@ class TriggerEmail
                 ];
 
                 break;
+
+            case 'ORG_SECURITY_COMPLIANCE_EXPIRED':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $user = User::where('id', $to)->first();
+
+                $newRecipients = [
+                    'id' => $to,
+                    'email' => $user->email,
+                ];
+
+                $replacements = [
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[security_compliance_name]]' => $typeName,
+                    '[[security_compliance_code]]' => $typeCode,
+                    '[[security_compliance_expiry_date]]' => $expiryDate,
+                ];
+
+                break;
+
+            case 'CUST_SECURITY_COMPLIANCE_EXPIRED':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $user = User::where('id', $to)->first();
+                $organisation = Organisation::where('id', $organisationId)->first();
+
+                $newRecipients = [
+                    'id' => $to,
+                    'email' => $user->email,
+                ];
+
+                $replacements = [
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[security_compliance_name]]' => $typeName,
+                    '[[security_compliance_code]]' => $typeCode,
+                    '[[security_compliance_expiry_date]]' => $expiryDate,
+                    '[[organisation_name]]' => $organisation->organisation_name,
+                ];
+
+                break;
+
             default: // Unknown type.
                 break;
         }
