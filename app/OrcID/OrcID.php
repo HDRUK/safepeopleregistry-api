@@ -81,7 +81,9 @@ class OrcID
             ]);
 
             if ($token) {
-                OrcIDScanner::dispatch($user);
+                // The OrcID scanner has been temporarily stopped.
+                \Log::info('OrcID scanner - temporarily stopped');
+                // OrcIDScanner::dispatch($user);
                 return true;
             }
 
@@ -89,7 +91,9 @@ class OrcID
         }
 
         if ($token->update(['api_details' => json_decode($input['payload'])])) {
-            OrcIDScanner::dispatch($user);
+            // The OrcID scanner has been temporarily stopped.
+            \Log::info('OrcID scanner - temporarily stopped');
+            // OrcIDScanner::dispatch($user);
             return true;
         }
 

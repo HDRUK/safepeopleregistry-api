@@ -27,6 +27,7 @@ class orcidtest extends Command
      */
     public function handle()
     {
-        OrcIDScanner::dispatch(User::where('id', 10)->first());
+        \Log::info('OrcID scanner - temporarily stopped');
+        // OrcIDScanner::dispatch(User::where('id', 10)->first());
     }
 }
