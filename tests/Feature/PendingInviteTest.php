@@ -91,8 +91,6 @@ class PendingInviteTest extends TestCase
         $response->assertStatus(200);
         $data = $response->decodeResponseJson()['data']['data'];
         $this->assertEquals(1, count($data));
-
-        var_dump($this->generateListInvites());
     }
 
     private function generateListInvites()
