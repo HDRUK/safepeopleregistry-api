@@ -18,6 +18,7 @@ use App\Http\Requests\CustodianUsers\DeleteCustodianUser;
 use App\Http\Requests\CustodianUsers\InviteCustodianUser;
 use App\Http\Requests\CustodianUsers\UpdateCustodianUser;
 use App\Traits\Notifications\NotificationCustodianManager;
+use Illuminate\Support\Facades\Log;
 
 class CustodianUserController extends Controller
 {
@@ -179,10 +180,12 @@ class CustodianUserController extends Controller
     {
         try {
             $input = $request->all();
-            $loggedInUser =  $request->user();
+            $loggedInUser =  $request->user()->first();
             $loggedInUserId =  $loggedInUser->id;
-            $loggedInCustodianUserId =  $loggedInUser->custodian_user_id;
-            $custodianId = CustodianUser::where('id', $loggedInCustodianUserId)->first()->custodian_id;
+
+            $loggedInCustodianUser = CustodianUser::where('id', $loggedInUserId)->first();
+            $custodianId = $loggedInCustodianUser->custodian_id;
+
 
             $isApprover = false;
 
@@ -278,11 +281,11 @@ class CustodianUserController extends Controller
     {
         try {
             $input = $request->all();
-            $loggedInUser =  $request->user();
+            $loggedInUser =  $request->user()->first();
             $loggedInUserId =  $loggedInUser->id;
-            $loggedInCustodianUserId =  $loggedInUser->custodian_user_id;
-            $custodianId = CustodianUser::where('id', $loggedInCustodianUserId)->first()->custodian_id;
-
+            $loggedInCustodianUser = CustodianUser::where('id', $loggedInUserId)->first();
+            $custodianId = $loggedInCustodianUser->custodian_id;
+            
             $user = CustodianUser::where('id', $id)->first();
             $user->first_name = isset($input['first_name']) ? $input['first_name'] : $user->first_name;
             $user->last_name = isset($input['last_name']) ? $input['last_name'] : $user->last_name;

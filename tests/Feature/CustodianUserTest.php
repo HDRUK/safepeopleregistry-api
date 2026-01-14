@@ -193,7 +193,7 @@ class CustodianUserTest extends TestCase
         $latestCustodianUser = CustodianUser::query()->orderBy('id', 'desc')->first();
         $custodianIdTest = $latestCustodianUser ? $latestCustodianUser->id + 1 : 1;
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->custodian_admin, $this->getMockedKeycloakPayload())
             ->json(
                 'DELETE',
                 self::TEST_URL . "/{$custodianIdTest}"
@@ -208,9 +208,9 @@ class CustodianUserTest extends TestCase
     {
         Queue::assertNothingPushed();
 
-        CustodianUser::truncate();
+        //CustodianUser::truncate();
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->custodian_admin, $this->getMockedKeycloakPayload())
             ->json(
                 'POST',
                 self::TEST_URL,
@@ -226,7 +226,7 @@ class CustodianUserTest extends TestCase
 
         $response->assertStatus(201);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->custodian_admin, $this->getMockedKeycloakPayload())
             ->json(
                 'POST',
                 self::TEST_URL . '/invite/1'
@@ -244,7 +244,7 @@ class CustodianUserTest extends TestCase
         $latestCustodianUser = CustodianUser::query()->orderBy('id', 'desc')->first();
         $custodianIdTest = $latestCustodianUser ? $latestCustodianUser->id + 1 : 1;
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->custodian_admin, $this->getMockedKeycloakPayload())
             ->json(
                 'POST',
                 self::TEST_URL . "/invite/{$custodianIdTest}"
@@ -257,7 +257,7 @@ class CustodianUserTest extends TestCase
 
     public function test_the_application_can_assign_permissions_to_custodian_users(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->custodian_admin, $this->getMockedKeycloakPayload())
             ->json(
                 'POST',
                 self::TEST_URL,

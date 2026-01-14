@@ -72,13 +72,21 @@ abstract class TestCase extends BaseTestCase
             if (! $custodianUser) {
                 $custodianUser = CustodianUser::factory()->create([
                     'email' => $this->custodian_admin->email,
+                    'custodian_id' => 1,
+                ]);
+            } else if (! $custodianUser->custodian_id) {
+                $custodianUser->update([
+                    'custodian_id' => 1,
                 ]);
             }
 
             $this->custodian_admin->update([
                 'custodian_user_id' => $custodianUser->id,
             ]);
+
+            $this->custodian_admin->setRelation('custodianUser', $custodianUser);
         }
+
 
         $this->organisation_admin = User::where('user_group', User::GROUP_ORGANISATIONS)->where("is_delegate", 0)->first();
         $this->organisation_delegate = User::where('user_group', User::GROUP_ORGANISATIONS)->where("is_delegate", 1)->first();
