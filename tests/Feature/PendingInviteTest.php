@@ -2,9 +2,11 @@
 
 namespace Tests\Feature;
 
+use Carbon\Carbon;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Affiliation;
+use App\Models\PendingInvite;
 use Tests\Traits\Authorisation;
 
 class PendingInviteTest extends TestCase
@@ -91,6 +93,21 @@ class PendingInviteTest extends TestCase
         $response->assertStatus(200);
         $data = $response->decodeResponseJson()['data']['data'];
         $this->assertEquals(1, count($data));
+
+        $currDate = Carbon::today()->format('Y-m-d');
+
+        PendingInvite::where('id', 1)->update([
+            'invite_sent_at' => Carbon::now()->subDay(),
+        ]);
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '?invite_sent_at=' . $currDate
+            );
+
+        $response->assertStatus(200);
+        $data = $response->decodeResponseJson()['data']['data'];
+        $this->assertEquals(2, count($data));
     }
 
     private function generateListInvites()
