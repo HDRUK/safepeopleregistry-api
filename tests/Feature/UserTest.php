@@ -811,4 +811,33 @@ class UserTest extends TestCase
 
         $this->assertEquals('Invalid argument(s)', $message);
     }
+
+    public function test_application_search_users_by_email_with_success(): void
+    {
+        $user = User::query()->orderBy('id', 'desc')->first();
+        
+        $responseUser = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/search?email[]='. $user->email
+            );
+
+        $responseUser->assertStatus(200);
+        $message = $responseUser->decodeResponseJson()['message'];
+
+        $this->assertEquals('success', $message);
+    }
+
+    public function test_application_search_users_with_no_success(): void
+    {
+        $user = User::query()->orderBy('id', 'desc')->first();
+        
+        $responseUser = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/search'
+            );
+
+        $responseUser->assertStatus(404);
+    }
 }

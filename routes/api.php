@@ -76,6 +76,7 @@ Route::middleware(['auth:api'])
         Route::get('/', [UserController::class, 'index']);
         Route::get('/test', [UserController::class, 'fakeEndpointForTesting']);
         Route::get('/identifier', [UserController::class, 'showByUniqueIdentifier']);
+        Route::get('/search', [UserController::class, 'searchUsers']);
         Route::get('/{id}', [UserController::class, 'show']);
         Route::get('/{id}/history', [AuditLogController::class, 'showUserHistory'])->whereNumber('id');
         Route::get('/{id}/projects', [UserController::class, 'userProjects']);
@@ -96,6 +97,7 @@ Route::middleware(['auth:api'])
         // the method not found in controller
         // Route::patch('/{id}', [UserController::class, 'edit']);
         Route::delete('/{id}', [UserController::class, 'destroy']);
+
 
 
         // Notifications

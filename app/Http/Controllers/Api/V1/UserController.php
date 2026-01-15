@@ -535,65 +535,65 @@ class UserController extends Controller
      */
     public function update(UpdateUser $request, int $id): JsonResponse
     {
-        // try {
-        $input = $request->all();
+        try {
+            $input = $request->all();
 
-        $loggedInUserId = $request->user()->id;
-        $loggedInUser = User::where('id', $loggedInUserId)->first();
-        $user = User::where('id', $id)->first();
-        $originalUserData = $user->getOriginal();
+            $loggedInUserId = $request->user()->id;
+            $loggedInUser = User::where('id', $loggedInUserId)->first();
+            $user = User::where('id', $id)->first();
+            $originalUserData = $user->getOriginal();
 
-        if (!Gate::allows('update', $user)) {
-            return $this->ForbiddenResponse();
+            if (!Gate::allows('update', $user)) {
+                return $this->ForbiddenResponse();
+            }
+
+            if (isset($input['department_id']) && $input['department_id'] !== 0 && $input['department_id'] != null) {
+                UserHasDepartments::where('user_id', $user->id)->delete();
+                UserHasDepartments::create([
+                    'user_id' => $user->id,
+                    'department_id' => $request['department_id'],
+                ]);
+            };
+
+            $user->first_name = isset($input['first_name']) ? $input['first_name'] : $user->first_name;
+            $user->last_name = isset($input['last_name']) ? $input['last_name'] : $user->last_name;
+            $user->email = isset($input['email']) ? $input['email'] : $user->email;
+            $user->password = isset($input['password']) ? Hash::make($input['password']) : $user->password;
+            $user->registry_id = isset($input['registry_id']) ? $input['registry_id'] : $user->registry_id;
+            $user->consent_scrape = isset($input['consent_scrape']) ? $input['consent_scrape'] : $user->consent_scrape;
+            $user->public_opt_in = isset($input['public_opt_in']) ? $input['public_opt_in'] : $user->public_opt_in;
+            $user->declaration_signed = isset($input['declaration_signed']) ? $input['declaration_signed'] : $user->declaration_signed;
+            $user->organisation_id = isset($input['organisation_id']) ? $input['organisation_id'] : $user->organisation_id;
+            $user->orc_id = isset($input['orc_id']) ? $input['orc_id'] : $user->orc_id;
+            $user->location = isset($input['location']) ? $input['location'] : $user->location;
+            $user->t_and_c_agreed = isset($input['t_and_c_agreed'])
+                ? filter_var($input['t_and_c_agreed'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)
+                : $user->t_and_c_agreed;
+            $user->t_and_c_agreement_date = isset($input['lt_and_c_agreement_date']) ? $input['t_and_c_agreement_date'] : $user->t_and_c_agreement_date;
+            $user->uksa_registered = isset($input['uksa_registered']) ? $input['uksa_registered'] : $user->uksa_registered;
+            $user->is_sro = isset($input['is_sro']) ? $input['is_sro'] : $user->is_sro;
+            $user->is_delegate = isset($input['is_delegate']) ? $input['is_delegate'] : $user->is_delegate;
+            $user->role = isset($input['role']) ? $input['role'] : $user->role;
+            $user->save();
+            $newUserData = $user->fresh();
+
+            if (!$user->is_delegate) {
+                $this->sendNotificationOnDelegate($loggedInUser, $user);
+            }
+
+            if ($user->is_sro) {
+                $changes = $this->getUserTrackedChanges($originalUserData, $newUserData);
+                $this->sendNotificationOnSroUpdate($changes, $loggedInUser, $user);
+            }
+
+            return response()->json([
+                'message' => 'success',
+                'data' => $user,
+            ], 200);
+
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         }
-
-        if (isset($input['department_id']) && $input['department_id'] !== 0 && $input['department_id'] != null) {
-            UserHasDepartments::where('user_id', $user->id)->delete();
-            UserHasDepartments::create([
-                'user_id' => $user->id,
-                'department_id' => $request['department_id'],
-            ]);
-        };
-
-        $user->first_name = isset($input['first_name']) ? $input['first_name'] : $user->first_name;
-        $user->last_name = isset($input['last_name']) ? $input['last_name'] : $user->last_name;
-        $user->email = isset($input['email']) ? $input['email'] : $user->email;
-        $user->password = isset($input['password']) ? Hash::make($input['password']) : $user->password;
-        $user->registry_id = isset($input['registry_id']) ? $input['registry_id'] : $user->registry_id;
-        $user->consent_scrape = isset($input['consent_scrape']) ? $input['consent_scrape'] : $user->consent_scrape;
-        $user->public_opt_in = isset($input['public_opt_in']) ? $input['public_opt_in'] : $user->public_opt_in;
-        $user->declaration_signed = isset($input['declaration_signed']) ? $input['declaration_signed'] : $user->declaration_signed;
-        $user->organisation_id = isset($input['organisation_id']) ? $input['organisation_id'] : $user->organisation_id;
-        $user->orc_id = isset($input['orc_id']) ? $input['orc_id'] : $user->orc_id;
-        $user->location = isset($input['location']) ? $input['location'] : $user->location;
-        $user->t_and_c_agreed = isset($input['t_and_c_agreed'])
-            ? filter_var($input['t_and_c_agreed'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)
-            : $user->t_and_c_agreed;
-        $user->t_and_c_agreement_date = isset($input['lt_and_c_agreement_date']) ? $input['t_and_c_agreement_date'] : $user->t_and_c_agreement_date;
-        $user->uksa_registered = isset($input['uksa_registered']) ? $input['uksa_registered'] : $user->uksa_registered;
-        $user->is_sro = isset($input['is_sro']) ? $input['is_sro'] : $user->is_sro;
-        $user->is_delegate = isset($input['is_delegate']) ? $input['is_delegate'] : $user->is_delegate;
-        $user->role = isset($input['role']) ? $input['role'] : $user->role;
-        $user->save();
-        $newUserData = $user->fresh();
-
-        if (!$user->is_delegate) {
-            $this->sendNotificationOnDelegate($loggedInUser, $user);
-        }
-
-        if ($user->is_sro) {
-            $changes = $this->getUserTrackedChanges($originalUserData, $newUserData);
-            $this->sendNotificationOnSroUpdate($changes, $loggedInUser, $user);
-        }
-
-        return response()->json([
-            'message' => 'success',
-            'data' => $user,
-        ], 200);
-
-        // } catch (Exception $e) {
-        //     throw new Exception($e->getMessage());
-        // }
     }
 
     private function sendNotificationOnDelegate($loggedInUser, $delegate)
@@ -816,6 +816,68 @@ class UserController extends Controller
 
             $records = collect($results)->toArray();
             return $this->OKResponse($records);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    /**
+     * @OA\Get(
+     *      path="/api/v1/users/search",
+     *      summary="Return a list of Users",
+     *      description="Return a list of Users",
+     *      tags={"User"},
+     *      summary="User@search",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string"),
+     *              @OA\Property(property="data", type="object",
+     *                  @OA\Property(property="id", type="integer", example="123"),
+     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
+     *                  @OA\Property(property="first_name", type="string", example="A"),
+     *                  @OA\Property(property="last_name", type="string", example="Researcher"),
+     *                  @OA\Property(property="email", type="string", example="person@somewhere.com"),
+     *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
+     *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
+     *                  @OA\Property(property="declaration_signed", type="boolean", example="true"),
+     *                  @OA\Property(property="organisation_id", type="integer", example="123"),
+     *                  @OA\Property(property="orcid_scanning", type="integer", example="1"),
+     *                  @OA\Property(property="orcid_scanning_completed_at", type="string", example="2024-02-04 12:01:00"),
+     *                  @OA\Property(property="location", type="string", example="United Kingdom"),
+     *                  @OA\Property(property="t_and_c_agreed", type="boolean", example="true"),
+     *                  @OA\Property(property="t_and_c_agreement_date", type="string", example="2024-02-04 12:00:00"),
+     *                  @OA\Property(property="uksa_registered", type="boolean", example="true"),
+     *                  @OA\Property(property="is_sro", type="boolean", example="false")
+     *
+     *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="Not found response",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found"),
+     *          )
+     *      )
+     * )
+     */
+    public function searchUsers(Request $request): JsonResponse
+    {
+        try {
+            if (!$request->query()) {
+                return $this->NotFoundResponse();
+            }
+
+            $users = User::query()
+                ->searchViaRequest()
+                ->get();
+
+            return $this->OKResponse($users);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
