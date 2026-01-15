@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use Carbon\Carbon;
 use Tests\TestCase;
-use App\Models\User;
 use App\Models\Affiliation;
 use App\Models\PendingInvite;
 use Tests\Traits\Authorisation;
