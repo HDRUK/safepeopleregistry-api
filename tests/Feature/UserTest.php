@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use Http;
+use Mockery;
+use Keycloak;
 use Carbon\Carbon;
 use Tests\TestCase;
 use App\Models\User;
@@ -387,14 +389,25 @@ class UserTest extends TestCase
             $this->assertNull($actionLog['completed_at']);
 
 
-            $response = $this->actingAs($this->admin)
+            $currUser = User::where('id', $content)->first();
+
+            $newEmail = fake()->email();
+
+            // Mock Keycloak Facade
+            Keycloak::shouldReceive('searchUserByEmail')
+                ->andReturnUsing(function () {
+                    return [];
+                });
+
+
+            $response = $this->actingAs($currUser)
                 ->json(
                     'PUT',
                     self::TEST_URL . '/' . $content,
                     [
                         'first_name' => 'Updated',
                         'last_name' => 'Name',
-                        'email' => fake()->email(),
+                        'email' => $newEmail,
                         'declaration_signed' => true,
                         'organisation_id' => 2,
                         'location' => 1
@@ -427,6 +440,25 @@ class UserTest extends TestCase
             );
         });
     }
+
+    // protected function mockKeycloakAndRMC($emailAvailable)
+    // {
+    //     Http::fake([
+    //         '*/realms/*/protocol/openid-connect/token' => Http::response([
+    //             'access_token' => 'fake-access-token',
+    //             'token_type' => 'Bearer',
+    //             'expires_in' => 300,
+    //         ], 200),
+    //     ]);
+
+    //     // Mock RMC::checkingUserEmail to return false (email already exists)
+    //     $this->partialMock(RMC::class, function ($mock) {
+    //         $mock->shouldReceive('checkingUserEmail')
+    //             ->once()
+    //             ->with('fake-access-token', 'existing@example.com')
+    //             ->andReturn(true);
+    //     });
+    // }
 
     public function test_the_application_can_update_users_with_no_success(): void
     {
@@ -528,14 +560,24 @@ class UserTest extends TestCase
                 'completed_at' => null,
             ]);
 
-            $response = $this->actingAs($this->admin)
+            $currUser = User::where('id', $id)->first();
+
+            $newEmail = fake()->email();
+
+            // Mock Keycloak Facade
+            Keycloak::shouldReceive('searchUserByEmail')
+                ->andReturnUsing(function () {
+                    return [];
+                });
+
+            $response = $this->actingAs($currUser)
                 ->json(
                     'PUT',
                     self::TEST_URL . '/' . $id,
                     [
                         'first_name' => 'Updated',
                         'last_name' => 'Name',
-                        'email' => fake()->email(),
+                        'email' => $newEmail,
                     ]
                 );
 
@@ -553,7 +595,7 @@ class UserTest extends TestCase
             $testTime = Carbon::now();
             Carbon::setTestNow($testTime);
 
-            $response = $this->actingAs($this->admin)
+            $response = $this->actingAs($currUser)
                 ->json(
                     'PUT',
                     self::TEST_URL . '/' . $id,
