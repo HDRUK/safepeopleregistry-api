@@ -540,9 +540,6 @@ class UserController extends Controller
 
             $loggedInUserId = $request->user()->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();
-            if ($id !== $loggedInUserId) {
-                return $this->ForbiddenResponse();
-            }
 
             $user = User::where('id', $id)->first();
             $originalUserData = $user->getOriginal();
