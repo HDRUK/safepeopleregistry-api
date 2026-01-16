@@ -24,7 +24,6 @@ class UpdateUserKeycloak extends BaseFormRequest
                 'string',
                 'email:rfc,dns',
                 'max:255',
-                'unique:users,email',
             ],
         ];
     }

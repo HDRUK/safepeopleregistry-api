@@ -16,6 +16,7 @@ use Tests\Traits\Authorisation;
 use KeycloakGuard\ActingAsKeycloakUser;
 use Database\Factories\UserFactory;
 use Illuminate\Support\Facades\DB;
+use Keycloak;
 
 class PermissionMatrixTest extends TestCase
 {
@@ -1034,6 +1035,7 @@ class PermissionMatrixTest extends TestCase
             $routeKey = '[' . strtoupper($method) . '] ' . $route;
 
             foreach ($roles as $role => $expectedStatus) {
+
                 $user = $this->users[$role];
 
                 DB::beginTransaction();

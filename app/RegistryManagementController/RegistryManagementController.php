@@ -314,4 +314,19 @@ class RegistryManagementController
             unset($userData);
         }
     }
+
+    public static function checkingUserEmail($keycloakToken, $email)
+    {
+        $checkEmail = User::where('email', $email)->first();
+        if (!is_null($checkEmail)) {
+            return false;
+        }
+
+        $searchUserByEmail = Keycloak::searchUserByEmail($keycloakToken, $email);
+        if (count($searchUserByEmail) !== 0) {
+            return false;
+        }
+
+        return true;
+    }
 }
