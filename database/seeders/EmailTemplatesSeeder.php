@@ -1127,7 +1127,7 @@ class EmailTemplatesSeeder extends Seeder
                         ' . $this->mjmlHead . '
                         <mj-body background-color="#f6dff1" width="600px" >
 
-                          ' . $this->titleBar('Training expired') . '
+                          ' . $this->titleBar('Training expiry warning') . '
 
                           <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
                             <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
@@ -1226,6 +1226,78 @@ class EmailTemplatesSeeder extends Seeder
             'buttons' => '',
           ],
 
+          [
+            'identifier' => 'org_security_compliance_expired',
+            'subject' => 'Safe People Registry | Certification expired',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#f6dff1" width="600px" >
+
+                          ' . $this->titleBar('Certification expired') . '
+
+                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                                <mj-text align="left" padding="20px 0px 20px 0px">
+                                  Your security certification, [[security_compliance_name]], has expired on [[security_compliance_expiry_date]].<br>
+                                  Please update your profile below.  
+                                  <div><br></div>
+                                  Thanks,
+                                  <br/>
+                                  [[env(APP_NAME)]] Team,
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+                                    
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
+                              <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]" padding="10px 15px 15px 15px">
+                                  Login to Safe People Registry
+                                </mj-button>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+
+                        </mj-body>
+                      </mjml >',
+            'buttons' => '',
+          ],
+          [
+            'identifier' => 'cust_security_compliance_expired',
+            'subject' => 'Safe People Registry | Certification expired',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#f6dff1" width="600px" >
+
+                          ' . $this->titleBar('Certification expired') . '
+
+                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                                <mj-text align="left" padding="20px 0px 20px 0px">
+                                  [[organisation_name]] security certification, [[security_compliance_name]], has expired on [[security_compliance_expiry_date]].<br>
+                                  Please update your profile below.  
+                                  <div><br></div>
+                                  Thanks,
+                                  <br/>
+                                  [[env(APP_NAME)]] Team,
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+                                    
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
+                              <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]" padding="10px 15px 15px 15px">
+                                  Login to Safe People Registry
+                                </mj-button>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+
+                        </mj-body>
+                      </mjml >',
+            'buttons' => '',
+          ],
 
         ];
 

@@ -1,5 +1,7 @@
 <?php
 
+use Carbon\Carbon;
+
 if (!function_exists('convertStates')) {
     function convertStates($state)
     {
@@ -79,5 +81,24 @@ if (!function_exists('crockfordToNumeric')) {
         }
 
         return $numericValue;
+    }
+}
+
+if (!function_exists('isValidDate')) {
+    /**
+     * Check if a string is a valid date in the specified format.
+     *
+     * @param string $date The date string to validate
+     * @param string $format The expected date format (default: 'Y-m-d')
+     * @return bool True if the date is valid, false otherwise
+     *
+     * @example
+     * isValidDate('2026-01-14'); // returns true
+     * isValidDate('2026-13-45'); // returns false
+     * isValidDate('14/01/2026', 'd/m/Y'); // returns true
+     */
+    function isValidDate(string $date, string $format = 'Y-m-d'): bool
+    {
+        return Carbon::canBeCreatedFromFormat($date, $format);
     }
 }

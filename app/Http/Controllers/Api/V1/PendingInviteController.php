@@ -60,16 +60,20 @@ class PendingInviteController extends Controller
     public function index(Request $request)
     {
         $userGroupFilter = request()->has('user_group') ? request()->get('user_group') : null;
+        $userEmailFilter = request()->has('email') ? request()->get('email') : null;
 
         $pendingInvites = PendingInvite::query()
             ->searchViaRequest()
             ->with([
                 'user:id,name,email,user_group,unclaimed'
             ])
-            ->whereHas('user', function ($q1) use ($userGroupFilter) {
-                if ($userGroupFilter !== null) {
-                    $q1->where('user_group', strtoupper($userGroupFilter));
-                }
+            ->whereHas('user', function ($q1) use ($userGroupFilter, $userEmailFilter) {
+                $q1->when($userGroupFilter, function ($query, $value) {
+                    return $query->where('user_group', strtoupper($value));
+                })
+                ->when($userEmailFilter, function ($query, $value) {
+                    return $query->where('email', 'LIKE', '%' . $value . '%');
+                });
             })
             ->applySorting()
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
