@@ -535,7 +535,7 @@ class UserController extends Controller
      */
     public function update(UpdateUser $request, int $id): JsonResponse
     {
-        // try {
+        try {
             $input = $request->all();
 
             $loggedInUserId = $request->user()->id;
@@ -595,7 +595,7 @@ class UserController extends Controller
                 $this->sendNotificationOnSroUpdate($changes, $loggedInUser, $user);
             }
 
-            if (isset($input['email']) && $input['email'] !== $user->email) {
+            if (isset($input['email']) && trim(strtoupper($input['email'])) !== trim(strtoupper($user->email))) {
                 $keycloakToken = $this->getAuthToken();
                 Keycloak::updateUserEmail($keycloakToken, $user->keycloak_id, $input['email']);
                 Keycloak::sendVerifyEmail($keycloakToken, $user->keycloak_id);
@@ -606,9 +606,9 @@ class UserController extends Controller
                 'data' => $user,
             ], 200);
 
-        // } catch (Exception $e) {
-        //     throw new Exception($e->getMessage());
-        // }
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
     }
 
     private function sendNotificationOnDelegate($loggedInUser, $delegate)
