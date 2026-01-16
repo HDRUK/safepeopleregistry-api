@@ -394,7 +394,7 @@ class UserTest extends TestCase
             $newEmail = fake()->email();
 
             Http::fake([
-                '*/realms/*/protocol/openid-connect/token' => Http::response([
+                '*' => Http::response([
                     'access_token' => 'fake-access-token',
                     'token_type' => 'Bearer',
                     'expires_in' => 300,
@@ -573,13 +573,13 @@ class UserTest extends TestCase
             $newEmail = fake()->email();
 
             Http::fake([
-                '*/realms/*/protocol/openid-connect/token' => Http::response([
+                '*' => Http::response([
                     'access_token' => 'fake-access-token',
                     'token_type' => 'Bearer',
                     'expires_in' => 300,
                 ], 200),
             ]);
-            
+
             // Mock Keycloak Facade
             Keycloak::shouldReceive('searchUserByEmail')
                 ->andReturnUsing(function () {

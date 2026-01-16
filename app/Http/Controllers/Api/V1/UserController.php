@@ -535,7 +535,7 @@ class UserController extends Controller
      */
     public function update(UpdateUser $request, int $id): JsonResponse
     {
-        try {
+        // try {
             $input = $request->all();
 
             $loggedInUserId = $request->user()->id;
@@ -600,9 +600,9 @@ class UserController extends Controller
                 'data' => $user,
             ], 200);
 
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
+        // } catch (Exception $e) {
+        //     throw new Exception($e->getMessage());
+        // }
     }
 
     private function sendNotificationOnDelegate($loggedInUser, $delegate)
