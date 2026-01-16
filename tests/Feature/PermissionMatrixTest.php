@@ -493,7 +493,7 @@ class PermissionMatrixTest extends TestCase
                 ],
             ],
         ];
-        $this->runTests($expectedMatrix); // bla
+        $this->runTests($expectedMatrix);
     }
 
     public function test_training_permissions_matrix()
