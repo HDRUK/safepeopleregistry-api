@@ -595,6 +595,12 @@ class UserController extends Controller
                 $this->sendNotificationOnSroUpdate($changes, $loggedInUser, $user);
             }
 
+            if (isset($input['email']) && $input['email'] !== $user->email) {
+                $keycloakToken = $this->getAuthToken();
+                Keycloak::updateUserEmail($keycloakToken, $user->keycloak_id, $input['email']);
+                Keycloak::sendVerifyEmail($keycloakToken, $user->keycloak_id);
+            }
+
             return response()->json([
                 'message' => 'success',
                 'data' => $user,
@@ -890,14 +896,17 @@ class UserController extends Controller
                 return $this->ForbiddenResponse();
             }
 
+            $user = User::where('id', $id)->first();
+            if (trim(strtoupper($user->email)) === trim(strtoupper($email))) {
+                return $this->ConflictResponse();
+            }
+
             $keycloakToken = $this->getAuthToken();
 
             $checkingUserEmail = RMC::checkingUserEmail($keycloakToken, $email);
             if (!$checkingUserEmail) {
                 return $this->ConflictResponse();
             }
-
-            $user = User::where('id', $id)->first();
 
             Keycloak::updateUserEmail($keycloakToken, $user->keycloak_id, $email);
 
