@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use App\Traits\StateWorkflow;
 use App\Traits\FilterManager;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\Activitylog\LogOptions;
 
 /**
  *
@@ -154,7 +152,6 @@ class Affiliation extends Model
 {
     use HasFactory;
     use StateWorkflow;
-    use LogsActivity;
     use FilterManager;
 
     // State::STATE_AFFILIATION_ORGANISATION_INVITED
@@ -227,15 +224,6 @@ class Affiliation extends Model
     public static function getTransitions(): array
     {
         return static::$transitions;
-    }
-
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logOnly($this->fillable)
-            ->logOnlyDirty()
-            ->useLogName('affiliation')
-            ->dontSubmitEmptyLogs();
     }
 
     /**

@@ -24,8 +24,8 @@ use App\Models\EntityModelType;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use App\Models\UserHasDepartments;
-use App\Http\Requests\Organisations\ResentInvite;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use App\Exceptions\NotFoundException;
 use App\Models\ProjectHasSponsorship;
@@ -37,6 +37,7 @@ use App\Http\Requests\Organisations\GetProject;
 use App\Models\CustodianHasProjectOrganisation;
 use App\Http\Requests\Organisations\GetDelegate;
 use App\Http\Requests\Organisations\GetRegistry;
+use App\Http\Requests\Organisations\ResentInvite;
 use App\Models\CustodianHasProjectHasSponsorship;
 use App\Services\DecisionEvaluatorService as DES;
 use App\Http\Requests\Organisations\GetCountUsers;
@@ -707,6 +708,8 @@ class OrganisationController extends Controller
                 return $this->ForbiddenResponse();
             }
 
+            $originalOrg = $org->getOriginal();
+
             // we need more discussion aroud this disable
             // if (!$org->system_approved && (!isset($input['system_approved']) || $input['system_approved'] === false)) {
             //     return $this->ForbiddenResponse();
@@ -746,6 +749,19 @@ class OrganisationController extends Controller
                 }
 
             }
+
+            // activity log
+            activity('organisation')
+                ->causedBy(Auth::user())
+                ->performedOn($org)
+                ->withProperties([
+                    'organisation_id'   => $org->id,
+                    'organisation_name' => $org->organisation_name,
+                    'attributes'        => $org->getChanges(),
+                    'old'               => $originalOrg,
+                ])
+                ->event('updated')
+                ->log('updated');
 
             return $this->OKResponse($org->refresh());
         } catch (Exception $e) {
@@ -1867,6 +1883,7 @@ class OrganisationController extends Controller
         try {
             $input = $request->only(app(Organisation::class)->getFillable());
             $org = Organisation::findOrFail($id);
+            $originalOrg = $org->getOriginal();
 
             if (!Gate::allows('admin')) {
                 return $this->ForbiddenResponse();
@@ -1908,6 +1925,18 @@ class OrganisationController extends Controller
                     $affiliation->setState(State::STATE_AFFILIATION_PENDING);
                 }
             }
+
+            activity('organisation')
+                ->causedBy(Auth::user())
+                ->performedOn($org)
+                ->withProperties([
+                    'organisation_id'   => $org->id,
+                    'organisation_name' => $org->organisation_name,
+                    'attributes'        => $org->getChanges(),
+                    'old'               => $originalOrg,
+                ])
+                ->event('updated')
+                ->log('approved');
 
             return $this->OKResponse(Organisation::findOrFail($id));
         } catch (Exception $e) {

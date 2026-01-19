@@ -456,18 +456,18 @@ class Organisation extends Model
             }
         });
 
-        static::updated(function (self $model) {
-            $model->writeActivity(
-                logName: 'organisation',
-                event: 'updated',
-                properties: [
-                    'organisation_id'   => $model->id,
-                    'organisation_name' => $model->organisation_name,
-                    'attributes'        => $model->getChanges(), // what changed
-                    'old'               => $model->getOriginal(), // before update
-                ]
-            );
-        });
+        // static::updated(function (self $model) {
+        //     $model->writeActivity(
+        //         logName: 'organisation',
+        //         event: 'updated',
+        //         properties: [
+        //             'organisation_id'   => $model->id,
+        //             'organisation_name' => $model->organisation_name,
+        //             'attributes'        => $model->getChanges(), // what changed
+        //             'old'               => $model->getOriginal(), // before update
+        //         ]
+        //     );
+        // });
     }
 
     protected function writeActivity(string $logName, string $event, array $properties = []): void

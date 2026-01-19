@@ -15,6 +15,7 @@ use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use App\Traits\AffiliationManager;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Notification;
 use App\Models\CustodianHasProjectOrganisation;
@@ -675,6 +676,7 @@ class AffiliationController extends Controller
             }
 
             $newStateSlug = $statusSlugMap[$status];
+            $currentState = $affiliation->getState();
 
             if (!$affiliation->canTransitionTo($newStateSlug)) {
                 return $this->ErrorResponse(
@@ -693,6 +695,17 @@ class AffiliationController extends Controller
             }
 
             $affiliation->transitionTo($newStateSlug);
+
+            activity('affiliation')
+                ->causedBy(Auth::user())
+                ->performedOn(Organisation::find($loggedUserOrgId))
+                ->withProperties([
+                    'new'   => $newStateSlug,
+                    'old'   => $currentState,
+                    'user'  => User::where('registry_id', $registryId)->first()
+                ])
+                ->event('updated')
+                ->log('updated');
 
             // send notification
             $this->sendNotificationOnApprove($status, $registryId, $affiliation);
