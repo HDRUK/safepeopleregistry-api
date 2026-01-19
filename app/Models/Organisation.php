@@ -441,7 +441,7 @@ class Organisation extends Model
 
         static::created(function (self $model) {
             $model->writeActivity(
-                logName: 'created',
+                logName: 'organisation',
                 event: 'created',
                 properties: [
                     'organisation_id'   => $model->id,
@@ -458,7 +458,7 @@ class Organisation extends Model
 
         static::updated(function (self $model) {
             $model->writeActivity(
-                logName: 'updated',
+                logName: 'organisation',
                 event: 'updated',
                 properties: [
                     'organisation_id'   => $model->id,
