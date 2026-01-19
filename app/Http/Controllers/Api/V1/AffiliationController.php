@@ -315,6 +315,14 @@ class AffiliationController extends Controller
                 $affiliation->setState(State::STATE_AFFILIATION_PENDING);
             }
 
+            // activity log
+            activity('affiliation')
+                ->causedBy(Auth::user())
+                ->performedOn($affiliation)
+                ->withProperties($affiliation)
+                ->event('created')
+                ->log('created');
+
             return response()->json([
                 'message' => 'success',
                 'data' => $affiliation->id,
@@ -458,6 +466,14 @@ class AffiliationController extends Controller
             } else {
                 $affiliation->setState(State::STATE_AFFILIATION_PENDING);
             }
+
+            // activity log
+            activity('affiliation')
+                ->causedBy(Auth::user())
+                ->performedOn($affiliation)
+                ->withProperties($affiliation)
+                ->event('updated')
+                ->log('updated');
 
             return response()->json([
                 'message' => 'success',
