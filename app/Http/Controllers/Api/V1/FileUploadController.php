@@ -301,7 +301,7 @@ class FileUploadController extends Controller
                 $this->sendNotificationOnUploadSroDoc($organisation->id, $fileIn->id);
 
                 // activity log
-                activity('file_upload')
+                activity('upload')
                     ->causedBy(Auth::user())
                     ->performedOn($organisation)
                     ->withProperties([
