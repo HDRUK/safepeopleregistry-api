@@ -215,29 +215,28 @@ class AffiliationTest extends TestCase
             );
         $response->assertStatus(500);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->organisation_admin)
             ->json(
                 'PUT',
                 self::TEST_URL . '/1/affiliation/1?status=approved'
             );
         $response->assertStatus(200);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->organisation_admin)
             ->json(
                 'PUT',
                 self::TEST_URL . '/1/affiliation/1?status=rejected'
             );
         $response->assertStatus(200);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->organisation_admin)
             ->json(
                 'PUT',
                 self::TEST_URL . '/1/affiliation/1?status=rejected'
             );
         $response->assertStatus(config('workflow.transitions.enforced') ? 500 : 200);
 
-
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->organisation_admin)
             ->json(
                 'PUT',
                 self::TEST_URL . '/1/affiliation/999?status=rejected'

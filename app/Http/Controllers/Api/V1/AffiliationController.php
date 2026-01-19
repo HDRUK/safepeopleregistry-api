@@ -319,7 +319,10 @@ class AffiliationController extends Controller
             activity('affiliation')
                 ->causedBy(Auth::user())
                 ->performedOn($affiliation)
-                ->withProperties($affiliation)
+                ->withProperties([
+                    'id' => $affiliation->id,
+                    'attributes' => $affiliation,
+                ])
                 ->event('created')
                 ->log('created');
 
@@ -442,6 +445,7 @@ class AffiliationController extends Controller
         try {
             $input = $request->only(app(Affiliation::class)->getFillable());
             $affiliation = Affiliation::findOrFail($id);
+            $originalAffiliation = $affiliation->getOriginal();
 
             $unclaimed = $affiliation->organisation->unclaimed;
 
@@ -467,11 +471,14 @@ class AffiliationController extends Controller
                 $affiliation->setState(State::STATE_AFFILIATION_PENDING);
             }
 
-            // activity log
             activity('affiliation')
                 ->causedBy(Auth::user())
                 ->performedOn($affiliation)
-                ->withProperties($affiliation)
+                ->withProperties([
+                    'id' => $affiliation->id,
+                    'attributes' => $affiliation->getChanges(),
+                    'old' => $originalAffiliation,
+                ])
                 ->event('updated')
                 ->log('updated');
 
@@ -575,7 +582,6 @@ class AffiliationController extends Controller
                     $affiliation->setState(State::STATE_AFFILIATION_PENDING);
                 }
             }
-
 
             $array = [
                 'verification_code' => null,

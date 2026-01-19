@@ -750,7 +750,6 @@ class OrganisationController extends Controller
 
             }
 
-            // activity log
             activity('organisation')
                 ->causedBy(Auth::user())
                 ->performedOn($org)

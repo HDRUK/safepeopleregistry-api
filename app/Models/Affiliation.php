@@ -9,8 +9,6 @@ use App\Traits\StateWorkflow;
 use App\Traits\FilterManager;
 
 /**
- *
- *
  * @OA\Schema (
  *      schema="Affiliation",
  *      title="Affiliation",
