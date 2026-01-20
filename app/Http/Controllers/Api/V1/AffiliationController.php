@@ -648,7 +648,7 @@ class AffiliationController extends Controller
      */
     public function destroy(DeleteAffiliation $request, int $id): JsonResponse
     {
-        try {
+        // try {
             $loggedInUserId = $request->user()?->id;
             $loggedUser = User::where('id', $loggedInUserId)->first();
 
@@ -679,9 +679,9 @@ class AffiliationController extends Controller
                 'message' => 'success',
                 'data' => null,
             ], 200);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
-        }
+        // } catch (Exception $e) {
+        //     throw new Exception($e->getMessage());
+        // }
     }
 
     public function updateRegistryAffiliation(UpdateAffiliationByRegistry $request, int $registryId, int $id): JsonResponse
