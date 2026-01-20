@@ -16,7 +16,6 @@ use Tests\Traits\Authorisation;
 use KeycloakGuard\ActingAsKeycloakUser;
 use Database\Factories\UserFactory;
 use Illuminate\Support\Facades\DB;
-use Keycloak;
 
 class PermissionMatrixTest extends TestCase
 {

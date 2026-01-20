@@ -889,7 +889,7 @@ class UserController extends Controller
         try {
             $input = $request->all();
             $email = $input['email'];
-            
+
             $loggedInUserId = $request->user()->id;
 
             if ($id !== $loggedInUserId) {
