@@ -649,6 +649,30 @@ class AffiliationController extends Controller
     public function destroy(DeleteAffiliation $request, int $id): JsonResponse
     {
         try {
+            $loggedInUserId = $request->user()?->id;
+            $loggedUser = User::where('id', $loggedInUserId)->first();
+
+            $affiliation = Affiliation::where('id', $id)->first();
+
+            $causer = null;
+            if ($loggedUser->user_group === User::GROUP_USERS) {
+                $causer = $loggedUser;
+            }
+
+            if ($loggedUser->user_group === User::GROUP_ORGANISATIONS) {
+                $causer = Organisation::find($loggedUser->organisation_id);
+            }
+
+            activity('affiliation')
+                ->causedBy($causer)
+                ->performedOn($affiliation)
+                ->withProperties([
+                    'id' => $affiliation->id,
+                    'old' => $affiliation,
+                ])
+                ->event('deleted')
+                ->log('deleted');
+
             Affiliation::where('id', $id)->first()->delete();
 
             return response()->json([

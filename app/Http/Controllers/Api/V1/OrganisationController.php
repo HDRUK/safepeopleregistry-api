@@ -1958,6 +1958,9 @@ class OrganisationController extends Controller
                 throw new Exception('The assigned sponsorship for the project was not found.');
             }
 
+            $organisation = Organisation::find($id);
+            $project = Project::find($projectId);
+
             $chphSponsorship = CustodianHasProjectHasSponsorship::where('project_has_sponsorship_id', $projectHasSponsorship->id)->first();
             $initState = $chphSponsorship->getState();
 
@@ -1971,6 +1974,19 @@ class OrganisationController extends Controller
                 ])->update([
                     'status' => PendingInvite::STATE_COMPLETE,
                 ]);
+
+                activity('sponsorship')
+                    ->causedBy(Auth::user())
+                    ->performedOn($organisation)
+                    ->withProperties([
+                        'id' => $id,
+                        'organisation_name' => $organisation->organisation_name,
+                        'organisation' => $organisation,
+                        'project' => $project,
+                        'status' => State::STATE_SPONSORSHIP_APPROVED,
+                    ])
+                    ->event('updated')
+                    ->log(State::STATE_SPONSORSHIP_APPROVED);
             }
 
             if ($input['status'] === 'rejected') {
@@ -1983,6 +1999,19 @@ class OrganisationController extends Controller
                 ])->update([
                     'status' => PendingInvite::STATE_COMPLETE,
                 ]);
+
+                activity('sponsorship')
+                    ->causedBy(Auth::user())
+                    ->performedOn($organisation)
+                    ->withProperties([
+                        'id' => $id,
+                        'organisation_name' => $organisation->organisation_name,
+                        'organisation' => $organisation,
+                        'project' => $project,
+                        'status' => State::STATE_SPONSORSHIP_REJECTED,
+                    ])
+                    ->event('updated')
+                    ->log(State::STATE_SPONSORSHIP_REJECTED);
             }
 
             $finalState = $chphSponsorship->fresh()->getState();
