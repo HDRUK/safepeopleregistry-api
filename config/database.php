@@ -147,11 +147,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
-            'parameters' => [
-                'password' => env('REDIS_PASSWORD'),
-                'database' => 0,
-            ],
+            'prefix'  => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_'),
         ],
 
         'default' => [
@@ -159,12 +155,22 @@ return [
             'host' => env('REDIS_HOST', '127.0.0.1'),
             'username' => env('REDIS_USERNAME'),
             'password' => env('REDIS_PASSWORD'),
-            'port' => env('REDIS_PORT', '6379'),
-            'database' => env('REDIS_DB', '0'),
-            'read_timeout' => 60,
-            'timeout' => 5,
-            'persistent' => true,
-            'retry_interval' => 100,
+            'port' => (int) env('REDIS_PORT', 6379),
+            'database' => (int) env('REDIS_DB', 0),
+
+            'timeout' => (float) env('REDIS_TIMEOUT', 2.0),
+            'read_timeout' => (float) env('REDIS_READ_TIMEOUT', 10.0),
+
+            'retry_interval' => (int) env('REDIS_RETRY_INTERVAL', 100),
+            'max_retries' => (int) env('REDIS_MAX_RETRIES', 3),
+            'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'exponential'),
+            'backoff_base' => (int) env('REDIS_BACKOFF_BASE', 100),
+            'backoff_cap' => (int) env('REDIS_BACKOFF_CAP', 2000),
+
+            // For Horizon + FrankenPHP:
+            'persistent' => false,
+            // 'persistent' => env('REDIS_PERSISTENT', false),
+            // 'persistent_id' => env('REDIS_PERSISTENT_ID', null),
         ],
 
         'cache' => [
@@ -172,29 +178,41 @@ return [
             'host' => env('REDIS_HOST', '127.0.0.1'),
             'username' => env('REDIS_USERNAME'),
             'password' => env('REDIS_PASSWORD'),
-            'port' => env('REDIS_PORT', '6379'),
-            'database' => env('REDIS_CACHE_DB', '1'),
-            'read_timeout' => 60,
-            'timeout' => 5,
-            'persistent' => true,
-            'retry_interval' => 100,
+            'port' => (int) env('REDIS_PORT', 6379),
+            'database' => (int) env('REDIS_CACHE_DB', 1),
+
+            'timeout' => (float) env('REDIS_TIMEOUT', 2.0),
+            'read_timeout' => (float) env('REDIS_READ_TIMEOUT', 10.0),
+            'retry_interval' => (int) env('REDIS_RETRY_INTERVAL', 100),
+            'max_retries' => (int) env('REDIS_MAX_RETRIES', 3),
+            'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'exponential'),
+            'backoff_base' => (int) env('REDIS_BACKOFF_BASE', 100),
+            'backoff_cap' => (int) env('REDIS_BACKOFF_CAP', 2000),
+
+            'persistent' => false,
         ],
 
         'session' => [
             'url' => env('REDIS_URL'),
             'host' => env('REDIS_HOST', '127.0.0.1'),
             'username' => env('REDIS_USERNAME'),
-            'password' => env('REDIS_PASSWORD', null),
-            'port' => env('REDIS_PORT', '6379'),
-            'database' => 0,
-            'prefix' => 's:',
+            'password' => env('REDIS_PASSWORD'),
+            'port' => (int) env('REDIS_PORT', 6379),
+            'database' => (int) env('REDIS_SESSION_DB', 2),
 
-            'read_timeout' => 30,
-            'timeout' => 3,
-            'persistent' => true,
-            'retry_interval' => 100,
+            'timeout' => (float) env('REDIS_TIMEOUT', 2.0),
+            'read_timeout' => (float) env('REDIS_SESSION_READ_TIMEOUT', 5.0),
+            'retry_interval' => (int) env('REDIS_RETRY_INTERVAL', 100),
+            'max_retries' => (int) env('REDIS_MAX_RETRIES', 3),
+            'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'exponential'),
+            'backoff_base' => (int) env('REDIS_BACKOFF_BASE', 100),
+            'backoff_cap' => (int) env('REDIS_BACKOFF_CAP', 2000),
+            
+            'persistent' => false,
+
+            // Only keep this if you REALLY want it in addition to global prefix:
+            // 'prefix' => 's:',
         ],
-
     ],
 
 ];
