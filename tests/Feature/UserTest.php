@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use Http;
-use Mockery;
 use Keycloak;
 use Carbon\Carbon;
 use Tests\TestCase;
@@ -876,7 +875,7 @@ class UserTest extends TestCase
             ->orderBy('id', 'desc')
             ->first();
         $userIdTest = $latestUserId->id + 1;
-        
+
         $responseUser = $this->actingAs($this->admin)
             ->json(
                 'PUT',

@@ -74,7 +74,7 @@ abstract class TestCase extends BaseTestCase
                     'email' => $this->custodian_admin->email,
                     'custodian_id' => 1,
                 ]);
-            } else if (! $custodianUser->custodian_id) {
+            } elseif (! $custodianUser->custodian_id) {
                 $custodianUser->update([
                     'custodian_id' => 1,
                 ]);

@@ -61,6 +61,7 @@ use App\Http\Controllers\Api\V1\TestController;
 */
 
 Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1/query', [QueryController::class, 'query']);
+Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1/validate', [UserController::class, 'validateUserRequest']);
 
 // --- AUTH ---
 Route::middleware('api')->get('auth/me', [AuthController::class, 'me']);
