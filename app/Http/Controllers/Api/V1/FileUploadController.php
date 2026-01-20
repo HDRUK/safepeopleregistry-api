@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Notification;
 use App\Http\Requests\FileUploads\GetFileUpload;
 use App\Notifications\Organisations\UploadSroDoc;
 use App\Http\Requests\FileUploads\GetDownloadFileUpload;
+use Illuminate\Support\Facades\Auth;
 
 class FileUploadController extends Controller
 {
@@ -298,6 +299,17 @@ class FileUploadController extends Controller
                 }
 
                 $this->sendNotificationOnUploadSroDoc($organisation->id, $fileIn->id);
+
+                activity('upload')
+                    ->causedBy(Auth::user())
+                    ->performedOn($organisation)
+                    ->withProperties([
+                        'name' => $file->getClientOriginalName(),
+                        'type' => $input['file_type'],
+                        'path' => $path,
+                    ])
+                    ->event('upload_queued')
+                    ->log('Upload SRO Declaration Form');
             } else {
                 throw new Exception('Invalid or missing registry ID or organisation ID');
             }

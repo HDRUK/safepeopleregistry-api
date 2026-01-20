@@ -24,7 +24,7 @@ use App\Models\UserHasDepartments;
 use App\Traits\TracksModelChanges;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Users\GetUser;
-use App\Http\Requests\Users\UpdateUserKeycloak;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\Users\CreateUser;
 use App\Http\Requests\Users\DeleteUser;
@@ -33,6 +33,7 @@ use RegistryManagementController as RMC;
 use App\Models\UserHasCustodianPermission;
 use App\Http\Requests\Users\GetUserProject;
 use Illuminate\Support\Facades\Notification;
+use App\Http\Requests\Users\UpdateUserKeycloak;
 use App\Models\CustodianHasProjectOrganisation;
 use App\Http\Requests\Users\CheckUserInviteCode;
 use App\Services\DecisionEvaluatorService as DES;
@@ -593,6 +594,20 @@ class UserController extends Controller
             if ($user->is_sro) {
                 $changes = $this->getUserTrackedChanges($originalUserData, $newUserData);
                 $this->sendNotificationOnSroUpdate($changes, $loggedInUser, $user);
+            }
+
+            if (!$user->is_delegate && $originalUserData['is_delegate'] && $loggedInUser->user_group === User::GROUP_ORGANISATIONS) {
+                $organisation = Organisation::find($loggedInUser->organisation_id);
+                activity('user')
+                    ->causedBy(Auth::user())
+                    ->performedOn($organisation)
+                    ->withProperties([
+                        'id' => $user->id,
+                        'attributes' => $user->getChanges(),
+                        'old' => $originalUserData,
+                    ])
+                    ->event('updated')
+                    ->log('updated');
             }
 
             if (isset($input['email']) && trim(strtoupper($input['email'])) !== trim(strtoupper($user->email))) {
