@@ -52,6 +52,11 @@ COPY ./init/php.development.ini /usr/local/etc/php/php.ini
 # Copy the application
 COPY . /var/www
 
+# Copy supervisor config and init script
+COPY ./docker/supervisor-init.sh /var/www/docker/supervisor-init.sh
+COPY ./docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+RUN chmod +x /var/www/docker/supervisor-init.sh
+
 # Composer & laravel
 RUN composer install \
     && php artisan octane:install \

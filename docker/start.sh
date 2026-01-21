@@ -31,8 +31,6 @@ fi
 # $base_command
 
 # Log supervisor starting
-php artisan tinker --execute="Log::info('Supervisor starting', ['environment' => config('app.env'), 'timestamp' => now()]);"
-
 echo "Starting Supervisor with Octane and Horizon..."
 
 # Start supervisor to manage all processes
