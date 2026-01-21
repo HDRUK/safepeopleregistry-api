@@ -4,7 +4,7 @@ if [ -e /var/www/.env ]; then
     source /var/www/.env
 fi
 
-base_command="php artisan octane:frankenphp --max-requests=250 --host=0.0.0.0 --port=8100"
+# base_command="php artisan octane:frankenphp --max-requests=250 --host=0.0.0.0 --port=8100"
 
 if [ $APP_ENV = 'local' ] || [ $APP_ENV = 'dev' ]; then
     echo 'running in dev mode - with watch'
@@ -27,5 +27,13 @@ else
     echo "running in prod mode"
 fi
 
-php artisan horizon &
-$base_command
+# php artisan horizon &
+# $base_command
+
+# Log supervisor starting
+php artisan tinker --execute="Log::info('Supervisor starting', ['environment' => config('app.env'), 'timestamp' => now()]);"
+
+echo "Starting Supervisor with Octane and Horizon..."
+
+# Start supervisor to manage all processes
+exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
