@@ -36,6 +36,17 @@ trait Authorisation
         $responseData = $response->json();
         $response->close();
 
+        \Log::info('getAuthToken', [
+            'base_url' => env('KEYCLOAK_BASE_URL'),
+            'realm' => env('KEYCLOAK_REALM'),
+            'username' => env('KEYCLOAK_TEST_USERNAME'),
+            'password' => env('KEYCLOAK_TEST_PASSWORD'),
+            'client_secret' => env('KEYCLOAK_CLIENT_SECRET'),
+            'client_id' => env('KEYCLOAK_CLIENT_ID'),
+            'grant_type' => 'password',
+            'response' => json_encode($responseData),
+        ]);
+
         return $responseData['access_token'];
     }
 }
