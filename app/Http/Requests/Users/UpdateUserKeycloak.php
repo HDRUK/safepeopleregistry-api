@@ -22,7 +22,7 @@ class UpdateUserKeycloak extends BaseFormRequest
             'email' => [
                 'required',
                 'string',
-                'email:rfc,dns',
+                'email',
                 'max:255',
             ],
         ];
