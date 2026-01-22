@@ -60,11 +60,9 @@ class RetryJobsController extends Controller
 
     public function listFailed(Request $request)
     {
-        $perPage = $request->get('per_page', 15);
-        
         $jobs = DB::table('failed_jobs')
             ->orderBy('failed_at', 'desc')
-            ->paginate($perPage);
+            ->paginate(15);
         
         return response()->json([
             'success' => true,
