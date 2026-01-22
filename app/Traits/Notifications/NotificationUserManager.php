@@ -48,12 +48,12 @@ trait NotificationUserManager
         }
     }
 
-    public function notifyOnUserChangeAffiliation(Affiliation $affiliation, $old)
+    public function notifyOnUserChangeAffiliation(?Affiliation $affiliation, $old)
     {
-        if ($affiliation === null) {
+        if (!$affiliation) {
             return;
         }
-        
+
         $sendAffiliationNotification = false;
         if ($affiliation->current_employer && $old->current_employer !== $affiliation->current_employer) {
             $sendAffiliationNotification = true;
