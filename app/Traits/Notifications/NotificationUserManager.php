@@ -50,7 +50,7 @@ trait NotificationUserManager
 
     public function notifyOnUserChangeAffiliation(Affiliation $affiliation, $old)
     {
-        if (!$affiliation) {
+        if ($affiliation === null) {
             return;
         }
         
