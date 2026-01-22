@@ -18,6 +18,9 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
+        \Illuminate\Mail\Events\MessageSent::class => [
+            \App\Listeners\CaptureSendGridSmtpResponse::class,
+        ],
         \SocialiteProviders\Manager\SocialiteWasCalled::class => [
             \SocialiteProviders\Keycloak\KeycloakExtendSocialite::class.'@handle',
         ],
