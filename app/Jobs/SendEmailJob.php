@@ -70,7 +70,7 @@ class SendEmailJob implements ShouldQueue
                 break;
             case 'smtp':
                 $retVal = Mail::to($this->to['email'])
-                    ->send(new Email($this->to['id'], $this->template, $this->replacements, $this->address));
+                    ->send(new Email($this->job->getJobId(), $this->to['id'], $this->template, $this->replacements, $this->address));
                 break;
             default:
                 $retVal = null;
