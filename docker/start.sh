@@ -4,10 +4,10 @@ if [ -e /var/www/.env ]; then
     source /var/www/.env
 fi
 
-# base_command="php artisan octane:frankenphp --max-requests=250 --host=0.0.0.0 --port=8100"
+base_command="php artisan octane:frankenphp --max-requests=250 --host=0.0.0.0 --port=8100"
 
 if [ $APP_ENV = 'local' ] || [ $APP_ENV = 'dev' ]; then
-    echo 'Running in dev mode - with watch' >&2
+    echo 'running in dev mode - with watch'
     # base_command="$base_command --watch"
 
     if [ $REBUILD_DB = 1 ]; then
@@ -24,14 +24,8 @@ else
     DISABLE_TRUNCATE=true php artisan db:seed --class=EmailTemplatesSeeder
     php artisan validation:generate-logs
 
-    echo "Running in prod mode" >&2
+    echo "running in prod mode"
 fi
 
-# php artisan horizon &
-# $base_command
-
-# Log supervisor starting
-echo "Starting Supervisor with Octane and Horizon..." >&2
-
-# Start supervisor to manage all processes
-exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+php artisan horizon &
+$base_command
