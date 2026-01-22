@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\RetryJobsController;
 
 Route::get('/checking_trainings', function (Request $request) {
     Artisan::call('app:checking-trainings');
@@ -41,3 +42,5 @@ Route::get('/cheking_organisation_automated_flags', function (Request $request) 
         'message' => 'ok',
     ], 200);
 });
+
+Route::get('/jobs/retry-all', [RetryJobsController::class, 'retryAll']);

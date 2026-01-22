@@ -2,10 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\TestController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\QueryController;
 use App\Http\Controllers\Api\V1\SectorController;
-use App\Http\Controllers\Api\V1\PendingInviteController;
 use App\Http\Controllers\Api\V1\FeatureController;
 use App\Http\Controllers\Api\V1\HistoryController;
 use App\Http\Controllers\Api\V1\ProjectController;
@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\V1\TrainingController;
 use App\Http\Controllers\Api\V1\ActionLogController;
 use App\Http\Controllers\Api\V1\CustodianController;
 use App\Http\Controllers\Api\V1\EducationController;
+use App\Http\Controllers\Api\V1\RetryJobsController;
 use App\Http\Controllers\Api\V1\DepartmentController;
 use App\Http\Controllers\Api\V1\ExperienceController;
 use App\Http\Controllers\Api\V1\FileUploadController;
@@ -35,6 +36,7 @@ use App\Http\Controllers\Api\V1\AccreditationController;
 use App\Http\Controllers\Api\V1\CustodianUserController;
 use App\Http\Controllers\Api\V1\EmailTemplateController;
 use App\Http\Controllers\Api\V1\ONSSubmissionController;
+use App\Http\Controllers\Api\V1\PendingInviteController;
 use App\Http\Controllers\Api\V1\ProjectDetailController;
 use App\Http\Controllers\Api\V1\ValidationLogController;
 use App\Http\Controllers\Api\V1\ProjectHasUserController;
@@ -47,7 +49,6 @@ use App\Http\Controllers\Api\V1\ProjectHasOrganisationController;
 use App\Http\Controllers\Api\V1\CustodianHasProjectUserController;
 use App\Http\Controllers\Api\V1\ProfessionalRegistrationController;
 use App\Http\Controllers\Api\V1\CustodianHasProjectOrganisationController;
-use App\Http\Controllers\Api\V1\TestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -682,6 +683,8 @@ Route::post('v1/ons_researcher_feed', [ONSSubmissionController::class, 'receiveC
 
 // test
 Route::get('v1/test', [TestController::class, 'test']);
+Route::get('v1/jobs/failed', [RetryJobsController::class, 'listFailed']);
+Route::get('v1/jobs/retry/{uuid}', [RetryJobsController::class, 'retryByUuid']);
 
 // stop all all other routes
 Route::fallback(function () {
