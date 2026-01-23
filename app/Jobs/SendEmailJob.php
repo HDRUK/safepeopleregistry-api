@@ -63,27 +63,42 @@ class SendEmailJob implements ShouldQueue
             'log' => 'SendEmailJob started for: ' . json_encode($this->to),
         ]);
 
-        switch (config('mail.default')) {
-            case 'exchange':
-                $this->mgs = new MicrosoftGraphService();
-                $retVal = $this->mgs->sendMail($this->to, new Email($this->to['id'], $this->template, $this->replacements, $this->address));
-                break;
-            case 'smtp':
-                $retVal = Mail::to($this->to['email'])
-                    ->send(new Email($this->to['id'], $this->template, $this->replacements, $this->address));
-                break;
-            default:
-                $retVal = null;
-                break;
+        try {
+            switch (config('mail.default')) {
+                case 'exchange':
+                    $this->mgs = new MicrosoftGraphService();
+                    $retVal = $this->mgs->sendMail($this->to, new Email($this->to['id'], $this->template, $this->replacements, $this->address));
+                    break;
+                case 'smtp':
+                    $retVal = Mail::to($this->to['email'])
+                        ->send(new Email($this->to['id'], $this->template, $this->replacements, $this->address));
+                    break;
+                default:
+                    $retVal = null;
+                    break;
+            }
+
+
+            DebugLog::create([
+                'class' => __CLASS__,
+                'log' => 'SendEmailJob completed for: ' . json_encode($this->to) . ' with result: ' . json_encode($retVal),
+            ]);
+        
+        } catch (\Throwable $e) {
+            DebugLog::create([
+                'class' => __CLASS__,
+                'log' => 'SendEmailJob failed for: ' . json_encode($this->to),
+                'context' => json_encode([
+                    'exception' => get_class($e),
+                    'message'   => $e->getMessage(),
+                    'file'      => $e->getFile(),
+                    'line'      => $e->getLine(),
+                ]),
+            ]);
+
+            throw $e;
         }
-
-
-        DebugLog::create([
-            'class' => __CLASS__,
-            'log' => 'SendEmailJob completed for: ' . json_encode($this->to) . ' with result: ' . json_encode($retVal),
-        ]);
     }
-
     public function tags(): array
     {
         return [
