@@ -529,6 +529,13 @@ class TriggerEmail
             default: // Unknown type.
                 break;
         }
+        if (isset($newRecipients['email']) && 
+            is_string($newRecipients['email']) && 
+            !empty(trim($newRecipients['email'])) && 
+            filter_var($newRecipients['email'], FILTER_VALIDATE_EMAIL)) {
+
+            throw new \Exception('Cannot send email: recipient email address is null or empty.');
+        }
 
         SendEmailJob::dispatch($newRecipients, $template, $replacements, $newRecipients['email']);
     }
