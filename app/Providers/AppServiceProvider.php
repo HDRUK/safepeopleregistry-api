@@ -21,12 +21,15 @@ use App\Models\RegistryHasTraining;
 use App\Models\RegistryReadRequest;
 use App\Observers\RegistryObserver;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Log;
 use App\Models\CustodianModelConfig;
 use App\Observers\CustodianObserver;
 use App\Observers\AuditModelObserver;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Queue;
 use App\Models\ProjectHasOrganisation;
 use App\Observers\AffiliationObserver;
+use Illuminate\Queue\Events\JobFailed;
 use App\Observers\NotificationObserver;
 use App\Observers\OrganisationObserver;
 use Illuminate\Database\Eloquent\Model;
@@ -122,5 +125,30 @@ class AppServiceProvider extends ServiceProvider
                 // ] : null,
             ]);
         });
+
+        Queue::failing(function (JobFailed $event) {
+            $job = $event->job;
+            $uuid = $job ->uuid();
+
+            $connectionName = $event->connectionName;
+            $queueName      = method_exists($job, 'getQueue') ? $job->getQueue() : null;
+            $jobName        = method_exists($job, 'resolveName') ? $job->resolveName() : null; // class name usually
+            $jobId          = method_exists($job, 'getJobId') ? $job->getJobId() : null;
+            $attempts       = method_exists($job, 'attempts') ? $job->attempts() : null;
+            $e = $event->exception;
+
+            // Log structured info (better than dumping huge strings)
+            Log::error('Queue job failed', [
+                'connection' => $connectionName,
+                'queue'      => $queueName,
+                'job_name'   => $jobName,
+                'job_id'     => $jobId,
+                'job_uuid'   => $uuid,
+                'attempts'   => $attempts,
+                'exception'  => get_class($e),
+                'message'    => $e->getMessage(),
+            ]);
+        });
+
     }
 }

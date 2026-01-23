@@ -65,8 +65,15 @@ class SendEmailJob implements ShouldQueue
     public function handle(): void
     {
         $retVal = null;
+        // throw new \Exception('Simulated failure for testing');
 
         DebugLog::create([
+            'class' => __CLASS__,
+            'log' => 'SendEmailJob started for: ' . json_encode($this->to),
+        ]);
+
+        \Log::info('SendEmailJob - handle top', [
+            'thread_id' => $this->threadId,
             'class' => __CLASS__,
             'log' => 'SendEmailJob started for: ' . json_encode($this->to),
         ]);
@@ -85,8 +92,13 @@ class SendEmailJob implements ShouldQueue
                 break;
         }
 
-
         DebugLog::create([
+            'class' => __CLASS__,
+            'log' => 'SendEmailJob completed for: ' . json_encode($this->to) . ' with result: ' . json_encode($retVal),
+        ]);
+
+        \Log::info('SendEmailJob - handle bottom', [
+            'thread_id' => $this->threadId,
             'class' => __CLASS__,
             'log' => 'SendEmailJob completed for: ' . json_encode($this->to) . ' with result: ' . json_encode($retVal),
         ]);
