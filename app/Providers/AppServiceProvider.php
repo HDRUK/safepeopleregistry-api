@@ -30,6 +30,7 @@ use App\Observers\AffiliationObserver;
 use App\Observers\NotificationObserver;
 use App\Observers\OrganisationObserver;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Mail\Events\MessageSent;
 use Illuminate\Support\ServiceProvider;
 use App\Observers\CustodianUserObserver;
 use App\Models\OrganisationHasSubsidiary;
@@ -55,13 +56,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        Event::listen('eloquent.*', function ($eventName, $payload) {
-            $model = $payload[0] ?? null;
+        // Event::listen('eloquent.*', function ($eventName, $payload) {
+        //     $model = $payload[0] ?? null;
 
-            if ($model instanceof Model) {
-                App::make(AuditModelObserver::class)->handle($eventName, $model);
-            }
-        });
+        //     if ($model instanceof Model) {
+        //         App::make(AuditModelObserver::class)->handle($eventName, $model);
+        //     }
+        // });
     }
     /**
      * Bootstrap any application services.
@@ -90,5 +91,36 @@ class AppServiceProvider extends ServiceProvider
         // RegistryHasTraining::observe(RegistryHasTrainingObserver::class);
         DatabaseNotification::observe(NotificationObserver::class);
         DecisionModelLog::observe(DecisionModelLogObserver::class);
+
+        Event::listen(MessageSent::class, function (MessageSent $event) {
+            $messageId = $event->sent?->getMessageId();
+        
+            // Extract custom headers you added
+            $headers = $event->message->getHeaders();
+            $modelId = $headers->get('X-Model-ID')?->getBodyAsString();
+            $threadId = $headers->get('X-Thread-Id')?->getBodyAsString();
+            
+            // Try to get response/debug info
+            $debug = $event->sent?->getDebug();
+            $response = $event->sent?->getOriginalMessage()?->toString();
+            
+            // Get SMTP response if available (for debugging)
+            $envelope = $event->sent?->getEnvelope();
+            
+            // Log SendGrid response
+            \Log::info('AppServiceProvider', [
+                'message_id' => $messageId,
+                'model_id' => $modelId,
+                'thread_id' => $threadId,
+                // 'to' => array_keys($event->message->getTo()),
+                // 'subject' => $event->message->getSubject(),
+                // 'debug' => $debug,
+                // 'response' => $response,
+                // 'envelope' => $envelope ? [
+                //     'sender' => $envelope->getSender()?->getAddress(),
+                //     'recipients' => array_map(fn($r) => $r->getAddress(), $envelope->getRecipients())
+                // ] : null,
+            ]);
+        });
     }
 }

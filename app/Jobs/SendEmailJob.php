@@ -3,15 +3,16 @@
 namespace App\Jobs;
 
 use App\Models\DebugLog;
+use Illuminate\Support\Str;
 use Hdruk\LaravelMjml\Email;
-use Hdruk\LaravelMjml\Models\EmailTemplate;
 use Illuminate\Bus\Queueable;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Queue\SerializesModels;
+use App\Services\MicrosoftGraphService;
+use Illuminate\Queue\InteractsWithQueue;
+use Hdruk\LaravelMjml\Models\EmailTemplate;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Mail;
-use App\Services\MicrosoftGraphService;
 
 class SendEmailJob implements ShouldQueue
 {
@@ -25,6 +26,7 @@ class SendEmailJob implements ShouldQueue
     private $template = null;
     private $replacements = [];
     private $address = null;
+    public $threadId;
 
     public $tries = 3;
 
@@ -39,6 +41,12 @@ class SendEmailJob implements ShouldQueue
         $this->template = $template;
         $this->replacements = $replacements;
         $this->address = $address;
+
+        $this->threadId = Str::uuid()->toString();
+
+        \Log::info('SendEmailJob', [
+            'thread_id' => $this->threadId
+        ]);
 
         DebugLog::create([
             'class' => __CLASS__,
@@ -70,7 +78,7 @@ class SendEmailJob implements ShouldQueue
                 break;
             case 'smtp':
                 $retVal = Mail::to($this->to['email'])
-                    ->send(new Email($this->to['id'], $this->template, $this->replacements, $this->address));
+                    ->send(new Email($this->to['id'], $this->template, $this->replacements, $this->address, $this->threadId));
                 break;
             default:
                 $retVal = null;
