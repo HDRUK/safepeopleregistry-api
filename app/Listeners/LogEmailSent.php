@@ -5,8 +5,6 @@ namespace App\Listeners;
 use App\Models\EmailLog;
 use Illuminate\Support\Facades\Log;
 use App\Events\EmailSentSuccessfully;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class LogEmailSent
 {

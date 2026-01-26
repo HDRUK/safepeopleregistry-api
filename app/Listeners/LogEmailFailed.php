@@ -5,8 +5,6 @@ namespace App\Listeners;
 use App\Models\EmailLog;
 use App\Events\EmailSendFailed;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class LogEmailFailed
 {

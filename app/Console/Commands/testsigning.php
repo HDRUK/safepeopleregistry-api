@@ -2,9 +2,7 @@
 
 namespace App\Console\Commands;
 
-use Http;
 use App\Models\Custodian;
-use App\Models\Registry;
 use Illuminate\Console\Command;
 use App\Http\Traits\HmacSigning;
 

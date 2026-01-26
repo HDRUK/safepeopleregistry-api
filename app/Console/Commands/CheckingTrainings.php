@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use Config;
 use Exception;
 use TriggerEmail;
 use Carbon\Carbon;

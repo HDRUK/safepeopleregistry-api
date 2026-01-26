@@ -13,7 +13,6 @@ use App\Models\Affiliation;
 use App\Models\Organisation;
 use App\Models\CustodianUser;
 use App\Models\PendingInvite;
-use Hdruk\LaravelMjml\Models\EmailTemplate;
 
 class TriggerEmail
 {

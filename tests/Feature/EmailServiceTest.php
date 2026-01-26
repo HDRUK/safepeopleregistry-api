@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Jobs\SendEmailJob;
-use Hdruk\LaravelMjml\Models\EmailTemplate;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;

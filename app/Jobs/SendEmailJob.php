@@ -66,7 +66,7 @@ class SendEmailJob implements ShouldQueue
             'class' => __CLASS__,
             'log' => 'SendEmailJob started for: ' . json_encode($this->to),
         ]);
-            
+
         try {
             switch (config('mail.default')) {
                 case 'exchange':
@@ -93,7 +93,7 @@ class SendEmailJob implements ShouldQueue
                     $messageId = $sentMessage?->getSymfonySentMessage()?->getMessageId();
 
                     // event
-                    event(new EmailSentSuccessfully($jobUuid , $messageId));
+                    event(new EmailSentSuccessfully($jobUuid, $messageId));
 
                     break;
                 default:
@@ -115,7 +115,7 @@ class SendEmailJob implements ShouldQueue
 
             // event
             event(new EmailSendFailed($jobUuid, $e->getMessage()));
-            
+
             throw $e;
         }
 
