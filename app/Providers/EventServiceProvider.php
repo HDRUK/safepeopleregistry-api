@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Events\EmailSendFailed;
 use App\Listeners\LogEmailSent;
+use App\Listeners\LogEmailFailed;
 use App\Events\EmailSentSuccessfully;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Auth\Events\Registered;
@@ -25,6 +27,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         EmailSentSuccessfully::class => [
             LogEmailSent::class,
+        ],
+        EmailSendFailed::class => [
+            LogEmailFailed::class,
         ],
     ];
 
