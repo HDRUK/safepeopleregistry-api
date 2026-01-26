@@ -15,6 +15,7 @@ class EmailLog extends Model
         'type',
         'data',
         'template',
+        'body',
         'job_uuid',
         'job_status',
         'message_id',
