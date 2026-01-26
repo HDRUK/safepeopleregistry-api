@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('type');
             $table->json('data');
             $table->string('template');
+            $table->text('body');
 
             $table->string('job_uuid');
             $table->tinyInteger('job_status')->default(1);
