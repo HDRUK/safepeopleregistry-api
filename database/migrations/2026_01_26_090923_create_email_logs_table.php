@@ -15,13 +15,13 @@ return new class extends Migration
             $table->id();
             $table->timestamps();
 
-            $table->string('to')->nullable()->index();
-            $table->string('subject')->nullable()->index();
-            $table->string('type')->nullable();
-            $table->json('data')->nullable();
-            $table->string('template')->nullable();
+            $table->string('to')->index();
+            $table->string('subject');
+            $table->string('type');
+            $table->json('data');
+            $table->string('template');
 
-            $table->string('job_uuid')->nullable();
+            $table->string('job_uuid');
             $table->tinyInteger('job_status')->default(1);
 
             $table->string('message_id')->nullable();
