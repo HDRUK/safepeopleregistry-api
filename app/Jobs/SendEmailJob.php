@@ -36,10 +36,10 @@ class SendEmailJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(array $to, string $identifier, array $replacements, ?string $address)
+    public function __construct(array $to, EmailTemplate $template, array $replacements, ?string $address)
     {
         $this->to = $to;
-        $this->template = EmailTemplate::where('identifier', $identifier)->first();
+        $this->template = $template;
         $this->replacements = $replacements;
         $this->address = $address;
 

@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Models\File;
 use App\Jobs\SendEmailJob;
 use App\Models\Organisation;
+use Hdruk\LaravelMjml\Models\EmailTemplate;
 use App\Jobs\ProcessCSVSubmission;
 use App\Models\OrganisationHasFile;
 use App\Models\User;
@@ -35,6 +36,7 @@ class FileObserver
     protected function sendEmail(File $file, int $organisationId): void
     {
         $organisation = Organisation::where('id', $organisationId)->first();
+        $template = EmailTemplate::where('identifier', 'sro_application_file')->first();
         $user = User::where([
             'organisation_id' => $organisationId,
             'user_group' => 'ORGANISATIONS'
@@ -51,6 +53,6 @@ class FileObserver
             '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
         ];
 
-        SendEmailJob::dispatch($newRecipients, 'sro_application_file', $replacements, $newRecipients['email']);
+        SendEmailJob::dispatch($newRecipients, $template, $replacements, $newRecipients['email']);
     }
 }
