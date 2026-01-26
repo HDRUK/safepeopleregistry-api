@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e8e3b5007625a94c43d5778e542b9650",
+    "content-hash": "300ada85ec3ebd255b6622989cd8a9a8",
     "packages": [
         {
             "name": "brick/math",
@@ -2162,21 +2162,22 @@
         },
         {
             "name": "hdruk/laravel-mjml",
-            "version": "dev-feat/get-html",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/HDRUK/laravel-mjml.git",
-                "reference": "4750ef51b6030f7a1e0d284a59466eeed812742b"
+                "reference": "c9fb89ca04d231e9841cbfeb7a6ff280913a8ee7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/HDRUK/laravel-mjml/zipball/4750ef51b6030f7a1e0d284a59466eeed812742b",
-                "reference": "4750ef51b6030f7a1e0d284a59466eeed812742b",
+                "url": "https://api.github.com/repos/HDRUK/laravel-mjml/zipball/c9fb89ca04d231e9841cbfeb7a6ff280913a8ee7",
+                "reference": "c9fb89ca04d231e9841cbfeb7a6ff280913a8ee7",
                 "shasum": ""
             },
             "require": {
                 "illuminate/support": "^10.0 || ^11.0 || ^12.0"
             },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "laravel": {
@@ -2204,10 +2205,10 @@
             ],
             "description": "A Laravel extension to make use of the MJML API",
             "support": {
-                "source": "https://github.com/HDRUK/laravel-mjml/tree/feat/get-html",
+                "source": "https://github.com/HDRUK/laravel-mjml/tree/main",
                 "issues": "https://github.com/HDRUK/laravel-mjml/issues"
             },
-            "time": "2026-01-26T12:46:19+00:00"
+            "time": "2026-01-26T13:16:57+00:00"
         },
         {
             "name": "laminas/laminas-diactoros",
