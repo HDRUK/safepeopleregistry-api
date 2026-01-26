@@ -76,8 +76,8 @@ class TriggerEmail
                     return;
                 }
 
-                $user = User::where('id', $to)->first();
                 $template = EmailTemplate::where('identifier', $identifier)->first();
+                $user = User::where('id', $to)->first();
 
                 $newRecipients = [
                     'id' => $user->id,
@@ -92,8 +92,8 @@ class TriggerEmail
                 ];
                 break;
             case 'USER_WITHOUT_ORGANISATION':
-                $user = User::where('id', $to)->first();
                 $template = EmailTemplate::where('identifier', $identifier)->first();
+                $user = User::where('id', $to)->first();
 
                 $newRecipients = [
                     'id' => $user->id,
@@ -119,9 +119,9 @@ class TriggerEmail
 
                 break;
             case 'USER':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
                 $user = User::where('id', $to)->first();
                 $organisation = Organisation::where('id', $by)->first();
-                $template = EmailTemplate::where('identifier', $identifier)->first();
                 $custodian = $custodianId ? User::where('id', $custodianId)->first() : null;
 
                 $newRecipients = [
@@ -154,10 +154,9 @@ class TriggerEmail
 
                 break;
             case 'USER_DELEGATE':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
                 $delegate = User::where('id', $to)->first();
                 $organisation = Organisation::where('id', $by)->first();
-                $template = EmailTemplate::where('identifier', $identifier)->first();
-
 
                 $newRecipients = [
                     'id' => $delegate->id,
@@ -194,8 +193,8 @@ class TriggerEmail
 
                 break;
             case 'CUSTODIAN':
-                $custodian = Custodian::where('id', $to)->first();
                 $template = EmailTemplate::where('identifier', $identifier)->first();
+                $custodian = Custodian::where('id', $to)->first();
 
                 $newRecipients = [
                     'id' => $custodian->id,
@@ -221,6 +220,7 @@ class TriggerEmail
 
                 break;
             case 'CUSTODIAN_USER':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
                 $custodianUser = CustodianUser::with('userPermissions.permission')->where('id', $to)->first();
                 $custodian = Custodian::where('id', $custodianUser->custodian_id)->first();
                 $user = User::where('id', $unclaimedUserId)->first();
@@ -231,8 +231,6 @@ class TriggerEmail
                     $permission = Permission::where('id', $custodianUser->userPermissions[0]->permission_id)->first();
                     $role_description = "as an $permission->description";
                 }
-
-                $template = EmailTemplate::where('identifier', $identifier)->first();
 
                 $newRecipients = [
                     'id' => $custodianUser->id,
@@ -265,8 +263,8 @@ class TriggerEmail
 
                 break;
             case 'ORGANISATION':
-                $organisation = Organisation::where('id', $to)->first();
                 $template = EmailTemplate::where('identifier', $identifier)->first();
+                $organisation = Organisation::where('id', $to)->first();
 
                 $newRecipients = [
                     'id' => $organisation->id,

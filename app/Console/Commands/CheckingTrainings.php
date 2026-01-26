@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use Config;
 use Exception;
 use TriggerEmail;
 use Carbon\Carbon;
@@ -41,7 +40,7 @@ class CheckingTrainings extends Command
 
     public function warningTrainingsExpire()
     {
-        $warningTrainingExpireDays = Config::get('speedi.system.training_expire_days');
+        $warningTrainingExpireDays = config('speedi.system.training_expire_days');
         $todayAddDays = Carbon::now()->addDays((int)$warningTrainingExpireDays)->format('Y-m-d');
 
         try {

@@ -985,7 +985,7 @@ class UserTest extends TestCase
             'keycloak_id' => 'keycloak-user-123',
         ]);
         $user = User::where('id', $userId)->first();
-        $newEmail = 'new_' . $user->email;
+        $newEmail = 'update' . $initEmail;
 
         Http::fake([
                 '*' => Http::response([
