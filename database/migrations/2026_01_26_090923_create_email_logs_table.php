@@ -27,6 +27,7 @@ return new class () extends Migration {
             $table->text('message_response')->nullable();
 
             $table->string('error_message')->nullable();
+            $table->integer('retry')->default(0);
         });
     }
 

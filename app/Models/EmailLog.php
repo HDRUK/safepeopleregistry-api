@@ -19,6 +19,7 @@ class EmailLog extends Model
         'message_id',
         'message_status',
         'message_response',
+        'retry',
     ];
 
     protected $casts = [
