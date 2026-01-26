@@ -2,10 +2,12 @@
 
 namespace App\Providers;
 
+use App\Listeners\LogEmailSent;
+use App\Events\EmailSentSuccessfully;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Event;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -20,6 +22,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         \SocialiteProviders\Manager\SocialiteWasCalled::class => [
             \SocialiteProviders\Keycloak\KeycloakExtendSocialite::class.'@handle',
+        ],
+        EmailSentSuccessfully::class => [
+            LogEmailSent::class,
         ],
     ];
 

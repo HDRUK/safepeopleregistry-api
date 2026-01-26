@@ -17,17 +17,17 @@ return new class extends Migration
 
             $table->string('to')->index();
             $table->string('subject');
-            $table->string('type');
-            $table->json('data');
             $table->string('template');
             $table->text('body');
 
-            $table->string('job_uuid');
+            $table->string('job_uuid')->index();
             $table->tinyInteger('job_status')->default(1);
 
             $table->string('message_id')->nullable();
             $table->string('message_status')->nullable();
             $table->text('message_response')->nullable();
+
+            $table->string('error_message')->nullable();
         });
     }
 

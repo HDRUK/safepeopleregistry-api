@@ -12,8 +12,6 @@ class EmailLog extends Model
     protected $fillable = [
         'to',
         'subject',
-        'type',
-        'data',
         'template',
         'body',
         'job_uuid',
