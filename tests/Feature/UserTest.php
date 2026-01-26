@@ -961,8 +961,7 @@ class UserTest extends TestCase
 
     public function test_application_update_email_with_success(): void
     {
-        $initEmail = fake()->unique()->email();
-        fake()->unique()->reset();
+        $initEmail = fake()->email();
         $response = $this->actingAs($this->admin)
             ->json(
                 'POST',
@@ -986,7 +985,7 @@ class UserTest extends TestCase
             'keycloak_id' => 'keycloak-user-123',
         ]);
         $user = User::where('id', $userId)->first();
-        $newEmail = fake()->unique()->email();
+        $newEmail = 'update' . $initEmail;
 
         Http::fake([
                 '*' => Http::response([
