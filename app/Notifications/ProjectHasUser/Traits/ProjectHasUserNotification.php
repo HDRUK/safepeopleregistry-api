@@ -4,6 +4,7 @@ namespace App\Notifications\ProjectHasUser\Traits;
 
 use App\Jobs\SendEmailJob;
 use App\Models\Affiliation;
+use Hdruk\LaravelMjml\Models\EmailTemplate;
 
 trait ProjectHasUserNotification
 {
@@ -30,6 +31,8 @@ trait ProjectHasUserNotification
 
     public function sendEmail(Affiliation $affiliation, string $email, int $userId, array $message = [])
     {
+        $template = EmailTemplate::where('identifier', 'notification')->first();
+
         $newRecipients = [
             'id' => $userId,
             'email' => $email,
@@ -42,6 +45,6 @@ trait ProjectHasUserNotification
             '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
         ];
 
-        SendEmailJob::dispatch($newRecipients, 'notification', $replacements, $newRecipients['email']);
+        SendEmailJob::dispatch($newRecipients, $template, $replacements, $newRecipients['email']);
     }
 }
