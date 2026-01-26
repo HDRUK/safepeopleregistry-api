@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Jobs\SendEmailJob;
+use Hdruk\LaravelMjml\Models\EmailTemplate;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
@@ -38,6 +39,8 @@ class EmailServiceTest extends TestCase
             ],
         ];
 
+        $template = EmailTemplate::where('identifier', '=', 'example_template')->first();
+
         $replacements = [
             '[[header_text]]' => 'SOURSD',
             '[[button_text]]' => 'Click me!',
@@ -46,7 +49,7 @@ class EmailServiceTest extends TestCase
 
         Bus::assertNothingDispatched();
 
-        SendEmailJob::dispatch($to, 'example_template', $replacements, null);
+        SendEmailJob::dispatch($to, $template, $replacements, null);
 
         Bus::assertDispatched(SendEmailJob::class);
     }
