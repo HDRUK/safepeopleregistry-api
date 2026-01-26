@@ -90,7 +90,7 @@ class SendEmailJob implements ShouldQueue
 
                     $sentMessage = Mail::to($this->to['email'])->send($email);
 
-                    $messageId = $sentMessage->getSymfonySentMessage()?->getMessageId();
+                    $messageId = $sentMessage?->getSymfonySentMessage()?->getMessageId();
 
                     // event
                     event(new EmailSentSuccessfully($jobUuid , $messageId));

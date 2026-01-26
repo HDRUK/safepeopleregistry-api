@@ -257,7 +257,7 @@ class TriggerEmail
 
                 break;
             case 'ORGANISATION':
-                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $organisation = Organisation::where('id', $to)->first();
 
                 $newRecipients = [
                     'id' => $organisation->id,
