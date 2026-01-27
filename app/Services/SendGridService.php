@@ -5,7 +5,6 @@ namespace App\Services;
 use Http;
 use Exception;
 
-
 class SendGridService
 {
     protected $sgApiHost;

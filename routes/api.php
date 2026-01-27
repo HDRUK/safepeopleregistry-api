@@ -6,7 +6,6 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\TestController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\QueryController;
-use App\Http\Controllers\Api\V1\AdminConstroller;
 use App\Http\Controllers\Api\V1\SectorController;
 use App\Http\Controllers\Api\V1\FeatureController;
 use App\Http\Controllers\Api\V1\HistoryController;

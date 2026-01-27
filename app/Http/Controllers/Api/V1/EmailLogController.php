@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\V1;
 use SendGrid;
 use Exception;
 use App\Models\EmailLog;
-use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admins\UpdateMessageStatus;
