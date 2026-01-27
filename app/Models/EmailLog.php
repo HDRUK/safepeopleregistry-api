@@ -25,4 +25,11 @@ class EmailLog extends Model
         'data' => 'array',
         'job_status' => 'integer',
     ];
+
+    public const EMAIL_STATUS_PROCESSED = 'processed';
+    public const EMAIL_STATUS_DELIVERED = 'delivered';
+    public const EMAIL_STATUS_DEFERRED = 'deferred';
+    public const EMAIL_STATUS_DROPPED = 'dropped';
+    public const EMAIL_STATUS_BOUNCED = 'bounced';
+    public const EMAIL_STATUS_BLOCKED = 'blocked';
 }

@@ -1,0 +1,55 @@
+<?php
+
+namespace App\Http\Controllers\Api\V1;
+
+use SendGrid;
+use Exception;
+use App\Models\EmailLog;
+use App\Http\Traits\Responses;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Admins\UpdateMessageStatus;
+
+class EmailLogController extends Controller
+{
+    use Responses;
+
+    public function updateMessageStatus(UpdateMessageStatus $request, int $id)
+    {
+        try {
+            $emailLog = EmailLog::where([
+                'id' => $id,
+                'job_status' => 1,
+            ])->first();
+
+            if (is_null($emailLog)) {
+                throw new Exception('No email log found for the id ' . $id);
+            }
+
+            $responseSendGrid = SendGrid::checkLogByMessageId($emailLog->message_id);
+
+            if ($responseSendGrid['status'] === EmailLog::EMAIL_STATUS_DELIVERED) {
+                $emailLog->job_status = 1;
+                $emailLog->message_status = $responseSendGrid['status'];
+                $emailLog->message_response = json_encode($responseSendGrid);
+                $emailLog->save();
+            } elseif (in_array($responseSendGrid['status'], [
+                EmailLog::EMAIL_STATUS_PROCESSED,
+                EmailLog::EMAIL_STATUS_DEFERRED,
+            ])) {
+                $emailLog->message_status = $responseSendGrid['status'];
+                $emailLog->message_response = json_encode($responseSendGrid);
+                $emailLog->save();
+            } else {
+                $emailLog->job_status = 0;
+                $emailLog->message_status = $responseSendGrid['status'];
+                $emailLog->message_response = json_encode($responseSendGrid);
+                $emailLog->save();
+                throw new Exception('Email status ' . $responseSendGrid['status'] . ' not handled for email log id ' . $id);
+            }
+
+            return $this->OKResponse($responseSendGrid);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+}
