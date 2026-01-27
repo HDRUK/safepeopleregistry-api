@@ -35,12 +35,5 @@ class SendGridService
         } catch (Exception $e) {
             throw new Exception($e);
         }
-
-
-        return [
-            'api_host' => $this->sgApiHost,
-            'sg_api_key' => $this->sgApiKey,
-            'message_id' => $messageId,
-        ];
     }
 }

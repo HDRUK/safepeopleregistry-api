@@ -25,7 +25,7 @@ class EmailLogController extends Controller
                 throw new Exception('No email log found for the id ' . $id);
             }
 
-            $responseSendGrid = SendGrid::checkLogByMessageId($id);
+            $responseSendGrid = SendGrid::checkLogByMessageId($emailLog->message_id);
 
             // we need some logic here
 
