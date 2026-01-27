@@ -69,5 +69,7 @@ return [
         'clamav_basic_auth_username' => env('CLAMAV_BASIC_AUTH_USERNAME', ''),
         'clamav_basic_auth_password' => env('CLAMAV_BASIC_AUTH_PASSWORD', ''),
         'training_expire_days' => env('TRAINING_EXPIRE_DAYS', 30),
+        'sendgrid_host' => env('SENDGRID_HOST', 'https://api.sendgrid.com'),
+        'sendgrid_api_key' => env('SENDGRID_API_KEY', 'sendgrid-api-key'),
     ],
 ];
