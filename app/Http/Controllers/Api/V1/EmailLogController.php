@@ -25,12 +25,11 @@ class EmailLogController extends Controller
                 throw new Exception('No email log found for the id ' . $id);
             }
 
-            // $responseSendGrid = SendGrid::checkLogByMessageId($id);
+            $responseSendGrid = SendGrid::checkLogByMessageId($id);
 
             // we need some logic here
 
-            // return $this->OKResponse($responseSendGrid);
-            return $this->NotImplementedResponse();
+            return $this->OKResponse($responseSendGrid);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
