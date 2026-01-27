@@ -61,7 +61,6 @@ class SentHtmlEmalJob implements ShouldQueue
         $sentMessage = null;
         $jobUuid = $this->job->uuid();
         $jobAttempt = $this->attempts();
-        \Log::info('no attempts: ' . $jobAttempt);
 
         $emailLog = EmailLog::find($this->id);
         if (is_null($emailLog)) {

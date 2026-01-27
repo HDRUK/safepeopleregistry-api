@@ -65,12 +65,14 @@ class EmailLogController extends Controller
             return $this->ForbiddenResponse();
         }
 
-        try {
-            SentHtmlEmalJob::dispatch($id);
-
-            return $this->OKResponse('Resend email job dispatched for email log id ' . $id);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+        $emailLog = EmailLog::find($id);
+    
+        if (!$emailLog) {
+            return $this->NotFoundResponse('Email log not found');
         }
+        
+        SentHtmlEmalJob::dispatch($id);
+
+        return $this->OKResponse('Resend email job dispatched for email log id ' . $id);
     }
 }
