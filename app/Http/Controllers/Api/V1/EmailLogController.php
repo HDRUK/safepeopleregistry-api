@@ -66,12 +66,6 @@ class EmailLogController extends Controller
         }
 
         try {
-            $emailLog = EmailLog::find($id);
-
-            if (is_null($emailLog)) {
-                throw new Exception('No email log found for the id ' . $id);
-            }
-
             SentHtmlEmalJob::dispatch($id);
 
             return $this->OKResponse('Resend email job dispatched for email log id ' . $id);

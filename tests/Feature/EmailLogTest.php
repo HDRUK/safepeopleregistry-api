@@ -38,6 +38,20 @@ class EmailLogTest extends TestCase
 
     public function test_application_can_access_as_admin_but_wrong_id()
     {
+        $lastestEmailLog = EmailLog::query()->orderBy('id', 'desc')->first();
+        $emailLogIdTest = $lastestEmailLog ? $lastestEmailLog->id + 1 : 1;
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'PUT',
+                self::TEST_URL . "/emails/{$emailLogIdTest}/resend",
+            );
+
+        $response->assertStatus(400);
+    }
+
+    public function test_application_can_access_as_admin_with_success()
+    {
         $response = $this->actingAs($this->admin)
             ->json(
                 'PUT',
