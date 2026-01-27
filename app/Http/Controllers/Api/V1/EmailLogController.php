@@ -27,7 +27,25 @@ class EmailLogController extends Controller
 
             $responseSendGrid = SendGrid::checkLogByMessageId($emailLog->message_id);
 
-            // we need some logic here
+            if ($responseSendGrid['status'] === EmailLog::EMAIL_STATUS_DELIVERED) {
+                $emailLog->job_status = 1;
+                $emailLog->message_status = $responseSendGrid['status'];
+                $emailLog->message_response = json_encode($responseSendGrid);
+                $emailLog->save();
+            } elseif (in_array($responseSendGrid['status'], [
+                EmailLog::EMAIL_STATUS_PROCESSED,
+                EmailLog::EMAIL_STATUS_DEFERRED,
+            ])) {
+                $emailLog->message_status = $responseSendGrid['status'];
+                $emailLog->message_response = json_encode($responseSendGrid);
+                $emailLog->save();
+            } else {
+                $emailLog->job_status = 0;
+                $emailLog->message_status = $responseSendGrid['status'];
+                $emailLog->message_response = json_encode($responseSendGrid);
+                $emailLog->save();
+                throw new Exception('Email status ' . $responseSendGrid['status'] . ' not handled for email log id ' . $id);
+            }
 
             return $this->OKResponse($responseSendGrid);
         } catch (Exception $e) {
