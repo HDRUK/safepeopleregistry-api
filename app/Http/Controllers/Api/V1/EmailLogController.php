@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api\V1;
 use SendGrid;
 use Exception;
 use App\Models\EmailLog;
+use App\Jobs\SentHtmlEmalJob;
 use App\Http\Traits\Responses;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\Admins\UpdateMessageStatus;
 
 class EmailLogController extends Controller
@@ -15,6 +17,10 @@ class EmailLogController extends Controller
 
     public function updateMessageStatus(UpdateMessageStatus $request, int $id)
     {
+        if (!Gate::allows('admin')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $emailLog = EmailLog::where([
                 'id' => $id,
@@ -48,6 +54,27 @@ class EmailLogController extends Controller
             }
 
             return $this->OKResponse($responseSendGrid);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    public function resendEmail(UpdateMessageStatus $request, int $id)
+    {
+        if (!Gate::allows('admin')) {
+            return $this->ForbiddenResponse();
+        }
+
+        try {
+            $emailLog = EmailLog::find($id);
+
+            if (is_null($emailLog)) {
+                throw new Exception('No email log found for the id ' . $id);
+            }
+
+            SentHtmlEmalJob::dispatch($id);
+
+            return $this->OKResponse('Resend email job dispatched for email log id ' . $id);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }

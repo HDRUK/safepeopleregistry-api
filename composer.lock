@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "300ada85ec3ebd255b6622989cd8a9a8",
+    "content-hash": "6503d3c80f9a4c641c3877892bea1712",
     "packages": [
         {
             "name": "brick/math",
@@ -2162,22 +2162,21 @@
         },
         {
             "name": "hdruk/laravel-mjml",
-            "version": "dev-main",
+            "version": "dev-feat/registry-2487",
             "source": {
                 "type": "git",
                 "url": "https://github.com/HDRUK/laravel-mjml.git",
-                "reference": "c9fb89ca04d231e9841cbfeb7a6ff280913a8ee7"
+                "reference": "016632789fd4a881a565189acbc178a500e06d26"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/HDRUK/laravel-mjml/zipball/c9fb89ca04d231e9841cbfeb7a6ff280913a8ee7",
-                "reference": "c9fb89ca04d231e9841cbfeb7a6ff280913a8ee7",
+                "url": "https://api.github.com/repos/HDRUK/laravel-mjml/zipball/016632789fd4a881a565189acbc178a500e06d26",
+                "reference": "016632789fd4a881a565189acbc178a500e06d26",
                 "shasum": ""
             },
             "require": {
                 "illuminate/support": "^10.0 || ^11.0 || ^12.0"
             },
-            "default-branch": true,
             "type": "library",
             "extra": {
                 "laravel": {
@@ -2205,10 +2204,10 @@
             ],
             "description": "A Laravel extension to make use of the MJML API",
             "support": {
-                "source": "https://github.com/HDRUK/laravel-mjml/tree/main",
+                "source": "https://github.com/HDRUK/laravel-mjml/tree/feat/registry-2487",
                 "issues": "https://github.com/HDRUK/laravel-mjml/issues"
             },
-            "time": "2026-01-26T13:16:57+00:00"
+            "time": "2026-01-27T13:28:16+00:00"
         },
         {
             "name": "laminas/laminas-diactoros",
@@ -4703,16 +4702,16 @@
         },
         {
             "name": "phpseclib/phpseclib",
-            "version": "3.0.48",
+            "version": "3.0.49",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "64065a5679c50acb886e82c07aa139b0f757bb89"
+                "reference": "6233a1e12584754e6b5daa69fe1289b47775c1b9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/64065a5679c50acb886e82c07aa139b0f757bb89",
-                "reference": "64065a5679c50acb886e82c07aa139b0f757bb89",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/6233a1e12584754e6b5daa69fe1289b47775c1b9",
+                "reference": "6233a1e12584754e6b5daa69fe1289b47775c1b9",
                 "shasum": ""
             },
             "require": {
@@ -4793,7 +4792,7 @@
             ],
             "support": {
                 "issues": "https://github.com/phpseclib/phpseclib/issues",
-                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.48"
+                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.49"
             },
             "funding": [
                 {
@@ -4809,7 +4808,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-12-15T11:51:42+00:00"
+            "time": "2026-01-27T09:17:28+00:00"
         },
         {
             "name": "psr/cache",
