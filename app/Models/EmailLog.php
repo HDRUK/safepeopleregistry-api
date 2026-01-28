@@ -4,11 +4,27 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\SearchManager;
+use App\Traits\FilterManager;
 
 class EmailLog extends Model
 {
     use HasFactory;
+    use SearchManager;
+    use FilterManager;
 
+    protected static array $searchableColumns = [
+        'to',
+        'subject',
+        'template',
+        'message_id',
+    ];
+
+    protected static array $sortableColumns = [
+        'to',
+        'subject',
+        'created_at',
+    ];
     protected $fillable = [
         'to',
         'subject',

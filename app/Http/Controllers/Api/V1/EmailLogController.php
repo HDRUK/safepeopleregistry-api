@@ -9,11 +9,38 @@ use App\Jobs\SentHtmlEmalJob;
 use App\Http\Traits\Responses;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Http\Request;
 use App\Http\Requests\Admins\UpdateMessageStatus;
+use App\Traits\CommonFunctions;
 
 class EmailLogController extends Controller
 {
+    use CommonFunctions;
     use Responses;
+
+   public function index(Request $request)
+    {
+        if (!Gate::allows('admin')) {
+            return $this->ForbiddenResponse();
+        }
+        $perPage = $request->integer('per_page', (int)$this->getSystemConfig('PER_PAGE'));
+
+        $logs = EmailLog::searchViaRequest($request->all())
+        ->select([
+            'id',
+            'to',
+            'subject',
+            'template',
+            'job_uuid',
+            'job_status',
+            'message_id',
+            'message_status',
+            'message_response'
+        ])
+        ->paginate($perPage);
+
+        return $this->OKResponse($logs);
+    }
 
     public function updateMessageStatus(UpdateMessageStatus $request, int $id)
     {
