@@ -18,14 +18,15 @@ class EmailLogController extends Controller
     use CommonFunctions;
     use Responses;
 
- public function index(Request $request)
+   public function index(Request $request)
     {
         if (!Gate::allows('admin')) {
             return $this->ForbiddenResponse();
         }
         $perPage = $request->integer('per_page', (int)$this->getSystemConfig('PER_PAGE'));
 
-        $logs = EmailLog::select([
+        $logs = EmailLog::searchViaRequest($request->all())
+        ->select([
             'id',
             'to',
             'subject',
@@ -36,9 +37,6 @@ class EmailLogController extends Controller
             'message_status',
             'message_response'
         ])
-        ->when($request->filled('email'), function ($query) use ($request) {
-            $query->where('to', 'like', '%' . $request->email . '%');
-        })
         ->paginate($perPage);
 
         return $this->OKResponse($logs);
