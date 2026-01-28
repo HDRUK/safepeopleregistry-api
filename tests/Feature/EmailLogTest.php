@@ -5,7 +5,13 @@ namespace Tests\Feature;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\EmailLog;
+use App\Jobs\SentHtmlEmalJob;
+use App\Jobs\SentHtmlEmailJob;
 use Tests\Traits\Authorisation;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Queue;
 use KeycloakGuard\ActingAsKeycloakUser;
 use Hdruk\LaravelMjml\Models\EmailTemplate;
 
