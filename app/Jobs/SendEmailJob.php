@@ -59,6 +59,7 @@ class SendEmailJob implements ShouldQueue
      */
     public function handle(): void
     {
+        $email = null;
         $sentMessage = null;
         $jobUuid = $this->job->uuid();
 
@@ -67,6 +68,22 @@ class SendEmailJob implements ShouldQueue
             'log' => 'SendEmailJob started for: ' . json_encode($this->to),
         ]);
 
+        if (config('mail.default') === 'smtp') {
+            $email = new Email($this->to['id'], $this->template, $this->replacements, $this->address);
+            $html = $email->getRenderedHtml();
+
+            $checkEmailLog = EmailLog::where('job_uuid', $jobUuid)->first();
+            if (is_null($checkEmailLog)) {
+                EmailLog::create([
+                    'to' => $this->to['email'],
+                    'subject' => $this->template['subject'],
+                    'template' => $this->template['identifier'],
+                    'body' => $html,
+                    'job_uuid' => $jobUuid,
+                ]);
+            }
+        }
+
         try {
             switch (config('mail.default')) {
                 case 'exchange':
@@ -74,20 +91,6 @@ class SendEmailJob implements ShouldQueue
                     $sentMessage = $this->mgs->sendMail($this->to, new Email($this->to['id'], $this->template, $this->replacements, $this->address));
                     break;
                 case 'smtp':
-                    $email = new Email($this->to['id'], $this->template, $this->replacements, $this->address);
-                    $html = $email->getRenderedHtml();
-
-                    $checkEmailLog = EmailLog::where('job_uuid', $jobUuid)->first();
-                    if (is_null($checkEmailLog)) {
-                        EmailLog::create([
-                            'to' => $this->to['email'],
-                            'subject' => $this->template['subject'],
-                            'template' => $this->template['identifier'],
-                            'body' => $html,
-                            'job_uuid' => $jobUuid,
-                        ]);
-                    }
-
                     $sentMessage = Mail::to($this->to['email'])->send($email);
 
                     $messageId = $sentMessage?->getSymfonySentMessage()?->getMessageId();

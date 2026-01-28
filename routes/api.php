@@ -680,6 +680,7 @@ Route::middleware('auth:api')
     ->controller(EmailLogController::class)
     ->group(function () {
         Route::put('/messages/{id}/status', 'updateMessageStatus');
+        Route::put('/emails/{id}/resend', 'resendEmail');
     });
 
 // --- RULES ---
