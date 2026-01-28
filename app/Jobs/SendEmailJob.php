@@ -91,8 +91,6 @@ class SendEmailJob implements ShouldQueue
                     $sentMessage = $this->mgs->sendMail($this->to, new Email($this->to['id'], $this->template, $this->replacements, $this->address));
                     break;
                 case 'smtp':
-                    throw new \Exception('Email error simulation enabled in config');
-
                     $sentMessage = Mail::to($this->to['email'])->send($email);
 
                     $messageId = $sentMessage?->getSymfonySentMessage()?->getMessageId();
