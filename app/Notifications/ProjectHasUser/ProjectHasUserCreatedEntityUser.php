@@ -23,7 +23,7 @@ class ProjectHasUserCreatedEntityUser extends Notification implements ShouldQueu
         $this->buildNotification($message, $affiliation);
 
         $this->sendEmail($affiliation, $affiliation->email, $user->id, [
-            '[[user.email]]' => $affiliation->email,
+            '[[user.email]]' => $affiliation->email ?? $user->email,
             '[[organisation.name]]' => $organisation->organisation_name,
             '[[project.title]]' => $project->title,
             '[[project.id]]' => $project->id,
