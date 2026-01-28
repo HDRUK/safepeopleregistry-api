@@ -30,15 +30,18 @@ class EmailLogController extends Controller
             'to',
             'subject',
             'template',
-            'job_uuid', 
+            'job_uuid',
             'job_status',
             'message_id',
             'message_status',
             'message_response'
-        ])->paginate($perPage);
+        ])
+        ->when($request->filled('email'), function ($query) use ($request) {
+            $query->where('to', 'like', '%' . $request->email . '%');
+        })
+        ->paginate($perPage);
 
         return $this->OKResponse($logs);
-
     }
 
     public function updateMessageStatus(UpdateMessageStatus $request, int $id)
