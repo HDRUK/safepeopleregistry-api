@@ -76,6 +76,17 @@ class SentHtmlEmalJob implements ShouldQueue
         $htmlBody = $emailLog->body;
         $template = $emailLog->template;
 
+        $checkEmailLog = EmailLog::where('job_uuid', $jobUuid)->first();
+        if (is_null($checkEmailLog)) {
+            EmailLog::create([
+                'to' => $to,
+                'subject' => $subject,
+                'template' => $template,
+                'body' => $htmlBody,
+                'job_uuid' => $jobUuid,
+            ]);
+        }
+
         try {
 
             DebugLog::create([
@@ -88,24 +99,12 @@ class SentHtmlEmalJob implements ShouldQueue
                 ]),
             ]);
 
-            $checkEmailLog = EmailLog::where('job_uuid', $jobUuid)->first();
-            if (is_null($checkEmailLog)) {
-                EmailLog::create([
-                    'to' => $to,
-                    'subject' => $subject,
-                    'template' => $template,
-                    'body' => $htmlBody,
-                    'job_uuid' => $jobUuid,
-                ]);
-            }
-
             $sentMessage = Mail::to($to)->send(
                 new HtmlEmail($subject, $htmlBody)
             );
 
             $messageId = $sentMessage?->getSymfonySentMessage()?->getMessageId();
 
-            // event
             event(new EmailSentSuccessfully($jobUuid, $messageId));
 
         } catch (\Throwable $e) {
@@ -121,7 +120,6 @@ class SentHtmlEmalJob implements ShouldQueue
                 ]),
             ]);
 
-            // event
             event(new EmailSendFailed($jobUuid, $e->getMessage()));
 
             $isLastAttempt = $this->attempts() >= $this->tries;
