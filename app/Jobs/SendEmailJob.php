@@ -118,7 +118,6 @@ class SendEmailJob implements ShouldQueue
                     break;
                 default:
                     throw new \Exception('Mail driver not supported in SendEmailJob: ' . config('mail.default'));
-                    break;
             }
         } catch (\Throwable $e) {
             DebugLog::create([

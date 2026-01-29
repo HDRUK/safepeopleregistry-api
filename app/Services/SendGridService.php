@@ -23,8 +23,10 @@ class SendGridService
         $query = "msg_id LIKE '{$shortMessageId}%'";
 
         try {
-            $response = Http::withToken(config('services.sendgrid.key', env('SENDGRID_API_KEY')))
-                ->acceptJson()
+            $response = Http::withToken($this->sgApiKey)
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                ])
                 ->get($urlMessages, [
                     'limit' => 1000,
                     'query' => $query,
@@ -46,7 +48,8 @@ class SendGridService
             $response = Http::withToken($this->sgApiKey)
                 ->withHeaders([
                     'Content-Type' => 'application/json',
-                ])->get($urlLogs);
+                ])
+                ->get($urlLogs);
 
             if (!$response->successful()) {
                 throw new Exception('SendGrid Email Logs lookup failed for sg_message_id ' . $longMessageId . ' with status code ' . $response->status());

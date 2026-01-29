@@ -123,7 +123,6 @@ class SentHtmlEmalJob implements ShouldQueue
                     break;
                 default:
                     throw new \Exception('Mail driver not supported in SentHtmlEmalJob: ' . config('mail.default'));
-                    break;
             }
 
             event(new EmailSentSuccessfully($jobUuid, $messageId));
