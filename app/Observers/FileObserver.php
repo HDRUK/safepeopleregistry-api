@@ -3,12 +3,13 @@
 namespace App\Observers;
 
 use App\Models\File;
+use App\Models\User;
 use App\Jobs\SendEmailJob;
+use App\Jobs\SGSendEmailJob;
 use App\Models\Organisation;
-use Hdruk\LaravelMjml\Models\EmailTemplate;
 use App\Jobs\ProcessCSVSubmission;
 use App\Models\OrganisationHasFile;
-use App\Models\User;
+use Hdruk\LaravelMjml\Models\EmailTemplate;
 
 class FileObserver
 {

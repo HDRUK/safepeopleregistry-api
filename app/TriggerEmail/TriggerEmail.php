@@ -10,6 +10,7 @@ use App\Models\Custodian;
 use App\Jobs\SendEmailJob;
 use App\Models\Permission;
 use App\Models\Affiliation;
+use App\Jobs\SGSendEmailJob;
 use App\Models\Organisation;
 use App\Models\CustodianUser;
 use App\Models\PendingInvite;
@@ -528,6 +529,7 @@ class TriggerEmail
                 break;
         }
 
+        // SendEmailJob::dispatch($newRecipients, $template, $replacements, $newRecipients['email']);
         SendEmailJob::dispatch($newRecipients, $template, $replacements, $newRecipients['email']);
     }
 }

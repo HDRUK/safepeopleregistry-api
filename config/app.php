@@ -208,7 +208,7 @@ return [
         'RegistryManagementController' => App\RegistryManagementController\RegistryManagementController::class,
         'RulesEngineManagementController' => App\RulesEngineManagementController\RulesEngineManagementController::class,
         'Gateway' => App\Gateway\GatewayFacade::class,
-        'SendGrid' => App\Facades\SendGrid::class,
+        'SendGridService' => App\Facades\SendGridService::class,
     ])->toArray(),
 
 ];

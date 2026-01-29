@@ -2,11 +2,14 @@
 
 namespace App\Jobs;
 
+use SendGrid;
 use App\Models\DebugLog;
 use App\Models\EmailLog;
 use Hdruk\LaravelMjml\Email;
 use Illuminate\Bus\Queueable;
 use App\Events\EmailSendFailed;
+use SendGrid\Mail\Mail as SGMail;
+use Hdruk\LaravelMjml\SendGridEmail;
 use Illuminate\Support\Facades\Mail;
 use App\Events\EmailSentSuccessfully;
 use Illuminate\Queue\SerializesModels;
@@ -60,6 +63,7 @@ class SendEmailJob implements ShouldQueue
     public function handle(): void
     {
         $email = null;
+        $html = null;
         $sentMessage = null;
         $jobUuid = $this->job->uuid();
 
@@ -68,7 +72,7 @@ class SendEmailJob implements ShouldQueue
             'log' => 'SendEmailJob started for: ' . json_encode($this->to),
         ]);
 
-        if (config('mail.default') === 'smtp') {
+        if (config('mail.default') === 'smtp' || config('mail.default') === 'sendgrid') {
             $email = new Email($this->to['id'], $this->template, $this->replacements, $this->address);
             $html = $email->getRenderedHtml();
 
@@ -95,12 +99,27 @@ class SendEmailJob implements ShouldQueue
 
                     $messageId = $sentMessage?->getSymfonySentMessage()?->getMessageId();
 
-                    // event
+                    event(new EmailSentSuccessfully($jobUuid, $messageId));
+
+                    break;
+
+                case 'sendgrid':
+
+                    $sentMessage = new SendGridEmail();
+                    $sentMessage->setToEmail($this->to['email'])
+                        ->setSubject($this->template['subject'])
+                        ->setHtmlContent($html)
+                        ->setJobUuid($jobUuid)
+                        ->send();
+
+                    $headers = $sentMessage->getAllHeaders();
+                    $messageId = getHeaderValue($headers, 'x-message-id');
+
                     event(new EmailSentSuccessfully($jobUuid, $messageId));
 
                     break;
                 default:
-                    $sentMessage = null;
+                    throw new \Exception('Mail driver not supported in SendEmailJob: ' . config('mail.default'));
                     break;
             }
         } catch (\Throwable $e) {
