@@ -106,14 +106,14 @@ if (!function_exists('isValidDate')) {
 if (!function_exists('getHeaderValue')) {
     /**
      * Extract the value from an array of HTTP headers by searching for a specific header name.
-     * 
+     *
      * Searches through an array of header strings (format: "Header-Name: value") and returns
      * the value portion when the header name matches the search value. The search is case-insensitive.
      *
      * @param array $headers Array of header strings in "name: value" format
      * @param string $searchValue The header name to search for (e.g., 'X-Message-Id')
      * @return string|null The header value if found, null otherwise
-     * 
+     *
      * @example
      * $headers = ['Content-Type: application/json', 'X-Message-Id: abc123'];
      * getHeaderValue($headers, 'x-message-id'); // Returns: 'abc123'

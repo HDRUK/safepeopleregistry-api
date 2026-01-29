@@ -4,7 +4,6 @@ namespace App\Notifications\ProjectHasUser\Traits;
 
 use App\Jobs\SendEmailJob;
 use App\Models\Affiliation;
-use App\Jobs\SGSendEmailJob;
 use Hdruk\LaravelMjml\Models\EmailTemplate;
 
 trait ProjectHasUserNotification

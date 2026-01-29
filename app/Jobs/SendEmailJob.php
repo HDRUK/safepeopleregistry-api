@@ -2,13 +2,11 @@
 
 namespace App\Jobs;
 
-use SendGrid;
 use App\Models\DebugLog;
 use App\Models\EmailLog;
 use Hdruk\LaravelMjml\Email;
 use Illuminate\Bus\Queueable;
 use App\Events\EmailSendFailed;
-use SendGrid\Mail\Mail as SGMail;
 use Hdruk\LaravelMjml\SendGridEmail;
 use Illuminate\Support\Facades\Mail;
 use App\Events\EmailSentSuccessfully;
