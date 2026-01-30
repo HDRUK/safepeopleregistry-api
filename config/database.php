@@ -159,7 +159,7 @@ return [
             'database' => env('REDIS_DB', '0'),
             'read_timeout' => 60, 
             'timeout' => 2,
-            'persistent' => env('REDIS_PERSISTENT', true),
+            'persistent' => env('REDIS_PERSISTENT', false),
             'retry_interval' => 100,
         ],
 
@@ -172,7 +172,7 @@ return [
             'database' => env('REDIS_CACHE_DB', '1'),
             'read_timeout' => 10,
             'timeout' => 2,
-            'persistent' => env('REDIS_PERSISTENT', true),
+            'persistent' => env('REDIS_PERSISTENT', false),
         ],
 
         'session' => [
@@ -185,7 +185,7 @@ return [
             'prefix' => env('REDIS_SESSION_PREFIX', 's:'),
             'read_timeout' => 10,
             'timeout' => 2,
-            'persistent' => env('REDIS_PERSISTENT', true),
+            'persistent' => env('REDIS_PERSISTENT', false),
         ],
 
         'queue' => [
@@ -197,7 +197,7 @@ return [
             'database' => env('REDIS_QUEUE_DB', '3'),
             'read_timeout' => 60,
             'timeout' => 2,
-            'persistent' => true,
+            'persistent' => env('REDIS_PERSISTENT', false),
             'retry_interval' => 100,
         ],
 
@@ -210,7 +210,7 @@ return [
             'database' => env('REDIS_HORIZON_DB', '4'),
             'read_timeout' => 30,
             'timeout' => 2,
-            'persistent' => true,
+            'persistent' => env('REDIS_PERSISTENT', false),
             'retry_interval' => 100,
         ],
 
