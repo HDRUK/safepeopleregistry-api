@@ -102,7 +102,6 @@ class SendEmailJob implements ShouldQueue
                     break;
 
                 case 'sendgrid':
-
                     $sentMessage = new SendGridEmail();
                     $sentMessage->setToEmail($this->to['email'])
                         ->setSubject($this->template['subject'])

@@ -19,7 +19,6 @@
         "laravel/tinker": "^2.8",
         "phpoffice/phpspreadsheet": "^5.0",
         "robsontenorio/laravel-keycloak-guard": "*",
-        "sendgrid/sendgrid": "^8.1",
         "seshac/otp-generator": "^0.0.8",
         "socialiteproviders/keycloak": "^5.3",
         "socialiteproviders/manager": "^4.5",
