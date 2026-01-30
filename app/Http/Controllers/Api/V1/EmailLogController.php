@@ -35,8 +35,16 @@ class EmailLogController extends Controller
             'job_status',
             'message_id',
             'message_status',
-            'message_response'
+            'message_response',
+            'error_message',
+            'updated_at'
         ])
+        ->when($request->filled('job_status'), function ($q) use ($request) {
+            $q->where('job_status', $request->integer('job_status'));
+        })
+        ->when($request->filled('message_status'), function ($q) use ($request) {
+            $q->where('message_status', $request->get('message_status'));
+        })        
         ->paginate($perPage);
 
         return $this->OKResponse($logs);
