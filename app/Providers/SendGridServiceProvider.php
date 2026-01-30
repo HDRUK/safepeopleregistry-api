@@ -20,7 +20,7 @@ class SendGridServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $this->app->singleton('sendgrid', function ($app) {
+        $this->app->singleton('sendgridservice', function ($app) {
             return new SendGridService();
         });
     }

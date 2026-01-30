@@ -6,6 +6,7 @@ use App\Models\DebugLog;
 use App\Models\EmailLog;
 use App\Events\EmailSendFailed;
 use Hdruk\LaravelMjml\HtmlEmail;
+use Hdruk\LaravelMjml\SendGridEmail;
 use Illuminate\Support\Facades\Mail;
 use App\Events\EmailSentSuccessfully;
 use Illuminate\Queue\SerializesModels;
@@ -13,7 +14,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-
 
 class SentHtmlEmalJob implements ShouldQueue
 {
@@ -99,11 +99,31 @@ class SentHtmlEmalJob implements ShouldQueue
                 ]),
             ]);
 
-            $sentMessage = Mail::to($to)->send(
-                new HtmlEmail($subject, $htmlBody)
-            );
+            switch (config('mail.default')) {
+                case 'smtp':
+                    $sentMessage = Mail::to($to)->send(
+                        new HtmlEmail($subject, $htmlBody)
+                    );
 
-            $messageId = $sentMessage?->getSymfonySentMessage()?->getMessageId();
+                    $messageId = $sentMessage?->getSymfonySentMessage()?->getMessageId();
+
+                    break;
+                case 'sendgrid':
+
+                    $sentMessage = new SendGridEmail();
+                    $sentMessage->setToEmail($to)
+                        ->setSubject($subject)
+                        ->setHtmlContent($htmlBody)
+                        ->setJobUuid($jobUuid)
+                        ->send();
+
+                    $headers = $sentMessage->getAllHeaders();
+                    $messageId = getHeaderValue($headers, 'x-message-id');
+
+                    break;
+                default:
+                    throw new \Exception('Mail driver not supported in SentHtmlEmalJob: ' . config('mail.default'));
+            }
 
             event(new EmailSentSuccessfully($jobUuid, $messageId));
 
@@ -144,4 +164,5 @@ class SentHtmlEmalJob implements ShouldQueue
             'log' => 'SentHtmlEmalJob email sent for id ' . $this->id . ' to ' . $to . ' with message ID ' . $messageId,
         ]);
     }
+
 }

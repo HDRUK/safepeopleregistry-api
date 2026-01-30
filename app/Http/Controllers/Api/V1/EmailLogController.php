@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use SendGrid;
+use SendGridService;
 use Exception;
 use App\Models\EmailLog;
 use App\Jobs\SentHtmlEmalJob;
@@ -35,8 +35,16 @@ class EmailLogController extends Controller
             'job_status',
             'message_id',
             'message_status',
-            'message_response'
+            'message_response',
+            'error_message',
+            'updated_at'
         ])
+        ->when($request->filled('job_status'), function ($q) use ($request) {
+            $q->where('job_status', $request->integer('job_status'));
+        })
+        ->when($request->filled('message_status'), function ($q) use ($request) {
+            $q->where('message_status', $request->get('message_status'));
+        })        
         ->paginate($perPage);
 
         return $this->OKResponse($logs);
@@ -51,14 +59,21 @@ class EmailLogController extends Controller
         try {
             $emailLog = EmailLog::where([
                 'id' => $id,
-                'job_status' => 1,
             ])->first();
 
             if (is_null($emailLog)) {
                 throw new Exception('No email log found for the id ' . $id);
             }
 
-            $responseSendGrid = SendGrid::checkLogByMessageId($emailLog->message_id);
+            // long message id lookup
+            $getLongMessageId = SendGridService::getLongMessageId($emailLog->message_id);
+            $longMessageId = $getLongMessageId['messages'][0]['msg_id'] ?? null;
+
+            if (is_null($longMessageId)) {
+                throw new Exception('No long message id found for short message id ' . $emailLog->message_id);
+            }
+
+            $responseSendGrid = SendGridService::getLogByLongMessageId($longMessageId);
 
             if ($responseSendGrid['status'] === EmailLog::EMAIL_STATUS_DELIVERED) {
                 $emailLog->job_status = 1;
