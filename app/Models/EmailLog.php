@@ -18,13 +18,16 @@ class EmailLog extends Model
         'subject',
         'template',
         'message_id',
+        'updated_at'
     ];
 
     protected static array $sortableColumns = [
         'to',
         'subject',
         'created_at',
+        'updated_at',        
     ];
+
     protected $fillable = [
         'to',
         'subject',
