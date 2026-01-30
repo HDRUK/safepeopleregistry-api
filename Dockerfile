@@ -16,12 +16,13 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     libzip-dev \
     libc-dev \
+    libgmp-dev \
     wget \
     zlib1g-dev \
     zip \
     default-mysql-client \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j"$(nproc)" gd pdo pdo_mysql soap zip iconv bcmath \
+    && docker-php-ext-install -j"$(nproc)" gd pdo pdo_mysql soap zip iconv bcmath gmp \
     && docker-php-ext-configure pdo_mysql --with-pdo-mysql=mysqlnd \
     && docker-php-ext-install sockets \
     && docker-php-ext-install exif \
