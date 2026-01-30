@@ -6,9 +6,9 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "ext-redis": "*",
         "darkaonline/l5-swagger": "^8.5",
         "doctrine/dbal": "^3.8",
-        "ext-redis": "*",
         "guzzlehttp/guzzle": "^7.2",
         "hdruk/laravel-mjml": "dev-main",
         "laravel/framework": "^12.0",

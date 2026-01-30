@@ -17,18 +17,42 @@ class SendGridService
 
     }
 
-    public function checkLogByMessageId(string $messageId)
+    public function getLongMessageId(string $shortMessageId)
     {
-        $urlLogs = $this->sgApiHost . '/v3/logs/' . $messageId;
+        $urlMessages = $this->sgApiHost . '/v3/messages';
+        $query = "msg_id LIKE '{$shortMessageId}%'";
 
         try {
             $response = Http::withToken($this->sgApiKey)
                 ->withHeaders([
                     'Content-Type' => 'application/json',
-                ])->get($urlLogs);
+                ])
+                ->get($urlMessages, [
+                    'limit' => 1000,
+                    'query' => $query,
+                ]);
+
+            $response->throw();
+
+            return $response->json();
+        } catch (Exception $e) {
+            throw new Exception($e);
+        }
+    }
+
+    public function getLogByLongMessageId(string $longMessageId)
+    {
+        $urlLogs = $this->sgApiHost . '/v3/logs/' . $longMessageId;
+
+        try {
+            $response = Http::withToken($this->sgApiKey)
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                ])
+                ->get($urlLogs);
 
             if (!$response->successful()) {
-                throw new Exception('SendGrid Email Logs lookup failed for sg_message_id ' . $messageId . ' with status code ' . $response->status());
+                throw new Exception('SendGrid Email Logs lookup failed for sg_message_id ' . $longMessageId . ' with status code ' . $response->status());
             }
 
             return $response->json();
