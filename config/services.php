@@ -37,8 +37,5 @@ return [
         'redirect' => env('KEYCLOAK_REDIRECT_URL'),
         'base_url' => env('KEYCLOAK_BASE_URL'),
         'realms' => env('KEYCLOAK_REALM'),
-    ],
-    'slack' => [
-        'webhook_url' => env('SLACK_FAILED_JOB_WEBHOOK_URL'),
-    ],
+    ]
 ];

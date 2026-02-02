@@ -25,9 +25,6 @@ class EventServiceProvider extends ServiceProvider
         \SocialiteProviders\Manager\SocialiteWasCalled::class => [
             \SocialiteProviders\Keycloak\KeycloakExtendSocialite::class.'@handle',
         ],
-         \Illuminate\Queue\Events\JobFailed::class => [
-            \App\Listeners\NotifySlackOfFailedJob::class,
-        ],
         EmailSentSuccessfully::class => [
             LogEmailSent::class,
         ],

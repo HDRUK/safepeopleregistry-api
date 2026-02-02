@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "94c946dafe5bc9e5ff6f55b02b6b1519",
+    "content-hash": "11f1790025e7472e0dc84b9146ba2695",
     "packages": [
         {
             "name": "brick/math",
@@ -2159,6 +2159,53 @@
                 }
             ],
             "time": "2025-08-22T14:27:06+00:00"
+        },
+        {
+            "name": "hdruk/laravel-job-failed-slack-notification",
+            "version": "v1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/HDRUK/laravel-job-failed-slack-notification.git",
+                "reference": "c48e0dd462f1b2f6f13722b79a1d3e4b087adb3e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/HDRUK/laravel-job-failed-slack-notification/zipball/c48e0dd462f1b2f6f13722b79a1d3e4b087adb3e",
+                "reference": "c48e0dd462f1b2f6f13722b79a1d3e4b087adb3e",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "^10.0 || ^11.0 || ^12.0",
+                "laravel/slack-notification-channel": "^3.7"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Hdruk\\LaravelJobFailedSlackNotification\\JobFailedSlackServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Hdruk\\LaravelJobFailedSlackNotification\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jamie Byrne",
+                    "email": "jamie.byrne@hdruk.ac.uk"
+                }
+            ],
+            "description": "Automatically sends detailed Slack notifications whenever a Laravel queued job fails, including job name, queue, connection, and exception details.",
+            "support": {
+                "source": "https://github.com/HDRUK/laravel-job-failed-slack-notification/tree/v1.0.3",
+                "issues": "https://github.com/HDRUK/laravel-job-failed-slack-notification/issues"
+            },
+            "time": "2026-02-02T16:04:43+00:00"
         },
         {
             "name": "hdruk/laravel-mjml",

@@ -10,6 +10,7 @@
         "darkaonline/l5-swagger": "^8.5",
         "doctrine/dbal": "^3.8",
         "guzzlehttp/guzzle": "^7.2",
+        "hdruk/laravel-job-failed-slack-notification": "^1.0",
         "hdruk/laravel-mjml": "dev-main",
         "laravel/framework": "^12.0",
         "laravel/horizon": "^5.29",
@@ -49,6 +50,7 @@
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/",
             "Hdruk\\LaravelMjml\\": "hdruk/laravel-mjml/src/",
+            "Hdruk\\LaravelJobFailedSlackNotification\\": "hdruk/laravel-job-failed-slack-notification/src/",
             "App\\PHPStan\\": "phpstan/Extensions/"
         },
         "files": [
@@ -104,6 +106,10 @@
         {
             "type": "vcs",
             "url": "git@github.com:HDRUK/laravel-mjml.git"
+        },
+        {
+            "type": "vcs",
+            "url": "git@github.com:HDRUK/laravel-job-failed-slack-notification.git"
         }
     ]
 }
