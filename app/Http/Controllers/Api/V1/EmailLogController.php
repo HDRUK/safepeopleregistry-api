@@ -92,7 +92,6 @@ class EmailLogController extends Controller
                 $emailLog->message_status = $responseSendGrid['status'];
                 $emailLog->message_response = json_encode($responseSendGrid);
                 $emailLog->save();
-                throw new Exception('Email status ' . $responseSendGrid['status'] . ' not handled for email log id ' . $id);
             }
 
             return $this->OKResponse($responseSendGrid);

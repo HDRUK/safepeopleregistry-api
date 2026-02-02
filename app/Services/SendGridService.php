@@ -28,7 +28,7 @@ class SendGridService
                     'Content-Type' => 'application/json',
                 ])
                 ->get($urlMessages, [
-                    'limit' => 1000,
+                    'limit' => 1,
                     'query' => $query,
                 ]);
 
