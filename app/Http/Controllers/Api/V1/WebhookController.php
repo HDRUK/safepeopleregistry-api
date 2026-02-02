@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Exception;
+use App\Models\DebugLog;
+use App\Models\EmailLog;
+use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
 use Illuminate\Http\JsonResponse;
@@ -344,7 +347,6 @@ class WebhookController extends Controller
      *     )
      * )
      */
-
     public function getAllEventTriggers(Request $request): JsonResponse
     {
         try {
@@ -360,5 +362,77 @@ class WebhookController extends Controller
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
+    }
+
+    /**
+     * Get sendgrid webhook event triggers.
+     *
+     * @OA\Get(
+     *     path="/api/v1/webhooks/sendgrid",
+     *     tags={"Webhooks"},
+     *     summary="Get sendgrid webhook event triggers",
+     *     description="Returns sendgrid webhook event triggers",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *     )
+     * )
+     */
+    public function sendgrid(Request $request)
+    {
+        $input = $request->all();
+
+        $lastEvent = $input[0];
+        $status = Arr::get($lastEvent, 'event', null);
+        $jobUuid = Arr::get($lastEvent, 'job_uuid', null);
+        $sgMessageId = Arr::get($lastEvent, 'sg_message_id', null);
+
+        DebugLog::create([
+            'class' => __CLASS__,
+            'log' => 'SendGrid webhook received: ' . json_encode($input),
+        ]);
+        
+        \Log::info('sendgrid webhook', [
+            'input' => $input,
+            'event' => $status,
+            'job_uuid' => $jobUuid,
+            'sg_message_id' => $sgMessageId,
+        ]);
+
+        if (is_null($jobUuid)) {
+            return response()->json([
+                'message' => 'success',
+            ]);
+        }
+
+        $emailLog = EmailLog::where('job_uuid', $jobUuid)->first();
+        if (is_null($emailLog)) {
+            return response()->json([
+                'message' => 'success',
+            ]);
+        }
+
+        if ($status === EmailLog::EMAIL_STATUS_DELIVERED) {
+            $emailLog->job_status = 1;
+            $emailLog->message_status = $status;
+            $emailLog->message_response = json_encode($input);
+            $emailLog->save();
+        } elseif (in_array($status, [
+            EmailLog::EMAIL_STATUS_PROCESSED,
+            EmailLog::EMAIL_STATUS_DEFERRED,
+        ])) {
+            $emailLog->message_status = $status;
+            $emailLog->message_response = json_encode($input);
+            $emailLog->save();
+        } else {
+            $emailLog->job_status = 0;
+            $emailLog->message_status = $status;
+            $emailLog->message_response = json_encode($input);
+            $emailLog->save();
+        }
+
+        return response()->json([
+            'message' => 'success',
+        ]);
     }
 }

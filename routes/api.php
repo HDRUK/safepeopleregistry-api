@@ -558,6 +558,7 @@ Route::middleware('auth:api')
         Route::put('receivers/{custodianId}', 'updateReceiver')->whereNumber('custodianId');
         Route::delete('receivers/{custodianId}', 'deleteReceiver')->whereNumber('custodianId');
         Route::get('event-triggers', 'getAllEventTriggers');
+        Route::post('sendgrid', 'sendgrid');
     });
 
 Route::post('v1/webhooks/{provider}', [VendorWebhookReceiverController::class, 'receive']);
