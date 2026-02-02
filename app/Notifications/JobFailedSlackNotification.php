@@ -19,15 +19,19 @@ class JobFailedSlackNotification extends Notification
     {
         $job = $this->event->job;
         $env = strtoupper(config('app.env'));
-
+        $name = config('app.name') ?? 'No App Name Configured';
+        $jobId = $job->getJobId();
+        $payload = $job->payload();
+        $jobName = $payload['displayName'] ?? get_class($job);
 
         return (new SlackMessage)
             ->error()
-            ->content("🚨 Safe People Registry Queue Job Failed ({$env}) 🚨")
-            ->attachment(function ($attachment) use ($job, $env) {
+            ->content("🚨 {$name} Queue Job Failed ({$env}) 🚨")
+            ->attachment(function ($attachment) use ($job, $env, $jobName, $jobId) {
                 $attachment->fields([
                     'Environment' => $env,
-                    'Job'        => get_class($job),
+                    'Job'        => $jobName,
+                    'ID'        => $jobId,
                     'Queue'      => $job->getQueue(),
                     'Connection' => $this->event->connectionName,
                     'Exception'  => $this->event->exception->getMessage(),
