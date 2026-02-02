@@ -2,13 +2,14 @@
 
 namespace Tests\Feature;
 
+use Tests\TestCase;
+use App\Models\EmailLog;
+use App\Models\Custodian;
+use App\Models\CustodianUser;
+use Tests\Traits\Authorisation;
+use App\Models\WebhookEventTrigger;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\CustodianWebhookReceiver;
-use App\Models\WebhookEventTrigger;
-use App\Models\CustodianUser;
-use App\Models\Custodian;
-use Tests\TestCase;
-use Tests\Traits\Authorisation;
 
 class WebhookTest extends TestCase
 {
@@ -214,5 +215,41 @@ class WebhookTest extends TestCase
         $response->assertStatus(400);
         $message = $response->decodeResponseJson()['message'];
         $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_delivered_event_updates_email_log_successfully()
+    {
+        $jobUuid = 'test-uuid-123';
+        
+        $emailLog = EmailLog::create([
+            'to' => fake()->email(),
+            'subject' => 'test',
+            'template' => 'test',
+            'body' => '<html>test</html>',
+            'job_uuid' => $jobUuid,
+            'job_status' => 0,
+            'message_status' => null,
+            'message_response' => null,
+        ]);
+
+        $payload = [
+            [
+                'event' => 'delivered',
+                'job_uuid' => $jobUuid,
+                'sg_message_id' => 'sg-message-123',
+                'timestamp' => now()->timestamp,
+            ]
+        ];
+
+        $response = $this->postJson('/api/v1/webhooks/sendgrid', $payload);
+
+        $response->assertStatus(200)
+            ->assertJson(['message' => 'success']);
+
+        $emailLog->refresh();
+        
+        $this->assertEquals(1, $emailLog->job_status);
+        $this->assertEquals('delivered', $emailLog->message_status);
+        $this->assertNotNull($emailLog->message_response);
     }
 }
