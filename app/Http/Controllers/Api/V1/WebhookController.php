@@ -387,23 +387,23 @@ class WebhookController extends Controller
         $jobUuid = Arr::get($lastEvent, 'job_uuid', null);
         $sgMessageId = Arr::get($lastEvent, 'sg_message_id', null);
 
-        DebugLog::create([
-            'class' => __CLASS__,
-            'log' => 'SendGrid webhook received: ' . json_encode($input),
-        ]);
-        
-        \Log::info('sendgrid webhook', [
+        if (is_null($jobUuid)) {
+            return response()->json([
+                'message' => 'success',
+            ]);
+        }
+
+        \Log::info('webhook sendgrid', [
             'input' => $input,
             'event' => $status,
             'job_uuid' => $jobUuid,
             'sg_message_id' => $sgMessageId,
         ]);
 
-        if (is_null($jobUuid)) {
-            return response()->json([
-                'message' => 'success',
-            ]);
-        }
+        DebugLog::create([
+            'class' => __CLASS__,
+            'log' => 'SendGrid webhook received: ' . json_encode($input),
+        ]);
 
         $emailLog = EmailLog::where('job_uuid', $jobUuid)->first();
         if (is_null($emailLog)) {
