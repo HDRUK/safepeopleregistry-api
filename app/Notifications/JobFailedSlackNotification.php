@@ -24,7 +24,7 @@ class JobFailedSlackNotification extends Notification
         return (new SlackMessage)
             ->error()
             ->content("🚨 Safe People Registry Queue Job Failed ({$env}) 🚨")
-            ->attachment(function ($attachment) use ($job) {
+            ->attachment(function ($attachment) use ($job, $env) {
                 $attachment->fields([
                     'Environment' => $env,
                     'Job'        => get_class($job),
