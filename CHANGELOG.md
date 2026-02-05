@@ -1,3 +1,31 @@
+## [1.25.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.24.0...v1.25.0) (2026-02-05)
+
+### ✨ Features
+
+* **REGISTRY-2409:** Pending invites - search by invite date and email (#611) ([4e24f9f](https://github.com/HDRUK/safepeopleregistry-api/commit/4e24f9facf24dd5c01924010ec5196fb7ed55e58))
+* **REGISTRY-2417:** Training expiration notification & email (#604) ([ce84fe4](https://github.com/HDRUK/safepeopleregistry-api/commit/ce84fe45a1f48a03f83b30a93a6b3af52ff0c777))
+* **REGISTRY-2419:** Security expiration notification & email (#607) ([bbdb17d](https://github.com/HDRUK/safepeopleregistry-api/commit/bbdb17df3841e1deedad8060de65278d56fc59dc))
+* **REGISTRY-2420:** History for Organisation (#615) ([ef0acb7](https://github.com/HDRUK/safepeopleregistry-api/commit/ef0acb71d4df80cedd5e470bbc0f4c954b1c5d7e))
+* **REGISTRY-2439:** checking email (#614) ([f5cc82c](https://github.com/HDRUK/safepeopleregistry-api/commit/f5cc82c5124df465a480169fb404a3e878020196))
+* **REGISTRY-2476:** addtions to search (#633) ([c5f1640](https://github.com/HDRUK/safepeopleregistry-api/commit/c5f16401dc31c1728a40e30b7efcdf03a59d44f3))
+* **REGISTRY-2481:** Create table for sent email history (#624) ([4ae165d](https://github.com/HDRUK/safepeopleregistry-api/commit/4ae165d186512ed4246dd5ec1d49e9185ea9ecef))
+* **REGISTRY-2483:** get endpoint for email log (#629) ([4362d0f](https://github.com/HDRUK/safepeopleregistry-api/commit/4362d0f2837a23b77e8a2a3cd4a40dc370c2a03d))
+* **REGISTRY-2484:** Integrate with sendgrid for getting data out using a message-id (#626) ([3a17b9b](https://github.com/HDRUK/safepeopleregistry-api/commit/3a17b9bd5c15b91d725cf0d6973ec827f33eef6e))
+* **REGISTRY-2484:** Integrate with sendgrid for getting data out using a message-id (#630) ([589d43e](https://github.com/HDRUK/safepeopleregistry-api/commit/589d43ea96b05b39f4d175703b611d4ab226062e))
+* **REGISTRY-2485:** remove throw error (#636) ([bb714c3](https://github.com/HDRUK/safepeopleregistry-api/commit/bb714c31a9d691a4f6882f24f86cf9773c66fd65))
+* **REGISTRY-2486:** sendgid webhook (#635) ([2dc72fa](https://github.com/HDRUK/safepeopleregistry-api/commit/2dc72fa2f45b49f62f20bd26b43b85c98c9af1a9))
+* **REGISTRY-2487:** retrigger a failed email via an endpoint (#627) ([55aeadf](https://github.com/HDRUK/safepeopleregistry-api/commit/55aeadf6d8b9f7892b7bcbca0f345c06928095ad))
+* **REGISTRY-2500:** failed jobs slack notifcation (#631) ([d710c4f](https://github.com/HDRUK/safepeopleregistry-api/commit/d710c4f776f97efc4aef4d09216f437616b45843))
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-0000:** Custodian ID for custodian user (#608) ([29cacc9](https://github.com/HDRUK/safepeopleregistry-api/commit/29cacc9c13a5b2efd24f21846f08b3997b79b0f6))
+* **REGISTRY-0000:** update config (#634) ([6b1fdd8](https://github.com/HDRUK/safepeopleregistry-api/commit/6b1fdd873e6aac6198107523ee1fc26337244775))
+* **REGISTRY-0000:** Update dockerfile (#632) ([cf8fad3](https://github.com/HDRUK/safepeopleregistry-api/commit/cf8fad37dc94fb60b453f0f06ba6a7f7cd1bba5c))
+* **REGISTRY-2436:** Stopped  ORCiD scanner thing - temp (#609) ([42909d3](https://github.com/HDRUK/safepeopleregistry-api/commit/42909d3c09ac7bf8e914eb15b36654c427e609f1))
+* **REGISTRY-2440:** Change email > failure to send email (#610) ([0030cbd](https://github.com/HDRUK/safepeopleregistry-api/commit/0030cbd5c3e5b4c479b335be1e8c81ccc23cfcd4))
+* **REGISTRY-2467:** re-implements the validate endpoint for custodian… (#616) ([ed7f342](https://github.com/HDRUK/safepeopleregistry-api/commit/ed7f3421b2ef676a3f98268dd82999ff994e5dca))
+
 ## [1.24.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.23.0...v1.24.0) (2026-01-12)
 
 ### ✨ Features
