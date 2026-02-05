@@ -99,12 +99,12 @@ return [
     */
 
     'trim' => [
-        'recent' => 1440,
-        'pending' => 1440,
-        'completed' => 1440,
-        'recent_failed' => 20160,
-        'failed' => 43200,
-        'monitored' => 20160,
+        'recent' => 60,
+        'pending' => 60,
+        'completed' => 60,
+        'recent_failed' => 10080,
+        'failed' => 10080,
+        'monitored' => 10080,
     ],
 
     /*
@@ -166,7 +166,7 @@ return [
     |
     */
 
-    'memory_limit' => 256,
+    'memory_limit' => 64,
 
     /*
     |--------------------------------------------------------------------------
@@ -185,10 +185,8 @@ return [
             'queue' => ['default'],
             'balance' => 'auto',
             'autoScalingStrategy' => 'time',
-            'maxProcesses' => 5,
+            'maxProcesses' => 1, // Will be overridden by environments
             'minProcesses' => 1,
-            'balanceMaxShift' => 1,
-            'balanceCooldown' => 3,
             'maxTime' => 0,
             'maxJobs' => 0,
             'memory' => 128,
@@ -203,9 +201,8 @@ return [
             'supervisor-1' => [
                 'maxProcesses' => 10,
                 'minProcesses' => 2,
-                'balanceMaxShift' => 2,
-                'balanceCooldown' => 5,
-                'memory' => 256,
+                'balanceMaxShift' => 1,
+                'balanceCooldown' => 3,
             ],
         ],
 
@@ -213,7 +210,6 @@ return [
             'supervisor-1' => [
                 'maxProcesses' => 5,
                 'minProcesses' => 1,
-                'memory' => 128,
             ],
         ],
 
@@ -221,9 +217,6 @@ return [
             'supervisor-1' => [
                 'maxProcesses' => 5,
                 'minProcesses' => 1,
-                'balanceMaxShift' => 1,
-                'balanceCooldown' => 5,
-                'memory' => 128,
             ],
         ],
 
@@ -232,9 +225,7 @@ return [
                 'maxProcesses' => 5,
                 'minProcesses' => 1,
                 'balanceMaxShift' => 1,
-                'balanceCooldown' => 5,
-                'memory' => 128,
+                'balanceCooldown' => 3,
             ],
         ],
-    ],
-];
+    ],];
