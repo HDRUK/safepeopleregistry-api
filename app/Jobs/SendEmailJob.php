@@ -24,7 +24,7 @@ class SendEmailJob implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    public $to = [];
+    public array $to = [];
     public $by = null;
     private $template = null;
     private $replacements = [];
@@ -65,28 +65,27 @@ class SendEmailJob implements ShouldQueue
         $sentMessage = null;
         $jobUuid = $this->job->uuid();
 
-        DebugLog::create([
-            'class' => __CLASS__,
-            'log' => 'SendEmailJob started for: ' . json_encode($this->to),
-        ]);
-
-        if (config('mail.default') === 'smtp' || config('mail.default') === 'sendgrid') {
-            $email = new Email($this->to['id'], $this->template, $this->replacements, $this->address);
-            $html = $email->getRenderedHtml();
-
-            $checkEmailLog = EmailLog::where('job_uuid', $jobUuid)->first();
-            if (is_null($checkEmailLog)) {
-                EmailLog::create([
-                    'to' => $this->to['email'],
-                    'subject' => $this->template['subject'],
-                    'template' => $this->template['identifier'],
-                    'body' => $html,
-                    'job_uuid' => $jobUuid,
-                ]);
-            }
-        }
-
         try {
+            DebugLog::create([
+                'class' => __CLASS__,
+                'log' => 'SendEmailJob started for: ' . json_encode($this->to),
+            ]);
+
+            if (config('mail.default') === 'smtp' || config('mail.default') === 'sendgrid') {
+                $email = new Email($this->to['id'], $this->template, $this->replacements, $this->address);
+                $html = $email->getRenderedHtml();
+
+                $checkEmailLog = EmailLog::where('job_uuid', $jobUuid)->first();
+                if (is_null($checkEmailLog)) {
+                    EmailLog::create([
+                        'to' => $this->to['email'],
+                        'subject' => $this->template['subject'],
+                        'template' => $this->template['identifier'],
+                        'body' => $html,
+                        'job_uuid' => $jobUuid,
+                    ]);
+                }
+            }
             switch (config('mail.default')) {
                 case 'exchange':
                     $this->mgs = new MicrosoftGraphService();
