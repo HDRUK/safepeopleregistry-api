@@ -1,3 +1,13 @@
+## [1.26.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.25.1...v1.26.0) (2026-02-05)
+
+### ✨ Features
+
+* **REGISTRY-0000:** order by email logs (#641) ([03358e7](https://github.com/HDRUK/safepeopleregistry-api/commit/03358e7dff9b9dba9164ab11c625aa3e1cb47c6f))
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-0000:** extend try and catch email job (#640) ([34ba46f](https://github.com/HDRUK/safepeopleregistry-api/commit/34ba46f478de5b1ef8e32ec3722a46134a3e2346))
+
 ## [1.25.1](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.25.0...v1.25.1) (2026-02-05)
 
 ### 🐛 Bug Fixes
