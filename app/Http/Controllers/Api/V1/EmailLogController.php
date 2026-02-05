@@ -44,7 +44,8 @@ class EmailLogController extends Controller
         })
         ->when($request->filled('message_status'), function ($q) use ($request) {
             $q->where('message_status', $request->get('message_status'));
-        })        
+        })
+        ->orderBy('updated_at', 'desc')
         ->paginate($perPage);
 
         return $this->OKResponse($logs);
