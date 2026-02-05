@@ -61,43 +61,43 @@ class SentHtmlEmalJob implements ShouldQueue
         $sentMessage = null;
         $jobUuid = $this->job->uuid();
 
-        try {
-            $emailLog = EmailLog::find($this->id);
-            if (is_null($emailLog)) {
-                DebugLog::create([
-                    'class' => __CLASS__,
-                    'log' => 'SentHtmlEmalJob No email log found for id ' . $this->id . '. The job will exit without sending email.',
-                ]);
-
-                return;
-            }
-
-            $to = $emailLog->to;
-            $subject = $emailLog->subject;
-            $htmlBody = $emailLog->body;
-            $template = $emailLog->template;
-
-            $checkEmailLog = EmailLog::where('job_uuid', $jobUuid)->first();
-            if (is_null($checkEmailLog)) {
-                EmailLog::create([
-                    'to' => $to,
-                    'subject' => $subject,
-                    'template' => $template,
-                    'body' => $htmlBody,
-                    'job_uuid' => $jobUuid,
-                ]);
-            }
-
+        $emailLog = EmailLog::find($this->id);
+        if (is_null($emailLog)) {
             DebugLog::create([
                 'class' => __CLASS__,
-                'log' => 'SentHtmlEmalJob prepare for sending email : ' . json_encode([
-                    'id' => $this->id,
-                    'subject' => $subject,
-                    'to' => $to,
-                    // 'htmlBody' => $htmlBody, // commented out to avoid logging large content
-                ]),
+                'log' => 'SentHtmlEmalJob No email log found for id ' . $this->id . '. The job will exit without sending email.',
             ]);
 
+            return;
+        }
+
+        $to = $emailLog->to;
+        $subject = $emailLog->subject;
+        $htmlBody = $emailLog->body;
+        $template = $emailLog->template;
+
+        $checkEmailLog = EmailLog::where('job_uuid', $jobUuid)->first();
+        if (is_null($checkEmailLog)) {
+            EmailLog::create([
+                'to' => $to,
+                'subject' => $subject,
+                'template' => $template,
+                'body' => $htmlBody,
+                'job_uuid' => $jobUuid,
+            ]);
+        }
+
+        DebugLog::create([
+            'class' => __CLASS__,
+            'log' => 'SentHtmlEmalJob prepare for sending email : ' . json_encode([
+                'id' => $this->id,
+                'subject' => $subject,
+                'to' => $to,
+                // 'htmlBody' => $htmlBody, // commented out to avoid logging large content
+            ]),
+        ]);
+
+        try {
             switch (config('mail.default')) {
                 case 'smtp':
                     $sentMessage = Mail::to($to)->send(

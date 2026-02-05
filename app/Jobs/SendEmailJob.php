@@ -24,7 +24,7 @@ class SendEmailJob implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    public $to = [];
+    public array $to = [];
     public $by = null;
     private $template = null;
     private $replacements = [];
@@ -86,7 +86,6 @@ class SendEmailJob implements ShouldQueue
                     ]);
                 }
             }
-
             switch (config('mail.default')) {
                 case 'exchange':
                     $this->mgs = new MicrosoftGraphService();
@@ -136,6 +135,7 @@ class SendEmailJob implements ShouldQueue
 
             throw $e;
         }
+
 
         DebugLog::create([
             'class' => __CLASS__,
