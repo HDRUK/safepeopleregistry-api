@@ -1,3 +1,9 @@
+## [1.25.1](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.25.0...v1.25.1) (2026-02-05)
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-0000:** revert update cache (#638) ([83025ff](https://github.com/HDRUK/safepeopleregistry-api/commit/83025ff42f6b9ff55e50263156176f13b540c99b))
+
 ## [1.25.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.24.0...v1.25.0) (2026-02-05)
 
 ### ✨ Features
