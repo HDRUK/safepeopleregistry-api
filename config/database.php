@@ -157,10 +157,6 @@ return [
             'password' => env('REDIS_PASSWORD'),
             'port' => env('REDIS_PORT', '6379'),
             'database' => env('REDIS_DB', '0'),
-            'read_timeout' => 60, 
-            'timeout' => 2,
-            'persistent' => env('REDIS_PERSISTENT', false),
-            'retry_interval' => 100,
         ],
 
         'cache' => [
@@ -170,48 +166,16 @@ return [
             'password' => env('REDIS_PASSWORD'),
             'port' => env('REDIS_PORT', '6379'),
             'database' => env('REDIS_CACHE_DB', '1'),
-            'read_timeout' => 10,
-            'timeout' => 2,
-            'persistent' => env('REDIS_PERSISTENT', false),
         ],
 
         'session' => [
             'url' => env('REDIS_URL'),
             'host' => env('REDIS_HOST', '127.0.0.1'),
             'username' => env('REDIS_USERNAME'),
-            'password' => env('REDIS_PASSWORD'),
+            'password' => env('REDIS_PASSWORD', null),
             'port' => env('REDIS_PORT', '6379'),
-            'database' => env('REDIS_SESSION_DB', '2'),
-            'prefix' => env('REDIS_SESSION_PREFIX', 's:'),
-            'read_timeout' => 10,
-            'timeout' => 2,
-            'persistent' => env('REDIS_PERSISTENT', false),
-        ],
-
-        'queue' => [
-            'url' => env('REDIS_URL'),
-            'host' => env('REDIS_HOST', '127.0.0.1'),
-            'username' => env('REDIS_USERNAME'),
-            'password' => env('REDIS_PASSWORD'),
-            'port' => env('REDIS_PORT', '6379'),
-            'database' => env('REDIS_QUEUE_DB', '3'),
-            'read_timeout' => 60,
-            'timeout' => 2,
-            'persistent' => env('REDIS_PERSISTENT', false),
-            'retry_interval' => 100,
-        ],
-
-        'horizon' => [
-            'url' => env('REDIS_URL'),
-            'host' => env('REDIS_HOST', '127.0.0.1'),
-            'username' => env('REDIS_USERNAME'),
-            'password' => env('REDIS_PASSWORD'),
-            'port' => env('REDIS_PORT', '6379'),
-            'database' => env('REDIS_HORIZON_DB', '4'),
-            'read_timeout' => 30,
-            'timeout' => 2,
-            'persistent' => env('REDIS_PERSISTENT', false),
-            'retry_interval' => 100,
+            'database' => 0,
+            'prefix' => 's:'
         ],
 
     ],
