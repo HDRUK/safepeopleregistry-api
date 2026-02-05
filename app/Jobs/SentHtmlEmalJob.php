@@ -87,18 +87,17 @@ class SentHtmlEmalJob implements ShouldQueue
             ]);
         }
 
+        DebugLog::create([
+            'class' => __CLASS__,
+            'log' => 'SentHtmlEmalJob prepare for sending email : ' . json_encode([
+                'id' => $this->id,
+                'subject' => $subject,
+                'to' => $to,
+                // 'htmlBody' => $htmlBody, // commented out to avoid logging large content
+            ]),
+        ]);
+
         try {
-
-            DebugLog::create([
-                'class' => __CLASS__,
-                'log' => 'SentHtmlEmalJob prepare for sending email : ' . json_encode([
-                    'id' => $this->id,
-                    'subject' => $subject,
-                    'to' => $to,
-                    // 'htmlBody' => $htmlBody, // commented out to avoid logging large content
-                ]),
-            ]);
-
             switch (config('mail.default')) {
                 case 'smtp':
                     $sentMessage = Mail::to($to)->send(
