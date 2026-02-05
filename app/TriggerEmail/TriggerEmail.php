@@ -64,7 +64,10 @@ class TriggerEmail
         $organisationId = isset($input['organisationId']) ? $input['organisationId'] : null;
         $projectId = isset($input['projectId']) ? $input['projectId'] : null;
         $typeInvite = isset($input['typeInvite']) ? $input['typeInvite'] : null;
-
+        $userId = isset($input['userId']) ? $input['userId'] : null;
+        $typeName = isset($input['typeName']) ? $input['typeName'] : null;
+        $expiryDate = isset($input['expiryDate']) ? $input['expiryDate'] : null;
+        $typeCode = isset($input['typeCode']) ? $input['typeCode'] : null;
 
         switch (strtoupper($type)) {
             case 'AFFILIATION':
@@ -73,8 +76,8 @@ class TriggerEmail
                     return;
                 }
 
-                $user = User::where('id', $to)->first();
                 $template = EmailTemplate::where('identifier', $identifier)->first();
+                $user = User::where('id', $to)->first();
 
                 $newRecipients = [
                     'id' => $user->id,
@@ -89,8 +92,8 @@ class TriggerEmail
                 ];
                 break;
             case 'USER_WITHOUT_ORGANISATION':
-                $user = User::where('id', $to)->first();
                 $template = EmailTemplate::where('identifier', $identifier)->first();
+                $user = User::where('id', $to)->first();
 
                 $newRecipients = [
                     'id' => $user->id,
@@ -116,9 +119,9 @@ class TriggerEmail
 
                 break;
             case 'USER':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
                 $user = User::where('id', $to)->first();
                 $organisation = Organisation::where('id', $by)->first();
-                $template = EmailTemplate::where('identifier', $identifier)->first();
                 $custodian = $custodianId ? User::where('id', $custodianId)->first() : null;
 
                 $newRecipients = [
@@ -151,10 +154,9 @@ class TriggerEmail
 
                 break;
             case 'USER_DELEGATE':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
                 $delegate = User::where('id', $to)->first();
                 $organisation = Organisation::where('id', $by)->first();
-                $template = EmailTemplate::where('identifier', $identifier)->first();
-
 
                 $newRecipients = [
                     'id' => $delegate->id,
@@ -191,8 +193,8 @@ class TriggerEmail
 
                 break;
             case 'CUSTODIAN':
-                $custodian = Custodian::where('id', $to)->first();
                 $template = EmailTemplate::where('identifier', $identifier)->first();
+                $custodian = Custodian::where('id', $to)->first();
 
                 $newRecipients = [
                     'id' => $custodian->id,
@@ -218,6 +220,7 @@ class TriggerEmail
 
                 break;
             case 'CUSTODIAN_USER':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
                 $custodianUser = CustodianUser::with('userPermissions.permission')->where('id', $to)->first();
                 $custodian = Custodian::where('id', $custodianUser->custodian_id)->first();
                 $user = User::where('id', $unclaimedUserId)->first();
@@ -228,8 +231,6 @@ class TriggerEmail
                     $permission = Permission::where('id', $custodianUser->userPermissions[0]->permission_id)->first();
                     $role_description = "as an $permission->description";
                 }
-
-                $template = EmailTemplate::where('identifier', $identifier)->first();
 
                 $newRecipients = [
                     'id' => $custodianUser->id,
@@ -262,8 +263,8 @@ class TriggerEmail
 
                 break;
             case 'ORGANISATION':
-                $organisation = Organisation::where('id', $to)->first();
                 $template = EmailTemplate::where('identifier', $identifier)->first();
+                $organisation = Organisation::where('id', $to)->first();
 
                 $newRecipients = [
                     'id' => $organisation->id,
@@ -426,6 +427,103 @@ class TriggerEmail
                 ]);
 
                 break;
+            case 'USER_WARNING_TRAINING_EXPIRE':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $user = User::where('id', $to)->first();
+
+                $newRecipients = [
+                    'id' => $to,
+                    'email' => $user->email,
+                ];
+
+                $replacements = [
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[TRAINING_EXPIRE_DAYS]]' => config('speedi.system.training_expire_days'),
+                ];
+
+                break;
+
+            case 'USER_TRAINING_EXPIRED':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $user = User::where('id', $to)->first();
+                $userTraining = User::where('id', $userId)->first();
+
+                $newRecipients = [
+                    'id' => $to,
+                    'email' => $user->email,
+                ];
+
+                $replacements = [
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                ];
+
+                break;
+
+            case 'CUST_ORG_TRAINING_EXPIRED':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $user = User::where('id', $to)->first();
+                $userTraining = User::where('id', $userId)->first();
+
+                $newRecipients = [
+                    'id' => $to,
+                    'email' => $user->email,
+                ];
+
+                $replacements = [
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[training_user_name]]' => $userTraining-> first_name . ' ' . $userTraining->last_name,
+                ];
+
+                break;
+
+            case 'ORG_SECURITY_COMPLIANCE_EXPIRED':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $user = User::where('id', $to)->first();
+
+                $newRecipients = [
+                    'id' => $to,
+                    'email' => $user->email,
+                ];
+
+                $replacements = [
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[security_compliance_name]]' => $typeName,
+                    '[[security_compliance_code]]' => $typeCode,
+                    '[[security_compliance_expiry_date]]' => $expiryDate,
+                ];
+
+                break;
+
+            case 'CUST_SECURITY_COMPLIANCE_EXPIRED':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $user = User::where('id', $to)->first();
+                $organisation = Organisation::where('id', $organisationId)->first();
+
+                $newRecipients = [
+                    'id' => $to,
+                    'email' => $user->email,
+                ];
+
+                $replacements = [
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[security_compliance_name]]' => $typeName,
+                    '[[security_compliance_code]]' => $typeCode,
+                    '[[security_compliance_expiry_date]]' => $expiryDate,
+                    '[[organisation_name]]' => $organisation->organisation_name,
+                ];
+
+                break;
+
             default: // Unknown type.
                 break;
         }

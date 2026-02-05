@@ -2,7 +2,6 @@
 
 namespace App\OrcID;
 
-use Config;
 use Http;
 use Exception;
 use App\Models\User;
@@ -14,9 +13,9 @@ class OrcID
 {
     public function getAuthoriseUrl(): string
     {
-        $url = Config::get('speedi.system.orcid_auth_url') . 'oauth/authorize?client_id=' .
-        Config::get('speedi.system.orcid_app_id') . '&response_type=token&' .
-            'scope=openid&redirect_uri=' . Config::get('speedi.system.orcid_redirect_url');
+        $url = config('speedi.system.orcid_auth_url') . 'oauth/authorize?client_id=' .
+        config('speedi.system.orcid_app_id') . '&response_type=token&' .
+            'scope=openid&redirect_uri=' . config('speedi.system.orcid_redirect_url');
 
         return $url;
     }
@@ -32,14 +31,14 @@ class OrcID
         try {
             $ch = curl_init();
 
-            curl_setopt($ch, CURLOPT_URL, Config::get('speedi.system.orcid_auth_url') . 'oauth/token');
+            curl_setopt($ch, CURLOPT_URL, config('speedi.system.orcid_auth_url') . 'oauth/token');
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt(
                 $ch,
                 CURLOPT_POSTFIELDS,
-                'client_id=' . Config::get('speedi.system.orcid_app_id') . '&' .
-                'client_secret=' . Config::get('speedi.system.orcid_client_secret') . '&' .
+                'client_id=' . config('speedi.system.orcid_app_id') . '&' .
+                'client_secret=' . config('speedi.system.orcid_client_secret') . '&' .
                 'scope=/read-public&' .
                 'grant_type=client_credentials'
             );
@@ -81,7 +80,9 @@ class OrcID
             ]);
 
             if ($token) {
-                OrcIDScanner::dispatch($user);
+                // The OrcID scanner has been temporarily stopped.
+                \Log::info('OrcID scanner - temporarily stopped');
+                // OrcIDScanner::dispatch($user);
                 return true;
             }
 
@@ -89,7 +90,9 @@ class OrcID
         }
 
         if ($token->update(['api_details' => json_decode($input['payload'])])) {
-            OrcIDScanner::dispatch($user);
+            // The OrcID scanner has been temporarily stopped.
+            \Log::info('OrcID scanner - temporarily stopped');
+            // OrcIDScanner::dispatch($user);
             return true;
         }
 
@@ -98,7 +101,7 @@ class OrcID
 
     public function getOrcIDRecord(string $token, string $orcid, string $record): array
     {
-        $url = Config::get('speedi.system.orcid_public_url') . 'v3.0/'.$orcid.'/'.$record;
+        $url = config('speedi.system.orcid_public_url') . 'v3.0/'.$orcid.'/'.$record;
         $headers = [
             'Authorization' => 'Bearer '.$token,
             'Accept' => 'application/json',

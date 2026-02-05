@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Http;
+use Keycloak;
 use Carbon\Carbon;
 use Tests\TestCase;
 use App\Models\User;
@@ -387,14 +388,33 @@ class UserTest extends TestCase
             $this->assertNull($actionLog['completed_at']);
 
 
-            $response = $this->actingAs($this->admin)
+            $currUser = User::where('id', $content)->first();
+
+            $newEmail = fake()->email();
+
+            Http::fake([
+                '*' => Http::response([
+                    'access_token' => 'fake-access-token',
+                    'token_type' => 'Bearer',
+                    'expires_in' => 300,
+                ], 200),
+            ]);
+
+            // Mock Keycloak Facade
+            Keycloak::shouldReceive('searchUserByEmail')
+                ->andReturnUsing(function () {
+                    return [];
+                });
+
+
+            $response = $this->actingAs($currUser)
                 ->json(
                     'PUT',
                     self::TEST_URL . '/' . $content,
                     [
                         'first_name' => 'Updated',
                         'last_name' => 'Name',
-                        'email' => fake()->email(),
+                        'email' => $newEmail,
                         'declaration_signed' => true,
                         'organisation_id' => 2,
                         'location' => 1
@@ -427,6 +447,25 @@ class UserTest extends TestCase
             );
         });
     }
+
+    // protected function mockKeycloakAndRMC($emailAvailable)
+    // {
+    //     Http::fake([
+    //         '*/realms/*/protocol/openid-connect/token' => Http::response([
+    //             'access_token' => 'fake-access-token',
+    //             'token_type' => 'Bearer',
+    //             'expires_in' => 300,
+    //         ], 200),
+    //     ]);
+
+    //     // Mock RMC::checkingUserEmail to return false (email already exists)
+    //     $this->partialMock(RMC::class, function ($mock) {
+    //         $mock->shouldReceive('checkingUserEmail')
+    //             ->once()
+    //             ->with('fake-access-token', 'existing@example.com')
+    //             ->andReturn(true);
+    //     });
+    // }
 
     public function test_the_application_can_update_users_with_no_success(): void
     {
@@ -528,14 +567,32 @@ class UserTest extends TestCase
                 'completed_at' => null,
             ]);
 
-            $response = $this->actingAs($this->admin)
+            $currUser = User::where('id', $id)->first();
+
+            $newEmail = fake()->email();
+
+            Http::fake([
+                '*' => Http::response([
+                    'access_token' => 'fake-access-token',
+                    'token_type' => 'Bearer',
+                    'expires_in' => 300,
+                ], 200),
+            ]);
+
+            // Mock Keycloak Facade
+            Keycloak::shouldReceive('searchUserByEmail')
+                ->andReturnUsing(function () {
+                    return [];
+                });
+
+            $response = $this->actingAs($currUser)
                 ->json(
                     'PUT',
                     self::TEST_URL . '/' . $id,
                     [
                         'first_name' => 'Updated',
                         'last_name' => 'Name',
-                        'email' => fake()->email(),
+                        'email' => $newEmail,
                     ]
                 );
 
@@ -553,7 +610,7 @@ class UserTest extends TestCase
             $testTime = Carbon::now();
             Carbon::setTestNow($testTime);
 
-            $response = $this->actingAs($this->admin)
+            $response = $this->actingAs($currUser)
                 ->json(
                     'PUT',
                     self::TEST_URL . '/' . $id,
@@ -810,5 +867,157 @@ class UserTest extends TestCase
         $message = $responseUser->decodeResponseJson()['message'];
 
         $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_application_update_email_no_user_id_no_success(): void
+    {
+        $latestUserId = User::query()
+            ->orderBy('id', 'desc')
+            ->first();
+        $userIdTest = $latestUserId->id + 1;
+
+        $responseUser = $this->actingAs($this->admin)
+            ->json(
+                'PUT',
+                self::TEST_URL . '/' . $userIdTest . '/keycloak/update_email',
+                [
+                    'email' => fake()->email(),
+                ]
+            );
+
+        $responseUser->assertStatus(400);
+        $message = $responseUser->decodeResponseJson()['message'];
+
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
+    public function test_application_update_email_user_id_not_match_no_success(): void
+    {
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
+                    'first_name' => fake()->firstname(),
+                    'last_name' => fake()->lastname(),
+                    'email' => fake()->email(),
+                    'provider' => fake()->word(),
+                    'provider_sub' => Str::random(10),
+                    'public_opt_in' => fake()->randomElement([0, 1]),
+                    'declaration_signed' => fake()->randomElement([0, 1]),
+                ]
+            );
+
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
+
+        $userId = $response->decodeResponseJson()['data'];
+
+        $responseUser = $this->actingAs($this->admin)
+            ->json(
+                'PUT',
+                self::TEST_URL . '/' . $userId . '/keycloak/update_email',
+                [
+                    'email' => fake()->email(),
+                ]
+            );
+        $responseUser->assertStatus(403);
+    }
+
+    public function test_application_update_email_user_id_same_email_no_success(): void
+    {
+        $email = fake()->email();
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
+                    'first_name' => fake()->firstname(),
+                    'last_name' => fake()->lastname(),
+                    'email' => $email,
+                    'provider' => fake()->word(),
+                    'provider_sub' => Str::random(10),
+                    'public_opt_in' => fake()->randomElement([0, 1]),
+                    'declaration_signed' => fake()->randomElement([0, 1]),
+                ]
+            );
+
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
+
+        $userId = $response->decodeResponseJson()['data'];
+        $user = User::where('id', $userId)->first();
+
+        $responseUser = $this->actingAs($user)
+            ->json(
+                'PUT',
+                self::TEST_URL . '/' . $userId . '/keycloak/update_email',
+                [
+                    'email' => $email,
+                ]
+            );
+        $responseUser->assertStatus(409);
+    }
+
+    public function test_application_update_email_with_success(): void
+    {
+        $initEmail = fake()->email();
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'POST',
+                self::TEST_URL,
+                [
+                    'first_name' => fake()->firstname(),
+                    'last_name' => fake()->lastname(),
+                    'email' => $initEmail,
+                    'provider' => fake()->word(),
+                    'provider_sub' => Str::random(10),
+                    'public_opt_in' => fake()->randomElement([0, 1]),
+                    'declaration_signed' => fake()->randomElement([0, 1]),
+                ]
+            );
+
+        $response->assertStatus(201);
+        $this->assertArrayHasKey('data', $response);
+
+        $userId = $response->decodeResponseJson()['data'];
+        User::where('id', $userId)->update([
+            'keycloak_id' => 'keycloak-user-123',
+        ]);
+        $user = User::where('id', $userId)->first();
+        $newEmail = fake()->userName() . '@gmail.com';
+
+        Http::fake([
+                '*' => Http::response([
+                    'access_token' => 'fake-access-token',
+                    'token_type' => 'Bearer',
+                    'expires_in' => 300,
+                ], 200),
+            ]);
+
+        Keycloak::shouldReceive('searchUserByEmail')
+            ->once()
+            ->with('fake-access-token', $newEmail)
+            ->andReturn([]); // Email is available
+
+        Keycloak::shouldReceive('updateUserEmail')
+            ->once()
+            ->with('fake-access-token', 'keycloak-user-123', $newEmail)
+            ->andReturn(true);
+
+        Keycloak::shouldReceive('sendVerifyEmail')
+            ->once()
+            ->with('fake-access-token', 'keycloak-user-123')
+            ->andReturn(true);
+
+        $responseUser = $this->actingAs($user)
+            ->json(
+                'PUT',
+                self::TEST_URL . '/' . $userId . '/keycloak/update_email',
+                [
+                    'email' => $newEmail,
+                ]
+            );
+        $responseUser->assertStatus(200);
     }
 }

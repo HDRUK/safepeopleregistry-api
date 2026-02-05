@@ -1034,6 +1034,7 @@ class PermissionMatrixTest extends TestCase
             $routeKey = '[' . strtoupper($method) . '] ' . $route;
 
             foreach ($roles as $role => $expectedStatus) {
+
                 $user = $this->users[$role];
 
                 DB::beginTransaction();

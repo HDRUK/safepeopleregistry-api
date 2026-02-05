@@ -15,6 +15,7 @@ use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use App\Traits\AffiliationManager;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Notification;
 use App\Models\CustodianHasProjectOrganisation;
@@ -314,6 +315,16 @@ class AffiliationController extends Controller
                 $affiliation->setState(State::STATE_AFFILIATION_PENDING);
             }
 
+            activity('affiliation')
+                ->causedBy(Auth::user())
+                ->performedOn($affiliation)
+                ->withProperties([
+                    'id' => $affiliation->id,
+                    'attributes' => $affiliation,
+                ])
+                ->event('created')
+                ->log('created');
+
             return response()->json([
                 'message' => 'success',
                 'data' => $affiliation->id,
@@ -433,6 +444,7 @@ class AffiliationController extends Controller
         try {
             $input = $request->only(app(Affiliation::class)->getFillable());
             $affiliation = Affiliation::findOrFail($id);
+            $originalAffiliation = $affiliation->getOriginal();
 
             $unclaimed = $affiliation->organisation->unclaimed;
 
@@ -457,6 +469,17 @@ class AffiliationController extends Controller
             } else {
                 $affiliation->setState(State::STATE_AFFILIATION_PENDING);
             }
+
+            activity('affiliation')
+                ->causedBy(Auth::user())
+                ->performedOn($affiliation)
+                ->withProperties([
+                    'id' => $affiliation->id,
+                    'attributes' => $affiliation->getChanges(),
+                    'old' => $originalAffiliation,
+                ])
+                ->event('updated')
+                ->log('updated');
 
             return response()->json([
                 'message' => 'success',
@@ -559,7 +582,6 @@ class AffiliationController extends Controller
                 }
             }
 
-
             $array = [
                 'verification_code' => null,
                 'is_verified' => 1,
@@ -626,6 +648,30 @@ class AffiliationController extends Controller
     public function destroy(DeleteAffiliation $request, int $id): JsonResponse
     {
         try {
+            $loggedInUserId = $request->user()?->id;
+            $loggedUser = User::where('id', $loggedInUserId)->first();
+
+            $affiliation = Affiliation::where('id', $id)->first();
+
+            $causer = null;
+            if ($loggedUser->user_group === User::GROUP_USERS) {
+                $causer = $loggedUser;
+            }
+
+            if ($loggedUser->user_group === User::GROUP_ORGANISATIONS) {
+                $causer = Organisation::find($loggedUser->organisation_id);
+            }
+
+            activity('affiliation')
+                ->causedBy($causer)
+                ->performedOn($affiliation)
+                ->withProperties([
+                    'id' => $affiliation->id,
+                    'old' => $affiliation,
+                ])
+                ->event('deleted')
+                ->log('deleted');
+
             Affiliation::where('id', $id)->first()->delete();
 
             return response()->json([
@@ -675,6 +721,7 @@ class AffiliationController extends Controller
             }
 
             $newStateSlug = $statusSlugMap[$status];
+            $currentState = $affiliation->getState();
 
             if (!$affiliation->canTransitionTo($newStateSlug)) {
                 return $this->ErrorResponse(
@@ -693,6 +740,17 @@ class AffiliationController extends Controller
             }
 
             $affiliation->transitionTo($newStateSlug);
+
+            activity('affiliation')
+                ->causedBy(Auth::user())
+                ->performedOn(Organisation::find($loggedUserOrgId))
+                ->withProperties([
+                    'new'   => $newStateSlug,
+                    'old'   => $currentState,
+                    'user'  => User::where('registry_id', $registryId)->first()
+                ])
+                ->event('updated')
+                ->log('updated');
 
             // send notification
             $this->sendNotificationOnApprove($status, $registryId, $affiliation);

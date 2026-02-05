@@ -2,9 +2,11 @@
 
 namespace Tests\Feature;
 
+use Carbon\Carbon;
 use Tests\TestCase;
-use Tests\Traits\Authorisation;
 use App\Models\Affiliation;
+use App\Models\PendingInvite;
+use Tests\Traits\Authorisation;
 
 class PendingInviteTest extends TestCase
 {
@@ -54,12 +56,72 @@ class PendingInviteTest extends TestCase
                 'GET',
                 self::TEST_URL
             );
-        // dd($response);
 
         $response->assertStatus(200);
 
         $data = $response->decodeResponseJson()['data']['data'];
 
         $this->assertEquals(2, count($data));
+    }
+
+    public function test_the_application_can_search_pending_invites(): void
+    {
+        $inviteList = $this->generateListInvites();
+
+        foreach ($inviteList as $invite) {
+            $response = $this->inviteUser($invite);
+            $response->assertStatus(201);
+        }
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '?user_group=USERS'
+            );
+
+        $response->assertStatus(200);
+        $data = $response->decodeResponseJson()['data']['data'];
+        $this->assertEquals(3, count($data));
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '?email=' . $inviteList[0]['email']
+            );
+
+        $response->assertStatus(200);
+        $data = $response->decodeResponseJson()['data']['data'];
+        $this->assertEquals(1, count($data));
+
+        $currDate = Carbon::today()->format('Y-m-d');
+
+        PendingInvite::where('id', 1)->update([
+            'invite_sent_at' => Carbon::now()->subDay(),
+        ]);
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '?invite_sent_at=' . $currDate
+            );
+
+        $response->assertStatus(200);
+        $data = $response->decodeResponseJson()['data']['data'];
+        $this->assertEquals(2, count($data));
+    }
+
+    private function generateListInvites()
+    {
+        $response = [];
+
+        for ($x = 0; $x <= 2; $x++) {
+            $response[] = [
+                'first_name' => fake()->firstName(),
+                'last_name' => fake()->lastName(),
+                'email' => fake()->email(),
+            ];
+        }
+
+        return $response;
+
     }
 }

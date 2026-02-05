@@ -1,5 +1,7 @@
 <?php
 
+use Carbon\Carbon;
+
 if (!function_exists('convertStates')) {
     function convertStates($state)
     {
@@ -79,5 +81,57 @@ if (!function_exists('crockfordToNumeric')) {
         }
 
         return $numericValue;
+    }
+}
+
+if (!function_exists('isValidDate')) {
+    /**
+     * Check if a string is a valid date in the specified format.
+     *
+     * @param string $date The date string to validate
+     * @param string $format The expected date format (default: 'Y-m-d')
+     * @return bool True if the date is valid, false otherwise
+     *
+     * @example
+     * isValidDate('2026-01-14'); // returns true
+     * isValidDate('2026-13-45'); // returns false
+     * isValidDate('14/01/2026', 'd/m/Y'); // returns true
+     */
+    function isValidDate(string $date, string $format = 'Y-m-d'): bool
+    {
+        return Carbon::canBeCreatedFromFormat($date, $format);
+    }
+}
+
+if (!function_exists('getHeaderValue')) {
+    /**
+     * Extract the value from an array of HTTP headers by searching for a specific header name.
+     *
+     * Searches through an array of header strings (format: "Header-Name: value") and returns
+     * the value portion when the header name matches the search value. The search is case-insensitive.
+     *
+     * @param array $headers Array of header strings in "name: value" format
+     * @param string $searchValue The header name to search for (e.g., 'X-Message-Id')
+     * @return string|null The header value if found, null otherwise
+     *
+     * @example
+     * $headers = ['Content-Type: application/json', 'X-Message-Id: abc123'];
+     * getHeaderValue($headers, 'x-message-id'); // Returns: 'abc123'
+     */
+    function getHeaderValue(array $headers, string $searchValue)
+    {
+        $response = null;
+
+        foreach ($headers as $value) {
+            if (str_starts_with(strtolower($value), strtolower($searchValue))) {
+                $parts = explode(':', $value, 2);
+                if (count($parts) === 2) {
+                    $response = trim($parts[1]);
+                    break;
+                }
+            }
+        }
+
+        return $response;
     }
 }

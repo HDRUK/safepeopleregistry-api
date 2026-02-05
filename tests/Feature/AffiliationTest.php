@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Carbon\Carbon;
 use Tests\TestCase;
+use App\Models\User;
 use App\Models\Registry;
 use App\Models\Affiliation;
 use App\Models\Organisation;
@@ -141,7 +142,9 @@ class AffiliationTest extends TestCase
 
     public function test_the_application_can_update_an_affiliation(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $user = User::find(1);
+
+        $response = $this->actingAs($user)
             ->json(
                 'PUT',
                 self::TEST_URL . '/1',
@@ -181,7 +184,9 @@ class AffiliationTest extends TestCase
 
     public function test_the_application_can_delete_an_affiliation(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $user = User::find(1);
+
+        $response = $this->actingAs($user)
             ->json(
                 'DELETE',
                 self::TEST_URL . '/1'
@@ -215,29 +220,28 @@ class AffiliationTest extends TestCase
             );
         $response->assertStatus(500);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->organisation_admin)
             ->json(
                 'PUT',
                 self::TEST_URL . '/1/affiliation/1?status=approved'
             );
         $response->assertStatus(200);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->organisation_admin)
             ->json(
                 'PUT',
                 self::TEST_URL . '/1/affiliation/1?status=rejected'
             );
         $response->assertStatus(200);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->organisation_admin)
             ->json(
                 'PUT',
                 self::TEST_URL . '/1/affiliation/1?status=rejected'
             );
         $response->assertStatus(config('workflow.transitions.enforced') ? 500 : 200);
 
-
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAs($this->organisation_admin)
             ->json(
                 'PUT',
                 self::TEST_URL . '/1/affiliation/999?status=rejected'

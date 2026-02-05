@@ -24,7 +24,7 @@ use App\Models\UserHasDepartments;
 use App\Traits\TracksModelChanges;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Users\GetUser;
-use App\Http\Requests\Users\UpdateUserKeycloak;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\Users\CreateUser;
 use App\Http\Requests\Users\DeleteUser;
@@ -33,6 +33,7 @@ use RegistryManagementController as RMC;
 use App\Models\UserHasCustodianPermission;
 use App\Http\Requests\Users\GetUserProject;
 use Illuminate\Support\Facades\Notification;
+use App\Http\Requests\Users\UpdateUserKeycloak;
 use App\Models\CustodianHasProjectOrganisation;
 use App\Http\Requests\Users\CheckUserInviteCode;
 use App\Services\DecisionEvaluatorService as DES;
@@ -535,65 +536,94 @@ class UserController extends Controller
      */
     public function update(UpdateUser $request, int $id): JsonResponse
     {
-        // try {
-        $input = $request->all();
+        try {
+            $input = $request->all();
 
-        $loggedInUserId = $request->user()->id;
-        $loggedInUser = User::where('id', $loggedInUserId)->first();
-        $user = User::where('id', $id)->first();
-        $originalUserData = $user->getOriginal();
+            $loggedInUserId = $request->user()->id;
+            $loggedInUser = User::where('id', $loggedInUserId)->first();
 
-        if (!Gate::allows('update', $user)) {
-            return $this->ForbiddenResponse();
+            $user = User::where('id', $id)->first();
+            $originalUserData = $user->getOriginal();
+
+            if (!Gate::allows('update', $user)) {
+                return $this->ForbiddenResponse();
+            }
+
+            if (isset($input['department_id']) && $input['department_id'] !== 0 && $input['department_id'] != null) {
+                UserHasDepartments::where('user_id', $user->id)->delete();
+                UserHasDepartments::create([
+                    'user_id' => $user->id,
+                    'department_id' => $request['department_id'],
+                ]);
+            };
+
+            if (isset($input['email']) && $input['email'] !== $user->email) {
+                $keycloakToken = $this->getAuthToken();
+                $checkingUserEmail = RMC::checkingUserEmail($keycloakToken, $input['email']);
+                if (!$checkingUserEmail) {
+                    return $this->ConflictResponse();
+                }
+            }
+
+            $user->first_name = isset($input['first_name']) ? $input['first_name'] : $user->first_name;
+            $user->last_name = isset($input['last_name']) ? $input['last_name'] : $user->last_name;
+            $user->email = isset($input['email']) ? $input['email'] : $user->email;
+            $user->password = isset($input['password']) ? Hash::make($input['password']) : $user->password;
+            $user->registry_id = isset($input['registry_id']) ? $input['registry_id'] : $user->registry_id;
+            $user->consent_scrape = isset($input['consent_scrape']) ? $input['consent_scrape'] : $user->consent_scrape;
+            $user->public_opt_in = isset($input['public_opt_in']) ? $input['public_opt_in'] : $user->public_opt_in;
+            $user->declaration_signed = isset($input['declaration_signed']) ? $input['declaration_signed'] : $user->declaration_signed;
+            $user->organisation_id = isset($input['organisation_id']) ? $input['organisation_id'] : $user->organisation_id;
+            $user->orc_id = isset($input['orc_id']) ? $input['orc_id'] : $user->orc_id;
+            $user->location = isset($input['location']) ? $input['location'] : $user->location;
+            $user->t_and_c_agreed = isset($input['t_and_c_agreed'])
+                ? filter_var($input['t_and_c_agreed'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)
+                : $user->t_and_c_agreed;
+            $user->t_and_c_agreement_date = isset($input['lt_and_c_agreement_date']) ? $input['t_and_c_agreement_date'] : $user->t_and_c_agreement_date;
+            $user->uksa_registered = isset($input['uksa_registered']) ? $input['uksa_registered'] : $user->uksa_registered;
+            $user->is_sro = isset($input['is_sro']) ? $input['is_sro'] : $user->is_sro;
+            $user->is_delegate = isset($input['is_delegate']) ? $input['is_delegate'] : $user->is_delegate;
+            $user->role = isset($input['role']) ? $input['role'] : $user->role;
+            $user->save();
+            $newUserData = $user->fresh();
+
+            if (!$user->is_delegate) {
+                $this->sendNotificationOnDelegate($loggedInUser, $user);
+            }
+
+            if ($user->is_sro) {
+                $changes = $this->getUserTrackedChanges($originalUserData, $newUserData);
+                $this->sendNotificationOnSroUpdate($changes, $loggedInUser, $user);
+            }
+
+            if (!$user->is_delegate && $originalUserData['is_delegate'] && $loggedInUser->user_group === User::GROUP_ORGANISATIONS) {
+                $organisation = Organisation::find($loggedInUser->organisation_id);
+                activity('user')
+                    ->causedBy(Auth::user())
+                    ->performedOn($organisation)
+                    ->withProperties([
+                        'id' => $user->id,
+                        'attributes' => $user->getChanges(),
+                        'old' => $originalUserData,
+                    ])
+                    ->event('updated')
+                    ->log('updated');
+            }
+
+            if (isset($input['email']) && trim(strtoupper($input['email'])) !== trim(strtoupper($user->email))) {
+                $keycloakToken = $this->getAuthToken();
+                Keycloak::updateUserEmail($keycloakToken, $user->keycloak_id, $input['email']);
+                Keycloak::sendVerifyEmail($keycloakToken, $user->keycloak_id);
+            }
+
+            return response()->json([
+                'message' => 'success',
+                'data' => $user,
+            ], 200);
+
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
         }
-
-        if (isset($input['department_id']) && $input['department_id'] !== 0 && $input['department_id'] != null) {
-            UserHasDepartments::where('user_id', $user->id)->delete();
-            UserHasDepartments::create([
-                'user_id' => $user->id,
-                'department_id' => $request['department_id'],
-            ]);
-        };
-
-        $user->first_name = isset($input['first_name']) ? $input['first_name'] : $user->first_name;
-        $user->last_name = isset($input['last_name']) ? $input['last_name'] : $user->last_name;
-        $user->email = isset($input['email']) ? $input['email'] : $user->email;
-        $user->password = isset($input['password']) ? Hash::make($input['password']) : $user->password;
-        $user->registry_id = isset($input['registry_id']) ? $input['registry_id'] : $user->registry_id;
-        $user->consent_scrape = isset($input['consent_scrape']) ? $input['consent_scrape'] : $user->consent_scrape;
-        $user->public_opt_in = isset($input['public_opt_in']) ? $input['public_opt_in'] : $user->public_opt_in;
-        $user->declaration_signed = isset($input['declaration_signed']) ? $input['declaration_signed'] : $user->declaration_signed;
-        $user->organisation_id = isset($input['organisation_id']) ? $input['organisation_id'] : $user->organisation_id;
-        $user->orc_id = isset($input['orc_id']) ? $input['orc_id'] : $user->orc_id;
-        $user->location = isset($input['location']) ? $input['location'] : $user->location;
-        $user->t_and_c_agreed = isset($input['t_and_c_agreed'])
-            ? filter_var($input['t_and_c_agreed'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)
-            : $user->t_and_c_agreed;
-        $user->t_and_c_agreement_date = isset($input['lt_and_c_agreement_date']) ? $input['t_and_c_agreement_date'] : $user->t_and_c_agreement_date;
-        $user->uksa_registered = isset($input['uksa_registered']) ? $input['uksa_registered'] : $user->uksa_registered;
-        $user->is_sro = isset($input['is_sro']) ? $input['is_sro'] : $user->is_sro;
-        $user->is_delegate = isset($input['is_delegate']) ? $input['is_delegate'] : $user->is_delegate;
-        $user->role = isset($input['role']) ? $input['role'] : $user->role;
-        $user->save();
-        $newUserData = $user->fresh();
-
-        if (!$user->is_delegate) {
-            $this->sendNotificationOnDelegate($loggedInUser, $user);
-        }
-
-        if ($user->is_sro) {
-            $changes = $this->getUserTrackedChanges($originalUserData, $newUserData);
-            $this->sendNotificationOnSroUpdate($changes, $loggedInUser, $user);
-        }
-
-        return response()->json([
-            'message' => 'success',
-            'data' => $user,
-        ], 200);
-
-        // } catch (Exception $e) {
-        //     throw new Exception($e->getMessage());
-        // }
     }
 
     private function sendNotificationOnDelegate($loggedInUser, $delegate)
@@ -874,8 +904,24 @@ class UserController extends Controller
         try {
             $input = $request->all();
             $email = $input['email'];
+
+            $loggedInUserId = $request->user()->id;
+
+            if ($id !== $loggedInUserId) {
+                return $this->ForbiddenResponse();
+            }
+
+            $user = User::where('id', $id)->first();
+            if (trim(strtoupper($user->email)) === trim(strtoupper($email))) {
+                return $this->ConflictResponse();
+            }
+
             $keycloakToken = $this->getAuthToken();
-            $user = User::where('id', $id)->first();;
+
+            $checkingUserEmail = RMC::checkingUserEmail($keycloakToken, $email);
+            if (!$checkingUserEmail) {
+                return $this->ConflictResponse();
+            }
 
             Keycloak::updateUserEmail($keycloakToken, $user->keycloak_id, $email);
 

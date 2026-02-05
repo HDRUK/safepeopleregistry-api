@@ -52,7 +52,11 @@ trait SearchManager
             foreach ($andGroups as $field => $terms) {
                 $outerQuery->where(function ($q) use ($field, $terms) {
                     foreach ($terms as $term) {
-                        $q->where($field, 'LIKE', '%' . $term . '%');
+                        if (isValidDate($term)) {
+                            $q->whereDate($field, $term);
+                        } else {
+                            $q->where($field, 'LIKE', '%' . $term . '%');
+                        }
                     }
                 });
             }
@@ -62,10 +66,18 @@ trait SearchManager
                     foreach ($orGroups as $field => $terms) {
                         if (is_array($terms)) { // Singular term was causing a 500.
                             foreach ($terms as $term) {
-                                $q->orWhere($field, 'LIKE', '%' . $term . '%');
+                                if (isValidDate($term)) {
+                                    $q->whereDate($field, $term);
+                                } else {
+                                    $q->orWhere($field, 'LIKE', '%' . $term . '%');
+                                }
                             }
                         } else {
-                            $q->orWhere($field, 'LIKE', '%' . $terms . '%');
+                            if (isValidDate($terms)) {
+                                $q->whereDate($field, $terms);
+                            } else {
+                                $q->orWhere($field, 'LIKE', '%' . $terms . '%');
+                            }
                         }
                     }
                 });

@@ -187,6 +187,7 @@ return [
         App\Providers\GatewayServiceProvider::class,
         App\Providers\AppFeatureServiceProvider::class,
         App\Providers\FrankenPhpServiceProvider::class,
+        App\Providers\SendGridServiceProvider::class,
     ])->toArray(),
 
     /*
@@ -207,6 +208,7 @@ return [
         'RegistryManagementController' => App\RegistryManagementController\RegistryManagementController::class,
         'RulesEngineManagementController' => App\RulesEngineManagementController\RulesEngineManagementController::class,
         'Gateway' => App\Gateway\GatewayFacade::class,
+        'SendGridService' => App\Facades\SendGridService::class,
     ])->toArray(),
 
 ];

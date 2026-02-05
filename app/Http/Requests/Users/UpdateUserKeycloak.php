@@ -21,9 +21,10 @@ class UpdateUserKeycloak extends BaseFormRequest
             ],
             'email' => [
                 'required',
-                'email',
-                'exists:users,email',
-            ],            
+                'string',
+                'email:rfc',
+                'max:255',
+            ],
         ];
     }
 
