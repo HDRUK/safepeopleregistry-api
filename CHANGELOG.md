@@ -1,3 +1,9 @@
+## [1.26.1](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.26.0...v1.26.1) (2026-02-06)
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-0000:** Use tag for MJML package (#643) ([953c792](https://github.com/HDRUK/safepeopleregistry-api/commit/953c792278e7ea148c0cfbd367247759f6efed91))
+
 ## [1.26.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.25.1...v1.26.0) (2026-02-05)
 
 ### ✨ Features
