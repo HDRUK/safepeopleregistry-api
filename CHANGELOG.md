@@ -1,3 +1,9 @@
+## [1.26.2](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.26.1...v1.26.2) (2026-02-06)
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-0000:** Force version (#645) ([1b42111](https://github.com/HDRUK/safepeopleregistry-api/commit/1b421111fdf1b84f6417a52f204ade338bd0bb6c))
+
 ## [1.26.1](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.26.0...v1.26.1) (2026-02-06)
 
 ### 🐛 Bug Fixes
