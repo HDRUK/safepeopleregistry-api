@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "11f1790025e7472e0dc84b9146ba2695",
+    "content-hash": "a4e04406b1d3b9841df4d09bd837bce6",
     "packages": [
         {
             "name": "brick/math",
@@ -2209,7 +2209,7 @@
         },
         {
             "name": "hdruk/laravel-mjml",
-            "version": "dev-main",
+            "version": "3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/HDRUK/laravel-mjml.git",
@@ -2225,7 +2225,6 @@
                 "illuminate/support": "^10.0 || ^11.0 || ^12.0",
                 "sendgrid/sendgrid": "^8.1"
             },
-            "default-branch": true,
             "type": "library",
             "extra": {
                 "laravel": {
@@ -14530,9 +14529,7 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "hdruk/laravel-mjml": 20
-    },
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
