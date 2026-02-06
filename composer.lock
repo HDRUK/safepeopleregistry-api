@@ -2253,7 +2253,7 @@
             ],
             "description": "A Laravel extension to make use of the MJML API",
             "support": {
-                "source": "https://github.com/HDRUK/laravel-mjml/tree/main",
+                "source": "https://github.com/HDRUK/laravel-mjml/tree/3.0.0",
                 "issues": "https://github.com/HDRUK/laravel-mjml/issues"
             },
             "time": "2026-01-29T17:10:43+00:00"
@@ -14540,5 +14540,5 @@
         "ext-redis": "*"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }
