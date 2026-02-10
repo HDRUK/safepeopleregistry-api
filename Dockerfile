@@ -59,6 +59,7 @@ RUN composer install \
     && php artisan storage:link \
     && php artisan optimize:clear \
     && php artisan optimize \
+    && php artisan cache:clear \
     && php artisan config:clear \
     && chmod -R 777 storage bootstrap/cache \
     && chown -R www-data:www-data storage \

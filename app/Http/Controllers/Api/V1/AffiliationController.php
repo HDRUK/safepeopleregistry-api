@@ -557,17 +557,17 @@ class AffiliationController extends Controller
                 ->first();
 
             if (is_null($affiliation)) {
-                return $this->NotFoundResponse();
+                throw new Exception('Affiliation Not Found');
             }
 
             $organisationId = $affiliation->organisation_id;
             if ($organisationId === -1) {
-                return $this->ErrorResponse('Organisation Not Found');
+                throw new Exception('Organisation Not Found in Affiliation');
             }
 
             $organisation = Organisation::where('id', $organisationId)->first();
             if (is_null($organisation)) {
-                return $this->ErrorResponse('Organisation Not Found');
+                throw new Exception('Organisation Not Found');
             }
 
             $userGroupInvitedBy = User::where('id', $loggedInUser?->invited_by)->first()?->user_group;
