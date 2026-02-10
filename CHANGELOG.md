@@ -1,3 +1,9 @@
+## [1.26.3](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.26.2...v1.26.3) (2026-02-10)
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-0000:** update verification email (#647) ([199ae60](https://github.com/HDRUK/safepeopleregistry-api/commit/199ae60c97dd616be5d2c1b59458a245e87d2de3))
+
 ## [1.26.2](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.26.1...v1.26.2) (2026-02-06)
 
 ### 🐛 Bug Fixes
