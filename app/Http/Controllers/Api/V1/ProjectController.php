@@ -1247,7 +1247,7 @@ class ProjectController extends Controller
 
             return $this->OKResponse(true);
         } catch (Exception $e) {
-            return $this->ErrorResponse();
+            return $this->ErrorResponse($e->getMessage());
         }
     }
 

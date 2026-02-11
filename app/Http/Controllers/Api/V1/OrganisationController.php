@@ -548,7 +548,7 @@ class OrganisationController extends Controller
                     'user_group' => User::GROUP_ORGANISATIONS,
                     'is_org_admin' => 1,
                     'organisation_id' => $organisation->id,
-                ]);
+                ]);           
 
                 return $this->CreatedResponse([
                     'user_id' => $user->id,
@@ -718,8 +718,18 @@ class OrganisationController extends Controller
             $isRegistering = isset($input['unclaimed']) && $input['unclaimed'] === 0 && $org->unclaimed;
 
             $org->update($input);
+
             if ($isRegistering) {
                 $org->setState(State::STATE_ORGANISATION_REGISTERED);
+   
+                $custodianHasProjectOrganisations = CustodianHasProjectOrganisation::query()
+                    ->whereHas('projectOrganisation', function ($query) use ($org) {
+                        $query->where('organisation_id', $org->id);
+                    });
+
+                foreach ($custodianHasProjectOrganisations as $custodianHasProjectOrganisation) {
+                    $custodianHasProjectOrganisations->setState(State::STATE_PENDING);
+                }                   
             }
 
             $loggedInUserId = $request->user()->id;
