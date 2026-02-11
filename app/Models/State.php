@@ -88,6 +88,7 @@ class State extends Model
     public const STATE_PROJECT_COMPLETED = 'project_completed';
     public const STATE_PROJECT_APPROVED = 'project_approved';
     public const STATE_AFFILIATION_EMAIL_VERIFY = 'affiliation_email_verify';
+    public const STATE_AFFILIATION_INVITED = 'affiliation_invited';
     public const STATE_AFFILIATION_PENDING = 'affiliation_pending';
     public const STATE_AFFILIATION_APPROVED = 'affiliation_approved'; // affiliated
     public const STATE_AFFILIATION_REJECTED = 'affiliation_rejected';
@@ -117,6 +118,7 @@ class State extends Model
     public const STATE_ORGANISATION_REGISTERED = 'organisation_registered';
 
     public const STATE_AFFILIATION_INFO_REQUIRED = 'affiliation_info_required';
+    public const STATE_AFFILIATION_ORGANISATION_INVITED = 'affiliation_organisation_invited';
 
     public const STATES = [
         self::STATE_INVITED,
@@ -133,6 +135,7 @@ class State extends Model
         self::STATE_PROJECT_COMPLETED,
         self::STATE_PROJECT_PENDING,
         self::STATE_AFFILIATION_EMAIL_VERIFY,
+        self::STATE_AFFILIATION_INVITED,
         self::STATE_AFFILIATION_PENDING,
         self::STATE_AFFILIATION_APPROVED,
         self::STATE_AFFILIATION_REJECTED,
@@ -152,6 +155,7 @@ class State extends Model
         self::STATE_SPONSORSHIP_APPROVED,
         self::STATE_SPONSORSHIP_REJECTED,
         self::STATE_AFFILIATION_INFO_REQUIRED,
+        self::STATE_AFFILIATION_ORGANISATION_INVITED,
         self::STATE_ORGANISATION_REGISTERED,
     ];
 }

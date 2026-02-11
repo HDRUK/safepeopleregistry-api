@@ -157,10 +157,10 @@ class Affiliation extends Model
         State::STATE_AFFILIATION_EMAIL_VERIFY => [
             State::STATE_AFFILIATION_PENDING
         ],
-        State::STATE_INVITED => [
+        State::STATE_AFFILIATION_INVITED => [
             State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS,
             State::STATE_AFFILIATION_INFO_REQUIRED,
-            State::STATE_INVITED,
+            State::STATE_AFFILIATION_ORGANISATION_INVITED,
         ],
         State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS => [
             State::STATE_AFFILIATION_PENDING
@@ -168,7 +168,7 @@ class Affiliation extends Model
         State::STATE_AFFILIATION_INFO_REQUIRED => [
             State::STATE_AFFILIATION_PENDING
         ],
-        State::STATE_INVITED => [
+        State::STATE_AFFILIATION_ORGANISATION_INVITED => [
             State::STATE_AFFILIATION_PENDING
         ],
         State::STATE_AFFILIATION_PENDING => [

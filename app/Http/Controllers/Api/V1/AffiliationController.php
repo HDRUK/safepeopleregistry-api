@@ -460,7 +460,7 @@ class AffiliationController extends Controller
             $affiliation->refresh();
 
             if ($unclaimed) {
-                $affiliation->setState(State::STATE_INVITED);
+                $affiliation->setState(State::STATE_AFFILIATION_INVITED);
             }
 
             if ($affiliation->current_employer && !$affiliation->is_verified) {
@@ -576,7 +576,7 @@ class AffiliationController extends Controller
                 $affiliation->setState(State::STATE_AFFILIATION_APPROVED);
             } else {
                 if (!$organisation->system_approved) {
-                    $affiliation->setState(State::STATE_INVITED);
+                    $affiliation->setState(State::STATE_AFFILIATION_ORGANISATION_INVITED);
                 } else {
                     $affiliation->setState(State::STATE_AFFILIATION_PENDING);
                 }
