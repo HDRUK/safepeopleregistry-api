@@ -168,7 +168,7 @@ class UserObserver
             ($pendingInvites && in_array($pendingInvites->type, ['custodian_user_invite', 'organisation_user_invite']))) {
 
             $affiliations = Affiliation::where('registry_id', $user->registry_id)->first();
-            if ($affiliations->getState() === State::STATE_AFFILIATION_INVITED) {
+            if ($affiliations->getState() === State::STATE_INVITED) {
                 \Log::info('affiliation state change for user claim - affiliation id: ' . $affiliations->id);
                 $affiliations->setState(State::STATE_AFFILIATION_INFO_REQUIRED);
             }

@@ -192,7 +192,7 @@ class OrganisationObserver
     {
         if ($organisation->isDirty('unclaimed')) {
             $unclaimed = $organisation->unclaimed;
-            $state = $unclaimed ? State::STATE_AFFILIATION_INVITED : State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS;
+            $state = $unclaimed ? State::STATE_INVITED : State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS;
             $affiliations = Affiliation::where("organisation_id", $organisation->id)->get();
 
             foreach ($affiliations as $affiliation) {

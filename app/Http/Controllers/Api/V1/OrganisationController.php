@@ -1383,7 +1383,7 @@ class OrganisationController extends Controller
                     'registry_id' => $unclaimedUser->registry_id,
                 ]);
 
-                $affiliation->setState(State::STATE_AFFILIATION_INVITED);
+                $affiliation->setState(State::STATE_INVITED);
             }
 
             TriggerEmail::spawnEmail($email);
@@ -1521,7 +1521,7 @@ class OrganisationController extends Controller
                     'ror' => '',
                     'registry_id' => $unclaimedUser->registry_id,
                 ]);
-                $affiliation->setState(State::STATE_AFFILIATION_INVITED);
+                $affiliation->setState(State::STATE_INVITED);
             }
 
             TriggerEmail::spawnEmail($email);
