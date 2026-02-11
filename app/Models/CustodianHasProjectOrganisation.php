@@ -60,6 +60,7 @@ class CustodianHasProjectOrganisation extends Model
     use FilterManager;
 
     protected static array $transitions = [
+        State::STATE_INVITED => [],
         State::STATE_PENDING => [
             State::STATE_VALIDATION_IN_PROGRESS,
             State::STATE_MORE_ORG_INFO_REQ_ESCALATION_MANAGER,
