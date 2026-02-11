@@ -45,9 +45,7 @@ class CustodianHasProjectUser extends Model
     use FilterManager;
 
     protected static array $transitions = [
-        State::STATE_INVITED => [
-            State::STATE_PENDING,
-        ],
+        State::STATE_INVITED => [],
         State::STATE_PENDING => [
             State::STATE_VALIDATION_IN_PROGRESS,
             State::STATE_MORE_USER_INFO_REQ,
