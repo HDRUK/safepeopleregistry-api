@@ -96,6 +96,7 @@ class CustodianHasProjectOrganisationController extends Controller
             $records = CustodianHasProjectOrganisation::with([
                 'modelState.state',
                 'projectOrganisation.organisation.sroOfficer',
+                'projectOrganisation.organisation.modelState.state',
                 'projectOrganisation.project',
                 'projectOrganisation.organisation' =>  function ($query) {
                     $query->withCount('affiliations');
