@@ -134,8 +134,14 @@ class CustodianHasProjectOrganisation extends Model
 
         static::created(function ($model) {
             if (in_array(StateWorkflow::class, class_uses($model))) {
-                $model->setState(State::STATE_PENDING);
-                $model->save();
+                $projectHasOrganisation = ProjectHasOrganisation::where('id', $model->project_has_organisation_id)->first();
+                $org = Organisation::where('id', $projectHasOrganisation->organisation_id)->first();
+                
+                if ($org->unclaimed) {
+                    $model->setState(State::STATE_INVITED);
+                } else {
+                    $model->setState(State::STATE_PENDING);
+                }
             }
         });
     }
