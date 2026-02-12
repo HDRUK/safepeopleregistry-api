@@ -548,7 +548,7 @@ class OrganisationController extends Controller
                     'user_group' => User::GROUP_ORGANISATIONS,
                     'is_org_admin' => 1,
                     'organisation_id' => $organisation->id,
-                ]);
+                ]);           
 
                 return $this->CreatedResponse([
                     'user_id' => $user->id,
