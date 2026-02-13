@@ -61,8 +61,12 @@ class CustodianHasProjectOrganisation extends Model
 
     protected static array $transitions = [
         State::STATE_INVITED => [
+            State::STATE_SYSTEM_APPROVAL,
             State::STATE_PENDING,
         ],
+        State::STATE_SYSTEM_APPROVAL => [
+            State::STATE_PENDING,            
+        ],        
         State::STATE_PENDING => [
             State::STATE_VALIDATION_IN_PROGRESS,
             State::STATE_MORE_ORG_INFO_REQ_ESCALATION_MANAGER,
@@ -136,11 +140,16 @@ class CustodianHasProjectOrganisation extends Model
             if (in_array(StateWorkflow::class, class_uses($model))) {
                 $projectHasOrganisation = ProjectHasOrganisation::where('id', $model->project_has_organisation_id)->first();
                 $org = Organisation::where('id', $projectHasOrganisation->organisation_id)->first();
-                
-                if ($org->unclaimed) {
+
+                if($org->unclaimed) {
                     $model->setState(State::STATE_INVITED);
-                } else {
+                     \Log::info("*******" . State::STATE_INVITED);
+                } elseif(!$org->unclaimed && !$org->system_approved) {
+                    $model->setState(State::STATE_SYSTEM_APPROVAL);
+                    \Log::info("*******" . State::STATE_SYSTEM_APPROVAL);
+                } elseif($org->unclaimed && $org->system_approved) {
                     $model->setState(State::STATE_PENDING);
+                    \Log::info("*******" . State::STATE_PENDING);
                 }
             }
         });

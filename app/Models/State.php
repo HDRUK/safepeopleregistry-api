@@ -120,7 +120,10 @@ class State extends Model
     public const STATE_AFFILIATION_INFO_REQUIRED = 'affiliation_info_required';
     public const STATE_AFFILIATION_ORGANISATION_INVITED = 'affiliation_organisation_invited';
 
+    public const STATE_SYSTEM_APPROVAL = 'system_approval';
+
     public const STATES = [
+        self::STATE_SYSTEM_APPROVAL,
         self::STATE_INVITED,
         self::STATE_REGISTERED,
         self::STATE_PENDING,

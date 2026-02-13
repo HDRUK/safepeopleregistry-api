@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Models\State;
 use App\Models\CustodianHasProjectOrganisation;
 use App\Models\ProjectHasOrganisation;
 use App\Models\ProjectHasCustodian;
@@ -20,7 +21,7 @@ class ProjectHasOrganisationObserver
         $custodianIds = ProjectHasCustodian::where(['project_id' => $pho->project_id])->pluck("custodian_id")->toArray();
 
         foreach ($custodianIds as $custodianId) {
-            CustodianHasProjectOrganisation::firstOrCreate([
+            $custodianHasProjectOrganisation = CustodianHasProjectOrganisation::firstOrCreate([
                 'custodian_id' => $custodianId,
                 'project_has_organisation_id' => $projectHasOrganisationId
             ]);
