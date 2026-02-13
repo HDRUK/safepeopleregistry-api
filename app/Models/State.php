@@ -120,6 +120,8 @@ class State extends Model
     public const STATE_AFFILIATION_INFO_REQUIRED = 'affiliation_info_required';
     public const STATE_AFFILIATION_ORGANISATION_INVITED = 'affiliation_organisation_invited';
 
+    public const STATE_SYSTEM_APPROVAL = 'system_approval';
+
     public const STATES = [
         self::STATE_INVITED,
         self::STATE_REGISTERED,
@@ -157,5 +159,6 @@ class State extends Model
         self::STATE_AFFILIATION_INFO_REQUIRED,
         self::STATE_AFFILIATION_ORGANISATION_INVITED,
         self::STATE_ORGANISATION_REGISTERED,
+        self::STATE_SYSTEM_APPROVAL,        
     ];
 }
