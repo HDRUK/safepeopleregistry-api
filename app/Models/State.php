@@ -123,7 +123,6 @@ class State extends Model
     public const STATE_SYSTEM_APPROVAL = 'system_approval';
 
     public const STATES = [
-        self::STATE_SYSTEM_APPROVAL,
         self::STATE_INVITED,
         self::STATE_REGISTERED,
         self::STATE_PENDING,
@@ -160,5 +159,6 @@ class State extends Model
         self::STATE_AFFILIATION_INFO_REQUIRED,
         self::STATE_AFFILIATION_ORGANISATION_INVITED,
         self::STATE_ORGANISATION_REGISTERED,
+        self::STATE_SYSTEM_APPROVAL,        
     ];
 }

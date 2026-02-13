@@ -143,10 +143,8 @@ class CustodianHasProjectOrganisation extends Model
 
                 if($org->unclaimed) {
                     $model->setState(State::STATE_INVITED);
-                } elseif($org->unclaimed === false && $org->system_approved === false) {
-                    $model->setState(State::STATE_SYSTEM_APPROVAL);
-                } elseif($org->unclaimed === false && $org->system_approved === true) {
-                    $model->setState(State::STATE_PENDING);
+                } elseif($org->unclaimed === false) {
+                    $model->setState($org->system_approved ? State::STATE_PENDING : State::STATE_SYSTEM_APPROVAL);
                 }
             }
         });
