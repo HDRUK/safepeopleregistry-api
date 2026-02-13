@@ -277,6 +277,7 @@ class RegistryManagementController
                 'is_delegate' => $user['is_delegate'] ?? 0,
                 'role' => $user['role'] ?? null,
                 'invited_by' => $user['invited_by'] ?? null,
+                'is_sro' => $user['is_sro'] ?? 1,
             ];
 
             if ($strictCreate) {
