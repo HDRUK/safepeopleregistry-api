@@ -864,29 +864,25 @@ class ProjectController extends Controller
             }
 
             $notifySponsor = false;
-            $sponsorId = $request->get('sponsor_id');
+            $sponsorId = (int) $request->get('sponsor_id');
 
-            if ($sponsorId) {
-                $projectHasCustodian = ProjectHasCustodian::where('project_id', $id)->first();
-                $checkProjectSponsor = ProjectHasSponsorship::where('project_id', $id)->first();
+                if ($sponsorId) {
 
-                if (is_null($checkProjectSponsor)) {
-                    $notifySponsor = true;
+                    $existing = ProjectHasSponsorship::where('project_id', $id)->first();
+                    $projectHasCustodian = ProjectHasCustodian::where('project_id', $id)->first();
+
+
+                    if (!$existing || (int)$existing->sponsor_id !== $sponsorId) {
+
+                        if ($existing) {
+                            $existing->delete();
+                        }
+                       
+                        $this->sponsorToProject($id, $sponsorId, $projectHasCustodian->custodian_id);
+                        $this->notifyOnAddSponsorToProject($loggedInUserId, $id, $sponsorId);
+                        $this->emailOnAddSponsorToProject($loggedInUserId, $id, $sponsorId);
+                    }
                 }
-
-                if (!is_null($checkProjectSponsor) && (int)$sponsorId !== (int)$checkProjectSponsor->sponsor_id) {
-                    $notifySponsor = true;
-                    $checkProjectSponsor->delete();
-                }
-
-                $this->sponsorToProject($id, $sponsorId, $projectHasCustodian->custodian_id);
-
-                if ($notifySponsor) {
-                    $this->notifyOnAddSponsorToProject($loggedInUserId, $id, $sponsorId);
-                    $this->emailOnAddSponsorToProject($loggedInUserId, $id, $sponsorId);
-                }
-
-            }
 
             $returnProject = Project::query()
                 ->where('id', $id)
@@ -956,7 +952,6 @@ class ProjectController extends Controller
                 ->select(['id'])
                 ->get();
         }
-
         foreach ($users as $user) {
             $email = [
                 'type' => 'CUSTODIAN_SPONSORSHIP_REQUEST',
