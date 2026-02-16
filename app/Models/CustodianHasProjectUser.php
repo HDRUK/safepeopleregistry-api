@@ -131,9 +131,12 @@ class CustodianHasProjectUser extends Model
 
         static::created(function ($model) {
             if (in_array(StateWorkflow::class, class_uses($model))) {
-                $projectUser = ProjectHasUser::where('id', $model->project_has_user_id)->first();
+                $projectUser = ProjectHasUser::with('affiliation')->where('id', $model->project_has_user_id)->first();
                 $user = $projectUser->registry->user;
-                if ($user->unclaimed) {
+
+                $isCurrentNotVerified = !$projectUser->affiliation->is_verified && $projectUser->affiliation->current_employer;
+
+                if ($user->unclaimed || $isCurrentNotVerified) {
                     $model->setState(State::STATE_INVITED);
                 } else {
                     $model->setState(State::STATE_PENDING);

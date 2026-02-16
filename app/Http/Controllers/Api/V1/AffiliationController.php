@@ -9,6 +9,7 @@ use App\Models\State;
 use App\Models\Affiliation;
 use Illuminate\Support\Str;
 use App\Models\Organisation;
+use App\Models\CustodianHasProjectUser;
 use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
 use App\Traits\CommonFunctions;
@@ -580,6 +581,15 @@ class AffiliationController extends Controller
                 } else {
                     $affiliation->setState(State::STATE_AFFILIATION_PENDING);
                 }
+            }
+
+            $custodianHasProjectUser = CustodianHasProjectUser::query()
+                ->whereHas('projectHasUser.affiliation', function ($query) use ($affiliation) {
+                    $query->where('id', $affiliation->id);
+                })->first();
+
+            if (!is_null($custodianHasProjectUser)) {
+                $custodianHasProjectUser->setState(State::STATE_PENDING);
             }
 
             $array = [
