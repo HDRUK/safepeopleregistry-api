@@ -464,6 +464,15 @@ class AffiliationController extends Controller
                 $affiliation->setState(State::STATE_AFFILIATION_INVITED);
             }
 
+            $custodianHasProjectUser = CustodianHasProjectUser::query()
+                ->whereHas('projectHasUser.affiliation', function ($query) use ($affiliation) {
+                    $query->where('id', $affiliation->id);
+                })->first();
+
+            if (!is_null($custodianHasProjectUser) && $affiliation->current_employer && $affiliation->is_verified && $custodianHasProjectUser->modelState->state->slug === State::STATE_INVITED) {
+                $custodianHasProjectUser->setState(State::STATE_PENDING);
+            }
+
             if ($affiliation->current_employer && !$affiliation->is_verified) {
                 $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
                 $this->sendEmailVerificationAffiliation($affiliation);
