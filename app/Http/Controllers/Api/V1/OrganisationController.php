@@ -58,12 +58,14 @@ use App\Http\Requests\Organisations\OrganisationInviteUser;
 use App\Http\Requests\Organisations\OrganisationValidateRor;
 use App\Http\Requests\Organisations\UpdateSponsorshipStatus;
 use App\Traits\Notifications\NotificationOrganisationManager;
+use App\Traits\OrganisationsProjectUtils;
 use App\Notifications\Organisations\OrganisationUpdateProfile;
 use App\Http\Requests\Organisations\OrganisationUpdateApprover;
 
 class OrganisationController extends Controller
 {
     use CommonFunctions;
+    use OrganisationsProjectUtils;
     use Responses;
     use NotificationOrganisationManager;
 
@@ -721,15 +723,12 @@ class OrganisationController extends Controller
 
             if ($isRegistering) {
                 $org->setState(State::STATE_ORGANISATION_REGISTERED);
-   
-                $custodianHasProjectOrganisations = CustodianHasProjectOrganisation::query()
-                    ->whereHas('projectOrganisation', function ($query) use ($org) {
-                        $query->where('organisation_id', $org->id);
-                    })->get();
 
-                foreach ($custodianHasProjectOrganisations as $custodianHasProjectOrganisation) {
-                    $custodianHasProjectOrganisation->setState(State::STATE_PENDING);
-                }                   
+                if($org->system_approved) {
+                    $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_PENDING);  
+                } else {
+                    $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_SYSTEM_APPROVAL);  
+                }
             }
 
             $loggedInUserId = $request->user()->id;
@@ -1910,6 +1909,14 @@ class OrganisationController extends Controller
                 'system_approved' => $input['system_approved'],
                 'system_approved_at' => Carbon::now(),
             ]);
+
+            if($org->unclaimed) {
+                if(!$input['system_approved']) {
+                    $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_SYSTEM_APPROVAL);  
+                } else {
+                    $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_PENDING); 
+                }
+            }
 
             // email
             $input = [
