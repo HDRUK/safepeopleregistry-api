@@ -133,9 +133,11 @@ class CustodianHasProjectUser extends Model
             if (in_array(StateWorkflow::class, class_uses($model))) {
                 $projectUser = ProjectHasUser::with('affiliation')->where('id', $model->project_has_user_id)->first();
                 $user = $projectUser->registry->user;
+                $affiliation = $projectUser->affiliation;
 
-                $isCurrentNotVerified = !$projectUser->affiliation->is_verified && $projectUser->affiliation->current_employer;
+                $isCurrentNotVerified = !is_null($affiliation) && !$affiliation->is_verified && $affiliation->current_employer;
 
+                if(!is_null($affiliation)) {
                 if ($user->unclaimed || $isCurrentNotVerified) {
                     $model->setState(State::STATE_INVITED);
                 } else {
@@ -143,6 +145,7 @@ class CustodianHasProjectUser extends Model
                 }
 
                 $model->save();
+                }
             }
         });
     }
