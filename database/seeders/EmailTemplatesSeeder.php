@@ -159,7 +159,7 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="20px 0px 20px 0px">
                                   [[custodian.name]]
                                   <div><br></div>
-                                  You"ve been invited to sign-up as a trusted Data Custodian, for the [[env(APP_NAME)]].
+                                  You\'ve been invited to sign-up as a trusted Data Custodian, for the [[env(APP_NAME)]].
                                   <div><br></div>
                                   ' . $this->whatIsBlurb . '
                                   <div><br></div>
