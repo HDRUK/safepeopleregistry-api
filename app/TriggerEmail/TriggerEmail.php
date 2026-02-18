@@ -182,7 +182,7 @@ class TriggerEmail
                     '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
                     '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
                     '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),
-                    '[[registration.email]]' => urlencode($user->email),
+                    '[[registration.email]]' => urlencode($delegate->email),
 
                 ];
 
@@ -213,7 +213,7 @@ class TriggerEmail
                     '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
                     '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
-                    '[[registration.email]]' => urlencode($user->email),
+                    '[[registration.email]]' => urlencode($custodian->contact_email),
 
                 ];
 
@@ -258,7 +258,7 @@ class TriggerEmail
                     '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
                     '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),
                     '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
-                    '[[registration.email]]' => urlencode($user->email),
+                    '[[registration.email]]' => urlencode($custodianUser->email),
 
                 ];
 
@@ -283,7 +283,7 @@ class TriggerEmail
                 $replacements = [
                     '[[organisation.organisation_name]]' => $organisation->organisation_name,
                     '[[inviteCode]]' => $inviteCode,
-                    '[[registration.email]]' => urlencode($user->email),
+                    '[[registration.email]]' => urlencode($organisation->lead_applicant_email),
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
                     '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
                     '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),
