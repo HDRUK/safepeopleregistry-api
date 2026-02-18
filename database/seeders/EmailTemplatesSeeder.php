@@ -173,7 +173,7 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="10px 15px 0px 15px">
                                 To begin your sign-up process, please click the button below.
                                 </mj-text>
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 15px 15px 15px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]?login_hint=[[registration.email]]" padding="10px 15px 15px 15px">
                                   Sign me up!
                                 </mj-button>
                               </mj-column>
@@ -231,7 +231,7 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="10px 15px 0px 15px">
                                 To begin your sign-up process, please click the button below.
                                 </mj-text>
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]?invite_code=[[inviteCode]]" padding="10px 15px 15px 15px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]?invite_code=[[inviteCode]]?login_hint=[[registration.email]]" padding="10px 15px 15px 15px">
                                   Sign me up!
                                 </mj-button>
                               </mj-column>
@@ -269,7 +269,7 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="10px 15px 0px 15px">
                                   Create your account by clicking the button below.
                                 </mj-text>
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 15px 15px 15px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]?login_hint=[[registration.email]]" padding="10px 15px 15px 15px">
                                   Sign me up!
                                 </mj-button>
                               </mj-column>
@@ -312,7 +312,7 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="10px 15px 0px 15px">
                                   Create your account by clicking the button below.
                                 </mj-text>
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 15px 15px 15px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]?login_hint=[[registration.email]]" padding="10px 15px 15px 15px">
                                   Sign me up!
                                 </mj-button>
                               </mj-column>
@@ -355,7 +355,7 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="10px 15px 0px 15px">
                                   Create your account by clicking the button below.
                                 </mj-text>
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 15px 15px 15px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]?login_hint=[[registration.email]]" padding="10px 15px 15px 15px">
                                   Sign me up!
                                 </mj-button>
                               </mj-column>
@@ -398,7 +398,7 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="10px 15px 0px 15px">
                                   Create your account by clicking the button below.
                                 </mj-text>
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 15px 15px 15px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]?login_hint=[[registration.email]]" padding="10px 15px 15px 15px">
                                   Sign me up!
                                 </mj-button>
                               </mj-column>
@@ -436,7 +436,7 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="10px 15px 0px 15px">
                                 Create your account by clicking the button below.
                                 </mj-text>
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 15px 15px 15px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]?login_hint=[[registration.email]]" padding="10px 15px 15px 15px">
                                   Sign me up!
                                 </mj-button>
                               </mj-column>
@@ -581,7 +581,7 @@ class EmailTemplatesSeeder extends Seeder
                               </mj-section>
                               <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
                                 <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
-                                  <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 25px 10px 25px" >Sign me up!</mj-button>
+                                  <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]?login_hint=[[registration.email]]" padding="10px 25px 10px 25px" >Sign me up!</mj-button>
                                 </mj-column>
                               </mj-section>
                             </mj-wrapper>
@@ -620,7 +620,7 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="10px 15px 0px 15px">
                                   Create your account by clicking the button below.
                                 </mj-text>
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 15px 15px 15px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]?login_hint=[[registration.email]]" padding="10px 15px 15px 15px">
                                   Sign me up!
                                 </mj-button>
                               </mj-column>
@@ -887,7 +887,7 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="10px 15px 0px 15px">
                                 I confirm sponsorship on behalf of [[organisation_name]]! of the project [[project_name]]! 
                                 </mj-text>
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 15px 15px 15px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]?login_hint=[[registration.email]]" padding="10px 15px 15px 15px">
                                   Sign me up!
                                 </mj-button>
                               </mj-column>
