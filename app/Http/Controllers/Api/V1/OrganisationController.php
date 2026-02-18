@@ -134,7 +134,7 @@ class OrganisationController extends Controller
                     'registries.user',
                     'registries.user.permissions',
                     'delegates',
-                    'sroOfficer',
+                    'sroOfficer.invitedBy.custodian_user',
                     'modelState.state'
                 ])
                 ->filterWhen('has_delegates', function ($query, $hasDelegates) {
@@ -1566,6 +1566,7 @@ class OrganisationController extends Controller
                 'user_group' => User::GROUP_ORGANISATIONS,
                 'organisation_id' => $id,
                 'invited_by' => $request->user()->id,
+                'is_sro' => 1
             ]);
 
             if (!$unclaimedUser->unclaimed) {
