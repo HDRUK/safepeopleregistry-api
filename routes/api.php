@@ -49,6 +49,7 @@ use App\Http\Controllers\Api\V1\ProjectHasOrganisationController;
 use App\Http\Controllers\Api\V1\CustodianHasProjectUserController;
 use App\Http\Controllers\Api\V1\ProfessionalRegistrationController;
 use App\Http\Controllers\Api\V1\CustodianHasProjectOrganisationController;
+use App\Http\Controllers\Api\V1\VersionStatusController;
 
 /*
 |--------------------------------------------------------------------------
@@ -121,6 +122,14 @@ Route::middleware('auth:api')
     ->group(function () {
         Route::get('{entity}/{id}/action_log', [ActionLogController::class, 'getEntityActionLog']);
         Route::put('action_log/{id}', [ActionLogController::class, 'update']);
+    });
+
+// --- VersionStatus ---
+Route::middleware('auth:api')
+    ->prefix('v1')
+    ->controller(VersionStatusController::class)
+    ->group(function () {
+        Route::get('/version/status', [VersionStatusController::class, 'index']);
     });
 
 
