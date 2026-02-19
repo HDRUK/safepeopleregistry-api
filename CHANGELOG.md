@@ -1,3 +1,9 @@
+## [1.27.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.26.3...v1.27.0) (2026-02-19)
+
+### ✨ Features
+
+* **GAT-0000:** Version and Status endpoint (#659) ([7b3fe7b](https://github.com/HDRUK/safepeopleregistry-api/commit/7b3fe7be686e3526a55c01482c724c0e23b6ad58)), closes [GAT-0000](GAT-0000)
+
 ## [1.26.3](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.26.2...v1.26.3) (2026-02-10)
 
 ### 🐛 Bug Fixes
