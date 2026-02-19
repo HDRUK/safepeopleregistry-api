@@ -49,6 +49,7 @@ use App\Http\Controllers\Api\V1\ProjectHasOrganisationController;
 use App\Http\Controllers\Api\V1\CustodianHasProjectUserController;
 use App\Http\Controllers\Api\V1\ProfessionalRegistrationController;
 use App\Http\Controllers\Api\V1\CustodianHasProjectOrganisationController;
+use App\Http\Controllers\Api\V1\VersionStatusController;
 
 /*
 |--------------------------------------------------------------------------
@@ -123,6 +124,14 @@ Route::middleware('auth:api')
         Route::put('action_log/{id}', [ActionLogController::class, 'update']);
     });
 
+
+// --- VersionStatus ---
+Route::middleware('auth:api')
+    ->prefix('v1')
+    ->controller(VersionStatusController::class)
+    ->group(function () {
+        Route::get('/version/status', [VersionStatusController::class, 'index']);
+    });
 
 // --- Pending Invites ---
 Route::middleware('auth:api')
