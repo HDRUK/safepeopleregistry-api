@@ -1353,6 +1353,7 @@ class OrganisationController extends Controller
                 'user_group' => isset($input['user_group']) ? $input['user_group'] : 'USERS',
                 'role' => isset($input['role']) ? $input['role'] : null,
                 'invited_by' => $request->user()->id,
+                'is_sro' => 0
             ]);
 
             if (isset($input['department_id']) && $input['department_id'] !== 0 && $input['department_id'] != null) {
