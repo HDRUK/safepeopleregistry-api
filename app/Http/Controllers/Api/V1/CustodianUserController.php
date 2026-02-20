@@ -8,6 +8,7 @@ use Exception;
 use TriggerEmail;
 use App\Models\Permission;
 use Illuminate\Http\Response;
+use App\Http\Traits\Responses;
 use Illuminate\Http\Request;
 use App\Models\Custodian;
 use App\Models\CustodianUser;
@@ -25,6 +26,7 @@ class CustodianUserController extends Controller
 {
     
     use NotificationCustodianManager;
+    use Responses;
 
     /**
      * @OA\Get(
@@ -289,19 +291,8 @@ class CustodianUserController extends Controller
             $input = $request->all();
             $custodianKey = $request->header('x-client-id', null);
 
-            if (!$custodianKey) {
-                return response()->json([
-                    'message' => 'you must provide your Custodian key',
-                ], Response::HTTP_UNAUTHORIZED);
-            }
             
             $custodianId = Custodian::where('client_id', $custodianKey)->first()->id;
-
-            if (! $custodianId) {
-                 return response()->json([
-                    'message' => 'no known custodian matches the credentials provided',
-                ], Response::HTTP_UNAUTHORIZED);
-            }
 
             $createdUserIds = [];
 
@@ -345,9 +336,7 @@ class CustodianUserController extends Controller
                 $permission = Permission::where('name', $userInput['permission'])->first();
 
                 if (!$permission) {
-                    return response()->json([
-                        'message' => 'Invalid permission provided'
-                    ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                    return $this->UnprocessableContent('Invalid permission provided');
                 }
 
                 CustodianUserHasPermission::create([
@@ -357,12 +346,11 @@ class CustodianUserController extends Controller
             }
 
 
-
-           return response()->json([
-            'message' => 'completed',
+        return $this->CreatedResponse([
             'created_user_ids' => $createdUserIds,
             'skipped' => $skippedUsers,
-        ], 201);
+        ]);
+
 
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
