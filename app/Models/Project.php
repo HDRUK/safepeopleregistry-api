@@ -283,6 +283,7 @@ class Project extends Model
     public function scopeCustodianHasProjectUser($query, $userDigitalIdent)
     {
         $query->with([
+            'custodianHasProjectUser.projectHasUser.affiliation.modelState.state',
             'custodianHasProjectUser' => function ($query2) use ($userDigitalIdent) {
                 $query2->whereHas('projectHasUser', function ($query3) use ($userDigitalIdent) {
                     $query3->where('user_digital_ident', $userDigitalIdent);
