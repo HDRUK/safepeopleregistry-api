@@ -64,6 +64,8 @@ use App\Http\Controllers\Api\V1\VersionStatusController;
 
 Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1/query', [QueryController::class, 'query']);
 Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1/validate', [UserController::class, 'validateUserRequest']);
+Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1/custodian_users/bulk', [CustodianUserController::class, 'bulkStore']);
+
 
 // --- AUTH ---
 Route::middleware('api')->get('auth/me', [AuthController::class, 'me']);

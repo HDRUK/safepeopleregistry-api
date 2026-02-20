@@ -113,4 +113,12 @@ trait Responses
         ], Response::HTTP_NO_CONTENT);
     }
 
+
+    public function UnprocessableContent(string $message): JsonResponse
+    {
+        return response()->json([
+            'message' => $message,
+        ], Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
+
 }
