@@ -23,6 +23,7 @@ use Illuminate\Http\JsonResponse;
 use App\Traits\TracksModelChanges;
 use App\Models\ProjectHasCustodian;
 use App\Http\Controllers\Controller;
+use RegistryManagementController as RMC;
 use Illuminate\Support\Facades\Gate;
 use App\Exceptions\NotFoundException;
 use App\Models\ProjectHasSponsorship;
@@ -1563,12 +1564,6 @@ class ProjectController extends Controller
             $input = $request->all();
             $custodianKey = $request->header('x-client-id');
 
-            if (!$custodianKey) {
-                return response()->json([
-                    'message' => 'Missing x-client-id header'
-                ], Response::HTTP_BAD_REQUEST);
-            }
-
             $custodian = Custodian::where('client_id', $custodianKey)->first();
             $projectId = $input['projectId'];
 
@@ -1579,9 +1574,9 @@ class ProjectController extends Controller
                 ->exists();
 
             if (!$projectBelongsToCustodian) {
-                return response()->json([
+                return $this->ForbiddenResponse([
                     'message' => 'Project does not belong to this custodian'
-                ], Response::HTTP_FORBIDDEN);
+                ]);
             }
 
 
@@ -1701,16 +1696,13 @@ class ProjectController extends Controller
                 }
             });
 
-            return response()->json([
-                'message' => 'success',
+            return CreatedResponse([
                 'created_user_ids' => $createdUsers,
                 'skipped' => $skippedUsers
-            ], Response::HTTP_CREATED);
+            ]);
 
         } catch (Exception $e) {
-            return response()->json([
-                'message' => $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+            throw new Exception($e->getMessage());
         }
     }
 }
