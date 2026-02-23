@@ -413,7 +413,9 @@ class Organisation extends Model
         'organisation_name',
     ];
 
-    protected $hidden = [];
+    protected $hidden = [
+            'password', 'organisation_unique_id', 'idvt_result', 'idvt_result_perc', 'idvt_errors', 'idvt_completed_at', 'permissions', 'files'
+         ];
 
     protected $appends = ['evaluation'];
 
