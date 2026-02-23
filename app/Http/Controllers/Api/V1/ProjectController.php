@@ -1696,7 +1696,7 @@ class ProjectController extends Controller
                 }
             });
 
-            return CreatedResponse([
+            return $this->CreatedResponse([
                 'created_user_ids' => $createdUsers,
                 'skipped' => $skippedUsers
             ]);
