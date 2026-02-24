@@ -1474,42 +1474,54 @@ class ProjectController extends Controller
     }
 
 
-    private function inviteProjectUser( string $firstName, string $lastName, string $email, int $organisationId, int $invitedBy ): int {
-            if (User::where('email', $email)->exists()) {
-                return User::where('email', $email)->value('id');
-            }
-
-            $unclaimedUser = RMC::createUnclaimedUser([
-                'firstname'       => $firstName,
-                'lastname'        => $lastName,
-                'email'           => $email,
-                'organisation_id' => $organisationId,
-                'is_delegate'     => 0,
-                'user_group'      => User::GROUP_USERS,
-                'role'            => null,
-                'invited_by'      => $invitedBy,
-            ]);
-
-            $user = User::find($unclaimedUser->id);
-            $user->setState(State::STATE_INVITED);
-
-            $affiliation = Affiliation::create([
-                'organisation_id' => $organisationId,
-                'email'           => $email,
-                'registry_id'     => $unclaimedUser->registry_id,
-            ]);
-            $affiliation->setState(State::STATE_AFFILIATION_INVITED);
-
-            TriggerEmail::spawnEmail([
-                'type'       => 'USER',
-                'to'         => $unclaimedUser->id,
-                'by'         => $organisationId,
-                'identifier' => 'project_user_invite',
-                'typeInvite' => 'project_user_invite',
-            ]);
-
-            return $unclaimedUser->id;
+    private function inviteProjectUser( string $firstName, string $lastName, string $email, int $organisationId, int $invitedBy, int $custodianId,): int {
+         
+        if (User::where('email', $email)->exists()) {
+            return User::where('email', $email)->value('id');
         }
+
+        $unclaimedUser = RMC::createUnclaimedUser([
+            'firstname'       => $firstName,
+            'lastname'        => $lastName,
+            'email'           => $email,
+            'organisation_id' => $organisationId,
+            'is_delegate'     => 0,
+            'user_group'      => User::GROUP_USERS,
+            'role'            => null,
+            'invited_by'      => $invitedBy,
+        ]);
+
+        $user = User::find($unclaimedUser->id);
+        $user->setState(State::STATE_INVITED);
+
+        $affiliation = Affiliation::create([
+            'organisation_id' => $organisationId,
+            'email'           => $email,
+            'registry_id'     => $unclaimedUser->registry_id,
+            'member_id' => '',
+            'relationship' => '',
+            'from' => '',
+            'to' => '',
+            'department' => '',
+            'role' => '',
+            'ror' => '',
+        ]);
+        
+        $affiliation->setState(State::STATE_AFFILIATION_INVITED);
+
+        $email = [
+            'type' => 'USER',
+            'to' => $unclaimedUser->id,
+            'by' => $organisationId,
+            'identifier' => 'custodian_user_invite',
+            'custodianId' => $custodianId,
+            'typeInvite' => 'custodian_user_invite',
+        ];
+        
+        TriggerEmail::spawnEmail($email);
+       
+        return $unclaimedUser->id;
+    }
 
     /**
      * @OA\Post(
@@ -1565,6 +1577,8 @@ class ProjectController extends Controller
             $custodianKey = $request->header('x-client-id');
 
             $custodian = Custodian::where('client_id', $custodianKey)->first();
+            $custodianId = $custodian->id;
+          
             $projectId = $input['projectId'];
 
             $projectBelongsToCustodian = Project::where('id', $projectId)
@@ -1578,7 +1592,7 @@ class ProjectController extends Controller
                     'message' => 'Project does not belong to this custodian'
                 ]);
             }
-
+            
 
             $custodianUser = $custodian->custodianUsers()
                 ->with('user')
@@ -1598,6 +1612,7 @@ class ProjectController extends Controller
                 $roles,
                 $projectId,
                 $custodianAdminUserId,
+                $custodianId,
                 &$createdUsers,
                 &$skippedUsers
             ) {
@@ -1624,20 +1639,24 @@ class ProjectController extends Controller
                     }
 
                     $user = User::where('email', $userInput['emailAddress'])->first();
-
+                    
                     if (!$user) {
+                        
                         $userId = $this->inviteProjectUser(
                             $userInput['firstName'],
                             $userInput['lastName'],
                             $userInput['emailAddress'],
                             $userInput['organisationId'],
-                            $custodianAdminUserId
+                            $custodianAdminUserId,
+                            $custodianId
                         );
+                        
 
                         $user = User::find($userId);
                     }
 
                     if (!$user || !$user->registry_id) {
+                       
                         $skippedUsers[] = [
                             'email' => $userInput['emailAddress'],
                             'reason' => 'User has no registry'
@@ -1647,6 +1666,7 @@ class ProjectController extends Controller
 
                     $registry = Registry::find($user->registry_id);
                     if (!$registry) {
+                       
                         $skippedUsers[] = [
                             'email' => $userInput['emailAddress'],
                             'reason' => 'Registry not found'
@@ -1662,10 +1682,18 @@ class ProjectController extends Controller
                         ->first();
 
                     if (!$affiliation) {
+                        
                         $affiliation = Affiliation::create([
                             'registry_id'     => $registryId,
                             'organisation_id' => $userInput['organisationId'],
-                            'email'           => $userInput['emailAddress']
+                            'email'           => $userInput['emailAddress'],
+                            'member_id' => '',
+                            'relationship' => '',
+                            'from' => '',
+                            'to' => '',
+                            'department' => '',
+                            'role' => '',
+                            'ror' => '',
                         ]);
 
                         $affiliation->setState(State::STATE_AFFILIATION_INVITED);
