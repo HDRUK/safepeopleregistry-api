@@ -206,7 +206,10 @@ class CustodianHasProjectOrganisationController extends Controller
             $puhca = CustodianHasProjectOrganisation::with([
                 'modelState.state',                
                 'projectOrganisation.organisation',
-                'projectOrganisation.project'
+                'projectOrganisation.project',
+                'projectOrganisation.organisation.sroOfficer',
+                'projectOrganisation.organisation.sroOfficer.departments',
+                'projectOrganisation.organisation.files',
             ])
                 ->where([
                     'project_has_organisation_id' => $projectOrganisationId,
