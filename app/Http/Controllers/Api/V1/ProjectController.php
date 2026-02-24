@@ -9,9 +9,11 @@ use App\Models\User;
 use App\Models\State;
 use App\Models\Project;
 use App\Models\Custodian;
+use App\Models\CustodianUser;
 use App\Models\ProjectRole;
 use App\Models\Registry;
 use App\Models\Affiliation;
+use App\Models\Permission;
 use App\Models\Organisation;
 use Illuminate\Http\Request;
 use App\Models\PendingInvite;
@@ -1592,13 +1594,24 @@ class ProjectController extends Controller
                     'message' => 'Project does not belong to this custodian'
                 ]);
             }
+
+            $adminPermission = Permission::where('name', 'CUSTODIAN_ADMIN')->firstOrFail();
             
+            $custodianUserAdminId = CustodianUser::where('custodian_id', $custodianId)
+                ->whereHas('userPermissions', function ($query) use ($adminPermission) {
+                    $query->where('permission_id', $adminPermission->id);
+                })
+                ->orderBy('id', 'asc')
+                ->value('id');
 
-            $custodianUser = $custodian->custodianUsers()
-                ->with('user')
-                ->first(); // this seems a lil risky but is the first user always the admin user?
-
-            $custodianAdminUserId = $custodianUser->user->id;
+            $custodiansAdminUserId = User::where('custodian_user_id', $custodianUserAdminId)->first()->id;
+ 
+            
+            if (!$custodiansAdminUserId) {
+                return $this->ErrorResponse([
+                    'message' => "No admin user exists for custodian"
+                ]);
+            }
 
             $roles = ProjectRole::whereIn('name', ProjectRole::PROJECT_ROLES)
                 ->get()
@@ -1611,7 +1624,7 @@ class ProjectController extends Controller
                 $input,
                 $roles,
                 $projectId,
-                $custodianAdminUserId,
+                $custodiansAdminUserId,
                 $custodianId,
                 &$createdUsers,
                 &$skippedUsers
@@ -1639,7 +1652,7 @@ class ProjectController extends Controller
                     }
 
                     $user = User::where('email', $userInput['emailAddress'])->first();
-                    
+                   
                     if (!$user) {
                         
                         $userId = $this->inviteProjectUser(
@@ -1647,7 +1660,7 @@ class ProjectController extends Controller
                             $userInput['lastName'],
                             $userInput['emailAddress'],
                             $userInput['organisationId'],
-                            $custodianAdminUserId,
+                            $custodiansAdminUserId,
                             $custodianId
                         );
                         
