@@ -9,6 +9,7 @@ use App\Models\State;
 use App\Models\Affiliation;
 use Illuminate\Http\Request;
 use App\Models\PendingInvite;
+use App\Models\Project;
 use App\Models\CustodianHasProjectUser;
 use Illuminate\Http\Response;
 use App\Http\Traits\Responses;
@@ -65,13 +66,27 @@ class AuthController extends Controller
                     $organisationId = $pendingInvite->organisation_id;
                     $email = $user->email;
 
+                    $digiIdent = $user->registry->digi_ident;
+
+                    if ($digiIdent){
+                        $projects = Project::whereHas('custodianHasProjectUser.projectHasUser', function ($q) use ($digiIdent) {
+                            $q->where('user_digital_ident', $digiIdent);
+                        })->get();
+
+                        foreach ($projects as $project) {
+                            if ($project->modelState) {
+                                $project->setState(State::STATE_AFFILIATION_INFO_REQUIRED);
+                            }
+                        }
+                    }
+
                     $existingAffiliation = Affiliation::where('organisation_id', $organisationId)
                         ->where('email', $email)
                         ->where('registry_id', $registryId)
                         ->first();
 
                     if (!$existingAffiliation && $user->user_group === User::GROUP_USERS) {
-                        Affiliation::create([
+                        $newAffiliation = Affiliation::create([
                             'organisation_id' => $organisationId,
                             'member_id' => '',
                             'relationship' => null,
@@ -83,7 +98,12 @@ class AuthController extends Controller
                             'ror' => null,
                             'registry_id' => $registryId,
                         ]);
+                        $newAffiliation->setState(State::STATE_AFFILIATION_INFO_REQUIRED);
+
+                    } else {
+                        $existingAffiliation->setState(State::STATE_AFFILIATION_INFO_REQUIRED);
                     }
+                    
                 }
 
                 if ($user->user_group === User::GROUP_USERS) {
