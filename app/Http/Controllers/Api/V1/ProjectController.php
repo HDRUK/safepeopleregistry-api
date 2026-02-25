@@ -8,8 +8,12 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\State;
 use App\Models\Project;
+use App\Models\Custodian;
+use App\Models\CustodianUser;
+use App\Models\ProjectRole;
 use App\Models\Registry;
 use App\Models\Affiliation;
+use App\Models\Permission;
 use App\Models\Organisation;
 use Illuminate\Http\Request;
 use App\Models\PendingInvite;
@@ -21,6 +25,7 @@ use Illuminate\Http\JsonResponse;
 use App\Traits\TracksModelChanges;
 use App\Models\ProjectHasCustodian;
 use App\Http\Controllers\Controller;
+use RegistryManagementController as RMC;
 use Illuminate\Support\Facades\Gate;
 use App\Exceptions\NotFoundException;
 use App\Models\ProjectHasSponsorship;
@@ -1470,4 +1475,275 @@ class ProjectController extends Controller
         ];
     }
 
+
+    private function inviteProjectUser( string $firstName, string $lastName, string $email, int $organisationId, int $invitedBy, int $custodianId,): int {
+         
+        if (User::where('email', $email)->exists()) {
+            return User::where('email', $email)->value('id');
+        }
+
+        $unclaimedUser = RMC::createUnclaimedUser([
+            'firstname'       => $firstName,
+            'lastname'        => $lastName,
+            'email'           => $email,
+            'organisation_id' => $organisationId,
+            'is_delegate'     => 0,
+            'user_group'      => User::GROUP_USERS,
+            'role'            => null,
+            'invited_by'      => $invitedBy,
+        ]);
+
+        $user = User::find($unclaimedUser->id);
+        $user->setState(State::STATE_INVITED);
+
+        $affiliation = Affiliation::create([
+            'organisation_id' => $organisationId,
+            'email'           => $email,
+            'registry_id'     => $unclaimedUser->registry_id,
+            'member_id' => '',
+            'relationship' => '',
+            'from' => '',
+            'to' => '',
+            'department' => '',
+            'role' => '',
+            'ror' => '',
+        ]);
+        
+        $affiliation->setState(State::STATE_AFFILIATION_INVITED);
+
+        $email = [
+            'type' => 'USER',
+            'to' => $unclaimedUser->id,
+            'by' => $organisationId,
+            'identifier' => 'custodian_user_invite',
+            'custodianId' => $custodianId,
+            'typeInvite' => 'custodian_user_invite',
+        ];
+        
+        TriggerEmail::spawnEmail($email);
+       
+        return $unclaimedUser->id;
+    }
+
+    /**
+     * @OA\Post(
+     *      path="/api/v1/project_users/bulk",
+     *      summary="Bulk invite Project Users",
+     *      description="Invite multiple users and attach them to a project",
+     *      tags={"ProjectUsers"},
+     *      security={{"bearerAuth":{}}},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              type="object",
+     *              required={"projectId","users"},
+     *              @OA\Property(property="projectId", type="integer", example=1),
+     *              @OA\Property(
+     *                  property="users",
+     *                  type="array",
+     *                  @OA\Items(
+     *                      type="object",
+     *                      @OA\Property(property="firstName", type="string", example="John"),
+     *                      @OA\Property(property="lastName", type="string", example="Doe"),
+     *                      @OA\Property(property="emailAddress", type="string", example="john@email.com"),
+     *                      @OA\Property(
+     *                          property="projectRole",
+     *                          type="string",
+     *                          enum={
+     *                              "Principal Investigator (PI)",
+     *                              "Co-Investigator (Co-I) / Sub-Investigator (Sub-I)",
+     *                              "Data Analyst",
+     *                              "Data Engineer",
+     *                              "Postdoc",
+     *                              "Research Fellow",
+     *                              "Researcher",
+     *                              "Student"
+     *                          },
+     *                          example="Principal Investigator (PI)"
+     *                      ),
+     *                      @OA\Property(property="organisationId", type="integer", example=2)
+     *                  )
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Success"
+     *      )
+     * )
+     */
+   public function bulkInviteProjectUsers(Request $request): JsonResponse
+    {
+        try {
+            $input = $request->all();
+            $custodianKey = $request->header('x-client-id');
+
+            $custodian = Custodian::where('client_id', $custodianKey)->first();
+            $custodianId = $custodian->id;
+          
+            $projectId = $input['projectId'];
+
+            $projectBelongsToCustodian = Project::where('id', $projectId)
+                ->whereHas('custodians', function ($query) use ($custodian) {
+                    $query->where('custodian_id', $custodian->id);
+                })
+                ->exists();
+
+            if (!$projectBelongsToCustodian) {
+                return $this->ForbiddenResponse([
+                    'message' => 'Project does not belong to this custodian'
+                ]);
+            }
+
+            $adminPermission = Permission::where('name', 'CUSTODIAN_ADMIN')->firstOrFail();
+            
+            $custodianUserAdminId = CustodianUser::where('custodian_id', $custodianId)
+                ->whereHas('userPermissions', function ($query) use ($adminPermission) {
+                    $query->where('permission_id', $adminPermission->id);
+                })
+                ->orderBy('id', 'asc')
+                ->value('id');
+
+            $custodiansAdminUserId = User::where('custodian_user_id', $custodianUserAdminId)->first()->id;
+ 
+            
+            if (!$custodiansAdminUserId) {
+                return $this->ErrorResponse([
+                    'message' => "No admin user exists for custodian"
+                ]);
+            }
+
+            $roles = ProjectRole::whereIn('name', ProjectRole::PROJECT_ROLES)
+                ->get()
+                ->keyBy('name');
+
+            $createdUsers = [];
+            $skippedUsers = [];
+
+            \DB::transaction(function () use (
+                $input,
+                $roles,
+                $projectId,
+                $custodiansAdminUserId,
+                $custodianId,
+                &$createdUsers,
+                &$skippedUsers
+            ) {
+
+                foreach ($input['users'] as $userInput) {
+
+                    $projectRoleName = $userInput['projectRole'] ?? null;
+
+                    if (!$projectRoleName || !in_array($projectRoleName, ProjectRole::PROJECT_ROLES)) {
+                        $skippedUsers[] = [
+                            'email' => $userInput['emailAddress'],
+                            'reason' => 'Invalid projectRole'
+                        ];
+                        continue;
+                    }
+
+                    $role = $roles->get($projectRoleName);
+                    if (!$role) {
+                        $skippedUsers[] = [
+                            'email' => $userInput['emailAddress'],
+                            'reason' => 'Role not found in system'
+                        ];
+                        continue;
+                    }
+
+                    $user = User::where('email', $userInput['emailAddress'])->first();
+                   
+                    if (!$user) {
+                        
+                        $userId = $this->inviteProjectUser(
+                            $userInput['firstName'],
+                            $userInput['lastName'],
+                            $userInput['emailAddress'],
+                            $userInput['organisationId'],
+                            $custodiansAdminUserId,
+                            $custodianId
+                        );
+                        
+
+                        $user = User::find($userId);
+                    }
+
+                    if (!$user || !$user->registry_id) {
+                       
+                        $skippedUsers[] = [
+                            'email' => $userInput['emailAddress'],
+                            'reason' => 'User has no registry'
+                        ];
+                        continue;
+                    }
+
+                    $registry = Registry::find($user->registry_id);
+                    if (!$registry) {
+                       
+                        $skippedUsers[] = [
+                            'email' => $userInput['emailAddress'],
+                            'reason' => 'Registry not found'
+                        ];
+                        continue;
+                    }
+
+                    $registryId = $registry->id;
+                    $digiIdent  = $registry->digi_ident;
+
+                    $affiliation = Affiliation::where('registry_id', $registryId)
+                        ->where('organisation_id', $userInput['organisationId'])
+                        ->first();
+
+                    if (!$affiliation) {
+                        
+                        $affiliation = Affiliation::create([
+                            'registry_id'     => $registryId,
+                            'organisation_id' => $userInput['organisationId'],
+                            'email'           => $userInput['emailAddress'],
+                            'member_id' => '',
+                            'relationship' => '',
+                            'from' => '',
+                            'to' => '',
+                            'department' => '',
+                            'role' => '',
+                            'ror' => '',
+                        ]);
+
+                        $affiliation->setState(State::STATE_AFFILIATION_INVITED);
+                    }
+
+                    $alreadyAssigned = ProjectHasUser::where('project_id', $projectId)
+                        ->where('user_digital_ident', $digiIdent)
+                        ->where('affiliation_id', $affiliation->id)
+                        ->exists();
+
+                    if ($alreadyAssigned) {
+                        $skippedUsers[] = [
+                            'email' => $userInput['emailAddress'],
+                            'reason' => 'Already assigned to project'
+                        ];
+                        continue;
+                    }
+
+                    ProjectHasUser::create([
+                        'project_id'         => $projectId,
+                        'user_digital_ident' => $digiIdent,
+                        'project_role_id'    => $role->id,
+                        'primary_contact'    => $userInput['primaryContact'] ?? 0,
+                        'affiliation_id'     => $affiliation->id,
+                    ]);
+
+                    $createdUsers[] = $user->id;
+                }
+            });
+
+            return $this->CreatedResponse([
+                'created_user_ids' => $createdUsers,
+                'skipped' => $skippedUsers
+            ]);
+
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
 }
