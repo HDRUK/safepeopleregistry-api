@@ -7,6 +7,7 @@ use Tests\TestCase;
 use App\Models\User;
 use App\Models\State;
 use App\Models\Project;
+use App\Models\ProjectRole;
 use App\Models\Registry;
 use App\Models\Custodian;
 use App\Models\Affiliation;
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\Queue;
 use App\Models\CustodianHasProjectUser;
 use KeycloakGuard\ActingAsKeycloakUser;
 use Spatie\WebhookServer\CallWebhookJob;
+use Illuminate\Support\Facades\Hash;
 
 class ProjectTest extends TestCase
 {
@@ -944,6 +946,163 @@ class ProjectTest extends TestCase
         $this->assertEquals($contenResendInvite, 'Sponsorship request email resent.');
     }
 
+
+    public function test_the_application_can_bulk_invite_project_users(): void
+    {
+        $custodian = Custodian::first();
+        $project = Project::first();
+        $organisation = Organisation::first();
+        $role = ProjectRole::whereIn('name', ProjectRole::PROJECT_ROLES)->first();
+
+        ProjectHasCustodian::firstOrCreate([
+            'project_id' => $project->id,
+            'custodian_id' => $custodian->id,
+        ]);
+
+        $salt1 = config('speedi.system.custodian_salt_1');
+        $salt2 = config('speedi.system.custodian_salt_2');
+
+        $custodian->calculated_hash = Hash::make(
+            $custodian->client_id . ':' . $salt1 . ':' . $salt2
+        );
+        $custodian->save();
+
+        $payload = [
+            'projectId' => $project->id,
+            'users' => [
+                [
+                    'firstName' => 'John',
+                    'lastName' => 'Doe',
+                    'emailAddress' => 'john.bulk@example.com',
+                    'projectRole' => $role->name,
+                    'organisationId' => $organisation->id,
+                    'primaryContact' => 1,
+                ],
+            ],
+        ];
+
+        $jsonPayload = json_encode($payload, JSON_UNESCAPED_SLASHES);
+
+        $signature = base64_encode(
+            hash_hmac(
+                'sha256',
+                $jsonPayload,
+                $custodian->unique_identifier,
+                true
+            )
+        );
+
+        $response = $this
+            ->withHeader('x-client-id', $custodian->client_id)
+            ->withHeader('x-signature', $signature)
+            ->json('POST', '/api/v1/project_users/bulk', $payload);
+
+        $response->assertStatus(201);
+
+        $data = $response->decodeResponseJson()['data'];
+
+        $this->assertCount(1, $data['created_user_ids']);
+        $this->assertEmpty($data['skipped']);
+    }
+
+    public function test_bulk_invite_skips_already_assigned_users(): void
+    {
+        $custodian = Custodian::first();
+        $project = Project::first();
+        $organisation = Organisation::first();
+        $role = ProjectRole::whereIn('name', ProjectRole::PROJECT_ROLES)->first();
+
+        ProjectHasCustodian::firstOrCreate([
+            'project_id' => $project->id,
+            'custodian_id' => $custodian->id,
+        ]);
+
+        $salt1 = config('speedi.system.custodian_salt_1');
+        $salt2 = config('speedi.system.custodian_salt_2');
+
+        $custodian->calculated_hash = Hash::make(
+            $custodian->client_id . ':' . $salt1 . ':' . $salt2
+        );
+        $custodian->save();
+
+       
+        $user = User::factory()->create([
+            'email' => 'existing.user@example.com',
+        ]);
+
+        $registry = Registry::create([
+            'user_id' => $user->id,
+            'digi_ident' => bcrypt('existing-user-ident'),
+        ]);
+
+        $user->update([
+            'registry_id' => $registry->id,
+        ]);
+
+        $affiliation = Affiliation::create([
+            'registry_id' => $registry->id,
+            'organisation_id' => $organisation->id,
+            'email' => $user->email,
+            'member_id' => '',
+            'relationship' => '',
+            'from' => '',
+            'to' => '',
+            'department' => '',
+            'role' => '',
+            'ror' => '',
+        ]);
+
+        ProjectHasUser::create([
+            'project_id' => $project->id,
+            'user_digital_ident' => $registry->digi_ident,
+            'project_role_id' => $role->id,
+            'affiliation_id' => $affiliation->id,
+            'primary_contact' => 0,
+        ]);
+
+        $payload = [
+            'projectId' => $project->id,
+            'users' => [
+                [
+                    'firstName' => 'Existing',
+                    'lastName' => 'User',
+                    'emailAddress' => 'existing.user@example.com',
+                    'projectRole' => $role->name,
+                    'organisationId' => $organisation->id,
+                ],
+            ],
+        ];
+
+       
+        $jsonPayload = json_encode($payload, JSON_UNESCAPED_SLASHES);
+
+        $signature = base64_encode(
+            hash_hmac(
+                'sha256',
+                $jsonPayload,
+                $custodian->unique_identifier,
+                true
+            )
+        );
+
+        $response = $this
+            ->withHeader('x-client-id', $custodian->client_id)
+            ->withHeader('x-signature', $signature)
+            ->json('POST', '/api/v1/project_users/bulk', $payload);
+
+        $response->assertStatus(201);
+
+        $data = $response->decodeResponseJson()['data'];
+
+        $this->assertEmpty($data['created_user_ids']);
+
+        $this->assertCount(1, $data['skipped']);
+
+        $this->assertEquals(
+            'Already assigned to project',
+            $data['skipped'][0]['reason']
+        );
+    }
 
     /** Only seem to be returning 401 / 403 in tests */
     // public function test_the_application_cannot_show_a_user_for_a_project_when_not_custodian(): void
