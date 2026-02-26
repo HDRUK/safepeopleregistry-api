@@ -9,7 +9,6 @@ use App\Models\State;
 use App\Models\Affiliation;
 use Illuminate\Http\Request;
 use App\Models\PendingInvite;
-use App\Models\Project;
 use App\Models\CustodianHasProjectUser;
 use Illuminate\Http\Response;
 use App\Http\Traits\Responses;
@@ -60,9 +59,13 @@ class AuthController extends Controller
 
             if (isset($createdUser['unclaimed_user_id'])) {
                 $pendingInvite = $this->acceptInvite($createdUser['unclaimed_user_id']);
+                \Log::info('<<<<<<<<$pendingInvite');
+                \Log::info($pendingInvite);
 
                 if ($pendingInvite) {
                     $registryId = $user->registry_id;
+                    \Log::info('<<<<<<<<$registryId');
+                    \Log::info($registryId);
                     $organisationId = $pendingInvite->organisation_id;
                     $email = $user->email;
 
@@ -70,7 +73,8 @@ class AuthController extends Controller
                         ->where('email', $email)
                         ->where('registry_id', $registryId)
                         ->first();
-
+                    \Log::info('<<<<<<<<$existingAffiliation');
+                    \Log::info($existingAffiliation);
                     if (!$existingAffiliation && $user->user_group === User::GROUP_USERS) {
                         $newAffiliation = Affiliation::create([
                             'organisation_id' => $organisationId,
