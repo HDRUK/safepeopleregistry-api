@@ -66,20 +66,6 @@ class AuthController extends Controller
                     $organisationId = $pendingInvite->organisation_id;
                     $email = $user->email;
 
-                    $digiIdent = $user->registry->digi_ident;
-
-                    if ($digiIdent){
-                        $projects = Project::whereHas('custodianHasProjectUser.projectHasUser', function ($q) use ($digiIdent) {
-                            $q->where('user_digital_ident', $digiIdent);
-                        })->get();
-
-                        foreach ($projects as $project) {
-                            if ($project->modelState) {
-                                $project->setState(State::STATE_AFFILIATION_INFO_REQUIRED);
-                            }
-                        }
-                    }
-
                     $existingAffiliation = Affiliation::where('organisation_id', $organisationId)
                         ->where('email', $email)
                         ->where('registry_id', $registryId)
