@@ -9,6 +9,7 @@ use App\Models\State;
 use App\Models\Affiliation;
 use Illuminate\Http\Request;
 use App\Models\PendingInvite;
+use App\Models\Project;
 use App\Models\CustodianHasProjectUser;
 use Illuminate\Http\Response;
 use App\Http\Traits\Responses;
@@ -71,7 +72,7 @@ class AuthController extends Controller
                         ->first();
 
                     if (!$existingAffiliation && $user->user_group === User::GROUP_USERS) {
-                        Affiliation::create([
+                        $newAffiliation = Affiliation::create([
                             'organisation_id' => $organisationId,
                             'member_id' => '',
                             'relationship' => null,
@@ -83,7 +84,12 @@ class AuthController extends Controller
                             'ror' => null,
                             'registry_id' => $registryId,
                         ]);
+                        $newAffiliation->setState(State::STATE_AFFILIATION_INFO_REQUIRED);
+
+                    } else {
+                        $existingAffiliation->setState(State::STATE_AFFILIATION_INFO_REQUIRED);
                     }
+                    
                 }
 
                 if ($user->user_group === User::GROUP_USERS) {
