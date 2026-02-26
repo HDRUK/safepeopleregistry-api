@@ -31,6 +31,7 @@ class SendEmailJob implements ShouldQueue
     private $address = null;
 
     public $tries = 3;
+    public $timeout = 120;
 
     private MicrosoftGraphService $mgs;
 
