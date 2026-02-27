@@ -247,6 +247,7 @@ class RegistryManagementController
         $registry = null;
         $userData = null;
         $isRegistry = 1;
+        $isOrgGroup = $user['user_group'] === User::GROUP_ORGANISATIONS;
 
         try {
             if (isset($user['user_group']) && ($user['user_group'] === 'CUSTODIANS' || $user['user_group'] === 'ORGANISATIONS')) {
@@ -277,7 +278,7 @@ class RegistryManagementController
                 'is_delegate' => $user['is_delegate'] ?? 0,
                 'role' => $user['role'] ?? null,
                 'invited_by' => $user['invited_by'] ?? null,
-                'is_sro' => $user['is_sro'] ?? 1,
+                'is_sro' => $user['is_sro'] ?? $isOrgGroup ? 1 : 0,
             ];
 
             if ($strictCreate) {
