@@ -96,6 +96,7 @@ class CustodianHasProjectOrganisationController extends Controller
             $records = CustodianHasProjectOrganisation::with([
                 'modelState.state',
                 'projectOrganisation.organisation.sroOfficer',
+                'projectOrganisation.organisation.modelState.state',
                 'projectOrganisation.project',
                 'projectOrganisation.organisation' =>  function ($query) {
                     $query->withCount('affiliations');
@@ -203,8 +204,12 @@ class CustodianHasProjectOrganisationController extends Controller
             }
 
             $puhca = CustodianHasProjectOrganisation::with([
-                'modelState.state',
-                'projectOrganisation.organisation'
+                'modelState.state',                
+                'projectOrganisation.organisation',
+                'projectOrganisation.project',
+                'projectOrganisation.organisation.sroOfficer',
+                'projectOrganisation.organisation.sroOfficer.departments',
+                'projectOrganisation.organisation.files',
             ])
                 ->where([
                     'project_has_organisation_id' => $projectOrganisationId,

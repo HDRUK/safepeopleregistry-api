@@ -58,12 +58,14 @@ use App\Http\Requests\Organisations\OrganisationInviteUser;
 use App\Http\Requests\Organisations\OrganisationValidateRor;
 use App\Http\Requests\Organisations\UpdateSponsorshipStatus;
 use App\Traits\Notifications\NotificationOrganisationManager;
+use App\Traits\OrganisationsProjectUtils;
 use App\Notifications\Organisations\OrganisationUpdateProfile;
 use App\Http\Requests\Organisations\OrganisationUpdateApprover;
 
 class OrganisationController extends Controller
 {
     use CommonFunctions;
+    use OrganisationsProjectUtils;
     use Responses;
     use NotificationOrganisationManager;
 
@@ -132,7 +134,7 @@ class OrganisationController extends Controller
                     'registries.user',
                     'registries.user.permissions',
                     'delegates',
-                    'sroOfficer',
+                    'sroOfficer.invitedBy.custodian_user',
                     'modelState.state'
                 ])
                 ->filterWhen('has_delegates', function ($query, $hasDelegates) {
@@ -548,7 +550,7 @@ class OrganisationController extends Controller
                     'user_group' => User::GROUP_ORGANISATIONS,
                     'is_org_admin' => 1,
                     'organisation_id' => $organisation->id,
-                ]);
+                ]);           
 
                 return $this->CreatedResponse([
                     'user_id' => $user->id,
@@ -718,8 +720,15 @@ class OrganisationController extends Controller
             $isRegistering = isset($input['unclaimed']) && $input['unclaimed'] === 0 && $org->unclaimed;
 
             $org->update($input);
+
             if ($isRegistering) {
                 $org->setState(State::STATE_ORGANISATION_REGISTERED);
+
+                if($org->system_approved) {
+                    $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_PENDING);  
+                } else {
+                    $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_SYSTEM_APPROVAL);  
+                }
             }
 
             $loggedInUserId = $request->user()->id;
@@ -1344,6 +1353,7 @@ class OrganisationController extends Controller
                 'user_group' => isset($input['user_group']) ? $input['user_group'] : 'USERS',
                 'role' => isset($input['role']) ? $input['role'] : null,
                 'invited_by' => $request->user()->id,
+                'is_sro' => 0
             ]);
 
             if (isset($input['department_id']) && $input['department_id'] !== 0 && $input['department_id'] != null) {
@@ -1557,6 +1567,7 @@ class OrganisationController extends Controller
                 'user_group' => User::GROUP_ORGANISATIONS,
                 'organisation_id' => $id,
                 'invited_by' => $request->user()->id,
+                'is_sro' => 1
             ]);
 
             if (!$unclaimedUser->unclaimed) {
@@ -1900,6 +1911,14 @@ class OrganisationController extends Controller
                 'system_approved' => $input['system_approved'],
                 'system_approved_at' => Carbon::now(),
             ]);
+
+            if($org->unclaimed) {
+                if(!$input['system_approved']) {
+                    $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_SYSTEM_APPROVAL);  
+                } else {
+                    $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_PENDING); 
+                }
+            }
 
             // email
             $input = [

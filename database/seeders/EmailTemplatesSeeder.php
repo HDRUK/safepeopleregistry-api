@@ -159,7 +159,7 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="20px 0px 20px 0px">
                                   [[custodian.name]]
                                   <div><br></div>
-                                  You"ve been invited to sign-up as a trusted Data Custodian, for the [[env(APP_NAME)]].
+                                  You\'ve been invited to sign-up as a trusted Data Custodian, for the [[env(APP_NAME)]].
                                   <div><br></div>
                                   ' . $this->whatIsBlurb . '
                                   <div><br></div>
@@ -173,7 +173,7 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="10px 15px 0px 15px">
                                 To begin your sign-up process, please click the button below.
                                 </mj-text>
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 15px 15px 15px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]?login_hint=[[registration.email]]" padding="10px 15px 15px 15px">
                                   Sign me up!
                                 </mj-button>
                               </mj-column>
@@ -231,7 +231,7 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="10px 15px 0px 15px">
                                 To begin your sign-up process, please click the button below.
                                 </mj-text>
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]?invite_code=[[inviteCode]]" padding="10px 15px 15px 15px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]?invite_code=[[inviteCode]]?login_hint=[[registration.email]]" padding="10px 15px 15px 15px">
                                   Sign me up!
                                 </mj-button>
                               </mj-column>
@@ -257,7 +257,7 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="20px 0px 20px 0px">
                                   ' . $this->whatIsBlurb . '
                                   <div><br></div>
-                                  You"ve been added to the [[env(APP_NAME)]] by [[custodian.name]]. Please follow the link below to make a profile. [[custodian.name]] will use your [[env(APP_NAME)]] profile to validate you under the "safe people" criteria of the Five Safes.
+                                  You\'ve been added to the [[env(APP_NAME)]] by [[custodian.name]]. Please follow the link below to make a profile. [[custodian.name]] will use your [[env(APP_NAME)]] profile to validate you under the "safe people" criteria of the Five Safes.
                                   <div><br/></div>
                                   ' . $this->supportFooter . '
                                 </mj-text>
@@ -269,7 +269,7 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="10px 15px 0px 15px">
                                   Create your account by clicking the button below.
                                 </mj-text>
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 15px 15px 15px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]?login_hint=[[registration.email]]" padding="10px 15px 15px 15px">
                                   Sign me up!
                                 </mj-button>
                               </mj-column>
@@ -296,7 +296,7 @@ class EmailTemplatesSeeder extends Seeder
 
                                   [[users.first_name]] [[users.last_name]]
                                   <div><br></div>
-                                  You"ve been invited to sign-up as a User (researcher/innovator) within the [[env(APP_NAME)]] by [[organisation.organisation_name]].
+                                  You\'ve been invited to sign-up as a User (researcher/innovator) within the [[env(APP_NAME)]] by [[organisation.organisation_name]].
                                   <div><br></div>
                                   ' . $this->whatIsBlurb . '
                                   <div><br></div>
@@ -312,7 +312,7 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="10px 15px 0px 15px">
                                   Create your account by clicking the button below.
                                 </mj-text>
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 15px 15px 15px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]?login_hint=[[registration.email]]" padding="10px 15px 15px 15px">
                                   Sign me up!
                                 </mj-button>
                               </mj-column>
@@ -339,7 +339,7 @@ class EmailTemplatesSeeder extends Seeder
 
                                   [[users.first_name]] [[users.last_name]]
                                   <div><br></div>
-                                  You"ve been invited to sign-up as an Approver within the [[env(APP_NAME)]] for the Data Custodian: [[custodian.name]].
+                                  You\'ve been invited to sign-up as an Approver within the [[env(APP_NAME)]] for the Data Custodian: [[custodian.name]].
                                   <div><br></div>
                                   ' . $this->whatIsBlurb . '
                                   <div><br></div>
@@ -355,7 +355,7 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="10px 15px 0px 15px">
                                   Create your account by clicking the button below.
                                 </mj-text>
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 15px 15px 15px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]?login_hint=[[registration.email]]" padding="10px 15px 15px 15px">
                                   Sign me up!
                                 </mj-button>
                               </mj-column>
@@ -382,7 +382,7 @@ class EmailTemplatesSeeder extends Seeder
 
                                   [[users.first_name]] [[users.last_name]]
                                   <div><br></div>
-                                  You"ve been invited to sign-up as an Administrator within the [[env(APP_NAME)]] for the Data Custodian: [[custodian.name]].
+                                  You\'ve been invited to sign-up as an Administrator within the [[env(APP_NAME)]] for the Data Custodian: [[custodian.name]].
                                   <div><br></div>
                                   ' . $this->whatIsBlurb . '
                                   <div><br></div>
@@ -398,7 +398,7 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="10px 15px 0px 15px">
                                   Create your account by clicking the button below.
                                 </mj-text>
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 15px 15px 15px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]?login_hint=[[registration.email]]" padding="10px 15px 15px 15px">
                                   Sign me up!
                                 </mj-button>
                               </mj-column>
@@ -424,7 +424,7 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="20px 0px 20px 0px">
                                   ' . $this->whatIsBlurb . '
                                   <div><br></div>
-                                  You"ve been added to the [[env(APP_NAME)]] by [[custodian.name]]. Please follow the link below to make a profile. [[custodian.name]] will use your [[env(APP_NAME)]] profile to validate you under the "safe people" criteria of the Five Safes.
+                                  You\'ve been added to the [[env(APP_NAME)]] by [[custodian.name]]. Please follow the link below to make a profile. [[custodian.name]] will use your [[env(APP_NAME)]] profile to validate you under the "safe people" criteria of the Five Safes.
                                   <div><br></div>
                                   ' . $this->supportFooter . '
                                 </mj-text>
@@ -436,7 +436,7 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="10px 15px 0px 15px">
                                 Create your account by clicking the button below.
                                 </mj-text>
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 15px 15px 15px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]?login_hint=[[registration.email]]" padding="10px 15px 15px 15px">
                                   Sign me up!
                                 </mj-button>
                               </mj-column>
@@ -560,7 +560,7 @@ class EmailTemplatesSeeder extends Seeder
           ],
           [
             'identifier' => 'researcher_without_organisation_invite',
-            'subject' => 'You"ve been invited to join the Researcher Registry',
+            'subject' => 'You\'ve been invited to join the Researcher Registry',
             'body' => '<mjml>
                         ' . $this->mjmlHead . '
                         <mj-body background-color="#efeeea" width="600px" >
@@ -569,7 +569,7 @@ class EmailTemplatesSeeder extends Seeder
                               <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
                                 <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
                                   <mj-text align="left" padding="10px 25px 10px 25px" >
-                                    [[users.first_name]] [[users.last_name]]<br><br>You"ve been invited to sign-up as a Researcher within the [[env(APP_NAME)]] Registry system. To begin your sign-up process, please 
+                                    [[users.first_name]] [[users.last_name]]<br><br>You\'ve been invited to sign-up as a Researcher within the [[env(APP_NAME)]] Registry system. To begin your sign-up process, please 
                                     click the button below.
                                     <div><br></div>
                                     ' . $this->supportFooter . '
@@ -581,7 +581,7 @@ class EmailTemplatesSeeder extends Seeder
                               </mj-section>
                               <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="left" padding="0px 0px 0px 0px" >
                                 <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px" >
-                                  <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 25px 10px 25px" >Sign me up!</mj-button>
+                                  <mj-button align="center" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]?login_hint=[[registration.email]]" padding="10px 25px 10px 25px" >Sign me up!</mj-button>
                                 </mj-column>
                               </mj-section>
                             </mj-wrapper>
@@ -604,7 +604,7 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="20px 0px 20px 0px">
                                   [[users.first_name]] [[users.last_name]]
                                   <br><br>
-                                  You"ve been invited to sign-up as a delegate user within the [[env(APP_NAME)]], by [[organisation.organisation_name]].
+                                  You\'ve been invited to sign-up as a delegate user within the [[env(APP_NAME)]], by [[organisation.organisation_name]].
                                   <div><br></div>
                                   ' . $this->whatIsBlurb . '
                                   <div><br></div>
@@ -620,7 +620,7 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="10px 15px 0px 15px">
                                   Create your account by clicking the button below.
                                 </mj-text>
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 15px 15px 15px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]?login_hint=[[registration.email]]" padding="10px 15px 15px 15px">
                                   Sign me up!
                                 </mj-button>
                               </mj-column>
@@ -737,7 +737,7 @@ class EmailTemplatesSeeder extends Seeder
                               <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
                                 <mj-text align="left" padding="20px 0px 20px 0px">
 
-                                  You"ve been added to [[project_name]] in the [[env(APP_NAME)]]. You can follow the link below to see your project list and follow your validation status.
+                                  You\'ve been added to [[project_name]] in the [[env(APP_NAME)]]. You can follow the link below to see your project list and follow your validation status.
                                   <div><br></div>
                                   ' . $this->supportFooter . '
 
@@ -887,7 +887,7 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="10px 15px 0px 15px">
                                 I confirm sponsorship on behalf of [[organisation_name]]! of the project [[project_name]]! 
                                 </mj-text>
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]" padding="10px 15px 15px 15px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]?login_hint=[[registration.email]]" padding="10px 15px 15px 15px">
                                   Sign me up!
                                 </mj-button>
                               </mj-column>

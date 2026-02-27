@@ -7,7 +7,10 @@ use Keycloak;
 use Exception;
 use TriggerEmail;
 use App\Models\Permission;
+use Illuminate\Http\Response;
+use App\Http\Traits\Responses;
 use Illuminate\Http\Request;
+use App\Models\Custodian;
 use App\Models\CustodianUser;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
@@ -21,7 +24,9 @@ use App\Traits\Notifications\NotificationCustodianManager;
 
 class CustodianUserController extends Controller
 {
+    
     use NotificationCustodianManager;
+    use Responses;
 
     /**
      * @OA\Get(
@@ -227,6 +232,131 @@ class CustodianUserController extends Controller
             throw new Exception($e->getMessage());
         }
     }
+
+
+    /**
+     * @OA\Post(
+     *      path="/api/v1/custodian_users/bulk",
+     *      summary="Create multiple CustodianUser entries",
+     *      description="Create multiple CustodianUser entries",
+     *      tags={"CustodianUser"},
+     *      security={{"bearerAuth":{}}},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          description="Array of CustodianUser definitions",
+     *          @OA\JsonContent(
+     *              type="object",
+     *              @OA\Property(
+     *                  property="users",
+     *                  type="array",
+     *                  @OA\Items(
+     *                      @OA\Property(property="first_name", type="string", example="John"),
+     *                      @OA\Property(property="last_name", type="string", example="Doe"),
+     *                      @OA\Property(property="email", type="string", example="john@example.com"),
+     *                      @OA\Property(
+     *                      property="permission",
+     *                      type="string",
+     *                       enum={"CUSTODIAN_ADMIN","CUSTODIAN_APPROVER"},
+     *                       example="CUSTODIAN_ADMIN"
+     *                      )
+     *                  )
+     *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="array",
+     *                  @OA\Items(type="integer", example=1)
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=500,
+     *          description="Error",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="error")
+     *          )
+     *      )
+     * )
+     */
+    public function bulkStore(Request $request): JsonResponse
+    {
+        try {
+            
+            $input = $request->all();
+            $custodianKey = $request->header('x-client-id', null);
+
+            
+            $custodianId = Custodian::where('client_id', $custodianKey)->first()->id;
+
+            $createdUserIds = [];
+
+            $createdUserIds = [];
+            $skippedUsers = [];
+
+            foreach ($input['users'] as $userInput) {
+
+                if (
+                    !isset($userInput['permission']) ||
+                    !in_array($userInput['permission'], ['CUSTODIAN_ADMIN', 'CUSTODIAN_APPROVER'])
+                ) {
+                    return response()->json([
+                        'message' => 'permission must be either CUSTODIAN_ADMIN or CUSTODIAN_APPROVER'
+                    ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                }
+
+                $existingUser = CustodianUser::where('email', $userInput['email'])
+                    ->where('custodian_id', $custodianId)
+                    ->first();
+
+                if ($existingUser) {
+                    $skippedUsers[] = [
+                        'email' => $userInput['email'],
+                        'reason' => 'already exists'
+                    ];
+                    continue;
+                }
+
+                $user = CustodianUser::create([
+                    'first_name'   => $userInput['first_name'],
+                    'last_name'    => $userInput['last_name'],
+                    'email'        => $userInput['email'],
+                    'provider'     => '',
+                    'keycloak_id'  => '',
+                    'custodian_id' => $custodianId,
+                ]);
+
+                $createdUserIds[] = $user->id;
+
+                $permission = Permission::where('name', $userInput['permission'])->first();
+
+                if (!$permission) {
+                    return $this->UnprocessableContent('Invalid permission provided');
+                }
+
+                CustodianUserHasPermission::create([
+                    'custodian_user_id' => $user->id,
+                    'permission_id'     => $permission->id,
+                ]);
+            }
+
+
+        return $this->CreatedResponse([
+            'created_user_ids' => $createdUserIds,
+            'skipped' => $skippedUsers,
+        ]);
+
+
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
 
     /**
      * @OA\Put(

@@ -9,6 +9,8 @@ use App\Models\State;
 use App\Models\Affiliation;
 use Illuminate\Http\Request;
 use App\Models\PendingInvite;
+use App\Models\Project;
+use App\Models\CustodianHasProjectUser;
 use Illuminate\Http\Response;
 use App\Http\Traits\Responses;
 use Illuminate\Http\JsonResponse;
@@ -70,7 +72,7 @@ class AuthController extends Controller
                         ->first();
 
                     if (!$existingAffiliation && $user->user_group === User::GROUP_USERS) {
-                        Affiliation::create([
+                        $newAffiliation = Affiliation::create([
                             'organisation_id' => $organisationId,
                             'member_id' => '',
                             'relationship' => null,
@@ -82,13 +84,25 @@ class AuthController extends Controller
                             'ror' => null,
                             'registry_id' => $registryId,
                         ]);
+                        $newAffiliation->setState(State::STATE_AFFILIATION_INFO_REQUIRED);
+
+                    } else {
+                        $existingAffiliation->setState(State::STATE_AFFILIATION_INFO_REQUIRED);
                     }
+                    
                 }
 
-                return response()->json([
-                    'message' => 'success',
-                    'data' => $user,
-                ], 201);
+                if ($user->user_group === User::GROUP_USERS) {
+                    $custodianHasProjectUsers = CustodianHasProjectUser::query()
+                        ->whereHas('projectHasUser.registry.user', function ($query) use ($user) {
+                            $query->where('id', $user->id);
+                        })->get();
+                
+
+                    foreach ($custodianHasProjectUsers as $custodianHasProjectUser) {
+                        $custodianHasProjectUser->setState(State::STATE_PENDING);
+                    }
+                }
             }
 
             return response()->json([

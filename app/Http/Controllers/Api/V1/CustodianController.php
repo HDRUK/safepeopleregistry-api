@@ -1427,9 +1427,8 @@ class CustodianController extends Controller
         $record = CustodianHasProjectUser::with([
                 'modelState.state',
             ])
-        ->where('custodian_has_project_has_user.custodian_id', $custodianId)
-        ->where('custodian_has_project_has_user.project_has_user_id', $projectUserId)
-        ->join('project_has_users', 'custodian_has_project_has_user.project_has_user_id', '=', 'project_has_users.id')
+        ->where('custodian_id', $custodianId)
+        ->where('project_has_user_id', $projectUserId)
         ->first();
 
         return $record->modelState ?? null;

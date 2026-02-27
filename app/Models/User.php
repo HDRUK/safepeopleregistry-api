@@ -410,6 +410,14 @@ class User extends Authenticatable
         );
     }
 
+    public function invitedBy()
+    {
+        return $this->belongsTo(
+            User::class,
+            'invited_by'
+        );
+    }    
+
     public function scopeWithProjectMembership($query, $projectId)
     {
         return $query->withExists([
