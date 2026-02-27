@@ -1,3 +1,30 @@
+## [1.28.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.27.0...v1.28.0) (2026-02-27)
+
+### ✨ Features
+
+* **GAT-8387:** added release workflow pipeline (#662) ([956d2d5](https://github.com/HDRUK/safepeopleregistry-api/commit/956d2d5a8e0bbadae26513646326dbb970c76e0b)), closes [GAT-8387](GAT-8387)
+* **GAT-8387:** updated action checkout version (#663) ([30455f8](https://github.com/HDRUK/safepeopleregistry-api/commit/30455f8f22b8f6c08bb5752c80dbf82f8b62ae42)), closes [GAT-8387](GAT-8387)
+* **REGISTRY-0000:** sro resetting org system_approved (#657) ([b922019](https://github.com/HDRUK/safepeopleregistry-api/commit/b9220195a712a5ec6c0e7f66d0bde75d28f71d3d))
+* **REGISTRY-1924:** add additional org fields (#668) ([219cd15](https://github.com/HDRUK/safepeopleregistry-api/commit/219cd154b617cce12911a0541adb9c1234fbf7f9))
+* **REGISTRY-1954:** Add org invited status to workflow (#649) ([74c3347](https://github.com/HDRUK/safepeopleregistry-api/commit/74c3347b8b943adb69ac477e4398e7783619780b))
+* **REGISTRY-2270:** reset status when affiliation email verified (#653) ([2536621](https://github.com/HDRUK/safepeopleregistry-api/commit/253662165616a9cff00355b211623af847349b8e))
+* **REGISTRY-2332:** Prefill out email address in registration (#656) ([3e1b8de](https://github.com/HDRUK/safepeopleregistry-api/commit/3e1b8def6d3701bfd4a7a50eff88076297318995))
+* **REGISTRY-2406:** add invited user invo to org (#655) ([dfadafe](https://github.com/HDRUK/safepeopleregistry-api/commit/dfadafe7e06b187cddb4b7c18b7e4c4b40dd531c))
+* **REGISTRY-2425:** fix transitions for org state (#652) ([67da1a3](https://github.com/HDRUK/safepeopleregistry-api/commit/67da1a3ee8be4037167bd34f5c8c4824a4cfcd6e))
+* **REGISTRY-2465:** Bulk custodian users (#654) ([58c75c1](https://github.com/HDRUK/safepeopleregistry-api/commit/58c75c1245209fc6dc5162c0636ae6270df1aff8))
+* **REGISTRY-2542:** add org modelstate (#650) ([ac564c4](https://github.com/HDRUK/safepeopleregistry-api/commit/ac564c49635c2a0c7db2a6a2e6a0d6e1a92a7efe))
+* **REGISTRY-2556:** bulk invite project users (#664) ([b95ec92](https://github.com/HDRUK/safepeopleregistry-api/commit/b95ec923d91ba1d77ff8ccb5cfc6ea590c30c279))
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-0000:** Hidden fields for org (#665) ([fd2f5a6](https://github.com/HDRUK/safepeopleregistry-api/commit/fd2f5a6f12aec96a0de5ad737e8afb0ba303aa01))
+* **REGISTRY-0000:** Increase timeout (#670) ([3e57496](https://github.com/HDRUK/safepeopleregistry-api/commit/3e57496868da13b95f49ce4a3c07d387d7a27d21))
+* **REGISTRY-0000:** Stop defaulting every user to sro (#673) ([c7ff85e](https://github.com/HDRUK/safepeopleregistry-api/commit/c7ff85eca87ae7bf2c27c35266053b741f096221))
+* **REGISTRY-1712:** Sponsor email not sent on newly invited org (#651) ([56d7100](https://github.com/HDRUK/safepeopleregistry-api/commit/56d71000912b91cdf8a38c92025c17bbcbcf0176))
+* **REGISTRY-2332:** status for user affiliation (#660) ([2b1506d](https://github.com/HDRUK/safepeopleregistry-api/commit/2b1506debda2b047673cb60e55f709b205c1ffcb))
+* **REGISTRY-2450:** Return projectOrganisation.project for header (#661) ([7a73279](https://github.com/HDRUK/safepeopleregistry-api/commit/7a73279e12147a0ac208570703387b915bfcf796))
+* **REGISTRY-2563:** Statuses, Statuses, Statuses (#669) ([7c55f30](https://github.com/HDRUK/safepeopleregistry-api/commit/7c55f30770652a469018afe4405342daee86e994))
+
 ## [1.27.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.26.3...v1.27.0) (2026-02-19)
 
 ### ✨ Features
