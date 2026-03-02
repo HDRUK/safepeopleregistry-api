@@ -27,5 +27,11 @@ else
     echo "running in prod mode"
 fi
 
-php artisan horizon &
+# php artisan horizon &
+php artisan queue:work \
+    --sleep=1 \
+    --tries=3 \
+    --timeout=120 \
+    --backoff=5 &
+
 $base_command
