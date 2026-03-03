@@ -194,6 +194,26 @@ use App\Traits\FilterManager;
  *          type="boolean",
  *          example="false",
  *          description="Whether this Organisation has been approved to use the system or not"
+ *      ),
+ *      @OA\Property(property="ods_id",
+ *          type="string",
+ *          example="ABC1234",
+ *      ),
+ *      @OA\Property(property="dsptk_date_last_published",
+ *          type="string",
+ *          example="2026-12-01"
+ *      ),
+ *      @OA\Property(property="ico_registration_id",
+ *          type="string",
+ *          example="ABC1234",
+ *      ),
+ *      @OA\Property(property="ico_date_registered",
+ *          type="string",
+ *          example="2026-12-01"
+ *      ),
+ *      @OA\Property(property="ico_expiry_date",
+ *          type="string",
+ *          example="2026-12-01"
  *      )
  * )
  * @property int $id
@@ -390,6 +410,11 @@ class Organisation extends Model
         'sro_profile_uri',
         'is_sro',
         'system_approved_at',
+        'ods_id',
+        'dsptk_date_last_published' ,
+        'ico_registration_id',
+        'ico_date_registered',
+        'ico_expiry_date',
     ];
 
     protected $casts = [
