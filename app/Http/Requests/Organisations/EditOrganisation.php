@@ -51,6 +51,11 @@ class EditOrganisation extends FormRequest
             'website' => 'nullable|url',
             'smb_status' => 'sometimes|boolean',
             'organisation_size' => 'sometimes|integer',
+            'ods_id' => 'nullable|string',
+            'dsptk_date_last_published' => 'nullable|date_format:Y-m-d',
+            'ico_registration_id' => 'nullable|string',
+            'ico_date_registered' => 'nullable|date_format:Y-m-d',
+            'ico_expiry_date' => 'nullable|date_format:Y-m-d',
         ];
     }
 }

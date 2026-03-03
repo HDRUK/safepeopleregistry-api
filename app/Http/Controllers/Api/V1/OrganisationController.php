@@ -445,6 +445,11 @@ class OrganisationController extends Controller
                 'organisation_size' => $input['organisation_size'],
                 'system_approved' => $input['system_approved'] ?? 0,
                 'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
+                'ods_id' => $input['ods_id'] ?? null,
+                'dsptk_date_last_published' => $input['dsptk_date_last_published'] ?? null,
+                'ico_registration_id' => $input['ico_registration_id'] ?? null,
+                'ico_date_registered' => $input['ico_date_registered'] ?? null,
+                'ico_expiry_date' => $input['ico_expiry_date'] ?? null,
             ]);
 
             if (isset($input['departments'])) {
@@ -538,6 +543,11 @@ class OrganisationController extends Controller
                 'system_approved' => $input['system_approved'] ?? 0,
                 'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
                 'organisation_unique_id' => Str::random(40),
+                'ods_id' => null,
+                'dsptk_date_last_published' => null,
+                'ico_registration_id' => null,
+                'ico_date_registered' => null,
+                'ico_expiry_date' => null,
             ];
 
             $organisation = Organisation::create($organisationsData);
@@ -617,6 +627,11 @@ class OrganisationController extends Controller
                 'system_approved' => $input['system_approved'] ?? 0,
                 'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
                 'organisation_unique_id' => Str::random(40),
+                'ods_id' => $input['ods_id'] ?? null,
+                'dsptk_date_last_published' => $input['dsptk_date_last_published'] ?? null,
+                'ico_registration_id' => $input['ico_registration_id'] ?? null,
+                'ico_date_registered' => $input['ico_date_registered'] ?? null,
+                'ico_expiry_date' => $input['ico_expiry_date'] ?? null,
             ]);
 
             $organisation->setState(State::STATE_INVITED);
