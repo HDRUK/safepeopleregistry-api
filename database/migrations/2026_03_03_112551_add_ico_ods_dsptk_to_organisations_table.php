@@ -27,13 +27,13 @@ return new class () extends Migration {
     public function down(): void
     {
         Schema::table('organisations', function (Blueprint $table) {
-            $table->dropColumn('ods_id')->nullable();
+            $table->dropColumn('ods_id');
 
-            $table->dropColumn('dsptk_date_last_published')->nullable();
+            $table->dropColumn('dsptk_date_last_published');
 
-            $table->dropColumn('ico_registration_id')->nullable();
-            $table->dropColumn('ico_date_registered')->nullable();
-            $table->dropColumn('ico_expiry_date')->nullable();
+            $table->dropColumn('ico_registration_id');
+            $table->dropColumn('ico_date_registered');
+            $table->dropColumn('ico_expiry_date');
         });
     }
 };
