@@ -523,9 +523,7 @@ class CustodianHasProjectOrganisationController extends Controller
             ])->first();
 
             if (!$projectOrganisation) {
-                return response()->json([
-                    'message' => 'Organisation not found for this project'
-                ], 404);
+                return $this->NotFoundResponse();
             }
 
             $custodianHasProjectOrganisation = CustodianHasProjectOrganisation::with([
@@ -536,20 +534,13 @@ class CustodianHasProjectOrganisationController extends Controller
             ])->first();
 
             if (!$custodianHasProjectOrganisation) {
-                return response()->json([
-                    'message' => 'Custodian project organisation not found'
-                ], 404);
+                return $this->NotFoundResponse();
             }
 
-            return response()->json([
-                'message' => 'success',
-                'data' => $custodianHasProjectOrganisation->modelState,
-            ], 200);
+            return $this->OKResponse($custodianHasProjectOrganisation->modelState);
 
         } catch (Exception $e) {
-            return response()->json([
-                'message' => 'An error occurred: ' . $e->getMessage()
-            ], 500);
+            return $this->ErrorResponse($e->getMessage());
         }
     }
 }

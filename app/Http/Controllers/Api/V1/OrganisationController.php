@@ -1929,10 +1929,7 @@ class OrganisationController extends Controller
         try {
             $organisation = Organisation::with('modelState.state')
             ->findOrFail($id);
-            return response()->json([
-                'message' => 'success',
-                'data' => $organisation->modelState,
-            ], 200);
+            return $this->OKResponse($organisation->modelState);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
