@@ -289,14 +289,12 @@ class FileUploadController extends Controller
                 $userAdmins = User::where('user_group', User::GROUP_ADMINS)->select(['id'])->get();
                 foreach ($userAdmins as $userAdmin) {
                      
-                    $emailInput = [
+                    TriggerEmail::spawnEmail([
                         'type' => 'ORGANISATION_NEEDS_CONFIRMATION',
                         'to' => $organisation->id,
                         'by' => $userAdmin->id,
                         'identifier' => 'organisation_confirmation_needed'
-                    ];
-
-                    TriggerEmail::spawnEmail($emailInput);
+                    ]);
                     
                 }
 
