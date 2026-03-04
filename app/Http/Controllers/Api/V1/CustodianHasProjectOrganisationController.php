@@ -422,11 +422,11 @@ class CustodianHasProjectOrganisationController extends Controller
         return $this->OKResponse(CustodianHasProjectOrganisation::getTransitions());
     }
 
-    /**
+   /**
      * @OA\Get(
      *     path="/api/v1/custodian_approvals/{custodianId}/project/{projectId}/organisation/{organisationId}/projectOrganisations/status",
      *     summary="Get project organisation status",
-     *     description="This will use the custodian id and project id to get the project organisation id then query to get the status,
+     *     description="Retrieve the status of a project organisation for a specific custodian using custodianId, projectId, and organisationId.",
      *     tags={"organisations"},
      *     security={{"bearerAuth":{}}},
      *
@@ -434,7 +434,7 @@ class CustodianHasProjectOrganisationController extends Controller
      *         name="custodianId",
      *         in="path",
      *         required=true,
-     *         description="custodian ID",
+     *         description="Custodian ID",
      *         @OA\Schema(
      *             type="integer",
      *             example=1
@@ -442,13 +442,24 @@ class CustodianHasProjectOrganisationController extends Controller
      *     ),
      * 
      *     @OA\Parameter(
-     *         name="projectOrganisationId",
+     *         name="projectId",
      *         in="path",
      *         required=true,
-     *         description="project organisation ID",
+     *         description="Project ID",
      *         @OA\Schema(
      *             type="integer",
-     *             example=1
+     *             example=10
+     *         )
+     *     ),
+     * 
+     *     @OA\Parameter(
+     *         name="organisationId",
+     *         in="path",
+     *         required=true,
+     *         description="Organisation ID",
+     *         @OA\Schema(
+     *             type="integer",
+     *             example=5
      *         )
      *     ),
      *
@@ -457,22 +468,16 @@ class CustodianHasProjectOrganisationController extends Controller
      *         description="Successful operation",
      *         @OA\JsonContent(
      *             type="object",
-     *             @OA\Property(
-     *                 property="message",
-     *                 type="string",
-     *                 example="success"
-     *             ),
+     *             @OA\Property(property="message", type="string", example="success"),
      *             @OA\Property(
      *                 property="data",
      *                 type="object",
      *                 @OA\Property(property="id", type="integer", example=1),
      *                 @OA\Property(property="name", type="string", example="Example Organisation"),
-     *
      *                 @OA\Property(
      *                     property="model_state",
      *                     type="object",
      *                     @OA\Property(property="id", type="integer", example=5),
-     *
      *                     @OA\Property(
      *                         property="state",
      *                         type="object",
@@ -494,9 +499,17 @@ class CustodianHasProjectOrganisationController extends Controller
      *
      *     @OA\Response(
      *         response=404,
-     *         description="Organisation not found",
+     *         description="Organisation or custodian project organisation not found",
      *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Organisation not found")
+     *             @OA\Property(property="message", type="string", example="Organisation not found for this project")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="An error occurred: Unexpected error")
      *         )
      *     )
      * )
@@ -508,7 +521,6 @@ class CustodianHasProjectOrganisationController extends Controller
                 'project_id' => $projectId,
                 'organisation_id' => $organisationId
             ])->first();
-        
 
             if (!$projectOrganisation) {
                 return response()->json([
