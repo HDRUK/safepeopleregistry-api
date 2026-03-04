@@ -61,6 +61,7 @@ use App\Traits\Notifications\NotificationOrganisationManager;
 use App\Traits\OrganisationsProjectUtils;
 use App\Notifications\Organisations\OrganisationUpdateProfile;
 use App\Http\Requests\Organisations\OrganisationUpdateApprover;
+use App\Http\Requests\Organisations\GetStatus;
 
 class OrganisationController extends Controller
 {
@@ -1848,6 +1849,89 @@ class OrganisationController extends Controller
             return response()->json([
                 'message' => 'success',
                 'data' => $users,
+            ], 200);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/organisations/{id}/status",
+     *     summary="Get organisation status",
+     *     description="Returns the organisation with its model state and state",
+     *     tags={"organisations"},
+     *     security={{"bearerAuth":{}}},
+     *
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Organisation ID",
+     *         @OA\Schema(
+     *             type="integer",
+     *             example=1
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *                 example="success"
+     *             ),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="name", type="string", example="Example Organisation"),
+     *
+     *                 @OA\Property(
+     *                     property="model_state",
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer", example=5),
+     *
+     *                     @OA\Property(
+     *                         property="state",
+     *                         type="object",
+     *                         @OA\Property(property="id", type="integer", example=2),
+     *                         @OA\Property(property="name", type="string", example="Active")
+     *                     )
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid argument(s)",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=404,
+     *         description="Organisation not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Organisation not found")
+     *         )
+     *     )
+     * )
+     */
+    public function getStatus(GetStatus $request, int $id): JsonResponse
+    {
+        try {
+            $organisation = Organisation::with('modelState.state')
+            ->findOrFail($id);
+            return response()->json([
+                'message' => 'success',
+                'data' => $organisation->modelState,
             ], 200);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());

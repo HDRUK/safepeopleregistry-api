@@ -7,6 +7,7 @@ use App\Models\State;
 use App\Models\Custodian;
 use App\Models\Organisation;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use App\Http\Traits\Responses;
 use App\Traits\CommonFunctions;
 use App\Http\Controllers\Controller;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Gate;
 use App\Models\ProjectHasOrganisation;
 use App\Models\CustodianHasProjectOrganisation;
 use App\Traits\Notifications\NotificationCustodianManager;
+use App\Http\Requests\CustodianHasProjectOrganisation\GetStatus;
 use App\Http\Requests\CustodianHasProjectOrganisation\GetCustodianHasProjectOrganisation;
 use App\Http\Requests\CustodianHasProjectOrganisation\GetAllCustodianHasProjectOrganisation;
 use App\Http\Requests\CustodianHasProjectOrganisation\UpdateCustodianHasProjectOrganisation;
@@ -418,5 +420,124 @@ class CustodianHasProjectOrganisationController extends Controller
     public function getWorkflowTransitions(Request $request)
     {
         return $this->OKResponse(CustodianHasProjectOrganisation::getTransitions());
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/custodian_approvals/{custodianId}/project/{projectId}/organisation/{organisationId}/projectOrganisations/status",
+     *     summary="Get project organisation status",
+     *     description="This will use the custodian id and project id to get the project organisation id then query to get the status,
+     *     tags={"organisations"},
+     *     security={{"bearerAuth":{}}},
+     *
+     *     @OA\Parameter(
+     *         name="custodianId",
+     *         in="path",
+     *         required=true,
+     *         description="custodian ID",
+     *         @OA\Schema(
+     *             type="integer",
+     *             example=1
+     *         )
+     *     ),
+     * 
+     *     @OA\Parameter(
+     *         name="projectOrganisationId",
+     *         in="path",
+     *         required=true,
+     *         description="project organisation ID",
+     *         @OA\Schema(
+     *             type="integer",
+     *             example=1
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *                 example="success"
+     *             ),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="name", type="string", example="Example Organisation"),
+     *
+     *                 @OA\Property(
+     *                     property="model_state",
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer", example=5),
+     *
+     *                     @OA\Property(
+     *                         property="state",
+     *                         type="object",
+     *                         @OA\Property(property="id", type="integer", example=2),
+     *                         @OA\Property(property="name", type="string", example="Active")
+     *                     )
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid argument(s)",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=404,
+     *         description="Organisation not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Organisation not found")
+     *         )
+     *     )
+     * )
+     */
+    public function getStatus(GetStatus $request, int $custodianId, int $projectId, int $organisationId): JsonResponse
+    {
+        try {
+            $projectOrganisation = ProjectHasOrganisation::where([
+                'project_id' => $projectId,
+                'organisation_id' => $organisationId
+            ])->first();
+        
+
+            if (!$projectOrganisation) {
+                return response()->json([
+                    'message' => 'Organisation not found for this project'
+                ], 404);
+            }
+
+            $custodianHasProjectOrganisation = CustodianHasProjectOrganisation::with([
+                'modelState.state'
+            ])->where([
+                'project_has_organisation_id' => $projectOrganisation->id,
+                'custodian_id' => $custodianId
+            ])->first();
+
+            if (!$custodianHasProjectOrganisation) {
+                return response()->json([
+                    'message' => 'Custodian project organisation not found'
+                ], 404);
+            }
+
+            return response()->json([
+                'message' => 'success',
+                'data' => $custodianHasProjectOrganisation->modelState,
+            ], 200);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
