@@ -423,6 +423,7 @@ class Organisation extends Model
         'ico_date_registered',
         'ico_expiry_date',
         'ico_expiry_evidence',
+        'dsptk_status',
     ];
 
     protected $casts = [
