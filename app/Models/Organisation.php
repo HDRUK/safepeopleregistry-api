@@ -199,6 +199,10 @@ use App\Traits\FilterManager;
  *          type="string",
  *          example="ABC1234",
  *      ),
+ *      @OA\Property(property="dsptk_status",
+ *          type="string",
+ *          example="2024-25 (version 7) - Standards met",
+ *      ),
  *      @OA\Property(property="dsptk_date_last_published",
  *          type="string",
  *          example="2026-12-01"

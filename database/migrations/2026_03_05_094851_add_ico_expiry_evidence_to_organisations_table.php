@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('organisations', function (Blueprint $table) {
+            $table->string('dsptk_status')->after('dsptk_certified')->nullable();
             $table->unsignedBigInteger('ico_expiry_evidence')->after('ico_expiry_date')->nullable();
             $table->foreign('ico_expiry_evidence')->references('id')->on('files')->onDelete('set null');
         });
@@ -25,6 +26,7 @@ return new class extends Migration
         Schema::table('organisations', function (Blueprint $table) {
             $table->dropForeign(['ico_expiry_evidence']);
             $table->dropColumn('ico_expiry_evidence');
+            $table->dropColumn('dsptk_status');
         });
     }
 };
