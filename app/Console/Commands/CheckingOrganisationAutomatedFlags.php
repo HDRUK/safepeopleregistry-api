@@ -88,7 +88,6 @@ class CheckingOrganisationAutomatedFlags extends Command
                             'cePlusExpiryEvidence',
                             'isoExpiryEvidence',
                             'dsptkExpiryEvidence',
-                            'icoExpiryEvidence',
                             'charities',
                             'registries',
                             'registries.user',
