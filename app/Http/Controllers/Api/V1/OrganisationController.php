@@ -228,6 +228,7 @@ class OrganisationController extends Controller
             'cePlusExpiryEvidence',
             'isoExpiryEvidence',
             'dsptkExpiryEvidence',
+            'icokExpiryEvidence',
             'charities',
             'registries',
             'registries.user',

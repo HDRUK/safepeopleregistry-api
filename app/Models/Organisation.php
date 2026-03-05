@@ -238,6 +238,7 @@ use App\Traits\FilterManager;
  * @property int $dsptk_certified
  * @property \Illuminate\Support\Carbon|null $dsptk_expiry_date
  * @property int|null $dsptk_expiry_evidence
+ * @property int|null $ico_expiry_evidence
  * @property bool $iso_27001_certified
  * @property bool $ce_certified
  * @property string|null $ce_certification_num
@@ -274,6 +275,7 @@ use App\Traits\FilterManager;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Department> $departments
  * @property-read int|null $departments_count
  * @property-read \App\Models\File|null $dsptkExpiryEvidence
+ * @property-read \App\Models\File|null $icokExpiryEvidence 
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\File> $files
  * @property-read int|null $files_count
  * @property-read mixed $evaluation
@@ -323,6 +325,7 @@ use App\Traits\FilterManager;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereDsptkCertified($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereDsptkExpiryDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereDsptkExpiryEvidence($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereIcokExpiryEvidence($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereDsptkOdsCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereFundersAndSponsors($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereId($value)
@@ -415,6 +418,7 @@ class Organisation extends Model
         'ico_registration_id',
         'ico_date_registered',
         'ico_expiry_date',
+        'ico_expiry_evidence',
     ];
 
     protected $casts = [
@@ -639,6 +643,14 @@ class Organisation extends Model
     public function dsptkExpiryEvidence(): BelongsTo
     {
         return $this->belongsTo(File::class, 'dsptk_expiry_evidence');
+    }
+
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\File>
+     */
+    public function icokExpiryEvidence(): BelongsTo
+    {
+        return $this->belongsTo(File::class, 'ico_expiry_evidence');
     }
 
     /**
