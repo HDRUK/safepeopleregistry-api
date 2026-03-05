@@ -56,6 +56,8 @@ class EditOrganisation extends FormRequest
             'ico_registration_id' => 'nullable|string',
             'ico_date_registered' => 'nullable|date_format:Y-m-d',
             'ico_expiry_date' => 'nullable|date_format:Y-m-d',
+            'ico_expiry_evidence' => 'sometimes|integer',
+
         ];
     }
 }

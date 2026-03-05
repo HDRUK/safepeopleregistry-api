@@ -577,6 +577,8 @@ class ActionLogTest extends TestCase
             'ce_plus_certification_num' => fake()->numberBetween(1000, 2000),
             'ce_plus_expiry_date' => fake()->dateTimeBetween('+1 year', '+5 years')->format('Y-m-d'),
             'ce_plus_expiry_evidence' => $this->file->id,
+            'ico_expiry_evidence' => $this->file->id,
+
         ]);
 
         $response = $this->actingAs($this->admin)
