@@ -1342,7 +1342,7 @@ class CustodianController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/api/v1/custodians/{custodianId}/organisations/{organisationId}/projects/{projectId}/users/{userId}/statuses",
+     *      path="/api/v1/custodians/{custodianId}/projectUsers/{projectUserId}/statuses",
      *      summary="Get statuses for a user in a project/organisation/custodian",
      *      description="Fetches the user statuses given custodian and organisations and project and user IDs.",
      *      tags={"Custodians"},
@@ -1354,26 +1354,13 @@ class CustodianController extends Controller
      *          @OA\Schema(type="integer")
      *      ),
      *      @OA\Parameter(
-     *          name="organisationId",
+     *          name="projectUserId",
      *          in="path",
      *          required=true,
-     *          description="ID of the organiastion",
+     *          description="ID of the project user",
      *          @OA\Schema(type="integer")
      *      ),
-     *      @OA\Parameter(
-     *          name="projectId",
-     *          in="path",
-     *          required=true,
-     *          description="ID of the project",
-     *          @OA\Schema(type="integer")
-     *      ),
-     *      @OA\Parameter(
-     *          name="userId",
-     *          in="path",
-     *          required=true,
-     *          description="ID of the user",
-     *          @OA\Schema(type="integer")
-     *      ),
+
      *      @OA\Response(
      *          response=200,
      *          description="Successfully retrieved organisation users",

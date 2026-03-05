@@ -118,4 +118,37 @@ class CustodianProjectOrganisationTest extends TestCase
         $message = $response->decodeResponseJson()['message'];
         $this->assertEquals('Invalid argument(s)', $message);
     }
+
+    public function test_get_status_returns_project_organisation_status(): void
+    {
+        $custodian = Custodian::first();
+        $project = Project::first();
+        $organisation = Organisation::first();
+
+        $projectOrganisation = ProjectHasOrganisation::firstOrCreate([
+            'project_id' => $project->id,
+            'organisation_id' => $organisation->id,
+        ]);
+
+        $custodianHasProjectOrganisation = CustodianHasProjectOrganisation::firstOrCreate([
+            'custodian_id' => $custodian->id,
+            'project_has_organisation_id' => $projectOrganisation->id,
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->json('GET', self::TEST_URL . "/{$custodian->id}/project/{$project->id}/organisation/{$organisation->id}/projectOrganisations/status");
+
+        $response->assertStatus(200);
+
+        $responseData = $response->decodeResponseJson();
+
+        $this->assertEquals('success', $responseData['message']);
+        $responseData = $response->decodeResponseJson();
+
+        $this->assertEquals('success', $responseData['message']);
+        $this->assertArrayHasKey('id', $responseData['data']);
+        $this->assertArrayHasKey('state', $responseData['data']); 
+        $this->assertArrayHasKey('id', $responseData['data']['state']);
+        $this->assertArrayHasKey('name', $responseData['data']['state']);
+    }
 }
