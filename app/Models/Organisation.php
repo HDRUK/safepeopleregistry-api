@@ -275,7 +275,7 @@ use App\Traits\FilterManager;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Department> $departments
  * @property-read int|null $departments_count
  * @property-read \App\Models\File|null $dsptkExpiryEvidence
- * @property-read \App\Models\File|null $icokExpiryEvidence 
+ * @property-read \App\Models\File|null $icoExpiryEvidence 
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\File> $files
  * @property-read int|null $files_count
  * @property-read mixed $evaluation
@@ -325,7 +325,7 @@ use App\Traits\FilterManager;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereDsptkCertified($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereDsptkExpiryDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereDsptkExpiryEvidence($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereIcokExpiryEvidence($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereIcoExpiryEvidence($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereDsptkOdsCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereFundersAndSponsors($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereId($value)
@@ -648,7 +648,7 @@ class Organisation extends Model
     /**
      *  @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\File>
      */
-    public function icokExpiryEvidence(): BelongsTo
+    public function icoExpiryEvidence(): BelongsTo
     {
         return $this->belongsTo(File::class, 'ico_expiry_evidence');
     }
