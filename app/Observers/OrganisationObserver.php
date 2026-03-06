@@ -39,6 +39,7 @@ class OrganisationObserver
         'dsptk_ods_code',
         'dsptk_expiry_date',
         'dsptk_expiry_evidence',
+        'ico_expiry_evidence',
         'iso_27001_certification_num',
         'iso_expiry_date',
         'iso_expiry_evidence',
