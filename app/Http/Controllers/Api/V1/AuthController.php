@@ -100,7 +100,7 @@ class AuthController extends Controller
                 
 
                     foreach ($custodianHasProjectUsers as $custodianHasProjectUser) {
-                        $custodianHasProjectUser->setState(State::STATE_PENDING);
+                        $custodianHasProjectUser->setState(State::STATE_AFFILIATION_INFO_REQUIRED);
                     }
                 }
             }
