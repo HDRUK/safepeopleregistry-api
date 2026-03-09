@@ -277,6 +277,20 @@ class FileUploadController extends Controller
                     throw new Exception('Organisation not found');
                 }
 
+                if ($input['file_type'] === File::FILE_TYPE_DECLARATION_SRO) {
+
+                    $inProgressState = State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS;
+                    $invitedState = State::STATE_AFFILIATION_INVITED;
+                    $affiliations = Affiliation::where("organisation_id", $organisation->id)->get();
+
+                    foreach ($affiliations as $affiliation) {
+                        if ($affiliation->getState() === $invitedState){
+                            $affiliation->setState($inProgressState);
+                        }
+                    }
+                }
+
+
                 OrganisationHasFile::create([
                     'organisation_id' => $organisation->id,
                     'file_id' => $fileIn->id,
