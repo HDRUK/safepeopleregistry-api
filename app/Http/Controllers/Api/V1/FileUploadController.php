@@ -280,14 +280,21 @@ class FileUploadController extends Controller
                 if ($input['file_type'] === File::FILE_TYPE_DECLARATION_SRO) {
 
                     $inProgressState = State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS;
-                    $invitedState = State::STATE_AFFILIATION_INVITED;
-                    $affiliations = Affiliation::where("organisation_id", $organisation->id)->get();
+                    $isClaimed = !$organisation->unclaimed;
 
-                    foreach ($affiliations as $affiliation) {
-                        if ($affiliation->getState() === $invitedState){
-                            $affiliation->setState($inProgressState);
+                    if($isClaimed){
+                        $organisation->setState(State::STATE_ORG_IN_PROGRESS);
+
+                        $invitedState = State::STATE_AFFILIATION_INVITED;
+                        $affiliations = Affiliation::where("organisation_id", $organisation->id)->get();
+
+                        foreach ($affiliations as $affiliation) {
+                            if ($affiliation->getState() === $invitedState){
+                                $affiliation->setState($inProgressState);
+                            }
                         }
                     }
+                    
                 }
 
 

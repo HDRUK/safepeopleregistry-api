@@ -196,6 +196,10 @@ class OrganisationObserver
             $state = $unclaimed ? State::STATE_AFFILIATION_INVITED : State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS;
             $affiliations = Affiliation::where("organisation_id", $organisation->id)->get();
 
+            if (!$unclaimed){
+                $organisation->setState(State::STATE_ORG_IN_PROGRESS);
+            }
+
             foreach ($affiliations as $affiliation) {
                 $affiliation->setState($state);
             }
