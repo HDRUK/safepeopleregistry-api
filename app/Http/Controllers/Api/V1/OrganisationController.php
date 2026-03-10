@@ -2017,6 +2017,7 @@ class OrganisationController extends Controller
                     $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_SYSTEM_APPROVAL);  
                 } else {
                     $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_PENDING); 
+                    $org-setState(State::STATE_PENDING);
                 }
             }
 
