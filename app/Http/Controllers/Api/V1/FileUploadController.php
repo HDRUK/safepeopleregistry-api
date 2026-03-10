@@ -270,6 +270,7 @@ class FileUploadController extends Controller
                     'file_id' => $fileIn->id,
                 ]);
             } elseif (isset($input['organisation_id']) && $input['organisation_id'] != null) {
+                \Log::info('We are a lovely org');
 
                 $organisationId = intval($input['organisation_id']);
                 $organisation = Organisation::find($organisationId);
@@ -277,9 +278,14 @@ class FileUploadController extends Controller
                 if (!$organisation) {
                     throw new Exception('Organisation not found');
                 }
+                \Log::info('1');
+                \Log::info(strtolower($input['file_type']));
                 if (strtolower($input['file_type']) === File::FILE_TYPE_DECLARATION_SRO) {
+                \Log::info('2');
+
                     $inProgressState = State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS;
                     $isClaimed = !$organisation->unclaimed;
+                    \Log::info('3: '. $isClaimed);
 
                     if($isClaimed){
                         $organisation->setState(State::STATE_ORG_IN_PROGRESS);
