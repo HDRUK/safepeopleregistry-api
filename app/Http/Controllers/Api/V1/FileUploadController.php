@@ -288,21 +288,24 @@ class FileUploadController extends Controller
                     \Log::info('3: '. $isClaimed);
 
                     if($isClaimed){
-                        $organisation->setState(State::STATE_ORG_IN_PROGRESS);
+                        $custodianHasProjectOrganisations = CustodianHasProjectOrganisation::with('modelState.state')
+                            ->where('custodian_id', $custodianId)
+                            ->whereRelation('projectOrganisation', 'organisation_id', $organisationId)
+                            ->get();
+
 
                         $invitedState = State::STATE_AFFILIATION_INVITED;
                         $affiliations = Affiliation::with('registry.user')
                             ->where('organisation_id', $organisation->id)
                             ->get();
+
+                        foreach ($custodianHasProjectOrganisations as $approval) {
+                            $approval->setState(State::STATE_ORG_IN_PROGRESS));
+                        }
                         
 
                         foreach ($affiliations as $affiliation) {
                             $isClaimed = !$affiliation->registry->user->unclaimed;
-                            \Log::info('Affillation');
-                            \Log::info($affiliation->getState());
-                            \Log::info($affiliation->id);
-                            \Log::info($isClaimed);
-
                            if (
                                 $affiliation->getState() === $invitedState &&
                                 $affiliation->registry &&
