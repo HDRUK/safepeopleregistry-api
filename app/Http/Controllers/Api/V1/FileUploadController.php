@@ -297,7 +297,7 @@ class FileUploadController extends Controller
                         
 
                         foreach ($affiliations as $affiliation) {
-                            $isClaimed = !$affiliation->registry->user->unclaimed
+                            $isClaimed = !$affiliation->registry->user->unclaimed;
                             \Log::info('Affillation');
                             \Log::info($affiliation->getState());
                             \Log::info($affiliation->id);
