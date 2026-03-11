@@ -284,25 +284,27 @@ class FileUploadController extends Controller
                 if (strtolower($input['file_type']) === File::FILE_TYPE_DECLARATION_SRO) {
                 \Log::info('2');
 
-                    $inProgressState = State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS;
+                    
                     $isClaimed = !$organisation->unclaimed;
                     \Log::info('3: '. $isClaimed);
 
                     if($isClaimed){
-                        $custodianHasProjectOrganisations = CustodianHasProjectOrganisation::with('modelState.state')
-                            ->where('custodian_id', $custodianId)
-                            ->whereRelation('projectOrganisation', 'organisation_id', $organisationId)
-                            ->get();
-
+                       $inProgressState = State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS;
+                       
+                       CustodianHasProjectOrganisation::whereRelation(
+                            'projectOrganisation',
+                            'organisation_id',
+                            $organisationId
+                        )->each(function ($approval) {
+                            $approval->setState(State::STATE_ORG_IN_PROGRESS);
+                        });
 
                         $invitedState = State::STATE_AFFILIATION_INVITED;
                         $affiliations = Affiliation::with('registry.user')
                             ->where('organisation_id', $organisation->id)
                             ->get();
 
-                        foreach ($custodianHasProjectOrganisations as $approval) {
-                            $approval->setState(State::STATE_ORG_IN_PROGRESS);
-                        }
+                       
                         
 
                         foreach ($affiliations as $affiliation) {
