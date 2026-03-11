@@ -291,10 +291,19 @@ class FileUploadController extends Controller
                         $organisation->setState(State::STATE_ORG_IN_PROGRESS);
 
                         $invitedState = State::STATE_AFFILIATION_INVITED;
-                        $affiliations = Affiliation::where("organisation_id", $organisation->id)->get();
+                        $affiliations = Affiliation::with('registry.user')
+                            ->where('organisation_id', $organisation->id)
+                            ->get();
+                        
 
                         foreach ($affiliations as $affiliation) {
-                            if ($affiliation->getState() === $invitedState){
+                            
+                           if (
+                                $affiliation->getState() === $invitedState &&
+                                $affiliation->registry &&
+                                $affiliation->registry->user &&
+                                !$affiliation->registry->user->unclaimed
+                            ) {
                                 $affiliation->setState($inProgressState);
                             }
                         }
