@@ -300,7 +300,7 @@ class FileUploadController extends Controller
                             ->get();
 
                         foreach ($custodianHasProjectOrganisations as $approval) {
-                            $approval->setState(State::STATE_ORG_IN_PROGRESS));
+                            $approval->setState(State::STATE_ORG_IN_PROGRESS);
                         }
                         
 
