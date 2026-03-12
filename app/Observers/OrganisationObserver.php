@@ -12,6 +12,7 @@ use App\Models\State;
 use App\Models\ActionLog;
 use Carbon\Carbon;
 use App\Traits\ValidationManager;
+use App\Models\CustodianHasProjectOrganisation;
 
 class OrganisationObserver
 {
@@ -197,7 +198,13 @@ class OrganisationObserver
             $affiliations = Affiliation::where("organisation_id", $organisation->id)->get();
 
             if (!$unclaimed){
-                $organisation->setState(State::STATE_ORG_IN_PROGRESS);
+                CustodianHasProjectOrganisation::whereRelation(
+                        'projectOrganisation',
+                        'organisation_id',
+                        $$organisation->id
+                    )->each(fn ($approval) =>
+                        $approval->setState(State::STATE_ORG_IN_PROGRESS)
+                    ); // << this may... be wrong.. double check with r wendeh
             }
 
             foreach ($affiliations as $affiliation) {
