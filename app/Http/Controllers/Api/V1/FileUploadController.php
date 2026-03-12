@@ -279,7 +279,7 @@ class FileUploadController extends Controller
                     throw new Exception('Organisation not found');
                 }
 
-                if (strtolower($input['file_type']) === File::FILE_TYPE_DECLARATION_SRO && $organisation->unclaimed)) {
+                if (strtolower($input['file_type']) === File::FILE_TYPE_DECLARATION_SRO && $organisation->unclaimed) {
 
                     $inProgressState = State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS;
                     $invitedState = State::STATE_AFFILIATION_INVITED;
