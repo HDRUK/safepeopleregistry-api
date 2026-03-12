@@ -301,25 +301,7 @@ class FileUploadController extends Controller
                         $q->where('unclaimed', false)
                     )
                     ->each(fn ($affiliation) => $affiliation->setState($inProgressState));
-                    // Affiliation::with([
-                    //     'registry.user',
-                    //     'modelState'
-                    // ])
-                    // ->where('organisation_id', $organisation->id)
-                    // ->lazy()
-                    // ->each(function ($affiliation) use ($invitedState, $inProgressState) {
 
-                    //     if ($affiliation->getState() !== $invitedState) {
-                    //         return;
-                    //     }
-
-                    //     $user = $affiliation->registry->user ?? null;
-
-                    //     if ($user && !$user->unclaimed) {
-                    //         $affiliation->setState($inProgressState);
-                    //     }
-                    // });
-                    
                 }
 
                 OrganisationHasFile::create([
