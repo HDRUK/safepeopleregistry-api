@@ -201,7 +201,7 @@ class OrganisationObserver
                 CustodianHasProjectOrganisation::whereRelation(
                         'projectOrganisation',
                         'organisation_id',
-                        $$organisation->id
+                         $organisation->id
                     )->each(fn ($approval) =>
                         $approval->setState(State::STATE_ORG_IN_PROGRESS)
                     ); // << this may... be wrong.. double check with r wendeh
