@@ -271,7 +271,6 @@ class FileUploadController extends Controller
                     'file_id' => $fileIn->id,
                 ]);
             } elseif (isset($input['organisation_id']) && $input['organisation_id'] != null) {
-                \Log::info('We are a lovely org');
 
                 $organisationId = intval($input['organisation_id']);
                 $organisation = Organisation::find($organisationId);
@@ -279,48 +278,42 @@ class FileUploadController extends Controller
                 if (!$organisation) {
                     throw new Exception('Organisation not found');
                 }
-                \Log::info('1');
-                \Log::info(strtolower($input['file_type']));
+
                 if (strtolower($input['file_type']) === File::FILE_TYPE_DECLARATION_SRO) {
-                \Log::info('2');
 
                     
-                    $isClaimed = !$organisation->unclaimed;
-                    \Log::info('3: '. $isClaimed);
+                    if (!$organisation->unclaimed) {
 
-                    if($isClaimed){
-                       $inProgressState = State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS;
-                       
-                       CustodianHasProjectOrganisation::whereRelation(
+                        $inProgressState = State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS;
+                        $invitedState = State::STATE_AFFILIATION_INVITED;
+
+                        CustodianHasProjectOrganisation::whereRelation(
                             'projectOrganisation',
                             'organisation_id',
                             $organisationId
-                        )->each(function ($approval) {
-                            $approval->setState(State::STATE_ORG_IN_PROGRESS);
-                        });
+                        )->each(fn ($approval) =>
+                            $approval->setState(State::STATE_ORG_IN_PROGRESS)
+                        );
 
-                        $invitedState = State::STATE_AFFILIATION_INVITED;
-                        $affiliations = Affiliation::with('registry.user')
-                            ->where('organisation_id', $organisation->id)
-                            ->get();
+                        Affiliation::with([
+                            'registry.user',
+                            'modelState'
+                        ])
+                        ->where('organisation_id', $organisation->id)
+                        ->lazy()
+                        ->each(function ($affiliation) use ($invitedState, $inProgressState) {
 
-                       
-                        
+                            if ($affiliation->getState() !== $invitedState) {
+                                return;
+                            }
 
-                        foreach ($affiliations as $affiliation) {
-                            $isClaimed = !$affiliation->registry->user->unclaimed;
-                           if (
-                                $affiliation->getState() === $invitedState &&
-                                $affiliation->registry &&
-                                $affiliation->registry->user &&
-                                $isClaimed
-                            ) {
+                            $user = $affiliation->registry->user ?? null;
+
+                            if ($user && !$user->unclaimed) {
                                 $affiliation->setState($inProgressState);
                             }
-                        }
+                        });
                     }
-                    
-                }
 
 
                 OrganisationHasFile::create([
