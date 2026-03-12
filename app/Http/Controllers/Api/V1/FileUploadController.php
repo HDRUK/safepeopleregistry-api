@@ -292,24 +292,29 @@ class FileUploadController extends Controller
                         $approval->setState(State::STATE_ORG_IN_PROGRESS)
                     );
 
-                    Affiliation::with([
-                        'registry.user',
-                        'modelState'
-                    ])
-                    ->where('organisation_id', $organisation->id)
-                    ->lazy()
-                    ->each(function ($affiliation) use ($invitedState, $inProgressState) {
+                    Affiliation::with(['registry.user'])
+                        ->where('organisation_id', $organisation->id)
+                        ->whereHas('modelState', fn ($q) => $q->where('state', $invitedState))
+                        ->whereHas('registry.user', fn ($q) => $q->where('unclaimed', false))
+                        ->each(fn ($affiliation) => $affiliation->setState($inProgressState));
+                    // Affiliation::with([
+                    //     'registry.user',
+                    //     'modelState'
+                    // ])
+                    // ->where('organisation_id', $organisation->id)
+                    // ->lazy()
+                    // ->each(function ($affiliation) use ($invitedState, $inProgressState) {
 
-                        if ($affiliation->getState() !== $invitedState) {
-                            return;
-                        }
+                    //     if ($affiliation->getState() !== $invitedState) {
+                    //         return;
+                    //     }
 
-                        $user = $affiliation->registry->user ?? null;
+                    //     $user = $affiliation->registry->user ?? null;
 
-                        if ($user && !$user->unclaimed) {
-                            $affiliation->setState($inProgressState);
-                        }
-                    });
+                    //     if ($user && !$user->unclaimed) {
+                    //         $affiliation->setState($inProgressState);
+                    //     }
+                    // });
                     
                 }
 
