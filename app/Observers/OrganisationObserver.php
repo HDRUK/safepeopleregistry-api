@@ -111,7 +111,7 @@ class OrganisationObserver
             true
         );
 
-        $this->manageAffiliationStates($organisation);
+        $this->setUpAffiliationStates($organisation);
 
         $custodianIds = Custodian::select("id")->pluck("id");
         foreach ($custodianIds as $custodianId) {
@@ -166,7 +166,7 @@ class OrganisationObserver
             Organisation::ACTION_DATA_SECURITY_COMPLETED
         );
 
-        $this->manageAffiliationStates($organisation);
+        // $this->manageAffiliationStates($organisation);
     }
 
     private function checkIsComplete(Organisation $organisation, array $fields, string $action, bool $force = false): void
@@ -190,25 +190,25 @@ class OrganisationObserver
         }
     }
 
-    private function manageAffiliationStates(Organisation $organisation): void
+    private function setUpAffiliationStates(Organisation $organisation): void
     {
         if ($organisation->isDirty('unclaimed')) {
             $unclaimed = $organisation->unclaimed;
-            $state = $unclaimed ? State::STATE_AFFILIATION_INVITED : State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS;
+            // $state = $unclaimed ? State::STATE_AFFILIATION_INVITED : State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS;
             $affiliations = Affiliation::where("organisation_id", $organisation->id)->get();
 
-            if (!$unclaimed){
-                CustodianHasProjectOrganisation::whereRelation(
-                        'projectOrganisation',
-                        'organisation_id',
-                         $organisation->id
-                    )->each(fn ($approval) =>
-                        $approval->setState(State::STATE_ORG_IN_PROGRESS)
-                    ); // << this may... be wrong.. double check with r wendeh
-            }
+            // if (!$unclaimed){
+            //     CustodianHasProjectOrganisation::whereRelation(
+            //             'projectOrganisation',
+            //             'organisation_id',
+            //              $organisation->id
+            //         )->each(fn ($approval) =>
+            //             $approval->setState(State::STATE_ORG_IN_PROGRESS)
+            //         ); // << this may... be wrong.. double check with r wendeh
+            // }
 
             foreach ($affiliations as $affiliation) {
-                $affiliation->setState($state);
+                $affiliation->setState(State::STATE_AFFILIATION_INVITED);
             }
         }
     }
