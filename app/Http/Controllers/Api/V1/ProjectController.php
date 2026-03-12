@@ -1126,6 +1126,7 @@ class ProjectController extends Controller
 
             return $this->NotFoundResponse();
         } catch (Exception $e) {
+            \Log::error($e);
             return $this->ErrorResponse();
         }
     }
