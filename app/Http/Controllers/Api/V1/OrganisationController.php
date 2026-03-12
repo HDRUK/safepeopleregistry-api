@@ -2012,11 +2012,12 @@ class OrganisationController extends Controller
                 'system_approved_at' => Carbon::now(),
             ]);
 
-            if($org->unclaimed) {
+            if(!$org->unclaimed) {
                 if(!$input['system_approved']) {
                     $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_SYSTEM_APPROVAL);  
                 } else {
                     $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_PENDING); 
+                    $org->setState(State::STATE_PENDING);
                 }
             }
 

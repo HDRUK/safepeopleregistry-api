@@ -20,6 +20,7 @@ use App\Models\OrganisationHasFile;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Notification;
+use App\Models\CustodianHasProjectOrganisation;
 use App\Http\Requests\FileUploads\GetFileUpload;
 use App\Notifications\Organisations\UploadSroDoc;
 use App\Http\Requests\FileUploads\GetDownloadFileUpload;
@@ -270,11 +271,37 @@ class FileUploadController extends Controller
                     'file_id' => $fileIn->id,
                 ]);
             } elseif (isset($input['organisation_id']) && $input['organisation_id'] != null) {
+
                 $organisationId = intval($input['organisation_id']);
                 $organisation = Organisation::find($organisationId);
 
                 if (!$organisation) {
                     throw new Exception('Organisation not found');
+                }
+
+                if (strtolower($input['file_type']) === File::FILE_TYPE_DECLARATION_SRO && !$organisation->unclaimed) {
+
+                    $inProgressState = State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS;
+                    $invitedState = State::STATE_AFFILIATION_INVITED;
+
+                    CustodianHasProjectOrganisation::whereRelation(
+                        'projectOrganisation',
+                        'organisation_id',
+                        $organisationId
+                    )->each(fn ($approval) =>
+                        $approval->setState(State::STATE_ORG_IN_PROGRESS)
+                    );
+
+                   Affiliation::with(['registry.user'])
+                    ->where('organisation_id', $organisation->id)
+                    ->whereHas('modelState.state', fn ($q) =>
+                        $q->where('name', $invitedState)
+                    )
+                    ->whereHas('registry.user', fn ($q) =>
+                        $q->where('unclaimed', false)
+                    )
+                    ->each(fn ($affiliation) => $affiliation->setState($inProgressState));
+
                 }
 
                 OrganisationHasFile::create([

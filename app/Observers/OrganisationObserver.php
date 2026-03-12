@@ -13,6 +13,7 @@ use App\Models\ActionLog;
 use Carbon\Carbon;
 use App\Traits\ValidationManager;
 
+
 class OrganisationObserver
 {
     use ValidationManager;
@@ -193,12 +194,14 @@ class OrganisationObserver
     {
         if ($organisation->isDirty('unclaimed')) {
             $unclaimed = $organisation->unclaimed;
-            $state = $unclaimed ? State::STATE_AFFILIATION_INVITED : State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS;
             $affiliations = Affiliation::where("organisation_id", $organisation->id)->get();
 
-            foreach ($affiliations as $affiliation) {
-                $affiliation->setState($state);
+            if ($unclaimed){
+                foreach ($affiliations as $affiliation) {
+                    $affiliation->setState(State::STATE_AFFILIATION_INVITED);
+                }
             }
+
         }
     }
 
