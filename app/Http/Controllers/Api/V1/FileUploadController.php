@@ -292,11 +292,15 @@ class FileUploadController extends Controller
                         $approval->setState(State::STATE_ORG_IN_PROGRESS)
                     );
 
-                    Affiliation::with(['registry.user'])
-                        ->where('organisation_id', $organisation->id)
-                        ->whereHas('modelState', fn ($q) => $q->where('state', $invitedState))
-                        ->whereHas('registry.user', fn ($q) => $q->where('unclaimed', false))
-                        ->each(fn ($affiliation) => $affiliation->setState($inProgressState));
+                   Affiliation::with(['registry.user'])
+                    ->where('organisation_id', $organisation->id)
+                    ->whereHas('modelState.state', fn ($q) =>
+                        $q->where('name', $invitedState)
+                    )
+                    ->whereHas('registry.user', fn ($q) =>
+                        $q->where('unclaimed', false)
+                    )
+                    ->each(fn ($affiliation) => $affiliation->setState($inProgressState));
                     // Affiliation::with([
                     //     'registry.user',
                     //     'modelState'
