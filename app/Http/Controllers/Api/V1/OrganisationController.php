@@ -793,6 +793,7 @@ class OrganisationController extends Controller
 
             return $this->OKResponse($org->refresh());
         } catch (Exception $e) {
+            \Log::info($e);
             throw new Exception($e->getMessage());
         }
     }
