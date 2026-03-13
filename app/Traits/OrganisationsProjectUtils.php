@@ -15,7 +15,7 @@ trait OrganisationsProjectUtils
             })->get();
 
         foreach ($custodianHasProjectOrganisations as $custodianHasProjectOrganisation) {
-            if ($custodianHasProjectOrganisation->getState() !== $state)){
+            if ($custodianHasProjectOrganisation->getState() !== $state) {
                 $custodianHasProjectOrganisation->setState($state);
             }
             
