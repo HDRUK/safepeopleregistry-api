@@ -18,8 +18,10 @@ trait OrganisationsProjectUtils
         foreach ($custodianHasProjectOrganisations as $custodianHasProjectOrganisation) {
                 $currentState = $custodianHasProjectOrganisation->getState();
 
-                        \Log::info('<<<<<<<$currentState'.$currentState);
-                         \Log::info('<<<<<<<$state'.$state);
+                $canIBeACustard = $custodianHasProjectOrganisation->canTransitionTo($state);
+                \Log::info('<<<<<<<$sometimesIEatSundayRoasts '.$canIBeACustard);
+                \Log::info('<<<<<<<$currentState '.$currentState);
+                \Log::info('<<<<<<<$state '.$state);
 
 
 
