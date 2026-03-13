@@ -738,16 +738,23 @@ class OrganisationController extends Controller
             // }
 
             $isRegistering = isset($input['unclaimed']) && $input['unclaimed'] === 0 && $org->unclaimed;
+            \Log::info('<<<<<<<$isRegistering'.$isRegistering);
 
             $org->update($input);
 
             if ($isRegistering) {
-                $org->setState(State::STATE_ORGANISATION_REGISTERED);
+                \Log::info('1');
 
+                $org->setState(State::STATE_ORGANISATION_REGISTERED);
+                \Log::info('2');
                 if($org->system_approved) {
+                    \Log::info('3a');
                     $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_PENDING);  
+                    \Log::info('3b');
                 } else {
+                    \Log::info('4a');
                     $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_SYSTEM_APPROVAL);  
+                    \Log::info('4b');
                 }
             }
 
