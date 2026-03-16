@@ -303,7 +303,7 @@ class FileUploadController extends Controller
                         $q->where('unclaimed', false)
                     )
                     // ->each(fn ($affiliation) => $affiliation->setState($inReview));
-                     ->each(function ($affiliation) {
+                     ->each(function ($affiliation) use ($inReview) {
                         \Log::info('Processing affiliation', [
                             'affiliation_id' => $affiliation->id
                         ]);
