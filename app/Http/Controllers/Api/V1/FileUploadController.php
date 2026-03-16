@@ -280,7 +280,7 @@ class FileUploadController extends Controller
                 }
 
                 if (strtolower($input['file_type']) === File::FILE_TYPE_DECLARATION_SRO && !$organisation->unclaimed) {
-
+                    $orgInProgressState = State::STATE_ORG_IN_PROGRESS;
                     $inProgressState = State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS;
                     $orgInReview= State::STATE_ORG_IN_REVIEW;
 
