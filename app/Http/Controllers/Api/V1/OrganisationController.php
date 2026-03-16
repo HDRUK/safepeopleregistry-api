@@ -742,17 +742,29 @@ class OrganisationController extends Controller
             $org->update($input);
 
             if ($isRegistering) {
+                \Log::info('<<<<<<<$I Am Registering');
+                \Log::info('1');
 
                 $org->setState(State::STATE_ORGANISATION_REGISTERED);
 
-                $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_ORG_IN_PROGRESS);  
+                $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_ORG_IN_PROGRESS);
+
+                \Log::info('4');
 
                 Affiliation::with(['registry.user'])
-                    ->where('organisation_id', $org->id)
+                    ->where('organisation_id', $id)
                     ->whereHas('registry.user', fn ($q) =>
                         $q->where('unclaimed', false)
                     )
-                    ->each(fn ($affiliation) => $affiliation->setState($State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS));
+                    ->each(function ($affiliation) {
+                        \Log::info('Processing affiliation', [
+                            'affiliation_id' => $affiliation->id
+                        ]);
+
+                        $affiliation->setState(State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS);
+                    });
+
+                \Log::info('5');
             }
 
             $loggedInUserId = $request->user()->id;
