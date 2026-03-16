@@ -2035,6 +2035,15 @@ class OrganisationController extends Controller
                 } else {
                     $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_PENDING); 
                     $org->setState(State::STATE_PENDING);
+
+                    Affiliation::with(['registry.user'])
+                    ->where('organisation_id', $org->id)
+                    ->whereHas('modelState.state', fn ($q) =>
+                        $q->where('slug', State::STATE_AFFILIATION_REVIEW)
+                    )
+                    ->whereHas('registry.user', fn ($q) =>
+                        $q->where('unclaimed', false)
+                    )->each(fn ($affiliation) => $affiliation->setState(State::STATE_AFFILIATION_PENDING));
                 }
             }
 

@@ -280,7 +280,6 @@ class FileUploadController extends Controller
                 }
 
                 if (strtolower($input['file_type']) === File::FILE_TYPE_DECLARATION_SRO && !$organisation->unclaimed) {
-                    $orgInProgressState = State::STATE_ORG_IN_PROGRESS;
                     $inProgressState = State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS;
                     $inReview = State::STATE_AFFILIATION_REVIEW;
                     $orgInReview= State::STATE_ORG_IN_REVIEW;
@@ -292,7 +291,6 @@ class FileUploadController extends Controller
                     )->each(fn ($approval) =>
                         $approval->setState($orgInReview)
                     );
-                    \Log::info('<<HERE IS WHERE I WANNA BE>>>>>>');
 
                    Affiliation::with(['registry.user'])
                     ->where('organisation_id', $organisation->id)
@@ -301,15 +299,8 @@ class FileUploadController extends Controller
                     )
                     ->whereHas('registry.user', fn ($q) =>
                         $q->where('unclaimed', false)
-                    )
-                    // ->each(fn ($affiliation) => $affiliation->setState($inReview));
-                     ->each(function ($affiliation) use ($inReview) {
-                        \Log::info('Processing affiliation', [
-                            'affiliation_id' => $affiliation->id
-                        ]);
+                    )->each(fn ($affiliation) => $affiliation->setState($inReview));
 
-                       $affiliation->setState($inReview);
-                    });
 
                 }
 
