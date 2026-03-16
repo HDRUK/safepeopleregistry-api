@@ -163,7 +163,8 @@ class Affiliation extends Model
             State::STATE_AFFILIATION_ORGANISATION_INVITED,
         ],
         State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS => [
-            State::STATE_AFFILIATION_PENDING
+            State::STATE_AFFILIATION_PENDING,
+            STATE::STATE_AFFILIATION_REVIEW
         ],
         State::STATE_AFFILIATION_INFO_REQUIRED => [
             State::STATE_AFFILIATION_PENDING
