@@ -293,10 +293,11 @@ class FileUploadController extends Controller
                         $approval->setState($orgInReview)
                     );
                     \Log::info('<<HERE IS WHERE I WANNA BE>>>>>>');
+
                    Affiliation::with(['registry.user'])
                     ->where('organisation_id', $organisation->id)
                     ->whereHas('modelState.state', fn ($q) =>
-                        $q->where('name', $orgInProgressState)
+                        $q->where('slug', $inProgressState)
                     )
                     ->whereHas('registry.user', fn ($q) =>
                         $q->where('unclaimed', false)
