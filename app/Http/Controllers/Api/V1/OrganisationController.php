@@ -752,10 +752,7 @@ class OrganisationController extends Controller
                     ->where('organisation_id', $id)
                     ->whereHas('registry.user', fn ($q) =>
                         $q->where('unclaimed', false)
-                    )
-                    ->each(function ($affiliation) {
-                           $affiliation->setState(State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS);
-                    });
+                     )->each(fn ($affiliation) => $affiliation->setState(State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS));
 
             }
 
