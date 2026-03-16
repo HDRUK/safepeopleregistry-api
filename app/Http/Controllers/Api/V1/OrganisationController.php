@@ -742,14 +742,11 @@ class OrganisationController extends Controller
             $org->update($input);
 
             if ($isRegistering) {
-                \Log::info('<<<<<<<$I Am Registering');
-                \Log::info('1');
 
                 $org->setState(State::STATE_ORGANISATION_REGISTERED);
 
                 $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_ORG_IN_PROGRESS);
 
-                \Log::info('4');
 
                 Affiliation::with(['registry.user'])
                     ->where('organisation_id', $id)
@@ -757,14 +754,9 @@ class OrganisationController extends Controller
                         $q->where('unclaimed', false)
                     )
                     ->each(function ($affiliation) {
-                        \Log::info('Processing affiliation', [
-                            'affiliation_id' => $affiliation->id
-                        ]);
-
-                        $affiliation->setState(State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS);
+                           $affiliation->setState(State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS);
                     });
 
-                \Log::info('5');
             }
 
             $loggedInUserId = $request->user()->id;
@@ -809,7 +801,6 @@ class OrganisationController extends Controller
 
             return $this->OKResponse($org->refresh());
         } catch (Exception $e) {
-            \Log::info($e);
             throw new Exception($e->getMessage());
         }
     }
