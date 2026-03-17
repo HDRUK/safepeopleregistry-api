@@ -587,24 +587,27 @@ class AffiliationController extends Controller
 
             $userGroupInvitedBy = User::where('id', $loggedInUser?->invited_by)->first()?->user_group;
 
+            
+
             if ($userGroupInvitedBy === 'ORGANISATIONS') {
                 $affiliation->setState(State::STATE_AFFILIATION_APPROVED);
             } else {
-                $currentState = $affiliation->getState();
-                $excludedStates = [
-                    State::STATE_AFFILIATION_INFO_REQUIRED,
-                    State::STATE_AFFILIATION_REVIEW,
-                    State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS,
-                ];
+                $orgStatus = $organisation->getState();
 
-                if (!in_array($currentState, $excludedStates, true)) {
-                    if (!$organisation->system_approved) {
-                        $affiliation->setState(State::STATE_AFFILIATION_ORGANISATION_INVITED);
-                    } else {
-                        $affiliation->setState(State::STATE_AFFILIATION_PENDING);
-                    } 
+                if ($organisation->unclaimed) {
+
+                    $affiliation->setState(State::STATE_AFFILIATION_ORGANISATION_INVITED);
+
+                } else if ($orgStatus === State::STATE_ORG_IN_PROGRESS) {
+
+                    $affiliation->setState(State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS);
+                } else if ($orgStatus === State::STATE_ORG_IN_REVIEW) {
+
+                    $affiliation->setState(State::STATE_AFFILIATION_REVIEW);
+                } else if ($organisation->system_approved) {
+                    
+                    $affiliation->setState(State::STATE_AFFILIATION_PENDING);
                 }
-               
             }
 
             $custodianHasProjectUser = CustodianHasProjectUser::query()
