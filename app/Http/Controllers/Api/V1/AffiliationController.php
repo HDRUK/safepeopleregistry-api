@@ -592,7 +592,6 @@ class AffiliationController extends Controller
             } else {
                 $currentState = $affiliation->getState();
                 $excludedStates = [
-                    State::STATE_AFFILIATION_EMAIL_VERIFY,
                     State::STATE_AFFILIATION_INFO_REQUIRED,
                     State::STATE_AFFILIATION_REVIEW,
                     State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS,
