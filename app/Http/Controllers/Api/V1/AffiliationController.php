@@ -590,11 +590,22 @@ class AffiliationController extends Controller
             if ($userGroupInvitedBy === 'ORGANISATIONS') {
                 $affiliation->setState(State::STATE_AFFILIATION_APPROVED);
             } else {
-                if (!$organisation->system_approved) {
-                    $affiliation->setState(State::STATE_AFFILIATION_ORGANISATION_INVITED);
-                } else {
-                    $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+                $currentState = $affiliation->getState();
+                $excludedStates = [
+                    State::STATE_AFFILIATION_EMAIL_VERIFY,
+                    State::STATE_AFFILIATION_INFO_REQUIRED,
+                    State::STATE_AFFILIATION_REVIEW,
+                    State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS,
+                ];
+
+                if (!in_array($currentState, $excludedStates, true)) {
+                    if (!$organisation->system_approved) {
+                        $affiliation->setState(State::STATE_AFFILIATION_ORGANISATION_INVITED);
+                    } else {
+                        $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+                    } 
                 }
+               
             }
 
             $custodianHasProjectUser = CustodianHasProjectUser::query()
