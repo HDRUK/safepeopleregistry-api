@@ -597,7 +597,7 @@ class AffiliationController extends Controller
                 \Log::info('1b');
 
                 $custodianHasProjectOrganisation = CustodianHasProjectOrganisation::whereHas('projectOrganisation', function ($q) use ($organisationId) {
-                    $q->where('organisation_id', $organisation->id);
+                    $q->where('organisation_id', $organisationId);
                 })
                 ->with(['projectOrganisation', 'custodian'])
                 ->get();
