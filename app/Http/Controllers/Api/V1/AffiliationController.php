@@ -588,24 +588,28 @@ class AffiliationController extends Controller
             $userGroupInvitedBy = User::where('id', $loggedInUser?->invited_by)->first()?->user_group;
 
             
+                \Log::info('1');
 
             if ($userGroupInvitedBy === 'ORGANISATIONS') {
+                 \Log::info('1a');
                 $affiliation->setState(State::STATE_AFFILIATION_APPROVED);
             } else {
+                \Log::info('1b');
+
                 $orgStatus = $organisation->getState();
-
+                
+                \Log::info('2');
                 if ($organisation->unclaimed) {
-
+                \Log::info('3');
                     $affiliation->setState(State::STATE_AFFILIATION_ORGANISATION_INVITED);
-
                 } else if ($orgStatus === State::STATE_ORG_IN_PROGRESS) {
-
+                \Log::info('4');
                     $affiliation->setState(State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS);
                 } else if ($orgStatus === State::STATE_ORG_IN_REVIEW) {
-
+                \Log::info('5');
                     $affiliation->setState(State::STATE_AFFILIATION_REVIEW);
                 } else if ($organisation->system_approved) {
-                    
+                \Log::info('6');
                     $affiliation->setState(State::STATE_AFFILIATION_PENDING);
                 }
             }
