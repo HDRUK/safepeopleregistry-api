@@ -742,13 +742,18 @@ class OrganisationController extends Controller
             $org->update($input);
 
             if ($isRegistering) {
+
                 $org->setState(State::STATE_ORGANISATION_REGISTERED);
 
-                if($org->system_approved) {
-                    $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_PENDING);  
-                } else {
-                    $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_SYSTEM_APPROVAL);  
-                }
+                $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_ORG_IN_PROGRESS);
+
+
+                Affiliation::with(['registry.user'])
+                    ->where('organisation_id', $id)
+                    ->whereHas('registry.user', fn ($q) =>
+                        $q->where('unclaimed', false)
+                     )->each(fn ($affiliation) => $affiliation->setState(State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS));
+
             }
 
             $loggedInUserId = $request->user()->id;
@@ -2018,6 +2023,15 @@ class OrganisationController extends Controller
                 } else {
                     $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_PENDING); 
                     $org->setState(State::STATE_PENDING);
+
+                    Affiliation::with(['registry.user'])
+                    ->where('organisation_id', $org->id)
+                    ->whereHas('modelState.state', fn ($q) =>
+                        $q->where('slug', State::STATE_AFFILIATION_REVIEW)
+                    )
+                    ->whereHas('registry.user', fn ($q) =>
+                        $q->where('unclaimed', false)
+                    )->each(fn ($affiliation) => $affiliation->setState(State::STATE_AFFILIATION_PENDING));
                 }
             }
 

@@ -92,6 +92,8 @@ class State extends Model
     public const STATE_AFFILIATION_PENDING = 'affiliation_pending';
     public const STATE_AFFILIATION_APPROVED = 'affiliation_approved'; // affiliated
     public const STATE_AFFILIATION_REJECTED = 'affiliation_rejected';
+    public const STATE_AFFILIATION_REVIEW = 'affiliation_review';
+
 
     public const STATE_PROJECT_IN_PROGRESS = 'project_in_progress';
     public const STATE_PROJECT_DECLINED_APPROVAL = 'project_declined_approval';
@@ -109,7 +111,8 @@ class State extends Model
 
     public const STATE_USER_LEFT_PROJECT = 'user_left_project'; // user left project
     public const STATE_ORG_LEFT_PROJECT = 'org_left_project'; // org left project
-    public const STATE_ORG_IN_PROGRESS = 'org_in_progress'; // org in progress -- this uses additional seeder
+    public const STATE_ORG_IN_PROGRESS = 'org_in_progress'; // org in progress
+    public const STATE_ORG_IN_REVIEW = 'org_in_review'; // org in review
 
     public const STATE_AFFILIATION_ACCOUNT_IN_PROGRESS = 'affiliation_account_in_progress';
 
@@ -162,6 +165,8 @@ class State extends Model
         self::STATE_AFFILIATION_ORGANISATION_INVITED,
         self::STATE_ORGANISATION_REGISTERED,
         self::STATE_ORG_IN_PROGRESS,
-        self::STATE_SYSTEM_APPROVAL,
+        self::STATE_SYSTEM_APPROVAL,     
+        self::STATE_ORG_IN_REVIEW,   
+        self::STATE_AFFILIATION_REVIEW,
     ];
 }
