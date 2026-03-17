@@ -596,9 +596,19 @@ class AffiliationController extends Controller
             } else {
                 \Log::info('1b');
 
-                $orgStatus = $organisation->getState();
+                $custodianHasProjectOrganisation = CustodianHasProjectOrganisation::whereHas('projectOrganisation', function ($q) use ($organisationId) {
+                    $q->where('organisation_id', $organisation->id);
+                })
+                ->with(['projectOrganisation', 'custodian'])
+                ->get();
+
+                $orgStatus = $custodianHasProjectOrganisation->getState();
+
+
                 
                 \Log::info('2');
+                 \Log::info('orgStatus is '. $orgStatus);
+       
                 if ($organisation->unclaimed) {
                 \Log::info('3');
                     $affiliation->setState(State::STATE_AFFILIATION_ORGANISATION_INVITED);
