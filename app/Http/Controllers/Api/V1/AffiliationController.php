@@ -596,13 +596,36 @@ class AffiliationController extends Controller
             } else {
                 \Log::info('1b');
 
-                $custodianHasProjectOrganisation = CustodianHasProjectOrganisation::whereHas('projectOrganisation', function ($q) use ($organisationId) {
-                    $q->where('organisation_id', $organisationId);
-                })
-                ->with(['projectOrganisation', 'custodian'])
-                ->get();
+                // $custodianHasProjectOrganisation = CustodianHasProjectOrganisation::whereHas('projectOrganisation', function ($q) use ($organisationId) {
+                //     $q->where('organisation_id', $organisationId);
+                // })
+                // ->with(['projectOrganisation', 'custodian'])
+                // ->get();
 
-                $orgStatus = $custodianHasProjectOrganisation->getState();
+                // CustodianHasProjectOrganisation::query()
+                //     ->select('custodian_has_project_has_organisation.*')
+                //     ->where('custodian_has_project_has_organisation.custodian_id', $custodianId)
+                //     ->join(
+                //         'project_has_organisations',
+                //         'custodian_has_project_has_organisation.project_has_organisation_id',
+                //         '=',
+                //         'project_has_organisations.id'
+                //     )
+                //     ->where('project_has_organisations.organisation_id', $organisationId)
+                //     ->with(['modelState.state'])
+                //     ->first();
+
+                $orgStatus = CustodianHasProjectOrganisation::query()
+                        ->join('project_has_organisations', 'custodian_has_project_has_organisation.project_has_organisation_id', '=', 'project_has_organisations.id')
+                        ->join('project_has_users', 'project_has_organisations.project_id', '=', 'project_has_users.project_id')
+                        ->join('model_states', function ($join) {
+                            $join->on('model_states.stateable_id', '=', 'custodian_has_project_has_organisation.id')
+                                ->where('model_states.stateable_type', '=', CustodianHasProjectOrganisation::class);
+                        })
+                        ->join('states', 'model_states.state_id', '=', 'states.id')
+                        ->where('project_has_users.affiliation_id', $affiliation->id)
+                        ->where('project_has_organisations.organisation_id', $organisationId)
+                        ->value('states.slug');
 
 
                 
