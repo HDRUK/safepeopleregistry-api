@@ -592,7 +592,6 @@ class AffiliationController extends Controller
             } else {
                     // the below rules are from the mad mind of r wendeh
                 if ($organisation->system_approved) {
-                    // you're approved and lovely. okay? YES!
                     $affiliation->setState(State::STATE_AFFILIATION_PENDING);
                 } 
                 else if (!is_null($organisation->sro_profile_uri)){
