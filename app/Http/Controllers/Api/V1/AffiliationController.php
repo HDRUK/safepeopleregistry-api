@@ -595,7 +595,7 @@ class AffiliationController extends Controller
                     // you're approved and lovely. okay? YES!
                     $affiliation->setState(State::STATE_AFFILIATION_PENDING);
                 } 
-                else if (!is_null($organisation->sro_profile_url)){
+                else if (!is_null($organisation->sro_profile_uri)){
                     $affiliation->setState(State::STATE_AFFILIATION_REVIEW);
                 } 
                 else if (!$organisation->unclaimed) {
