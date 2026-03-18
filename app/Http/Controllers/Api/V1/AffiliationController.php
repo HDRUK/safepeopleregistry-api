@@ -586,10 +586,14 @@ class AffiliationController extends Controller
             }
 
             $userGroupInvitedBy = User::where('id', $loggedInUser?->invited_by)->first()?->user_group;
+            \Log::info('Sometimes I eat sunday roasts '. $userGroupInvitedBy);
 
             if ($userGroupInvitedBy === 'ORGANISATIONS') {
                 $affiliation->setState(State::STATE_AFFILIATION_APPROVED);
+            \Log::info('1a');
             } else {
+            \Log::info('1b');
+
                     // the below rules are from the mad mind of r wendeh
                 if ($organisation->system_approved) {
                     $affiliation->setState(State::STATE_AFFILIATION_PENDING);
