@@ -585,28 +585,17 @@ class AffiliationController extends Controller
                 throw new Exception('Organisation Not Found');
             }
 
-            $userGroupInvitedBy = User::where('id', $loggedInUser?->invited_by)->first()?->user_group;
-            \Log::info('Sometimes I eat sunday roasts '. $userGroupInvitedBy);
-
-            if ($userGroupInvitedBy === 'ORGANISATIONS') {
-                $affiliation->setState(State::STATE_AFFILIATION_APPROVED);
-            \Log::info('1a');
-            } else {
-            \Log::info('1b');
-
-                    // the below rules are from the mad mind of r wendeh
-                if ($organisation->system_approved) {
-                    $affiliation->setState(State::STATE_AFFILIATION_PENDING);
-                } 
-                else if (!is_null($organisation->sro_profile_uri)){
-                    $affiliation->setState(State::STATE_AFFILIATION_REVIEW);
-                } 
-                else if (!$organisation->unclaimed) {
-                    $affiliation->setState(State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS);
-                } 
-                else {
-                    $affiliation->setState(State::STATE_AFFILIATION_ORGANISATION_INVITED);
-                }
+            if ($organisation->system_approved) {
+                $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+            } 
+            else if (!is_null($organisation->sro_profile_uri)){
+                $affiliation->setState(State::STATE_AFFILIATION_REVIEW);
+            } 
+            else if (!$organisation->unclaimed) {
+                $affiliation->setState(State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS);
+            } 
+            else {
+                $affiliation->setState(State::STATE_AFFILIATION_ORGANISATION_INVITED);
             }
 
             $custodianHasProjectUser = CustodianHasProjectUser::query()
