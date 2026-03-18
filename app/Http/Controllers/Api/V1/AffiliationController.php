@@ -587,62 +587,12 @@ class AffiliationController extends Controller
 
             $userGroupInvitedBy = User::where('id', $loggedInUser?->invited_by)->first()?->user_group;
 
-            
-                \Log::info('1');
-
             if ($userGroupInvitedBy === 'ORGANISATIONS') {
-                 \Log::info('1a');
                 $affiliation->setState(State::STATE_AFFILIATION_APPROVED);
             } else {
-                \Log::info('1b');
-
-                // $custodianHasProjectOrganisation = CustodianHasProjectOrganisation::whereHas('projectOrganisation', function ($q) use ($organisationId) {
-                //     $q->where('organisation_id', $organisationId);
-                // })
-                // ->with(['projectOrganisation', 'custodian'])
-                // ->get();
-
-                // CustodianHasProjectOrganisation::query()
-                //     ->select('custodian_has_project_has_organisation.*')
-                //     ->where('custodian_has_project_has_organisation.custodian_id', $custodianId)
-                //     ->join(
-                //         'project_has_organisations',
-                //         'custodian_has_project_has_organisation.project_has_organisation_id',
-                //         '=',
-                //         'project_has_organisations.id'
-                //     )
-                //     ->where('project_has_organisations.organisation_id', $organisationId)
-                //     ->with(['modelState.state'])
-                //     ->first();
-
-                $orgStatus = CustodianHasProjectOrganisation::query()
-                        ->join('project_has_organisations', 'custodian_has_project_has_organisation.project_has_organisation_id', '=', 'project_has_organisations.id')
-                        ->join('project_has_users', 'project_has_organisations.project_id', '=', 'project_has_users.project_id')
-                        ->join('model_states', function ($join) {
-                            $join->on('model_states.stateable_id', '=', 'custodian_has_project_has_organisation.id')
-                                ->where('model_states.stateable_type', '=', CustodianHasProjectOrganisation::class);
-                        })
-                        ->join('states', 'model_states.state_id', '=', 'states.id')
-                        ->where('project_has_users.affiliation_id', $affiliation->id)
-                        ->where('project_has_organisations.organisation_id', $organisationId)
-                        ->value('states.slug');
-
-
-                
-                \Log::info('2');
-                 \Log::info('orgStatus is '. $orgStatus);
-       
-                if ($organisation->unclaimed) {
-                \Log::info('3');
+                if (!$organisation->system_approved) {
                     $affiliation->setState(State::STATE_AFFILIATION_ORGANISATION_INVITED);
-                } else if ($orgStatus === State::STATE_ORG_IN_PROGRESS) {
-                \Log::info('4');
-                    $affiliation->setState(State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS);
-                } else if ($orgStatus === State::STATE_ORG_IN_REVIEW) {
-                \Log::info('5');
-                    $affiliation->setState(State::STATE_AFFILIATION_REVIEW);
-                } else if ($organisation->system_approved) {
-                \Log::info('6');
+                } else {
                     $affiliation->setState(State::STATE_AFFILIATION_PENDING);
                 }
             }
