@@ -585,16 +585,17 @@ class AffiliationController extends Controller
                 throw new Exception('Organisation Not Found');
             }
 
-            $userGroupInvitedBy = User::where('id', $loggedInUser?->invited_by)->first()?->user_group;
-
-            if ($userGroupInvitedBy === 'ORGANISATIONS') {
-                $affiliation->setState(State::STATE_AFFILIATION_APPROVED);
-            } else {
-                if (!$organisation->system_approved) {
-                    $affiliation->setState(State::STATE_AFFILIATION_ORGANISATION_INVITED);
-                } else {
-                    $affiliation->setState(State::STATE_AFFILIATION_PENDING);
-                }
+            if ($organisation->system_approved) {
+                $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+            } 
+            else if (!is_null($organisation->sro_profile_uri)){
+                $affiliation->setState(State::STATE_AFFILIATION_REVIEW);
+            } 
+            else if (!$organisation->unclaimed) {
+                $affiliation->setState(State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS);
+            } 
+            else {
+                $affiliation->setState(State::STATE_AFFILIATION_ORGANISATION_INVITED);
             }
 
             $custodianHasProjectUser = CustodianHasProjectUser::query()
