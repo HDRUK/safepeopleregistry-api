@@ -598,7 +598,7 @@ class AffiliationController extends Controller
                 else if (!is_null($organisation->sro_profile_url)){
                     $affiliation->setState(State::STATE_AFFILIATION_REVIEW);
                 } 
-                else if ($organisation->verified) {
+                else if (!$organisation->unclaimed) {
                     $affiliation->setState(State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS);
                 } 
                 else {
