@@ -590,10 +590,19 @@ class AffiliationController extends Controller
             if ($userGroupInvitedBy === 'ORGANISATIONS') {
                 $affiliation->setState(State::STATE_AFFILIATION_APPROVED);
             } else {
-                if (!$organisation->system_approved) {
-                    $affiliation->setState(State::STATE_AFFILIATION_ORGANISATION_INVITED);
-                } else {
+                    // the below rules are from the mad mind of r wendeh
+                if ($organisation->system_approved) {
+                    // you're approved and lovely. okay? YES!
                     $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+                } 
+                else if (!isNull($organisation->sro_profile_url)){
+                    $affiliation->setState(State::STATE_AFFILIATION_REVIEW);
+                } 
+                else if (!isNull($organisation->address_1)) {
+                    $affiliation->setState(State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS);
+                } 
+                else {
+                    $affiliation->setState(State::STATE_AFFILIATION_ORGANISATION_INVITED);
                 }
             }
 
