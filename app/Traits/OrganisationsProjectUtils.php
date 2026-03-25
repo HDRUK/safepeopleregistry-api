@@ -13,7 +13,6 @@ trait OrganisationsProjectUtils
             ->whereHas('projectOrganisation', function ($query) use ($org) {
                 $query->where('organisation_id', $org->id);
             })->get();
-
         foreach ($custodianHasProjectOrganisations as $custodianHasProjectOrganisation) {
             $custodianHasProjectOrganisation->setState($state);
         }  

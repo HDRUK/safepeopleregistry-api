@@ -194,6 +194,30 @@ use App\Traits\FilterManager;
  *          type="boolean",
  *          example="false",
  *          description="Whether this Organisation has been approved to use the system or not"
+ *      ),
+ *      @OA\Property(property="ods_id",
+ *          type="string",
+ *          example="ABC1234",
+ *      ),
+ *      @OA\Property(property="dsptk_status",
+ *          type="string",
+ *          example="2024-25 (version 7) - Standards met",
+ *      ),
+ *      @OA\Property(property="dsptk_date_last_published",
+ *          type="string",
+ *          example="2026-12-01"
+ *      ),
+ *      @OA\Property(property="ico_registration_id",
+ *          type="string",
+ *          example="ABC1234",
+ *      ),
+ *      @OA\Property(property="ico_date_registered",
+ *          type="string",
+ *          example="2026-12-01"
+ *      ),
+ *      @OA\Property(property="ico_expiry_date",
+ *          type="string",
+ *          example="2026-12-01"
  *      )
  * )
  * @property int $id
@@ -218,6 +242,7 @@ use App\Traits\FilterManager;
  * @property int $dsptk_certified
  * @property \Illuminate\Support\Carbon|null $dsptk_expiry_date
  * @property int|null $dsptk_expiry_evidence
+ * @property int|null $ico_expiry_evidence
  * @property bool $iso_27001_certified
  * @property bool $ce_certified
  * @property string|null $ce_certification_num
@@ -254,6 +279,7 @@ use App\Traits\FilterManager;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Department> $departments
  * @property-read int|null $departments_count
  * @property-read \App\Models\File|null $dsptkExpiryEvidence
+ * @property-read \App\Models\File|null $icoExpiryEvidence 
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\File> $files
  * @property-read int|null $files_count
  * @property-read mixed $evaluation
@@ -303,6 +329,7 @@ use App\Traits\FilterManager;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereDsptkCertified($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereDsptkExpiryDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereDsptkExpiryEvidence($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereIcoExpiryEvidence($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereDsptkOdsCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereFundersAndSponsors($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereId($value)
@@ -390,6 +417,13 @@ class Organisation extends Model
         'sro_profile_uri',
         'is_sro',
         'system_approved_at',
+        'ods_id',
+        'dsptk_date_last_published' ,
+        'ico_registration_id',
+        'ico_date_registered',
+        'ico_expiry_date',
+        'ico_expiry_evidence',
+        'dsptk_status',
     ];
 
     protected $casts = [
@@ -614,6 +648,14 @@ class Organisation extends Model
     public function dsptkExpiryEvidence(): BelongsTo
     {
         return $this->belongsTo(File::class, 'dsptk_expiry_evidence');
+    }
+
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\File>
+     */
+    public function icoExpiryEvidence(): BelongsTo
+    {
+        return $this->belongsTo(File::class, 'ico_expiry_evidence');
     }
 
     /**

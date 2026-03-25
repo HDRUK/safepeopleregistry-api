@@ -61,6 +61,7 @@ use App\Traits\Notifications\NotificationOrganisationManager;
 use App\Traits\OrganisationsProjectUtils;
 use App\Notifications\Organisations\OrganisationUpdateProfile;
 use App\Http\Requests\Organisations\OrganisationUpdateApprover;
+use App\Http\Requests\Organisations\GetStatus;
 
 class OrganisationController extends Controller
 {
@@ -227,6 +228,7 @@ class OrganisationController extends Controller
             'cePlusExpiryEvidence',
             'isoExpiryEvidence',
             'dsptkExpiryEvidence',
+            'icoExpiryEvidence',
             'charities',
             'registries',
             'registries.user',
@@ -445,6 +447,12 @@ class OrganisationController extends Controller
                 'organisation_size' => $input['organisation_size'],
                 'system_approved' => $input['system_approved'] ?? 0,
                 'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
+                'ods_id' => $input['ods_id'] ?? null,
+                'dsptk_date_last_published' => $input['dsptk_date_last_published'] ?? null,
+                'dsptk_status' => $input['dsptk_status'] ?? null,
+                'ico_registration_id' => $input['ico_registration_id'] ?? null,
+                'ico_date_registered' => $input['ico_date_registered'] ?? null,
+                'ico_expiry_date' => $input['ico_expiry_date'] ?? null,
             ]);
 
             if (isset($input['departments'])) {
@@ -538,6 +546,12 @@ class OrganisationController extends Controller
                 'system_approved' => $input['system_approved'] ?? 0,
                 'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
                 'organisation_unique_id' => Str::random(40),
+                'ods_id' => null,
+                'dsptk_status' => null,
+                'dsptk_date_last_published' => null,
+                'ico_registration_id' => null,
+                'ico_date_registered' => null,
+                'ico_expiry_date' => null,
             ];
 
             $organisation = Organisation::create($organisationsData);
@@ -617,6 +631,12 @@ class OrganisationController extends Controller
                 'system_approved' => $input['system_approved'] ?? 0,
                 'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
                 'organisation_unique_id' => Str::random(40),
+                'ods_id' => $input['ods_id'] ?? null,
+                'dsptk_status' => $input['dsptk_status'] ?? null,
+                'dsptk_date_last_published' => $input['dsptk_date_last_published'] ?? null,
+                'ico_registration_id' => $input['ico_registration_id'] ?? null,
+                'ico_date_registered' => $input['ico_date_registered'] ?? null,
+                'ico_expiry_date' => $input['ico_expiry_date'] ?? null,
             ]);
 
             $organisation->setState(State::STATE_INVITED);
@@ -722,13 +742,18 @@ class OrganisationController extends Controller
             $org->update($input);
 
             if ($isRegistering) {
+
                 $org->setState(State::STATE_ORGANISATION_REGISTERED);
 
-                if($org->system_approved) {
-                    $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_PENDING);  
-                } else {
-                    $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_SYSTEM_APPROVAL);  
-                }
+                $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_ORG_IN_PROGRESS);
+
+
+                Affiliation::with(['registry.user'])
+                    ->where('organisation_id', $id)
+                    ->whereHas('registry.user', fn ($q) =>
+                        $q->where('unclaimed', false)
+                     )->each(fn ($affiliation) => $affiliation->setState(State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS));
+
             }
 
             $loggedInUserId = $request->user()->id;
@@ -1839,6 +1864,86 @@ class OrganisationController extends Controller
         }
     }
 
+
+    /**
+     * @OA\Get(
+     *     path="/api/v1/organisations/{id}/status",
+     *     summary="Get organisation status",
+     *     description="Returns the organisation with its model state and state",
+     *     tags={"organisations"},
+     *     security={{"bearerAuth":{}}},
+     *
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Organisation ID",
+     *         @OA\Schema(
+     *             type="integer",
+     *             example=1
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *                 example="success"
+     *             ),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="name", type="string", example="Example Organisation"),
+     *
+     *                 @OA\Property(
+     *                     property="model_state",
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer", example=5),
+     *
+     *                     @OA\Property(
+     *                         property="state",
+     *                         type="object",
+     *                         @OA\Property(property="id", type="integer", example=2),
+     *                         @OA\Property(property="name", type="string", example="Active")
+     *                     )
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid argument(s)",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=404,
+     *         description="Organisation not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Organisation not found")
+     *         )
+     *     )
+     * )
+     */
+    public function getStatus(GetStatus $request, int $id): JsonResponse
+    {
+        try {
+            $organisation = Organisation::with('modelState.state')
+            ->findOrFail($id);
+            return $this->OKResponse($organisation->modelState);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
     /**
      * @OA\Patch(
      *      path="/api/v1/organisations/{id}/approved",
@@ -1912,11 +2017,21 @@ class OrganisationController extends Controller
                 'system_approved_at' => Carbon::now(),
             ]);
 
-            if($org->unclaimed) {
+            if(!$org->unclaimed) {
                 if(!$input['system_approved']) {
                     $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_SYSTEM_APPROVAL);  
                 } else {
                     $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_PENDING); 
+                    $org->setState(State::STATE_PENDING);
+
+                    Affiliation::with(['registry.user'])
+                    ->where('organisation_id', $org->id)
+                    ->whereHas('modelState.state', fn ($q) =>
+                        $q->where('slug', State::STATE_AFFILIATION_REVIEW)
+                    )
+                    ->whereHas('registry.user', fn ($q) =>
+                        $q->where('unclaimed', false)
+                    )->each(fn ($affiliation) => $affiliation->setState(State::STATE_AFFILIATION_PENDING));
                 }
             }
 

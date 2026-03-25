@@ -368,6 +368,7 @@ Route::middleware('auth:api')
             // Read
             Route::get('/', 'index');
             Route::get('/{id}', 'show');
+            Route::get('/{id}/status', 'getStatus');
             Route::get('/{id}/idvt', 'idvt');
             Route::get('/{id}/counts/certifications', 'countCertifications');
             Route::get('/{id}/counts/users', 'countUsers');
@@ -657,7 +658,12 @@ Route::middleware('auth:api')
         Route::get('/projectOrganisations/{projectOrganisationId}', 'show');
         Route::put('/projectOrganisations/{projectOrganisationId}', 'update');
     });
-
+Route::middleware('auth:api')
+    ->prefix('v1/custodian_approvals/{custodianId}/project/{projectId}/organisation/{organisationId}/projectOrganisations')
+    ->controller(CustodianHasProjectOrganisationController::class)
+    ->group(function () {
+        Route::get('/status', 'getStatus');
+    });
 Route::middleware('auth:api')
     ->prefix('v1/custodian_approvals/projectOrganisations')
     ->controller(CustodianHasProjectOrganisationController::class)
