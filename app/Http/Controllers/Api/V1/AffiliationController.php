@@ -614,9 +614,10 @@ class AffiliationController extends Controller
                 'verification_confirmed_at' => Carbon::now(),
             ];
 
-            $updatedAffiliation = Affiliation::where('id', $affiliation->id)->update($array);
+            $affiliation = Affiliation::findOrFail($affiliation->id);
+            $affiliation->update($array);
 
-            return $this->OKResponse($updatedAffiliation);
+            return $this->OKResponse($affiliation);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
