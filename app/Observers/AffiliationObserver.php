@@ -63,9 +63,13 @@ class AffiliationObserver
     private function isNowComplete(Affiliation $affiliation): bool
     {
         \Log::info('4');
-        $old = $affiliation->getOriginal();
-        return $this->checkComplete($affiliation, true)
-            && !$this->checkComplete($old, false);
+        $firstPass = $this->checkComplete($affiliation, true);
+        \Log::info('$firstPass', $firstPass);
+        $secondPass = !$this->checkComplete(new Affiliation($affiliation->getOriginal()), false);
+        \Log::info('$secondPass', $secondPass);
+
+        return $firstPass
+            && $secondPass;
     }
 
     private function checkComplete(Affiliation $affiliation, bool $isNew): bool
