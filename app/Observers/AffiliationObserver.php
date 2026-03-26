@@ -27,9 +27,8 @@ class AffiliationObserver
         \Log::info('IEnjoySundayRoasts');
         \Log::info('1');
 
+        $this->handleChange($affiliation);
         $old = new Affiliation($affiliation->getOriginal());
-        $this->handleChange($affiliation, $old);
-       
         $this->sendNotificationOnUpdate($affiliation, $old);
     }
 
@@ -38,20 +37,20 @@ class AffiliationObserver
         $this->handleChange($affiliation);
     }
 
-    protected function handleChange(Affiliation $affiliation, Affilation $old): void
+    protected function handleChange(Affiliation $affiliation): void
     {
         \Log::info('2');
-        $this->emailDelegatesIfNowComplete($affiliation, $old);
+        $this->emailDelegatesIfNowComplete($affiliation);
         $this->updateActionLog($affiliation->registry_id);
         $this->updateOrganisationActionLog($affiliation);
 
         MergeUserAccounts::dispatch($affiliation);
     }
 
-    private function emailDelegatesIfNowComplete(Affiliation $affiliation, Affilation $old): void
+    private function emailDelegatesIfNowComplete(Affiliation $affiliation): void
     {
         \Log::info('3');
-        if (!$this->isNowComplete($affiliation, $old)) {
+        if (!$this->isNowComplete($affiliation)) {
             return;
         }
         \Log::info('5');
@@ -61,14 +60,14 @@ class AffiliationObserver
         }
     }
 
-    private function isNowComplete(Affiliation $affiliation, Affilation $old): bool
+    private function isNowComplete(Affiliation $affiliation): bool
     {
         \Log::info('4');
-        return $this->checkComplete($affiliation, true)
-            && !$this->checkComplete(new Affiliation($old, false));
+        return $this->checkComplete($affiliation)
+            && !$this->checkComplete(new Affiliation($affiliation->getOriginal()));
     }
 
-    private function checkComplete(Affiliation $affiliation, bool $isNew): bool
+    private function checkComplete(Affiliation $affiliation): bool
     {
         \Log::info('<<<<<<<<<<<<<< checkComplete called', [
             'isNew' => $isNew,
@@ -77,7 +76,6 @@ class AffiliationObserver
             'from' => $affiliation->from,
             'is_verified' => $affiliation->is_verified,
         ]);
-        
 
 
 
