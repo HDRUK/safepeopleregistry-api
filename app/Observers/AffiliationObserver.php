@@ -87,7 +87,7 @@ class AffiliationObserver
 
         return filled($affiliation->member_id)
             && filled($affiliation->relationship)
-            && filled($affiliation->from) && $affiliation->is_verified === 1;
+            && filled($affiliation->from) && (bool) $affiliation->is_verified;
     }
 
     private function sendDelegateEmails(Affiliation $affiliation): void
