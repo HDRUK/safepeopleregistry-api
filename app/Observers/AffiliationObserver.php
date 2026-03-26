@@ -64,7 +64,7 @@ class AffiliationObserver
     {
         \Log::info('4');
         return $this->checkComplete($affiliation, true)
-            && !$this->checkComplete(new Affiliation($affiliation->getOriginal(), false));
+            && !$this->checkComplete(new Affiliation($affiliation->getOriginal()), false);
     }
 
     private function checkComplete(Affiliation $affiliation, bool $isNew): bool
