@@ -27,8 +27,9 @@ class AffiliationObserver
         \Log::info('IEnjoySundayRoasts');
         \Log::info('1');
 
-        $this->handleChange($affiliation);
         $old = new Affiliation($affiliation->getOriginal());
+        $this->handleChange($affiliation, $old);
+       
         $this->sendNotificationOnUpdate($affiliation, $old);
     }
 
@@ -37,38 +38,50 @@ class AffiliationObserver
         $this->handleChange($affiliation);
     }
 
-    protected function handleChange(Affiliation $affiliation): void
+    protected function handleChange(Affiliation $affiliation, Affilation $old): void
     {
         \Log::info('2');
-        $this->emailDelegatesIfNowComplete($affiliation);
+        $this->emailDelegatesIfNowComplete($affiliation, $old));
         $this->updateActionLog($affiliation->registry_id);
         $this->updateOrganisationActionLog($affiliation);
 
         MergeUserAccounts::dispatch($affiliation);
     }
 
-    private function emailDelegatesIfNowComplete(Affiliation $affiliation): void
+    private function emailDelegatesIfNowComplete(Affiliation $affiliation, Affilation $old): void
     {
         \Log::info('3');
-        if (!$this->isNowComplete($affiliation)) {
+        if (!$this->isNowComplete($affiliation, $old)) {
             return;
         }
-            \Log::info('5');
+        \Log::info('5');
         if (!(app()->bound('seeding') && app()->make('seeding') === true)) {
             \Log::info('6<<<<<<<<<<<<<<<<');
             $this->sendDelegateEmails($affiliation);
         }
     }
 
-    private function isNowComplete(Affiliation $affiliation): bool
+    private function isNowComplete(Affiliation $affiliation, Affilation $old): bool
     {
         \Log::info('4');
-        return $this->checkComplete($affiliation)
-            && !$this->checkComplete(new Affiliation($affiliation->getOriginal()));
+        return $this->checkComplete($affiliation, true)
+            && !$this->checkComplete(new Affiliation($old, false));
     }
 
-    private function checkComplete(Affiliation $affiliation): bool
+    private function checkComplete(Affiliation $affiliation, bool $isNew): bool
     {
+        \Log::info('<<<<<<<<<<<<<< checkComplete called', [
+            'isNew' => $isNew,
+            'member_id' => $affiliation->member_id,
+            'relationship' => $affiliation->relationship,
+            'from' => $affiliation->from,
+            'is_verified' => $affiliation->is_verified,
+        ]);
+        
+
+
+
+
         return filled($affiliation->member_id)
             && filled($affiliation->relationship)
             && filled($affiliation->from) && $affiliation->is_verified === 1;
