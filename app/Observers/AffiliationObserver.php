@@ -64,9 +64,9 @@ class AffiliationObserver
     {
         \Log::info('4');
         $firstPass = $this->checkComplete($affiliation, true);
-        \Log::info('$firstPass', $firstPass);
+        \Log::info('$firstPass '. $firstPass);
         $secondPass = !$this->checkComplete(new Affiliation($affiliation->getOriginal()), false);
-        \Log::info('$secondPass', $secondPass);
+        \Log::info('$secondPass'. $secondPass);
 
         return $firstPass
             && $secondPass;
