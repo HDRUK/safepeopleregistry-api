@@ -63,11 +63,11 @@ class AffiliationObserver
     private function isNowComplete(Affiliation $affiliation): bool
     {
         \Log::info('4');
-        return $this->checkComplete($affiliation)
-            && !$this->checkComplete(new Affiliation($affiliation->getOriginal()));
+        return $this->checkComplete($affiliation, true)
+            && !$this->checkComplete(new Affiliation($affiliation->getOriginal(), false));
     }
 
-    private function checkComplete(Affiliation $affiliation): bool
+    private function checkComplete(Affiliation $affiliation, bool $isNew): bool
     {
         \Log::info('<<<<<<<<<<<<<< checkComplete called', [
             'isNew' => $isNew,
