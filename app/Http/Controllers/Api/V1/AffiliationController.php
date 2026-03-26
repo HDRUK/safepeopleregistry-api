@@ -559,6 +559,7 @@ class AffiliationController extends Controller
      */
     public function verifyEmail(VerificationEmail $request, string $verificationCode): JsonResponse
     {
+        \Log::info('SundayRoastRound1<');
         try {
             $loggedInUserId = $request->user()?->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();
