@@ -24,6 +24,9 @@ class AffiliationObserver
 
     public function updated(Affiliation $affiliation): void
     {
+        \Log::info('IEnjoySundayRoasts');
+        \Log::info('1');
+
         $this->handleChange($affiliation);
         $old = new Affiliation($affiliation->getOriginal());
         $this->sendNotificationOnUpdate($affiliation, $old);
@@ -36,6 +39,7 @@ class AffiliationObserver
 
     protected function handleChange(Affiliation $affiliation): void
     {
+        \Log::info('2');
         $this->emailDelegatesIfNowComplete($affiliation);
         $this->updateActionLog($affiliation->registry_id);
         $this->updateOrganisationActionLog($affiliation);
@@ -45,17 +49,20 @@ class AffiliationObserver
 
     private function emailDelegatesIfNowComplete(Affiliation $affiliation): void
     {
+        \Log::info('3');
         if (!$this->isNowComplete($affiliation)) {
             return;
         }
-
+            \Log::info('5');
         if (!(app()->bound('seeding') && app()->make('seeding') === true)) {
+            \Log::info('6<<<<<<<<<<<<<<<<');
             $this->sendDelegateEmails($affiliation);
         }
     }
 
     private function isNowComplete(Affiliation $affiliation): bool
     {
+        \Log::info('4');
         return $this->checkComplete($affiliation)
             && !$this->checkComplete(new Affiliation($affiliation->getOriginal()));
     }
