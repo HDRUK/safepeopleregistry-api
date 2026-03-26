@@ -41,7 +41,7 @@ class AffiliationObserver
     protected function handleChange(Affiliation $affiliation, Affilation $old): void
     {
         \Log::info('2');
-        $this->emailDelegatesIfNowComplete($affiliation, $old));
+        $this->emailDelegatesIfNowComplete($affiliation, $old);
         $this->updateActionLog($affiliation->registry_id);
         $this->updateOrganisationActionLog($affiliation);
 
