@@ -155,7 +155,8 @@ class Affiliation extends Model
     // State::STATE_AFFILIATION_ORGANISATION_INVITED
     protected static array $transitions = [
         State::STATE_AFFILIATION_EMAIL_VERIFY => [
-            State::STATE_AFFILIATION_PENDING
+            State::STATE_AFFILIATION_PENDING,
+            State::STATE_AFFILIATION_ORGANISATION_INVITED
         ],
         State::STATE_AFFILIATION_INVITED => [
             State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS,
