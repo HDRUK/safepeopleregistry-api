@@ -563,6 +563,8 @@ class AffiliationController extends Controller
             $loggedInUserId = $request->user()?->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();
 
+            \Log::info('1');
+
             $affiliation = Affiliation::with('organisation')->where([
                     'verification_code' => $verificationCode,
                     'is_verified'       => 0,
@@ -570,7 +572,7 @@ class AffiliationController extends Controller
                 ])
                 ->where('verification_sent_at', '>=', now()->subMinutes((int)config('speedi.system.otp_affiliation_validity_minutes')))
                 ->first();
-
+            \Log::info('2');
             if (is_null($affiliation)) {
                 throw new Exception('Affiliation Not Found');
             }
@@ -580,41 +582,50 @@ class AffiliationController extends Controller
                 throw new Exception('Organisation Not Found in Affiliation');
             }
 
+            \Log::info('3');
+
             $organisation = Organisation::where('id', $organisationId)->first();
             if (is_null($organisation)) {
                 throw new Exception('Organisation Not Found');
             }
 
             if ($organisation->system_approved) {
+                \Log::info('3a');
                 $affiliation->setState(State::STATE_AFFILIATION_PENDING);
             } 
             else if (!is_null($organisation->sro_profile_uri)){
+                \Log::info('3b');
+
                 $affiliation->setState(State::STATE_AFFILIATION_REVIEW);
             } 
             else if (!$organisation->unclaimed) {
+                \Log::info('3c');
+
                 $affiliation->setState(State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS);
             } 
             else {
+                \Log::info('3d');
+
                 $affiliation->setState(State::STATE_AFFILIATION_ORGANISATION_INVITED);
             }
-
+\Log::info('4');
             $custodianHasProjectUser = CustodianHasProjectUser::query()
                 ->whereHas('projectHasUser.affiliation', function ($query) use ($affiliation) {
                     $query->where('id', $affiliation->id);
                 })->first();
-
+\Log::info('5');
             if (!is_null($custodianHasProjectUser)) {
                 $custodianHasProjectUser->setState(State::STATE_PENDING);
             }
-
+\Log::info('6');
             $array = [
                 'verification_code' => null,
                 'is_verified' => 1,
                 'verification_confirmed_at' => Carbon::now(),
             ];
-
+\Log::info('7');
             $affiliation->update($array);
-
+\Log::info('8');
             return $this->OKResponse($affiliation);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
