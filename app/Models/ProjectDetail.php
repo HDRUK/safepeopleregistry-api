@@ -171,6 +171,7 @@ class ProjectDetail extends Model
         'data_privacy',
         'research_outputs',
         'data_assets',
+        'latest_approval_date',
     ];
 
     /**
