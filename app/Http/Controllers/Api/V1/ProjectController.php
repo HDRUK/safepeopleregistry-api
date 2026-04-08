@@ -994,7 +994,7 @@ class ProjectController extends Controller
             'custodian_id' => $custodianId,
         ]);
 
-        $custodianHasProjectHasSponsorship->transitionTo(State::STATE_SPONSORSHIP_PENDING);
+        $custodianHasProjectHasSponsorship->setState(State::STATE_SPONSORSHIP_PENDING);
 
         return true;
     }
