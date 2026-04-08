@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Project;
 use App\Models\Custodian;
 use App\Models\Permission;
+use App\Models\State;
 use Illuminate\Support\Str;
 use App\Models\Organisation;
 use Illuminate\Http\Request;
@@ -688,6 +689,10 @@ class CustodianController extends Controller
                 'custodian_id' => $custodianId,
                 'project_id' => $project->id
             ]);
+
+            if ($project) {
+                $project->setState(State::STATE_PROJECT_PENDING);
+            }
 
             return $this->CreatedResponse($project->id);
         } catch (Exception $e) {
