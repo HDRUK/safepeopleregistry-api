@@ -8,7 +8,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('projects', function (Blueprint $table) {
-            $table->timestamp('latest_approval_date')->nullable()->after('data_assets');
+            $table->timestamp('latest_approval_date')->nullable()->after('end_date');
         });
     }
 
