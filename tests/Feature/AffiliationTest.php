@@ -144,6 +144,13 @@ class AffiliationTest extends TestCase
     {
         $user = User::find(1);
 
+        $affiliation = Affiliation::find(1);
+
+        $affiliation->update([
+            'organisation_id' => $user->organisation_id,
+            'registry_id' => $user->registry_id,
+        ]);
+
         $response = $this->actingAs($user)
             ->json(
                 'PUT',

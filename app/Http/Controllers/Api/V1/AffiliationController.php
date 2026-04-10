@@ -355,10 +355,6 @@ class AffiliationController extends Controller
                 return $this->ForbiddenResponse();
             }
 
-            if (!$affiliation->current_employer) {
-                return $this->ErrorResponse('Verification not applicable for this affiliation');
-            }
-
             if ($affiliation->is_verified) {
                 return $this->ErrorResponse('Affiliation already verified');
             }
