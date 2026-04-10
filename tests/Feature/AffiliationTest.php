@@ -11,6 +11,7 @@ use App\Models\Organisation;
 use App\Traits\CommonFunctions;
 use Tests\Traits\Authorisation;
 use KeycloakGuard\ActingAsKeycloakUser;
+use Illuminate\Support\Facades\Gate;
 
 class AffiliationTest extends TestCase
 {
@@ -143,18 +144,10 @@ class AffiliationTest extends TestCase
     public function test_the_application_can_update_an_affiliation(): void
     {
 
-        $regyId = 1;
+       Gate::shouldReceive('allows')
+            ->andReturn(true);
+
         $user = User::find(1);
-
-        $user->update([
-            'user_id' => $regyId,
-        ]);
-
-        $affiliation = Affiliation::find(1);
-
-        $affiliation->update([
-            'registry_id' => $regyId,
-        ]);
 
         $response = $this->actingAs($user)
             ->json(
