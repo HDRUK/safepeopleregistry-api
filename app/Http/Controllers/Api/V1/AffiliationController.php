@@ -29,12 +29,14 @@ use App\Http\Requests\Affiliations\GetOrganisationAffiliation;
 use App\Http\Requests\Affiliations\CreateAffiliationByRegistry;
 use App\Http\Requests\Affiliations\UpdateAffiliationByRegistry;
 use App\Notifications\Organisations\OrganisationUserAffiliation;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class AffiliationController extends Controller
 {
     use CommonFunctions;
     use Responses;
     use AffiliationManager;
+    use AuthorizesRequests;
 
     /**
      * @OA\Get(
@@ -349,6 +351,10 @@ class AffiliationController extends Controller
                 return $this->BadRequestResponse();
             }
 
+            if (!Gate::allows('userAffilations', $affiliation)) {
+                return $this->ForbiddenResponse();
+            }
+
             if (!$affiliation->current_employer) {
                 return $this->ErrorResponse('Verification not applicable for this affiliation');
             }
@@ -449,6 +455,11 @@ class AffiliationController extends Controller
         try {
             $input = $request->only(app(Affiliation::class)->getFillable());
             $affiliation = Affiliation::findOrFail($id);
+
+            if (!Gate::allows('userAffilations', $affiliation)) {
+                return $this->ForbiddenResponse();
+            }
+            
             $originalAffiliation = $affiliation->getOriginal();
 
             $unclaimed = $affiliation->organisation->unclaimed;
