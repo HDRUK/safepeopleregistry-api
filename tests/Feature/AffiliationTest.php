@@ -142,13 +142,18 @@ class AffiliationTest extends TestCase
 
     public function test_the_application_can_update_an_affiliation(): void
     {
+
+        $regyId = 1;
         $user = User::find(1);
+
+        $user->update([
+            'user_id' => $regyId,
+        ]);
 
         $affiliation = Affiliation::find(1);
 
         $affiliation->update([
-            'organisation_id' => $user->organisation_id,
-            'registry_id' => $user->registry_id,
+            'registry_id' => $regyId,
         ]);
 
         $response = $this->actingAs($user)
