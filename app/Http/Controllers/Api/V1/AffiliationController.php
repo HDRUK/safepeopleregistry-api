@@ -339,10 +339,6 @@ class AffiliationController extends Controller
     public function resendVerificationEmail(ResendVerificationEmail $request, int $id): JsonResponse
     {
         try {
-            if (!Gate::allows('admin')) {
-                return $this->ForbiddenResponse();
-            }
-
             $affiliation = Affiliation::where([
                 'id' => $id,
                 'current_employer' => true,
@@ -351,6 +347,14 @@ class AffiliationController extends Controller
 
             if (is_null($affiliation)) {
                 return $this->BadRequestResponse();
+            }
+
+            if (!$affiliation->current_employer) {
+                return $this->ErrorResponse('Verification not applicable for this affiliation', 400);
+            }
+
+            if ($affiliation->is_verified) {
+                return $this->ErrorResponse('Affiliation already verified', 400);
             }
 
             $organisation = Organisation::where('id', $affiliation->organisation_id)->first();
