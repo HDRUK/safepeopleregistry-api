@@ -350,11 +350,11 @@ class AffiliationController extends Controller
             }
 
             if (!$affiliation->current_employer) {
-                return $this->ErrorResponse('Verification not applicable for this affiliation', 400);
+                return $this->ErrorResponse('Verification not applicable for this affiliation');
             }
 
             if ($affiliation->is_verified) {
-                return $this->ErrorResponse('Affiliation already verified', 400);
+                return $this->ErrorResponse('Affiliation already verified');
             }
 
             $organisation = Organisation::where('id', $affiliation->organisation_id)->first();
