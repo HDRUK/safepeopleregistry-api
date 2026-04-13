@@ -161,7 +161,7 @@ class AffiliationTest extends TestCase
         $response->assertStatus(403);
 
         $message = $response->decodeResponseJson()['message'];
-        $this->assertEquals('Forbidden', $message);
+        $this->assertEquals('forbidden', $message);
     }
 
     public function test_the_application_can_update_an_affiliation(): void
