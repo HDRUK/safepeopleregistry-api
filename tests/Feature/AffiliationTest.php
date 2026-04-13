@@ -141,6 +141,29 @@ class AffiliationTest extends TestCase
         $this->assertEquals('Invalid argument(s)', $message);
     }
 
+    public function test_the_application_cannot_resend_verification_email_when_user_not_authorised(): void
+    {
+        Gate::shouldReceive('allows')
+            ->once()
+            ->andReturn(false);
+
+        $affiliation = Affiliation::factory()->create([
+            'current_employer' => true,
+            'is_verified' => false,
+        ]);
+
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$affiliation->id}/resend/verification"
+            );
+
+        $response->assertStatus(403);
+
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Forbidden', $message);
+    }
+
     public function test_the_application_can_update_an_affiliation(): void
     {
 
