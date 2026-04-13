@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Affiliation;
 use App\Models\User;
 use App\Models\Project;
 use App\Models\Registry;
@@ -12,6 +13,7 @@ use App\Policies\UserPolicy;
 use App\Policies\ProjectPolicy;
 use App\Policies\RegistryPolicy;
 use App\Policies\ActionLogPolicy;
+use App\Policies\AffiliationPolicy;
 use App\Policies\CustodianPolicy;
 use App\Policies\OrganisationPolicy;
 use Illuminate\Support\Facades\Gate;
@@ -31,6 +33,7 @@ class AuthServiceProvider extends ServiceProvider
         Project::class => ProjectPolicy::class,
         Registry::class => RegistryPolicy::class,
         User::class => UserPolicy::class,
+        Affiliation::class => AffiliationPolicy::class,
     ];
 
     /**

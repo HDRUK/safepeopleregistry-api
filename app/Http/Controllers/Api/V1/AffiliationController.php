@@ -29,12 +29,14 @@ use App\Http\Requests\Affiliations\GetOrganisationAffiliation;
 use App\Http\Requests\Affiliations\CreateAffiliationByRegistry;
 use App\Http\Requests\Affiliations\UpdateAffiliationByRegistry;
 use App\Notifications\Organisations\OrganisationUserAffiliation;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class AffiliationController extends Controller
 {
     use CommonFunctions;
     use Responses;
     use AffiliationManager;
+    use AuthorizesRequests;
 
     /**
      * @OA\Get(
@@ -339,10 +341,6 @@ class AffiliationController extends Controller
     public function resendVerificationEmail(ResendVerificationEmail $request, int $id): JsonResponse
     {
         try {
-            if (!Gate::allows('admin')) {
-                return $this->ForbiddenResponse();
-            }
-
             $affiliation = Affiliation::where([
                 'id' => $id,
                 'current_employer' => true,
@@ -351,6 +349,14 @@ class AffiliationController extends Controller
 
             if (is_null($affiliation)) {
                 return $this->BadRequestResponse();
+            }
+
+            if (!Gate::allows('userAffilations', $affiliation)) {
+                return $this->ForbiddenResponse();
+            }
+
+            if ($affiliation->is_verified) {
+                return $this->ErrorResponse('Affiliation already verified');
             }
 
             $organisation = Organisation::where('id', $affiliation->organisation_id)->first();
@@ -445,6 +451,11 @@ class AffiliationController extends Controller
         try {
             $input = $request->only(app(Affiliation::class)->getFillable());
             $affiliation = Affiliation::findOrFail($id);
+
+            if (!Gate::allows('userAffilations', $affiliation)) {
+                return $this->ForbiddenResponse();
+            }
+            
             $originalAffiliation = $affiliation->getOriginal();
 
             $unclaimed = $affiliation->organisation->unclaimed;
