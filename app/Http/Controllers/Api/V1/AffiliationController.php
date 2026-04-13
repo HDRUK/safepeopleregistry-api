@@ -279,6 +279,8 @@ class AffiliationController extends Controller
     {
         try {
             $input = $request->only(app(Affiliation::class)->getFillable());
+            $user =  $request->user;
+            $isCurrentEmail = (strtolower($input['email'] ?? '') === strtolower($request->user()->email));
 
             $currentEmployer = isset($input['current_employer']) ? $input['current_employer'] : false;
             $array = [
@@ -311,7 +313,7 @@ class AffiliationController extends Controller
 
             $affiliation = Affiliation::create($array);
 
-            if ($currentEmployer && $verificationCode) {
+            if ($currentEmployer && $verificationCode && !$isCurrentEmail) {
                 $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
                 $this->sendEmailVerificationAffiliation($affiliation);
             } else {
