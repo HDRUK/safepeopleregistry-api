@@ -429,7 +429,7 @@ class ProjectController extends Controller
      * )
      */
     public function getProjectUsers(GetProjectUsers $request, int $id): JsonResponse
-    {
+{
         $loggedInUserId = $request->user();
 
         $projectUsers = ProjectHasUser::with([
@@ -440,6 +440,7 @@ class ProjectController extends Controller
             'affiliation.modelState.state',
             'affiliation.organisation:id,organisation_name',
             'custodianHasProjectUser.modelState.state',
+            'project.projectHasOrganisations.custodianHasProjectOrganisation.modelState.state',
         ])
             ->where('project_id', $id)
             ->whereHas('registry.user', function ($query) {
@@ -460,7 +461,7 @@ class ProjectController extends Controller
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return $this->OKResponse($projectUsers);
-    }
+}
 
     /**
      * @OA\Get(
