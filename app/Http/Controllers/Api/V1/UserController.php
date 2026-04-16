@@ -629,7 +629,7 @@ class UserController extends Controller
     private function sendNotificationOnDelegate($loggedInUser, $delegate)
     {
         $userNotifiy = User::where('organisation_id', $delegate->organisation_id)
-            ->where('id', '<>', $delegate->id)
+            ->where('id', $delegate->id)
             ->get();
 
         Notification::send($userNotifiy, new OrganisationDelegates($loggedInUser, $delegate, 'remove'));
