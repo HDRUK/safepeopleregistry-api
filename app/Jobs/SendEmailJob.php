@@ -74,7 +74,7 @@ class SendEmailJob implements ShouldQueue
 
             if (config('mail.default') === 'smtp' || config('mail.default') === 'sendgrid') {
                 $email = new Email($this->to['id'], $this->template, $this->replacements, $this->address);
-                $html = $email->getRenderedHtml();
+                $html = $email->render();
 
                 $checkEmailLog = EmailLog::where('job_uuid', $jobUuid)->first();
                 if (is_null($checkEmailLog)) {
