@@ -487,10 +487,13 @@ class AffiliationController extends Controller
                 $custodianHasProjectUser->setState(State::STATE_PENDING);
             }
 
-            if ($affiliation->current_employer && !$affiliation->is_verified && !$isCurrentEmail) {
+            $requiresVerification = !$isCurrentEmail 
+                || ($affiliation->current_employer && !$affiliation->is_verified);
+
+            if ($requiresVerification) {
                 $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
 
-                if(!is_null($custodianHasProjectUser)){
+                if (!is_null($custodianHasProjectUser)) {
                     $custodianHasProjectUser->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
                 }
 
