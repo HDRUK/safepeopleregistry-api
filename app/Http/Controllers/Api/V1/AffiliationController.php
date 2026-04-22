@@ -488,9 +488,9 @@ class AffiliationController extends Controller
             }
 
             $requiresVerification = $requiresEmailVerification =
-    !$isCurrentEmail
-    && $affiliation->current_employer
-    && !$affiliation->is_verified;
+                !$isCurrentEmail
+                && $affiliation->current_employer
+                && !$affiliation->is_verified;
 
             if ($requiresVerification) {
                 $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
