@@ -457,6 +457,7 @@ class AffiliationController extends Controller
             if (!Gate::allows('userAffilations', $affiliation)) {
                 return $this->ForbiddenResponse();
             }
+            $isCurrentEmail = (strtolower($input['email'] ?? '') === strtolower($request->user()->email));
             
             $originalAffiliation = $affiliation->getOriginal();
 
@@ -486,10 +487,15 @@ class AffiliationController extends Controller
                 $custodianHasProjectUser->setState(State::STATE_PENDING);
             }
 
-            if ($affiliation->current_employer && !$affiliation->is_verified) {
+            $requiresVerification = $requiresEmailVerification =
+                !$isCurrentEmail
+                && $affiliation->current_employer
+                && !$affiliation->is_verified;
+
+            if ($requiresVerification) {
                 $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
 
-                if(!is_null($custodianHasProjectUser)){
+                if (!is_null($custodianHasProjectUser)) {
                     $custodianHasProjectUser->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
                 }
 

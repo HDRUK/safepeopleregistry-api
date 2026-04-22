@@ -183,8 +183,7 @@ class StateWorkflowTest extends TestCase
 
         $affiliation = Affiliation::where('id', 1)->first();
 
-        $this->assertTrue($affiliation->getState() === State::STATE_AFFILIATION_EMAIL_VERIFY);
-        $this->assertTrue($affiliation->canTransitionTo(State::STATE_AFFILIATION_PENDING) === true);
+        $this->assertTrue($affiliation->getState() === State::STATE_AFFILIATION_PENDING);
         $verficationCode = $affiliation->verification_code;
         $organisationId = $affiliation->organisation_id;
 
