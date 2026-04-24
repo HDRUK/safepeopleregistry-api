@@ -589,7 +589,6 @@ class AffiliationController extends Controller
                 ])
                 ->where('verification_sent_at', '>=', now()->subMinutes((int)config('speedi.system.otp_affiliation_validity_minutes')))
                 ->first();
-
             if (is_null($affiliation)) {
                 throw new Exception('Affiliation Not Found');
             }
@@ -616,7 +615,6 @@ class AffiliationController extends Controller
             else {
                 $affiliation->setState(State::STATE_AFFILIATION_ORGANISATION_INVITED);
             }
-
             $custodianHasProjectUser = CustodianHasProjectUser::query()
                 ->whereHas('projectHasUser.affiliation', function ($query) use ($affiliation) {
                     $query->where('id', $affiliation->id);
@@ -625,15 +623,12 @@ class AffiliationController extends Controller
             if (!is_null($custodianHasProjectUser)) {
                 $custodianHasProjectUser->setState(State::STATE_PENDING);
             }
-
             $array = [
                 'verification_code' => null,
                 'is_verified' => 1,
                 'verification_confirmed_at' => Carbon::now(),
             ];
-
             $affiliation->update($array);
-
             return $this->OKResponse($affiliation);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
