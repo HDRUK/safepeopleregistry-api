@@ -1253,10 +1253,18 @@ class OrganisationController extends Controller
             if (!Gate::allows('viewDetailed', $org)) {
                 return $this->ForbiddenResponse();
             }
-            $delegates = User::with(["departments"])
-                ->where('organisation_id', $organisationId)
-                ->where('is_delegate', 1)
-                ->get();
+            $delegates = User::with('departments')
+            ->select('users.*')
+            ->selectSub(function ($query) use ($organisationId) {
+                $query->from('pending_invites')
+                    ->select('status')
+                    ->whereColumn('pending_invites.user_id', 'users.id')
+                    ->where('organisation_id', $organisationId)
+                    ->limit(1);
+            }, 'invite_status')
+            ->where('organisation_id', $organisationId)
+            ->where('is_delegate', 1)
+            ->get();
 
             return response()->json([
                 'message' => 'success',
