@@ -763,6 +763,14 @@ class OrganisationController extends Controller
                 $this->updateOrganisationCharities($id, $request->input('charities'));
             }
 
+            if ($org->wasChanged()) {
+                $this->sendNotificationOnUpdate($loggedInUser, $org, $org->getOriginal());
+
+                Organisation::where('id', $org->id)->update([
+                    'system_approved' => 0,
+                ]);
+            }
+
             activity('organisation')
                 ->causedBy(Auth::user())
                 ->performedOn($org)

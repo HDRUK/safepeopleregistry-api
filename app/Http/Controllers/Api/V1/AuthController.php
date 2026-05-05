@@ -203,7 +203,6 @@ class AuthController extends Controller
         }
 
         $arr = json_decode($token, true);
-        
 
         if (!isset($arr['sub'])) {
             return response()->json([
