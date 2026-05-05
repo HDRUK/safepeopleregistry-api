@@ -763,27 +763,6 @@ class OrganisationController extends Controller
                 $this->updateOrganisationCharities($id, $request->input('charities'));
             }
 
-            if ($org->wasChanged()) {
-                $this->sendNotificationOnUpdate($loggedInUser, $org, $org->getOriginal());
-
-                Organisation::where('id', $org->id)->update([
-                    'system_approved' => 0,
-                ]);
-
-                $userAdmins = User::where('user_group', User::GROUP_ADMINS)->select(['id'])->get();
-                foreach ($userAdmins as $userAdmin) {
-                    $input = [
-                        'type' => 'ORGANISATION_NEEDS_CONFIRMATION',
-                        'to' => $id,
-                        'by' => $userAdmin->id,
-                        'identifier' => 'organisation_confirmation_needed'
-                    ];
-
-                    TriggerEmail::spawnEmail($input);
-                }
-
-            }
-
             activity('organisation')
                 ->causedBy(Auth::user())
                 ->performedOn($org)
