@@ -765,10 +765,6 @@ class OrganisationController extends Controller
 
             if ($org->wasChanged()) {
                 $this->sendNotificationOnUpdate($loggedInUser, $org, $org->getOriginal());
-
-                Organisation::where('id', $org->id)->update([
-                    'system_approved' => 0,
-                ]);
             }
 
             activity('organisation')
