@@ -769,19 +769,6 @@ class OrganisationController extends Controller
                 Organisation::where('id', $org->id)->update([
                     'system_approved' => 0,
                 ]);
-
-                $userAdmins = User::where('user_group', User::GROUP_ADMINS)->select(['id'])->get();
-                foreach ($userAdmins as $userAdmin) {
-                    $input = [
-                        'type' => 'ORGANISATION_NEEDS_CONFIRMATION',
-                        'to' => $id,
-                        'by' => $userAdmin->id,
-                        'identifier' => 'organisation_confirmation_needed'
-                    ];
-
-                    TriggerEmail::spawnEmail($input);
-                }
-
             }
 
             activity('organisation')

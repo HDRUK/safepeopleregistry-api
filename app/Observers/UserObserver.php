@@ -137,16 +137,6 @@ class UserObserver
             Organisation::where('id', $user->organisation_id)->update([
                 'system_approved' => 0,
             ]);
-            $userAdmins = User::where('user_group', User::GROUP_ADMINS)->select(['id'])->get();
-            foreach ($userAdmins as $userAdmin) {
-                $input = [
-                    'type' => 'ORGANISATION_NEEDS_CONFIRMATION',
-                    'to' => $user->organisation_id,
-                    'by' => $userAdmin->id,
-                    'identifier' => 'organisation_confirmation_needed'
-                ];
-                TriggerEmail::spawnEmail($input);
-            }
         }
 
         if ($user->consent_scrape && filled($user->orc_id) && ($user->isDirty('orc_id') || $user->isDirty('consent_scrape'))) {
