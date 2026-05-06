@@ -366,10 +366,6 @@ class AffiliationController extends Controller
                 return $this->ErrorResponse('Organisation with id ' .  $affiliation->organisation_id . ' not found');
             }
 
-            if ($organisation->unclaimed) {
-                return $this->ErrorResponse('Organisation Found Unclaimed');
-            }
-
             $array = [
                 'is_verified' => 0,
                 'verification_code' => Str::uuid()->toString(),
