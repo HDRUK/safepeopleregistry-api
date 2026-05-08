@@ -1317,20 +1317,21 @@ class CustodianController extends Controller
             }
 
             // custodian has validations check
-            $validationCheckIds = ValidationCheck::query()
+            $validationChecks = ValidationCheck::query()
                 ->whereNull('custodian_id')
                 ->orWhere('custodian_id', $id)
-                ->pluck('id')
-                ->all();
-            foreach ($validationCheckIds as $validationCheckId) {
+                ->get();
+
+            foreach ($validationChecks as $validationCheck) {
+
+                $newValidationCheck = $validationCheck->replicate();
+                $newValidationCheck->custodian_id = $id;
+                $newValidationCheck->save();
+
                 CustodianHasValidationCheck::firstOrCreate(
                     [
                         'custodian_id' => $id,
-                        'validation_check_id' => $validationCheckId,
-                    ],
-                    [
-                        'custodian_id' => $id,
-                        'validation_check_id' => $validationCheckId,
+                        'validation_check_id' => $newValidationCheck->id,
                     ]
                 );
             }

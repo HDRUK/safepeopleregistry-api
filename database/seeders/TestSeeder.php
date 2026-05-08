@@ -85,7 +85,8 @@ class TestSeeder extends Seeder
             ]);
 
             User::where('email', $custodian['email'])->update([
-                'custodian_user_id' => $iu->id
+                'custodian_user_id' => $iu->id,
+                'custodian_id'  => $i->id,
             ]);
         }
     }
