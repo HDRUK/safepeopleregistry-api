@@ -8,7 +8,7 @@ use Carbon\Carbon;
 
 class UpdateUserKeycloakInfoDev extends Command
 {
-    protected $signature = 'users:update-keycloak';
+    protected $signature = 'users:update-keycloak-dev';
     protected $description = 'Update keycloak_id, t_and_c_agreed, and t_and_c_agreement_date for users';
 
     public function handle()
