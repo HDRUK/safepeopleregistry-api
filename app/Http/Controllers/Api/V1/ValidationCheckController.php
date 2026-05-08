@@ -329,7 +329,6 @@ class ValidationCheckController extends Controller
         try {
             $custodianId = $request->user()?->custodian_id;
 
-
             $custodian = Custodian::find($custodianId);
             if (!$custodian) {
                 return $this->NotFoundResponse();
