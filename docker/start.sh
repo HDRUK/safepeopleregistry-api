@@ -21,7 +21,7 @@ run_queue_worker() {
     done
 }
 
-if [ "$APP_ENV" = 'local' ] || [ "$APP_ENV" = 'dev' ]; then
+if [ "$APP_ENV" = 'local' ]; then
     echo 'running in dev mode - with watch'
     # base_command="$base_command --watch"
 
