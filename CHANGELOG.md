@@ -1,3 +1,36 @@
+## [1.29.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.28.0...v1.29.0) (2026-05-11)
+
+### ✨ Features
+
+* **GAT-7958:** added github authentication (#674) ([48836a6](https://github.com/HDRUK/safepeopleregistry-api/commit/48836a68512617ae06f13947a0a92bba7f1e7624)), closes [GAT-7958](GAT-7958)
+* **GAT-7967:** updated semantic pipeline for merge back to dev (#687) ([2deb269](https://github.com/HDRUK/safepeopleregistry-api/commit/2deb26926dfd187e75b1d7d60462e703031d4181)), closes [GAT-7967](GAT-7967)
+* **REGISTRY-2197:** org stastus on project users (#704) ([ef31222](https://github.com/HDRUK/safepeopleregistry-api/commit/ef312225e78187d990bc72594521b0f72629bca0))
+* **REGISTRY-2361:** Organisation ico_expiry_evidence field (#680) ([38158ff](https://github.com/HDRUK/safepeopleregistry-api/commit/38158ff02e767d8817e3d7475dc386ab2e2f63b2))
+* **REGISTRY-2361:** Organisation ICO, ODS, DSPTK fields (#676) ([4b1058f](https://github.com/HDRUK/safepeopleregistry-api/commit/4b1058f0e0db8e96991a431be041b4babc043e0a))
+* **REGISTRY-2506:** Allow users to resend verication email for affiliation (#701) ([2908b09](https://github.com/HDRUK/safepeopleregistry-api/commit/2908b09a368bcaeb86d4a21d99fd35a6c4773001))
+* **REGISTRY-2562:** add latest approval to project details (#697) ([55e1550](https://github.com/HDRUK/safepeopleregistry-api/commit/55e1550c0c66bd8f02d33ce292b0a1f6af533995))
+* **REGISTRY-2562:** add latest approval to projects (#700) ([5420fd8](https://github.com/HDRUK/safepeopleregistry-api/commit/5420fd806c43fd9afaf7276431721410b65af850))
+* **REGISTRY-2606:** Bypass verification needed where user email login is affiliation email (#702) ([5191528](https://github.com/HDRUK/safepeopleregistry-api/commit/519152865c1bf49f49af3da0a08c075f727348a8))
+* **REGISTRY-2697:** Include org status (#707) ([24f99d9](https://github.com/HDRUK/safepeopleregistry-api/commit/24f99d9cb95b3bd40a2fa974bab40cd47202a780))
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-0000:** emails without redis (#675) ([c8a27cf](https://github.com/HDRUK/safepeopleregistry-api/commit/c8a27cfde1374021a6c0d5576f62da12fa3c4fa0))
+* **REGISTRY-0000:** Fix for uploads erroring (#678) ([08af6e3](https://github.com/HDRUK/safepeopleregistry-api/commit/08af6e3a90069247854e47b92fa09dc162018ba5))
+* **REGISTRY-0000:** Missed State (#685) ([728dfbc](https://github.com/HDRUK/safepeopleregistry-api/commit/728dfbc21cc2a687f6e53987539bc2e937362b29))
+* **REGISTRY-0000:** Status Edge case (#686) ([0e2c2f9](https://github.com/HDRUK/safepeopleregistry-api/commit/0e2c2f969af778edb6d42a3e191a6dc1f24ea4e0))
+* **REGISTRY-1668:** validation status - 2 (#684) ([3b80e5d](https://github.com/HDRUK/safepeopleregistry-api/commit/3b80e5d88f12e17a7174969d57f889dcdd394780))
+* **REGISTRY-1668:** validation status (#681) ([d5808ec](https://github.com/HDRUK/safepeopleregistry-api/commit/d5808ec649994994ee1b91e51d9bc4ccfecb12db))
+* **REGISTRY-1882:** make postcode nullable to prevent veriff crash (#703) ([324e89c](https://github.com/HDRUK/safepeopleregistry-api/commit/324e89c39427a7e1bc2ea114ed83d0587db3d712))
+* **REGISTRY-2165:** observer not running for affilation emails to trigger (#691) ([608cda2](https://github.com/HDRUK/safepeopleregistry-api/commit/608cda26b25ce0016aac14457621426cb9f26327))
+* **REGISTRY-2566:** Org statuses (#679) ([2bde1d3](https://github.com/HDRUK/safepeopleregistry-api/commit/2bde1d3ae122c490bb0a915820cca99a32360c7a))
+* **REGISTRY-2585:** Dropped login hint (#683) ([92f94d9](https://github.com/HDRUK/safepeopleregistry-api/commit/92f94d9bb37e55e3c2828224508096dd7f7dcbfa))
+* **REGISTRY-2594:** No state on project creation (#698) ([d86c02c](https://github.com/HDRUK/safepeopleregistry-api/commit/d86c02c63d34f15a4aa0f5d4c53ddd3b3d4fc419))
+* **REGISTRY-2594:** Project statuses error on PUT (#699) ([fa81e30](https://github.com/HDRUK/safepeopleregistry-api/commit/fa81e303d1a2ddd7c7a40c501f8dae379798fcfd))
+* **REGISTRY-2606:** Bypass verification needed where user email login… (#706) ([a800bdf](https://github.com/HDRUK/safepeopleregistry-api/commit/a800bdff3a28ce042a9d9e9ffa90e7990d63765b))
+* **REGISTRY-2648:** Verify blowing up when org invited (#693) ([4381dbc](https://github.com/HDRUK/safepeopleregistry-api/commit/4381dbc347dd2f2b0efce6c49f75cff7340bdf9d))
+* **REGISTRY-2675:** only notify the delegate not the world and no wrapper (#705) ([311c247](https://github.com/HDRUK/safepeopleregistry-api/commit/311c247df4cd8cb6f999a8aed985b789e5b34e6f))
+
 ## [1.28.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.27.0...v1.28.0) (2026-02-27)
 
 ### ✨ Features
