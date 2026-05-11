@@ -12,6 +12,8 @@ use App\Traits\CommonFunctions;
 use Tests\Traits\Authorisation;
 use Illuminate\Support\Facades\Config;
 use KeycloakGuard\ActingAsKeycloakUser;
+use Illuminate\Support\Facades\Gate;
+
 
 class StateWorkflowTest extends TestCase
 {
@@ -154,6 +156,8 @@ class StateWorkflowTest extends TestCase
 
     public function test_the_application_can_track_affiliation_state_current_employer_email_unverified_organisation_claimed(): void
     {
+        Gate::shouldReceive('allows')
+            ->andReturn(true);
         Affiliation::where('id', 1)->update([
             'is_verified' => 0,
             'current_employer' => 0,
@@ -179,8 +183,7 @@ class StateWorkflowTest extends TestCase
 
         $affiliation = Affiliation::where('id', 1)->first();
 
-        $this->assertTrue($affiliation->getState() === State::STATE_AFFILIATION_EMAIL_VERIFY);
-        $this->assertTrue($affiliation->canTransitionTo(State::STATE_AFFILIATION_PENDING) === true);
+        $this->assertTrue($affiliation->getState() === State::STATE_AFFILIATION_PENDING);
         $verficationCode = $affiliation->verification_code;
         $organisationId = $affiliation->organisation_id;
 

@@ -154,13 +154,25 @@ class ProjectController extends Controller
      */
     public function show(GetProject $request, int $id): JsonResponse
     {
-        $project = Project::with([
-                'projectDetail',
-                'custodians',
-                'modelState.state',
-                'projectHasSponsorships.sponsor',
-                'projectHasSponsorships.custodianHasProjectHasSponsorship.modelState.state',
-            ])->findOrFail($id);
+
+        $organisationId = $request->user()->organisation_id;
+        $with = [
+            'projectDetail',
+            'custodians',
+            'modelState.state',
+            'projectHasSponsorships.sponsor',
+            'projectHasSponsorships.custodianHasProjectHasSponsorship.modelState.state',
+        ];
+
+        if (!empty($organisationId)) {
+            $with['custodianHasProjectOrganisation'] = function ($query) use ($organisationId) {
+                $query->whereHas('projectOrganisation', function ($query2) use ($organisationId) {
+                    $query2->where('organisation_id', $organisationId);
+                })->with('modelState.state');
+            };
+        }
+
+        $project = Project::with($with)->findOrFail($id);
 
         if ($project) {
             return response()->json([
@@ -429,7 +441,7 @@ class ProjectController extends Controller
      * )
      */
     public function getProjectUsers(GetProjectUsers $request, int $id): JsonResponse
-    {
+{
         $loggedInUserId = $request->user();
 
         $projectUsers = ProjectHasUser::with([
@@ -440,6 +452,7 @@ class ProjectController extends Controller
             'affiliation.modelState.state',
             'affiliation.organisation:id,organisation_name',
             'custodianHasProjectUser.modelState.state',
+            'project.projectHasOrganisations.custodianHasProjectOrganisation.modelState.state',
         ])
             ->where('project_id', $id)
             ->whereHas('registry.user', function ($query) {
@@ -460,7 +473,7 @@ class ProjectController extends Controller
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return $this->OKResponse($projectUsers);
-    }
+}
 
     /**
      * @OA\Get(
@@ -994,7 +1007,7 @@ class ProjectController extends Controller
             'custodian_id' => $custodianId,
         ]);
 
-        $custodianHasProjectHasSponsorship->transitionTo(State::STATE_SPONSORSHIP_PENDING);
+        $custodianHasProjectHasSponsorship->setState(State::STATE_SPONSORSHIP_PENDING);
 
         return true;
     }

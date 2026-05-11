@@ -164,6 +164,7 @@ class Project extends Model
         'other_approval_committees',
         'start_date',
         'end_date',
+        'latest_approval_date',
     ];
 
     /**

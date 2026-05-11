@@ -29,12 +29,14 @@ use App\Http\Requests\Affiliations\GetOrganisationAffiliation;
 use App\Http\Requests\Affiliations\CreateAffiliationByRegistry;
 use App\Http\Requests\Affiliations\UpdateAffiliationByRegistry;
 use App\Notifications\Organisations\OrganisationUserAffiliation;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class AffiliationController extends Controller
 {
     use CommonFunctions;
     use Responses;
     use AffiliationManager;
+    use AuthorizesRequests;
 
     /**
      * @OA\Get(
@@ -277,6 +279,8 @@ class AffiliationController extends Controller
     {
         try {
             $input = $request->only(app(Affiliation::class)->getFillable());
+            $user =  $request->user;
+            $isCurrentEmail = (strtolower($input['email'] ?? '') === strtolower($request->user()->email));
 
             $currentEmployer = isset($input['current_employer']) ? $input['current_employer'] : false;
             $array = [
@@ -309,7 +313,7 @@ class AffiliationController extends Controller
 
             $affiliation = Affiliation::create($array);
 
-            if ($currentEmployer && $verificationCode) {
+            if ($currentEmployer && $verificationCode && !$isCurrentEmail) {
                 $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
                 $this->sendEmailVerificationAffiliation($affiliation);
             } else {
@@ -339,10 +343,6 @@ class AffiliationController extends Controller
     public function resendVerificationEmail(ResendVerificationEmail $request, int $id): JsonResponse
     {
         try {
-            if (!Gate::allows('admin')) {
-                return $this->ForbiddenResponse();
-            }
-
             $affiliation = Affiliation::where([
                 'id' => $id,
                 'current_employer' => true,
@@ -351,6 +351,14 @@ class AffiliationController extends Controller
 
             if (is_null($affiliation)) {
                 return $this->BadRequestResponse();
+            }
+
+            if (!Gate::allows('userAffilations', $affiliation)) {
+                return $this->ForbiddenResponse();
+            }
+
+            if ($affiliation->is_verified) {
+                return $this->ErrorResponse('Affiliation already verified');
             }
 
             $organisation = Organisation::where('id', $affiliation->organisation_id)->first();
@@ -445,6 +453,12 @@ class AffiliationController extends Controller
         try {
             $input = $request->only(app(Affiliation::class)->getFillable());
             $affiliation = Affiliation::findOrFail($id);
+
+            if (!Gate::allows('userAffilations', $affiliation)) {
+                return $this->ForbiddenResponse();
+            }
+            $isCurrentEmail = (strtolower($input['email'] ?? '') === strtolower($request->user()->email));
+            
             $originalAffiliation = $affiliation->getOriginal();
 
             $unclaimed = $affiliation->organisation->unclaimed;
@@ -473,10 +487,15 @@ class AffiliationController extends Controller
                 $custodianHasProjectUser->setState(State::STATE_PENDING);
             }
 
-            if ($affiliation->current_employer && !$affiliation->is_verified) {
+            $requiresVerification = $requiresEmailVerification =
+                !$isCurrentEmail
+                && $affiliation->current_employer
+                && !$affiliation->is_verified;
+
+            if ($requiresVerification) {
                 $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
 
-                if(!is_null($custodianHasProjectUser)){
+                if (!is_null($custodianHasProjectUser)) {
                     $custodianHasProjectUser->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
                 }
 
@@ -570,7 +589,6 @@ class AffiliationController extends Controller
                 ])
                 ->where('verification_sent_at', '>=', now()->subMinutes((int)config('speedi.system.otp_affiliation_validity_minutes')))
                 ->first();
-
             if (is_null($affiliation)) {
                 throw new Exception('Affiliation Not Found');
             }
@@ -597,7 +615,6 @@ class AffiliationController extends Controller
             else {
                 $affiliation->setState(State::STATE_AFFILIATION_ORGANISATION_INVITED);
             }
-
             $custodianHasProjectUser = CustodianHasProjectUser::query()
                 ->whereHas('projectHasUser.affiliation', function ($query) use ($affiliation) {
                     $query->where('id', $affiliation->id);
@@ -606,16 +623,13 @@ class AffiliationController extends Controller
             if (!is_null($custodianHasProjectUser)) {
                 $custodianHasProjectUser->setState(State::STATE_PENDING);
             }
-
             $array = [
                 'verification_code' => null,
                 'is_verified' => 1,
                 'verification_confirmed_at' => Carbon::now(),
             ];
-
-            $updatedAffiliation = Affiliation::where('id', $affiliation->id)->update($array);
-
-            return $this->OKResponse($updatedAffiliation);
+            $affiliation->update($array);
+            return $this->OKResponse($affiliation);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
