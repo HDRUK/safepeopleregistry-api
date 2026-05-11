@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 
 class DuplicateValidationChecksForCustodians extends Command
 {
-    protected $signature = 'validation-checks:duplicate-for-custodians';
+    protected $signature = 'app:duplicate-validation-checks-for-custodians';
 
     protected $description = 'Duplicate global validation checks for every custodian and recreate pivot mappings';
 
@@ -38,9 +38,19 @@ class DuplicateValidationChecksForCustodians extends Command
 
             /*
             |--------------------------------------------------------------------------
+            | 2. Get all old pivot records for future reference
+            |--------------------------------------------------------------------------
+            */
+            $previousValidationCheckRelationships = DB::table('custodian_has_validation_check')
+                ->whereIn('validation_check_id', $globalValidationCheckIds)->get();
+            print(json_encode($previousValidationCheckRelationships) . "\n");
+
+            /*
+            |--------------------------------------------------------------------------
             | 2. Delete old pivot records
             |--------------------------------------------------------------------------
             */
+
             DB::table('custodian_has_validation_check')
                 ->whereIn('validation_check_id', $globalValidationCheckIds)
                 ->delete();
@@ -52,6 +62,7 @@ class DuplicateValidationChecksForCustodians extends Command
             | 3. Get all custodians
             |--------------------------------------------------------------------------
             */
+
             $custodians = DB::table('custodians')->get();
 
             $this->info('Found ' . $custodians->count() . ' custodians.');
@@ -61,10 +72,19 @@ class DuplicateValidationChecksForCustodians extends Command
             | 4. Duplicate validation checks per custodian
             |--------------------------------------------------------------------------
             */
+
             foreach ($custodians as $custodian) {
 
                 foreach ($globalValidationChecks as $check) {
-
+                    $existingRecord = array_filter($previousValidationCheckRelationships->toArray(), function($reln) use ($custodian, $check) {
+			    return ($reln->custodian_id === $custodian->id) && ($reln->validation_check_id === $check->id);
+                        });
+                    if (!$existingRecord) {
+                      $this-info("skipping " . $check->id . " for custodian " . $custodian->id);
+                      continue;
+                    } else {
+                      $this->info("duplicating " . $check->id . " for custodian " . $custodian->id);
+                    }
                     $newCheck = (array) $check;
 
                     unset($newCheck['id']);
@@ -80,10 +100,12 @@ class DuplicateValidationChecksForCustodians extends Command
                             'custodian_id'       => $custodian->id,
                             'validation_check_id'=> $newValidationCheckId,
                         ]);
-                }
+
+              }
 
                 $this->info("Processed custodian ID {$custodian->id}");
             }
+
         });
 
         $this->info('Completed successfully.');
