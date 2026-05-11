@@ -126,7 +126,7 @@ class CustodianUserController extends Controller
      */
     public function show(GetCustodianUser $request, int $id): JsonResponse
     {
-        $user = CustodianUser::where('id', $id)->first();
+        $user = CustodianUser::with('userPermissions.permission')->where('id', $id)->first();
 
         if ($user) {
             return response()->json([
