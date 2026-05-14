@@ -1025,7 +1025,7 @@ class ProjectTest extends TestCase
         );
         $custodian->save();
 
-       
+
         $user = User::factory()->create([
             'email' => 'existing.user@example.com',
         ]);
@@ -1073,7 +1073,7 @@ class ProjectTest extends TestCase
             ],
         ];
 
-       
+
         $jsonPayload = json_encode($payload, JSON_UNESCAPED_SLASHES);
 
         $signature = base64_encode(

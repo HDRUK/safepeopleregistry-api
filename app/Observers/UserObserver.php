@@ -4,7 +4,6 @@ namespace App\Observers;
 
 use Keycloak;
 use Exception;
-use TriggerEmail;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\State;

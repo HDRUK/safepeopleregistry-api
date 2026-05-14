@@ -940,7 +940,15 @@ class UserController extends Controller
     // Hide from swagger docs
     public function resetPasswordById(GetUser $request, int $id)
     {
+        if ($id !== $request->user()->id && !Gate::allows('admin')) {
+            return $this->ForbiddenResponse();
+        }
+
         $user = User::where('id', $id)->first();
+
+        if (!$user) {
+            return $this->NotFoundResponse();
+        }
 
         $keycloakToken = $this->getAuthToken();
 
@@ -955,6 +963,10 @@ class UserController extends Controller
             'email' => 'required|email|max:255',
         ]);
         $email = $validated['email'];
+
+        if (!Gate::allows('admin') && strtolower($email) !== strtolower($request->user()->email)) {
+            return $this->ForbiddenResponse();
+        }
 
         $user = User::where('email', $email)->first();
         if (!is_null($user) && $user->unclaimed === 0) {

@@ -564,7 +564,7 @@ class OrganisationController extends Controller
                     'user_group' => User::GROUP_ORGANISATIONS,
                     'is_org_admin' => 1,
                     'organisation_id' => $organisation->id,
-                ]);           
+                ]);
 
                 return $this->CreatedResponse([
                     'user_id' => $user->id,
@@ -750,9 +750,11 @@ class OrganisationController extends Controller
 
                 Affiliation::with(['registry.user'])
                     ->where('organisation_id', $id)
-                    ->whereHas('registry.user', fn ($q) =>
+                    ->whereHas(
+                        'registry.user',
+                        fn ($q) =>
                         $q->where('unclaimed', false)
-                     )->each(fn ($affiliation) => $affiliation->setState(State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS));
+                    )->each(fn ($affiliation) => $affiliation->setState(State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS));
 
             }
 
@@ -2008,19 +2010,23 @@ class OrganisationController extends Controller
                 'system_approved_at' => Carbon::now(),
             ]);
 
-            if(!$org->unclaimed) {
-                if(!$input['system_approved']) {
-                    $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_SYSTEM_APPROVAL);  
+            if (!$org->unclaimed) {
+                if (!$input['system_approved']) {
+                    $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_SYSTEM_APPROVAL);
                 } else {
-                    $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_PENDING); 
+                    $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_PENDING);
                     $org->setState(State::STATE_PENDING);
 
                     Affiliation::with(['registry.user'])
                     ->where('organisation_id', $org->id)
-                    ->whereHas('modelState.state', fn ($q) =>
+                    ->whereHas(
+                        'modelState.state',
+                        fn ($q) =>
                         $q->where('slug', State::STATE_AFFILIATION_REVIEW)
                     )
-                    ->whereHas('registry.user', fn ($q) =>
+                    ->whereHas(
+                        'registry.user',
+                        fn ($q) =>
                         $q->where('unclaimed', false)
                     )->each(fn ($affiliation) => $affiliation->setState(State::STATE_AFFILIATION_PENDING));
                 }

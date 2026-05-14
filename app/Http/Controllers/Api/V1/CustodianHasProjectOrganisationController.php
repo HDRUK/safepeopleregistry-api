@@ -206,7 +206,7 @@ class CustodianHasProjectOrganisationController extends Controller
             }
 
             $puhca = CustodianHasProjectOrganisation::with([
-                'modelState.state',                
+                'modelState.state',
                 'projectOrganisation.organisation',
                 'projectOrganisation.project',
                 'projectOrganisation.organisation.sroOfficer',
@@ -422,98 +422,98 @@ class CustodianHasProjectOrganisationController extends Controller
         return $this->OKResponse(CustodianHasProjectOrganisation::getTransitions());
     }
 
-   /**
-     * @OA\Get(
-     *     path="/api/v1/custodian_approvals/{custodianId}/project/{projectId}/organisation/{organisationId}/projectOrganisations/status",
-     *     summary="Get project organisation status",
-     *     description="Retrieve the status of a project organisation for a specific custodian using custodianId, projectId, and organisationId.",
-     *     tags={"organisations"},
-     *     security={{"bearerAuth":{}}},
-     *
-     *     @OA\Parameter(
-     *         name="custodianId",
-     *         in="path",
-     *         required=true,
-     *         description="Custodian ID",
-     *         @OA\Schema(
-     *             type="integer",
-     *             example=1
-     *         )
-     *     ),
-     * 
-     *     @OA\Parameter(
-     *         name="projectId",
-     *         in="path",
-     *         required=true,
-     *         description="Project ID",
-     *         @OA\Schema(
-     *             type="integer",
-     *             example=10
-     *         )
-     *     ),
-     * 
-     *     @OA\Parameter(
-     *         name="organisationId",
-     *         in="path",
-     *         required=true,
-     *         description="Organisation ID",
-     *         @OA\Schema(
-     *             type="integer",
-     *             example=5
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=200,
-     *         description="Successful operation",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="message", type="string", example="success"),
-     *             @OA\Property(
-     *                 property="data",
-     *                 type="object",
-     *                 @OA\Property(property="id", type="integer", example=1),
-     *                 @OA\Property(property="name", type="string", example="Example Organisation"),
-     *                 @OA\Property(
-     *                     property="model_state",
-     *                     type="object",
-     *                     @OA\Property(property="id", type="integer", example=5),
-     *                     @OA\Property(
-     *                         property="state",
-     *                         type="object",
-     *                         @OA\Property(property="id", type="integer", example=2),
-     *                         @OA\Property(property="name", type="string", example="Active")
-     *                     )
-     *                 )
-     *             )
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=400,
-     *         description="Invalid argument(s)",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Invalid argument(s)")
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=404,
-     *         description="Organisation or custodian project organisation not found",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Organisation not found for this project")
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=500,
-     *         description="Server error",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="An error occurred: Unexpected error")
-     *         )
-     *     )
-     * )
-     */
+    /**
+      * @OA\Get(
+      *     path="/api/v1/custodian_approvals/{custodianId}/project/{projectId}/organisation/{organisationId}/projectOrganisations/status",
+      *     summary="Get project organisation status",
+      *     description="Retrieve the status of a project organisation for a specific custodian using custodianId, projectId, and organisationId.",
+      *     tags={"organisations"},
+      *     security={{"bearerAuth":{}}},
+      *
+      *     @OA\Parameter(
+      *         name="custodianId",
+      *         in="path",
+      *         required=true,
+      *         description="Custodian ID",
+      *         @OA\Schema(
+      *             type="integer",
+      *             example=1
+      *         )
+      *     ),
+      *
+      *     @OA\Parameter(
+      *         name="projectId",
+      *         in="path",
+      *         required=true,
+      *         description="Project ID",
+      *         @OA\Schema(
+      *             type="integer",
+      *             example=10
+      *         )
+      *     ),
+      *
+      *     @OA\Parameter(
+      *         name="organisationId",
+      *         in="path",
+      *         required=true,
+      *         description="Organisation ID",
+      *         @OA\Schema(
+      *             type="integer",
+      *             example=5
+      *         )
+      *     ),
+      *
+      *     @OA\Response(
+      *         response=200,
+      *         description="Successful operation",
+      *         @OA\JsonContent(
+      *             type="object",
+      *             @OA\Property(property="message", type="string", example="success"),
+      *             @OA\Property(
+      *                 property="data",
+      *                 type="object",
+      *                 @OA\Property(property="id", type="integer", example=1),
+      *                 @OA\Property(property="name", type="string", example="Example Organisation"),
+      *                 @OA\Property(
+      *                     property="model_state",
+      *                     type="object",
+      *                     @OA\Property(property="id", type="integer", example=5),
+      *                     @OA\Property(
+      *                         property="state",
+      *                         type="object",
+      *                         @OA\Property(property="id", type="integer", example=2),
+      *                         @OA\Property(property="name", type="string", example="Active")
+      *                     )
+      *                 )
+      *             )
+      *         )
+      *     ),
+      *
+      *     @OA\Response(
+      *         response=400,
+      *         description="Invalid argument(s)",
+      *         @OA\JsonContent(
+      *             @OA\Property(property="message", type="string", example="Invalid argument(s)")
+      *         )
+      *     ),
+      *
+      *     @OA\Response(
+      *         response=404,
+      *         description="Organisation or custodian project organisation not found",
+      *         @OA\JsonContent(
+      *             @OA\Property(property="message", type="string", example="Organisation not found for this project")
+      *         )
+      *     ),
+      *
+      *     @OA\Response(
+      *         response=500,
+      *         description="Server error",
+      *         @OA\JsonContent(
+      *             @OA\Property(property="message", type="string", example="An error occurred: Unexpected error")
+      *         )
+      *     )
+      * )
+      */
     public function getStatus(GetStatus $request, int $custodianId, int $projectId, int $organisationId): JsonResponse
     {
         try {
