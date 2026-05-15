@@ -18,7 +18,7 @@ class EmailLogController extends Controller
     use CommonFunctions;
     use Responses;
 
-   public function index(Request $request)
+    public function index(Request $request)
     {
         if (!Gate::allows('admin')) {
             return $this->ForbiddenResponse();

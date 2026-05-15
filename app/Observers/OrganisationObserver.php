@@ -13,7 +13,6 @@ use App\Models\ActionLog;
 use Carbon\Carbon;
 use App\Traits\ValidationManager;
 
-
 class OrganisationObserver
 {
     use ValidationManager;
@@ -196,7 +195,7 @@ class OrganisationObserver
             $unclaimed = $organisation->unclaimed;
             $affiliations = Affiliation::where("organisation_id", $organisation->id)->get();
 
-            if ($unclaimed){
+            if ($unclaimed) {
                 foreach ($affiliations as $affiliation) {
                     $affiliation->setState(State::STATE_AFFILIATION_INVITED);
                 }

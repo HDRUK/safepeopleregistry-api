@@ -167,8 +167,8 @@ class AffiliationTest extends TestCase
     public function test_the_application_can_update_an_affiliation(): void
     {
 
-       Gate::shouldReceive('allows')
-            ->andReturn(true);
+        Gate::shouldReceive('allows')
+             ->andReturn(true);
 
         $user = User::find(1);
 

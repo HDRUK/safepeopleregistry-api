@@ -95,10 +95,10 @@ class AffiliationObserver
             ];
 
             TriggerEmail::spawnEmail($email);
-            if(!(bool) $affiliation->is_verified) {
+            if (!(bool) $affiliation->is_verified) {
                 $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
             }
-            
+
         }
     }
 

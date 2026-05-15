@@ -279,7 +279,7 @@ use App\Traits\FilterManager;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Department> $departments
  * @property-read int|null $departments_count
  * @property-read \App\Models\File|null $dsptkExpiryEvidence
- * @property-read \App\Models\File|null $icoExpiryEvidence 
+ * @property-read \App\Models\File|null $icoExpiryEvidence
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\File> $files
  * @property-read int|null $files_count
  * @property-read mixed $evaluation

@@ -710,7 +710,7 @@ Route::middleware('auth:api')
 Route::middleware('auth:api')->get('v1/rules', [RulesEngineManagementController::class, 'getRules']);
 
 // ONS CSV RESEARCHER FEED
-Route::post('v1/ons_researcher_feed', [ONSSubmissionController::class, 'receiveCSV']);
+Route::middleware('auth:api')->post('v1/ons_researcher_feed', [ONSSubmissionController::class, 'receiveCSV']);
 
 // test
 Route::get('v1/test', [TestController::class, 'test']);

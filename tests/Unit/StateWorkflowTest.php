@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\Config;
 use KeycloakGuard\ActingAsKeycloakUser;
 use Illuminate\Support\Facades\Gate;
 
-
 class StateWorkflowTest extends TestCase
 {
     use Authorisation;

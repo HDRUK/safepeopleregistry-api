@@ -454,7 +454,7 @@ class AffiliationController extends Controller
                 return $this->ForbiddenResponse();
             }
             $isCurrentEmail = (strtolower($input['email'] ?? '') === strtolower($request->user()->email));
-            
+
             $originalAffiliation = $affiliation->getOriginal();
 
             $unclaimed = $affiliation->organisation->unclaimed;
@@ -601,14 +601,11 @@ class AffiliationController extends Controller
 
             if ($organisation->system_approved) {
                 $affiliation->setState(State::STATE_AFFILIATION_PENDING);
-            } 
-            else if (!is_null($organisation->sro_profile_uri)){
+            } elseif (!is_null($organisation->sro_profile_uri)) {
                 $affiliation->setState(State::STATE_AFFILIATION_REVIEW);
-            } 
-            else if (!$organisation->unclaimed) {
+            } elseif (!$organisation->unclaimed) {
                 $affiliation->setState(State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS);
-            } 
-            else {
+            } else {
                 $affiliation->setState(State::STATE_AFFILIATION_ORGANISATION_INVITED);
             }
             $custodianHasProjectUser = CustodianHasProjectUser::query()

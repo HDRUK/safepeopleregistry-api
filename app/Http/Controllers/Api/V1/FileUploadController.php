@@ -282,24 +282,29 @@ class FileUploadController extends Controller
                 if (strtolower($input['file_type']) === File::FILE_TYPE_DECLARATION_SRO && !$organisation->unclaimed) {
                     $inProgressState = State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS;
                     $inReview = State::STATE_AFFILIATION_REVIEW;
-                    $orgInReview= State::STATE_ORG_IN_REVIEW;
+                    $orgInReview = State::STATE_ORG_IN_REVIEW;
 
                     CustodianHasProjectOrganisation::whereRelation(
                         'projectOrganisation',
                         'organisation_id',
                         $organisationId
-                    )->each(fn ($approval) =>
+                    )->each(
+                        fn ($approval) =>
                         $approval->setState($orgInReview)
                     );
 
-                   Affiliation::with(['registry.user'])
-                    ->where('organisation_id', $organisation->id)
-                    ->whereHas('modelState.state', fn ($q) =>
-                        $q->where('slug', $inProgressState)
-                    )
-                    ->whereHas('registry.user', fn ($q) =>
-                        $q->where('unclaimed', false)
-                    )->each(fn ($affiliation) => $affiliation->setState($inReview));
+                    Affiliation::with(['registry.user'])
+                     ->where('organisation_id', $organisation->id)
+                     ->whereHas(
+                         'modelState.state',
+                         fn ($q) =>
+                         $q->where('slug', $inProgressState)
+                     )
+                     ->whereHas(
+                         'registry.user',
+                         fn ($q) =>
+                         $q->where('unclaimed', false)
+                     )->each(fn ($affiliation) => $affiliation->setState($inReview));
 
 
                 }
@@ -315,14 +320,14 @@ class FileUploadController extends Controller
 
                 $userAdmins = User::where('user_group', User::GROUP_ADMINS)->select(['id'])->get();
                 foreach ($userAdmins as $userAdmin) {
-                     
+
                     TriggerEmail::spawnEmail([
                         'type' => 'ORGANISATION_NEEDS_CONFIRMATION',
                         'to' => $organisation->id,
                         'by' => $userAdmin->id,
                         'identifier' => 'organisation_confirmation_needed'
                     ]);
-                    
+
                 }
 
                 $this->sendNotificationOnUploadSroDoc($organisation->id, $fileIn->id);
