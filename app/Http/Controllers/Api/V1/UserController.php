@@ -980,12 +980,12 @@ class UserController extends Controller
             return $this->ErrorResponse('User with email ' . $email . ' not found in Keycloak');
         }
 
-        $keycloakEmailVeifiedState = $user[0]['emailVerified'] ?? null;
-        if (is_null($keycloakEmailVeifiedState)) {
+        $keycloakEmailVerifiedState = $user[0]['emailVerified'] ?? null;
+        if (is_null($keycloakEmailVerifiedState)) {
             return $this->ErrorResponse('Unable to determine email verified state for user with email ' . $email . ' in Keycloak');
         }
 
-        if ($keycloakEmailVeifiedState === true) {
+        if ($keycloakEmailVerifiedState === true) {
             return $this->ErrorResponse('User with email ' . $email . ' already verified in Keycloak');
         }
 
