@@ -385,7 +385,6 @@ class Organisation extends Model
         'applicant_names',
         'funders_and_sponsors',
         'sub_license_arrangements',
-        'verified',
         'dsptk_ods_code',
         'dsptk_certified',
         'dsptk_expiry_date',
@@ -413,10 +412,8 @@ class Organisation extends Model
         'smb_status',
         'organisation_size',
         'unclaimed',
-        'system_approved',
         'sro_profile_uri',
         'is_sro',
-        'system_approved_at',
         'ods_id',
         'dsptk_date_last_published' ,
         'ico_registration_id',
@@ -424,6 +421,11 @@ class Organisation extends Model
         'ico_expiry_date',
         'ico_expiry_evidence',
         'dsptk_status',
+    ];
+
+    protected $guarded = [
+        'system_approved',
+        'system_approved_at',
     ];
 
     protected $casts = [
