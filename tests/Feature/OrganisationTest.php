@@ -532,27 +532,6 @@ class OrganisationTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_the_application_can_show_idvt(): void
-    {
-        $response = $this->actingAs($this->organisation_admin)
-            ->json(
-                'GET',
-                self::TEST_URL . '/1/idvt'
-            );
-
-        $response->assertStatus(200);
-        $response->assertJsonStructure([
-            'message',
-            'data' => [
-                'id',
-                'idvt_result',
-                'idvt_result_perc',
-                'idvt_completed_at',
-                'idvt_errors',
-            ],
-        ]);
-    }
-
     public function test_the_application_can_sort_returned_data(): void
     {
         $this->testOrg['organisation_name'] = 'ZYX Org';
@@ -1082,22 +1061,6 @@ class OrganisationTest extends TestCase
             ->json(
                 'GET',
                 self::TEST_URL . "/{$organisationIdTest}"
-            );
-
-        $response->assertStatus(400);
-        $message = $response->decodeResponseJson()['message'];
-        $this->assertEquals('Invalid argument(s)', $message);
-    }
-
-    public function test_the_application_cannot_get_organisations_idvt(): void
-    {
-        $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
-        $organisationIdTest = $latestOrganisation ? $latestOrganisation->id + 1 : 1;
-
-        $response = $this->actingAs($this->admin)
-            ->json(
-                'GET',
-                self::TEST_URL . "/{$organisationIdTest}/idvt"
             );
 
         $response->assertStatus(400);

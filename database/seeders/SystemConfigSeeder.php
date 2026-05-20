@@ -81,16 +81,6 @@ class SystemConfigSeeder extends Seeder
                 ',
                 'description' => 'Default validation for frontend form elements',
             ],
-            [
-                'name' => 'IDVT_ORG_VERIFY_PERCENT',
-                'value' => 88,
-                'description' => 'Default percentage required for passing Organisation verification',
-            ],
-            [
-                'name' => 'IDVT_ORG_SIC_WEIGHT_DECREASE',
-                'value' => 0.05,
-                'description' => 'Default weighting decrement value for Organisations within undesirable SIC codes',
-            ],
         ];
 
         foreach ($configs as $c) {

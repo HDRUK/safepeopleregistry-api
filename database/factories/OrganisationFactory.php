@@ -35,7 +35,6 @@ class OrganisationFactory extends Factory
             'applicant_names' => fake()->name(),
             'funders_and_sponsors' => fake()->company(),
             'sub_license_arrangements' => fake()->sentence(5),
-            'verified' => true,
             'companies_house_no' => '10887014',
             'sector_id' => fake()->randomElement([0, count(Sector::SECTORS)]),
             'dsptk_certified' => fake()->randomElement([0, 1]),

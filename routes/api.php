@@ -372,7 +372,6 @@ Route::middleware('auth:api')
             Route::get('/', 'index');
             Route::get('/{id}', 'show');
             Route::get('/{id}/status', 'getStatus');
-            Route::get('/{id}/idvt', 'idvt');
             Route::get('/{id}/counts/certifications', 'countCertifications');
             Route::get('/{id}/counts/users', 'countUsers');
             Route::get('/{id}/counts/projects/present', 'countPresentProjects');
