@@ -12,7 +12,7 @@ return new class () extends Migration
     public function up(): void
     {
         Schema::table('organisations', function (Blueprint $table) {
-            $table->dropColumn('verified');
+            $table->dropColumn(['verified', 'idvt_result', 'idvt_result_perc', 'idvt_errors', 'idvt_completed_at']);
         });
     }
 
@@ -23,6 +23,10 @@ return new class () extends Migration
     {
         Schema::table('organisations', function (Blueprint $table) {
             $table->tinyInteger('verified')->default(false);
+            $table->tinyInteger('idvt_result')->nullable();
+            $table->float('idvt_result_perc')->nullable();
+            $table->json('idvt_errors')->nullable();
+            $table->dateTime('idvt_completed_at')->nullable();
         });
     }
 };
