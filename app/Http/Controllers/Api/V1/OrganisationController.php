@@ -1908,7 +1908,7 @@ class OrganisationController extends Controller
     public function updateApproved(OrganisationUpdateApprover $request, int $id): JsonResponse
     {
         try {
-            $input = $request->only(app(Organisation::class)->getFillable());
+            $input = $request->only(app(Organisation::class)->getGuarded());
             $org = Organisation::findOrFail($id);
             $originalOrg = $org->getOriginal();
 
