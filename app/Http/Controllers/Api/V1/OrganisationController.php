@@ -426,7 +426,6 @@ class OrganisationController extends Controller
                 'applicant_names' => $input['applicant_names'],
                 'funders_and_sponsors' => $input['funders_and_sponsors'],
                 'sub_license_arrangements' => $input['sub_license_arrangements'],
-                'verified' => $input['verified'],
                 'companies_house_no' => $input['companies_house_no'],
                 'sector_id' => $input['sector_id'],
                 'dsptk_certified' => $input['dsptk_certified'],
@@ -445,7 +444,6 @@ class OrganisationController extends Controller
                 'website' => $input['website'],
                 'smb_status' => $input['smb_status'],
                 'organisation_size' => $input['organisation_size'],
-                'system_approved' => $input['system_approved'] ?? 0,
                 'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
                 'ods_id' => $input['ods_id'] ?? null,
                 'dsptk_date_last_published' => $input['dsptk_date_last_published'] ?? null,
@@ -523,7 +521,6 @@ class OrganisationController extends Controller
                 'applicant_names' => '',
                 'funders_and_sponsors' => '',
                 'sub_license_arrangements' => '',
-                'verified' => 0,
                 'companies_house_no' => '',
                 'sector_id' => 0,
                 'dsptk_certified' => 0,
@@ -543,7 +540,6 @@ class OrganisationController extends Controller
                 'smb_status' => 0,
                 'organisation_size' => null,
                 'unclaimed' => $input['unclaimed'] ?? 1,
-                'system_approved' => $input['system_approved'] ?? 0,
                 'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
                 'organisation_unique_id' => Str::random(40),
                 'ods_id' => null,
@@ -608,7 +604,6 @@ class OrganisationController extends Controller
                 'applicant_names' => '',
                 'funders_and_sponsors' => '',
                 'sub_license_arrangements' => '',
-                'verified' => 0,
                 'companies_house_no' => '',
                 'sector_id' => 0,
                 'dsptk_certified' => 0,
@@ -628,7 +623,6 @@ class OrganisationController extends Controller
                 'smb_status' => 0,
                 'organisation_size' => null,
                 'unclaimed' => $input['unclaimed'] ?? 1,
-                'system_approved' => $input['system_approved'] ?? 0,
                 'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
                 'organisation_unique_id' => Str::random(40),
                 'ods_id' => $input['ods_id'] ?? null,
@@ -1938,7 +1932,7 @@ class OrganisationController extends Controller
     }
 
     /**
-     * @OA\Patch(
+     * @OA\Put(
      *      path="/api/v1/organisations/{id}/approved",
      *      summary="SuperAdmin update org system_approved flag",
      *      description="Updates the system_approved flag for an organisation",
@@ -1957,7 +1951,7 @@ class OrganisationController extends Controller
      *      ),
      *      @OA\RequestBody(
      *          required=true,
-     *          description="Invite definition",
+     *          description="System approval update definition",
      *          @OA\JsonContent(
      *              @OA\Property(property="system_approved", type="bool", example="true"),
      *          ),
@@ -2005,10 +1999,9 @@ class OrganisationController extends Controller
                 return $this->BadRequestResponse();
             }
 
-            $org->update([
-                'system_approved' => $input['system_approved'],
-                'system_approved_at' => Carbon::now(),
-            ]);
+            $org->system_approved = $input['system_approved'];
+            $org->system_approved_at = Carbon::now();
+            $org->save();
 
             if (!$org->unclaimed) {
                 if (!$input['system_approved']) {
