@@ -14,7 +14,7 @@ class REG2774_20260521_AddingHRToDepartments extends Command
      *
      * @var string
      */
-    protected $signature = 'app:add-hr-to-departments';
+    protected $signature = 'oneoff:add-hr-to-departments';
 
     /**
      * The console command description.
