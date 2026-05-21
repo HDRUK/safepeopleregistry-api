@@ -60,12 +60,29 @@ class ProjectHasUser extends Model
     {
         return [
             [
-                'name' => 'mandatory_training_complete',
-                'description' => 'Mandatory training has been completed',
+                'name' => 'no_conflists_of_interest',
+                'description' => 'Affiliations tab: No conflicts of interest',
             ],
             [
-                'name' => 'organisation_has_confirmed_the_user',
-                'description' => 'The organisation has confirmed the user',
+                'name' => 'previous_projects_with_us',
+                'description' => 'Projects tab: Previous sensitive data project with us in last 2 years at same affiliation?',
+            ],
+            [
+                'name' => 'international_transfer_rules',
+                'description' => 'Identity tab: If located outside of UK, check Project with GDPR international transfer rules',
+            ],
+            [
+                'name' => 'recent_training',
+                'description' => 'Training tab: Has completed required training within 3 years',
+            ],
+            [
+                'name' => 'dea_accredited',
+
+                'description' => 'Training tab: If DEA project, are they DEA accredited?',
+            ],
+            [
+                'name' => 'user_declaration',
+                'description' => 'Signed User Declaration submitted',
             ],
         ];
     }

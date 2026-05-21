@@ -532,12 +532,28 @@ class Organisation extends Model
     {
         return [
             [
-                'name' => 'organisation_aligned_with_sde_network',
-                'description' => 'Is the Organisation aligned with the SDE network?',
+                'name' => 'sro_identity_verified',
+                'description' => 'Contact details tab: Verify SRO identity',
             ],
             [
-                'name' => 'confidence_in_costs_and_profits_for_future_projects',
-                'description' => 'Are we confident costs would be met and profits realised for future projects?',
+                'name' => 'location_meets_requirements',
+                'description' => 'Contact details tab: Location meets project & policy requirements',
+            ],
+            [
+                'name' => 'digital_identifiers_verified',
+                'description' => 'Digital identifiers tab: Check validity & type (Public, Private, etc.)',
+            ],
+            [
+                'name' => 'website_due_diligence',
+                'description' => 'Sector size & website tab: Due diligence on website',
+            ],
+            [
+                'name' => 'security_minimum_requirements_met',
+                'description' => 'Data security compliance tab: Meets minimum requirements for project',
+            ],
+            [
+                'name' => 'signed_data_access_agreement',
+                'description' => 'Signed Data Access Agreement',
             ],
         ];
     }
