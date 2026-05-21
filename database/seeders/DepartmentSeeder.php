@@ -43,6 +43,7 @@ class DepartmentSeeder extends Seeder
                 'Finance and Grants Management',
                 'Communications and Public Engagement',
                 'Ethics and Compliance',
+                'People Services and Human Resources',
             ],
         ];
 
