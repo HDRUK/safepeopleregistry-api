@@ -60,7 +60,7 @@ class ProjectHasUser extends Model
     {
         return [
             [
-                'name' => 'no_conflists_of_interest',
+                'name' => 'no_conflicts_of_interest',
                 'description' => 'Affiliations tab: No conflicts of interest',
             ],
             [
@@ -77,7 +77,6 @@ class ProjectHasUser extends Model
             ],
             [
                 'name' => 'dea_accredited',
-
                 'description' => 'Training tab: If DEA project, are they DEA accredited?',
             ],
             [
