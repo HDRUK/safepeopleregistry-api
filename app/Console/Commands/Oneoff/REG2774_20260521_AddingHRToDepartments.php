@@ -5,6 +5,7 @@ namespace App\Console\Commands\Oneoff;
 use Exception;
 use Illuminate\Console\Command;
 use App\Models\Department;
+use App\Models\Organisation;
 use Illuminate\Support\Facades\Log;
 
 class REG2774_20260521_AddingHRToDepartments extends Command
@@ -29,10 +30,16 @@ class REG2774_20260521_AddingHRToDepartments extends Command
     public function handle()
     {
         try {
-            Department::updateOrCreate([
+            $dept = Department::updateOrCreate([
                 'name' => 'People Services and Human Resources',
                 'category' => 'Cross-Cutting Departments',
             ]);
+
+            if ($dept) {
+                foreach (Organisation::all() as $org) {
+                    $org->departments()->syncWithoutDetaching($dept->id);
+                }
+            }
 
             return Command::SUCCESS;
         } catch (Exception $e) {
