@@ -85,7 +85,8 @@ class TestSeeder extends Seeder
             ]);
 
             User::where('email', $custodian['email'])->update([
-                'custodian_user_id' => $iu->id
+                'custodian_user_id' => $iu->id,
+                'custodian_id'  => $i->id,
             ]);
         }
     }
@@ -131,7 +132,7 @@ class TestSeeder extends Seeder
                 'is_org_admin' => 1,
                 'user_group' => RMC::KC_GROUP_ORGANISATIONS,
                 'organisation_id' => $testOrganisation->id,
-                'keycloak_id' => '5edbed6e-f610-4646-ad1d-c3faf155443a',
+                'keycloak_id' => '9263de78-e22a-4669-a1c4-ac3f6b0260a8',
                 'is_sro' => 1,
             ]
         ];
@@ -144,7 +145,7 @@ class TestSeeder extends Seeder
                 'last_name' => 'User',
                 'email' => "test.user+user@safepeopleregistry.com",
                 'user_group' => RMC::KC_GROUP_USERS,
-                'keycloak_id' => '5539052c-be47-4345-bfce-c67c6f3b82c5',
+                'keycloak_id' => '04f710fd-afcc-414c-9a19-bcfedf54e82e',
                 't_and_c_agreed' => true,
                 't_and_c_agreement_date' => Carbon::now(),
                 'affiliations' => [
@@ -175,7 +176,7 @@ class TestSeeder extends Seeder
                 'last_name' => 'User',
                 'email' => 'test.user+admin@safepeopleregistry.com',
                 'user_group' => RMC::KC_GROUP_ADMINS,
-                'keycloak_id' => 'b483eb56-3ac4-4e72-a9ac-fd7f217f619b'
+                'keycloak_id' => '2043cd67-9cc1-4075-97ce-4d6a5ab4a1ce'
             ]
         ];
 
@@ -187,7 +188,7 @@ class TestSeeder extends Seeder
                 'email' => 'test.user+custodian@safepeopleregistry.com',
                 'given_name' => 'Custodian',
                 'family_name' => 'Admin',
-                'sub' => '1575de97-4d60-435e-bf1b-a0376b7acdc2'
+                'sub' => '8350891d-fe00-42e1-8012-33178261325e'
             ]
         ];
 

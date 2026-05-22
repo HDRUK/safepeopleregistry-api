@@ -765,23 +765,6 @@ class OrganisationController extends Controller
 
             if ($org->wasChanged()) {
                 $this->sendNotificationOnUpdate($loggedInUser, $org, $org->getOriginal());
-
-                Organisation::where('id', $org->id)->update([
-                    'system_approved' => 0,
-                ]);
-
-                $userAdmins = User::where('user_group', User::GROUP_ADMINS)->select(['id'])->get();
-                foreach ($userAdmins as $userAdmin) {
-                    $input = [
-                        'type' => 'ORGANISATION_NEEDS_CONFIRMATION',
-                        'to' => $id,
-                        'by' => $userAdmin->id,
-                        'identifier' => 'organisation_confirmation_needed'
-                    ];
-
-                    TriggerEmail::spawnEmail($input);
-                }
-
             }
 
             activity('organisation')
@@ -1253,10 +1236,18 @@ class OrganisationController extends Controller
             if (!Gate::allows('viewDetailed', $org)) {
                 return $this->ForbiddenResponse();
             }
-            $delegates = User::with(["departments"])
-                ->where('organisation_id', $organisationId)
-                ->where('is_delegate', 1)
-                ->get();
+            $delegates = User::with('departments')
+            ->select('users.*')
+            ->selectSub(function ($query) use ($organisationId) {
+                $query->from('pending_invites')
+                    ->select('status')
+                    ->whereColumn('pending_invites.user_id', 'users.id')
+                    ->where('organisation_id', $organisationId)
+                    ->limit(1);
+            }, 'invite_status')
+            ->where('organisation_id', $organisationId)
+            ->where('is_delegate', 1)
+            ->get();
 
             return response()->json([
                 'message' => 'success',

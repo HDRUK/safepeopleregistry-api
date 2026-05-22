@@ -15,6 +15,7 @@ use App\Models\Organisation;
 use Illuminate\Http\Request;
 use App\Models\CustodianUser;
 use App\Models\DecisionModel;
+use App\Models\PendingInvite;
 use App\Http\Traits\Responses;
 use App\Models\ProjectHasUser;
 use App\Models\ValidationCheck;
@@ -1141,8 +1142,16 @@ class CustodianController extends Controller
      */
     public function getCustodianUsers(GetCustodian $request, int $custodianId): JsonResponse
     {
-        $users = CustodianUser::searchViaRequest()->where('custodian_id', $custodianId)
-            ->applySorting()->with("userPermissions.permission")
+        $users = CustodianUser::searchViaRequest()
+            ->where('custodian_id', $custodianId)
+            ->applySorting()
+            ->with("userPermissions.permission")
+            ->addSelect([
+                'invite_status' => PendingInvite::select('pending_invites.status')
+                    ->join('users', 'users.id', '=', 'pending_invites.user_id')
+                    ->whereColumn('users.email', 'custodian_users.email')
+                    ->limit(1)
+            ])
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         if ($users) {
@@ -1308,20 +1317,21 @@ class CustodianController extends Controller
             }
 
             // custodian has validations check
-            $validationCheckIds = ValidationCheck::query()
+            $validationChecks = ValidationCheck::query()
                 ->whereNull('custodian_id')
                 ->orWhere('custodian_id', $id)
-                ->pluck('id')
-                ->all();
-            foreach ($validationCheckIds as $validationCheckId) {
+                ->get();
+
+            foreach ($validationChecks as $validationCheck) {
+
+                $newValidationCheck = $validationCheck->replicate();
+                $newValidationCheck->custodian_id = $id;
+                $newValidationCheck->save();
+
                 CustodianHasValidationCheck::firstOrCreate(
                     [
                         'custodian_id' => $id,
-                        'validation_check_id' => $validationCheckId,
-                    ],
-                    [
-                        'custodian_id' => $id,
-                        'validation_check_id' => $validationCheckId,
+                        'validation_check_id' => $newValidationCheck->id,
                     ]
                 );
             }

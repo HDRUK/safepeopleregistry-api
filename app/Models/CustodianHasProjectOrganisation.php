@@ -66,13 +66,21 @@ class CustodianHasProjectOrganisation extends Model
         ],
         State::STATE_SYSTEM_APPROVAL => [
             State::STATE_PENDING,            
-        ],        
+        ],      
+        State::STATE_MORE_ORG_INFO_REQ => [
+            State::STATE_VALIDATION_IN_PROGRESS,
+            State::STATE_MORE_ORG_INFO_REQ_ESCALATION_COMMITTEE,
+            State::STATE_ORG_VALIDATION_DECLINED,
+            State::STATE_VALIDATION_COMPLETE,
+        ],  
         State::STATE_PENDING => [
             State::STATE_VALIDATION_IN_PROGRESS,
+            State::STATE_MORE_ORG_INFO_REQ,
             State::STATE_MORE_ORG_INFO_REQ_ESCALATION_MANAGER,
             State::STATE_MORE_ORG_INFO_REQ_ESCALATION_COMMITTEE,
         ],
         State::STATE_VALIDATION_IN_PROGRESS => [
+            State::STATE_MORE_ORG_INFO_REQ,
             State::STATE_VALIDATION_COMPLETE,
             State::STATE_MORE_ORG_INFO_REQ_ESCALATION_MANAGER,
             State::STATE_MORE_ORG_INFO_REQ_ESCALATION_COMMITTEE,
@@ -83,6 +91,7 @@ class CustodianHasProjectOrganisation extends Model
             State::STATE_VALIDATION_COMPLETE,
         ],
         State::STATE_MORE_ORG_INFO_REQ_ESCALATION_MANAGER => [
+            State::STATE_MORE_ORG_INFO_REQ,
             State::STATE_MORE_ORG_INFO_REQ_ESCALATION_COMMITTEE,
             State::STATE_ORG_VALIDATION_DECLINED,
             State::STATE_VALIDATION_COMPLETE,
