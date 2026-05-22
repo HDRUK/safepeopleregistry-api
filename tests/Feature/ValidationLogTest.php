@@ -255,7 +255,7 @@ class ValidationLogTest extends TestCase
         $response->assertStatus(200);
         $responseData = $response['data'];
 
-        $checkName = 'mandatory_training_complete';
+        $checkName = 'no_conflicts_of_interest';
         $validationCheckId = ValidationCheck::where('name', $checkName)->value('id');
 
         $validationLog = collect($responseData)
@@ -323,7 +323,7 @@ class ValidationLogTest extends TestCase
         $response->assertStatus(200);
         $responseData = $response['data'];
 
-        $checkName = 'mandatory_training_complete';
+        $checkName = 'no_conflicts_of_interest';
         $validationCheckId = ValidationCheck::where('name', $checkName)->value('id');
 
         $validationLog = collect($responseData)
@@ -391,7 +391,7 @@ class ValidationLogTest extends TestCase
         $response->assertStatus(200);
         $responseData = $response['data'];
 
-        $checkName = 'mandatory_training_complete';
+        $checkName = 'no_conflicts_of_interest';
         $validationCheckId = ValidationCheck::where('name', $checkName)->value('id');
 
         $validationLog = collect($responseData)
@@ -550,7 +550,7 @@ class ValidationLogTest extends TestCase
         $response->assertJson(['data' => $expectedResponse]);
 
         // Pick one check to disable
-        $checkNameToDisable = 'mandatory_training_complete';
+        $checkNameToDisable = 'no_conflicts_of_interest';
         $validationCheckId = ValidationCheck::where('name', $checkNameToDisable)->value('id');
 
         $payload = [
