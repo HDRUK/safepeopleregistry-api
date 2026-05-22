@@ -19,6 +19,7 @@ class ValidationCheckSeeder extends Seeder
                 [
                     'name' => $check['name'],
                     'applies_to' => ProjectHasUser::class,
+                    'custodian_id' => null,
                 ],
                 [
                     'description' => $check['description'],
@@ -32,6 +33,7 @@ class ValidationCheckSeeder extends Seeder
                 [
                     'name' => $check['name'],
                     'applies_to' => Organisation::class,
+                    'custodian_id' => null,
                 ],
                 [
                     'description' => $check['description'],
