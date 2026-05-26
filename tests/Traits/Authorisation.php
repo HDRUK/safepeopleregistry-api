@@ -25,11 +25,9 @@ trait Authorisation
         $authUrl = env('KEYCLOAK_BASE_URL').'/realms/'.env('KEYCLOAK_REALM').'/protocol/openid-connect/token';
 
         $credentials = [
-            'username' => env('KEYCLOAK_TEST_USERNAME'),
-            'password' => env('KEYCLOAK_TEST_PASSWORD'),
             'client_secret' => env('KEYCLOAK_CLIENT_SECRET'),
-            'client_id' => env('KEYCLOAK_CLIENT_ID'),
-            'grant_type' => 'password',
+            'client_id'     => env('KEYCLOAK_CLIENT_ID'),
+            'grant_type'    => 'client_credentials',
         ];
 
         $response = Http::asForm()->post($authUrl, $credentials);
