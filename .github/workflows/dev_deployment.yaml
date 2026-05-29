@@ -4,7 +4,7 @@ run-name:  ${{ github.actor }} triggered deploy to DEV pipeline
 on:
   push:
     branches:
-      - fix/REGISTRY-0000-observer-dupe-bug
+      - dev
 
 jobs:
   build:
@@ -20,5 +20,5 @@ jobs:
     with:
       env: dev
       chart_path: chart/soursd-api/Chart.yaml
-      git_ref: fix/REGISTRY-0000-observer-dupe-bug
+      git_ref: dev
     secrets: inherit
