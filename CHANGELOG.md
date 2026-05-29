@@ -1,3 +1,9 @@
+## [1.31.1](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.31.0...v1.31.1) (2026-05-29)
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-0000:** Removes duplication of validation_logs on new custodian creation. (#736) ([e132509](https://github.com/HDRUK/safepeopleregistry-api/commit/e132509029f2b3c24c45783671fba1d8a7b9b5e7))
+
 ## [1.31.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.30.0...v1.31.0) (2026-05-29)
 
 ### ✨ Features
