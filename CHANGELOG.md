@@ -1,3 +1,38 @@
+## [1.31.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.30.0...v1.31.0) (2026-05-29)
+
+### ✨ Features
+
+* **REGISTRY-2673:** Update default validation checks (#732) ([2ebe8c5](https://github.com/HDRUK/safepeopleregistry-api/commit/2ebe8c5324d84f34833ecbb14237a121b0e95fa4))
+* **REGISTRY-2744:** Return permissions with custodian user (#722) ([5ee9406](https://github.com/HDRUK/safepeopleregistry-api/commit/5ee9406a1aa5571f6fba8032d78018c4510077f0))
+* **REGISTRY-2774:** Add "People Services/Human Resources" to Departments (#730) ([b088a97](https://github.com/HDRUK/safepeopleregistry-api/commit/b088a975fc2d808aaf0428e3f987cf7ef776905c))
+* **REGISTRY-2774:** Add HR department to existing Orgs (#731) ([8c2cd29](https://github.com/HDRUK/safepeopleregistry-api/commit/8c2cd292e1a74a85168012a20dbae4dd726697ec))
+
+### 🐛 Bug Fixes
+
+* **GAT-8809:** updated workflows to use reusable pipelines (#724) ([7c73757](https://github.com/HDRUK/safepeopleregistry-api/commit/7c73757f71ce1754daf89ff5251900ec3b6505b7)), closes [GAT-8809](undefinedGAT-8809)
+* **REGISTRY-0000:** [ClaudeAI] Security audit. Including regression tests for vulnerability fixes. (#723) ([f480a1e](https://github.com/HDRUK/safepeopleregistry-api/commit/f480a1e33ff7bf4167dcfa741d1a92994abf6d8d))
+* **REGISTRY-2771:** Make Organisation.companies_house_no nullable (#725) ([dd9e3d7](https://github.com/HDRUK/safepeopleregistry-api/commit/dd9e3d7ef39b203086cdc2fd8ef334bd589c72a5))
+* **REGISTRY-2783:** Fix updating of emails (#733) ([887c61b](https://github.com/HDRUK/safepeopleregistry-api/commit/887c61b9ad3278d1bbe4fe07d18efa64f8158221))
+* **REGISTRY-2787:** Fix static route being consumed by dynamic route (#734) ([b8ba1ec](https://github.com/HDRUK/safepeopleregistry-api/commit/b8ba1ecf5c119a0900ce522a65348ff551ee588e))
+
+## [1.30.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.29.0...v1.30.0) (2026-05-22)
+
+### ✨ Features
+
+* **REGISTRY-2160:** include invite status (#710) ([2abc57b](https://github.com/HDRUK/safepeopleregistry-api/commit/2abc57bf969e7baf2db8e202f41717770f2eaa04))
+* **REGISTRY-2584:** only send confirm email when uploaded (#713) ([3604099](https://github.com/HDRUK/safepeopleregistry-api/commit/3604099e6a4eb0fb2df502c93f43c7bf25992d5c))
+* **REGISTRY-2741:** Allow resend if org unclaimed (#716) ([786f08d](https://github.com/HDRUK/safepeopleregistry-api/commit/786f08dc0d38de19b1a1c512a9f697ef91219d32))
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-0000:** Dev Test Users Keycloak IDs (#711) ([b1ba971](https://github.com/HDRUK/safepeopleregistry-api/commit/b1ba9719561c74e926a304394418bc2481d349df))
+* **REGISTRY-0000:** Me lil tweaks (#718) ([6f9aa00](https://github.com/HDRUK/safepeopleregistry-api/commit/6f9aa00a12cb6ba184325005e284a5efb5768923))
+* **REGISTRY-2687:** Actualy duplicate the mandatory checks (#719) ([f80e5c3](https://github.com/HDRUK/safepeopleregistry-api/commit/f80e5c3a5b1bf1e36e7ddf9c4f61eefdcc34ced6))
+* **REGISTRY-2687:** Creating validation checks for custodians (#717) ([2cf87ce](https://github.com/HDRUK/safepeopleregistry-api/commit/2cf87cee3a99ea3e9d519f9263d7bf2550f2f5ab))
+* **REGISTRY-2726:** Add "More Org info requested" to status list (#712) ([d932dd4](https://github.com/HDRUK/safepeopleregistry-api/commit/d932dd40380b12fd6d0807a561852df2d6b110e5))
+* **REGISTRY-2727:** stop unapproving orgs (#714) ([4305525](https://github.com/HDRUK/safepeopleregistry-api/commit/430552594d8913e71ee61c0afe454fa8a675078b))
+* **REGISTRY-2739:** Test email delay (#715) ([ee6026c](https://github.com/HDRUK/safepeopleregistry-api/commit/ee6026c0b9304699b066c531a6861755116e1480))
+
 ## [1.29.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.28.0...v1.29.0) (2026-05-11)
 
 ### ✨ Features
