@@ -46,8 +46,8 @@ class CustodianObserver
         }
         */
 
-        $this->updateAllCustodianOrganisationValidation(
-            $custodian->id,
-        );
+        // $this->updateAllCustodianOrganisationValidation(
+        //     $custodian->id,
+        // );
     }
 }
