@@ -24,7 +24,6 @@ use App\Traits\Notifications\NotificationCustodianManager;
 
 class CustodianUserController extends Controller
 {
-    
     use NotificationCustodianManager;
     use Responses;
 
@@ -126,7 +125,7 @@ class CustodianUserController extends Controller
      */
     public function show(GetCustodianUser $request, int $id): JsonResponse
     {
-        $user = CustodianUser::where('id', $id)->first();
+        $user = CustodianUser::with('userPermissions.permission')->where('id', $id)->first();
 
         if ($user) {
             return response()->json([
@@ -287,11 +286,11 @@ class CustodianUserController extends Controller
     public function bulkStore(Request $request): JsonResponse
     {
         try {
-            
+
             $input = $request->all();
             $custodianKey = $request->header('x-client-id', null);
 
-            
+
             $custodianId = Custodian::where('client_id', $custodianKey)->first()->id;
 
             $createdUserIds = [];
@@ -346,10 +345,10 @@ class CustodianUserController extends Controller
             }
 
 
-        return $this->CreatedResponse([
-            'created_user_ids' => $createdUserIds,
-            'skipped' => $skippedUsers,
-        ]);
+            return $this->CreatedResponse([
+                'created_user_ids' => $createdUserIds,
+                'skipped' => $skippedUsers,
+            ]);
 
 
         } catch (Exception $e) {

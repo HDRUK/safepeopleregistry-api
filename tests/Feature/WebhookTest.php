@@ -220,7 +220,7 @@ class WebhookTest extends TestCase
     public function test_delivered_event_updates_email_log_successfully()
     {
         $jobUuid = 'test-uuid-123';
-        
+
         $emailLog = EmailLog::create([
             'to' => fake()->email(),
             'subject' => 'test',
@@ -247,7 +247,7 @@ class WebhookTest extends TestCase
             ->assertJson(['message' => 'success']);
 
         $emailLog->refresh();
-        
+
         $this->assertEquals(1, $emailLog->job_status);
         $this->assertEquals('delivered', $emailLog->message_status);
         $this->assertNotNull($emailLog->message_response);

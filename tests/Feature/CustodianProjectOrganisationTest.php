@@ -147,7 +147,7 @@ class CustodianProjectOrganisationTest extends TestCase
 
         $this->assertEquals('success', $responseData['message']);
         $this->assertArrayHasKey('id', $responseData['data']);
-        $this->assertArrayHasKey('state', $responseData['data']); 
+        $this->assertArrayHasKey('state', $responseData['data']);
         $this->assertArrayHasKey('id', $responseData['data']['state']);
         $this->assertArrayHasKey('name', $responseData['data']['state']);
     }

@@ -11,9 +11,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::table('organisations', function (Blueprint $table) {
-            $table->string('dsptk_status')->after('dsptk_certified')->nullable();
-            $table->unsignedBigInteger('ico_expiry_evidence')->after('ico_expiry_date')->nullable();
-            $table->foreign('ico_expiry_evidence')->references('id')->on('files')->onDelete('set null');
+            $table->string('companies_house_no')->nullable()->change();
         });
     }
 
@@ -23,9 +21,7 @@ return new class () extends Migration {
     public function down(): void
     {
         Schema::table('organisations', function (Blueprint $table) {
-            $table->dropForeign(['ico_expiry_evidence']);
-            $table->dropColumn('ico_expiry_evidence');
-            $table->dropColumn('dsptk_status');
+            $table->string('companies_house_no')->nullable(false)->change();
         });
     }
 };

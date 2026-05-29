@@ -137,14 +137,14 @@ class CustodianHasProjectUser extends Model
 
                 $isCurrentNotVerified = !is_null($affiliation) && !$affiliation->is_verified && $affiliation->current_employer;
 
-                if(!is_null($affiliation)) {
-                if ($user->unclaimed || $isCurrentNotVerified) {
-                    $model->setState(State::STATE_INVITED);
-                } else {
-                    $model->setState(State::STATE_PENDING);
-                }
+                if (!is_null($affiliation)) {
+                    if ($user->unclaimed || $isCurrentNotVerified) {
+                        $model->setState(State::STATE_INVITED);
+                    } else {
+                        $model->setState(State::STATE_PENDING);
+                    }
 
-                $model->save();
+                    $model->save();
                 }
             }
         });

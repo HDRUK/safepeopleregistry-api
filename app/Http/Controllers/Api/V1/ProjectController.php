@@ -441,7 +441,7 @@ class ProjectController extends Controller
      * )
      */
     public function getProjectUsers(GetProjectUsers $request, int $id): JsonResponse
-{
+    {
         $loggedInUserId = $request->user();
 
         $projectUsers = ProjectHasUser::with([
@@ -473,7 +473,7 @@ class ProjectController extends Controller
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return $this->OKResponse($projectUsers);
-}
+    }
 
     /**
      * @OA\Get(
@@ -884,23 +884,23 @@ class ProjectController extends Controller
             $notifySponsor = false;
             $sponsorId = (int) $request->get('sponsor_id');
 
-                if ($sponsorId) {
+            if ($sponsorId) {
 
-                    $existing = ProjectHasSponsorship::where('project_id', $id)->first();
-                    $projectHasCustodian = ProjectHasCustodian::where('project_id', $id)->first();
+                $existing = ProjectHasSponsorship::where('project_id', $id)->first();
+                $projectHasCustodian = ProjectHasCustodian::where('project_id', $id)->first();
 
 
-                    if (!$existing || (int)$existing->sponsor_id !== $sponsorId) {
+                if (!$existing || (int)$existing->sponsor_id !== $sponsorId) {
 
-                        if ($existing) {
-                            $existing->delete();
-                        }
-                       
-                        $this->sponsorToProject($id, $sponsorId, $projectHasCustodian->custodian_id);
-                        $this->notifyOnAddSponsorToProject($loggedInUserId, $id, $sponsorId);
-                        $this->emailOnAddSponsorToProject($loggedInUserId, $id, $sponsorId);
+                    if ($existing) {
+                        $existing->delete();
                     }
+
+                    $this->sponsorToProject($id, $sponsorId, $projectHasCustodian->custodian_id);
+                    $this->notifyOnAddSponsorToProject($loggedInUserId, $id, $sponsorId);
+                    $this->emailOnAddSponsorToProject($loggedInUserId, $id, $sponsorId);
                 }
+            }
 
             $returnProject = Project::query()
                 ->where('id', $id)
@@ -1489,8 +1489,9 @@ class ProjectController extends Controller
     }
 
 
-    private function inviteProjectUser( string $firstName, string $lastName, string $email, int $organisationId, int $invitedBy, int $custodianId,): int {
-         
+    private function inviteProjectUser(string $firstName, string $lastName, string $email, int $organisationId, int $invitedBy, int $custodianId): int
+    {
+
         if (User::where('email', $email)->exists()) {
             return User::where('email', $email)->value('id');
         }
@@ -1521,7 +1522,7 @@ class ProjectController extends Controller
             'role' => '',
             'ror' => '',
         ]);
-        
+
         $affiliation->setState(State::STATE_AFFILIATION_INVITED);
 
         $email = [
@@ -1532,9 +1533,9 @@ class ProjectController extends Controller
             'custodianId' => $custodianId,
             'typeInvite' => 'custodian_user_invite',
         ];
-        
+
         TriggerEmail::spawnEmail($email);
-       
+
         return $unclaimedUser->id;
     }
 
@@ -1585,7 +1586,7 @@ class ProjectController extends Controller
      *      )
      * )
      */
-   public function bulkInviteProjectUsers(Request $request): JsonResponse
+    public function bulkInviteProjectUsers(Request $request): JsonResponse
     {
         try {
             $input = $request->all();
@@ -1593,7 +1594,7 @@ class ProjectController extends Controller
 
             $custodian = Custodian::where('client_id', $custodianKey)->first();
             $custodianId = $custodian->id;
-          
+
             $projectId = $input['projectId'];
 
             $projectBelongsToCustodian = Project::where('id', $projectId)
@@ -1609,7 +1610,7 @@ class ProjectController extends Controller
             }
 
             $adminPermission = Permission::where('name', 'CUSTODIAN_ADMIN')->firstOrFail();
-            
+
             $custodianUserAdminId = CustodianUser::where('custodian_id', $custodianId)
                 ->whereHas('userPermissions', function ($query) use ($adminPermission) {
                     $query->where('permission_id', $adminPermission->id);
@@ -1618,8 +1619,8 @@ class ProjectController extends Controller
                 ->value('id');
 
             $custodiansAdminUserId = User::where('custodian_user_id', $custodianUserAdminId)->first()->id;
- 
-            
+
+
             if (!$custodiansAdminUserId) {
                 return $this->ErrorResponse([
                     'message' => "No admin user exists for custodian"
@@ -1665,9 +1666,9 @@ class ProjectController extends Controller
                     }
 
                     $user = User::where('email', $userInput['emailAddress'])->first();
-                   
+
                     if (!$user) {
-                        
+
                         $userId = $this->inviteProjectUser(
                             $userInput['firstName'],
                             $userInput['lastName'],
@@ -1676,13 +1677,13 @@ class ProjectController extends Controller
                             $custodiansAdminUserId,
                             $custodianId
                         );
-                        
+
 
                         $user = User::find($userId);
                     }
 
                     if (!$user || !$user->registry_id) {
-                       
+
                         $skippedUsers[] = [
                             'email' => $userInput['emailAddress'],
                             'reason' => 'User has no registry'
@@ -1692,7 +1693,7 @@ class ProjectController extends Controller
 
                     $registry = Registry::find($user->registry_id);
                     if (!$registry) {
-                       
+
                         $skippedUsers[] = [
                             'email' => $userInput['emailAddress'],
                             'reason' => 'Registry not found'
@@ -1708,7 +1709,7 @@ class ProjectController extends Controller
                         ->first();
 
                     if (!$affiliation) {
-                        
+
                         $affiliation = Affiliation::create([
                             'registry_id'     => $registryId,
                             'organisation_id' => $userInput['organisationId'],

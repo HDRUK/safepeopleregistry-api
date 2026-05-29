@@ -25,7 +25,7 @@ class EmailLog extends Model
         'to',
         'subject',
         'created_at',
-        'updated_at',        
+        'updated_at',
     ];
 
     protected $fillable = [

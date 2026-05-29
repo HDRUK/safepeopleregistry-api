@@ -5,6 +5,9 @@ parameters:
     paths:
         - app/
         - database/seeders/
+
+    scanDirectories:
+        - vendor/hdruk/laravel-mjml/src
     reportUnmatchedIgnoredErrors: false
     stubFiles:
         - phpstan-stubs/laravel-octane.php

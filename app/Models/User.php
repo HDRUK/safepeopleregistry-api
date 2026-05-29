@@ -416,7 +416,7 @@ class User extends Authenticatable
             User::class,
             'invited_by'
         );
-    }    
+    }
 
     public function scopeWithProjectMembership($query, $projectId)
     {

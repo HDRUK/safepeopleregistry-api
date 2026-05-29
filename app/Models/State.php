@@ -165,8 +165,8 @@ class State extends Model
         self::STATE_AFFILIATION_ORGANISATION_INVITED,
         self::STATE_ORGANISATION_REGISTERED,
         self::STATE_ORG_IN_PROGRESS,
-        self::STATE_SYSTEM_APPROVAL,     
-        self::STATE_ORG_IN_REVIEW,   
+        self::STATE_SYSTEM_APPROVAL,
+        self::STATE_ORG_IN_REVIEW,
         self::STATE_AFFILIATION_REVIEW,
     ];
 }
