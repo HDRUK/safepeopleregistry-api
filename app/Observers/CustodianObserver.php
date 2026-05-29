@@ -35,19 +35,5 @@ class CustodianObserver
                 'completed_at' => null,
             ]);
         }
-
-        /*
-        $organisationIds = Organisation::pluck('id');
-        foreach ($organisationIds as $organisationId) {
-            CustodianHasOrganisation::create([
-                'custodian_id' => $custodian->id,
-                'organisation_id' =>  $organisationId
-            ]);
-        }
-        */
-
-        $this->updateAllCustodianOrganisationValidation(
-            $custodian->id,
-        );
     }
 }
