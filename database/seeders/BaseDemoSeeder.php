@@ -54,7 +54,6 @@ class BaseDemoSeeder extends Seeder
             DepartmentSeeder::class,
             WebhookEventTriggerSeeder::class,
             ValidationCheckSeeder::class,
-            CustodianHasValidationCheckSeeder::class,
             FeatureSeeder::class,
         ]);
 

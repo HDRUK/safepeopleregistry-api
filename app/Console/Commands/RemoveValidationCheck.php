@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use DB;
-use App\Models\CustodianHasValidationCheck;
 use App\Models\ValidationCheck;
 use Illuminate\Console\Command;
 
@@ -45,7 +44,6 @@ class RemoveValidationCheck extends Command
             //     WHERE log_name = 'validation_check'
             //     AND JSON_UNQUOTE(JSON_EXTRACT(properties, '$.check_name')) = ?
             // ", [$check]);
-            CustodianHasValidationCheck::where('validation_check_id', $id)->delete();
             ValidationCheck::where('id', $id)->delete();
 
             $this->info("Removed validation check: $check");

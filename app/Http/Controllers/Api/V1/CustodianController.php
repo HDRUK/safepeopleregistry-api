@@ -32,7 +32,6 @@ use App\Traits\SearchManagerCollection;
 use App\Models\CustodianWebhookReceiver;
 use RegistryManagementController as RMC;
 use App\Models\CustodianUserHasPermission;
-use App\Models\CustodianHasValidationCheck;
 use App\Http\Requests\Custodians\GetCustodian;
 use App\Models\CustodianHasProjectOrganisation;
 use App\Http\Requests\Custodians\GetUserProject;
@@ -1323,17 +1322,9 @@ class CustodianController extends Controller
                 ->get();
 
             foreach ($validationChecks as $validationCheck) {
-
                 $newValidationCheck = $validationCheck->replicate();
                 $newValidationCheck->custodian_id = $id;
                 $newValidationCheck->save();
-
-                CustodianHasValidationCheck::firstOrCreate(
-                    [
-                        'custodian_id' => $id,
-                        'validation_check_id' => $newValidationCheck->id,
-                    ]
-                );
             }
 
             $input = [
