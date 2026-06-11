@@ -197,7 +197,7 @@ Route::middleware('auth:api')
                 Route::delete('/{id}', 'destroy');
             });
 
-        Route::prefix('custodians/validation_checks')
+        Route::prefix('custodians/{custodianId}/validation_checks')
             ->group(function () {
                 Route::post('/', 'createCustodianValidationChecks');
             });

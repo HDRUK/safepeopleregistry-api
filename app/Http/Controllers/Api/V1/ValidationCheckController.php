@@ -292,7 +292,7 @@ class ValidationCheckController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/v1/custodians/validation_checks",
+     *     path="/api/v1/custodians/{custodianId}/validation_checks",
      *     summary="Assign a validation check to a custodian",
      *     description="Creates a new validation check and assigns it to a specific custodian via the custodian_has_validation_check pivot table.",
      *     tags={"Custodians"},
@@ -305,6 +305,13 @@ class ValidationCheckController extends Controller
      *             @OA\Property(property="type", type="string", example="format"),
      *             @OA\Property(property="description", type="string", example="Ensures proper formatting of input")
      *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="custodianId",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the custodian",
+     *         @OA\Schema(type="integer")
      *     ),
      *     @OA\Response(
      *         response=201,
@@ -323,11 +330,9 @@ class ValidationCheckController extends Controller
      *     )
      * )
      */
-    public function createCustodianValidationChecks(Request $request): JsonResponse
+    public function createCustodianValidationChecks(Request $request, int $custodianId): JsonResponse
     {
         try {
-            $custodianId = $request->user()?->custodian_id;
-
             $custodian = Custodian::find($custodianId);
             if (!$custodian) {
                 return $this->NotFoundResponse();
