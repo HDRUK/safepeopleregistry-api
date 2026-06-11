@@ -70,7 +70,7 @@ class TestSeeder extends Seeder
                 'permission_id' => $perm->id,
             ]);
 
-            $defaultValidationChecks = ValidationCheck::whereNull('custodian_id')->all();
+            $defaultValidationChecks = ValidationCheck::whereNull('custodian_id')->get();
 
             foreach ($defaultValidationChecks as $validationCheck) {
                 $newValidationCheck = $validationCheck->replicate();
