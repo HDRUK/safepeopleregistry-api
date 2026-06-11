@@ -17,7 +17,6 @@ use App\Models\CustodianModelConfig;
 use App\Models\Permission;
 use App\Models\CustodianUserHasPermission;
 use App\Models\ValidationCheck;
-use App\Models\CustodianHasValidationCheck;
 use App\Models\State;
 
 class TestSeeder extends Seeder
@@ -71,13 +70,12 @@ class TestSeeder extends Seeder
                 'permission_id' => $perm->id,
             ]);
 
-            $validationCheckIds = ValidationCheck::pluck('id')->all();
+            $defaultValidationChecks = ValidationCheck::whereNull('custodian_id')->get();
 
-            foreach ($validationCheckIds as $validationCheckId) {
-                CustodianHasValidationCheck::create([
-                    'custodian_id' => $i->id,
-                    'validation_check_id' => $validationCheckId,
-                ]);
+            foreach ($defaultValidationChecks as $validationCheck) {
+                $newValidationCheck = $validationCheck->replicate();
+                $newValidationCheck->custodian_id = $i->id;
+                $newValidationCheck->save();
             }
 
             RMC::createNewUser($custodian, [

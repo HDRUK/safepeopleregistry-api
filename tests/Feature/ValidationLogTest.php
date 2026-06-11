@@ -38,7 +38,16 @@ class ValidationLogTest extends TestCase
         $this->registry = Registry::factory()->create();
         $this->user->update(['registry_id' => $this->registry->id]);
         $this->custodian = Custodian::factory()->create();
-        $this->custodian->validationChecks()->syncWithoutDetaching(ValidationCheck::pluck('id')->all());
+
+        $validationChecks = ValidationCheck::query()
+            ->whereNull('custodian_id')
+            ->get();
+
+        foreach ($validationChecks as $validationCheck) {
+            $newValidationCheck = $validationCheck->replicate();
+            $newValidationCheck->custodian_id = $this->custodian->id;
+            $newValidationCheck->save();
+        }
 
         $this->project = Project::factory()->create();
 
@@ -70,7 +79,7 @@ class ValidationLogTest extends TestCase
 
 
         foreach ($defaultChecks as $check) {
-            $id = ValidationCheck::where(['name' => $check['name']])->first()->id;
+            $validationCheckId = ValidationCheck::where(['name' => $check['name'], 'custodian_id' => $this->custodian->id, 'applies_to' => 'App\\Models\\ProjectHasUser'])->first()->id;
 
             $this->assertDatabaseHas('validation_logs', [
                 'entity_id' => $this->custodian->id,
@@ -79,7 +88,7 @@ class ValidationLogTest extends TestCase
                 'secondary_entity_type' => Project::class,
                 'tertiary_entity_id' => $this->registry->id,
                 'tertiary_entity_type' => Registry::class,
-                'validation_check_id' => $id,
+                'validation_check_id' => $validationCheckId,
                 'completed_at' => null,
             ]);
         }
@@ -92,8 +101,14 @@ class ValidationLogTest extends TestCase
 
         $this->assertDatabaseCount('validation_logs', count($defaultChecks));
 
+        $this->assertEquals(
+            count($defaultChecks),
+            DB::table('validation_logs')
+                ->where('secondary_entity_type', Project::class)
+                ->count()
+        );
         foreach ($defaultChecks as $check) {
-            $validationCheckId = ValidationCheck::where('name', $check['name'])->value('id');
+            $validationCheckId = ValidationCheck::where(['name' => $check['name'], 'custodian_id' => $this->custodian->id, 'applies_to' => 'App\\Models\\ProjectHasUser'])->first()->id;
 
             $this->assertDatabaseHas('validation_logs', [
                 'entity_id' => $this->custodian->id,
@@ -108,9 +123,15 @@ class ValidationLogTest extends TestCase
         }
 
         $newCustodian = Custodian::factory()->create();
-        $newCustodian->validationChecks()
-            ->syncWithoutDetaching(ValidationCheck::pluck('id')->all());
+        $validationChecks = ValidationCheck::query()
+            ->whereNull('custodian_id')
+            ->get();
 
+        foreach ($validationChecks as $validationCheck) {
+            $newValidationCheck = $validationCheck->replicate();
+            $newValidationCheck->custodian_id = $newCustodian->id;
+            $newValidationCheck->save();
+        }
         ProjectHasCustodian::create([
             'project_id' => $this->project->id,
             'custodian_id' => $newCustodian->id,
@@ -124,7 +145,7 @@ class ValidationLogTest extends TestCase
         );
 
         foreach ($defaultChecks as $check) {
-            $validationCheckId = ValidationCheck::where('name', $check['name'])->value('id');
+            $validationCheckId = ValidationCheck::where(['name' => $check['name'], 'custodian_id' => $newCustodian->id, 'applies_to' => 'App\\Models\\ProjectHasUser'])->first()->id;
 
             $this->assertDatabaseHas('validation_logs', [
                 'entity_id' => $newCustodian->id,
@@ -145,8 +166,15 @@ class ValidationLogTest extends TestCase
         $this->add_user_and_custodian_to_project();
 
         $newCustodian = Custodian::factory()->create();
-        $newCustodian->validationChecks()
-            ->syncWithoutDetaching(ValidationCheck::pluck('id')->all());
+        $validationChecks = ValidationCheck::query()
+            ->whereNull('custodian_id')
+            ->get();
+
+        foreach ($validationChecks as $validationCheck) {
+            $newValidationCheck = $validationCheck->replicate();
+            $newValidationCheck->custodian_id = $newCustodian->id;
+            $newValidationCheck->save();
+        }
 
         $phc = ProjectHasCustodian::create([
             'project_id' => $this->project->id,
@@ -161,7 +189,7 @@ class ValidationLogTest extends TestCase
         );
 
         foreach ($defaultChecks as $check) {
-            $validationCheckId = ValidationCheck::where('name', $check['name'])->value('id');
+            $validationCheckId = ValidationCheck::where(['name' => $check['name'], 'custodian_id' => $newCustodian->id, 'applies_to' => 'App\\Models\\ProjectHasUser'])->first()->id;
 
             $this->assertDatabaseHas('validation_logs', [
                 'entity_id' => $newCustodian->id,
@@ -185,7 +213,7 @@ class ValidationLogTest extends TestCase
         );
 
         foreach ($defaultChecks as $check) {
-            $validationCheckId = ValidationCheck::where('name', $check['name'])->value('id');
+            $validationCheckId = ValidationCheck::where(['name' => $check['name'], 'custodian_id' => $newCustodian->id, 'applies_to' => 'App\\Models\\ProjectHasUser'])->first()->id;
 
             $this->assertDatabaseMissing('validation_logs', [
                 'entity_id' => $newCustodian->id,
@@ -232,7 +260,7 @@ class ValidationLogTest extends TestCase
                 'secondary_entity_type' => Project::class,
                 'tertiary_entity_id' => $this->registry->id,
                 'tertiary_entity_type' => Registry::class,
-                'validation_check_id' => ValidationCheck::where('name', $check['name'])->value('id'),
+                'validation_check_id' => ValidationCheck::where(['name' => $check['name'], 'custodian_id' => $this->custodian->id])->first()->id,
                 'completed_at' => null,
             ];
         }, $defaultChecks);
@@ -256,7 +284,7 @@ class ValidationLogTest extends TestCase
         $responseData = $response['data'];
 
         $checkName = 'no_conflicts_of_interest';
-        $validationCheckId = ValidationCheck::where('name', $checkName)->value('id');
+        $validationCheckId = ValidationCheck::where(['name' => $checkName, 'custodian_id' => $this->custodian->id])->first()->id;
 
         $validationLog = collect($responseData)
             ->firstWhere('validation_check_id', $validationCheckId);
@@ -324,7 +352,7 @@ class ValidationLogTest extends TestCase
         $responseData = $response['data'];
 
         $checkName = 'no_conflicts_of_interest';
-        $validationCheckId = ValidationCheck::where('name', $checkName)->value('id');
+        $validationCheckId = ValidationCheck::where(['name' => $checkName, 'custodian_id' => $this->custodian->id])->first()->id;
 
         $validationLog = collect($responseData)
             ->firstWhere('validation_check_id', $validationCheckId);
@@ -392,7 +420,7 @@ class ValidationLogTest extends TestCase
         $responseData = $response['data'];
 
         $checkName = 'no_conflicts_of_interest';
-        $validationCheckId = ValidationCheck::where('name', $checkName)->value('id');
+        $validationCheckId = ValidationCheck::where(['name' => $checkName, 'custodian_id' => $this->custodian->id])->first()->id;
 
         $validationLog = collect($responseData)
             ->firstWhere('validation_check_id', $validationCheckId);
@@ -482,7 +510,7 @@ class ValidationLogTest extends TestCase
                 'secondary_entity_type' => Project::class,
                 'tertiary_entity_id' => $this->registry->id,
                 'tertiary_entity_type' => Registry::class,
-                'validation_check_id' => ValidationCheck::where('name', $check['name'])->value('id'),
+                'validation_check_id' => ValidationCheck::where(['name' => $check['name'], 'custodian_id' => $this->custodian->id])->first()->id,
                 'completed_at' => null,
             ];
         }, $defaultChecks);
@@ -491,7 +519,7 @@ class ValidationLogTest extends TestCase
         $validationLogs = collect($response['data']);
 
         foreach ($defaultChecks as $check) {
-            $validationCheckId = ValidationCheck::where('name', $check['name'])->value('id');
+            $validationCheckId = ValidationCheck::where(['name' => $check['name'], 'custodian_id' => $this->custodian->id])->first()->id;
             $validationLog = $validationLogs->firstWhere('validation_check_id', $validationCheckId);
             $validationLogId = $validationLog['id'];
 
@@ -541,7 +569,7 @@ class ValidationLogTest extends TestCase
                 'secondary_entity_type' => Project::class,
                 'tertiary_entity_id' => $this->registry->id,
                 'tertiary_entity_type' => Registry::class,
-                'validation_check_id' => ValidationCheck::where('name', $check['name'])->value('id'),
+                'validation_check_id' => ValidationCheck::where(['name' => $check['name'], 'custodian_id' => $this->custodian->id])->first()->id,
                 'completed_at' => null,
                 'enabled' => 1,
             ];
@@ -551,7 +579,7 @@ class ValidationLogTest extends TestCase
 
         // Pick one check to disable
         $checkNameToDisable = 'no_conflicts_of_interest';
-        $validationCheckId = ValidationCheck::where('name', $checkNameToDisable)->value('id');
+        $validationCheckId = ValidationCheck::where(['name' => $checkNameToDisable, 'custodian_id' => $this->custodian->id])->first()->id;
 
         $payload = [
             'enabled' => 0,
@@ -627,8 +655,15 @@ class ValidationLogTest extends TestCase
 
         // Create initial custodian + organisation
         $newCustodian = Custodian::factory()->create();
-        $newCustodian->validationChecks()
-            ->syncWithoutDetaching(ValidationCheck::pluck('id')->all());
+        $validationChecks = ValidationCheck::query()
+            ->whereNull('custodian_id')
+            ->get();
+
+        foreach ($validationChecks as $validationCheck) {
+            $newValidationCheck = $validationCheck->replicate();
+            $newValidationCheck->custodian_id = $newCustodian->id;
+            $newValidationCheck->save();
+        }
 
         Organisation::factory()->create();
 
@@ -643,8 +678,15 @@ class ValidationLogTest extends TestCase
 
         // Add a second custodian
         $newCustodian = Custodian::factory()->create();
-        $newCustodian->validationChecks()
-            ->syncWithoutDetaching(ValidationCheck::pluck('id')->all());
+        $validationChecks = ValidationCheck::query()
+            ->whereNull('custodian_id')
+            ->get();
+
+        foreach ($validationChecks as $validationCheck) {
+            $newValidationCheck = $validationCheck->replicate();
+            $newValidationCheck->custodian_id = $newCustodian->id;
+            $newValidationCheck->save();
+        }
         $newCustodian->update();
 
         $expectedLogCount = count($defaultChecks) * Custodian::count() * Organisation::count();

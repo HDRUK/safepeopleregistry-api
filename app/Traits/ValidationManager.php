@@ -13,7 +13,7 @@ use InvalidArgumentException;
 use App\Models\ProjectHasUser;
 use App\Models\ProjectHasCustodian;
 use App\Models\CustodianHasProjectUser;
-use App\Models\CustodianHasValidationCheck;
+use App\Models\ValidationCheck;
 
 /**
  * ValidationManager
@@ -58,14 +58,11 @@ trait ValidationManager
                     $custodianHasProjectUser->setState(State::STATE_INVITED);
                 }
 
-                $vchecks = CustodianHasValidationCheck::with("validationCheck")
-                    ->where([
-                        'custodian_id' => $custodian->id
+                $vchecks = ValidationCheck::where([
+                        'custodian_id' => $custodian->id,
+                        'applies_to' => ProjectHasUser::class
                     ])
-                    ->whereHas('validationCheck', function ($query) {
-                        $query->where('applies_to', ProjectHasUser::class);
-                    })
-                    ->pluck('validation_check_id');
+                    ->pluck('id');
 
                 foreach ($vchecks as $vcid) {
                     ValidationLog::updateOrCreate(
@@ -124,14 +121,11 @@ trait ValidationManager
         $organisation = Organisation::find($organisationId);
         $custodian = Custodian::find($custodianId);
 
-        $vchecks = CustodianHasValidationCheck::with("validationCheck")
-            ->where([
-                'custodian_id' => $custodian->id
+        $vchecks = ValidationCheck::where([
+                'custodian_id' => $custodian->id,
+                'applies_to' => Organisation::class
             ])
-            ->whereHas('validationCheck', function ($query) {
-                $query->where('applies_to', Organisation::class);
-            })
-            ->pluck('validation_check_id');
+            ->pluck('id');
 
         foreach ($vchecks as $vcid) {
             ValidationLog::updateOrCreate(

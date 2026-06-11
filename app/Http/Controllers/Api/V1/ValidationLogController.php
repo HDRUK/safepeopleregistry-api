@@ -29,7 +29,7 @@ class ValidationLogController extends Controller
     use Responses;
     /**
      * @OA\Get(
-     *     path="/api/v1/validation_logs/{custodianId}/{projectId}/{registryId}",
+     *     path="/api/v1/custodians/{custodianId}/projects/{projectId}/registries/{registryId}/validation_logs",
      *     summary="Get Validation Logs for Custodian, Project, and Registry",
      *     description="Retrieve validation logs associated with a given custodian, project, and registry.",
      *     tags={"Validation Logs"},
@@ -126,7 +126,7 @@ class ValidationLogController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/v1/validation_logs/{custodianId}/organisation/{organisationId}",
+     *     path="/api/v1/custodians/{custodianId}/organisation/{organisationId}/validation_logs",
      *     summary="Get Validation Logs for Custodian and Organisation",
      *     description="Retrieve validation logs associated with a given custodian and organisation.",
      *     tags={"Validation Logs"},
