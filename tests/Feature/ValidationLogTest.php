@@ -79,7 +79,7 @@ class ValidationLogTest extends TestCase
 
 
         foreach ($defaultChecks as $check) {
-            $id = ValidationCheck::where(['name' => $check['name']])->first()->id;
+            $id = ValidationCheck::where(['name' => $check['name'], 'custodian_id' => $this->custodian->id])->first()->id;
 
             $this->assertDatabaseHas('validation_logs', [
                 'entity_id' => $this->custodian->id,
