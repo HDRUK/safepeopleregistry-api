@@ -79,7 +79,7 @@ class ValidationLogTest extends TestCase
 
 
         foreach ($defaultChecks as $check) {
-            $validationCheckId = ValidationCheck::where(['name' => $check['name'], 'custodian_id' => $this->custodian->id])->first()->id;
+            $validationCheckId = ValidationCheck::where(['name' => $check['name'], 'custodian_id' => $this->custodian->id, 'applies_to' => 'App\\Models\\ProjectHasUser'])->first()->id;
 
             $this->assertDatabaseHas('validation_logs', [
                 'entity_id' => $this->custodian->id,
@@ -102,7 +102,7 @@ class ValidationLogTest extends TestCase
         $this->assertDatabaseCount('validation_logs', count($defaultChecks));
 
         foreach ($defaultChecks as $check) {
-            $validationCheckId = ValidationCheck::where(['name' => $check['name'], 'custodian_id' => $this->custodian->id])->first()->id;
+            $validationCheckId = ValidationCheck::where(['name' => $check['name'], 'custodian_id' => $this->custodian->id, 'applies_to' => 'App\\Models\\ProjectHasUser'])->first()->id;
 
             $this->assertDatabaseHas('validation_logs', [
                 'entity_id' => $this->custodian->id,
@@ -139,7 +139,7 @@ class ValidationLogTest extends TestCase
         );
 
         foreach ($defaultChecks as $check) {
-            $validationCheckId = ValidationCheck::where(['name' => $check['name'], 'custodian_id' => $this->custodian->id])->first()->id;
+            $validationCheckId = ValidationCheck::where(['name' => $check['name'], 'custodian_id' => $this->custodian->id, 'applies_to' => 'App\\Models\\ProjectHasUser'])->first()->id;
 
             $this->assertDatabaseHas('validation_logs', [
                 'entity_id' => $newCustodian->id,
@@ -183,7 +183,7 @@ class ValidationLogTest extends TestCase
         );
 
         foreach ($defaultChecks as $check) {
-            $validationCheckId = ValidationCheck::where(['name' => $check['name'], 'custodian_id' => $this->custodian->id])->first()->id;
+            $validationCheckId = ValidationCheck::where(['name' => $check['name'], 'custodian_id' => $this->custodian->id, 'applies_to' => 'App\\Models\\ProjectHasUser'])->first()->id;
 
             $this->assertDatabaseHas('validation_logs', [
                 'entity_id' => $newCustodian->id,
@@ -207,7 +207,7 @@ class ValidationLogTest extends TestCase
         );
 
         foreach ($defaultChecks as $check) {
-            $validationCheckId = ValidationCheck::where(['name' => $check['name'], 'custodian_id' => $this->custodian->id])->first()->id;
+            $validationCheckId = ValidationCheck::where(['name' => $check['name'], 'custodian_id' => $this->custodian->id, 'applies_to' => 'App\\Models\\ProjectHasUser'])->first()->id;
 
             $this->assertDatabaseMissing('validation_logs', [
                 'entity_id' => $newCustodian->id,
