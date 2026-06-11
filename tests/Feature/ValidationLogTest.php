@@ -101,6 +101,12 @@ class ValidationLogTest extends TestCase
 
         $this->assertDatabaseCount('validation_logs', count($defaultChecks));
 
+        $this->assertEquals(
+            count($defaultChecks),
+            DB::table('validation_logs')
+                ->where('secondary_entity_type', Project::class)
+                ->count()
+        );
         foreach ($defaultChecks as $check) {
             $validationCheckId = ValidationCheck::where(['name' => $check['name'], 'custodian_id' => $this->custodian->id, 'applies_to' => 'App\\Models\\ProjectHasUser'])->first()->id;
 
