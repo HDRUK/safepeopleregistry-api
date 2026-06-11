@@ -16,6 +16,9 @@ class ValidationCheckObserver
     public function saved(ValidationCheck $model): void
     {
         $custodianId = $model->custodian_id;
+        if (!$custodianId) {
+            return;
+        }
         UpdateCustodianValidation::dispatch(
             $custodianId,
             $model->applies_to
@@ -25,6 +28,9 @@ class ValidationCheckObserver
     public function updated(ValidationCheck $model): void
     {
         $custodianId = $model->custodian_id;
+        if (!$custodianId) {
+            return;
+        }
 
         ActionLog::where([
             'entity_id' => $custodianId,
