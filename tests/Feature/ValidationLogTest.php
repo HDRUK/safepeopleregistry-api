@@ -38,7 +38,16 @@ class ValidationLogTest extends TestCase
         $this->registry = Registry::factory()->create();
         $this->user->update(['registry_id' => $this->registry->id]);
         $this->custodian = Custodian::factory()->create();
-        $this->custodian->validationChecks()->syncWithoutDetaching(ValidationCheck::pluck('id')->all());
+
+        $validationChecks = ValidationCheck::query()
+            ->whereNull('custodian_id')
+            ->get();
+
+        foreach ($validationChecks as $validationCheck) {
+            $newValidationCheck = $validationCheck->replicate();
+            $newValidationCheck->custodian_id = $this->custodian->id;
+            $newValidationCheck->save();
+        }
 
         $this->project = Project::factory()->create();
 
