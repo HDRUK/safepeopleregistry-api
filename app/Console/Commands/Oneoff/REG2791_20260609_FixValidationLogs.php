@@ -38,7 +38,7 @@ class REG2791_20260609_FixValidationLogs extends Command
             }
 
             $toFix = \DB::select("
-                select vl.id, vl.entity_id, vc.id as validation_check_id, vc.name as validation_check_name, vc.applies_to from validation_logs vl
+                select vl.id, vl.entity_id, vc.id as validation_check_id, vc.name as validation_check_name, vc.applies_to
                 from validation_logs vl 
                 join validation_checks vc on vl.validation_check_id = vc.id 
                 where vl.entity_type = 'App\\\\Models\\\\Custodian' and (vl.entity_id != vc.custodian_id or vc.custodian_id is null)
