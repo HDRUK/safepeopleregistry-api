@@ -33,42 +33,43 @@ class REG2791_20260609_FixValidationLogs extends Command
         try {
             $dryrun = $this->option('dryrun');
             if ($dryrun) {
-                Log::info('Running in dry run mode - no changes will be made to the database.');
+                var_dump('Running in dry run mode - no changes will be made to the database.');
              
             }
 
             $toFix = \DB::select("
-                select vl.id, vl.entity_id, vc.id as validation_check_id, vc.name as validation_check_name 
+                select vl.id, vl.entity_id, vc.id as validation_check_id, vc.name as validation_check_name, vc.applies_to from validation_logs vl
                 from validation_logs vl 
                 join validation_checks vc on vl.validation_check_id = vc.id 
                 where vl.entity_type = 'App\\\\Models\\\\Custodian' and (vl.entity_id != vc.custodian_id or vc.custodian_id is null)
             ");
             
-            Log::info(collect($toFix)->toArray());
+            var_dump(collect($toFix)->toArray());
             $needCorrection = count($toFix);
-            Log::info("Found $needCorrection validation logs that need correction.");
+            var_dump("Found $needCorrection validation logs that need correction.");
             $canCorrect = 0;
             $cannotCorrect = 0;
             foreach ($toFix as $entry) {
                 // find the VC that matches the name of the VC associated with this VL, but with the correct custodian_id, and update the VL to use that VC's ID instead
                 $correctVC = ValidationCheck::where([
                     'name' => $entry->validation_check_name, 
-                    'custodian_id' => $entry->entity_id
+                    'custodian_id' => $entry->entity_id,
+                    'applies_to' => $entry->applies_to
                     ])->first();
                 if ($correctVC) {
                     if ($dryrun) {
-                        Log::info("Would update ValidationLog ID {$entry->id} to use ValidationCheck ID {$correctVC->id}");
+                        var_dump("Would update ValidationLog ID {$entry->id} to use ValidationCheck ID {$correctVC->id}");
                         $canCorrect++;
                     } else {
                         ValidationLog::where('id', $entry->id)->update(['validation_check_id' => $correctVC->id]);
                     }
                 } else {
-                    Log::warning('No matching ValidationCheck found for log ID ' . $entry->id);
+                    var_dump('No matching ValidationCheck found for log ID ' . $entry->id);
                     $cannotCorrect++;
                 }
             }
 
-            Log::info("Summary: $canCorrect logs can be corrected, $cannotCorrect logs cannot be corrected.");
+            var_dump("Summary: $canCorrect logs can be corrected, $cannotCorrect logs cannot be corrected.");
 
             return Command::SUCCESS;
         } catch (Exception $e) {
@@ -78,7 +79,7 @@ class REG2791_20260609_FixValidationLogs extends Command
             $this->line($e->getTraceAsString());
 
 
-            Log::error('Command failed', [
+            var_dump('Command failed', [
                 'message' => $e->getMessage()
             ]);
 
