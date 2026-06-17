@@ -5,29 +5,35 @@ namespace App\Observers;
 use App\Jobs\UpdateCustodianValidation;
 use App\Models\ActionLog;
 use App\Models\Custodian;
-use App\Models\CustodianHasValidationCheck;
+use App\Models\ValidationCheck;
 use App\Traits\ValidationManager;
 use Carbon\Carbon;
 
-class CustodianHasValidationCheckObserver
+class ValidationCheckObserver
 {
     use ValidationManager;
 
-    public function saved(CustodianHasValidationCheck $model): void
+    public function saved(ValidationCheck $model): void
     {
         $custodianId = $model->custodian_id;
+        if (!$custodianId) {
+            return;
+        }
         UpdateCustodianValidation::dispatch(
             $custodianId,
-            $model->validationCheck->applies_to
+            $model->applies_to
         );
     }
 
-    public function updated(CustodianHasValidationCheck $model): void
+    public function updated(ValidationCheck $model): void
     {
-        $custodian = $model->custodian;
+        $custodianId = $model->custodian_id;
+        if (!$custodianId) {
+            return;
+        }
 
         ActionLog::where([
-            'entity_id' => $custodian->id,
+            'entity_id' => $custodianId,
             'entity_type' => Custodian::class,
             'action' => Custodian::ACTION_COMPLETE_CONFIGURATION,
         ])->whereNull('completed_at')

@@ -9,6 +9,7 @@ use App\Models\Registry;
 use App\Models\ProjectHasUser;
 use App\Models\Project;
 use App\Models\ProjectHasCustodian;
+use App\Models\ValidationCheck;
 use App\Models\ValidationLog;
 use App\Models\ValidationLogComment;
 use Tests\TestCase;
@@ -38,11 +39,21 @@ class ValidationLogCommentTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
+        $this->enableObservers();
         $this->user = User::factory()->create();
         $this->registry = Registry::factory()->create();
         $this->user->update(['registry_id' => $this->registry->id]);
         $this->custodian = Custodian::factory()->create();
         $this->project = Project::factory()->create();
+        $validationChecks = ValidationCheck::query()
+            ->whereNull('custodian_id')
+            ->get();
+
+        foreach ($validationChecks as $validationCheck) {
+            $newValidationCheck = $validationCheck->replicate();
+            $newValidationCheck->custodian_id = $this->custodian->id;
+            $newValidationCheck->save();
+        }
         $this->add_user_and_custodian_to_project();
     }
 

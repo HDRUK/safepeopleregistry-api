@@ -11,6 +11,7 @@ use App\Models\Affiliation;
 use App\Models\Organisation;
 use App\Models\CustodianUser;
 use App\Models\ProjectHasUser;
+use App\Models\ValidationCheck;
 use App\Observers\FileObserver;
 use App\Observers\UserObserver;
 use App\Models\DecisionModelLog;
@@ -34,7 +35,7 @@ use Illuminate\Support\ServiceProvider;
 use App\Observers\CustodianUserObserver;
 use App\Models\OrganisationHasSubsidiary;
 use App\Observers\ProjectHasUserObserver;
-use App\Models\CustodianHasValidationCheck;
+use App\Observers\ValidationCheckObserver;
 use App\Observers\DecisionModelLogObserver;
 use App\Observers\UserHasDepartmentsObserver;
 use App\Observers\ProjectHasCustodianObserver;
@@ -45,7 +46,6 @@ use App\Observers\CustodianModelConfigObserver;
 use App\Observers\ProjectHasOrganisationObserver;
 use Illuminate\Notifications\DatabaseNotification;
 use App\Observers\OrganisationHasSubsidiaryObserver;
-use App\Observers\CustodianHasValidationCheckObserver;
 use App\Observers\CustodianHasProjectOrganisationObserver;
 
 class AppServiceProvider extends ServiceProvider
@@ -83,7 +83,7 @@ class AppServiceProvider extends ServiceProvider
         ProjectHasCustodian::observe(ProjectHasCustodianObserver::class);
         ProjectHasOrganisation::observe(ProjectHasOrganisationObserver::class);
         CustodianHasProjectOrganisation::observe(CustodianHasProjectOrganisationObserver::class);
-        CustodianHasValidationCheck::observe(CustodianHasValidationCheckObserver::class);
+        ValidationCheck::observe(ValidationCheckObserver::class);
         RegistryReadRequest::observe(RegistryReadRequestObserver::class);
         RegistryHasTraining::observe(RegistryHasTrainingObserver::class);
         // currently Training but is to be moved to RegistryHasTraining...

@@ -162,15 +162,14 @@ class Custodian extends Model
 
 
     /**
-     *  @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<\App\Models\CustodianHasValidationCheck>
+     *  @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\ValidationCheck>
      */
-    public function validationChecks(): BelongsToMany
+    public function validationChecks(): HasMany
     {
-        return $this->belongsToMany(
+        return $this->hasMany(
             ValidationCheck::class,
-            'custodian_has_validation_check'
-        )
-            ->using(CustodianHasValidationCheck::class);
+            'custodian_id'
+        );
     }
 
     /**
