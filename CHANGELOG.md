@@ -1,3 +1,11 @@
+## [1.31.2](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.31.1...v1.31.2) (2026-06-17)
+
+### 🐛 Bug Fixes
+
+* **GAT-8809:** updated semantic pipeline (#738) ([0068dd6](https://github.com/HDRUK/safepeopleregistry-api/commit/0068dd68615dcd0e7ad3aae5b9da1118c2d5e14c)), closes [GAT-8809](undefinedGAT-8809)
+* **REGISTRY-2791:** Fix ValidationLog issues and remove CustodianHasValidationCheck relationship (#740) ([fa08dff](https://github.com/HDRUK/safepeopleregistry-api/commit/fa08dffa106c80b4d506c20cdb908d504683af20))
+* **REGISTRY-2791:** Update to make query more specific  (#741) ([29cd50f](https://github.com/HDRUK/safepeopleregistry-api/commit/29cd50fc86b5c30651999af74327c24ae560d616))
+
 ## [1.31.1](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.31.0...v1.31.1) (2026-05-29)
 
 ### 🐛 Bug Fixes
