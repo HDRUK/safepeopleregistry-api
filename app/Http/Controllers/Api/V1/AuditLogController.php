@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Affiliation;
 use App\Models\Organisation;
 use App\Models\ValidationLog;
+use App\Models\CustodianUser;
 use App\Http\Traits\Responses;
 use App\Traits\CommonFunctions;
 use App\Http\Controllers\Controller;
@@ -46,11 +47,37 @@ class AuditLogController extends Controller
             return $this->NotFoundResponse();
         }
 
+        $userIdsInThisCustodian = [];
+
+        if ($loggedInUser->custodian_user_id !== null) {
+            $custodianId = CustodianUser::where('id', $loggedInUser->custodian_user_id)->value('custodian_id');
+            $userIdsInThisCustodian = User::whereIn('custodian_user_id',
+                CustodianUser::where('custodian_id', $custodianId)->select('id')
+            )->pluck('id')->toArray();
+        }
+
+        // This will show activity associated to the given user, caused either by the user themselves or by other
+        // users in the same custodian group as the logged-in user. It will also show activity caused by the user on other subjects.
         $logs = Activity::query()
-            ->where(function ($query) use ($user) {
-                $query->where(function ($q) use ($user) {
-                    $q->where('subject_type', get_class($user))
-                        ->where('subject_id', $user->id);
+            ->where(function ($query) use ($user, $userIdsInThisCustodian) {
+                $query->where(function ($q) use ($user, $userIdsInThisCustodian) {
+                    $q->where([
+                        'subject_type' => get_class($user),
+                        'subject_id' => $user->id,
+                        'causer_type' => get_class($user),
+                        'causer_id' => $user->id
+                    ])
+                    ->orWhere(function ($q2) use ($user, $userIdsInThisCustodian) {
+                        $q2->where([
+                            'subject_type' => get_class($user),
+                            'subject_id' => $user->id,
+                            'causer_type' => get_class($user),
+                        ])
+                        ->whereIn('causer_id', $userIdsInThisCustodian)
+                        ;
+                    })
+                    ;
+                    // ]);
                 })->orWhere(function ($q) use ($user) {
                     $q->where('causer_type', get_class($user))
                         ->where('causer_id', $user->id);
