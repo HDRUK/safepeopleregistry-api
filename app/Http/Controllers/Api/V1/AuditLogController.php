@@ -135,6 +135,24 @@ class AuditLogController extends Controller
                     $activityLog->description = '';
                 }
 
+                if (
+                    in_array($loggedInUser->user_group, [User::GROUP_ORGANISATIONS, User::GROUP_CUSTODIANS]) &&
+                    $activityLog->properties !== null) {
+                    if (
+                        isset($activityLog->properties['old']) &&
+                        isset($activityLog->properties['old']['email'])
+                    ) {
+                        $activityLog->properties['old']['email'] = 'hidden';
+                    }
+
+                    if (
+                        isset($activityLog->properties['new']) &&
+                        isset($activityLog->properties['new']['email'])
+                    ) {
+                        $activityLog->properties['new']['email'] = 'hidden';
+                    }
+                }
+
                 return $activityLog;
             });
 
