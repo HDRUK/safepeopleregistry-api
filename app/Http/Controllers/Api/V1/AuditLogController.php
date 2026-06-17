@@ -146,10 +146,10 @@ class AuditLogController extends Controller
                     }
 
                     if (
-                        isset($activityLog->properties['new']) &&
-                        isset($activityLog->properties['new']['email'])
+                        isset($activityLog->properties['attributes']) &&
+                        isset($activityLog->properties['attributes']['email'])
                     ) {
-                        $activityLog->properties['new']['email'] = 'hidden';
+                        $activityLog->properties['attributes']['email'] = 'hidden';
                     }
                 }
 
