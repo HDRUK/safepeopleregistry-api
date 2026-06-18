@@ -20,5 +20,5 @@ jobs:
     with:
       env: dev
       chart_path: chart/soursd-api/Chart.yaml
-      git_ref: dev
+      git_ref: feat/registry-2826
     secrets: inherit
