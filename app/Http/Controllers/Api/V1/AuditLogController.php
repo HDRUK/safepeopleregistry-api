@@ -136,7 +136,7 @@ class AuditLogController extends Controller
                 if (isset($attributes['email'])) {
                     $attributes['email'] = '***';
                 }
-                $activityLog->properties = ['old' => $old, 'attributes' => $attributes];
+                $activityLog->properties = collect(['old' => $old, 'attributes' => $attributes]);
 
                 return $activityLog;
             });
