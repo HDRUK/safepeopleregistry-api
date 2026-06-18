@@ -58,7 +58,7 @@ class AuditLogController extends Controller
 
         // This will show activity associated to the given user, caused either by the user themselves or by other
         // users in the same custodian group as the logged-in user. It will also show activity caused by the user on other subjects.
-        // It explicitly excludes logs where the user changes their email address
+        // It also masks email addresses in the properties of the activity log
         $logs = Activity::query()
             ->where(function ($query) use ($user, $userIdsInThisCustodian) {
                 $query->where(function ($q) use ($user, $userIdsInThisCustodian) {
