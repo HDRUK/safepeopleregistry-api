@@ -76,7 +76,6 @@ class AuditLogController extends Controller
                     ]);
                 });
             })
-            ->whereJsonDoesntContainKey('properties->attributes->email')
             ->whereHasMorph('subject', self::ALLOWED_TYPES)
             ->where(function ($query) {
                 $query->whereNull('causer_type')
@@ -128,6 +127,16 @@ class AuditLogController extends Controller
                 ) {
                     $activityLog->description = '';
                 }
+
+                $old = $activityLog->properties['old'] ?? [];
+                if (isset($old['email'])) {
+                    $old['email'] = '***';
+                }
+                $attributes = $activityLog->properties['attributes'] ?? [];
+                if (isset($attributes['email'])) {
+                    $attributes['email'] = '***';
+                }
+                $activityLog->properties = ['old' => $old, 'attributes' => $attributes];
 
                 return $activityLog;
             });
