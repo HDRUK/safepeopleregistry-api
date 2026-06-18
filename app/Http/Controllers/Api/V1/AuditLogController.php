@@ -50,9 +50,9 @@ class AuditLogController extends Controller
         $userIdsInThisCustodian = [];
 
         if ($loggedInUser->custodian_user_id !== null) {
-            $custodianId = CustodianUser::where('id', $loggedInUser->custodian_user_id)->value('custodian_id');
-            $userIdsInThisCustodian = User::whereIn('custodian_user_id',
-                CustodianUser::where('custodian_id', $custodianId)->select('id')
+            $custodianId = $loggedInUser->custodian_user?->custodian_id;
+            $userIdsInThisCustodian = User::whereHas('custodian_user', fn($q) =>
+                $q->where('custodian_id', $custodianId)
             )->pluck('id')->toArray();
         }
 
