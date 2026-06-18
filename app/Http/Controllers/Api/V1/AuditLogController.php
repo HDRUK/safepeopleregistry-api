@@ -68,10 +68,13 @@ class AuditLogController extends Controller
                             'causer_type' => get_class($user),
                         ])
                         ->whereIn('causer_id', $userIdsInThisCustodian);
-                })->orWhere([
-                    'causer_type' => get_class($user),
-                    'causer_id' => $user->id
+                })
+                ->orWhere(function ($q) use ($user) {
+                    $q->where([
+                        'causer_type' => get_class($user),
+                        'causer_id' => $user->id
                     ]);
+                });
             })
             ->whereJsonDoesntContainKey('properties->attributes->email')
             ->whereHasMorph('subject', self::ALLOWED_TYPES)
