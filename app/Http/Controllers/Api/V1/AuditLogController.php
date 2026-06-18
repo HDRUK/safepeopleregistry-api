@@ -58,29 +58,22 @@ class AuditLogController extends Controller
 
         // This will show activity associated to the given user, caused either by the user themselves or by other
         // users in the same custodian group as the logged-in user. It will also show activity caused by the user on other subjects.
+        // It explicitly excludes logs where the user changes their email address
         $logs = Activity::query()
             ->where(function ($query) use ($user, $userIdsInThisCustodian) {
                 $query->where(function ($q) use ($user, $userIdsInThisCustodian) {
                     $q->where([
-                        'subject_type' => get_class($user),
-                        'subject_id' => $user->id,
-                        'causer_type' => get_class($user),
-                        'causer_id' => $user->id
-                    ])
-                    ->orWhere(function ($q2) use ($user, $userIdsInThisCustodian) {
-                        $q2->where([
                             'subject_type' => get_class($user),
                             'subject_id' => $user->id,
                             'causer_type' => get_class($user),
                         ])
-                        ->whereIn('causer_id', $userIdsInThisCustodian)
-                        ;
-                    })
-                    ;
-                    // ]);
+                        ->whereIn('causer_id', $userIdsInThisCustodian);
                 })->orWhere(function ($q) use ($user) {
-                    $q->where('causer_type', get_class($user))
-                        ->where('causer_id', $user->id);
+                    $q->where([
+                        'causer_type' => get_class($user),
+                        'causer_id' => $user->id
+                        ])
+                        ->whereJsonDoesntContainKey('properties->attributes->email');
                 });
             })
             ->whereHasMorph('subject', self::ALLOWED_TYPES)
@@ -133,24 +126,6 @@ class AuditLogController extends Controller
                     $activityLog->causer_id !== $loggedInUser->id
                 ) {
                     $activityLog->description = '';
-                }
-
-                if (
-                    in_array($loggedInUser->user_group, [User::GROUP_ORGANISATIONS, User::GROUP_CUSTODIANS]) &&
-                    $activityLog->properties !== null) {
-                    if (
-                        isset($activityLog->properties['old']) &&
-                        isset($activityLog->properties['old']['email'])
-                    ) {
-                        $activityLog->properties['old']['email'] = 'hidden';
-                    }
-
-                    if (
-                        isset($activityLog->properties['attributes']) &&
-                        isset($activityLog->properties['attributes']['email'])
-                    ) {
-                        $activityLog->properties['attributes']['email'] = 'hidden';
-                    }
                 }
 
                 return $activityLog;
