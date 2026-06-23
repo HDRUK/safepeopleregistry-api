@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Affiliation;
 use App\Models\Organisation;
 use App\Models\ValidationLog;
+use App\Models\CustodianUser;
 use App\Http\Traits\Responses;
 use App\Traits\CommonFunctions;
 use App\Http\Controllers\Controller;
@@ -46,14 +47,33 @@ class AuditLogController extends Controller
             return $this->NotFoundResponse();
         }
 
+        $userIdsInThisCustodian = [];
+
+        if ($loggedInUser->custodian_user_id !== null) {
+            $custodianId = $loggedInUser->custodian_user?->custodian_id;
+            $userIdsInThisCustodian = User::whereHas('custodian_user', fn($q) =>
+                $q->where('custodian_id', $custodianId)
+            )->pluck('id')->toArray();
+        }
+
+        // This will show activity associated to the given user, caused either by the user themselves or by other
+        // users in the same custodian group as the logged-in user. It will also show activity caused by the user on other subjects.
+        // It also masks email addresses in the properties of the activity log
         $logs = Activity::query()
-            ->where(function ($query) use ($user) {
-                $query->where(function ($q) use ($user) {
-                    $q->where('subject_type', get_class($user))
-                        ->where('subject_id', $user->id);
-                })->orWhere(function ($q) use ($user) {
-                    $q->where('causer_type', get_class($user))
-                        ->where('causer_id', $user->id);
+            ->where(function ($query) use ($user, $userIdsInThisCustodian) {
+                $query->where(function ($q) use ($user, $userIdsInThisCustodian) {
+                    $q->where([
+                            'subject_type' => get_class($user),
+                            'subject_id' => $user->id,
+                            'causer_type' => get_class($user),
+                        ])
+                        ->whereIn('causer_id', $userIdsInThisCustodian);
+                })
+                ->orWhere(function ($q) use ($user) {
+                    $q->where([
+                        'causer_type' => get_class($user),
+                        'causer_id' => $user->id
+                    ]);
                 });
             })
             ->whereHasMorph('subject', self::ALLOWED_TYPES)
@@ -107,6 +127,16 @@ class AuditLogController extends Controller
                 ) {
                     $activityLog->description = '';
                 }
+
+                $old = $activityLog->properties['old'] ?? [];
+                if (isset($old['email'])) {
+                    $old['email'] = '***';
+                }
+                $attributes = $activityLog->properties['attributes'] ?? [];
+                if (isset($attributes['email'])) {
+                    $attributes['email'] = '***';
+                }
+                $activityLog->properties = collect(['old' => $old, 'attributes' => $attributes]);
 
                 return $activityLog;
             });
