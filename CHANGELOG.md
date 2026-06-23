@@ -1,3 +1,9 @@
+## [1.32.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.31.2...v1.32.0) (2026-06-23)
+
+### ✨ Features
+
+* **REGISTRY-2826:** Filter activity logs by custodian (#746) ([fed493f](https://github.com/HDRUK/safepeopleregistry-api/commit/fed493fc3f97c70018e785676aec145c60bd4c72))
+
 ## [1.31.2](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.31.1...v1.31.2) (2026-06-17)
 
 ### 🐛 Bug Fixes
