@@ -15,7 +15,7 @@ use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
-class SentHtmlEmalJob implements ShouldQueue
+class SendHtmlEmailJob implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
@@ -47,7 +47,7 @@ class SentHtmlEmalJob implements ShouldQueue
 
         DebugLog::create([
             'class' => __CLASS__,
-            'log' => 'SentHtmlEmalJob created with parameters: ' . json_encode([
+            'log' => 'SendHtmlEmailJob created with parameters: ' . json_encode([
                 'id' => $id,
             ]),
         ]);
@@ -65,7 +65,7 @@ class SentHtmlEmalJob implements ShouldQueue
         if (is_null($emailLog)) {
             DebugLog::create([
                 'class' => __CLASS__,
-                'log' => 'SentHtmlEmalJob No email log found for id ' . $this->id . '. The job will exit without sending email.',
+                'log' => 'SendHtmlEmailJob No email log found for id ' . $this->id . '. The job will exit without sending email.',
             ]);
 
             return;
@@ -89,7 +89,7 @@ class SentHtmlEmalJob implements ShouldQueue
 
         DebugLog::create([
             'class' => __CLASS__,
-            'log' => 'SentHtmlEmalJob prepare for sending email : ' . json_encode([
+            'log' => 'SendHtmlEmailJob prepare for sending email : ' . json_encode([
                 'id' => $this->id,
                 'subject' => $subject,
                 'to' => $to,
@@ -121,7 +121,7 @@ class SentHtmlEmalJob implements ShouldQueue
 
                     break;
                 default:
-                    throw new \Exception('Mail driver not supported in SentHtmlEmalJob: ' . config('mail.default'));
+                    throw new \Exception('Mail driver not supported in SendHtmlEmailJob: ' . config('mail.default'));
             }
 
             event(new EmailSentSuccessfully($jobUuid, $messageId));
@@ -146,7 +146,7 @@ class SentHtmlEmalJob implements ShouldQueue
             if ($isLastAttempt) {
                 DebugLog::create([
                     'class' => __CLASS__,
-                    'log' => 'SentHtmlEmalJob reached max attempts for job UUID ' . $jobUuid . '. No more retries will be made.',
+                    'log' => 'SendHtmlEmailJob reached max attempts for job UUID ' . $jobUuid . '. No more retries will be made.',
                 ]);
 
                 // delete the email log after final failed attempt
@@ -160,7 +160,7 @@ class SentHtmlEmalJob implements ShouldQueue
         EmailLog::where('id', $this->id)->delete();
         DebugLog::create([
             'class' => __CLASS__,
-            'log' => 'SentHtmlEmalJob email sent for id ' . $this->id . ' to ' . $to . ' with message ID ' . $messageId,
+            'log' => 'SendHtmlEmailJob email sent for id ' . $this->id . ' to ' . $to . ' with message ID ' . $messageId,
         ]);
     }
 
