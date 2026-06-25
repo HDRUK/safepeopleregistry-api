@@ -5,7 +5,6 @@ namespace App\OrcID;
 use Http;
 use Exception;
 use App\Models\User;
-use App\Jobs\OrcIDScanner;
 use App\Models\UserApiToken;
 use Illuminate\Support\Facades\Log;
 
