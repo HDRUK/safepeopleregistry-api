@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use SendGridService;
 use Exception;
 use App\Models\EmailLog;
-use App\Jobs\SentHtmlEmalJob;
+use App\Jobs\SendHtmlEmailJob;
 use App\Http\Traits\Responses;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
@@ -108,7 +108,7 @@ class EmailLogController extends Controller
         }
 
         try {
-            SentHtmlEmalJob::dispatch($id);
+            SendHtmlEmailJob::dispatch($id);
 
             return $this->OKResponse('Resend email job dispatched for email log id ' . $id);
         } catch (Exception $e) {
