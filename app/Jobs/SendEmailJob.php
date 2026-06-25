@@ -80,7 +80,7 @@ class SendEmailJob implements ShouldQueue
                 if (is_null($checkEmailLog)) {
                     EmailLog::create([
                         'to' => $this->to['email'],
-                        'subject' => $this->template['subject'],
+                        'subject' => strtr($this->template['subject'], $this->replacements),
                         'template' => $this->template['identifier'],
                         'body' => $html,
                         'job_uuid' => $jobUuid,
@@ -104,7 +104,7 @@ class SendEmailJob implements ShouldQueue
                 case 'sendgrid':
                     $sentMessage = new SendGridEmail();
                     $sentMessage->setToEmail($this->to['email'])
-                        ->setSubject($this->template['subject'])
+                        ->setSubject(strtr($this->template['subject'], $this->replacements))
                         ->setHtmlContent($html)
                         ->setJobUuid($jobUuid)
                         ->send();
