@@ -1,3 +1,9 @@
+## [1.32.1](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.32.0...v1.32.1) (2026-06-25)
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-2832:** Fix replacements in email subject lines (#748) ([26a322c](https://github.com/HDRUK/safepeopleregistry-api/commit/26a322cdf7f177f4367ac406504b119e5b6030d6))
+
 ## [1.32.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.31.2...v1.32.0) (2026-06-23)
 
 ### ✨ Features
