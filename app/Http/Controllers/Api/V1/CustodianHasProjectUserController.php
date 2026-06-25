@@ -138,8 +138,8 @@ class CustodianHasProjectUserController extends Controller
                 ->select('custodian_has_project_has_user.*')
                 ->paginate($perPage);
 
-            $organisationIds = $records->map(fn ($r) => $r->projectHasUser?->affiliation?->organisation_id)->filter()->unique()->values();
-            $projectIds = $records->map(fn ($r) => $r->projectHasUser?->project_id)->filter()->unique()->values();
+            $organisationIds = $records->map(fn ($r) => $r->projectHasUser->affiliation?->organisation_id)->filter()->unique()->values();
+            $projectIds = $records->map(fn ($r) => $r->projectHasUser->project_id)->filter()->unique()->values();
 
             if ($organisationIds->isNotEmpty() && $projectIds->isNotEmpty()) {
                 $chpoMap = CustodianHasProjectOrganisation::query()
@@ -153,8 +153,8 @@ class CustodianHasProjectUserController extends Controller
                     ->keyBy(fn ($chpo) => $chpo->projectOrganisation->project_id . '_' . $chpo->projectOrganisation->organisation_id);
 
                 $records->each(function ($record) use ($chpoMap) {
-                    $projectId = $record->projectHasUser?->project_id;
-                    $organisationId = $record->projectHasUser?->affiliation?->organisation_id;
+                    $projectId = $record->projectHasUser->project_id;
+                    $organisationId = $record->projectHasUser->affiliation?->organisation_id;
                     $record->setRelation('custodianProjectOrganisation', $chpoMap->get("{$projectId}_{$organisationId}"));
                 });
             }
