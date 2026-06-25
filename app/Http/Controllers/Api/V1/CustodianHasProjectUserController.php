@@ -14,6 +14,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use App\Models\CustodianHasProjectUser;
+use App\Models\CustodianHasProjectOrganisation;
 use App\Traits\Notifications\NotificationCustodianManager;
 use App\Http\Requests\CustodianHasProjectUser\GetCustodianHasProjectUser;
 use App\Http\Requests\CustodianHasProjectUser\GetAllCustodianHasProjectUser;
@@ -136,6 +137,27 @@ class CustodianHasProjectUserController extends Controller
                 ->applySorting()
                 ->select('custodian_has_project_has_user.*')
                 ->paginate($perPage);
+
+            $organisationIds = $records->map(fn ($r) => $r->projectHasUser?->affiliation?->organisation_id)->filter()->unique()->values();
+            $projectIds = $records->map(fn ($r) => $r->projectHasUser?->project_id)->filter()->unique()->values();
+
+            if ($organisationIds->isNotEmpty() && $projectIds->isNotEmpty()) {
+                $chpoMap = CustodianHasProjectOrganisation::query()
+                    ->where('custodian_id', $custodianId)
+                    ->whereHas('projectOrganisation', function ($q) use ($organisationIds, $projectIds) {
+                        $q->whereIn('organisation_id', $organisationIds)
+                          ->whereIn('project_id', $projectIds);
+                    })
+                    ->with(['modelState.state', 'projectOrganisation:id,project_id,organisation_id'])
+                    ->get()
+                    ->keyBy(fn ($chpo) => $chpo->projectOrganisation->project_id . '_' . $chpo->projectOrganisation->organisation_id);
+
+                $records->each(function ($record) use ($chpoMap) {
+                    $projectId = $record->projectHasUser?->project_id;
+                    $organisationId = $record->projectHasUser?->affiliation?->organisation_id;
+                    $record->setRelation('custodianProjectOrganisation', $chpoMap->get("{$projectId}_{$organisationId}"));
+                });
+            }
 
             return $this->OKResponse($records);
         } catch (Exception $e) {
