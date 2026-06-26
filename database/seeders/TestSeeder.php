@@ -106,7 +106,6 @@ class TestSeeder extends Seeder
             'applicant_names' => 'Org User',
             'funders_and_sponsors' => null,
             'sub_license_arrangements' => '...',
-            'verified' => false,
             'dsptk_ods_code' => '',
             'iso_27001_certified' => false,
             'ce_certified' => false,

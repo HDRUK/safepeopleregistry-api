@@ -28,7 +28,6 @@ class EditOrganisation extends FormRequest
             'applicant_names' => 'sometimes|string|max:255',
             'funders_and_sponsors' => 'sometimes|string|max:255',
             'sub_license_arrangements' => 'nullable|string|max:255',
-            'verified' => 'sometimes|boolean',
             'companies_house_no' => 'sometimes|string|max:8',
             'sector_id' => 'sometimes|integer',
             'dsptk_certified' => 'sometimes|boolean',

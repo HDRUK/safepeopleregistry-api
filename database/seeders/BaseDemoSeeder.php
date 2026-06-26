@@ -75,7 +75,6 @@ class BaseDemoSeeder extends Seeder
             'applicant_names' => 'Dr. Organisation Owner',
             'funders_and_sponsors' => 'Innovate UK',
             'sub_license_arrangements' => '...',
-            'verified' => true,
             'dsptk_ods_code' => '8HQ90',
             'iso_27001_certified' => true,
             'ce_certified' => true,
@@ -86,7 +85,7 @@ class BaseDemoSeeder extends Seeder
             'smb_status' => true,
             'organisation_size' => 2,
             'website' => 'https://www.website1.com/',
-            'system_approved' => true,
+            'system_approved' => false,
             'unclaimed' => 0
         ]);
 
@@ -282,7 +281,6 @@ National Public Health Ethics Committee for authorization to analyze population 
             'applicant_names' => 'Mr. Tony Howell, Mr. John Thomas, Mr. Thomas Chase',
             'funders_and_sponsors' => '',
             'sub_license_arrangements' => '...',
-            'verified' => false,
             'dsptk_ods_code' => '',
             'iso_27001_certified' => true,
             'ce_certified' => false,
@@ -392,7 +390,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'applicant_names' => 'Petr Lalak, Roman Mixa, Stuart Poppleton',
             'funders_and_sponsors' => 'Big Tobacco Co.',
             'sub_license_arrangements' => '...',
-            'verified' => false,
             'dsptk_ods_code' => '',
             'iso_27001_certified' => true,
             'ce_certified' => true,
@@ -484,7 +481,6 @@ Social Media Platform’s Data Access Committee to allow access to platform data
             'applicant_names' => 'Dr Junaid Azmat Bajwa',
             'funders_and_sponsors' => 'UKRI, NIHR, BHF, CRUK, ESRC',
             'sub_license_arrangements' => '...',
-            'verified' => true,
             'dsptk_ods_code' => '',
             'iso_27001_certified' => true,
             'ce_certified' => true,
