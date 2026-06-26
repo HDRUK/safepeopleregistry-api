@@ -796,18 +796,18 @@ class AffiliationController extends Controller
     public function sendNotificationOnApprove($status, $registryId, $affiliation)
     {
         $organisationId = $affiliation->organisation_id;
-        $orgasnisation = Organisation::where('id', $organisationId)->first();
+        $organisation = Organisation::where('id', $organisationId)->first();
         $user = User::where([
             'registry_id' => $registryId
         ])->first();
 
         // user
-        Notification::send($user, new OrganisationUserAffiliation($user, $orgasnisation, $status, 'user'));
+        Notification::send($user, new OrganisationUserAffiliation($user, $organisation, $status, 'user'));
 
         // organisation
         $userOrganisations = User::where('organisation_id', $organisationId)->get();
         foreach ($userOrganisations as $userOrganisation) {
-            Notification::send($userOrganisation, new OrganisationUserAffiliation($user, $orgasnisation, $status, 'organisation'));
+            Notification::send($userOrganisation, new OrganisationUserAffiliation($user, $organisation, $status, 'organisation'));
         }
 
         // custodian
@@ -821,7 +821,7 @@ class AffiliationController extends Controller
         if ($userCustodianIds) {
             $userCustodians = User::whereIn('custodian_user_id', $userCustodianIds)->get();
             foreach ($userCustodians as $userCustodian) {
-                Notification::send($userCustodian, new OrganisationUserAffiliation($user, $orgasnisation, $status, 'custodian'));
+                Notification::send($userCustodian, new OrganisationUserAffiliation($user, $organisation, $status, 'custodian'));
             }
         }
     }
