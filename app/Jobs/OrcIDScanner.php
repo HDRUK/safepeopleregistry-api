@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use OrcID;
+use App\OrcID\OrcIDFacade as OrcID;
 use Throwable;
 use Carbon\Carbon;
 use App\Models\User;
