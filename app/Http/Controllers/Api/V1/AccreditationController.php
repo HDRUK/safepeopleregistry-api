@@ -113,13 +113,10 @@ class AccreditationController extends Controller
             $input = $request->all();
 
             $accreditation = Accreditation::create([
-                'awarded_at' => Carbon::parse($input['awarded_at'])->toDateString(),
-                'awarding_body_name' => $input['awarding_body_name'],
-                'awarding_body_ror' => isset($input['awarding_body_ror']) ?
-                    $input['awarding_body_ror'] : '',
-                'title' => $input['title'],
-                'expires_at' => Carbon::parse($input['expires_at'])->toDateString(),
-                'awarded_locale' => $input['awarded_locale'],
+                'associated_organisation_name' => $input['associated_organisation_name'],
+                'id_string' => $input['id_string'],
+                'issue_date' => Carbon::parse($input['issue_date'])->toDateString(),
+                'expiry_date' => Carbon::parse($input['expiry_date'])->toDateString(),
             ]);
 
             RegistryHasAccreditation::create([
@@ -183,12 +180,10 @@ class AccreditationController extends Controller
             $input = $request->all();
             $accreditation = Accreditation::where('id', $id)->first();
 
-            $accreditation->awarded_at = Carbon::parse($input['awarded_at'])->toDateString();
-            $accreditation->awarding_body_name = $input['awarding_body_name'];
-            $accreditation->awarding_body_ror = $input['awarding_body_ror'];
-            $accreditation->title = $input['title'];
-            $accreditation->expires_at = Carbon::parse($input['expires_at'])->toDateString();
-            $accreditation->awarded_locale = $input['awarded_locale'];
+            $accreditation->associated_organisation_name = $input['associated_organisation_name'];
+            $accreditation->id_string = $input['id_string'];
+            $accreditation->issue_date = Carbon::parse($input['issue_date'])->toDateString();
+            $accreditation->expiry_date = Carbon::parse($input['expiry_date'])->toDateString();
 
             $accreditation->save();
 
