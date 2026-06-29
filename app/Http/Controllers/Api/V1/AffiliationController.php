@@ -353,7 +353,7 @@ class AffiliationController extends Controller
                 return $this->BadRequestResponse();
             }
 
-            if (!Gate::allows('userAffilations', $affiliation)) {
+            if (!Gate::allows('userAffiliations', $affiliation)) {
                 return $this->ForbiddenResponse();
             }
 
@@ -450,7 +450,7 @@ class AffiliationController extends Controller
             $input = $request->only(app(Affiliation::class)->getFillable());
             $affiliation = Affiliation::findOrFail($id);
 
-            if (!Gate::allows('userAffilations', $affiliation)) {
+            if (!Gate::allows('userAffiliations', $affiliation)) {
                 return $this->ForbiddenResponse();
             }
             $isCurrentEmail = (strtolower($input['email'] ?? '') === strtolower($request->user()->email));

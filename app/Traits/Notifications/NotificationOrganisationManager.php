@@ -34,7 +34,7 @@ trait NotificationOrganisationManager
             Notification::send($loggedInUser, new OrganisationSponsorProjectApproved($loggedInUser, $organisation, $project, 'organisation'));
 
             // custodian
-            $userCustodians = $this->getCustodainsByOrgIdAndProjectId($organisationId, $projectId);
+            $userCustodians = $this->getCustodiansByOrgIdAndProjectId($organisationId, $projectId);
             Notification::send($userCustodians, new OrganisationSponsorProjectApproved($loggedInUser, $organisation, $project, 'custodian'));
         }
 
@@ -50,7 +50,7 @@ trait NotificationOrganisationManager
             Notification::send($loggedInUser, new OrganisationSponsorProjectRejected($loggedInUser, $organisation, $project, 'user'));
 
             // custodian
-            $userCustodians = $this->getCustodainsByOrgIdAndProjectId($organisationId, $projectId);
+            $userCustodians = $this->getCustodiansByOrgIdAndProjectId($organisationId, $projectId);
             Notification::send($userCustodians, new OrganisationSponsorProjectRejected($loggedInUser, $organisation, $project, 'custodian'));
         }
     }
@@ -100,7 +100,7 @@ trait NotificationOrganisationManager
         ])->get();
     }
 
-    public function getCustodainsByOrgIdAndProjectId($organisationId, $projectId)
+    public function getCustodiansByOrgIdAndProjectId($organisationId, $projectId)
     {
         $custodianIds = ProjectHasCustodian::where('project_id', 1)->get()->pluck('custodian_id')->toArray();
 
