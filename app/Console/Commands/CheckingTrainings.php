@@ -150,8 +150,8 @@ class CheckingTrainings extends Command
             }
 
             // custodian
-            $userCustodainIds = $this->getUserCustodian($user);
-            foreach (array_unique($userCustodainIds) as $custodianId) {
+            $userCustodianIds = $this->getUserCustodian($user);
+            foreach (array_unique($userCustodianIds) as $custodianId) {
                 $custodian = User::where('custodian_user_id', $custodianId)->first();
                 if ($custodian) {
                     Notification::send($custodian, new ExpiresTrainings($user, $training, 'custodian'));

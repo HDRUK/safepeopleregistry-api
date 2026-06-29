@@ -1163,7 +1163,7 @@ class CustodianController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/custodians/{custodianId}/organisations/{organisationId}/users",
-     *      summary="Get list of people for organistion",
+     *      summary="Get list of people for organisation",
      *      description="Fetches the list of users associated with the given custodian and organisations IDs.",
      *      tags={"Custodians"},
      *      @OA\Parameter(
@@ -1177,7 +1177,7 @@ class CustodianController extends Controller
      *          name="organisationId",
      *          in="path",
      *          required=true,
-     *          description="ID of the organiastion",
+     *          description="ID of the organisation",
      *          @OA\Schema(type="integer")
      *      ),
      *      @OA\Response(

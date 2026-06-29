@@ -79,7 +79,7 @@ class RulesSeeder extends Seeder
                 'entity_model_type_id' => 1,
             ],
             [
-                'name' => 'Data secutiry compliance',
+                'name' => 'Data security compliance',
                 'model_type' => \App\Models\Organisation::class,
                 'conditions' => json_encode([
                     'path' => 'ce_certified',

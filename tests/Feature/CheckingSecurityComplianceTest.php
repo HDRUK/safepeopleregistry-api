@@ -7,7 +7,7 @@ use App\Models\Organisation;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Notification;
 
-class ChekingSecurityComplianceTest extends TestCase
+class CheckingSecurityComplianceTest extends TestCase
 {
     public function setUp(): void
     {
@@ -26,7 +26,7 @@ class ChekingSecurityComplianceTest extends TestCase
 
         $organisations = Organisation::all();
 
-        $command = $this->artisan('app:cheking-security-compliance');
+        $command = $this->artisan('app:checking-security-compliance');
         foreach ($organisations as $item) {
             $command->expectsOutput('checking Cyber Essentials Certified expire for organisation id ' . $item->id . ' :: done');
         }
@@ -44,7 +44,7 @@ class ChekingSecurityComplianceTest extends TestCase
 
         $organisations = Organisation::all();
 
-        $command = $this->artisan('app:cheking-security-compliance');
+        $command = $this->artisan('app:checking-security-compliance');
         foreach ($organisations as $item) {
             $command->expectsOutput('checking Cyber Essentials Plus Certified expire for organisation id ' . $item->id . ' :: done');
         }
@@ -62,7 +62,7 @@ class ChekingSecurityComplianceTest extends TestCase
 
         $organisations = Organisation::all();
 
-        $command = $this->artisan('app:cheking-security-compliance');
+        $command = $this->artisan('app:checking-security-compliance');
         foreach ($organisations as $item) {
             $command->expectsOutput('checking ISO27001 Accredited expire for organisation id ' . $item->id . ' :: done');
         }
@@ -80,7 +80,7 @@ class ChekingSecurityComplianceTest extends TestCase
 
         $organisations = Organisation::all();
 
-        $command = $this->artisan('app:cheking-security-compliance');
+        $command = $this->artisan('app:checking-security-compliance');
         foreach ($organisations as $item) {
             $command->expectsOutput('checking DSPT Certified expire for organisation id ' . $item->id . ' :: done');
         }
@@ -98,7 +98,7 @@ class ChekingSecurityComplianceTest extends TestCase
             'dsptk_expiry_date' => now()->addDays(30),
         ]);
 
-        $this->artisan('app:cheking-security-compliance')
+        $this->artisan('app:checking-security-compliance')
             ->assertExitCode(Command::SUCCESS);
 
         Notification::assertNothingSent();

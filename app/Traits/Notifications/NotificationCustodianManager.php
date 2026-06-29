@@ -181,8 +181,8 @@ trait NotificationCustodianManager
         }
 
         // organisation
-        $userOrgaisations = $this->getUsersFromOrganisationById($organisation->id);
-        Notification::send($userOrgaisations, new CustodianOrganisationStatusUpdate($loggedInUser, $project, $organisation, $oldState, $newState, 'organisation'));
+        $userOrganisations = $this->getUsersFromOrganisationById($organisation->id);
+        Notification::send($userOrganisations, new CustodianOrganisationStatusUpdate($loggedInUser, $project, $organisation, $oldState, $newState, 'organisation'));
 
         // custodian
         $userCustodians = User::whereIn(
