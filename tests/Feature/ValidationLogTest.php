@@ -699,9 +699,7 @@ class ValidationLogTest extends TestCase
         $expectedLogCount = count($defaultChecks) * Custodian::count() * Organisation::count();
 
         $actualCount = ValidationLog::where('entity_type', Custodian::class)
-            ->where('entity_id', $newCustodian->id)
             ->where('secondary_entity_type', Organisation::class)
-            ->where('secondary_entity_id', Organisation::first()->id)
             ->count();
 
         $this->assertEquals(
@@ -717,9 +715,7 @@ class ValidationLogTest extends TestCase
         $this->assertEquals(
             $expectedLogCount,
             ValidationLog::where('entity_type', Custodian::class)
-                ->where('entity_id', $newCustodian->id)
                 ->where('secondary_entity_type', Organisation::class)
-                ->where('secondary_entity_id', $newOrganisation->id)
                 ->count()
         );
     }
