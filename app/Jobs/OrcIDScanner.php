@@ -185,19 +185,23 @@ class OrcIDScanner implements ShouldQueue
                 // is no real unique constraints on the table. We need to hard link this to
                 // registry_id instead. Future scope, as this is a larger change impacting several
                 // areas of the code.
-                $accreditation = Accreditation::create([
-                    'awarded_at' => $dates['startDate'],
-                    'awarding_body_name' => Arr::get($organisation, 'name', ''),
-                    'awarding_body_ror' => Arr::get($organisation, 'disambiguated-organization.disambiguated-organization-identifier', ''),
-                    'title' => $title,
-                    'expires_at' => $dates['endDate'],
-                    'awarded_locale' => Arr::get($organisation, 'address.country', ''),
-                ]);
 
-                RegistryHasAccreditation::firstOrCreate([
-                    'registry_id' => $this->user->registry_id,
-                    'accreditation_id' => $accreditation->id,
-                ]);
+                // TODO: SC - this is removed while we are repurposing the accreditations table,
+                // and we'd need to re-evaluate the contents of the payload to determine what
+                // we want to store in the accreditations table.
+                // $accreditation = Accreditation::create([
+                //     'awarded_at' => $dates['startDate'],
+                //     'awarding_body_name' => Arr::get($organisation, 'name', ''),
+                //     'awarding_body_ror' => Arr::get($organisation, 'disambiguated-organization.disambiguated-organization-identifier', ''),
+                //     'title' => $title,
+                //     'expires_at' => $dates['endDate'],
+                //     'awarded_locale' => Arr::get($organisation, 'address.country', ''),
+                // ]);
+
+                // RegistryHasAccreditation::firstOrCreate([
+                //     'registry_id' => $this->user->registry_id,
+                //     'accreditation_id' => $accreditation->id,
+                // ]);
             }
         }
     }
