@@ -651,6 +651,8 @@ class ValidationLogTest extends TestCase
         Custodian::truncate();
         ValidationLog::truncate();
 
+        var_dump("Before: " . ValidationLog::count() . " " . ValidationLog::where('entity_type', Custodian::class)->where('secondary_entity_type', Organisation::class)->count());
+
         $defaultChecks = Organisation::defaultValidationChecks();
 
         // Create initial custodian + organisation
@@ -664,10 +666,12 @@ class ValidationLogTest extends TestCase
             $newValidationCheck->custodian_id = $newCustodian->id;
             $newValidationCheck->save();
         }
+        var_dump("Middle: " . ValidationLog::count() . " " . ValidationLog::where('entity_type', Custodian::class)->where('secondary_entity_type', Organisation::class)->count());
 
         Organisation::factory()->create();
 
         $expectedLogCount = count($defaultChecks) * Custodian::count() * Organisation::count();
+        var_dump("After: " . ValidationLog::count() . " " . ValidationLog::where('entity_type', Custodian::class)->where('secondary_entity_type', Organisation::class)->count());
         var_dump("Expected log count: $expectedLogCount Custodian count: " . Custodian::count() . " Organisation count: " . Organisation::count() . " Default checks count: " . count($defaultChecks));
         $this->assertEquals(
             $expectedLogCount,
