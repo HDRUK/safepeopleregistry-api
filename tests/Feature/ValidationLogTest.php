@@ -650,7 +650,7 @@ class ValidationLogTest extends TestCase
         Organisation::truncate();
         Custodian::truncate();
         ValidationLog::truncate();
-        // ValidationCheck::truncate();
+        ValidationCheck::where('custodian_id', '!=', null)->delete();
 
         var_dump("Before: " . ValidationLog::count() . " " . ValidationCheck::count() . " " . ValidationLog::where('entity_type', Custodian::class)->where('secondary_entity_type', Organisation::class)->count());
 
