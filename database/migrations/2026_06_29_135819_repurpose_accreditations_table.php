@@ -14,7 +14,7 @@ return new class extends Migration
         
         Schema::table('accreditations', function (Blueprint $table) {
             $table->string('associated_organisation_name')->nullable()->after('id');
-            $table->string('id_string')->nullable()->after('associated_organisation_name');
+            $table->string('id_string')->after('associated_organisation_name');
             $table->date('issue_date')->nullable()->after('id_string');
             $table->date('expiry_date')->nullable()->after('issue_date');
             $table->dropColumn('awarded_at');
