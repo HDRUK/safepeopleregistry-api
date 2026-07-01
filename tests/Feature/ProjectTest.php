@@ -739,7 +739,7 @@ class ProjectTest extends TestCase
         $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'GET',
-                self::TEST_URL . "/1/all_users"
+                self::TEST_URL . "/2/all_users"
             );
         $response->assertStatus(200);
     }
@@ -749,21 +749,21 @@ class ProjectTest extends TestCase
         $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'GET',
-                self::TEST_URL . "/1/all_users?user_project_filter=in"
+                self::TEST_URL . "/2/all_users?user_project_filter=in"
             );
         $response->assertStatus(200);
         $responseData = count($response->decodeResponseJson()['data']['data']);
-        $projectHasUsers = ProjectHasUser::where('project_id', 1)->count();
+        $projectHasUsers = ProjectHasUser::where('project_id', 2)->count();
 
         $this->assertEquals($responseData, $projectHasUsers);
     }
 
-    public function test_the_application_can_asssign_claimed_users_to_project(): void
+    public function test_the_application_can_assign_claimed_users_to_project(): void
     {
         $responseUsersInProjectBefore = $this->actingAs($this->custodian_admin)
             ->json(
                 'GET',
-                self::TEST_URL . "/1/all_users?user_project_filter=in"
+                self::TEST_URL . "/2/all_users?user_project_filter=in"
             );
 
         $responseUsersInProjectBefore->assertStatus(200);
@@ -772,7 +772,7 @@ class ProjectTest extends TestCase
         $responseAllUsers = $this->actingAs($this->custodian_admin)
             ->json(
                 'GET',
-                self::TEST_URL . "/1/all_users"
+                self::TEST_URL . "/2/all_users"
             );
 
         $responseAllUsers->assertStatus(200);
@@ -783,7 +783,7 @@ class ProjectTest extends TestCase
         $responseAddNewUserInProject =  $this->actingAs($this->custodian_admin)
             ->json(
                 'PUT',
-                self::TEST_URL . '/1/all_users',
+                self::TEST_URL . '/2/all_users',
                 [
                     'users' => $payload,
                 ]
