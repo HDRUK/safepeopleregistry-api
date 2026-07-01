@@ -41,7 +41,7 @@ class ProjectTest extends TestCase
     private function createProjectUserRelation()
     {
         $custodianUser = CustodianUser::first();
-        $custodian_admin = User::where('custodian_user_id', $custodianUser->id)->first();
+        $custodian_admin = User::where('custodian_user_id', $custodianUser->id)->orderBy('id', 'desc')->first();
         $custodian = Custodian::with('custodianUsers')->where('id', $custodianUser['custodian_id'])->first();
 
         ProjectHasUser::truncate();
@@ -758,7 +758,7 @@ class ProjectTest extends TestCase
         $this->assertEquals($responseData, $projectHasUsers);
     }
 
-    public function test_the_application_can_asssign_claimed_users_to_project(): void
+    public function test_the_application_can_assign_claimed_users_to_project(): void
     {
         $responseUsersInProjectBefore = $this->actingAs($this->custodian_admin)
             ->json(

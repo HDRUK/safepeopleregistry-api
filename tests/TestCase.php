@@ -49,7 +49,7 @@ abstract class TestCase extends BaseTestCase
     {
         $this->user = User::where('user_group', User::GROUP_USERS)->first();
 
-        $this->custodian_admin = User::where('user_group', User::GROUP_CUSTODIANS)->first();
+        $this->custodian_admin = User::where('user_group', User::GROUP_CUSTODIANS)->orderBy('id', 'desc')->first();
 
         if (! $this->custodian_admin) {
             $this->custodian_admin = User::factory()->create([

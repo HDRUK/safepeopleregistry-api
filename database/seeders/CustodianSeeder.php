@@ -50,7 +50,7 @@ class CustodianSeeder extends Seeder
                 ]);
             }
 
-            for ($x = 0; $x < 1; $x++) {
+            for ($x = 0; $x < 2; $x++) {
                 $iu = CustodianUser::factory()->create([
                     'first_name' => 'Custodian',
                     'last_name' => 'Admin',

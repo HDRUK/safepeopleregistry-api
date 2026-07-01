@@ -26,6 +26,7 @@ class CustodianProjectTest extends TestCase
 
     public function setUp(): void
     {
+        $this->shouldFakeQueue = false;
         parent::setUp();
         $this->withUsers();
         $this->custodian = Custodian::where('id', $this->custodian_admin->custodian_user->custodian_id)
@@ -111,6 +112,11 @@ class CustodianProjectTest extends TestCase
 
         $projectHasSponsor = ProjectHasSponsorship::where('project_id', $projectId)->first();
         $this->assertEquals((int)$projectHasSponsor->sponsor_id, (int)$organisation->id);
+        // Add assertion to check whether notification was sent to the custodian admin
+        $this->assertDatabaseHas('notifications', [
+            'notifiable_id' => $this->custodian_admin->id,
+            'type' => 'App\Notifications\CustodianAddSponsorToProject',
+        ]);
     }
 
 }

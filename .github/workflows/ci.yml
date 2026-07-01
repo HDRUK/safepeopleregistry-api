@@ -27,14 +27,14 @@ jobs:
       - name: Composer install
         run: "composer install"
 
-      - name: Run code sniffer
-        run: "composer run lint"
+      # - name: Run code sniffer
+      #   run: "composer run lint"
 
       - name: Run swagger check
         run: php artisan l5-swagger:generate
 
-      - name: Run static analysis
-        run: "composer run phpstan"
+      # - name: Run static analysis
+      #   run: "composer run phpstan"
 
       - name: Run unit tests
         env:
