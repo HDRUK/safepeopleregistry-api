@@ -143,7 +143,7 @@ class CustodianTest extends TestCase
 
         Queue::assertNothingPushed();
 
-        $response = $this->actingAs($this->admin)
+        $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'POST',
                 self::TEST_URL . '/' . 2 . '/invite/',
