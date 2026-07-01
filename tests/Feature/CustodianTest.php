@@ -143,7 +143,7 @@ class CustodianTest extends TestCase
 
         Queue::assertNothingPushed();
 
-        $response = $this->actingAs($this->custodian_admin)
+        $response = $this->actingAs($this->admin)
             ->json(
                 'POST',
                 self::TEST_URL . '/' . 2 . '/invite/',
@@ -299,7 +299,7 @@ class CustodianTest extends TestCase
         $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'PUT',
-                self::TEST_URL . '/1',
+                self::TEST_URL . '/2',
                 [
                     'name' => 'Updated Custodian',
                     'enabled' => false,
@@ -320,7 +320,7 @@ class CustodianTest extends TestCase
         $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'PUT',
-                self::TEST_URL . '/2',
+                self::TEST_URL . '/1',
                 [
                     'name' => 'Updated Custodian',
                     'enabled' => false,
@@ -335,7 +335,7 @@ class CustodianTest extends TestCase
         $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'DELETE',
-                self::TEST_URL . '/1'
+                self::TEST_URL . '/2'
             );
 
         $response->assertStatus(200);
@@ -346,7 +346,7 @@ class CustodianTest extends TestCase
         $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'DELETE',
-                self::TEST_URL . '/2'
+                self::TEST_URL . '/1'
             );
 
         $response->assertStatus(403);
