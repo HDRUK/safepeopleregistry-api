@@ -111,6 +111,11 @@ class CustodianProjectTest extends TestCase
 
         $projectHasSponsor = ProjectHasSponsorship::where('project_id', $projectId)->first();
         $this->assertEquals((int)$projectHasSponsor->sponsor_id, (int)$organisation->id);
+        // Add assertion to check whether notification was sent to the custodian admin
+        $this->assertDatabaseHas('notifications', [
+            'notifiable_id' => $this->custodian_admin->id,
+            'type' => 'App\Notifications\CustodianAddSponsorToProject',
+        ]);
     }
 
 }

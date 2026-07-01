@@ -462,7 +462,7 @@ trait NotificationCustodianManager
         // custodian
         $userCustodians = User::whereIn(
             'custodian_user_id',
-            CustodianUser::where('custodian_id', $loggedInUser?->custodian_user->custodian_id)
+            CustodianUser::where('custodian_id', $loggedInUser?->custodian_user_id)
                 ->pluck('id')
         )->get();
         foreach ($userCustodians as $userCustodian) {
