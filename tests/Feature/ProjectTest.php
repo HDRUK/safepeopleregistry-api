@@ -41,7 +41,7 @@ class ProjectTest extends TestCase
     private function createProjectUserRelation()
     {
         $custodianUser = CustodianUser::first();
-        $custodian_admin = User::where('custodian_user_id', $custodianUser->id)->first();
+        $custodian_admin = User::where('custodian_user_id', $custodianUser->id)->orderBy('id', 'desc')->first();
         $custodian = Custodian::with('custodianUsers')->where('id', $custodianUser['custodian_id'])->first();
 
         ProjectHasUser::truncate();
