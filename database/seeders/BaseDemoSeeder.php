@@ -87,10 +87,11 @@ class BaseDemoSeeder extends Seeder
             'organisation_size' => 2,
             'website' => 'https://www.website1.com/',
             'system_approved' => true,
+            'system_approved_at' => Carbon::now(),
             'unclaimed' => 0
         ]);
 
-        $org1->setState(State::STATE_ORGANISATION_REGISTERED);
+        $org1->setState(State::STATE_PENDING);
 
         /*CustodianHasOrganisation::create([
             'organisation_id' => $org1->id,
