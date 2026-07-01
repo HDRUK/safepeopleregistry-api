@@ -39,7 +39,7 @@ trait NotificationCustodianManager
             return;
         }
 
-        $custodianId = $loggedInUser->custodian_user?->custodian_id;
+        $custodianId = $loggedInUser->custodian_user->custodian_id;
 
         // users
         $userIds = CustodianHasProjectUser::query()
@@ -208,7 +208,7 @@ trait NotificationCustodianManager
 
         // user
         $userIds = CustodianHasProjectUser::query()
-            ->where('custodian_id', $loggedInUser?->custodian_user?->custodian_id)
+            ->where('custodian_id', $loggedInUser?->custodian_user->custodian_id)
             ->with([
                 'projectHasUser.registry.user:id,registry_id,first_name,last_name,email',
                 'projectHasUser.project',
@@ -227,7 +227,7 @@ trait NotificationCustodianManager
 
         // organisation
         $organisationIds = CustodianHasProjectOrganisation::query()
-            ->where('custodian_id', $loggedInUser?->custodian_user?->custodian_id)
+            ->where('custodian_id', $loggedInUser?->custodian_user->custodian_id)
             ->with([
                 'projectOrganisation',
             ])
@@ -246,7 +246,7 @@ trait NotificationCustodianManager
         // custodian
         $userCustodians = User::whereIn(
             'custodian_user_id',
-            CustodianUser::where('custodian_id', $loggedInUser?->custodian_user?->custodian_id)
+            CustodianUser::where('custodian_id', $loggedInUser?->custodian_user->custodian_id)
                 ->pluck('id')
         )->get();
 
@@ -267,7 +267,7 @@ trait NotificationCustodianManager
 
         $userCustodians = User::whereIn(
             'custodian_user_id',
-            CustodianUser::where('custodian_id', $loggedInUser?->custodian_user?->custodian_id)
+            CustodianUser::where('custodian_id', $loggedInUser?->custodian_user->custodian_id)
                 ->pluck('id')
         )->get();
 
@@ -288,7 +288,7 @@ trait NotificationCustodianManager
 
         $userCustodians = User::whereIn(
             'custodian_user_id',
-            CustodianUser::where('custodian_id', $loggedInUser?->custodian_user?->custodian_id)
+            CustodianUser::where('custodian_id', $loggedInUser?->custodian_user->custodian_id)
                 ->whereNot('id', $approver->id)
                 ->pluck('id')
         )->get();
@@ -372,7 +372,7 @@ trait NotificationCustodianManager
 
         $userCustodians = User::whereIn(
             'custodian_user_id',
-            CustodianUser::where('custodian_id', $loggedInUser?->custodian_user?->custodian_id)
+            CustodianUser::where('custodian_id', $loggedInUser?->custodian_user->custodian_id)
                 ->pluck('id')
         )->get();
 
@@ -393,7 +393,7 @@ trait NotificationCustodianManager
 
         $userCustodians = User::whereIn(
             'custodian_user_id',
-            CustodianUser::where('custodian_id', $loggedInUser?->custodian_user?->custodian_id)
+            CustodianUser::where('custodian_id', $loggedInUser?->custodian_user->custodian_id)
                 ->pluck('id')
         )->get();
 
@@ -414,7 +414,7 @@ trait NotificationCustodianManager
 
         $userCustodians = User::whereIn(
             'custodian_user_id',
-            CustodianUser::where('custodian_id', $loggedInUser?->custodian_user?->custodian_id)
+            CustodianUser::where('custodian_id', $loggedInUser?->custodian_user->custodian_id)
                 ->pluck('id')
         )->get();
 
@@ -462,7 +462,7 @@ trait NotificationCustodianManager
         // custodian
         $userCustodians = User::whereIn(
             'custodian_user_id',
-            CustodianUser::where('custodian_id', $loggedInUser?->custodian_user?->custodian_id)
+            CustodianUser::where('custodian_id', $loggedInUser?->custodian_user->custodian_id)
                 ->pluck('id')
         )->get();
         foreach ($userCustodians as $userCustodian) {
