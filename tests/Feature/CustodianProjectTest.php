@@ -26,7 +26,7 @@ class CustodianProjectTest extends TestCase
 
     public function setUp(): void
     {
-        $this->shouldFakeQueue();
+        $this->shouldFakeQueue = false;
         parent::setUp();
         $this->withUsers();
         $this->custodian = Custodian::where('id', $this->custodian_admin->custodian_user->custodian_id)
