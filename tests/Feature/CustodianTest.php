@@ -146,7 +146,7 @@ class CustodianTest extends TestCase
         $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'POST',
-                self::TEST_URL . '/' . 2 . '/invite/',
+                self::TEST_URL . '/' . 1 . '/invite/',
             );
 
         $response->assertStatus(403);
