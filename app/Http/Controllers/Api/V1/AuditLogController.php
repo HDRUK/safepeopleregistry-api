@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Models\Affiliation;
 use App\Models\Organisation;
 use App\Models\ValidationLog;
-use App\Models\CustodianUser;
 use App\Http\Traits\Responses;
 use App\Traits\CommonFunctions;
 use App\Http\Controllers\Controller;
@@ -51,7 +50,9 @@ class AuditLogController extends Controller
 
         if ($loggedInUser->custodian_user_id !== null) {
             $custodianId = $loggedInUser->custodian_user?->custodian_id;
-            $userIdsInThisCustodian = User::whereHas('custodian_user', fn($q) =>
+            $userIdsInThisCustodian = User::whereHas(
+                'custodian_user',
+                fn ($q) =>
                 $q->where('custodian_id', $custodianId)
             )->pluck('id')->toArray();
         }

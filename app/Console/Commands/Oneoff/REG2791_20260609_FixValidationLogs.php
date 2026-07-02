@@ -6,8 +6,6 @@ use Exception;
 use Illuminate\Console\Command;
 use App\Models\ValidationCheck;
 use App\Models\ValidationLog;
-use Database\Seeders\ValidationCheckSeeder;
-use Illuminate\Support\Facades\Log;
 
 class REG2791_20260609_FixValidationLogs extends Command
 {
@@ -34,7 +32,7 @@ class REG2791_20260609_FixValidationLogs extends Command
             $dryrun = $this->option('dryrun');
             if ($dryrun) {
                 var_dump('Running in dry run mode - no changes will be made to the database.');
-             
+
             }
 
             $toFix = \DB::select("
@@ -43,7 +41,7 @@ class REG2791_20260609_FixValidationLogs extends Command
                 join validation_checks vc on vl.validation_check_id = vc.id 
                 where vl.entity_type = 'App\\\\Models\\\\Custodian' and (vl.entity_id != vc.custodian_id or vc.custodian_id is null)
             ");
-            
+
             var_dump(collect($toFix)->toArray());
             $needCorrection = count($toFix);
             var_dump("Found $needCorrection validation logs that need correction.");
@@ -52,7 +50,7 @@ class REG2791_20260609_FixValidationLogs extends Command
             foreach ($toFix as $entry) {
                 // find the VC that matches the name of the VC associated with this VL, but with the correct custodian_id, and update the VL to use that VC's ID instead
                 $correctVC = ValidationCheck::where([
-                    'name' => $entry->validation_check_name, 
+                    'name' => $entry->validation_check_name,
                     'custodian_id' => $entry->entity_id,
                     'applies_to' => $entry->applies_to
                     ])->first();
