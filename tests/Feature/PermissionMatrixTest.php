@@ -48,7 +48,7 @@ class PermissionMatrixTest extends TestCase
             'email' => fake()->email(),
             'provider' => '',
             'keycloak_id' => '',
-            'custodian_id' => 2,
+            'custodian_id' => 1,
         ]);
         $this->custodian2->update([
             'custodian_user_id' => $cu->id
@@ -62,8 +62,8 @@ class PermissionMatrixTest extends TestCase
 
         $this->users = [
             'admin' => $this->admin,
-            'custodian1' => $this->custodian_admin,
-            'custodian2' => $this->custodian2,
+            'custodian1' => $this->custodian2,
+            'custodian2' => $this->custodian_admin,
             'organisation1' => $this->organisation_admin,
             'organisation2' => $this->organisation2,
             'delegate' => $this->organisation_delegate,
