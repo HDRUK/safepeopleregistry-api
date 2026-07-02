@@ -780,7 +780,7 @@ class ProjectTest extends TestCase
 
         $payload = $this->createPayloadForAddNewUserToProject($responseDataUsersInProjectBefore, $responseDataAllUsers);
 
-        $responseAddNewUserInProject =  $this->actingAs($this->custodian_admin)
+        $responseAddNewUserInProject =  $this->actingAs(User::where('user_group', User::GROUP_CUSTODIANS)->first())
             ->json(
                 'PUT',
                 self::TEST_URL . '/2/all_users',
