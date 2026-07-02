@@ -41,7 +41,7 @@ class PermissionMatrixTest extends TestCase
         $this->user2->update(
             ['registry_id' => Registry::where('id', '!=', $this->user->registry_id)->inRandomOrder()->first()->id]
         );
-        $this->custodian2 = User::factory()->create(['user_group' => User::GROUP_CUSTODIANS]);
+        $this->first_custodian = User::factory()->create(['user_group' => User::GROUP_CUSTODIANS]);
         $cu = CustodianUser::create([
             'first_name' => fake()->firstname(),
             'last_name' => fake()->lastname(),
@@ -50,7 +50,7 @@ class PermissionMatrixTest extends TestCase
             'keycloak_id' => '',
             'custodian_id' => 1,
         ]);
-        $this->custodian2->update([
+        $this->first_custodian->update([
             'custodian_user_id' => $cu->id
         ]);
 
@@ -62,7 +62,7 @@ class PermissionMatrixTest extends TestCase
 
         $this->users = [
             'admin' => $this->admin,
-            'custodian1' => $this->custodian2,
+            'custodian1' => $this->first_custodian,
             'custodian2' => $this->custodian_admin,
             'organisation1' => $this->organisation_admin,
             'organisation2' => $this->organisation2,
@@ -380,8 +380,8 @@ class PermissionMatrixTest extends TestCase
                 ],
                 'permissions' => [
                     'admin' => 200,
-                    'custodian1' => 200,
-                    'custodian2' => 403,
+                    'custodian1' => 403,
+                    'custodian2' => 200,
                     'organisation1' => 403,
                     'organisation2' => 403,
                     'delegate' => 403,
@@ -391,14 +391,14 @@ class PermissionMatrixTest extends TestCase
             ],
             [
                 'method' => 'put',
-                'route' => '/users/' . $this->custodian2->id,
+                'route' => '/users/' . $this->first_custodian->id,
                 'payload' => [
                     'first_name'  => fake()->firstname()
                 ],
                 'permissions' => [
                     'admin' => 200,
-                    'custodian1' => 403,
-                    'custodian2' => 200,
+                    'custodian1' => 200,
+                    'custodian2' => 403,
                     'organisation1' => 403,
                     'organisation2' => 403,
                     'delegate' => 403,
