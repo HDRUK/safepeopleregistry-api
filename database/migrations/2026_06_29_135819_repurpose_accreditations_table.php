@@ -4,14 +4,13 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        
+
         Schema::table('accreditations', function (Blueprint $table) {
             $table->string('associated_organisation_name')->nullable()->after('id');
             $table->string('id_string')->after('associated_organisation_name');
