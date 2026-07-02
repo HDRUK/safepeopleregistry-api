@@ -146,7 +146,7 @@ class CustodianTest extends TestCase
         $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'POST',
-                self::TEST_URL . '/' . 2 . '/invite/',
+                self::TEST_URL . '/' . 1 . '/invite/',
             );
 
         $response->assertStatus(403);
@@ -299,7 +299,7 @@ class CustodianTest extends TestCase
         $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'PUT',
-                self::TEST_URL . '/1',
+                self::TEST_URL . '/2',
                 [
                     'name' => 'Updated Custodian',
                     'enabled' => false,
@@ -320,7 +320,7 @@ class CustodianTest extends TestCase
         $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'PUT',
-                self::TEST_URL . '/2',
+                self::TEST_URL . '/1',
                 [
                     'name' => 'Updated Custodian',
                     'enabled' => false,
@@ -335,7 +335,7 @@ class CustodianTest extends TestCase
         $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'DELETE',
-                self::TEST_URL . '/1'
+                self::TEST_URL . '/2'
             );
 
         $response->assertStatus(200);
@@ -346,7 +346,7 @@ class CustodianTest extends TestCase
         $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'DELETE',
-                self::TEST_URL . '/2'
+                self::TEST_URL . '/1'
             );
 
         $response->assertStatus(403);
