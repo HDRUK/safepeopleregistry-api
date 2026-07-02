@@ -736,7 +736,7 @@ class ProjectTest extends TestCase
 
     public function test_the_application_can_get_project_users(): void
     {
-        $response = $this->actingAs(Custodian::first())
+        $response = $this->actingAs(User::where('user_group', User::GROUP_CUSTODIANS)->first())
             ->json(
                 'GET',
                 self::TEST_URL . "/2/all_users"
@@ -746,7 +746,7 @@ class ProjectTest extends TestCase
 
     public function test_the_application_can_get_project_users_filter_in(): void
     {
-        $response = $this->actingAs(Custodian::first())
+        $response = $this->actingAs(User::where('user_group', User::GROUP_CUSTODIANS)->first())
             ->json(
                 'GET',
                 self::TEST_URL . "/2/all_users?user_project_filter=in"
@@ -760,7 +760,7 @@ class ProjectTest extends TestCase
 
     public function test_the_application_can_assign_claimed_users_to_project(): void
     {
-        $responseUsersInProjectBefore = $this->actingAs(Custodian::first())
+        $responseUsersInProjectBefore = $this->actingAs(User::where('user_group', User::GROUP_CUSTODIANS)->first())
             ->json(
                 'GET',
                 self::TEST_URL . "/2/all_users?user_project_filter=in"
