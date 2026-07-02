@@ -769,7 +769,7 @@ class ProjectTest extends TestCase
         $responseUsersInProjectBefore->assertStatus(200);
         $responseDataUsersInProjectBefore = $responseUsersInProjectBefore->decodeResponseJson()['data']['data'];
 
-        $responseAllUsers = $this->actingAs($this->custodian_admin)
+        $responseAllUsers = $this->actingAs(User::where('user_group', User::GROUP_CUSTODIANS)->first())
             ->json(
                 'GET',
                 self::TEST_URL . "/2/all_users"
