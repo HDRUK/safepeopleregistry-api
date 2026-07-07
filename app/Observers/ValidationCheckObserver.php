@@ -2,7 +2,6 @@
 
 namespace App\Observers;
 
-use App\Jobs\UpdateCustodianValidation;
 use App\Models\ActionLog;
 use App\Models\Custodian;
 use App\Models\ValidationCheck;
@@ -12,18 +11,6 @@ use Carbon\Carbon;
 class ValidationCheckObserver
 {
     use ValidationManager;
-
-    public function saved(ValidationCheck $model): void
-    {
-        $custodianId = $model->custodian_id;
-        if (!$custodianId) {
-            return;
-        }
-        UpdateCustodianValidation::dispatch(
-            $custodianId,
-            $model->applies_to
-        );
-    }
 
     public function updated(ValidationCheck $model): void
     {
