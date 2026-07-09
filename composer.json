@@ -2,7 +2,10 @@
     "name": "laravel/laravel",
     "type": "project",
     "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "keywords": [
+        "laravel",
+        "framework"
+    ],
     "license": "MIT",
     "require": {
         "php": "^8.3",
@@ -12,6 +15,7 @@
         "guzzlehttp/guzzle": "^7.2",
         "hdruk/laravel-job-failed-slack-notification": "^1.0",
         "hdruk/laravel-mjml": "^3.0",
+        "hdruk/laravel-hubspot-manager": "*",
         "laravel/framework": "^12.0",
         "laravel/horizon": "^5.29",
         "laravel/octane": "^2.8.1",
@@ -110,6 +114,10 @@
         {
             "type": "vcs",
             "url": "git@github.com:HDRUK/laravel-job-failed-slack-notification.git"
+        },
+        {
+            "type": "vcs",
+            "url": "git@github.com:HDRUK/laravel-hubspot-manager.git"
         }
     ]
 }

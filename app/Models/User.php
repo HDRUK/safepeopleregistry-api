@@ -19,6 +19,7 @@ use App\Traits\StateWorkflow;
 use App\Traits\FilterManager;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use Hdruk\LaravelHubspotManager\Traits\HasHubspotContact;
 
 /**
  * @OA\Schema (
@@ -120,6 +121,7 @@ class User extends Authenticatable
     use StateWorkflow;
     use FilterManager;
     use LogsActivity;
+    use HasHubspotContact;
 
     public const GROUP_USERS = 'USERS';
     public const GROUP_ORGANISATIONS = 'ORGANISATIONS';
@@ -490,5 +492,25 @@ class User extends Authenticatable
     public static function getTransitions(): array
     {
         return static::$transitions;
+    }
+
+    public function toHubspotProperties(): array
+    {
+        return [
+            'email'     => $this->email,
+            'firstname' => $this->first_name,
+            'lastname' => $this->last_name,
+            'product' => 'Registry',
+            'environment' => config('app.env'),
+            'hs_persona' => $this->user_group === self::GROUP_CUSTODIANS
+                            ? 'persona_1'
+                            : ($this->user_group === self::GROUP_USERS
+                              ? 'persona_2'
+                              : ($this->user_group === self::GROUP_ORGANISATION
+                                ? 'persona_3'
+                                : null
+                                )
+                              ),
+        ];
     }
 }
