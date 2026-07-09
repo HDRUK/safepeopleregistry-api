@@ -148,16 +148,6 @@ class QueryController extends Controller
             ], Response::HTTP_UNAUTHORIZED);
         }
 
-        $rrr = RegistryReadRequest::where('custodian_id', $custodian->id)
-            ->where('registry_id', Registry::where('digi_ident', $input['ident'])->first()->id)
-            ->where('status', RegistryReadRequest::READ_REQUEST_STATUS_APPROVED)
-            ->first();
-        if (!$rrr) {
-            return response()->json([
-                'message' => 'no user approved read request found',
-            ], Response::HTTP_UNAUTHORIZED);
-        }
-
         // We could do the following with eloquent, but as it's quite a large hit,
         // it's far more performant to just pull the records manually and form
         // the resulting payload, to avoid Laravel bloat.
