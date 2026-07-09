@@ -85,19 +85,19 @@ trait ValidationManager
     }
 
     public function updateCustodianProjectUserSingleValidationCheck(
-        int $projectId,
+        array $projectIds,
         int $modelId,
         ?string $userDigitalIdent = null,
         ?int $custodianId = null,
     ): void {
 
-        $phus = ProjectHasUser::where('project_id', $projectId)
+        $phus = ProjectHasUser::whereIn('project_id', $projectIds)
             ->when($userDigitalIdent, function ($query, $userDigitalIdent) {
                 return $query->where('user_digital_ident', $userDigitalIdent);
             })
             ->get();
 
-        $phcs = ProjectHasCustodian::where('project_id', $projectId)
+        $phcs = ProjectHasCustodian::whereIn('project_id', $projectIds)
             ->when($custodianId, function ($query, $custodianId) {
                 return $query->where('custodian_id', $custodianId);
             })
@@ -106,13 +106,16 @@ trait ValidationManager
         foreach ($phus as $phu) {
             $registry = $phu->registry;
             foreach ($phcs as $phc) {
+                if ($phu->project_id !== $phc->project_id) {
+                    continue;
+                }
                 $custodian = $phc->custodian;
 
                 ValidationLog::firstOrCreate(
                     [
                         'entity_id' => $custodian->id,
                         'entity_type' => Custodian::class,
-                        'secondary_entity_id' => $projectId,
+                        'secondary_entity_id' => $phu->project_id,
                         'secondary_entity_type' => Project::class,
                         'tertiary_entity_id' => $registry->id,
                         'tertiary_entity_type' => Registry::class,

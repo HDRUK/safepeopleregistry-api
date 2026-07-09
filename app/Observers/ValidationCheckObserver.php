@@ -41,14 +41,12 @@ class ValidationCheckObserver
             }
         } else if ($model->applies_to === ValidationCheckAppliesTo::ProjectUser) {
             $projectIds = Project::pluck('id');
-            foreach ($projectIds as $projectId) {
-                $this->updateCustodianProjectUserSingleValidationCheck(
-                    $projectId,
-                    $model->id,
-                    null,
-                    $custodianId,
-                );
-            }
+            $this->updateCustodianProjectUserSingleValidationCheck(
+                $projectIds,
+                $model->id,
+                null,
+                $custodianId,
+            );
         }
     }
 
