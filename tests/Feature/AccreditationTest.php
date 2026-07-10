@@ -24,6 +24,11 @@ class AccreditationTest extends TestCase
         $this->withUsers();
 
         $this->registry = Registry::where('id', $this->user->registry_id)->first();
+
+        $this->company1 = fake()->company();
+        $this->id1 = fake()->uuid();
+        $this->company2 = fake()->company();
+        $this->id2 = fake()->uuid();
     }
 
     public function test_the_application_can_list_accreditations_by_registry_id(): void
@@ -48,7 +53,7 @@ class AccreditationTest extends TestCase
 
         $this->assertArrayHaskey('data', $response);
         $this->assertTrue(count($content['data']) === 1);
-        $this->assertEquals($content['data'][0]['title'], 'Safe Researcher Training');
+        $this->assertEquals($content['data'][0]['associated_organisation_name'], $this->company1);
     }
 
     public function test_the_application_cannot_list_accreditations_by_registry_id(): void
@@ -125,8 +130,8 @@ class AccreditationTest extends TestCase
 
         $response->assertStatus(200);
 
-        $this->assertEquals($content['data']['title'], 'Safe Researcher Training. The Sequel!!');
-        $this->assertEquals($content['data']['awarded_locale'], 'UK');
+        $this->assertEquals($content['data']['associated_organisation_name'], $this->company2);
+        $this->assertEquals($content['data']['id_string'], $this->id2);
     }
 
     public function test_the_application_cannot_update_accreditations_by_registry_id(): void
@@ -200,12 +205,10 @@ class AccreditationTest extends TestCase
         $awardedDate = Carbon::parse(fake()->date());
 
         return [
-            'awarded_at' => $awardedDate->toDateString(),
-            'awarding_body_name' => fake()->company(),
-            'awarding_body_ror' => fake()->url(),
-            'title' => 'Safe Researcher Training',
-            'expires_at' => $awardedDate->addYear(2)->toDateString(),
-            'awarded_locale' => 'GB',
+            'associated_organisation_name' => $this->company1,
+            'id_string' => $this->id1,
+            'issue_date' => $awardedDate->toDateString(),
+            'expiry_date' => $awardedDate->addYear(2)->toDateString(),
         ];
     }
 
@@ -214,19 +217,17 @@ class AccreditationTest extends TestCase
         $awardedDate = Carbon::parse(fake()->date());
 
         return [
-            'awarded_at' => $awardedDate->toDateString(),
-            'awarding_body_name' => fake()->company(),
-            'awarding_body_ror' => fake()->url(),
-            'title' => 'Safe Researcher Training. The Sequel!!',
-            'expires_at' => $awardedDate->addYear(4)->toDateString(),
-            'awarded_locale' => 'UK',
+            'associated_organisation_name' => $this->company2,
+            'id_string' => $this->id2,
+            'issue_date' => $awardedDate->toDateString(),
+            'expiry_date' => $awardedDate->addYear(4)->toDateString(),
         ];
     }
 
     private function prepareEditedAccreditationPayload(): array
     {
         return [
-            'title' => 'Safe Researcher Training - The Sequel!',
+            'associated_organisation_name' => $this->company1,
         ];
     }
 }

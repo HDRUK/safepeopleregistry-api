@@ -65,7 +65,7 @@ trait ValidationManager
                     ->pluck('id');
 
                 foreach ($vchecks as $vcid) {
-                    ValidationLog::updateOrCreate(
+                    ValidationLog::firstOrCreate(
                         [
                             'entity_id' => $custodian->id,
                             'entity_type' => Custodian::class,
@@ -80,6 +80,51 @@ trait ValidationManager
                         ]
                     );
                 }
+            }
+        }
+    }
+
+    public function updateCustodianProjectUserSingleValidationCheck(
+        array $projectIds,
+        int $modelId,
+        ?string $userDigitalIdent = null,
+        ?int $custodianId = null,
+    ): void {
+
+        $phus = ProjectHasUser::whereIn('project_id', $projectIds)
+            ->when($userDigitalIdent, function ($query, $userDigitalIdent) {
+                return $query->where('user_digital_ident', $userDigitalIdent);
+            })
+            ->get();
+
+        $phcs = ProjectHasCustodian::whereIn('project_id', $projectIds)
+            ->when($custodianId, function ($query, $custodianId) {
+                return $query->where('custodian_id', $custodianId);
+            })
+            ->get();
+
+        foreach ($phus as $phu) {
+            $registry = $phu->registry;
+            foreach ($phcs as $phc) {
+                if ($phu->project_id !== $phc->project_id) {
+                    continue;
+                }
+                $custodian = $phc->custodian;
+
+                ValidationLog::firstOrCreate(
+                    [
+                        'entity_id' => $custodian->id,
+                        'entity_type' => Custodian::class,
+                        'secondary_entity_id' => $phu->project_id,
+                        'secondary_entity_type' => Project::class,
+                        'tertiary_entity_id' => $registry->id,
+                        'tertiary_entity_type' => Registry::class,
+                        'validation_check_id' => $modelId
+                    ],
+                    [
+                        'completed_at' => null,
+                    ]
+                );
             }
         }
     }
@@ -128,7 +173,7 @@ trait ValidationManager
             ->pluck('id');
 
         foreach ($vchecks as $vcid) {
-            ValidationLog::updateOrCreate(
+            ValidationLog::firstOrCreate(
                 [
                     'entity_id' => $custodian->id,
                     'entity_type' => Custodian::class,
@@ -140,25 +185,6 @@ trait ValidationManager
                     'completed_at' => null,
                 ]
             );
-        }
-    }
-
-    public function updateAllCustodianOrganisationValidation(
-        int $custodianId
-    ): void {
-
-        $organisationIds = Organisation::pluck('id');
-        foreach ($organisationIds as $organisationId) {
-            $this->updateCustodianOrganisationValidation($custodianId, $organisationId);
-        }
-    }
-
-    public function updateAllCustodianProjectUserValidation(
-        int $custodianId
-    ): void {
-        $projectIds = ProjectHasCustodian::pluck('project_id');
-        foreach ($projectIds as $projectId) {
-            $this->updateCustodianProjectUserValidation($projectId, null, $custodianId);
         }
     }
 }

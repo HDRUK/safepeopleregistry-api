@@ -22,12 +22,12 @@ class ProjectHasOrganisationTest extends TestCase
 
     public function test_the_application_can_list_project_organisations_by_id(): void
     {
-        $projectHasOrgasnisationId = 1;
+        $projectHasOrganisationId = 1;
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'GET',
-                self::TEST_URL . "/{$projectHasOrgasnisationId}",
+                self::TEST_URL . "/{$projectHasOrganisationId}",
             );
 
         $response->assertStatus(200);
@@ -36,12 +36,12 @@ class ProjectHasOrganisationTest extends TestCase
     public function test_the_application_cannot_list_project_organisations_by_id(): void
     {
         $lastestProjectHasOrganisation = ProjectHasOrganisation::query()->orderBy('id', 'desc')->first();
-        $projectHasOrgasnisationIdTest = $lastestProjectHasOrganisation ? $lastestProjectHasOrganisation->id + 1 : 1;
+        $projectHasOrganisationIdTest = $lastestProjectHasOrganisation ? $lastestProjectHasOrganisation->id + 1 : 1;
 
         $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
             ->json(
                 'GET',
-                self::TEST_URL . "/{$projectHasOrgasnisationIdTest}",
+                self::TEST_URL . "/{$projectHasOrganisationIdTest}",
             );
 
         $response->assertStatus(400);

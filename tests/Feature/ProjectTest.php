@@ -41,7 +41,7 @@ class ProjectTest extends TestCase
     private function createProjectUserRelation()
     {
         $custodianUser = CustodianUser::first();
-        $custodian_admin = User::where('custodian_user_id', $custodianUser->id)->first();
+        $custodian_admin = User::where('custodian_user_id', $custodianUser->id)->orderBy('id', 'desc')->first();
         $custodian = Custodian::with('custodianUsers')->where('id', $custodianUser['custodian_id'])->first();
 
         ProjectHasUser::truncate();
@@ -736,43 +736,43 @@ class ProjectTest extends TestCase
 
     public function test_the_application_can_get_project_users(): void
     {
-        $response = $this->actingAs($this->custodian_admin)
+        $response = $this->actingAs(User::where('user_group', User::GROUP_CUSTODIANS)->first())
             ->json(
                 'GET',
-                self::TEST_URL . "/1/all_users"
+                self::TEST_URL . "/2/all_users"
             );
         $response->assertStatus(200);
     }
 
     public function test_the_application_can_get_project_users_filter_in(): void
     {
-        $response = $this->actingAs($this->custodian_admin)
+        $response = $this->actingAs(User::where('user_group', User::GROUP_CUSTODIANS)->first())
             ->json(
                 'GET',
-                self::TEST_URL . "/1/all_users?user_project_filter=in"
+                self::TEST_URL . "/2/all_users?user_project_filter=in"
             );
         $response->assertStatus(200);
         $responseData = count($response->decodeResponseJson()['data']['data']);
-        $projectHasUsers = ProjectHasUser::where('project_id', 1)->count();
+        $projectHasUsers = ProjectHasUser::where('project_id', 2)->count();
 
         $this->assertEquals($responseData, $projectHasUsers);
     }
 
-    public function test_the_application_can_asssign_claimed_users_to_project(): void
+    public function test_the_application_can_assign_claimed_users_to_project(): void
     {
-        $responseUsersInProjectBefore = $this->actingAs($this->custodian_admin)
+        $responseUsersInProjectBefore = $this->actingAs(User::where('user_group', User::GROUP_CUSTODIANS)->first())
             ->json(
                 'GET',
-                self::TEST_URL . "/1/all_users?user_project_filter=in"
+                self::TEST_URL . "/2/all_users?user_project_filter=in"
             );
 
         $responseUsersInProjectBefore->assertStatus(200);
         $responseDataUsersInProjectBefore = $responseUsersInProjectBefore->decodeResponseJson()['data']['data'];
 
-        $responseAllUsers = $this->actingAs($this->custodian_admin)
+        $responseAllUsers = $this->actingAs(User::where('user_group', User::GROUP_CUSTODIANS)->first())
             ->json(
                 'GET',
-                self::TEST_URL . "/1/all_users"
+                self::TEST_URL . "/2/all_users"
             );
 
         $responseAllUsers->assertStatus(200);
@@ -780,10 +780,10 @@ class ProjectTest extends TestCase
 
         $payload = $this->createPayloadForAddNewUserToProject($responseDataUsersInProjectBefore, $responseDataAllUsers);
 
-        $responseAddNewUserInProject =  $this->actingAs($this->custodian_admin)
+        $responseAddNewUserInProject =  $this->actingAs(User::where('user_group', User::GROUP_CUSTODIANS)->first())
             ->json(
                 'PUT',
-                self::TEST_URL . '/1/all_users',
+                self::TEST_URL . '/2/all_users',
                 [
                     'users' => $payload,
                 ]

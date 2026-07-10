@@ -14,14 +14,14 @@ use Illuminate\Support\Facades\Notification;
 use App\Models\CustodianHasProjectOrganisation;
 use App\Notifications\Organisations\ExpiresSecurityCertifications;
 
-class ChekingSecurityCompliance extends Command
+class CheckingSecurityCompliance extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'app:cheking-security-compliance';
+    protected $signature = 'app:checking-security-compliance';
 
     /**
      * The console command description.

@@ -4,8 +4,6 @@ namespace App\Observers;
 
 use App\Models\DecisionModel;
 use App\Models\Custodian;
-use App\Models\CustodianHasOrganisation;
-use App\Models\Organisation;
 use App\Models\CustodianModelConfig;
 use App\Models\ActionLog;
 use App\Traits\ValidationManager;

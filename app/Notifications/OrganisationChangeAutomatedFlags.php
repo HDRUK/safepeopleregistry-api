@@ -50,6 +50,6 @@ class OrganisationChangeAutomatedFlags extends Notification implements ShouldQue
 
     public function generateMessage()
     {
-        return "{$this->organisation->organisation_name} hanged their profile, which has changed the result of your automated: {$this->decisionModel->name} flag.";
+        return "{$this->organisation->organisation_name} changed their profile, which has changed the result of your automated: {$this->decisionModel->name} flag.";
     }
 }

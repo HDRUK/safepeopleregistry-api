@@ -641,17 +641,17 @@ class UserController extends Controller
             return;
         }
 
-        $organisationId = $user->orgasnisation_id;
+        $organisationId = $user->organisation_id;
         $organisation = Organisation::where('id', $organisationId)->first();
 
         // organisation
-        $useOrgasnisations = User::where([
+        $useOrganisations = User::where([
             'organisation_id' => $organisationId,
             'user_group' => User::GROUP_ORGANISATIONS
         ])->get();
 
-        foreach ($useOrgasnisations as $useOrgasnisation) {
-            Notification::send($useOrgasnisation, new OrganisationUpdateProfileSro($loggedInUser, $organisation, $changes, 'organisation'));
+        foreach ($useOrganisations as $useOrganisation) {
+            Notification::send($useOrganisation, new OrganisationUpdateProfileSro($loggedInUser, $organisation, $changes, 'organisation'));
         }
 
         // custodian

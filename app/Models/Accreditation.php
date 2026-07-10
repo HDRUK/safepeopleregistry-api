@@ -18,42 +18,30 @@ use Illuminate\Database\Eloquent\Model;
  *         description="Unique identifier for the accreditation"
  *     ),
  *     @OA\Property(
- *         property="awarded_at",
+ *         property="associated_organisation_name",
  *         type="string",
- *         format="date-time",
- *         example="2025-06-25T12:00:00Z",
- *         description="Date when the accreditation was awarded"
+ *         example="University of Example",
+ *         description="Name of the associated organisation"
  *     ),
  *     @OA\Property(
- *         property="awarding_body_name",
+ *         property="id_string",
  *         type="string",
- *         example="Health Research Authority",
- *         description="Name of the awarding body"
+ *         example="123456",
+ *         description="ID string for the accreditation"
  *     ),
  *     @OA\Property(
- *         property="awarding_body_ror",
+ *         property="issue_date",
  *         type="string",
- *         example="https://ror.org/12345",
- *         description="ROR identifier for the awarding body"
+ *         format="date",
+ *         example="2023-01-01",
+ *         description="Date when the accreditation was issued"
  *     ),
  *     @OA\Property(
- *         property="title",
+ *         property="expiry_date",
  *         type="string",
- *         example="ISO 27001 Certification",
- *         description="Title of the accreditation"
- *     ),
- *     @OA\Property(
- *         property="expires_at",
- *         type="string",
- *         format="date-time",
- *         example="2026-06-25T12:00:00Z",
+ *         format="date",
+ *         example="2026-06-25",
  *         description="Date when the accreditation expires"
- *     ),
- *     @OA\Property(
- *         property="awarded_locale",
- *         type="string",
- *         example="UK",
- *         description="Locale where the accreditation was awarded"
  *     ),
  *     @OA\Property(
  *         property="created_at",
@@ -74,24 +62,20 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string $awarded_at
- * @property string $awarding_body_name
- * @property string|null $awarding_body_ror
- * @property string $title
- * @property string $expires_at
- * @property string $awarded_locale
+ * @property string $associated_organisation_name
+ * @property string $id_string
+ * @property string $issue_date
+ * @property string $expiry_date
  * @method static \Database\Factories\AccreditationFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Accreditation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Accreditation newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Accreditation query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Accreditation whereAwardedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Accreditation whereAwardedLocale($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Accreditation whereAwardingBodyName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Accreditation whereAwardingBodyRor($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Accreditation whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Accreditation whereExpiresAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Accreditation whereAssociatedOrganisationName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Accreditation whereIdString($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Accreditation whereIssueDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Accreditation whereExpiryDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Accreditation whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Accreditation whereTitle($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Accreditation whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Accreditation whereUpdatedAt($value)
  * @mixin \Eloquent
  */
@@ -104,11 +88,9 @@ class Accreditation extends Model
     public $timestamps = true;
 
     protected $fillable = [
-        'awarded_at',
-        'awarding_body_name',
-        'awarding_body_ror',
-        'title',
-        'expires_at',
-        'awarded_locale',
+        'associated_organisation_name',
+        'id_string',
+        'issue_date',
+        'expiry_date',
     ];
 }

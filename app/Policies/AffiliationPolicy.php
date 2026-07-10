@@ -7,7 +7,7 @@ use App\Models\Affiliation;
 
 class AffiliationPolicy
 {
-    public function userAffilations(User $user)
+    public function userAffiliations(User $user)
     {
 
         if ($user->isAdmin()) {
