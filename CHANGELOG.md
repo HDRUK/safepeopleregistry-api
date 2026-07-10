@@ -1,3 +1,22 @@
+## [1.33.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.32.1...v1.33.0) (2026-07-10)
+
+### ✨ Features
+
+* **REGISTRY-000:** Remove RegistryHasEmployments (#757) ([09e7632](https://github.com/HDRUK/safepeopleregistry-api/commit/09e763245d70ad79da01434f071f11a58a24d043))
+* **REGISTRY-2619:** Update Accreditations model to be used for Accredited Researcher Registrations (#755) ([dfff62b](https://github.com/HDRUK/safepeopleregistry-api/commit/dfff62bbe33afceef9c57f435c460bfae7c6ae80))
+* **REGISTRY-2811:** Seeders tidyup (#756) ([00bc00a](https://github.com/HDRUK/safepeopleregistry-api/commit/00bc00acef38e79b09fda0bdff14852c27924b71))
+* **REGISTRY-2845:** Fix validation checks observer (#760) ([d22d5e9](https://github.com/HDRUK/safepeopleregistry-api/commit/d22d5e95734a50636d8b3b9f05a557eaae0e71c5))
+
+### 🐛 Bug Fixes
+
+* **GAT-9056:** added pipeline for automated Jira release to the registry apps (#751) ([3f9ab1b](https://github.com/HDRUK/safepeopleregistry-api/commit/3f9ab1b90eace9cd4f209b26063805658179863e)), closes [GAT-9056](undefinedGAT-9056)
+* **REGISTRY-0000:** fix CI failures (#754) ([ff5f8dd](https://github.com/HDRUK/safepeopleregistry-api/commit/ff5f8dd051377bb68b14be0737c0d0b493d6b374))
+* **REGISTRY-0000:** Fix naming of facade to meet psr-4 autoloading standard (#752) ([7d851e2](https://github.com/HDRUK/safepeopleregistry-api/commit/7d851e2ad6150c3e3e569603048dca842ef55eba))
+* **REGISTRY-000:** Fix custodian_user_id / custodian_id confusion (#758) ([a05cf9f](https://github.com/HDRUK/safepeopleregistry-api/commit/a05cf9f572d1621bffe5d5f80bc5cbf26d166383))
+* **REGISTRY-000:** Fix linting issues (#759) ([d551bbb](https://github.com/HDRUK/safepeopleregistry-api/commit/d551bbb3caa2734e8e2bd5456e572e09d888103a))
+* **REGISTRY-000:** Fixing the many mis-spellings of 'organisation' and other words in the codebase. (#753) ([7eff82b](https://github.com/HDRUK/safepeopleregistry-api/commit/7eff82b3f2a60654755e425c72c769f589c18dcc))
+* **REGISTRY-2776:** Add associated CustodianProjectOrganisation information to CustodianProjectUser entries in CustodianHasProjectUserController::index() (#750) ([07be9e5](https://github.com/HDRUK/safepeopleregistry-api/commit/07be9e5b31926a9eec60deb63c494a69492de7b9))
+
 ## [1.32.1](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.32.0...v1.32.1) (2026-06-25)
 
 ### 🐛 Bug Fixes
