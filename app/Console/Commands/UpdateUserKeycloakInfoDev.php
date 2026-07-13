@@ -33,7 +33,7 @@ class UpdateUserKeycloakInfoDev extends Command
         'tobacco.dave@dodgydomain.com' => '3edefc39-176e-4201-bd21-494c38cce697',
         'tobacco.frank@tobaccoeultd.com' => '9c1e9d16-7813-4e10-aa6c-804ccab7ad67',
         'tobacco.john@dodgydomain.com' => 'a94fc0b7-20f1-4ccc-aec2-59cb1135124b',
-        'test.user+user@safepeopleregistry.com' => '04f710fd-afcc-414c-9a19-bcfedf54e82e',
+        'test.user+user@safepeopleregistry.com' => 'a879cbf2-ba49-4ba5-bb61-576ef79b3cec',
         'test.user+organisation@safepeopleregistry.com' => '9263de78-e22a-4669-a1c4-ac3f6b0260a8',
         'test.user+custodian@safepeopleregistry.com' => '8350891d-fe00-42e1-8012-33178261325e',
         'test.user+admin@safepeopleregistry.com' => '2043cd67-9cc1-4075-97ce-4d6a5ab4a1ce',

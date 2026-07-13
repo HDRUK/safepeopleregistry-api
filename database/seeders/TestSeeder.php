@@ -143,7 +143,7 @@ class TestSeeder extends Seeder
                 'last_name' => 'User',
                 'email' => "test.user+user@safepeopleregistry.com",
                 'user_group' => RMC::KC_GROUP_USERS,
-                'keycloak_id' => '04f710fd-afcc-414c-9a19-bcfedf54e82e',
+                'keycloak_id' => 'a879cbf2-ba49-4ba5-bb61-576ef79b3cec',
                 't_and_c_agreed' => true,
                 't_and_c_agreement_date' => Carbon::now(),
                 'affiliations' => [
