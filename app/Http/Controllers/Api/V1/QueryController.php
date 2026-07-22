@@ -14,7 +14,6 @@ use App\Models\Registry;
 use App\Models\Training;
 use App\Models\User;
 use App\Models\RegistryHasTraining;
-use App\Models\RegistryReadRequest;
 use App\Models\Custodian;
 use DB;
 use Illuminate\Http\JsonResponse;
