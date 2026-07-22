@@ -28,7 +28,6 @@ class UpdateSubsidiary extends BaseFormRequest
                 'required',
                 'string',
                 'max:255',
-                'unique:subsidiaries,name',
             ],
         ];
     }
