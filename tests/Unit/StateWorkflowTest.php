@@ -163,6 +163,14 @@ class StateWorkflowTest extends TestCase
         ]);
         $affiliation = Affiliation::where('id', 1)->first();
         $organisationId = $affiliation->organisation_id;
+        // approve the organisation
+        $approvalPayload = [
+            'system_approved' => true,
+        ];
+        $response = $this->actingAs($this->admin)
+            ->json('PUT', "/api/v1/organisations/{$this->organisation->id}/approved", $approvalPayload);
+
+        $response->assertStatus(200);
         Organisation::where('id', $organisationId)->update([
             'unclaimed' => 0,
         ]);
