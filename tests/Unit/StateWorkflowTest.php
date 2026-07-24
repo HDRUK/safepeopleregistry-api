@@ -189,7 +189,6 @@ class StateWorkflowTest extends TestCase
             );
 
         $affiliation = Affiliation::where('id', 1)->first();
-        var_dump('Pre getstate', $affiliation->getState());
 
         $this->assertTrue($affiliation->getState() === State::STATE_AFFILIATION_EMAIL_VERIFY);
         $verificationCode = $affiliation->verification_code;
@@ -206,7 +205,6 @@ class StateWorkflowTest extends TestCase
 
         $affiliation = Affiliation::where('id', 1)->first();
         $this->assertTrue($affiliation->is_verified === true);
-        var_dump('Here getstate', $affiliation->getState());
         $this->assertTrue($affiliation->getState() === State::STATE_AFFILIATION_PENDING);
 
         $this->assertDatabaseHas('model_states', [
