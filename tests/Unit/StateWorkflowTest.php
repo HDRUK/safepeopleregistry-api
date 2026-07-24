@@ -168,7 +168,7 @@ class StateWorkflowTest extends TestCase
             'system_approved' => true,
         ];
         $response = $this->actingAs($this->admin)
-            ->json('PUT', "/api/v1/organisations/{$this->organisation->id}/approved", $approvalPayload);
+            ->json('PUT', "/api/v1/organisations/{$organisationId}/approved", $approvalPayload);
 
         $response->assertStatus(200);
         Organisation::where('id', $organisationId)->update([
