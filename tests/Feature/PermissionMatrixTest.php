@@ -70,6 +70,10 @@ class PermissionMatrixTest extends TestCase
             'researcher1' => $this->user,
             'researcher2' => $this->user2,
         ];
+
+        $this->organisation = Organisation::first();
+        $this->organisation->system_approved_at = Carbon::now();
+        $this->organisation->save();
     }
 
     public function test_custodian_permissions_matrix()
