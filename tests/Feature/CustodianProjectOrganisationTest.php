@@ -93,6 +93,21 @@ class CustodianProjectOrganisationTest extends TestCase
             'status' => State::STATE_FORM_RECEIVED,
         ];
 
+        // first it's rejected because the associated organisation is not approved by the system yet
+        $response = $this->actingAs($this->admin)
+            ->json('PUT', self::TEST_URL . "/1/projectOrganisations/{$this->projectOrganisation->id}", $payload);
+
+        $response->assertStatus(403);
+
+        // then we approve the organisation
+        $approvalPayload = [
+            'system_approved' => true,
+        ];
+        $response = $this->actingAs($this->admin)
+            ->json('PUT', "/api/v1/organisations/{$this->organisation->id}/approved", $approvalPayload);
+
+        $response->assertStatus(200);
+
         $response = $this->actingAs($this->admin)
             ->json('PUT', self::TEST_URL . "/1/projectOrganisations/{$this->projectOrganisation->id}", $payload);
 
