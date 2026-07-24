@@ -191,14 +191,14 @@ class StateWorkflowTest extends TestCase
         $affiliation = Affiliation::where('id', 1)->first();
         var_dump('Pre getstate', $affiliation->getState());
 
-        $this->assertTrue($affiliation->getState() === State::STATE_AFFILIATION_PENDING);
-        $verficationCode = $affiliation->verification_code;
+        $this->assertTrue($affiliation->getState() === State::STATE_AFFILIATION_EMAIL_VERIFY);
+        $verificationCode = $affiliation->verification_code;
         $organisationId = $affiliation->organisation_id;
 
         $response = $this->actingAsKeycloakUser($this->user)
             ->json(
                 'PUT',
-                "/api/v1/affiliations/verify_email/{$verficationCode}",
+                "/api/v1/affiliations/verify_email/{$verificationCode}",
                 []
             );
 
