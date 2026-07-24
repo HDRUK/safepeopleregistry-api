@@ -19,7 +19,6 @@ use App\Models\Organisation;
 use Illuminate\Http\Request;
 use App\Models\PendingInvite;
 use App\Http\Traits\Responses;
-use App\Jobs\OrganisationIDVT;
 use App\Models\EntityModelType;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
@@ -49,7 +48,6 @@ use App\Http\Requests\Organisations\DeleteOrganisation;
 use App\Http\Requests\Organisations\OrganisationInvite;
 use App\Http\Requests\Organisations\UpdateOrganisation;
 use App\Http\Requests\Organisations\GetCountPastProject;
-use App\Http\Requests\Organisations\GetOrganisationIdvt;
 use App\Notifications\Organisations\OrganisationApproved;
 use App\Notifications\Organisations\OrganisationDelegates;
 use App\Http\Requests\Organisations\GetCountCertifications;
@@ -279,74 +277,6 @@ class OrganisationController extends Controller
     }
 
     /**
-     * @OA\Get(
-     *      path="/api/v1/organisations/{id}/idvt",
-     *      summary="Return an organisations idvt details by ID",
-     *      description="Return an organisations idvt details by ID",
-     *      tags={"organisations"},
-     *      summary="organisations@idvt",
-     *      security={{"bearerAuth":{}}},
-     *      @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="organisations entry ID",
-     *         required=true,
-     *         example="1",
-     *         @OA\Schema(
-     *            type="integer",
-     *            description="organisations entry ID",
-     *         ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Success",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="idvt_result", type="boolean", example="true"),
-     *                  @OA\Property(property="idvt_result_perc", type="number", example="80"),
-     *                  @OA\Property(property="idvt_errors", type="object", example="{}"),
-     *                  @OA\Property(property="idvt_completed_at", type="string", example="2024-02-04 12:01:00")
-     *              )
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=400,
-     *          description="Invalid argument(s)",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found"),
-     *          )
-     *      )
-     * )
-     */
-    public function idvt(GetOrganisationIdvt $request, int $id): JsonResponse
-    {
-        $organisation = Organisation::findOrFail($id);
-
-        if ($organisation) {
-            return $this->OKResponse(
-                [
-                    'id' => $organisation->id,
-                    'idvt_result' => $organisation->idvt_result,
-                    'idvt_errors' => $organisation->idvt_errors,
-                    'idvt_completed_at' => $organisation->idvt_completed_at,
-                    'idvt_result_perc' => $organisation->idvt_result_perc
-                ]
-            );
-        }
-
-        return $this->NotFoundResponse();
-    }
-
-    /**
      * @OA\Post(
      *      path="/api/v1/organisations",
      *      summary="Create an organisations entry",
@@ -426,7 +356,6 @@ class OrganisationController extends Controller
                 'applicant_names' => $input['applicant_names'],
                 'funders_and_sponsors' => $input['funders_and_sponsors'],
                 'sub_license_arrangements' => $input['sub_license_arrangements'],
-                'verified' => $input['verified'],
                 'companies_house_no' => $input['companies_house_no'],
                 'sector_id' => $input['sector_id'],
                 'dsptk_certified' => $input['dsptk_certified'],
@@ -445,7 +374,6 @@ class OrganisationController extends Controller
                 'website' => $input['website'],
                 'smb_status' => $input['smb_status'],
                 'organisation_size' => $input['organisation_size'],
-                'system_approved' => $input['system_approved'] ?? 0,
                 'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
                 'ods_id' => $input['ods_id'] ?? null,
                 'dsptk_date_last_published' => $input['dsptk_date_last_published'] ?? null,
@@ -488,11 +416,6 @@ class OrganisationController extends Controller
                 }
             }
 
-            // Run automated IDVT
-            if (!in_array(config('speedi.system.app_env'), ['testing', 'ci'])) {
-                OrganisationIDVT::dispatchSync($organisation);
-            }
-
             return $this->CreatedResponse($organisation->id);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -523,7 +446,6 @@ class OrganisationController extends Controller
                 'applicant_names' => '',
                 'funders_and_sponsors' => '',
                 'sub_license_arrangements' => '',
-                'verified' => 0,
                 'companies_house_no' => '',
                 'sector_id' => 0,
                 'dsptk_certified' => 0,
@@ -543,7 +465,6 @@ class OrganisationController extends Controller
                 'smb_status' => 0,
                 'organisation_size' => null,
                 'unclaimed' => $input['unclaimed'] ?? 1,
-                'system_approved' => $input['system_approved'] ?? 0,
                 'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
                 'organisation_unique_id' => Str::random(40),
                 'ods_id' => null,
@@ -608,7 +529,6 @@ class OrganisationController extends Controller
                 'applicant_names' => '',
                 'funders_and_sponsors' => '',
                 'sub_license_arrangements' => '',
-                'verified' => 0,
                 'companies_house_no' => '',
                 'sector_id' => 0,
                 'dsptk_certified' => 0,
@@ -628,7 +548,6 @@ class OrganisationController extends Controller
                 'smb_status' => 0,
                 'organisation_size' => null,
                 'unclaimed' => $input['unclaimed'] ?? 1,
-                'system_approved' => $input['system_approved'] ?? 0,
                 'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
                 'organisation_unique_id' => Str::random(40),
                 'ods_id' => $input['ods_id'] ?? null,
@@ -1938,7 +1857,7 @@ class OrganisationController extends Controller
     }
 
     /**
-     * @OA\Patch(
+     * @OA\Put(
      *      path="/api/v1/organisations/{id}/approved",
      *      summary="SuperAdmin update org system_approved flag",
      *      description="Updates the system_approved flag for an organisation",
@@ -1957,7 +1876,7 @@ class OrganisationController extends Controller
      *      ),
      *      @OA\RequestBody(
      *          required=true,
-     *          description="Invite definition",
+     *          description="System approval update definition",
      *          @OA\JsonContent(
      *              @OA\Property(property="system_approved", type="bool", example="true"),
      *          ),
@@ -1989,7 +1908,7 @@ class OrganisationController extends Controller
     public function updateApproved(OrganisationUpdateApprover $request, int $id): JsonResponse
     {
         try {
-            $input = $request->only(app(Organisation::class)->getFillable());
+            $input = $request->only(app(Organisation::class)->getGuarded());
             $org = Organisation::findOrFail($id);
             $originalOrg = $org->getOriginal();
 
@@ -2005,10 +1924,9 @@ class OrganisationController extends Controller
                 return $this->BadRequestResponse();
             }
 
-            $org->update([
-                'system_approved' => $input['system_approved'],
-                'system_approved_at' => Carbon::now(),
-            ]);
+            $org->system_approved = $input['system_approved'];
+            $org->system_approved_at = Carbon::now();
+            $org->save();
 
             if (!$org->unclaimed) {
                 if (!$input['system_approved']) {
