@@ -73,6 +73,7 @@ class PermissionMatrixTest extends TestCase
         ];
 
         $this->organisation = Organisation::first();
+        $this->organisation->system_approved = true;
         $this->organisation->system_approved_at = Carbon::now();
         $this->organisation->save();
     }
