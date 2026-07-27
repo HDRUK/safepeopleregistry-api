@@ -51,6 +51,7 @@ class OrganisationTest extends TestCase
             'applicant_names' => 'Some One, Some Two, Some Three',
             'funders_and_sponsors' => 'UKRI, MRC',
             'sub_license_arrangements' => 'N/A',
+            'verified' => false,
             'companies_house_no' => '10887014',
             'dsptk_certified' => 1,
             'dsptk_ods_code' => '12345Z',
@@ -265,6 +266,7 @@ class OrganisationTest extends TestCase
                         'applicant_names',
                         'funders_and_sponsors',
                         'sub_license_arrangements',
+                        'verified',
                         'dsptk_ods_code',
                         'dsptk_expiry_date',
                         'dsptk_expiry_evidence',
@@ -334,6 +336,7 @@ class OrganisationTest extends TestCase
                 'applicant_names',
                 'funders_and_sponsors',
                 'sub_license_arrangements',
+                'verified',
                 'dsptk_ods_code',
                 'dsptk_expiry_date',
                 'dsptk_expiry_evidence',
@@ -475,6 +478,7 @@ class OrganisationTest extends TestCase
                     'applicant_names' => 'Some One, Some Two, Some Three',
                     'funders_and_sponsors' => 'UKRI, MRC',
                     'sub_license_arrangements' => 'N/A',
+                    'verified' => true,
                     'companies_house_no' => '10887014',
                     'sector_id' => fake()->randomElement([0, count(Sector::SECTORS)]),
                     'charities' => [
@@ -484,7 +488,6 @@ class OrganisationTest extends TestCase
                     'smb_status' => false,
                     'organisation_size' => 2,
                     'website' => 'https://www.website.com/',
-                    // 'system_approved' => true,
                 ]
             );
 
@@ -530,6 +533,27 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . '/' . 1
             );
         $response->assertStatus(200);
+    }
+
+    public function test_the_application_can_show_idvt(): void
+    {
+        $response = $this->actingAs($this->organisation_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/1/idvt'
+            );
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'message',
+            'data' => [
+                'id',
+                'idvt_result',
+                'idvt_result_perc',
+                'idvt_completed_at',
+                'idvt_errors',
+            ],
+        ]);
     }
 
     public function test_the_application_can_sort_returned_data(): void
@@ -1068,6 +1092,22 @@ class OrganisationTest extends TestCase
         $this->assertEquals('Invalid argument(s)', $message);
     }
 
+    public function test_the_application_cannot_get_organisations_idvt(): void
+    {
+        $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
+        $organisationIdTest = $latestOrganisation ? $latestOrganisation->id + 1 : 1;
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$organisationIdTest}/idvt"
+            );
+
+        $response->assertStatus(400);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('Invalid argument(s)', $message);
+    }
+
     public function test_the_application_cannot_get_organisations_count_certifications(): void
     {
         $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
@@ -1331,6 +1371,7 @@ class OrganisationTest extends TestCase
                     'applicant_names' => 'Some One, Some Two, Some Three',
                     'funders_and_sponsors' => 'UKRI, MRC',
                     'sub_license_arrangements' => 'N/A',
+                    'verified' => true,
                     'companies_house_no' => '10887014',
                     'sector_id' => fake()->randomElement([0, count(Sector::SECTORS)]),
                     'charities' => [
