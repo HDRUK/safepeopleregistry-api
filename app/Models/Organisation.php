@@ -90,6 +90,10 @@ use App\Traits\FilterManager;
  *          type="string",
  *          example="Sub-license arrangements..."
  *      ),
+ *      @OA\Property(property="verified",
+ *          type="boolean",
+ *          example="true"
+ *      ),
  *      @OA\Property(property="dsptk_ods_code",
  *          type="string",
  *          example="8HQ90"
@@ -137,6 +141,22 @@ use App\Traits\FilterManager;
  *      @OA\Property(property="ce_plus_expiry_date",
  *          type="string",
  *          example="2026-12-01"
+ *      ),
+ *      @OA\Property(property="idvt_result",
+ *          type="integer",
+ *          example=1
+ *      ),
+ *      @OA\Property(property="idvt_result_perc",
+ *          type="integer",
+ *          example=100
+ *      ),
+ *      @OA\Property(property="idvt_errors",
+ *          type="string",
+ *          example="Verification failed for XYZ reason"
+ *      ),
+ *      @OA\Property(property="idvt_completed_at",
+ *          type="string",
+ *          example="2023-10-10T16:03:00Z"
  *      ),
  *      @OA\Property(property="companies_house_no",
  *          type="string",
@@ -217,6 +237,7 @@ use App\Traits\FilterManager;
  * @property string|null $applicant_names
  * @property string|null $funders_and_sponsors
  * @property string|null $sub_license_arrangements
+ * @property bool $verified
  * @property string|null $dsptk_ods_code
  * @property int $dsptk_certified
  * @property \Illuminate\Support\Carbon|null $dsptk_expiry_date
@@ -231,6 +252,10 @@ use App\Traits\FilterManager;
  * @property string|null $ce_plus_certification_num
  * @property \Illuminate\Support\Carbon|null $ce_plus_expiry_date
  * @property int|null $ce_plus_expiry_evidence
+ * @property bool|null $idvt_result
+ * @property float|null $idvt_result_perc
+ * @property string|null $idvt_errors
+ * @property string|null $idvt_completed_at
  * @property string $companies_house_no
  * @property int $sector_id
  * @property string|null $iso_27001_certification_num
@@ -308,6 +333,10 @@ use App\Traits\FilterManager;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereDsptkOdsCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereFundersAndSponsors($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereIdvtCompletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereIdvtErrors($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereIdvtResult($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereIdvtResultPerc($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereIso27001CertificationNum($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereIso27001Certified($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereIsoExpiryDate($value)
@@ -326,6 +355,7 @@ use App\Traits\FilterManager;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereTown($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereUnclaimed($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereVerified($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation whereWebsite($value)
  * @mixin \Eloquent
  */
@@ -355,6 +385,7 @@ class Organisation extends Model
         'applicant_names',
         'funders_and_sponsors',
         'sub_license_arrangements',
+        'verified',
         'dsptk_ods_code',
         'dsptk_certified',
         'dsptk_expiry_date',
@@ -371,6 +402,10 @@ class Organisation extends Model
         'ce_plus_certification_num',
         'ce_plus_expiry_date',
         'ce_plus_expiry_evidence',
+        'idvt_result',
+        'idvt_result_perc',
+        'idvt_errors',
+        'idvt_completed_at',
         'companies_house_no',
         'sector_id',
         'ror_id',
@@ -395,8 +430,10 @@ class Organisation extends Model
     ];
 
     protected $casts = [
+        'verified' => 'boolean',
         'iso_27001_certified' => 'boolean',
         'ce_certified' => 'boolean',
+        'idvt_result' => 'boolean',
         'unclaimed' => 'boolean',
         'ce_expiry_date' => 'date:Y-m-d',
         'ce_plus_expiry_date' => 'date:Y-m-d',
@@ -416,6 +453,10 @@ class Organisation extends Model
     protected $hidden = [
             'password',
             'organisation_unique_id',
+            'idvt_result',
+            'idvt_result_perc',
+            'idvt_errors',
+            'idvt_completed_at',
             'permissions',
             'files'
          ];
