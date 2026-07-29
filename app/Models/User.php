@@ -496,12 +496,21 @@ class User extends Authenticatable
 
     public function toHubspotProperties(): array
     {
+        $env_map = [
+            'development' => 'dev',
+            'dev' => 'dev',
+            'preprod' => 'preproduction',
+            'preproduction' => 'preproduction',
+            'prod' => 'production',
+            'production' => 'production',
+        ];
+
         return [
             'email'     => $this->email,
             'firstname' => $this->first_name,
             'lastname' => $this->last_name,
-            'product' => 'Registry',
-            'environment' => config('app.env'),
+            'technology_team_product_persona' => 'Registry',
+            'technology_product_environment' => $env_map[config('app.env')],
             'hs_persona' => $this->user_group === self::GROUP_CUSTODIANS
                             ? 'persona_1'
                             : ($this->user_group === self::GROUP_USERS
