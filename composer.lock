@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a4e04406b1d3b9841df4d09bd837bce6",
+    "content-hash": "ca7ec43d982b5f67c53c2a758b6b1366",
     "packages": [
         {
             "name": "brick/math",
@@ -2159,6 +2159,73 @@
                 }
             ],
             "time": "2025-08-22T14:27:06+00:00"
+        },
+        {
+            "name": "hdruk/laravel-hubspot-manager",
+            "version": "dev-dev",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/HDRUK/laravel-hubspot-manager.git",
+                "reference": "b953f5980b514f6138ac36dd8ff1a2c9266371a9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/HDRUK/laravel-hubspot-manager/zipball/b953f5980b514f6138ac36dd8ff1a2c9266371a9",
+                "reference": "b953f5980b514f6138ac36dd8ff1a2c9266371a9",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/bus": "^10.0 || ^11.0 || ^12.0",
+                "illuminate/http": "^10.0 || ^11.0 || ^12.0",
+                "illuminate/queue": "^10.0 || ^11.0 || ^12.0",
+                "illuminate/support": "^10.0 || ^11.0 || ^12.0"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^8.0 || ^9.0 || ^10.0",
+                "phpunit/phpunit": "^10.0 || ^11.0"
+            },
+            "default-branch": true,
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Hdruk\\LaravelHubspotManager\\Providers\\LaravelHubspotManagerProvider"
+                    ],
+                    "aliases": {
+                        "Hubspot": "Hdruk\\LaravelHubspotManager\\Facades\\Hubspot"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Hdruk\\LaravelHubspotManager\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Hdruk\\LaravelHubspotManager\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "vendor/bin/phpunit"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Loki Sinclair",
+                    "email": "loki.sinclair@hdruk.ac.uk"
+                }
+            ],
+            "description": "A laravel extension to make use of HubSpot user management",
+            "support": {
+                "source": "https://github.com/HDRUK/laravel-hubspot-manager/tree/dev",
+                "issues": "https://github.com/HDRUK/laravel-hubspot-manager/issues"
+            },
+            "time": "2026-06-15T13:53:59+00:00"
         },
         {
             "name": "hdruk/laravel-job-failed-slack-notification",
