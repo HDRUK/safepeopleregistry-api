@@ -15,6 +15,8 @@ use App\Models\Training;
 use App\Models\User;
 use App\Models\RegistryHasTraining;
 use App\Models\Custodian;
+use App\Models\ProjectHasUser;
+use App\Models\CustodianHasProjectUser;
 use DB;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
@@ -192,6 +194,20 @@ class QueryController extends Controller
 
             $payload['registry']['history'][] = $history;
         }
+        $projectHasUserIds = ProjectHasUser::where('user_digital_ident', $registry->digi_ident)->pluck('id')->toArray();
+        $linkedChPUs = CustodianHasProjectUser::where(['custodian_id' => $custodian->id])->whereIn('project_has_user_id', $projectHasUserIds)
+            ->with(['projectHasUser.project' => function ($query) {
+                $query->select(['id', 'title']);
+            }])->get();
+        $projectResults = [];
+        foreach ($linkedChPUs as $chpu) {
+            $projectResults[] = [
+                'project_id' => $chpu->projectHasUser->project->id,
+                'project_title' => $chpu->projectHasUser->project->title,
+                'project_user_validation_status' => $chpu->modelState->state->name ?? null,
+            ];
+        }
+        $payload['projects'] = $projectResults;
 
         if ($registry) {
             return response()->json([
