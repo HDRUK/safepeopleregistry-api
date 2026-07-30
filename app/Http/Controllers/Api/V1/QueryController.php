@@ -15,6 +15,8 @@ use App\Models\Training;
 use App\Models\User;
 use App\Models\RegistryHasTraining;
 use App\Models\Custodian;
+use App\Models\ProjectHasUser;
+use App\Models\CustodianHasProjectUser;
 use DB;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
@@ -30,11 +32,25 @@ class QueryController extends Controller
      *      tags={"Query"},
      *      summary="Query@query",
      *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *          name="x-client-id",
+     *          in="header",
+     *          required=true,
+     *          description="Custodian client ID used to authenticate the requesting custodian",
+     *          @OA\Schema(type="string", example="8f14e45f-ceea-467e-adc1-0000example")
+     *      ),
      *      @OA\RequestBody(
      *          required=true,
      *          description="Query definition",
      *          @OA\JsonContent(
-     *              @OA\Property(property="ident", type="string", example="$2y$12$V6SSFQLyQDQRZxvz.Tswa.HA.ixJIXofs7.omitted")
+     *              @OA\Property(property="ident", type="string", example="$2y$12$V6SSFQLyQDQRZxvz.Tswa.HA.ixJIXofs7.omitted", description="The Registry's digi_ident value")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=401,
+     *          description="Unauthorised - missing or unrecognised x-client-id header",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="no known custodian matches the credentials provided")
      *          )
      *      ),
      *      @OA\Response(
@@ -48,80 +64,73 @@ class QueryController extends Controller
      *          response=200,
      *          description="Success",
      *          @OA\JsonContent(
-     *                  @OA\Property(property="message", type="string", example="success"),
-     *                  @OA\Property(property="data", type="array",
-     *                      @OA\Items(
-     *                          @OA\Property(property="id", type="integer", example="1"),
-     *                          @OA\Property(property="created_at", type="string", example="2024-03-12T13:11:55.000000Z"),
-     *                          @OA\Property(property="updated_at", type="string", example="2024-03-12T13:11:55.000000Z"),
-     *                          @OA\Property(property="deleted_at", type="string", example="2024-03-12T13:11:55.000000Z"),
-     *                          @OA\Property(property="verified", type="boolean", example="true"),
-     *                          @OA\Property(property="user", type="array",
-     *                              @OA\Items(
-     *                                  @OA\Property(property="user_id", type="integer", example="1"),
-     *                                  @OA\Property(property="name", type="string", example="Some One"),
-     *                                  @OA\Property(property="email", type="string", example="someone@somewhere.com"),
-     *                                  @OA\Property(property="email_verified_at", type="string", example="2024-03-12T13:11:55.000000Z"),
-     *                                  @OA\Property(property="registry_id", type="integer", example="1"),
-     *                                  @OA\Property(property="created_at", type="string", example="2024-03-12T13:11:55.000000Z"),
-     *                                  @OA\Property(property="updated_at", type="string", example="2024-03-12T13:11:55.000000Z")
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="object",
+     *                  @OA\Property(property="user", type="object",
+     *                      description="The User record linked to the matched Registry",
+     *                      @OA\Property(property="id", type="integer", example=10),
+     *                      @OA\Property(property="first_name", type="string", example="Dan"),
+     *                      @OA\Property(property="last_name", type="string", example="Ackroyd"),
+     *                      @OA\Property(property="name", type="string", example="Dan Ackroyd"),
+     *                      @OA\Property(property="email", type="string", example="dan.ackroyd@example.com"),
+     *                      @OA\Property(property="registry_id", type="integer", example=1),
+     *                      @OA\Property(property="created_at", type="string", example="2024-03-12T13:11:55.000000Z"),
+     *                      @OA\Property(property="updated_at", type="string", example="2024-03-12T13:11:55.000000Z"),
+     *                      @OA\Property(property="user_group", type="string", example="USERS"),
+     *                      @OA\Property(property="consent_scrape", type="boolean", example=false),
+     *                      @OA\Property(property="orc_id", type="string", nullable=true, example=null),
+     *                      @OA\Property(property="unclaimed", type="integer", example=0),
+     *                      @OA\Property(property="feed_source", type="string", nullable=true, example=null),
+     *                      @OA\Property(property="public_opt_in", type="integer", example=0),
+     *                      @OA\Property(property="declaration_signed", type="boolean", example=false),
+     *                      @OA\Property(property="organisation_id", type="integer", example=0),
+     *                      @OA\Property(property="orcid_scanning", type="boolean", example=false),
+     *                      @OA\Property(property="orcid_scanning_completed_at", type="string", nullable=true, example=null),
+     *                      @OA\Property(property="is_delegate", type="integer", example=0),
+     *                      @OA\Property(property="is_org_admin", type="integer", example=0),
+     *                      @OA\Property(property="custodian_id", type="integer", nullable=true, example=null),
+     *                      @OA\Property(property="custodian_user_id", type="integer", nullable=true, example=null),
+     *                      @OA\Property(property="role", type="string", nullable=true, example=null),
+     *                      @OA\Property(property="location", type="string", nullable=true, example=null),
+     *                      @OA\Property(property="t_and_c_agreed", type="boolean", example=true),
+     *                      @OA\Property(property="t_and_c_agreement_date", type="string", nullable=true, example="2024-03-12 13:11:55"),
+     *                      @OA\Property(property="uksa_registered", type="boolean", example=false),
+     *                      @OA\Property(property="is_sro", type="boolean", example=false),
+     *                      @OA\Property(property="invited_by", type="integer", nullable=true, example=null),
+     *                      @OA\Property(property="status", type="string", example="registered"),
+     *                      @OA\Property(property="evaluation", nullable=true, example=null),
+     *                      @OA\Property(property="identity", ref="#/components/schemas/Identity", nullable=true)
+     *                  ),
+     *                  @OA\Property(property="registry", type="object",
+     *                      description="The matched Registry record",
+     *                      allOf={
+     *                          @OA\Schema(ref="#/components/schemas/Registry"),
+     *                          @OA\Schema(
+     *                              @OA\Property(property="training", type="array",
+     *                                  description="Training records linked to the registry",
+     *                                  @OA\Items(ref="#/components/schemas/Training")
+     *                              ),
+     *                              @OA\Property(property="history", type="array",
+     *                                  description="History records linked to the registry, each with its related affiliation and project",
+     *                                  @OA\Items(
+     *                                      allOf={
+     *                                          @OA\Schema(ref="#/components/schemas/History"),
+     *                                          @OA\Schema(
+     *                                              @OA\Property(property="affiliation", ref="#/components/schemas/Affiliation", nullable=true),
+     *                                              @OA\Property(property="project", ref="#/components/schemas/Project", nullable=true)
+     *                                          )
+     *                                      }
+     *                                  )
      *                              )
-     *                          ),
-     *                          @OA\Property(property="identity", type="array",
-     *                              @OA\Items(
-     *                                  @OA\Property(property="id", type="integer", example="1"),
-     *                                  @OA\Property(property="created_at", type="string", example="2024-03-12T13:11:55.000000Z"),
-     *                                  @OA\Property(property="updated_at", type="string", example="2024-03-12T13:11:55.000000Z"),
-     *                                  @OA\Property(property="deleted_at", type="string", example="2024-03-12T13:11:55.000000Z"),
-     *                                  @OA\Property(property="registry_id", type="integer", example="1")
-     *                              )
-     *                          ),
-     *                          @OA\Property(property="history", type="array",
-     *                              @OA\Items(
-     *                                  @OA\Property(property="id", type="integer", example="1"),
-     *                                  @OA\Property(property="created_at", type="string", example="2024-03-12T13:11:55.000000Z"),
-     *                                  @OA\Property(property="updated_at", type="string", example="2024-03-12T13:11:55.000000Z"),
-     *                                  @OA\Property(property="project_id", type="integer", example="1"),
-     *                                  @OA\Property(property="access_key_id", type="integer", example="876"),
-     *                                  @OA\Property(property="custodian_identifier", type="string", example="ABC1234DEF-56789-0")
-     *                              )
-     *                          ),
-     *                          @OA\Property(property="training", type="array",
-     *                              @OA\Items(
-     *                                  @OA\Property(property="id", type="integer", example="1"),
-     *                                  @OA\Property(property="created_at", type="string", example="2024-03-12T13:11:55.000000Z"),
-     *                                  @OA\Property(property="updated_at", type="string", example="2024-03-12T13:11:55.000000Z"),
-     *                                  @OA\Property(property="registry_id", type="integer", example="1"),
-     *                                  @OA\Property(property="provider", type="string", example="Training Provider Name"),
-     *                                  @OA\Property(property="awarded_at", type="string", example="2024-03-12T13:11:55.000000Z"),
-     *                                  @OA\Property(property="expires_at", type="string", example="2029-03-12T13:11:55.000000Z"),
-     *                                  @OA\Property(property="expires_in_years", type="integer", example="5"),
-     *                                  @OA\Property(property="training_name", type="string", example="Training Course Name")
-     *                              )
-     *                          ),
-     *                          @OA\Property(property="projects", type="array",
-     *                              @OA\Items(
-     *                                  @OA\Property(property="id", type="integer", example="1"),
-     *                                  @OA\Property(property="created_at", type="string", example="2024-03-12T13:11:55.000000Z"),
-     *                                  @OA\Property(property="updated_at", type="string", example="2024-03-12T13:11:55.000000Z"),
-     *                                  @OA\Property(property="deleted_at", type="string", example="2024-03-12T13:11:55.000000Z"),
-     *                                  @OA\Property(property="name", type="string", example="Project Name"),
-     *                                  @OA\Property(property="public_benefit", type="string", example="Public Benefit statement"),
-     *                                  @OA\Property(property="runs_to", type="string", example="2024-09-12T13:11:55.000000Z"),
-     *                                  @OA\Property(property="affiliate_id", type="integer", example="124")
-     *                              )
-     *                          ),
-     *                          @OA\Property(property="organisations", type="array",
-     *                              @OA\Items(
-     *                                  @OA\Property(property="id", type="integer", example="1"),
-     *                                  @OA\Property(property="created_at", type="string", example="2024-03-12T13:11:55.000000Z"),
-     *                                  @OA\Property(property="updated_at", type="string", example="2024-03-12T13:11:55.000000Z"),
-     *                                  @OA\Property(property="name", type="string", example="Institute Name")
-     *                              )
-     *                          ),
-     *                          @OA\Property(property="affiliations", type="array",
-     *                              @OA\Items(ref="#/components/schemas/Affiliation")
      *                          )
+     *                      }
+     *                  ),
+     *                  @OA\Property(property="projects", type="array",
+     *                      description="Projects the queried user is linked to, scoped to the requesting custodian",
+     *                      @OA\Items(
+     *                          @OA\Property(property="project_id", type="integer", example=1),
+     *                          @OA\Property(property="project_title", type="string", example="Project Title"),
+     *                          @OA\Property(property="project_user_validation_status", type="string", nullable=true, example="ValidationComplete")
      *                      )
      *                  )
      *              )
@@ -166,14 +175,15 @@ class QueryController extends Controller
         $user = User::where('registry_id', $registry->id)->first();
         $payload['user'] = $user;
 
-        $linkedTraining = RegistryHasTraining::where('registry_id')->select('training_id')->get()->toArray();
-        $training = Training::whereIn('id', $linkedTraining);
+        $linkedTraining = RegistryHasTraining::where('registry_id', $registry->id)->select('training_id')->get()->toArray();
+        $training = Training::whereIn('id', $linkedTraining)->get();
         $payload['registry']['training'] = $training;
 
         $identity = Identity::where('registry_id', $registry->id)->first();
         $payload['user']['identity'] = $identity;
 
         $rhh = DB::table('registry_has_histories')->where('registry_id', '=', $registry->id)->get();
+        $historyResults = [];
         foreach ($rhh as $item) {
             $history = History::where('id', $item->history_id)->first()->toArray();
 
@@ -190,8 +200,24 @@ class QueryController extends Controller
             $project = Project::where('id', $history['project_id'])->first();
             $history['project'] = $project;
 
-            $payload['registry']['history'][] = $history;
+            $historyResults[] = $history;
         }
+        $payload['registry']['history'] = $historyResults;
+
+        $projectHasUserIds = ProjectHasUser::where('user_digital_ident', $registry->digi_ident)->pluck('id')->toArray();
+        $linkedChPUs = CustodianHasProjectUser::where(['custodian_id' => $custodian->id])->whereIn('project_has_user_id', $projectHasUserIds)
+            ->with(['projectHasUser.project' => function ($query) {
+                $query->select(['id', 'title']);
+            }])->get();
+        $projectResults = [];
+        foreach ($linkedChPUs as $chpu) {
+            $projectResults[] = [
+                'project_id' => $chpu->projectHasUser->project->id,
+                'project_title' => $chpu->projectHasUser->project->title,
+                'project_user_validation_status' => $chpu->modelState->state->name ?? null,
+            ];
+        }
+        $payload['projects'] = $projectResults;
 
         if ($registry) {
             return response()->json([
