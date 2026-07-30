@@ -175,14 +175,15 @@ class QueryController extends Controller
         $user = User::where('registry_id', $registry->id)->first();
         $payload['user'] = $user;
 
-        $linkedTraining = RegistryHasTraining::where('registry_id')->select('training_id')->get()->toArray();
-        $training = Training::whereIn('id', $linkedTraining);
+        $linkedTraining = RegistryHasTraining::where('registry_id', $registry->id)->select('training_id')->get()->toArray();
+        $training = Training::whereIn('id', $linkedTraining)->get();
         $payload['registry']['training'] = $training;
 
         $identity = Identity::where('registry_id', $registry->id)->first();
         $payload['user']['identity'] = $identity;
 
         $rhh = DB::table('registry_has_histories')->where('registry_id', '=', $registry->id)->get();
+        $historyResults = [];
         foreach ($rhh as $item) {
             $history = History::where('id', $item->history_id)->first()->toArray();
 
@@ -199,8 +200,10 @@ class QueryController extends Controller
             $project = Project::where('id', $history['project_id'])->first();
             $history['project'] = $project;
 
-            $payload['registry']['history'][] = $history;
+            $historyResults[] = $history;
         }
+        $payload['registry']['history'] = $historyResults;
+
         $projectHasUserIds = ProjectHasUser::where('user_digital_ident', $registry->digi_ident)->pluck('id')->toArray();
         $linkedChPUs = CustodianHasProjectUser::where(['custodian_id' => $custodian->id])->whereIn('project_has_user_id', $projectHasUserIds)
             ->with(['projectHasUser.project' => function ($query) {
