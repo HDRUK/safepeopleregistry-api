@@ -1,3 +1,15 @@
+## [1.34.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.33.0...v1.34.0) (2026-07-31)
+
+### ✨ Features
+
+* **REGISTRY-2843:** Remove Read Requests (#761) ([58f4527](https://github.com/HDRUK/safepeopleregistry-api/commit/58f4527725146bbe4bde890820432a09d681a7b2))
+
+### 🐛 Bug Fixes
+
+* **GAT-9140:** added condition to take cloud-db backup before the release (#764) ([98137bd](https://github.com/HDRUK/safepeopleregistry-api/commit/98137bd62d3cfa39ee8490aca4eea3bb46d30350)), closes [GAT-9140](undefinedGAT-9140)
+* **REGISTRY-000:** Update test user keycloak ID (#763) ([e961ac7](https://github.com/HDRUK/safepeopleregistry-api/commit/e961ac76ae53dddaa0fab95996f4b737e40e764e))
+* **REGISTRY-1006:** Organisations - add parent organisation (subsidiaries) (#765) ([6bec762](https://github.com/HDRUK/safepeopleregistry-api/commit/6bec7628fd4d3bf64731f9a1bec42a8d410de3b0))
+
 ## [1.33.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.32.1...v1.33.0) (2026-07-10)
 
 ### ✨ Features
