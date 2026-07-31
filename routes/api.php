@@ -41,7 +41,6 @@ use App\Http\Controllers\Api\V1\ProjectDetailController;
 use App\Http\Controllers\Api\V1\ValidationLogController;
 use App\Http\Controllers\Api\V1\ProjectHasUserController;
 use App\Http\Controllers\Api\V1\ValidationCheckController;
-use App\Http\Controllers\Api\V1\RegistryReadRequestController;
 use App\Http\Controllers\Api\V1\CustodianModelConfigController;
 use App\Http\Controllers\Api\V1\ValidationLogCommentController;
 use App\Http\Controllers\Api\V1\VendorWebhookReceiverController;
@@ -556,12 +555,6 @@ Route::middleware('auth:api')
         Route::get('{id}', 'show');
         Route::get('{id}/download', 'download');
     });
-
-
-// --- REQUEST ACCESS ---
-Route::middleware(['check.custodian.access', 'verify.signed.payload'])
-    ->post('v1/request_access', [RegistryReadRequestController::class, 'request']);
-Route::middleware('auth:api')->patch('v1/request_access/{id}', [RegistryReadRequestController::class, 'acceptOrReject']);
 
 // --- WEBHOOKS ---
 Route::middleware('auth:api')

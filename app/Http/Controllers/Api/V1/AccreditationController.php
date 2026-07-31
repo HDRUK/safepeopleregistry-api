@@ -26,7 +26,7 @@ class AccreditationController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/v1/registries/{registryId}/accreditations",
+     *     path="/api/v1/accreditations/{registryId}",
      *     tags={"Accreditation"},
      *     summary="Get accreditations by registry ID",
      *     @OA\Parameter(
@@ -75,7 +75,7 @@ class AccreditationController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/v1/registries/{registryId}/accreditations",
+     *     path="/api/v1/accreditations/{registryId}",
      *     tags={"Accreditation"},
      *     summary="Create accreditation for a registry",
      *     @OA\Parameter(

@@ -14,7 +14,6 @@ use App\Models\Registry;
 use App\Models\Training;
 use App\Models\User;
 use App\Models\RegistryHasTraining;
-use App\Models\RegistryReadRequest;
 use App\Models\Custodian;
 use DB;
 use Illuminate\Http\JsonResponse;
@@ -145,16 +144,6 @@ class QueryController extends Controller
         if (! $custodian) {
             return response()->json([
                 'message' => 'no known custodian matches the credentials provided',
-            ], Response::HTTP_UNAUTHORIZED);
-        }
-
-        $rrr = RegistryReadRequest::where('custodian_id', $custodian->id)
-            ->where('registry_id', Registry::where('digi_ident', $input['ident'])->first()->id)
-            ->where('status', RegistryReadRequest::READ_REQUEST_STATUS_APPROVED)
-            ->first();
-        if (!$rrr) {
-            return response()->json([
-                'message' => 'no user approved read request found',
             ], Response::HTTP_UNAUTHORIZED);
         }
 
