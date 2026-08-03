@@ -30,6 +30,7 @@ class CustodianUserController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/custodian_users",
+     *      operationId="custodianUsersIndex",
      *      summary="Return a list of Custodian Users",
      *      description="Return a list of Custodian Users",
      *      tags={"CustodianUsers"},
@@ -68,6 +69,7 @@ class CustodianUserController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/custodian_users/{id}",
+     *      operationId="custodianUserShow",
      *      summary="Return a CustodianUser entry by ID",
      *      description="Return a CustodianUser entry by ID",
      *      tags={"CustodianUser"},
@@ -143,6 +145,7 @@ class CustodianUserController extends Controller
     /**
      * @OA\Post(
      *      path="/api/v1/custodian_users",
+     *      operationId="custodianUserStore",
      *      summary="Create a CustodianUser entry",
      *      description="Create a CustodianUser entry",
      *      tags={"CustodianUser"},
@@ -236,6 +239,7 @@ class CustodianUserController extends Controller
     /**
      * @OA\Post(
      *      path="/api/v1/custodian_users/bulk",
+     *      operationId="custodianUserBulkStore",
      *      summary="Create multiple CustodianUser entries",
      *      description="Create multiple CustodianUser entries",
      *      tags={"CustodianUser"},
@@ -360,6 +364,7 @@ class CustodianUserController extends Controller
     /**
      * @OA\Put(
      *      path="/api/v1/custodian_users",
+     *      operationId="custodianUserUpdate",
      *      summary="Update a CustodianUser entry",
      *      description="Update a CustodianUser entry",
      *      tags={"CustodianUser"},
@@ -508,6 +513,7 @@ class CustodianUserController extends Controller
     /**
      * @OA\Delete(
      *      path="/api/v1/custodian_users/{id}",
+     *      operationId="custodianUserDestroy",
      *      summary="Delete a CustodianUser entry from the system by ID",
      *      description="Delete a CustodianUser entry from the system",
      *      tags={"CustodianUser"},

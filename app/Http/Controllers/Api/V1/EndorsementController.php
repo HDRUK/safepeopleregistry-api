@@ -17,6 +17,7 @@ class EndorsementController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/endorsements",
+     *      operationId="endorsementIndex",
      *      summary="Return a list of Endorsements",
      *      description="Return a list of Endorsements",
      *      tags={"Endorsement"},
@@ -27,14 +28,7 @@ class EndorsementController extends Controller
      *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="reported_by", type="integer", example="1"),
-     *                  @OA\Property(property="comment", type="string", example="Endorsement given"),
-     *                  @OA\Property(property="raised_against", type="integer", example="12")
-     *              )
+     *              @OA\Property(property="data", ref="#/components/schemas/Endorsement")
      *          ),
      *      ),
      *      @OA\Response(
@@ -59,6 +53,7 @@ class EndorsementController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/endorsements/{id}",
+     *      operationId="endorsementShow",
      *      summary="Return an Endorsement entry by ID",
      *      description="Return an Endorsement entry by ID",
      *      tags={"Endorsement"},
@@ -85,14 +80,7 @@ class EndorsementController extends Controller
      *          @OA\JsonContent(
      *
      *              @OA\Property(property="message", type="string"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="reported_by", type="integer", example="1"),
-     *                  @OA\Property(property="comment", type="string", example="Endorsement given"),
-     *                  @OA\Property(property="raised_against", type="integer", example="12")
-     *              )
+     *              @OA\Property(property="data", ref="#/components/schemas/Endorsement")
      *          ),
      *      ),
      *
@@ -123,6 +111,7 @@ class EndorsementController extends Controller
     /**
      * @OA\Post(
      *      path="/api/v1/endorsements",
+     *      operationId="endorsementsStore",
      *      summary="Create an Endorsements entry",
      *      description="Create an Endorsements entry",
      *      tags={"Endorsements"},
@@ -158,14 +147,7 @@ class EndorsementController extends Controller
      *          @OA\JsonContent(
      *
      *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="reported_by", type="integer", example="1"),
-     *                  @OA\Property(property="comment", type="string", example="Infringement detected"),
-     *                  @OA\Property(property="raised_against", type="integer", example="12"),
-     *              )
+     *              @OA\Property(property="data", type="integer", example=123, description="ID of the created Endorsement entry")
      *          ),
      *      ),
      *

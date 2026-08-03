@@ -24,6 +24,7 @@ class PermissionController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/permissions",
+     *      operationId="permissionIndex",
      *      summary="Return a list of Permissions",
      *      description="Return a list of Permissions",
      *      tags={"Permission"},
@@ -71,6 +72,7 @@ class PermissionController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/permissions/{id}",
+     *      operationId="permissionShow",
      *      summary="Return a Permission entry by ID",
      *      description="Return a Permission entry by ID",
      *      tags={"Permission"},
@@ -134,6 +136,7 @@ class PermissionController extends Controller
     /**
      * @OA\Post(
      *      path="/api/v1/permissions",
+     *      operationId="permissionStore",
      *      summary="Create a Permission entry",
      *      description="Create a Permission entry",
      *      tags={"Permission"},
@@ -196,6 +199,7 @@ class PermissionController extends Controller
     /**
      * @OA\Patch(
      *      path="/api/v1/permissions/{id}",
+     *      operationId="permissionUpdate",
      *      summary="Update a Permission entry",
      *      description="Update a Permission entry",
      *      tags={"Permission"},
@@ -287,6 +291,7 @@ class PermissionController extends Controller
     /**
      * @OA\Delete(
      *      path="/api/v1/permissions/{id}",
+     *      operationId="permissionDestroy",
      *      summary="Delete a Permission entry from the system by ID",
      *      description="Delete a Permission entry from the system",
      *      tags={"Permission"},

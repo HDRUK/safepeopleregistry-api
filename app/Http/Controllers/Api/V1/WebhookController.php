@@ -31,6 +31,7 @@ class WebhookController extends Controller
      *
      * @OA\Get(
      *     path="/api/v1/webhooks/receivers",
+     *     operationId="webhooksGetAllReceivers",
      *     tags={"Webhooks"},
      *     summary="Get all webhook receivers",
      *     description="Returns all webhook receivers with their associated event trigger details",
@@ -76,6 +77,7 @@ class WebhookController extends Controller
      *
      * @OA\Get(
      *     path="/api/v1/webhooks/receivers/{custodianId}",
+     *     operationId="webhooksGetReceiversByCustodian",
      *     tags={"Webhooks"},
      *     summary="Get webhook receivers by custodian",
      *     description="Returns all webhook receivers for a specific custodian with their associated event trigger details",
@@ -136,6 +138,7 @@ class WebhookController extends Controller
      *
      * @OA\Post(
      *     path="/api/v1/webhooks/receivers",
+     *     operationId="webhooksCreateReceiver",
      *     tags={"Webhooks"},
      *     summary="Create a new webhook receiver",
      *     description="Creates a new webhook receiver for a custodian",
@@ -196,6 +199,7 @@ class WebhookController extends Controller
      *
      * @OA\Put(
      *     path="/api/v1/webhooks/receivers/{custodianId}",
+     *     operationId="webhooksUpdateReceiver",
      *     tags={"Webhooks"},
      *     summary="Update a webhook receiver",
      *     description="Updates a specific webhook receiver for a custodian",
@@ -218,7 +222,7 @@ class WebhookController extends Controller
      *         description="Successful operation",
      *         @OA\JsonContent(
      *             @OA\Property(property="message", type="string", example="success"),
-     *             @OA\Property(property="data", type="null")
+     *             @OA\Property(property="data", type="string", nullable=true, example=null)
      *         )
      *     ),
      *     @OA\Response(
@@ -266,6 +270,7 @@ class WebhookController extends Controller
      *
      * @OA\Delete(
      *     path="/api/v1/webhooks/receivers/{custodianId}",
+     *     operationId="webhooksDeleteReceiver",
      *     tags={"Webhooks"},
      *     summary="Delete a webhook receiver",
      *     description="Deletes a specific webhook receiver for a custodian",
@@ -286,7 +291,7 @@ class WebhookController extends Controller
      *         description="Successful operation",
      *         @OA\JsonContent(
      *             @OA\Property(property="message", type="string", example="success"),
-     *             @OA\Property(property="data", type="null")
+     *             @OA\Property(property="data", type="string", nullable=true, example=null)
      *         )
      *     ),
      *     @OA\Response(
@@ -324,6 +329,7 @@ class WebhookController extends Controller
      *
      * @OA\Get(
      *     path="/api/v1/webhooks/event-triggers",
+     *     operationId="webhooksGetAllEventTriggers",
      *     tags={"Webhooks"},
      *     summary="Get all webhook event triggers",
      *     description="Returns all webhook event triggers",
@@ -369,6 +375,7 @@ class WebhookController extends Controller
      *
      * @OA\Get(
      *     path="/api/v1/webhooks/sendgrid",
+     *     operationId="webhooksSendgrid",
      *     tags={"Webhooks"},
      *     summary="Get sendgrid webhook event triggers",
      *     description="Returns sendgrid webhook event triggers",

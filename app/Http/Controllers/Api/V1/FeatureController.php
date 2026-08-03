@@ -21,6 +21,7 @@ class FeatureController extends Controller
     /**
      * @OA\Get(
      *    path="/api/v1/features",
+     *    operationId="featureIndex",
      *    summary="Return a list of Feature entries",
      *    description="Return a list of Feature entries",
      *    tags={"Feature"},
@@ -64,12 +65,20 @@ class FeatureController extends Controller
     /**
      * @OA\Get(
      *    path="/api/v1/features/{featureId}",
+     *    operationId="featureShow",
      *    summary="Return a Feature entry by its ID",
      *    description="Return a Feature entry by its ID",
      *    tags={"Feature"},
      *    summary="Feature@show",
      *    security={{"bearerAuth":{}}},
      *
+     *    @OA\Parameter(
+     *       name="featureId",
+     *       in="path",
+     *       required=true,
+     *       description="ID of the feature",
+     *       @OA\Schema(type="integer")
+     *    ),
      *    @OA\Response(
      *       response=200,
      *       description="Success",
@@ -120,12 +129,20 @@ class FeatureController extends Controller
     /**
      * @OA\Put(
      *    path="/api/v1/features/{featureId}/toggle",
+     *    operationId="featureToggleByFeatureId",
      *    summary="Toggle and return a Feature entry by its ID",
      *    description="Toggle and return a Feature entry by its ID",
      *    tags={"Feature"},
      *    summary="Feature@show",
      *    security={{"bearerAuth":{}}},
      *
+     *    @OA\Parameter(
+     *       name="featureId",
+     *       in="path",
+     *       required=true,
+     *       description="ID of the feature",
+     *       @OA\Schema(type="integer")
+     *    ),
      *    @OA\Response(
      *       response=200,
      *       description="Success",

@@ -23,6 +23,7 @@ class RegistryController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/registry",
+     *      operationId="registryIndex",
      *      summary="Return a list of Registry entries",
      *      description="Return a list of Registry entries",
      *      tags={"Registry"},
@@ -62,6 +63,7 @@ class RegistryController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/registry/{id}",
+     *      operationId="registryShow",
      *      summary="Return a Registry entry by ID",
      *      description="Return a Registry entry by ID",
      *      tags={"Registry"},
@@ -124,6 +126,7 @@ class RegistryController extends Controller
     /**
      * @OA\Post(
      *      path="/api/v1/registry",
+     *      operationId="registryStore",
      *      summary="Create a Registry entry",
      *      description="Create a Registry entry",
      *      tags={"Registry"},
@@ -132,7 +135,7 @@ class RegistryController extends Controller
      *      @OA\RequestBody(
      *          required=true,
      *          description="Registry definition",
-     *          ref="#/components/schemas/Registry"
+     *          @OA\JsonContent(ref="#/components/schemas/Registry")
      *      ),
      *      @OA\Response(
      *          response=404,
@@ -144,7 +147,10 @@ class RegistryController extends Controller
      *      @OA\Response(
      *          response=201,
      *          description="Success",
-     *          ref="#/components/schemas/Registry"
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="integer", example=1)
+     *          )
      *      ),
      *      @OA\Response(
      *          response=500,
@@ -175,6 +181,7 @@ class RegistryController extends Controller
     /**
      * @OA\Put(
      *      path="/api/v1/registry/{id}",
+     *      operationId="registryUpdate",
      *      summary="Update a Registry entry",
      *      description="Update a Registry entry",
      *      tags={"Registry"},
@@ -194,7 +201,7 @@ class RegistryController extends Controller
      *      @OA\RequestBody(
      *          required=true,
      *          description="Registry definition",
-     *          ref="#/components/schemas/Registry"
+     *          @OA\JsonContent(ref="#/components/schemas/Registry")
      *      ),
      *      @OA\Response(
      *          response=200,
@@ -249,6 +256,7 @@ class RegistryController extends Controller
     /**
      * @OA\Delete(
      *      path="/api/v1/registry/{id}",
+     *      operationId="registryDestroy",
      *      summary="Delete a Registry entry from the system by ID",
      *      description="Delete a Registry entry from the system",
      *      tags={"Registry"},

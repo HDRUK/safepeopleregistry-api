@@ -25,6 +25,7 @@ class ResolutionController extends Controller
     /**
      * @OA\Get(
      *     path="/api/v1/registries/{registryId}/resolutions",
+     *     operationId="resolutionIndexByRegistryId",
      *     tags={"Resolution"},
      *     summary="Get resolutions by registry ID",
      *     @OA\Parameter(
@@ -65,6 +66,7 @@ class ResolutionController extends Controller
     /**
      * @OA\Post(
      *     path="/api/v1/registries/{registryId}/resolutions",
+     *     operationId="resolutionStoreByRegistryId",
      *     tags={"Resolution"},
      *     summary="Create a new resolution for a registry",
      *     @OA\Parameter(

@@ -24,6 +24,7 @@ class VendorWebhookReceiverController extends Controller
     /**
      * @OA\Post(
      *     path="/api/v1/vendor-webhooks/{provider}",
+     *     operationId="vendorWebhookReceiverReceive",
      *     tags={"VendorWebhookReceiver"},
      *     summary="Receive a webhook callback from a vendor",
      *     @OA\Parameter(

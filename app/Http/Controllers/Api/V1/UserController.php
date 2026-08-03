@@ -53,6 +53,7 @@ class UserController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/users",
+     *      operationId="userIndex",
      *      summary="Return a list of Users",
      *      description="Return a list of Users",
      *      tags={"User"},
@@ -174,6 +175,7 @@ class UserController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/users/{id}",
+     *      operationId="userShow",
      *      summary="Return a User entry by ID",
      *      description="Return a User entry by ID",
      *      tags={"User"},
@@ -314,6 +316,7 @@ class UserController extends Controller
     /**
      * @OA\Post(
      *      path="/api/v1/users",
+     *      operationId="usersStore",
      *      summary="Create a User entry",
      *      description="Create a User entry",
      *      tags={"Users"},
@@ -455,6 +458,7 @@ class UserController extends Controller
     /**
      * @OA\Put(
      *      path="/api/v1/users/{id}",
+     *      operationId="userUpdate",
      *      summary="Edit a User entry",
      *      description="Edit a User entry",
      *      tags={"User"},
@@ -722,6 +726,7 @@ class UserController extends Controller
     /**
      * @OA\Delete(
      *      path="/api/v1/users/{id}",
+     *      operationId="userDestroy",
      *      summary="Delete a User entry from the system by ID",
      *      description="Delete a User entry from the system",
      *      tags={"User"},

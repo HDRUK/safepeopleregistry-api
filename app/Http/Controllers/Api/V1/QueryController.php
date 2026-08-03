@@ -27,6 +27,7 @@ class QueryController extends Controller
     /**
      * @OA\Post(
      *      path="/api/v1/query",
+     *      operationId="queryQuery",
      *      summary="Query the registry by Digital Identifier",
      *      description="Query the registry by Digital Identifier",
      *      tags={"Query"},
@@ -98,7 +99,7 @@ class QueryController extends Controller
      *                      @OA\Property(property="is_sro", type="boolean", example=false),
      *                      @OA\Property(property="invited_by", type="integer", nullable=true, example=null),
      *                      @OA\Property(property="status", type="string", example="registered"),
-     *                      @OA\Property(property="evaluation", nullable=true, example=null),
+     *                      @OA\Property(property="evaluation", type="string", nullable=true, example=null),
      *                      @OA\Property(property="identity", ref="#/components/schemas/Identity", nullable=true)
      *                  ),
      *                  @OA\Property(property="registry", type="object",

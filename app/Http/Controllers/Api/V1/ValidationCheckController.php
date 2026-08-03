@@ -24,6 +24,7 @@ class ValidationCheckController extends Controller
     /**
      * @OA\Get(
      *     path="/api/v1/validation_checks",
+     *     operationId="validationChecksIndex",
      *     summary="List all validation checks",
      *     description="Retrieve all validation checks.",
      *     tags={"Validation Checks"},
@@ -45,6 +46,7 @@ class ValidationCheckController extends Controller
     /**
      * @OA\Get(
      *     path="/api/v1/validation_checks/{id}",
+     *     operationId="validationChecksShow",
      *     summary="Get a single validation check",
      *     description="Retrieve a specific validation check by ID.",
      *     tags={"Validation Checks"},
@@ -91,6 +93,7 @@ class ValidationCheckController extends Controller
     /**
      * @OA\Post(
      *     path="/api/v1/validation_checks",
+     *     operationId="validationChecksStore",
      *     summary="Create a new validation check",
      *     description="Create a new validation check entry.",
      *     tags={"Validation Checks"},
@@ -125,6 +128,7 @@ class ValidationCheckController extends Controller
     /**
      * @OA\Put(
      *     path="/api/v1/validation_checks/{id}",
+     *     operationId="validationChecksUpdate",
      *     summary="Update a validation check",
      *     description="Edit an existing validation check.",
      *     tags={"Validation Checks"},
@@ -195,6 +199,7 @@ class ValidationCheckController extends Controller
     /**
      * @OA\Delete(
      *     path="/api/v1/validation_checks/{id}",
+     *     operationId="validationChecksDestroy",
      *     summary="Delete a validation check",
      *     description="Remove a validation check.",
      *     tags={"Validation Checks"},
@@ -243,6 +248,7 @@ class ValidationCheckController extends Controller
     /**
      * @OA\Get(
      *     path="/api/v1/custodians/{custodianId}/validation_checks",
+     *     operationId="custodiansGetCustodianValidationChecks",
      *     summary="Get validation checks assigned to a custodian",
      *     description="Returns the list of validation checks associated with a specific custodian.",
      *     tags={"Custodians"},
@@ -293,6 +299,7 @@ class ValidationCheckController extends Controller
     /**
      * @OA\Post(
      *     path="/api/v1/custodians/{custodianId}/validation_checks",
+     *     operationId="custodiansCreateCustodianValidationChecks",
      *     summary="Assign a validation check to a custodian",
      *     description="Creates a new validation check and assigns it to a specific custodian via the custodian_has_validation_check pivot table.",
      *     tags={"Custodians"},

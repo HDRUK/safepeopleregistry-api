@@ -25,6 +25,7 @@ class EducationController extends Controller
     /**
      * @OA\Get(
      *     path="/api/v1/educations/registries/{registryId}",
+     *     operationId="educationIndexByRegistryId",
      *     tags={"Education"},
      *     summary="Get education records by registry ID",
      *     @OA\Parameter(
@@ -64,6 +65,7 @@ class EducationController extends Controller
     /**
      * @OA\Get(
      *     path="/api/v1/educations/{id}/registries/{registryId}",
+     *     operationId="educationShowByRegistryId",
      *     tags={"Education"},
      *     summary="Get a specific education record by ID and registry ID",
      *     @OA\Parameter(
@@ -122,6 +124,7 @@ class EducationController extends Controller
     /**
      * @OA\Post(
      *     path="/api/v1/registries/{registryId}/educations",
+     *     operationId="educationStoreByRegistryId",
      *     tags={"Education"},
      *     summary="Create a new education record for a registry",
      *     @OA\Parameter(
@@ -190,6 +193,7 @@ class EducationController extends Controller
     /**
      * @OA\Put(
      *     path="/api/v1/registries/{registryId}/educations/{id}",
+     *     operationId="educationUpdateByRegistryId",
      *     tags={"Education"},
      *     summary="Update an existing education record",
      *     @OA\Parameter(
@@ -263,6 +267,7 @@ class EducationController extends Controller
     /**
      * @OA\Delete(
      *     path="/api/v1/registries/{registryId}/educations/{id}",
+     *     operationId="educationDestroyByRegistryId",
      *     tags={"Education"},
      *     summary="Delete an education record",
      *     @OA\Parameter(
@@ -285,7 +290,7 @@ class EducationController extends Controller
      *         @OA\JsonContent(
      *             type="object",
      *             @OA\Property(property="message", type="string", example="success"),
-     *             @OA\Property(property="data", type="null", example=null)
+     *             @OA\Property(property="data", type="string", nullable=true, example=null)
      *         )
      *     ),
      *     @OA\Response(
