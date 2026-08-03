@@ -41,13 +41,14 @@ class AffiliationController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/affiliations/{registryId}",
+     *      operationId="affiliationsIndexByRegistryId",
      *      summary="Return a list of affiliations by registry id",
      *      description="Return a list of affiliations by registry id",
      *      tags={"Affiliations"},
      *      summary="Affiliations@show",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
-     *         name="id",
+     *         name="registryId",
      *         in="path",
      *         description="Affiliations registry id",
      *         required=true,
@@ -122,7 +123,7 @@ class AffiliationController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/affiliations/{registryId}/organisation/{organisationId}",
-     *      operationId="getOrganisationAffiliation",
+     *      operationId="affiliationsGetOrganisationAffiliation",
      *      summary="Return a specific organisation's affiliation by registry ID and organisation ID",
      *      description="Get a specific organisation's affiliation for a given registry",
      *      tags={"Affiliations"},
@@ -219,13 +220,14 @@ class AffiliationController extends Controller
     /**
      * @OA\Post(
      *      path="/api/v1/affiliations/{registryId}",
+     *      operationId="affiliationsStoreByRegistryId",
      *      summary="Create an Affiliation entry",
      *      description="Create an Affiliation entry",
      *      tags={"Affiliations"},
      *      summary="Affiliations@store",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
-     *         name="registry_id",
+     *         name="registryId",
      *         in="path",
      *         description="Registry entry ID",
      *         required=true,
@@ -388,6 +390,7 @@ class AffiliationController extends Controller
     /**
      * @OA\Put(
      *      path="/api/v1/affiliations/{id}",
+     *      operationId="affiliationsUpdate",
      *      summary="Update an Affiliation entry",
      *      description="Update an Affiliation entry",
      *      tags={"Affiliations"},
@@ -523,13 +526,14 @@ class AffiliationController extends Controller
     /**
      * @OA\Put(
      *      path="/api/v1/affiliations/verify_email/{verificationCode}",
+     *      operationId="affiliationsVerifyEmail",
      *      summary="Update an Affiliation entry",
      *      description="Update an Affiliation entry with verification",
      *      tags={"Affiliations"},
      *      summary="Affiliations@verifyEmail",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
-     *         name="verification_code",
+     *         name="verificationCode",
      *         in="path",
      *         description="Email verification code",
      *         required=true,
@@ -631,6 +635,7 @@ class AffiliationController extends Controller
     /**
      * @OA\Delete(
      *      path="/api/v1/training/{id}",
+     *      operationId="affiliationDestroy",
      *      summary="Delete a affiliation entry from the system by ID",
      *      description="Delete a affiliation entry from the system",
      *      tags={"Affiliation"},

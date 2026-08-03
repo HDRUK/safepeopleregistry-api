@@ -33,18 +33,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *      ),
  *      @OA\Property(property="datasets",
  *          type="array",
- *          example="[
- *              'https://url.to.dataset/1',
- *              'https://url.to.dataset/2'
- *          ]",
- *          @OA\Items()
+ *          @OA\Items(type="string", example="https://url.to.dataset/1")
  *      ),
  *      @OA\Property(property="other_approval_committees",
  *          type="array",
- *          example="[
- *              'Name and description of approval committee'
- *          ]",
- *          @OA\Items()
+ *          @OA\Items(type="string", example="Name and description of approval committee")
  *      ),
  *      @OA\Property(property="data_sensitivity_level",
  *          type="string",

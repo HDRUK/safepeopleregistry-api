@@ -18,6 +18,7 @@ class ValidationLogCommentController extends Controller
     /**
      * @OA\Get(
      *     path="/api/v1/validation_log_comments/{id}",
+     *     operationId="validationLogCommentsShow",
      *     summary="Get a single validation log comment",
      *     description="Retrieve a specific validation log comment by ID.",
      *     tags={"Validation Log Comments"},
@@ -66,6 +67,7 @@ class ValidationLogCommentController extends Controller
     /**
      * @OA\Post(
      *     path="/api/v1/validation_log_comments",
+     *     operationId="validationLogCommentsStore",
      *     summary="Create a new validation log comment",
      *     description="Add a new comment to a validation log.",
      *     tags={"Validation Log Comments"},
@@ -108,6 +110,7 @@ class ValidationLogCommentController extends Controller
     /**
      * @OA\Put(
      *     path="/api/v1/validation_log_comments/{id}",
+     *     operationId="validationLogCommentsUpdate",
      *     summary="Update a validation log comment",
      *     description="Edit an existing validation log comment.",
      *     tags={"Validation Log Comments"},
@@ -168,6 +171,7 @@ class ValidationLogCommentController extends Controller
     /**
      * @OA\Delete(
      *     path="/api/v1/validation_log_comments/{id}",
+     *     operationId="validationLogCommentsDestroy",
      *     summary="Delete a validation log comment",
      *     description="Remove a comment from the validation logs.",
      *     tags={"Validation Log Comments"},

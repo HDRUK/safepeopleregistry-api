@@ -18,6 +18,7 @@ class NotificationController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/users/{id}/notifications",
+     *      operationId="notificationsGetUserNotifications",
      *      summary="Get notifications for a specific user",
      *      description="Retrieves notifications for a user, with an optional filter for read/unread notifications.",
      *      tags={"Notifications"},
@@ -110,6 +111,7 @@ class NotificationController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/users/{id}/notifications/count",
+     *      operationId="notificationsGetNotificationCounts",
      *      summary="Get notification counts for a specific user",
      *      description="Retrieve the total, read, and unread notification counts for a given user.",
      *      tags={"Notifications"},
@@ -172,6 +174,7 @@ class NotificationController extends Controller
     /**
      * @OA\Patch(
      *      path="/api/v1/users/{id}/notifications/read",
+     *      operationId="notificationsMarkUserNotificationsAsRead",
      *      summary="Mark all notifications as read for a specific user",
      *      tags={"Notifications"},
      *      security={{"bearerAuth":{}}},
@@ -217,6 +220,7 @@ class NotificationController extends Controller
     /**
      * @OA\Patch(
      *      path="/api/v1/users/{id}/notifications/{notificationId}/read",
+     *      operationId="notificationsMarkUserNotificationAsRead",
      *      summary="Mark a specific notification as read",
      *      tags={"Notifications"},
      *      security={{"bearerAuth":{}}},
@@ -274,6 +278,7 @@ class NotificationController extends Controller
     /**
      * @OA\Patch(
      *      path="/api/v1/users/{id}/notifications/{notificationId}/unread",
+     *      operationId="notificationsMarkUserNotificationAsUnread",
      *      summary="Mark a specific notification as unread",
      *      tags={"Notifications"},
      *      security={{"bearerAuth":{}}},

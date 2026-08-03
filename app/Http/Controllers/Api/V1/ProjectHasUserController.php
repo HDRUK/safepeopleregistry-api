@@ -18,7 +18,7 @@ class ProjectHasUserController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/project_users/{id}",
-     *      operationId="showProjectUser",
+     *      operationId="projectUserShow",
      *      tags={"Project User"},
      *      summary="Get project user details",
      *      description="Returns details for a specific project user",
@@ -90,6 +90,7 @@ class ProjectHasUserController extends Controller
     /**
      * @OA\Delete(
      *      path="/api/v1/project_users/{id}",
+     *      operationId="projectsDelete",
      *      summary="Delete a user from a project",
      *      description="Delete a user from a project",
      *      tags={"Projects"},

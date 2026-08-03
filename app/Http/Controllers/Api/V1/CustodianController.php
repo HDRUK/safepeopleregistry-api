@@ -56,6 +56,7 @@ class CustodianController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/custodians",
+     *      operationId="custodianIndex",
      *      summary="Return a list of Custodians",
      *      description="Return a list of Custodians",
      *      tags={"Custodian"},
@@ -98,6 +99,7 @@ class CustodianController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/custodians/{id}",
+     *      operationId="custodianShow",
      *      summary="Return an Custodian entry by ID",
      *      description="Return an Custodian entry by ID",
      *      tags={"Custodian"},
@@ -163,6 +165,7 @@ class CustodianController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/custodians/identifier/{id}",
+     *      operationId="custodianShowByUniqueIdentifier",
      *      summary="Return a Custodian entry by Unique Identifier",
      *      description="Return an Custodian entry by Unique Identifier",
      *      tags={"Custodian"},
@@ -224,6 +227,7 @@ class CustodianController extends Controller
     /**
      * @OA\Post(
      *      path="/api/v1/custodians",
+     *      operationId="custodianStore",
      *      summary="Create a Custodian entry",
      *      description="Create a Custodian entry",
      *      tags={"Custodian"},
@@ -313,6 +317,7 @@ class CustodianController extends Controller
     /**
      * @OA\Put(
      *      path="/api/v1/custodians/{id}",
+     *      operationId="custodianUpdate",
      *      summary="Edit a Custodian entry",
      *      description="Edit a Custodian entry",
      *      tags={"Custodian"},
@@ -402,6 +407,7 @@ class CustodianController extends Controller
     /**
      * @OA\Delete(
      *      path="/api/v1/custodians/{id}",
+     *      operationId="custodianDestroy",
      *      summary="Delete a Custodian entry from the system by ID",
      *      description="Delete a Custodian entry from the system",
      *      tags={"Custodian"},
@@ -557,9 +563,10 @@ class CustodianController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/custodian/{custodianId}/projects",
+     *      operationId="custodianGetProjects",
      *      summary="Return all projects associated with a custodian",
      *      description="Fetch a list of projects along with pagination details for a specified custodian.",
-     *      tags={"custodian"},
+     *      tags={"Custodian"},
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *          name="custodianId",
@@ -642,11 +649,19 @@ class CustodianController extends Controller
     /**
      * @OA\Post(
      *      path="/api/v1/custodians/{custodianId}/projects",
+     *      operationId="custodianAddProject",
      *      summary="Create a project for a custodian",
      *      description="Create a project for a custodian",
      *      tags={"Custodian"},
      *      summary="Custodian@addProject",
      *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *          name="custodianId",
+     *          in="path",
+     *          required=true,
+     *          description="ID of the custodian",
+     *          @OA\Schema(type="integer")
+     *      ),
      *      @OA\RequestBody(
      *          required=true,
      *          description="Project definition",
@@ -703,9 +718,10 @@ class CustodianController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/custodian/{custodianId}/users/{userId}/projects",
+     *      operationId="custodianGetUserProjects",
      *      summary="Return all custodian projects associated with a user",
      *      description="Fetch a list of custodians projects associated with a user, along with pagination details.",
-     *      tags={"custodian"},
+     *      tags={"Custodian"},
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *          name="custodianId",
@@ -803,9 +819,10 @@ class CustodianController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/custodian/{custodianId}/organisations",
+     *      operationId="custodianGetOrganisations",
      *      summary="Return all custodian organisations with projects",
      *      description="Fetch a list of custodians organisations with projects, along with pagination details.",
-     *      tags={"custodian"},
+     *      tags={"Custodian"},
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *          name="custodianId",
@@ -873,9 +890,10 @@ class CustodianController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/custodians/{custodianId}/projects_users",
+     *      operationId="custodianGetProjectsUsers",
      *      summary="Get all users associated with custodian's projects",
      *      description="Returns paginated users for all projects under a specific custodian.",
-     *      tags={"custodian"},
+     *      tags={"Custodian"},
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *          name="custodianId",
@@ -1037,6 +1055,7 @@ class CustodianController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/custodians/{id}/rules",
+     *      operationId="custodiansGetRules",
      *      summary="Get rules for a specific custodian",
      *      description="Fetches the list of rules associated with the given custodian ID.",
      *      tags={"Custodians"},
@@ -1099,6 +1118,7 @@ class CustodianController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/custodians/{custodianId}/custodian_users",
+     *      operationId="custodiansGetCustodianUsers",
      *      summary="Get list of people for a custodian",
      *      description="Fetches the list of custodian users based on the custodian id.",
      *      tags={"Custodians"},
@@ -1163,6 +1183,7 @@ class CustodianController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/custodians/{custodianId}/organisations/{organisationId}/users",
+     *      operationId="custodiansGetOrganisationUsers",
      *      summary="Get list of people for organisation",
      *      description="Fetches the list of users associated with the given custodian and organisations IDs.",
      *      tags={"Custodians"},
@@ -1349,6 +1370,7 @@ class CustodianController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/custodians/{custodianId}/projectUsers/{projectUserId}/statuses",
+     *      operationId="custodiansGetStatusesUsers",
      *      summary="Get statuses for a user in a project/organisation/custodian",
      *      description="Fetches the user statuses given custodian and organisations and project and user IDs.",
      *      tags={"Custodians"},

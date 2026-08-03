@@ -20,6 +20,7 @@ class IdentityController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/identities",
+     *      operationId="identityIndex",
      *      summary="Return a list of Identity entries",
      *      description="Return a list of Identity entries",
      *      tags={"Identity"},
@@ -60,6 +61,7 @@ class IdentityController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/identities/{id}",
+     *      operationId="identityShow",
      *      summary="Return an Identity entry by ID",
      *      description="Return an Identity entry by ID",
      *      tags={"Identity"},
@@ -121,6 +123,7 @@ class IdentityController extends Controller
     /**
      * @OA\Post(
      *      path="/api/v1/identities",
+     *      operationId="identityStore",
      *      summary="Create an Identity entry",
      *      description="Create a Identity entry",
      *      tags={"Identity"},
@@ -192,11 +195,23 @@ class IdentityController extends Controller
     /**
      * @OA\Put(
      *      path="/api/v1/identities/{id}",
+     *      operationId="identityUpdate",
      *      summary="Update an Identity entry",
      *      description="Update a Identity entry",
      *      tags={"Identity"},
      *      summary="Identity@update",
      *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Identity entry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Identity entry ID",
+     *         ),
+     *      ),
      *      @OA\RequestBody(
      *          required=true,
      *          description="Identity definition",
@@ -268,6 +283,7 @@ class IdentityController extends Controller
     /**
      * @OA\Delete(
      *      path="/api/v1/identities/{id}",
+     *      operationId="identityDestroy",
      *      summary="Delete an Identity entry from the system by ID",
      *      description="Delete an Identity entry from the system",
      *      tags={"Identity"},

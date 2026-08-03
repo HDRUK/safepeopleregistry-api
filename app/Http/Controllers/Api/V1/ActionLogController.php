@@ -19,6 +19,7 @@ class ActionLogController extends Controller
     /**
      * @OA\Get(
      *     path="/api/v1/{entity}/{id}/action_log",
+     *     operationId="actionLogsGetEntityActionLog",
      *     summary="Get Action Logs for an Entity",
      *     description="Retrieve action logs for a given entity type (users, organisations) by ID.",
      *     tags={"Action Logs"},
@@ -101,10 +102,20 @@ class ActionLogController extends Controller
     /**
      * @OA\Put(
      *     path="/api/v1/action_logs/{id}",
+     *     operationId="actionLogsUpdate",
      *     summary="Update an Action Log",
      *     description="Update an action log entry, including marking it as complete or incomplete.",
      *     tags={"Action Logs"},
      *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID of the action log",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer"
+     *         )
+     *     ),
      *     @OA\Parameter(
      *         name="complete",
      *         in="query",

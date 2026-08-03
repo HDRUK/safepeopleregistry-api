@@ -23,6 +23,7 @@ class ProjectHasOrganisationController extends Controller
     /**
      * @OA\Get(
      *     path="/api/v1/project-organisations/{projectOrganisationId}",
+     *     operationId="projectHasOrganisationShow",
      *     tags={"ProjectHasOrganisation"},
      *     summary="Get details of a project-organisation relationship",
      *     @OA\Parameter(
