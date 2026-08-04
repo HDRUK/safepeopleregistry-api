@@ -24,8 +24,9 @@ class EducationController extends Controller
 {
     /**
      * @OA\Get(
-     *     path="/api/v1/educations/registries/{registryId}",
+     *     path="/api/v1/educations/{registryId}",
      *     operationId="educationIndexByRegistryId",
+     *     x={"internal"="true"},
      *     tags={"Education"},
      *     summary="Get education records by registry ID",
      *     @OA\Parameter(
@@ -64,8 +65,9 @@ class EducationController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/v1/educations/{id}/registries/{registryId}",
+     *     path="/api/v1/educations/{id}/{registryId}",
      *     operationId="educationShowByRegistryId",
+     *     x={"internal"="true"},
      *     tags={"Education"},
      *     summary="Get a specific education record by ID and registry ID",
      *     @OA\Parameter(
@@ -123,8 +125,9 @@ class EducationController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/v1/registries/{registryId}/educations",
+     *     path="/api/v1/educations/{registryId}",
      *     operationId="educationStoreByRegistryId",
+     *     x={"internal"="true"},
      *     tags={"Education"},
      *     summary="Create a new education record for a registry",
      *     @OA\Parameter(
@@ -192,8 +195,9 @@ class EducationController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/v1/registries/{registryId}/educations/{id}",
+     *     path="/api/v1/educations/{id}/{registryId}",
      *     operationId="educationUpdateByRegistryId",
+     *     x={"internal"="true"},
      *     tags={"Education"},
      *     summary="Update an existing education record",
      *     @OA\Parameter(
@@ -266,8 +270,9 @@ class EducationController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/v1/registries/{registryId}/educations/{id}",
+     *     path="/api/v1/educations/{id}/{registryId}",
      *     operationId="educationDestroyByRegistryId",
+     *     x={"internal"="true"},
      *     tags={"Education"},
      *     summary="Delete an education record",
      *     @OA\Parameter(

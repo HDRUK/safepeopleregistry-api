@@ -30,6 +30,7 @@ class CustodianModelConfigController extends Controller
      * @OA\Get(
      *      path="/api/v1/custodian_config/{id}",
      *      operationId="custodianModelConfigGetByCustodianID",
+     *      x={"internal"="true"},
      *      summary="Return a list of Custodian config",
      *      description="Return a list of Custodian config",
      *      tags={"CustodianModelConfig"},
@@ -86,6 +87,7 @@ class CustodianModelConfigController extends Controller
      * @OA\Post(
      *      path="/api/v1/custodian_config",
      *      operationId="custodianModelConfigStore",
+     *      x={"internal"="true"},
      *      summary="Create a CustodianModelConfig entry",
      *      description="Create a CustodianModelConfig entry",
      *      tags={"CustodianModelConfig"},
@@ -152,6 +154,7 @@ class CustodianModelConfigController extends Controller
      * @OA\Put(
      *      path="/api/v1/custodian_config/{id}",
      *      operationId="custodianModelConfigUpdate",
+     *      x={"internal"="true"},
      *      summary="Update an CustodianModelConfig entry",
      *      description="Update an CustodianModelConfig entry",
      *      tags={"CustodianModelConfig"},
@@ -226,6 +229,7 @@ class CustodianModelConfigController extends Controller
      * @OA\Delete(
      *      path="/api/v1/custodian_config/{id}",
      *      operationId="custodianModelConfigDestroy",
+     *      x={"internal"="true"},
      *      summary="Delete a CustodianModelConfig entry from the system by ID",
      *      description="Delete a CustodianModelConfig entry from the system",
      *      tags={"CustodianModelConfig"},
@@ -289,6 +293,7 @@ class CustodianModelConfigController extends Controller
      * @OA\Get(
      *      path="/api/v1/custodian_config/{custodianId}/entity_models",
      *      operationId="custodianModelConfigGetEntityModels",
+     *      x={"internal"="true"},
      *      summary="Get entity models for custodian config",
      *      description="Retrieve entity models associated with custodian config based on the specified entity_model_type",
      *      tags={"CustodianModelConfig"},
@@ -384,6 +389,7 @@ class CustodianModelConfigController extends Controller
      * @OA\Put(
      *      path="/api/v1/custodian_config/{custodianId}/entity_models",
      *      operationId="custodianModelConfigUpdateEntityModels",
+     *      x={"internal"="true"},
      *      summary="Update a custodian's entity models",
      *      description="Update the active status of specified custodian model configs for a given custodian",
      *      tags={"CustodianModelConfig"},

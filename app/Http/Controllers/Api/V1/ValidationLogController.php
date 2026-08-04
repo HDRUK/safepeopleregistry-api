@@ -31,6 +31,7 @@ class ValidationLogController extends Controller
      * @OA\Get(
      *     path="/api/v1/custodians/{custodianId}/projects/{projectId}/registries/{registryId}/validation_logs",
      *     operationId="validationLogsGetCustodianProjectUserValidationLogs",
+     *     x={"internal"="true"},
      *     summary="Get Validation Logs for Custodian, Project, and Registry",
      *     description="Retrieve validation logs associated with a given custodian, project, and registry.",
      *     tags={"Validation Logs"},
@@ -127,8 +128,9 @@ class ValidationLogController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/v1/custodians/{custodianId}/organisation/{organisationId}/validation_logs",
+     *     path="/api/v1/custodians/{custodianId}/organisations/{organisationId}/validation_logs",
      *     operationId="validationLogsGetCustodianOrganisationValidationLogs",
+     *     x={"internal"="true"},
      *     summary="Get Validation Logs for Custodian and Organisation",
      *     description="Retrieve validation logs associated with a given custodian and organisation.",
      *     tags={"Validation Logs"},
@@ -209,8 +211,9 @@ class ValidationLogController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/v1/custodians/{custodianId}/validation_Logs",
+     *     path="/api/v1/custodians/{custodianId}/validation_logs",
      *     operationId="validationLogsUpdateCustodianValidationLogs",
+     *     x={"internal"="true"},
      *     summary="Enable or Disable All Validation Logs for a Custodian Across Projects/Registries",
      *     description="Bulk update the enabled flag for all validation logs tied to a custodian and any project/registry.",
      *     tags={"Validation Logs"},
@@ -268,6 +271,7 @@ class ValidationLogController extends Controller
      * @OA\Get(
      *     path="/api/v1/validation_logs/{id}",
      *     operationId="validationLogWithCommentsIndex",
+     *     x={"internal"="true"},
      *     summary="Get  a Validation Log",
      *     description="Retrieve a specific entry for a validation log .",
      *     tags={"Validation Log with comments"},
@@ -311,6 +315,7 @@ class ValidationLogController extends Controller
      * @OA\Get(
      *     path="/api/v1/validation_logs/{id}/comments",
      *     operationId="validationLogCommentsComments",
+     *     x={"internal"="true"},
      *     summary="Get all comments for a Validation Log",
      *     description="Retrieve all comments associated with a specific validation log entry.",
      *     tags={"Validation Log Comments"},
@@ -351,6 +356,7 @@ class ValidationLogController extends Controller
      * @OA\Put(
      *     path="/api/v1/validation_logs/{id}",
      *     operationId="validationLogsUpdate",
+     *     x={"internal"="true"},
      *     summary="Update a Validation Log",
      *     description="Update a validation log entry, including marking it as complete, incomplete, passed, or failed.",
      *     tags={"Validation Logs"},

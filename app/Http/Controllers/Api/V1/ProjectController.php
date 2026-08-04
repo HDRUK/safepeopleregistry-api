@@ -59,6 +59,7 @@ class ProjectController extends Controller
      * @OA\Get(
      *      path="/api/v1/projects",
      *      operationId="projectIndex",
+     *      x={"internal"="true"},
      *      summary="Return a list of Projects",
      *      description="Return a list of Projects",
      *      tags={"Project"},
@@ -106,6 +107,7 @@ class ProjectController extends Controller
      * @OA\Get(
      *      path="/api/v1/projects/{id}",
      *      operationId="projectShow",
+     *      x={"internal"="true"},
      *      summary="Return a Project entry by ID",
      *      description="Return a Project entry by ID",
      *      tags={"Project"},
@@ -190,6 +192,7 @@ class ProjectController extends Controller
      * @OA\Get(
      *      path="/api/v1/projects/{projectId}/users/{userId}",
      *      operationId="projectGetProjectByIdAndUserId",
+     *      x={"internal"="true"},
      *      summary="Get project details by projectID and userID",
      *      description="Fetches project given user and project IDs.",
      *      tags={"Project"},
@@ -278,6 +281,7 @@ class ProjectController extends Controller
      * @OA\Get(
      *      path="/api/v1/projects/{projectId}/organisations/{organisationId}",
      *      operationId="projectGetProjectByIdAndOrganisationId",
+     *      x={"internal"="true"},
      *      summary="Get project details by projectID and organisationID",
      *      description="Fetches project given organisation and project IDs.",
      *      tags={"Project"},
@@ -350,6 +354,7 @@ class ProjectController extends Controller
      * @OA\Get(
      *      path="/api/v1/projects/{id}/users",
      *      operationId="projectGetProjectUsers",
+     *      x={"internal"="true"},
      *      summary="Return project users by project ID",
      *      description="Return project users by project ID",
      *      tags={"Project"},
@@ -484,6 +489,7 @@ class ProjectController extends Controller
      * @OA\Get(
      *      path="/api/v1/projects/{projectId}/organisations/{organisationId}/users",
      *      operationId="projectGetProjectUsersByOrganisationId",
+     *      x={"internal"="true"},
      *      summary="Get all users by projectID and organisationID",
      *      description="Fetches users given organisation and project IDs.",
      *      tags={"Project"},
@@ -570,6 +576,7 @@ class ProjectController extends Controller
      * @OA\Get(
      *      path="/api/v1/projects/{projectId}/all_users/{userId}",
      *      operationId="projectGetAllUsersFlagProjectByUserId",
+     *      x={"internal"="true"},
      *      summary="Get all users by projectID and userID",
      *      description="Fetches users for a project.",
      *      tags={"Project"},
@@ -727,6 +734,7 @@ class ProjectController extends Controller
      * @OA\Post(
      *      path="/api/v1/projects",
      *      operationId="projectStore",
+     *      x={"internal"="true"},
      *      summary="Create a Project entry",
      *      description="Create a Project entry",
      *      tags={"Project"},
@@ -790,6 +798,7 @@ class ProjectController extends Controller
      * @OA\Put(
      *      path="/api/v1/projects/{id}",
      *      operationId="projectUpdate",
+     *      x={"internal"="true"},
      *      summary="Update a Project entry",
      *      description="Update a Project entry",
      *      tags={"Project"},
@@ -1025,6 +1034,7 @@ class ProjectController extends Controller
      * @OA\Put(
      *      path="/api/v1/projects/{id}/users/{registryId}/primary_contact",
      *      operationId="projectMakePrimaryContact",
+     *      x={"internal"="true"},
      *      summary="Make user a primary contact",
      *      description="Make user a primary contact",
      *      tags={"Project"},
@@ -1157,6 +1167,7 @@ class ProjectController extends Controller
      * @OA\Put(
      *    path="/api/v1/projects/{id}/all_users",
      *    operationId="projectUpdateAllProjectUsers",
+     *    x={"internal"="true"},
      *    summary="Update project with all users",
      *    description="Update all users associated with a project",
      *    tags={"Project"},
@@ -1319,6 +1330,7 @@ class ProjectController extends Controller
      * @OA\Delete(
      *      path="/api/v1/projects/{id}",
      *      operationId="projectDestroy",
+     *      x={"internal"="true"},
      *      summary="Delete a Project entry from the system by ID",
      *      description="Delete a Project entry from the system",
      *      tags={"Project"},
@@ -1383,6 +1395,7 @@ class ProjectController extends Controller
      * @OA\Get(
      *      path="/api/v1/projects/user/{registryId}/validated",
      *      operationId="projectsGetValidatedProjects",
+     *      x={"internal"="true"},
      *      summary="Return (approved) projects for a registry (user)",
      *      description="Return (approved) projects for a registry (user)",
      *      tags={"Projects"},

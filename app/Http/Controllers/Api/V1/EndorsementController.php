@@ -18,6 +18,7 @@ class EndorsementController extends Controller
      * @OA\Get(
      *      path="/api/v1/endorsements",
      *      operationId="endorsementIndex",
+     *      x={"internal"="true"},
      *      summary="Return a list of Endorsements",
      *      description="Return a list of Endorsements",
      *      tags={"Endorsement"},
@@ -54,6 +55,7 @@ class EndorsementController extends Controller
      * @OA\Get(
      *      path="/api/v1/endorsements/{id}",
      *      operationId="endorsementShow",
+     *      x={"internal"="true"},
      *      summary="Return an Endorsement entry by ID",
      *      description="Return an Endorsement entry by ID",
      *      tags={"Endorsement"},
@@ -112,6 +114,7 @@ class EndorsementController extends Controller
      * @OA\Post(
      *      path="/api/v1/endorsements",
      *      operationId="endorsementsStore",
+     *      x={"internal"="true"},
      *      summary="Create an Endorsements entry",
      *      description="Create an Endorsements entry",
      *      tags={"Endorsements"},

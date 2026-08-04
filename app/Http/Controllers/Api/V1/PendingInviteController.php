@@ -22,6 +22,7 @@ class PendingInviteController extends Controller
      * @OA\Get(
      *      path="/api/v1/pending_invites",
      *      operationId="pendingInvitesIndex",
+     *      x={"internal"="true"},
      *      summary="Return a list of pending invites",
      *      description="Return a list of pending invites",
      *      tags={"pending invites"},

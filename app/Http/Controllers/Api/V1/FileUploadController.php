@@ -34,6 +34,7 @@ class FileUploadController extends Controller
      * @OA\Get(
      *      path="/api/v1/files/{id}",
      *      operationId="filesShow",
+     *      x={"internal"="true"},
      *      summary="Gets an uploaded file",
      *      description="Gets an uploaded file",
      *      tags={"Files"},
@@ -101,6 +102,7 @@ class FileUploadController extends Controller
      * @OA\Get(
      *      path="/api/v1/files/{id}/download",
      *      operationId="filesDownload",
+     *      x={"internal"="true"},
      *      summary="Download an uploaded file",
      *      description="Downloads the specified file",
      *      tags={"Files"},
@@ -183,6 +185,7 @@ class FileUploadController extends Controller
      * @OA\Post(
      *      path="/api/v1/files",
      *      operationId="filesStore",
+     *      x={"internal"="true"},
      *      summary="Upload a file to the registry",
      *      description="Uploads a file to the registry",
      *      tags={"Files"},

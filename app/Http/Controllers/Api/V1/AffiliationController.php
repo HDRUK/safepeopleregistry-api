@@ -42,6 +42,7 @@ class AffiliationController extends Controller
      * @OA\Get(
      *      path="/api/v1/affiliations/{registryId}",
      *      operationId="affiliationsIndexByRegistryId",
+     *      x={"internal"="true"},
      *      summary="Return a list of affiliations by registry id",
      *      description="Return a list of affiliations by registry id",
      *      tags={"Affiliations"},
@@ -124,6 +125,7 @@ class AffiliationController extends Controller
      * @OA\Get(
      *      path="/api/v1/affiliations/{registryId}/organisation/{organisationId}",
      *      operationId="affiliationsGetOrganisationAffiliation",
+     *      x={"internal"="true"},
      *      summary="Return a specific organisation's affiliation by registry ID and organisation ID",
      *      description="Get a specific organisation's affiliation for a given registry",
      *      tags={"Affiliations"},
@@ -221,6 +223,7 @@ class AffiliationController extends Controller
      * @OA\Post(
      *      path="/api/v1/affiliations/{registryId}",
      *      operationId="affiliationsStoreByRegistryId",
+     *      x={"internal"="true"},
      *      summary="Create an Affiliation entry",
      *      description="Create an Affiliation entry",
      *      tags={"Affiliations"},
@@ -391,6 +394,7 @@ class AffiliationController extends Controller
      * @OA\Put(
      *      path="/api/v1/affiliations/{id}",
      *      operationId="affiliationsUpdate",
+     *      x={"internal"="true"},
      *      summary="Update an Affiliation entry",
      *      description="Update an Affiliation entry",
      *      tags={"Affiliations"},
@@ -527,6 +531,7 @@ class AffiliationController extends Controller
      * @OA\Put(
      *      path="/api/v1/affiliations/verify_email/{verificationCode}",
      *      operationId="affiliationsVerifyEmail",
+     *      x={"internal"="true"},
      *      summary="Update an Affiliation entry",
      *      description="Update an Affiliation entry with verification",
      *      tags={"Affiliations"},
@@ -636,6 +641,7 @@ class AffiliationController extends Controller
      * @OA\Delete(
      *      path="/api/v1/training/{id}",
      *      operationId="affiliationDestroy",
+     *      x={"internal"="true"},
      *      summary="Delete a affiliation entry from the system by ID",
      *      description="Delete a affiliation entry from the system",
      *      tags={"Affiliation"},

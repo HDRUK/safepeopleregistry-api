@@ -76,6 +76,7 @@ class OrganisationController extends Controller
      * @OA\Get(
      *      path="/api/v1/organisations",
      *      operationId="organisationIndex",
+     *      x={"internal"="true"},
      *      summary="Return a list of organisations",
      *      description="Return a list of organisations",
      *      tags={"organisation"},
@@ -162,6 +163,7 @@ class OrganisationController extends Controller
      * @OA\Get(
      *      path="/api/v1/organisations/{id}",
      *      operationId="organisationsShow",
+     *      x={"internal"="true"},
      *      summary="Return an organisations entry by ID",
      *      description="Return an organisations entry by ID",
      *      tags={"organisations"},
@@ -284,6 +286,7 @@ class OrganisationController extends Controller
      * @OA\Get(
      *      path="/api/v1/organisations/{id}/idvt",
      *      operationId="organisationsIdvt",
+     *      x={"internal"="true"},
      *      summary="Return an organisations idvt details by ID",
      *      description="Return an organisations idvt details by ID",
      *      tags={"organisations"},
@@ -353,6 +356,7 @@ class OrganisationController extends Controller
      * @OA\Post(
      *      path="/api/v1/organisations",
      *      operationId="organisationsStore",
+     *      x={"internal"="true"},
      *      summary="Create an organisations entry",
      *      description="Create a organisations entry",
      *      tags={"organisations"},
@@ -652,6 +656,7 @@ class OrganisationController extends Controller
      * @OA\Put(
      *      path="/api/v1/organisations/{id}",
      *      operationId="organisationsUpdate",
+     *      x={"internal"="true"},
      *      summary="Update an organisations entry",
      *      description="Update a organisations entry",
      *      tags={"organisations"},
@@ -817,6 +822,7 @@ class OrganisationController extends Controller
      * @OA\Delete(
      *      path="/api/v1/organisations/{id}",
      *      operationId="organisationsDestroy",
+     *      x={"internal"="true"},
      *      summary="Delete an organisations entry from the system by ID",
      *      description="Delete an organisations entry from the system",
      *      tags={"organisations"},
@@ -914,6 +920,7 @@ class OrganisationController extends Controller
      * @OA\Get(
      *      path="/api/v1/organisations/{id}/projects",
      *      operationId="organisationGetProjects",
+     *      x={"internal"="true"},
      *      summary="Return an all projects associated with an organisation",
      *      description="Return an all projects associated with an organisation (i.e. data-custodian)",
      *      tags={"organisation"},
@@ -1004,6 +1011,7 @@ class OrganisationController extends Controller
      * @OA\Get(
      *      path="/api/v1/organisations/{id}/projects/sponsorships",
      *      operationId="organisationGetSponsorshipsProjects",
+     *      x={"internal"="true"},
      *      summary="Return an all projects associated with an organisation with sponsorships",
      *      description="Return an all projects associated with an organisation with sponsorships (i.e. data-custodian)",
      *      tags={"organisation"},
@@ -1095,6 +1103,7 @@ class OrganisationController extends Controller
      * @OA\Get(
      *      path="/api/v1/organisations/{id}/users",
      *      operationId="organisationGetUsers",
+     *      x={"internal"="true"},
      *      summary="Return all users associated with an organisation",
      *      description="Return all users associated with an organisation",
      *      tags={"organisation"},
@@ -1190,6 +1199,7 @@ class OrganisationController extends Controller
      * @OA\Get(
      *      path="/api/v1/organisations/{id}/delegates",
      *      operationId="organisationGetDelegates",
+     *      x={"internal"="true"},
      *      summary="Return all delegates associated with an organisation",
      *      description="Return all delegates associated with an organisation",
      *      tags={"organisation"},
@@ -1295,6 +1305,7 @@ class OrganisationController extends Controller
      * @OA\Post(
      *      path="/api/v1/organisations/{id}/invite_user",
      *      operationId="organisationsInviteUser",
+     *      x={"internal"="true"},
      *      summary="Invites a user to org",
      *      description="Invites a user to org",
      *      tags={"organisations"},
@@ -1446,6 +1457,7 @@ class OrganisationController extends Controller
      * @OA\Post(
      *      path="/api/v1/organisations/{id}/custodian_invite_user",
      *      operationId="organisationsCustodianInviteUser",
+     *      x={"internal"="true"},
      *      summary="Invites a user to org",
      *      description="Invites a user to org",
      *      tags={"organisations"},
@@ -1757,6 +1769,7 @@ class OrganisationController extends Controller
      * @OA\Get(
      *      path="/api/v1/organisations/{id}/registries",
      *      operationId="organisationsGetRegistries",
+     *      x={"internal"="true"},
      *      summary="Get all registries for an organisation",
      *      description="Returns all registries associated with the specified organisation",
      *      tags={"organisations"},
@@ -1872,6 +1885,7 @@ class OrganisationController extends Controller
      * @OA\Get(
      *     path="/api/v1/organisations/{id}/status",
      *     operationId="organisationsGetStatus",
+     *     x={"internal"="true"},
      *     summary="Get organisation status",
      *     description="Returns the organisation with its model state and state",
      *     tags={"organisations"},
@@ -1952,6 +1966,7 @@ class OrganisationController extends Controller
      * @OA\Put(
      *      path="/api/v1/organisations/{id}/approved",
      *      operationId="organisationsUpdateApproved",
+     *      x={"internal"="true"},
      *      summary="SuperAdmin update org system_approved flag",
      *      description="Updates the system_approved flag for an organisation",
      *      tags={"organisations"},

@@ -37,6 +37,9 @@ PACKAGE_VERSION="${VERSION#v}"
 echo "==> Regenerating OpenAPI spec (php artisan l5-swagger:generate)"
 php artisan l5-swagger:generate
 
+echo "==> Stripping internal-only endpoints (x-internal) from the spec"
+php artisan app:strip-internal-endpoints
+
 SPEC="storage/api-docs/api-docs.json"
 OUT_DIR="sdks"
 rm -rf "$OUT_DIR"
@@ -80,7 +83,7 @@ npx --yes @openapitools/openapi-generator-cli generate \
   -o "$OUT_DIR/go" \
   --git-user-id HDRUK \
   --git-repo-id safepeopleregistry-api-go-sdk \
-  --additional-properties=packageName=safepeopleregistry-api-sdk,packageVersion="$PACKAGE_VERSION" \
+  --additional-properties=packageName=safepeopleregistrysdk,packageVersion="$PACKAGE_VERSION" \
   $SKIP_VALIDATE
 
 echo "==> Generating Rust SDK (version $PACKAGE_VERSION)"
@@ -102,5 +105,30 @@ npx --yes @openapitools/openapi-generator-cli generate \
   --git-repo-id safepeopleregistry-api-typescript-sdk \
   --additional-properties=npmName=@hdruk/safepeopleregistry-api-sdk,npmVersion="$PACKAGE_VERSION" \
   $SKIP_VALIDATE
+
+echo "==> Copying Custodian request-signing helpers into each SDK"
+HELPERS_DIR="sdk-helpers"
+
+cp "$HELPERS_DIR/python/custodian_signing.py" "$OUT_DIR/python/safepeopleregistry_api_sdk/"
+cp "$HELPERS_DIR/typescript/custodianSigning.ts" "$OUT_DIR/typescript/"
+cp "$HELPERS_DIR/csharp/CustodianSigning.cs" "$OUT_DIR/csharp/src/SafePeopleRegistryApiSdk/"
+cp "$HELPERS_DIR/java/CustodianSigning.java" "$OUT_DIR/java/src/main/java/uk/ac/hdruk/safepeopleregistryapi/"
+cp "$HELPERS_DIR/go/custodian_signing.go" "$OUT_DIR/go/"
+cp "$HELPERS_DIR/rust/custodian_signing.rs" "$OUT_DIR/rust/src/"
+
+# The Rust helper needs hmac/sha2/base64, which the generated Cargo.toml
+# doesn't include by default - insert them into the [dependencies] table
+# (not just appended to EOF, which would land after [features] instead).
+if ! grep -q '^hmac ' "$OUT_DIR/rust/Cargo.toml"; then
+  awk '
+    /^\[dependencies\]/ { print; print "hmac = \"^0.12\""; print "sha2 = \"^0.10\""; print "base64 = \"^0.21\""; next }
+    { print }
+  ' "$OUT_DIR/rust/Cargo.toml" > "$OUT_DIR/rust/Cargo.toml.tmp"
+  mv "$OUT_DIR/rust/Cargo.toml.tmp" "$OUT_DIR/rust/Cargo.toml"
+fi
+# Wire the new module into the Rust crate root so it's actually compiled.
+if ! grep -q "custodian_signing" "$OUT_DIR/rust/src/lib.rs"; then
+  echo "pub mod custodian_signing;" >> "$OUT_DIR/rust/src/lib.rs"
+fi
 
 echo "==> Done. SDKs written to $OUT_DIR/{python,csharp,java,go,rust,typescript}"

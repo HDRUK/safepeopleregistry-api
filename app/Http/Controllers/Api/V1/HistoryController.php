@@ -26,6 +26,7 @@ class HistoryController extends Controller
      * @OA\Get(
      *      path="/api/v1/histories",
      *      operationId="historyIndex",
+     *      x={"internal"="true"},
      *      summary="Return a list of Histories",
      *      description="Return a list of Histories",
      *      tags={"History"},
@@ -71,6 +72,7 @@ class HistoryController extends Controller
      * @OA\Get(
      *      path="/api/v1/histories/{id}",
      *      operationId="historyShow",
+     *      x={"internal"="true"},
      *      summary="Return a History entry by ID",
      *      description="Return a History entry by ID",
      *      tags={"History"},
@@ -137,6 +139,7 @@ class HistoryController extends Controller
      * @OA\Post(
      *      path="/api/v1/histories",
      *      operationId="historyStore",
+     *      x={"internal"="true"},
      *      summary="Create a History entry",
      *      description="Create a History entry",
      *      tags={"History"},

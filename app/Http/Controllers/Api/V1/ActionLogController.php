@@ -20,6 +20,7 @@ class ActionLogController extends Controller
      * @OA\Get(
      *     path="/api/v1/{entity}/{id}/action_log",
      *     operationId="actionLogsGetEntityActionLog",
+     *     x={"internal"="true"},
      *     summary="Get Action Logs for an Entity",
      *     description="Retrieve action logs for a given entity type (users, organisations) by ID.",
      *     tags={"Action Logs"},
@@ -101,8 +102,9 @@ class ActionLogController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/v1/action_logs/{id}",
+     *     path="/api/v1/action_log/{id}",
      *     operationId="actionLogsUpdate",
+     *     x={"internal"="true"},
      *     summary="Update an Action Log",
      *     description="Update an action log entry, including marking it as complete or incomplete.",
      *     tags={"Action Logs"},

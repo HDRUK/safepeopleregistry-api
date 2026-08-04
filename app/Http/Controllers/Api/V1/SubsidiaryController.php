@@ -24,6 +24,7 @@ class SubsidiaryController extends Controller
      * @OA\Post(
      *      path="/api/v1/subsidiaries/organisations/{organisationId}",
      *      operationId="subsidiariesStore",
+     *      x={"internal"="true"},
      *      summary="Create a subsidiary entry",
      *      description="Create a subsidiary entry",
      *      tags={"subsidiaries"},
@@ -119,6 +120,7 @@ class SubsidiaryController extends Controller
      * @OA\Put(
      *      path="/api/v1/subsidiaries/{subsidiaryId}/organisations/{organisationId}",
      *      operationId="subsidiariesUpdate",
+     *      x={"internal"="true"},
      *      summary="Update a subsidiary entry",
      *      description="Update a subsidiary entry",
      *      tags={"subsidiaries"},
@@ -221,6 +223,7 @@ class SubsidiaryController extends Controller
      * @OA\Delete(
      *      path="/api/v1/subsidiaries/{subsidiaryId}/organisations/{organisationId}",
      *      operationId="subsidiariesDestroy",
+     *      x={"internal"="true"},
      *      summary="Delete an subsidiary entry from the system by ID",
      *      description="Delete an subsidiary entry from the system",
      *      tags={"subsidiaries"},

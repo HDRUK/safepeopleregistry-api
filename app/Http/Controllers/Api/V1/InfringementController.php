@@ -19,6 +19,7 @@ class InfringementController extends Controller
      * @OA\Get(
      *      path="/api/v1/infringements",
      *      operationId="infringementIndex",
+     *      x={"internal"="true"},
      *      summary="Return a list of Infringements",
      *      description="Return a list of Infringements",
      *      tags={"Infringement"},
@@ -55,6 +56,7 @@ class InfringementController extends Controller
      * @OA\Get(
      *      path="/api/v1/infringements/{id}",
      *      operationId="infringementShow",
+     *      x={"internal"="true"},
      *      summary="Return an Infringement entry by ID",
      *      description="Return an Infringement entry by ID",
      *      tags={"Infringement"},
@@ -112,6 +114,7 @@ class InfringementController extends Controller
      * @OA\Post(
      *      path="/api/v1/infringements",
      *      operationId="infringementStore",
+     *      x={"internal"="true"},
      *      summary="Create an Infringement entry",
      *      description="Create an Infringement entry",
      *      tags={"Infringement"},

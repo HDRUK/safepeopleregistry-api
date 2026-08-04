@@ -21,6 +21,7 @@ class IdentityController extends Controller
      * @OA\Get(
      *      path="/api/v1/identities",
      *      operationId="identityIndex",
+     *      x={"internal"="true"},
      *      summary="Return a list of Identity entries",
      *      description="Return a list of Identity entries",
      *      tags={"Identity"},
@@ -62,6 +63,7 @@ class IdentityController extends Controller
      * @OA\Get(
      *      path="/api/v1/identities/{id}",
      *      operationId="identityShow",
+     *      x={"internal"="true"},
      *      summary="Return an Identity entry by ID",
      *      description="Return an Identity entry by ID",
      *      tags={"Identity"},
@@ -124,6 +126,7 @@ class IdentityController extends Controller
      * @OA\Post(
      *      path="/api/v1/identities",
      *      operationId="identityStore",
+     *      x={"internal"="true"},
      *      summary="Create an Identity entry",
      *      description="Create a Identity entry",
      *      tags={"Identity"},
@@ -196,6 +199,7 @@ class IdentityController extends Controller
      * @OA\Put(
      *      path="/api/v1/identities/{id}",
      *      operationId="identityUpdate",
+     *      x={"internal"="true"},
      *      summary="Update an Identity entry",
      *      description="Update a Identity entry",
      *      tags={"Identity"},
@@ -284,6 +288,7 @@ class IdentityController extends Controller
      * @OA\Delete(
      *      path="/api/v1/identities/{id}",
      *      operationId="identityDestroy",
+     *      x={"internal"="true"},
      *      summary="Delete an Identity entry from the system by ID",
      *      description="Delete an Identity entry from the system",
      *      tags={"Identity"},
