@@ -30,6 +30,7 @@ class CustodianHasProjectUserController extends Controller
      * @OA\Get(
      *      path="/api/v1/custodian_approvals/{custodianId}/projectUsers",
      *      operationId="custodianProjectUsersIndex",
+     *      x={"internal"="true"},
      *      tags={"Custodian Project Users"},
      *      summary="List all project users associated with a custodian",
      *      description="Returns a list of all custodian project user approvals for a specific custodian",
@@ -169,6 +170,7 @@ class CustodianHasProjectUserController extends Controller
      * @OA\Get(
      *      path="/api/v1/custodian_approvals/{custodianId}/projectUsers/{projectUserId}",
      *      operationId="custodianProjectUsersShow",
+     *      x={"internal"="true"},
      *      tags={"Custodian Project Users"},
      *      summary="Get custodian approval for a project user",
      *      description="Returns custodian approval details for a specific project user",
@@ -262,6 +264,7 @@ class CustodianHasProjectUserController extends Controller
      * @OA\Put(
      *      path="/api/v1/custodian_approvals/{custodianId}/projectUsers/{projectUserId}",
      *      operationId="custodianProjectUsersUpdate",
+     *      x={"internal"="true"},
      *      tags={"Custodian Project Users"},
      *      summary="Update custodian approval for a project user",
      *      description="Updates approval status and/or comment for a project user",

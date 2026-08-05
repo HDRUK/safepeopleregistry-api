@@ -28,6 +28,7 @@ class DepartmentController extends Controller
      * @OA\Get(
      *     path="/api/v1/departments",
      *     operationId="departmentIndex",
+     *     x={"internal"="true"},
      *     tags={"Department"},
      *     summary="Get a list of departments",
      *     @OA\Response(
@@ -53,6 +54,7 @@ class DepartmentController extends Controller
      * @OA\Get(
      *     path="/api/v1/departments/{id}",
      *     operationId="departmentShow",
+     *     x={"internal"="true"},
      *     tags={"Department"},
      *     summary="Get a specific department by ID",
      *     @OA\Parameter(
@@ -102,6 +104,7 @@ class DepartmentController extends Controller
      * @OA\Post(
      *     path="/api/v1/departments",
      *     operationId="departmentStore",
+     *     x={"internal"="true"},
      *     tags={"Department"},
      *     summary="Create a new department",
      *     @OA\RequestBody(
@@ -147,9 +150,10 @@ class DepartmentController extends Controller
     }
 
     /**
-     * @OA\Put(
+     * @OA\Patch(
      *     path="/api/v1/departments/{id}",
      *     operationId="departmentUpdate",
+     *     x={"internal"="true"},
      *     tags={"Department"},
      *     summary="Update an existing department",
      *     @OA\Parameter(
@@ -207,6 +211,7 @@ class DepartmentController extends Controller
      * @OA\Delete(
      *     path="/api/v1/departments/{id}",
      *     operationId="departmentDestroy",
+     *     x={"internal"="true"},
      *     tags={"Department"},
      *     summary="Delete a department",
      *     @OA\Parameter(

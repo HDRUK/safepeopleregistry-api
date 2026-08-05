@@ -70,6 +70,7 @@ class ProfessionalRegistrationController extends Controller
      * @OA\Put(
      *      path="/api/v1/professional_registrations/{id}",
      *      operationId="professionalRegistrationsUpdate",
+     *      x={"internal"="true"},
      *      summary="Update a Professional Registrations entry",
      *      description="Update a Professional Registrations entry",
      *      tags={"Professional Registrations"},

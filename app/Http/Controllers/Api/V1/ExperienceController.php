@@ -21,6 +21,7 @@ class ExperienceController extends Controller
      * @OA\Get(
      *      path="/api/v1/experiences",
      *      operationId="experienceIndex",
+     *      x={"internal"="true"},
      *      summary="Return a list of Experience entries",
      *      description="Return a list of Experience entries",
      *      tags={"Experience"},
@@ -73,6 +74,7 @@ class ExperienceController extends Controller
      * @OA\Get(
      *      path="/api/v1/experiences/{id}",
      *      operationId="experienceShow",
+     *      x={"internal"="true"},
      *      summary="Return an Experience entry by ID",
      *      description="Return an Experience entry by ID",
      *      tags={"Experience"},
@@ -132,6 +134,7 @@ class ExperienceController extends Controller
      * @OA\Post(
      *      path="/api/v1/experiences",
      *      operationId="experienceStore",
+     *      x={"internal"="true"},
      *      summary="Create an Experience entry",
      *      description="Create an Experience entry",
      *      tags={"Experience"},
@@ -198,6 +201,7 @@ class ExperienceController extends Controller
      * @OA\Put(
      *      path="/api/v1/experiences/{id}",
      *      operationId="experienceUpdate",
+     *      x={"internal"="true"},
      *      summary="Update an Experience entry",
      *      description="Update an Experience entry",
      *      tags={"Experience"},
@@ -284,6 +288,7 @@ class ExperienceController extends Controller
      * @OA\Delete(
      *      path="/api/v1/experiences/{id}",
      *      operationId="experienceDestroy",
+     *      x={"internal"="true"},
      *      summary="Delete an Experience entry from the system by ID",
      *      description="Delete a Experience entry from the system",
      *      tags={"Experience"},

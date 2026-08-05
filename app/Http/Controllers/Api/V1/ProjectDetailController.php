@@ -26,6 +26,7 @@ class ProjectDetailController extends Controller
      * @OA\Get(
      *      path="/api/v1/project_details",
      *      operationId="projectDetailIndex",
+     *      x={"internal"="true"},
      *      summary="Return a list of ProjectDetail",
      *      description="Return a list of ProjectDetail",
      *      tags={"ProjectDetail"},
@@ -60,6 +61,7 @@ class ProjectDetailController extends Controller
      * @OA\Get(
      *      path="/api/v1/project_details/{id}",
      *      operationId="projectDetailShow",
+     *      x={"internal"="true"},
      *      summary="Return a ProjectDetail",
      *      description="Return a ProjectDetail",
      *      tags={"ProjectDetail"},
@@ -116,6 +118,7 @@ class ProjectDetailController extends Controller
      * @OA\Post(
      *      path="/api/v1/project_details",
      *      operationId="projectDetailsStore",
+     *      x={"internal"="true"},
      *      summary="Create a ProjectDetail",
      *      description="Create a ProjectDetail",
      *      tags={"ProjectDetails"},
@@ -173,6 +176,7 @@ class ProjectDetailController extends Controller
      * @OA\Put(
      *      path="/api/v1/project_details/{id}",
      *      operationId="projectDetailsUpdate",
+     *      x={"internal"="true"},
      *      summary="Update a ProjectDetail entry",
      *      description="Update a ProjectDetail entry",
      *      tags={"ProjectDetails"},
@@ -246,6 +250,7 @@ class ProjectDetailController extends Controller
      * @OA\Delete(
      *      path="/api/v1/project_details/{id}",
      *      operationId="projectDetailsDestroy",
+     *      x={"internal"="true"},
      *      summary="Delete a ProjectDetail entry from the system by ID",
      *      description="Delete a ProjectDetail entry from the system",
      *      tags={"ProjectDetails"},

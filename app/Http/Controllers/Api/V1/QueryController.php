@@ -29,16 +29,22 @@ class QueryController extends Controller
      *      path="/api/v1/query",
      *      operationId="queryQuery",
      *      summary="Query the registry by Digital Identifier",
-     *      description="Query the registry by Digital Identifier",
+     *      description="Query the registry by Digital Identifier. Authenticated via x-client-id/x-signature headers (Custodian client credential + HMAC-signed payload), not a bearer token.",
      *      tags={"Query"},
      *      summary="Query@query",
-     *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *          name="x-client-id",
      *          in="header",
      *          required=true,
      *          description="Custodian client ID used to authenticate the requesting custodian",
      *          @OA\Schema(type="string", example="8f14e45f-ceea-467e-adc1-0000example")
+     *      ),
+     *      @OA\Parameter(
+     *          name="x-signature",
+     *          in="header",
+     *          required=true,
+     *          description="HMAC signature of the raw request body, signed with the custodian's unique identifier",
+     *          @OA\Schema(type="string")
      *      ),
      *      @OA\RequestBody(
      *          required=true,
