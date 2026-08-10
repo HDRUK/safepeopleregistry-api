@@ -79,7 +79,6 @@ class QueryController extends Controller
      *                      @OA\Property(property="first_name", type="string", example="Dan"),
      *                      @OA\Property(property="last_name", type="string", example="Ackroyd"),
      *                      @OA\Property(property="name", type="string", example="Dan Ackroyd"),
-     *                      @OA\Property(property="email", type="string", example="dan.ackroyd@example.com"),
      *                      @OA\Property(property="registry_id", type="integer", example=1),
      *                      @OA\Property(property="created_at", type="string", example="2024-03-12T13:11:55.000000Z"),
      *                      @OA\Property(property="updated_at", type="string", example="2024-03-12T13:11:55.000000Z"),
@@ -177,7 +176,7 @@ class QueryController extends Controller
         $registry = Registry::where('digi_ident', $input['ident'])->first();
         $payload['registry'] = $registry;
 
-        $user = User::where('registry_id', $registry->id)->first();
+        $user = User::where('registry_id', $registry->id)->first()->setHidden(['email']);
         $payload['user'] = $user;
 
         $linkedTraining = RegistryHasTraining::where('registry_id', $registry->id)->select('training_id')->get()->toArray();
