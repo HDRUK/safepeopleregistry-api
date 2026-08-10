@@ -79,7 +79,6 @@ class QueryController extends Controller
      *                      @OA\Property(property="first_name", type="string", example="Dan"),
      *                      @OA\Property(property="last_name", type="string", example="Ackroyd"),
      *                      @OA\Property(property="name", type="string", example="Dan Ackroyd"),
-     *                      @OA\Property(property="email", type="string", example="dan.ackroyd@example.com"),
      *                      @OA\Property(property="registry_id", type="integer", example=1),
      *                      @OA\Property(property="created_at", type="string", example="2024-03-12T13:11:55.000000Z"),
      *                      @OA\Property(property="updated_at", type="string", example="2024-03-12T13:11:55.000000Z"),
@@ -89,7 +88,6 @@ class QueryController extends Controller
      *                      @OA\Property(property="unclaimed", type="integer", example=0),
      *                      @OA\Property(property="feed_source", type="string", nullable=true, example=null),
      *                      @OA\Property(property="public_opt_in", type="integer", example=0),
-     *                      @OA\Property(property="declaration_signed", type="boolean", example=false),
      *                      @OA\Property(property="organisation_id", type="integer", example=0),
      *                      @OA\Property(property="orcid_scanning", type="boolean", example=false),
      *                      @OA\Property(property="orcid_scanning_completed_at", type="string", nullable=true, example=null),
@@ -101,7 +99,6 @@ class QueryController extends Controller
      *                      @OA\Property(property="location", type="string", nullable=true, example=null),
      *                      @OA\Property(property="t_and_c_agreed", type="boolean", example=true),
      *                      @OA\Property(property="t_and_c_agreement_date", type="string", nullable=true, example="2024-03-12 13:11:55"),
-     *                      @OA\Property(property="uksa_registered", type="boolean", example=false),
      *                      @OA\Property(property="is_sro", type="boolean", example=false),
      *                      @OA\Property(property="invited_by", type="integer", nullable=true, example=null),
      *                      @OA\Property(property="status", type="string", example="registered"),
@@ -179,7 +176,7 @@ class QueryController extends Controller
         $registry = Registry::where('digi_ident', $input['ident'])->first();
         $payload['registry'] = $registry;
 
-        $user = User::where('registry_id', $registry->id)->first();
+        $user = User::where('registry_id', $registry->id)->first()->setHidden(['email']);
         $payload['user'] = $user;
 
         $linkedTraining = RegistryHasTraining::where('registry_id', $registry->id)->select('training_id')->get()->toArray();

@@ -80,7 +80,6 @@ class AuditLogTest extends TestCase
                     'provider' => fake()->word(),
                     'provider_sub' => Str::random(10),
                     'public_opt_in' => fake()->randomElement([0, 1]),
-                    'declaration_signed' => fake()->randomElement([0, 1]),
                 ]
             );
 
@@ -113,7 +112,6 @@ class AuditLogTest extends TestCase
                     'provider' => fake()->word(),
                     'provider_sub' => Str::random(10),
                     'public_opt_in' => fake()->randomElement([0, 1]),
-                    'declaration_signed' => fake()->randomElement([0, 1]),
                 ]
             );
 
