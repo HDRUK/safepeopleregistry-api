@@ -69,11 +69,6 @@ use Spatie\Activitylog\LogOptions;
  *          example="true"
  *      ),
  *      @OA\Property(
- *          property="declaration_signed",
- *          type="boolean",
- *          example="true"
- *      ),
- *      @OA\Property(
  *          property="organisation_id",
  *          type="integer",
  *          example="123"
@@ -182,7 +177,6 @@ class User extends Authenticatable
         'unclaimed',
         'feed_source',
         'public_opt_in',
-        'declaration_signed',
         'organisation_id',
         'custodian_id',
         'custodian_user_id',
@@ -195,7 +189,6 @@ class User extends Authenticatable
         'location',
         't_and_c_agreed',
         't_and_c_agreement_date',
-        'uksa_registered',
         'is_sro',
         'invited_by',
     ];
@@ -252,8 +245,6 @@ class User extends Authenticatable
     protected $casts = [
         'consent_scrape' => 'boolean',
         'orcid_scanning' => 'boolean',
-        'uksa_registered' => 'boolean',
-        'declaration_signed' => 'boolean',
         'is_sro' => 'boolean',
     ];
 
