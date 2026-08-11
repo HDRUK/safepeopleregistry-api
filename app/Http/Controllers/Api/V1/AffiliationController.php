@@ -307,16 +307,16 @@ class AffiliationController extends Controller
                 return $this->ErrorResponse('Organisation with id ' . $array['organisation_id'] . ' not found');
             }
 
-            $verificationCode = null;
+            $affiliation = Affiliation::create($array);
+
             if ($currentEmployer) {
                 $verificationCode = Str::uuid()->toString();
-                $array['verification_code'] = $verificationCode;
-                $array['verification_sent_at'] = Carbon::now();
-                $array['verification_confirmed_at'] = null;
-                $array['is_verified'] = 0;
+                $affiliation->verification_code = $verificationCode;
+                $affiliation->verification_sent_at = Carbon::now();
+                $affiliation->verification_confirmed_at = null;
+                $affiliation->is_verified = 0;
+                $affiliation->save();
             }
-
-            $affiliation = Affiliation::create($array);
 
             if ($currentEmployer && $verificationCode && !$isCurrentEmail) {
                 $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
@@ -371,13 +371,10 @@ class AffiliationController extends Controller
                 return $this->ErrorResponse('Organisation with id ' .  $affiliation->organisation_id . ' not found');
             }
 
-            $array = [
-                'is_verified' => 0,
-                'verification_code' => Str::uuid()->toString(),
-                'verification_sent_at' => Carbon::now(),
-            ];
-
-            Affiliation::where('id', $id)->update($array);
+            $affiliation->is_verified = 0;
+            $affiliation->verification_code = Str::uuid()->toString();
+            $affiliation->verification_sent_at = Carbon::now();
+            $affiliation->save();
 
             $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
 
@@ -467,10 +464,9 @@ class AffiliationController extends Controller
             $unclaimed = $affiliation->organisation->unclaimed;
 
             if (!$affiliation->is_verified && $input['current_employer']) {
-                $input['verification_code'] = Str::uuid()->toString();
-                $input['verification_sent_at'] = Carbon::now();
-                $input['verification_confirmed_at'] = null;
-                $input['is_verified'] = 0;
+                $affiliation->verification_code = Str::uuid()->toString();
+                $affiliation->verification_sent_at = Carbon::now();
+                $affiliation->verification_confirmed_at = null;
             }
 
             $affiliation->fill($input);
@@ -625,12 +621,11 @@ class AffiliationController extends Controller
             if (!is_null($custodianHasProjectUser)) {
                 $custodianHasProjectUser->setState(State::STATE_PENDING);
             }
-            $array = [
-                'verification_code' => null,
-                'is_verified' => 1,
-                'verification_confirmed_at' => Carbon::now(),
-            ];
-            $affiliation->update($array);
+            $affiliation->verification_code = null;
+            $affiliation->is_verified = 1;
+            $affiliation->verification_confirmed_at = Carbon::now();
+            $affiliation->save();
+
             return $this->OKResponse($affiliation);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
