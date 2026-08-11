@@ -469,8 +469,8 @@ class AffiliationController extends Controller
             if (!$affiliation->is_verified && $input['current_employer']) {
                 $input['verification_code'] = Str::uuid()->toString();
                 $input['verification_sent_at'] = Carbon::now();
-                $array['verification_confirmed_at'] = null;
-                $array['is_verified'] = 0;
+                $input['verification_confirmed_at'] = null;
+                $input['is_verified'] = 0;
             }
 
             $affiliation->fill($input);
