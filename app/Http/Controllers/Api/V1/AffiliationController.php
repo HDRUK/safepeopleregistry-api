@@ -469,6 +469,13 @@ class AffiliationController extends Controller
                 $affiliation->verification_confirmed_at = null;
             }
 
+            // SC: We don't want to allow email updates through this endpoint right now, as it could lead to verification issues.
+            // We only allow email updates in the specific case where the user is changing an affiliation from historic to current,
+            // _and_ they haven't already set an email before. This cuts out the complex case while still allowing that one case
+            // (where we'd not have fired off a verification email yet).
+            if (!($input['current_employer'] && !$originalAffiliation['current_employer'] && empty($originalAffiliation['email']))) {
+                unset($input['email']);
+            }
             $affiliation->fill($input);
             $affiliation->save();
             $affiliation->refresh();
