@@ -323,10 +323,6 @@ class FileUploadController extends Controller
                     'file_id' => $fileIn->id,
                 ]);
 
-                Organisation::where('id', $organisation->id)->update([
-                    'system_approved' => 0,
-                ]);
-
                 $userAdmins = User::where('user_group', User::GROUP_ADMINS)->select(['id'])->get();
                 foreach ($userAdmins as $userAdmin) {
 
