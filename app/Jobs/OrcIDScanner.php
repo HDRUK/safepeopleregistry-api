@@ -253,11 +253,13 @@ class OrcIDScanner implements ShouldQueue
                         'registry_id' => $this->user->registry_id,
                         'organisation_id' => $knownOrg->id ?? -1,
                         'member_id' => '',
-                        'verification_code' => null,
-                        'verification_sent_at' => null,
-                        'is_verified' => 0,
                         'orcid_organisation' => Arr::get($organisation, 'organization.name', ''),
                     ]);
+
+                    $affiliation->verification_code = null;
+                    $affiliation->verification_sent_at = null;
+                    $affiliation->is_verified = 0;
+                    $affiliation->save();
 
                     $affiliation->setState(State::STATE_AFFILIATION_INFO_REQUIRED);
                 }
@@ -283,11 +285,13 @@ class OrcIDScanner implements ShouldQueue
                         'registry_id' => $this->user->registry_id,
                         'organisation_id' => $knownOrg->id ?? -1,
                         'member_id' => '',
-                        'verification_code' => $verificationCode,
-                        'verification_sent_at' => $verificationSent,
-                        'is_verified' => 0,
                         'orcid_organisation' => $organisation->organisation_name,
                     ]);
+
+                    $affiliation->verification_code = $verificationCode;
+                    $affiliation->verification_sent_at = $verificationSent;
+                    $affiliation->is_verified = 0;
+                    $affiliation->save();
 
                     if ($organisation->unclaimed) {
                         $affiliation->setState(State::STATE_AFFILIATION_INFO_REQUIRED);

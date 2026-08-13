@@ -208,12 +208,15 @@ class Affiliation extends Model
         'verdict_user_id',
         'verdict_date_actioned',
         'verdict_outcome',
+        'current_employer',
+        'orcid_organisation',
+    ];
+
+    protected $guarded = [
         'verification_code',
         'verification_sent_at',
         'verification_confirmed_at',
         'is_verified',
-        'current_employer',
-        'orcid_organisation',
     ];
 
     protected $casts = [

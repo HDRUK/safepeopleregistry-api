@@ -307,16 +307,16 @@ class AffiliationController extends Controller
                 return $this->ErrorResponse('Organisation with id ' . $array['organisation_id'] . ' not found');
             }
 
-            $verificationCode = null;
+            $affiliation = Affiliation::create($array);
+
             if ($currentEmployer) {
                 $verificationCode = Str::uuid()->toString();
-                $array['verification_code'] = $verificationCode;
-                $array['verification_sent_at'] = Carbon::now();
-                $array['verification_confirmed_at'] = null;
-                $array['is_verified'] = 0;
+                $affiliation->verification_code = $verificationCode;
+                $affiliation->verification_sent_at = Carbon::now();
+                $affiliation->verification_confirmed_at = null;
+                $affiliation->is_verified = 0;
+                $affiliation->save();
             }
-
-            $affiliation = Affiliation::create($array);
 
             if ($currentEmployer && $verificationCode && !$isCurrentEmail) {
                 $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
@@ -371,13 +371,10 @@ class AffiliationController extends Controller
                 return $this->ErrorResponse('Organisation with id ' .  $affiliation->organisation_id . ' not found');
             }
 
-            $array = [
-                'is_verified' => 0,
-                'verification_code' => Str::uuid()->toString(),
-                'verification_sent_at' => Carbon::now(),
-            ];
-
-            Affiliation::where('id', $id)->update($array);
+            $affiliation->is_verified = 0;
+            $affiliation->verification_code = Str::uuid()->toString();
+            $affiliation->verification_sent_at = Carbon::now();
+            $affiliation->save();
 
             $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
 
@@ -467,12 +464,18 @@ class AffiliationController extends Controller
             $unclaimed = $affiliation->organisation->unclaimed;
 
             if (!$affiliation->is_verified && $input['current_employer']) {
-                $input['verification_code'] = Str::uuid()->toString();
-                $input['verification_sent_at'] = Carbon::now();
-                $array['verification_confirmed_at'] = null;
-                $array['is_verified'] = 0;
+                $affiliation->verification_code = Str::uuid()->toString();
+                $affiliation->verification_sent_at = Carbon::now();
+                $affiliation->verification_confirmed_at = null;
             }
 
+            // SC: We don't want to allow email updates through this endpoint right now, as it could lead to verification issues.
+            // We only allow email updates in the specific case where the user is changing an affiliation from historic to current,
+            // _and_ they haven't already set an email before. This cuts out the complex case while still allowing that one case
+            // (where we'd not have fired off a verification email yet).
+            if (!($input['current_employer'] && !$originalAffiliation['current_employer'] && empty($originalAffiliation['email']))) {
+                unset($input['email']);
+            }
             $affiliation->fill($input);
             $affiliation->save();
             $affiliation->refresh();
@@ -625,12 +628,11 @@ class AffiliationController extends Controller
             if (!is_null($custodianHasProjectUser)) {
                 $custodianHasProjectUser->setState(State::STATE_PENDING);
             }
-            $array = [
-                'verification_code' => null,
-                'is_verified' => 1,
-                'verification_confirmed_at' => Carbon::now(),
-            ];
-            $affiliation->update($array);
+            $affiliation->verification_code = null;
+            $affiliation->is_verified = 1;
+            $affiliation->verification_confirmed_at = Carbon::now();
+            $affiliation->save();
+
             return $this->OKResponse($affiliation);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
