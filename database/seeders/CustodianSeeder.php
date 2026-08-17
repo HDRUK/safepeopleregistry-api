@@ -43,10 +43,12 @@ class CustodianSeeder extends Seeder
             $decisionModels = DecisionModel::all();
 
             foreach ($decisionModels as $d) {
-                CustodianModelConfig::create([
+                CustodianModelConfig::firstOrCreate([
                     'entity_model_id' => $d->id,
-                    'active' => 1,
                     'custodian_id' => $i->id,
+                ],
+                [
+                    'active' => 1,
                 ]);
             }
 

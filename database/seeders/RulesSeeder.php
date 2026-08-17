@@ -307,9 +307,11 @@ class RulesSeeder extends Seeder
 
         foreach ($custodians as $custodian) {
             foreach ($decisionModels as $decisionModel) {
-                CustodianModelConfig::create([
+                CustodianModelConfig::firstOrCreate([
                     'custodian_id' => $custodian->id,
                     'entity_model_id' => $decisionModel->id,
+                ],
+                [
                     'active' => 1,
                 ]);
             }

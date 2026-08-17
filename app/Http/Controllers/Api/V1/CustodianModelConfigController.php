@@ -131,10 +131,11 @@ class CustodianModelConfigController extends Controller
         try {
             $input = $request->only(app(CustodianModelConfig::class)->getFillable());
 
-            $conf = CustodianModelConfig::create([
+            $conf = CustodianModelConfig::firstOrCreate([
                 'entity_model_id' => $input['entity_model_id'],
-                'active' => $input['active'],
                 'custodian_id' => $input['custodian_id'],
+            ],[
+                'active' => $input['active'],
             ]);
 
             return $this->CreatedResponse($conf->id);
