@@ -19,8 +19,10 @@ class CustodianObserver
         foreach ($decisionModels as $d) {
             CustodianModelConfig::updateOrCreate([
                 'entity_model_id' => $d->id,
-                'active' => 1,
                 'custodian_id' => $custodian->id,
+            ],
+            [
+                'active' => 1,
             ]);
         }
 
