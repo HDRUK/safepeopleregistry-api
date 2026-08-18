@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands\Oneoff;
 
+use Exception;
 use Illuminate\Console\Command;
 use App\Models\CustodianModelConfig;
 
