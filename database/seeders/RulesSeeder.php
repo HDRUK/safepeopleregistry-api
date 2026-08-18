@@ -285,7 +285,7 @@ class RulesSeeder extends Seeder
                 'name' => 'Delegate/Key Contact',
                 'model_type' => \App\Models\Organisation::class,
                 'conditions' => json_encode([
-                    'path' => 'delegate_contacts',
+                    'path' => 'delegates',
                     'expects' => [
                         'minimum' => 1,
                     ],
