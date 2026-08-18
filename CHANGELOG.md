@@ -1,3 +1,20 @@
+## [1.35.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.34.0...v1.35.0) (2026-08-18)
+
+### ✨ Features
+
+* **REGISTRY-2862:** query user project validation status (#769) ([98af75a](https://github.com/HDRUK/safepeopleregistry-api/commit/98af75a841cbc6ff928bfd3bbedceb024cf5e8d0))
+* **REGISTRY-2890:** #3 - Massive amount of changes to fix up swagger… (#774) ([01c4370](https://github.com/HDRUK/safepeopleregistry-api/commit/01c437059225136712585eae16c29ed984ba32c3))
+* **REGISTRY-2890:** Fill gaps in openapi swagger annotations in orde… (#771) ([a441eb3](https://github.com/HDRUK/safepeopleregistry-api/commit/a441eb3ecdb34534134a972889d9adbe8def501c))
+* **REGISTRY-2890:** fix php version for composer error (#772) ([e215448](https://github.com/HDRUK/safepeopleregistry-api/commit/e21544810cce57635d085e912c7a4dfea036bf44))
+* **REGISTRY-2899:** Prevent changing affiliation email (#777) ([d9a29f0](https://github.com/HDRUK/safepeopleregistry-api/commit/d9a29f0abdfdfe0640ed069a91d055a2c3002a0c))
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-2772:** Protected handling of `system_approved` field (#729) ([d4b2a1f](https://github.com/HDRUK/safepeopleregistry-api/commit/d4b2a1f93c5ffd1ce4cdbbc8cc27869fa2ef14e3))
+* **REGISTRY-2772:** Revert removal of Organisation IDVT (#767) ([c809502](https://github.com/HDRUK/safepeopleregistry-api/commit/c8095024437607d24be73698e3e7873b3ac1a5cd))
+* **REGISTRY-2864:** Tidy user query content (#775) ([30616d0](https://github.com/HDRUK/safepeopleregistry-api/commit/30616d078790b40eefbbcca616d1c1e2db698e5b))
+* **REGISTRY-2882:** Don't unapprove an Organisation when it uploads a file (#778) ([ed14c34](https://github.com/HDRUK/safepeopleregistry-api/commit/ed14c348fb0f2775f59d77a981f877619bf6c231))
+
 ## [1.34.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.33.0...v1.34.0) (2026-07-31)
 
 ### ✨ Features
