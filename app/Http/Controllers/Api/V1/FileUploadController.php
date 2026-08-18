@@ -33,6 +33,8 @@ class FileUploadController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/files/{id}",
+     *      operationId="filesShow",
+     *      x={"internal"="true"},
      *      summary="Gets an uploaded file",
      *      description="Gets an uploaded file",
      *      tags={"Files"},
@@ -99,6 +101,8 @@ class FileUploadController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/files/{id}/download",
+     *      operationId="filesDownload",
+     *      x={"internal"="true"},
      *      summary="Download an uploaded file",
      *      description="Downloads the specified file",
      *      tags={"Files"},
@@ -180,6 +184,8 @@ class FileUploadController extends Controller
     /**
      * @OA\Post(
      *      path="/api/v1/files",
+     *      operationId="filesStore",
+     *      x={"internal"="true"},
      *      summary="Upload a file to the registry",
      *      description="Uploads a file to the registry",
      *      tags={"Files"},
@@ -188,11 +194,14 @@ class FileUploadController extends Controller
      *      @OA\RequestBody(
      *          required=true,
      *          description="File definition",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="registry_id", type="integer", example="1"),
-     *              @OA\Property(property="file", type="file", example=""),
-     *              @OA\Property(property="file_type", type="string", example="CV"),
-     *              @OA\Property(property="entity_type", type="string", example="researcher"),
+     *          @OA\MediaType(
+     *              mediaType="multipart/form-data",
+     *              @OA\Schema(
+     *                  @OA\Property(property="registry_id", type="integer", example="1"),
+     *                  @OA\Property(property="file", type="string", format="binary"),
+     *                  @OA\Property(property="file_type", type="string", example="CV"),
+     *                  @OA\Property(property="entity_type", type="string", example="researcher"),
+     *              )
      *          ),
      *      ),
      *      @OA\Response(
@@ -312,10 +321,6 @@ class FileUploadController extends Controller
                 OrganisationHasFile::create([
                     'organisation_id' => $organisation->id,
                     'file_id' => $fileIn->id,
-                ]);
-
-                Organisation::where('id', $organisation->id)->update([
-                    'system_approved' => 0,
                 ]);
 
                 $userAdmins = User::where('user_group', User::GROUP_ADMINS)->select(['id'])->get();

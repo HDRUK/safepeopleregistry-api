@@ -29,6 +29,8 @@ class TrainingController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/training",
+     *      operationId="trainingIndex",
+     *      x={"internal"="true"},
      *      summary="Return a list of Training entries",
      *      description="Return a list of Training entries",
      *      tags={"Training"},
@@ -66,6 +68,8 @@ class TrainingController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/training/registry/{id}",
+     *      operationId="trainingIndexByRegistryId",
+     *      x={"internal"="true"},
      *      summary="Return a list of training by registry id",
      *      description="Return a list of training by registry id",
      *      tags={"Training"},
@@ -127,6 +131,8 @@ class TrainingController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/training/{id}",
+     *      operationId="trainingShow",
+     *      x={"internal"="true"},
      *      summary="Return a training record",
      *      description="Return a training record by registry id",
      *      tags={"Training"},
@@ -183,6 +189,8 @@ class TrainingController extends Controller
     /**
      * @OA\Post(
      *      path="/api/v1/training",
+     *      operationId="trainingStore",
+     *      x={"internal"="true"},
      *      summary="Create a Training entry",
      *      description="Create a Training entry",
      *      tags={"Training"},
@@ -191,7 +199,7 @@ class TrainingController extends Controller
      *      @OA\RequestBody(
      *          required=true,
      *          description="Training definition",
-     *          ref="#/components/schemas/Training"
+     *          @OA\JsonContent(ref="#/components/schemas/Training")
      *      ),
      *      @OA\Response(
      *          response=404,
@@ -205,9 +213,7 @@ class TrainingController extends Controller
      *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data",
-     *                  ref="#/components/schemas/Training"
-     *              )
+     *              @OA\Property(property="data", type="integer", example=1)
      *          ),
      *      ),
      *      @OA\Response(
@@ -239,6 +245,8 @@ class TrainingController extends Controller
     /**
      * @OA\Put(
      *      path="/api/v1/training/{id}",
+     *      operationId="trainingUpdate",
+     *      x={"internal"="true"},
      *      summary="Update a Training entry",
      *      description="Update a Training entry",
      *      tags={"Training"},
@@ -259,7 +267,7 @@ class TrainingController extends Controller
      *      @OA\RequestBody(
      *          required=true,
      *          description="Training definition",
-     *          ref="#/components/schemas/Training"
+     *          @OA\JsonContent(ref="#/components/schemas/Training")
      *      ),
      *      @OA\Response(
      *          response=400,

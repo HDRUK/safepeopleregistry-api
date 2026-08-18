@@ -30,6 +30,8 @@ class CustodianUserController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/custodian_users",
+     *      operationId="custodianUsersIndex",
+     *      x={"internal"="true"},
      *      summary="Return a list of Custodian Users",
      *      description="Return a list of Custodian Users",
      *      tags={"CustodianUsers"},
@@ -68,6 +70,8 @@ class CustodianUserController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/custodian_users/{id}",
+     *      operationId="custodianUserShow",
+     *      x={"internal"="true"},
      *      summary="Return a CustodianUser entry by ID",
      *      description="Return a CustodianUser entry by ID",
      *      tags={"CustodianUser"},
@@ -143,6 +147,8 @@ class CustodianUserController extends Controller
     /**
      * @OA\Post(
      *      path="/api/v1/custodian_users",
+     *      operationId="custodianUserStore",
+     *      x={"internal"="true"},
      *      summary="Create a CustodianUser entry",
      *      description="Create a CustodianUser entry",
      *      tags={"CustodianUser"},
@@ -236,6 +242,7 @@ class CustodianUserController extends Controller
     /**
      * @OA\Post(
      *      path="/api/v1/custodian_users/bulk",
+     *      operationId="custodianUserBulkStore",
      *      summary="Create multiple CustodianUser entries",
      *      description="Create multiple CustodianUser entries",
      *      tags={"CustodianUser"},
@@ -359,12 +366,21 @@ class CustodianUserController extends Controller
 
     /**
      * @OA\Put(
-     *      path="/api/v1/custodian_users",
+     *      path="/api/v1/custodian_users/{id}",
+     *      operationId="custodianUserUpdate",
+     *      x={"internal"="true"},
      *      summary="Update a CustodianUser entry",
      *      description="Update a CustodianUser entry",
      *      tags={"CustodianUser"},
      *      summary="CustodianUser@update",
      *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          required=true,
+     *          description="ID of the custodian user",
+     *          @OA\Schema(type="integer")
+     *      ),
      *      @OA\RequestBody(
      *          required=true,
      *          description="CustodianUser definition",
@@ -508,6 +524,8 @@ class CustodianUserController extends Controller
     /**
      * @OA\Delete(
      *      path="/api/v1/custodian_users/{id}",
+     *      operationId="custodianUserDestroy",
+     *      x={"internal"="true"},
      *      summary="Delete a CustodianUser entry from the system by ID",
      *      description="Delete a CustodianUser entry from the system",
      *      tags={"CustodianUser"},

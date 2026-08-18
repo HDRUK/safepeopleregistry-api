@@ -77,7 +77,7 @@ class OrganisationTest extends TestCase
             'smb_status' => false,
             'organisation_size' => 2,
             'website' => 'https://www.website.com/',
-            'system_approved' => true,
+            'system_approved' => false,
             'sro_profile_uri' => 'https://myprofile.something',
         ];
     }
@@ -446,11 +446,6 @@ class OrganisationTest extends TestCase
 
         $this->enableObservers();
 
-        $org = Organisation::where('id', 1)->first();
-        $org->update([
-            'system_approved' => true,
-        ]);
-
         $response = $this->actingAs($this->organisation_admin)
             ->json(
                 'GET',
@@ -493,7 +488,6 @@ class OrganisationTest extends TestCase
                     'smb_status' => false,
                     'organisation_size' => 2,
                     'website' => 'https://www.website.com/',
-                    'system_approved' => false,
                 ]
             );
 
@@ -501,8 +495,17 @@ class OrganisationTest extends TestCase
         $this->assertArrayHasKey('data', $responseUpdate);
         $this->assertDatabaseHas('organisations', [
             'id' => $responseUpdate['data']['id'],
-            'verified' => true,
-            'system_approved' => false,
+            'address_1' => '123 Blah blah',
+        ]);
+        // system_approved should not be updated via this endpoint
+        $response = $this->actingAs($this->organisation_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/1'
+            );
+        $this->assertDatabaseMissing('organisations', [
+            'id' => $responseUpdate['data']['id'],
+            'system_approved' => true,
         ]);
 
         $responseActionLog = $this->actingAs($this->organisation_admin)
@@ -1378,7 +1381,6 @@ class OrganisationTest extends TestCase
                     'smb_status' => false,
                     'organisation_size' => 2,
                     'website' => 'https://www.website.com/',
-                    'system_approved' => true,
                 ]
             );
 
@@ -1387,10 +1389,10 @@ class OrganisationTest extends TestCase
         $this->assertEquals('Invalid argument(s)', $message);
     }
 
-    public function test_the_application_cannot_update_organisations_approved(): void
+    public function test_the_org_admin_cannot_update_organisations_approved(): void
     {
         $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
-        $organisationIdTest = $latestOrganisation ? $latestOrganisation->id + 1 : 1;
+        $organisationIdTest = $latestOrganisation ? $latestOrganisation->id : 1;
 
         $systemApproved = fake()->randomElement([false, true]);
 
@@ -1403,18 +1405,45 @@ class OrganisationTest extends TestCase
                 ]
             );
 
-        $response->assertStatus(400);
+        $response->assertStatus(403);
         $message = $response->decodeResponseJson()['message'];
-        $this->assertEquals('Invalid argument(s)', $message);
+        $this->assertEquals('forbidden', $message);
     }
 
-    public function test_the_application_update_organisations_approved_by_admin(): void
+    public function test_the_application_cannot_update_organisations_approved_via_update(): void
+    {
+        $latestOrganisation = Organisation::query()->orderBy('id', 'desc')->first();
+        $latestOrganisationSystemApproved = $latestOrganisation ? $latestOrganisation->system_approved : null;
+        $organisationIdTest = $latestOrganisation ? $latestOrganisation->id : 1;
+
+        $systemApproved = true;
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'PUT',
+                self::TEST_URL . "/{$organisationIdTest}",
+                [
+                    'system_approved' => $systemApproved,
+                ]
+            );
+
+        $response->assertStatus(200);
+        $message = $response->decodeResponseJson()['message'];
+        $this->assertEquals('success', $message);
+        // Update should not change system_approved value - only allowed via the specific endpoint
+        $finalSystemApproved = Organisation::where('id', $organisationIdTest)->value('system_approved');
+        $this->assertEquals($latestOrganisationSystemApproved, $finalSystemApproved);
+        }
+
+    public function test_the_application_can_update_organisations_approved_by_admin(): void
     {
         $organisationIdTest = 1;
         $initSystemApproved = Organisation::where('id', $organisationIdTest)->value('system_approved');
 
         if ($initSystemApproved) {
-            Organisation::where('id', $organisationIdTest)->update(['system_approved' => 0]);
+            $initOrg = Organisation::where('id', $organisationIdTest)->first();
+            $initOrg->system_approved = false;
+            $initOrg->save();
         }
 
         $response = $this->actingAs($this->admin)
@@ -1432,7 +1461,9 @@ class OrganisationTest extends TestCase
         $finalSystemApproved = Organisation::where('id', $organisationIdTest)->value('system_approved');
         $this->assertTrue($finalSystemApproved);
 
-        Organisation::where('id', $organisationIdTest)->update(['system_approved' => $initSystemApproved]);
+        $org = Organisation::where('id', $organisationIdTest)->first();
+        $org->system_approved = $initSystemApproved;
+        $org->save();
     }
 
     public function test_the_application_cannot_delete_organisations(): void

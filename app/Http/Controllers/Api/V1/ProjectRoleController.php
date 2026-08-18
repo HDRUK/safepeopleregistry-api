@@ -20,6 +20,8 @@ class ProjectRoleController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/project_roles",
+     *      operationId="projectRoleIndex",
+     *      x={"internal"="true"},
      *      summary="Return a list of ProjectRole",
      *      description="Return a list of ProjectRole",
      *      tags={"ProjectRole"},
@@ -53,6 +55,8 @@ class ProjectRoleController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/project_roles/{id}",
+     *      operationId="projectRoleShow",
+     *      x={"internal"="true"},
      *      summary="Return a ProjectRole",
      *      description="Return a ProjectRole",
      *      tags={"ProjectRole"},
@@ -108,6 +112,8 @@ class ProjectRoleController extends Controller
     /**
      * @OA\Post(
      *      path="/api/v1/project_roles",
+     *      operationId="projectRoleStore",
+     *      x={"internal"="true"},
      *      summary="Create a ProjectRole",
      *      description="Create a ProjectRole",
      *      tags={"ProjectRole"},
@@ -163,6 +169,8 @@ class ProjectRoleController extends Controller
     /**
      * @OA\Put(
      *      path="/api/v1/project_roles/{id}",
+     *      operationId="projectRoleUpdate",
+     *      x={"internal"="true"},
      *      summary="Update a ProjectRole entry",
      *      description="Update a ProjectRole entry",
      *      tags={"ProjectRole"},

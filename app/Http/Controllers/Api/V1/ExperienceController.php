@@ -20,6 +20,8 @@ class ExperienceController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/experiences",
+     *      operationId="experienceIndex",
+     *      x={"internal"="true"},
      *      summary="Return a list of Experience entries",
      *      description="Return a list of Experience entries",
      *      tags={"Experience"},
@@ -34,13 +36,18 @@ class ExperienceController extends Controller
      *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="project_id", type="integer", example="1"),
-     *                  @OA\Property(property="from", type="string", example="2024-02-04 12:10:00"),
-     *                  @OA\Property(property="to", type="string", example="2026-02-04 12:09:59"),
-     *                  @OA\Property(property="organisation_id", type="integer", example="2")
+     *                  @OA\Property(property="current_page", type="integer", example=1),
+     *                  @OA\Property(property="per_page", type="integer", example=25),
+     *                  @OA\Property(property="total", type="integer", example=24),
+     *                  @OA\Property(property="data", type="array",
+     *                      @OA\Items(
+     *                          ref="#/components/schemas/Experience"
+     *                      )
+     *                  ),
+     *                  @OA\Property(property="first_page_url", type="string", example="http://localhost:8100/api/v1/experiences?page=1"),
+     *                  @OA\Property(property="last_page_url", type="string", example="http://localhost:8100/api/v1/experiences?page=1"),
+     *                  @OA\Property(property="next_page_url", type="string", example=null),
+     *                  @OA\Property(property="prev_page_url", type="string", example=null)
      *              )
      *          ),
      *      ),
@@ -66,6 +73,8 @@ class ExperienceController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/experiences/{id}",
+     *      operationId="experienceShow",
+     *      x={"internal"="true"},
      *      summary="Return an Experience entry by ID",
      *      description="Return an Experience entry by ID",
      *      tags={"Experience"},
@@ -89,15 +98,7 @@ class ExperienceController extends Controller
      *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="project_id", type="integer", example="1"),
-     *                  @OA\Property(property="from", type="string", example="2024-02-04 12:10:00"),
-     *                  @OA\Property(property="to", type="string", example="2026-02-04 12:09:59"),
-     *                  @OA\Property(property="organisation_id", type="integer", example="2")
-     *              )
+     *              @OA\Property(property="data", ref="#/components/schemas/Experience")
      *          ),
      *      ),
      *      @OA\Response(
@@ -132,6 +133,8 @@ class ExperienceController extends Controller
     /**
      * @OA\Post(
      *      path="/api/v1/experiences",
+     *      operationId="experienceStore",
+     *      x={"internal"="true"},
      *      summary="Create an Experience entry",
      *      description="Create an Experience entry",
      *      tags={"Experience"},
@@ -162,9 +165,7 @@ class ExperienceController extends Controller
      *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *              )
+     *              @OA\Property(property="data", type="integer", example=123, description="ID of the newly created experience")
      *          ),
      *      ),
      *      @OA\Response(
@@ -199,6 +200,8 @@ class ExperienceController extends Controller
     /**
      * @OA\Put(
      *      path="/api/v1/experiences/{id}",
+     *      operationId="experienceUpdate",
+     *      x={"internal"="true"},
      *      summary="Update an Experience entry",
      *      description="Update an Experience entry",
      *      tags={"Experience"},
@@ -233,15 +236,7 @@ class ExperienceController extends Controller
      *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="project_id", type="integer", example="1"),
-     *                  @OA\Property(property="from", type="string", example="2024-02-04 12:10:00"),
-     *                  @OA\Property(property="to", type="string", example="2026-02-04 12:09:59"),
-     *                  @OA\Property(property="organisation_id", type="integer", example="2")
-     *              )
+     *              @OA\Property(property="data", ref="#/components/schemas/Experience")
      *          ),
      *      ),
      *      @OA\Response(
@@ -292,6 +287,8 @@ class ExperienceController extends Controller
     /**
      * @OA\Delete(
      *      path="/api/v1/experiences/{id}",
+     *      operationId="experienceDestroy",
+     *      x={"internal"="true"},
      *      summary="Delete an Experience entry from the system by ID",
      *      description="Delete a Experience entry from the system",
      *      tags={"Experience"},

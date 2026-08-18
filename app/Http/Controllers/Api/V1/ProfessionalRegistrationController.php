@@ -69,6 +69,8 @@ class ProfessionalRegistrationController extends Controller
     /**
      * @OA\Put(
      *      path="/api/v1/professional_registrations/{id}",
+     *      operationId="professionalRegistrationsUpdate",
+     *      x={"internal"="true"},
      *      summary="Update a Professional Registrations entry",
      *      description="Update a Professional Registrations entry",
      *      tags={"Professional Registrations"},
@@ -98,13 +100,7 @@ class ProfessionalRegistrationController extends Controller
      *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="member_id", type="string", example="ABC1234"),
-     *                  @OA\Property(property="name", type="string", example="ONS"),
-     *              )
+     *              @OA\Property(property="data", ref="#/components/schemas/ProfessionalRegistration")
      *          ),
      *      ),
      *      @OA\Response(

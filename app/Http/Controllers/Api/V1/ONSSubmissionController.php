@@ -22,7 +22,9 @@ class ONSSubmissionController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/v1/ons-submissions/csv",
+     *     path="/api/v1/ons_researcher_feed",
+     *     operationId="oNSSubmissionReceiveCSV",
+     *     x={"internal"="true"},
      *     tags={"ONSSubmission"},
      *     summary="Upload a CSV file for ONS submission",
      *     @OA\RequestBody(

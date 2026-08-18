@@ -18,6 +18,8 @@ class InfringementController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/infringements",
+     *      operationId="infringementIndex",
+     *      x={"internal"="true"},
      *      summary="Return a list of Infringements",
      *      description="Return a list of Infringements",
      *      tags={"Infringement"},
@@ -28,14 +30,7 @@ class InfringementController extends Controller
      *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="reported_by", type="integer", example="1"),
-     *                  @OA\Property(property="comment", type="string", example="Infringement detected"),
-     *                  @OA\Property(property="raised_against", type="integer", example="12"),
-     *              )
+     *              @OA\Property(property="data", ref="#/components/schemas/Infringement")
      *          ),
      *      ),
      *      @OA\Response(
@@ -60,6 +55,8 @@ class InfringementController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/infringements/{id}",
+     *      operationId="infringementShow",
+     *      x={"internal"="true"},
      *      summary="Return an Infringement entry by ID",
      *      description="Return an Infringement entry by ID",
      *      tags={"Infringement"},
@@ -81,14 +78,7 @@ class InfringementController extends Controller
      *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="reported_by", type="integer", example="1"),
-     *                  @OA\Property(property="comment", type="string", example="Infringement detected"),
-     *                  @OA\Property(property="raised_against", type="integer", example="12")
-     *              )
+     *              @OA\Property(property="data", ref="#/components/schemas/Infringement")
      *          ),
      *      ),
      *      @OA\Response(
@@ -123,6 +113,8 @@ class InfringementController extends Controller
     /**
      * @OA\Post(
      *      path="/api/v1/infringements",
+     *      operationId="infringementStore",
+     *      x={"internal"="true"},
      *      summary="Create an Infringement entry",
      *      description="Create an Infringement entry",
      *      tags={"Infringement"},
@@ -149,14 +141,7 @@ class InfringementController extends Controller
      *          description="Success",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="success"),
-     *              @OA\Property(property="data", type="object",
-     *                  @OA\Property(property="id", type="integer", example="123"),
-     *                  @OA\Property(property="created_at", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="updated_at", type="string", example="2024-02-04 12:01:00"),
-     *                  @OA\Property(property="reported_by", type="integer", example="1"),
-     *                  @OA\Property(property="comment", type="string", example="Infringement detected"),
-     *                  @OA\Property(property="raised_against", type="integer", example="12"),
-     *              )
+     *              @OA\Property(property="data", type="integer", example=123, description="ID of the created Infringement entry")
      *          ),
      *      ),
      *      @OA\Response(

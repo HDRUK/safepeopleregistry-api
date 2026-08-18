@@ -53,6 +53,8 @@ class UserController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/users",
+     *      operationId="userIndex",
+     *      x={"internal"="true"},
      *      summary="Return a list of Users",
      *      description="Return a list of Users",
      *      tags={"User"},
@@ -76,16 +78,13 @@ class UserController extends Controller
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
      *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
-     *                  @OA\Property(property="declaration_signed", type="boolean", example="true"),
      *                  @OA\Property(property="organisation_id", type="integer", example="123"),
      *                  @OA\Property(property="orcid_scanning", type="integer", example="1"),
      *                  @OA\Property(property="orcid_scanning_completed_at", type="string", example="2024-02-04 12:01:00"),
      *                  @OA\Property(property="location", type="string", example="United Kingdom"),
      *                  @OA\Property(property="t_and_c_agreed", type="boolean", example="true"),
      *                  @OA\Property(property="t_and_c_agreement_date", type="string", example="2024-02-04 12:00:00"),
-     *                  @OA\Property(property="uksa_registered", type="boolean", example="true"),
      *                  @OA\Property(property="is_sro", type="boolean", example="false")
-     *
      *              )
      *          ),
      *      ),
@@ -174,6 +173,8 @@ class UserController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/users/{id}",
+     *      operationId="userShow",
+     *      x={"internal"="true"},
      *      summary="Return a User entry by ID",
      *      description="Return a User entry by ID",
      *      tags={"User"},
@@ -210,7 +211,6 @@ class UserController extends Controller
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
      *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
-     *                  @OA\Property(property="declaration_signed", type="boolean", example="true"),
      *                  @OA\Property(property="organisation_id", type="integer", example="123"),
      *                  @OA\Property(property="orcid_scanning", type="integer", example="1"),
      *                  @OA\Property(property="orcid_scanning_completed_at", type="string", example="2024-02-04 12:01:00"),
@@ -218,7 +218,6 @@ class UserController extends Controller
      *                  @OA\Property(property="t_and_c_agreed", type="boolean", example="true"),
      *                  @OA\Property(property="t_and_c_agreement_date", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="status", type="string", example="registered"),
-     *                  @OA\Property(property="uksa_registered", type="boolean", example="true"),
      *                  @OA\Property(property="is_sro", type="boolean", example="false")
      *              )
      *          ),
@@ -314,6 +313,8 @@ class UserController extends Controller
     /**
      * @OA\Post(
      *      path="/api/v1/users",
+     *      operationId="usersStore",
+     *      x={"internal"="true"},
      *      summary="Create a User entry",
      *      description="Create a User entry",
      *      tags={"Users"},
@@ -360,12 +361,10 @@ class UserController extends Controller
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
      *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
-     *                  @OA\Property(property="declaration_signed", type="boolean", example="true"),
      *                  @OA\Property(property="organisation_id", type="integer", example="123"),
      *                  @OA\Property(property="orcid_scanning", type="integer", example="1"),
      *                  @OA\Property(property="orcid_scanning_completed_at", type="string", example="2024-02-04 12:01:00"),
      *                  @OA\Property(property="status", type="string", example="registered"),
-     *                  @OA\Property(property="uksa_registered", type="boolean", example="true"),
      *                  @OA\Property(property="is_sro", type="boolean", example="false")
      *              )
      *          ),
@@ -400,9 +399,7 @@ class UserController extends Controller
                 'user_group' => Keycloak::determineUserGroup($input),
                 'consent_scrape' => isset($input['consent_scrape']) ? $input['consent_scrape'] : 0,
                 'public_opt_in' => isset($input['public_opt_in']) ? $input['public_opt_in'] : false,
-                'declaration_signed' => isset($input['declaration_signed']) ? $input['declaration_signed'] : false,
                 'organisation_id' => isset($input['organisation_id']) ? $input['organisation_id'] : null,
-                'uksa_registered' => isset($input['uksa_registered']) ? $input['uksa_registered'] : 0,
                 'is_sro' => isset($input['is_sro']) ? $input['is_sro'] : 0,
             ]);
 
@@ -455,6 +452,8 @@ class UserController extends Controller
     /**
      * @OA\Put(
      *      path="/api/v1/users/{id}",
+     *      operationId="userUpdate",
+     *      x={"internal"="true"},
      *      summary="Edit a User entry",
      *      description="Edit a User entry",
      *      tags={"User"},
@@ -505,7 +504,6 @@ class UserController extends Controller
      *                  @OA\Property(property="email_verified_at", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="consent_scrape", type="boolean", example="true"),
      *                  @OA\Property(property="public_opt_in", type="boolean", example="true"),
-     *                  @OA\Property(property="declaration_signed", type="boolean", example="true"),
      *                  @OA\Property(property="organisation_id", type="integer", example="123"),
      *                  @OA\Property(property="orc_id", type="string", example="0000-0000-0000-0000"),
      *                  @OA\Property(property="orcid_scanning", type="integer", example="1"),
@@ -513,7 +511,6 @@ class UserController extends Controller
      *                  @OA\Property(property="t_and_c_agreed", type="boolean", example="true"),
      *                  @OA\Property(property="t_and_c_agreement_date", type="string", example="2024-02-04 12:00:00"),
      *                  @OA\Property(property="status", type="string", example="registered"),
-     *                  @OA\Property(property="uksa_registered", type="boolean", example="true"),
      *                  @OA\Property(property="is_sro", type="boolean", example="false")
      *              )
      *          ),
@@ -572,7 +569,6 @@ class UserController extends Controller
             $user->registry_id = isset($input['registry_id']) ? $input['registry_id'] : $user->registry_id;
             $user->consent_scrape = isset($input['consent_scrape']) ? $input['consent_scrape'] : $user->consent_scrape;
             $user->public_opt_in = isset($input['public_opt_in']) ? $input['public_opt_in'] : $user->public_opt_in;
-            $user->declaration_signed = isset($input['declaration_signed']) ? $input['declaration_signed'] : $user->declaration_signed;
             $user->organisation_id = isset($input['organisation_id']) ? $input['organisation_id'] : $user->organisation_id;
             $user->orc_id = isset($input['orc_id']) ? $input['orc_id'] : $user->orc_id;
             $user->location = isset($input['location']) ? $input['location'] : $user->location;
@@ -580,7 +576,6 @@ class UserController extends Controller
                 ? filter_var($input['t_and_c_agreed'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)
                 : $user->t_and_c_agreed;
             $user->t_and_c_agreement_date = isset($input['lt_and_c_agreement_date']) ? $input['t_and_c_agreement_date'] : $user->t_and_c_agreement_date;
-            $user->uksa_registered = isset($input['uksa_registered']) ? $input['uksa_registered'] : $user->uksa_registered;
             $user->is_sro = isset($input['is_sro']) ? $input['is_sro'] : $user->is_sro;
             $user->is_delegate = isset($input['is_delegate']) ? $input['is_delegate'] : $user->is_delegate;
             $user->role = isset($input['role']) ? $input['role'] : $user->role;
@@ -722,6 +717,8 @@ class UserController extends Controller
     /**
      * @OA\Delete(
      *      path="/api/v1/users/{id}",
+     *      operationId="userDestroy",
+     *      x={"internal"="true"},
      *      summary="Delete a User entry from the system by ID",
      *      description="Delete a User entry from the system",
      *      tags={"User"},
@@ -980,12 +977,12 @@ class UserController extends Controller
             return $this->ErrorResponse('User with email ' . $email . ' not found in Keycloak');
         }
 
-        $keycloakEmailVeifiedState = $user[0]['emailVerified'] ?? null;
-        if (is_null($keycloakEmailVeifiedState)) {
+        $keycloakEmailVerifiedState = $user[0]['emailVerified'] ?? null;
+        if (is_null($keycloakEmailVerifiedState)) {
             return $this->ErrorResponse('Unable to determine email verified state for user with email ' . $email . ' in Keycloak');
         }
 
-        if ($keycloakEmailVeifiedState === true) {
+        if ($keycloakEmailVerifiedState === true) {
             return $this->ErrorResponse('User with email ' . $email . ' already verified in Keycloak');
         }
 

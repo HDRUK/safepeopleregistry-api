@@ -30,7 +30,8 @@ class CustodianHasProjectOrganisationController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/custodian_approvals/{custodianId}/projectOrganisations",
-     *      operationId="indexCustodianProjectOrganisations",
+     *      operationId="custodianProjectOrganisationsIndex",
+     *      x={"internal"="true"},
      *      tags={"Custodian Project Organisations"},
      *      summary="List all project organisations associated with a custodian",
      *      description="Returns a list of all custodian project organisation approvals for a specific custodian",
@@ -141,7 +142,8 @@ class CustodianHasProjectOrganisationController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/custodian_approvals/{custodianId}/projectOrganisations/{projectOrganisationId}",
-     *      operationId="showCustodianProjectOrganisation",
+     *      operationId="custodianProjectOrganisationsShow",
+     *      x={"internal"="true"},
      *      tags={"Custodian Project Organisations"},
      *      summary="Get custodian approval for a project organisation",
      *      description="Returns custodian approval details for a specific project organisation",
@@ -227,7 +229,8 @@ class CustodianHasProjectOrganisationController extends Controller
     /**
      * @OA\Put(
      *      path="/api/v1/custodian_approvals/{custodianId}/projectOrganisations/{projectOrganisationId}",
-     *      operationId="updateCustodianProjectOrganisation",
+     *      operationId="custodianProjectOrganisationsUpdate",
+     *      x={"internal"="true"},
      *      tags={"Custodian Project Organisations"},
      *      summary="Update custodian approval for a project organisation",
      *      description="Updates approval status and/or comment for a project organisation",
@@ -391,8 +394,9 @@ class CustodianHasProjectOrganisationController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/api/v1/custodian_approvals/projectOrganisations/getWorkflowStates",
-     *      operationId="getProjectOrganisationWorkflowStates",
+     *      path="/api/v1/custodian_approvals/projectOrganisations/workflowStates",
+     *      operationId="custodianProjectOrganisationsGetWorkflowStates",
+     *      x={"internal"="true"},
      *      tags={"Custodian Project Organisations"},
      *      summary="Get all workflow states for custodian project organisation approvals",
      *      description="Returns a list of all possible workflow states",
@@ -425,6 +429,8 @@ class CustodianHasProjectOrganisationController extends Controller
     /**
       * @OA\Get(
       *     path="/api/v1/custodian_approvals/{custodianId}/project/{projectId}/organisation/{organisationId}/projectOrganisations/status",
+      *     operationId="custodianProjectOrganisationsGetStatus",
+      *     x={"internal"="true"},
       *     summary="Get project organisation status",
       *     description="Retrieve the status of a project organisation for a specific custodian using custodianId, projectId, and organisationId.",
       *     tags={"organisations"},

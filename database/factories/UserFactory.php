@@ -30,7 +30,6 @@ class UserFactory extends Factory
             'keycloak_id' => Str::random(50),
             'user_group' => '',
             'public_opt_in' => fake()->randomElement([0, 1]),
-            'declaration_signed' => fake()->randomElement([0, 1]),
             'organisation_id' => null,
             'role' => null,
         ];

@@ -27,6 +27,8 @@ class AccreditationController extends Controller
     /**
      * @OA\Get(
      *     path="/api/v1/accreditations/{registryId}",
+     *     operationId="accreditationIndexByRegistryId",
+     *     x={"internal"="true"},
      *     tags={"Accreditation"},
      *     summary="Get accreditations by registry ID",
      *     @OA\Parameter(
@@ -76,6 +78,8 @@ class AccreditationController extends Controller
     /**
      * @OA\Post(
      *     path="/api/v1/accreditations/{registryId}",
+     *     operationId="accreditationStoreByRegistryId",
+     *     x={"internal"="true"},
      *     tags={"Accreditation"},
      *     summary="Create accreditation for a registry",
      *     @OA\Parameter(
@@ -136,6 +140,8 @@ class AccreditationController extends Controller
     /**
      * @OA\Put(
      *     path="/api/v1/accreditations/{id}/registries/{registryId}",
+     *     operationId="accreditationUpdateByRegistryId",
+     *     x={"internal"="true"},
      *     tags={"Accreditation"},
      *     summary="Update accreditation for a registry",
      *     @OA\Parameter(

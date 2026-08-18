@@ -25,6 +25,8 @@ class SectorController extends Controller
     /**
      * @OA\Get(
      *     path="/api/v1/sectors",
+     *     operationId="sectorIndex",
+     *     x={"internal"="true"},
      *     tags={"Sector"},
      *     summary="Get a list of sectors",
      *     @OA\Response(
@@ -50,6 +52,8 @@ class SectorController extends Controller
     /**
      * @OA\Get(
      *     path="/api/v1/sectors/{id}",
+     *     operationId="sectorShow",
+     *     x={"internal"="true"},
      *     tags={"Sector"},
      *     summary="Get a specific sector by ID",
      *     @OA\Parameter(
@@ -102,6 +106,8 @@ class SectorController extends Controller
     /**
      * @OA\Post(
      *     path="/api/v1/sectors",
+     *     operationId="sectorStore",
+     *     x={"internal"="true"},
      *     tags={"Sector"},
      *     summary="Create a new sector",
      *     @OA\RequestBody(
@@ -148,6 +154,8 @@ class SectorController extends Controller
     /**
      * @OA\Put(
      *     path="/api/v1/sectors/{id}",
+     *     operationId="sectorUpdate",
+     *     x={"internal"="true"},
      *     tags={"Sector"},
      *     summary="Update an existing sector",
      *     @OA\Parameter(
@@ -211,6 +219,8 @@ class SectorController extends Controller
     /**
      * @OA\Delete(
      *     path="/api/v1/sectors/{id}",
+     *     operationId="sectorDestroy",
+     *     x={"internal"="true"},
      *     tags={"Sector"},
      *     summary="Delete a sector",
      *     @OA\Parameter(

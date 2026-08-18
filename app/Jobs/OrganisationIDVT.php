@@ -160,7 +160,7 @@ class OrganisationIDVT implements ShouldQueue
 
         if ($responseCompany->status() !== 200) {
             // Company doesn't exist, therefore we abort and mark as unverified
-            $this->organisation->update([
+            $this->organisation->updateQuietly([
                 'idvt_result' => 0,
                 'idvt_result_perc' => 0,
                 'idvt_errors' => 'company does not exist in gov record',

@@ -41,13 +41,15 @@ class AffiliationController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/affiliations/{registryId}",
+     *      operationId="affiliationsIndexByRegistryId",
+     *      x={"internal"="true"},
      *      summary="Return a list of affiliations by registry id",
      *      description="Return a list of affiliations by registry id",
      *      tags={"Affiliations"},
      *      summary="Affiliations@show",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
-     *         name="id",
+     *         name="registryId",
      *         in="path",
      *         description="Affiliations registry id",
      *         required=true,
@@ -122,7 +124,8 @@ class AffiliationController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/affiliations/{registryId}/organisation/{organisationId}",
-     *      operationId="getOrganisationAffiliation",
+     *      operationId="affiliationsGetOrganisationAffiliation",
+     *      x={"internal"="true"},
      *      summary="Return a specific organisation's affiliation by registry ID and organisation ID",
      *      description="Get a specific organisation's affiliation for a given registry",
      *      tags={"Affiliations"},
@@ -219,13 +222,15 @@ class AffiliationController extends Controller
     /**
      * @OA\Post(
      *      path="/api/v1/affiliations/{registryId}",
+     *      operationId="affiliationsStoreByRegistryId",
+     *      x={"internal"="true"},
      *      summary="Create an Affiliation entry",
      *      description="Create an Affiliation entry",
      *      tags={"Affiliations"},
      *      summary="Affiliations@store",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
-     *         name="registry_id",
+     *         name="registryId",
      *         in="path",
      *         description="Registry entry ID",
      *         required=true,
@@ -302,16 +307,16 @@ class AffiliationController extends Controller
                 return $this->ErrorResponse('Organisation with id ' . $array['organisation_id'] . ' not found');
             }
 
-            $verificationCode = null;
+            $affiliation = Affiliation::create($array);
+
             if ($currentEmployer) {
                 $verificationCode = Str::uuid()->toString();
-                $array['verification_code'] = $verificationCode;
-                $array['verification_sent_at'] = Carbon::now();
-                $array['verification_confirmed_at'] = null;
-                $array['is_verified'] = 0;
+                $affiliation->verification_code = $verificationCode;
+                $affiliation->verification_sent_at = Carbon::now();
+                $affiliation->verification_confirmed_at = null;
+                $affiliation->is_verified = 0;
+                $affiliation->save();
             }
-
-            $affiliation = Affiliation::create($array);
 
             if ($currentEmployer && $verificationCode && !$isCurrentEmail) {
                 $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
@@ -366,13 +371,10 @@ class AffiliationController extends Controller
                 return $this->ErrorResponse('Organisation with id ' .  $affiliation->organisation_id . ' not found');
             }
 
-            $array = [
-                'is_verified' => 0,
-                'verification_code' => Str::uuid()->toString(),
-                'verification_sent_at' => Carbon::now(),
-            ];
-
-            Affiliation::where('id', $id)->update($array);
+            $affiliation->is_verified = 0;
+            $affiliation->verification_code = Str::uuid()->toString();
+            $affiliation->verification_sent_at = Carbon::now();
+            $affiliation->save();
 
             $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
 
@@ -388,6 +390,8 @@ class AffiliationController extends Controller
     /**
      * @OA\Put(
      *      path="/api/v1/affiliations/{id}",
+     *      operationId="affiliationsUpdate",
+     *      x={"internal"="true"},
      *      summary="Update an Affiliation entry",
      *      description="Update an Affiliation entry",
      *      tags={"Affiliations"},
@@ -460,12 +464,18 @@ class AffiliationController extends Controller
             $unclaimed = $affiliation->organisation->unclaimed;
 
             if (!$affiliation->is_verified && $input['current_employer']) {
-                $input['verification_code'] = Str::uuid()->toString();
-                $input['verification_sent_at'] = Carbon::now();
-                $array['verification_confirmed_at'] = null;
-                $array['is_verified'] = 0;
+                $affiliation->verification_code = Str::uuid()->toString();
+                $affiliation->verification_sent_at = Carbon::now();
+                $affiliation->verification_confirmed_at = null;
             }
 
+            // SC: We don't want to allow email updates through this endpoint right now, as it could lead to verification issues.
+            // We only allow email updates in the specific case where the user is changing an affiliation from historic to current,
+            // _and_ they haven't already set an email before. This cuts out the complex case while still allowing that one case
+            // (where we'd not have fired off a verification email yet).
+            if (!($input['current_employer'] && !$originalAffiliation['current_employer'] && empty($originalAffiliation['email']))) {
+                unset($input['email']);
+            }
             $affiliation->fill($input);
             $affiliation->save();
             $affiliation->refresh();
@@ -483,7 +493,7 @@ class AffiliationController extends Controller
                 $custodianHasProjectUser->setState(State::STATE_PENDING);
             }
 
-            $requiresVerification = $requiresEmailVerification =
+            $requiresVerification =
                 !$isCurrentEmail
                 && $affiliation->current_employer
                 && !$affiliation->is_verified;
@@ -523,13 +533,15 @@ class AffiliationController extends Controller
     /**
      * @OA\Put(
      *      path="/api/v1/affiliations/verify_email/{verificationCode}",
+     *      operationId="affiliationsVerifyEmail",
+     *      x={"internal"="true"},
      *      summary="Update an Affiliation entry",
      *      description="Update an Affiliation entry with verification",
      *      tags={"Affiliations"},
      *      summary="Affiliations@verifyEmail",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
-     *         name="verification_code",
+     *         name="verificationCode",
      *         in="path",
      *         description="Email verification code",
      *         required=true,
@@ -616,12 +628,11 @@ class AffiliationController extends Controller
             if (!is_null($custodianHasProjectUser)) {
                 $custodianHasProjectUser->setState(State::STATE_PENDING);
             }
-            $array = [
-                'verification_code' => null,
-                'is_verified' => 1,
-                'verification_confirmed_at' => Carbon::now(),
-            ];
-            $affiliation->update($array);
+            $affiliation->verification_code = null;
+            $affiliation->is_verified = 1;
+            $affiliation->verification_confirmed_at = Carbon::now();
+            $affiliation->save();
+
             return $this->OKResponse($affiliation);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -631,6 +642,8 @@ class AffiliationController extends Controller
     /**
      * @OA\Delete(
      *      path="/api/v1/training/{id}",
+     *      operationId="affiliationDestroy",
+     *      x={"internal"="true"},
      *      summary="Delete a affiliation entry from the system by ID",
      *      description="Delete a affiliation entry from the system",
      *      tags={"Affiliation"},

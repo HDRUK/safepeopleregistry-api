@@ -8,6 +8,7 @@ use App\Models\CustodianUser;
 use App\Models\Organisation;
 use App\Models\Registry;
 use Tests\TestCase;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\RegistryHasTraining;
 use Database\Factories\CustodianFactory;
@@ -70,6 +71,11 @@ class PermissionMatrixTest extends TestCase
             'researcher1' => $this->user,
             'researcher2' => $this->user2,
         ];
+
+        $this->organisation = Organisation::first();
+        $this->organisation->system_approved = true;
+        $this->organisation->system_approved_at = Carbon::now();
+        $this->organisation->save();
     }
 
     public function test_custodian_permissions_matrix()
@@ -246,7 +252,6 @@ class PermissionMatrixTest extends TestCase
                 'route' => '/organisations/1',
                 'payload' => [
                     'organisation_name' =>  fake()->company(),
-                    'system_approved' => true,
                 ],
                 'permissions' => [
                     'admin' => 200,
