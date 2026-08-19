@@ -20,7 +20,7 @@ return new class () extends DeploymentStep {
 
             $this->info("Updated delegate rule");
         } catch (\Throwable $e) {
-            $this->warn("Delagate rule could not be updated: {$e->getMessage()}");
+            $this->warn("Delegate rule could not be updated: {$e->getMessage()}");
         }
     }
 };
