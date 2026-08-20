@@ -362,7 +362,7 @@ class CustodianModelConfigController extends Controller
             return $this->NotFoundResponse();
         }
 
-        $entityModels = DecisionModel::with(['custodianModelConfig' => function ($query) use ($custodianId) {
+        $decisionModels = DecisionModel::with(['custodianModelConfig' => function ($query) use ($custodianId) {
             $query->where('custodian_id', $custodianId);
         }])
             ->whereHas('custodianModelConfig', function ($query) use ($custodianId) {
@@ -371,11 +371,11 @@ class CustodianModelConfigController extends Controller
             ->where('entity_model_type_id', $entityModelTypeId)
             ->get();
 
-        if ($entityModels->isEmpty()) {
+        if ($decisionModels->isEmpty()) {
             return $this->NotFoundResponse();
         }
 
-        $entityModels = $entityModels->map(function ($model) {
+        $decisionModels = $decisionModels->map(function ($model) {
             return [
                 'id' => $model->id,
                 'name' => $model->name,
@@ -384,7 +384,7 @@ class CustodianModelConfigController extends Controller
             ];
         });
 
-        return $this->OKResponse($entityModels);
+        return $this->OKResponse($decisionModels);
     }
     /**
      * @OA\Put(
