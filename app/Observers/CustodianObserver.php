@@ -18,7 +18,7 @@ class CustodianObserver
         $decisionModels = DecisionModel::all();
         foreach ($decisionModels as $d) {
             CustodianModelConfig::updateOrCreate([
-                'entity_model_id' => $d->id,
+                'decision_model_id' => $d->id,
                 'custodian_id' => $custodian->id,
             ],
             [

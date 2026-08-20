@@ -61,7 +61,7 @@ class CustodianModelConfigTest extends TestCase
                 'POST',
                 self::TEST_URL,
                 [
-                    'entity_model_id' => 1,
+                    'decision_model_id' => 1,
                     'active' => 1,
                     'custodian_id' => 1,
                 ]
@@ -79,7 +79,7 @@ class CustodianModelConfigTest extends TestCase
                 'POST',
                 self::TEST_URL,
                 [
-                    'entity_model_id' => 1,
+                    'decision_model_id' => 1,
                     'active' => 1,
                     'custodian_id' => 1,
                 ]
@@ -132,7 +132,7 @@ class CustodianModelConfigTest extends TestCase
                 'POST',
                 self::TEST_URL,
                 [
-                    'entity_model_id' => 1,
+                    'decision_model_id' => 1,
                     'active' => 1,
                     'custodian_id' => 1,
                 ]

@@ -48,7 +48,7 @@ class TestSeeder extends Seeder
 
             foreach ($decisionModels as $d) {
                 CustodianModelConfig::firstOrCreate([
-                    'entity_model_id' => $d->id,
+                    'decision_model_id' => $d->id,
                     'custodian_id' => $i->id,
                 ],
                 [

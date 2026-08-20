@@ -132,7 +132,7 @@ class CustodianModelConfigController extends Controller
             $input = $request->only(app(CustodianModelConfig::class)->getFillable());
 
             $conf = CustodianModelConfig::firstOrCreate([
-                'entity_model_id' => $input['entity_model_id'],
+                'decision_model_id' => $input['decision_model_id'],
                 'custodian_id' => $input['custodian_id'],
             ],[
                 'active' => $input['active'],
@@ -410,7 +410,7 @@ class CustodianModelConfigController extends Controller
      *                  type="array",
      *                  @OA\Items(
      *                      type="object",
-     *                      @OA\Property(property="entity_model_id", type="integer", example=1),
+     *                      @OA\Property(property="decision_model_id", type="integer", example=1),
      *                      @OA\Property(property="active", type="boolean", example=true)
      *                  )
      *              )
@@ -424,7 +424,7 @@ class CustodianModelConfigController extends Controller
      *              @OA\Property(property="data", type="array",
      *                  @OA\Items(
      *                      type="object",
-     *                      @OA\Property(property="entity_model_id", type="integer", example=1),
+     *                      @OA\Property(property="decision_model_id", type="integer", example=1),
      *                      @OA\Property(property="active", type="boolean", example=true)
      *                  )
      *              )
@@ -452,7 +452,7 @@ class CustodianModelConfigController extends Controller
             $loggedInUserId = $request->user()?->id;
             $request->validate([
                 'configs' => 'required|array',
-                'configs.*.entity_model_id' => 'required|integer|exists:decision_models,id',
+                'configs.*.decision_model_id' => 'required|integer|exists:decision_models,id',
                 'configs.*.active' => 'required|boolean',
             ]);
 
@@ -462,7 +462,7 @@ class CustodianModelConfigController extends Controller
 
             foreach ($configs as $config) {
                 $custodianModelConfig = CustodianModelConfig::where('custodian_id', $id)
-                    ->where('entity_model_id', $config['entity_model_id'])
+                    ->where('decision_model_id', $config['decision_model_id'])
                     ->first();
 
                 if ($custodianModelConfig) {
@@ -473,7 +473,7 @@ class CustodianModelConfigController extends Controller
                     $custodianModelConfig->save();
 
                     $updatedConfigs[] = [
-                        'entity_model_id' => $custodianModelConfig->entity_model_id,
+                        'decision_model_id' => $custodianModelConfig->decision_model_id,
                         'active' => $custodianModelConfig->active,
                     ];
                 }
