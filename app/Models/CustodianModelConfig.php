@@ -24,7 +24,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *          type="string",
  *          example="2023-10-10T18:03:00Z"
  *      ),
- *      @OA\Property(property="entity_model_id",
+ *      @OA\Property(property="decision_model_id",
  *          type="integer",
  *          example=1
  *      ),
@@ -41,7 +41,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property int $entity_model_id
+ * @property int $decision_model_id
  * @property int $active
  * @property int $custodian_id
  * @property-read \App\Models\Custodian|null $custodian
@@ -66,7 +66,7 @@ class CustodianModelConfig extends Model
     public $timestamp = true;
 
     protected $fillable = [
-        'entity_model_id',
+        'decision_model_id',
         'active',
         'custodian_id',
     ];

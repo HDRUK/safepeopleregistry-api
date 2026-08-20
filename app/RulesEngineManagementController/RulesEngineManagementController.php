@@ -67,8 +67,8 @@ class RulesEngineManagementController
         $modelConfig = CustodianModelConfig::where([
             'custodian_id' => $custodianId,
             'active' => 1,
-        ])->select('entity_model_id')
-        ->pluck('entity_model_id');
+        ])->select('decision_model_id')
+        ->pluck('decision_model_id');
 
         if (!$modelConfig) {
             return null;
