@@ -52,7 +52,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianModelConfig whereActive($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianModelConfig whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianModelConfig whereCustodianId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianModelConfig whereEntityModelId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianModelConfig whereDecisionModelId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianModelConfig whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianModelConfig whereUpdatedAt($value)
  * @mixin \Eloquent
