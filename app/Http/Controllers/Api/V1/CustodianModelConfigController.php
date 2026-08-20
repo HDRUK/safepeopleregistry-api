@@ -7,14 +7,14 @@ use App\Models\Custodian;
 use Illuminate\Http\Request;
 use App\Models\DecisionModel;
 use App\Http\Traits\Responses;
-use App\Models\EntityModelType;
+use App\Models\DecisionModelType;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\CustodianModelConfig;
 use App\Traits\Notifications\NotificationCustodianManager;
-use App\Http\Requests\CustodianModelConfig\GetEntityModelsRequest;
-use App\Http\Requests\CustodianModelConfig\UpdateEntityModelsRequest;
+use App\Http\Requests\CustodianModelConfig\GetDecisionModelsRequest;
+use App\Http\Requests\CustodianModelConfig\UpdateDecisionModelsRequest;
 use App\Http\Requests\CustodianModelConfig\DeleteCustodianModelConfig;
 use App\Http\Requests\CustodianModelConfig\CreateCustodianModelConfigRequest;
 use App\Http\Requests\CustodianModelConfig\UpdateCustodianModelConfigRequest;
@@ -292,11 +292,11 @@ class CustodianModelConfigController extends Controller
     }
     /**
      * @OA\Get(
-     *      path="/api/v1/custodian_config/{custodianId}/entity_models",
-     *      operationId="custodianModelConfigGetEntityModels",
+     *      path="/api/v1/custodian_config/{custodianId}/decision_models",
+     *      operationId="custodianModelConfigGetDecisionModels",
      *      x={"internal"="true"},
-     *      summary="Get entity models for custodian config",
-     *      description="Retrieve entity models associated with custodian config based on the specified entity_model_type",
+     *      summary="Get decision models for custodian config",
+     *      description="Retrieve decision models associated with custodian config based on the specified decision_model_type",
      *      tags={"CustodianModelConfig"},
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
@@ -307,10 +307,10 @@ class CustodianModelConfigController extends Controller
      *          @OA\Schema(type="integer")
      *      ),
      *      @OA\Parameter(
-     *          name="entity_model_type",
+     *          name="decision_model_type",
      *          in="query",
      *          required=true,
-     *          description="Type of entity model to retrieve",
+     *          description="Type of decision model to retrieve",
      *          @OA\Schema(
      *              type="string",
      *              enum={"decision_model", "user_validation_rules", "org_validation_rules"}
@@ -326,7 +326,7 @@ class CustodianModelConfigController extends Controller
      *                      type="object",
      *                      @OA\Property(property="id", type="integer", example=1),
      *                      @OA\Property(property="name", type="string", example="Decision Model A"),
-     *                      @OA\Property(property="entity_model_type_id", type="integer", example=1),
+     *                      @OA\Property(property="decision_model_type_id", type="integer", example=1),
      *                      @OA\Property(property="description", type="string", nullable=true, example="This is a decision model for process A"),
      *                      @OA\Property(property="created_at", type="string", format="date-time"),
      *                      @OA\Property(property="updated_at", type="string", format="date-time"),
@@ -347,18 +347,18 @@ class CustodianModelConfigController extends Controller
      *          response=404,
      *          description="Not found response",
      *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="No entity models found")
+     *              @OA\Property(property="message", type="string", example="No decision models found")
      *          )
      *      )
      * )
      */
-    public function getEntityModels(GetEntityModelsRequest $request, int $custodianId): JsonResponse
+    public function getDecisionModels(GetDecisionModelsRequest $request, int $custodianId): JsonResponse
     {
-        $entityModelType = $request->input('entity_model_type');
+        $decisionModelType = $request->input('decision_model_type');
 
-        $entityModelTypeId = EntityModelType::where('name', $entityModelType)->value('id');
+        $decisionModelTypeId = DecisionModelType::where('name', $decisionModelType)->value('id');
 
-        if (!$entityModelTypeId) {
+        if (!$decisionModelTypeId) {
             return $this->NotFoundResponse();
         }
 
@@ -368,7 +368,7 @@ class CustodianModelConfigController extends Controller
             ->whereHas('custodianModelConfig', function ($query) use ($custodianId) {
                 $query->where('custodian_id', $custodianId);
             })
-            ->where('entity_model_type_id', $entityModelTypeId)
+            ->where('decision_model_type_id', $decisionModelTypeId)
             ->get();
 
         if ($decisionModels->isEmpty()) {
@@ -388,10 +388,10 @@ class CustodianModelConfigController extends Controller
     }
     /**
      * @OA\Put(
-     *      path="/api/v1/custodian_config/{custodianId}/entity_models",
-     *      operationId="custodianModelConfigUpdateEntityModels",
+     *      path="/api/v1/custodian_config/{custodianId}/decision_models",
+     *      operationId="custodianModelConfigUpdateDecisionModels",
      *      x={"internal"="true"},
-     *      summary="Update a custodian's entity models",
+     *      summary="Update a custodian's decision models",
      *      description="Update the active status of specified custodian model configs for a given custodian",
      *      tags={"CustodianModelConfig"},
      *      security={{"bearerAuth":{}}},
@@ -441,12 +441,12 @@ class CustodianModelConfigController extends Controller
      *          response=404,
      *          description="Not Found",
      *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="Custodian or one or more entity models not found")
+     *              @OA\Property(property="message", type="string", example="Custodian or one or more decision models not found")
      *          )
      *      )
      * )
      */
-    public function updateEntityModels(UpdateEntityModelsRequest $request, int $id): JsonResponse
+    public function updateDecisionModels(UpdateDecisionModelsRequest $request, int $id): JsonResponse
     {
         try {
             $loggedInUserId = $request->user()?->id;

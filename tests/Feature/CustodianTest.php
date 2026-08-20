@@ -222,7 +222,7 @@ class CustodianTest extends TestCase
         $this->assertTrue(count($conf) === 1);
     }
 
-    public function test_the_application_adds_entity_models_to_newly_created_custodians(): void
+    public function test_the_application_adds_decision_models_to_newly_created_custodians(): void
     {
         $this->enableObservers();
         CustodianModelConfig::truncate();

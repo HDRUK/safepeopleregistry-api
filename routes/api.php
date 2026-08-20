@@ -581,8 +581,8 @@ Route::middleware('auth:api')
         Route::get('{id}', 'getByCustodianID');
         Route::put('{id}', 'update');
         Route::delete('{id}', 'destroy');
-        Route::get('{custodianId}/entity_models', 'getEntityModels');
-        Route::put('{id}/entity_models', 'updateEntityModels');
+        Route::get('{custodianId}/decision_models', 'getDecisionModels');
+        Route::put('{id}/decision_models', 'updateDecisionModels');
     });
 
 // --- PROJECT DETAILS ---
