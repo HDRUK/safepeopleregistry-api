@@ -50,4 +50,14 @@ class AffiliationPolicy
         return $user->user_group === User::GROUP_ORGANISATIONS
             && $user->organisation_id === $affiliation->organisation_id;
     }
+
+    /**
+     * Delete an affiliation — the registry owner or the employing organisation may action it.
+     */
+    public function delete(User $user, Affiliation $affiliation): bool
+    {
+        return $user->registry_id === $affiliation->registry_id
+            || ($user->user_group === User::GROUP_ORGANISATIONS
+                && $user->organisation_id === $affiliation->organisation_id);
+    }
 }

@@ -710,7 +710,7 @@ class AffiliationController extends Controller
 
             $affiliation = Affiliation::where('id', $id)->first();
 
-            if (!Gate::allows('manage', $affiliation)) {
+            if (!Gate::allows('delete', $affiliation)) {
                 return $this->ForbiddenResponse();
             }
 
