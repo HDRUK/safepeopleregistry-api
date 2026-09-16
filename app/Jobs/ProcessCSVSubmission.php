@@ -41,7 +41,7 @@ class ProcessCSVSubmission implements ShouldQueue
      */
     public function handle(): void
     {
-        $path = Storage::disk('gcs_scanned')->get($this->file->path);
+        $path = Storage::disk('gcs_scanned')->path($this->file->path);
         $file = fopen($path, 'r');
         $allData = csvToArray($path);
         fclose($file);
@@ -66,15 +66,15 @@ class ProcessCSVSubmission implements ShouldQueue
 
                 TriggerEmail::spawnEmail($input);
             }
+        }
 
-            if (is_file($path) && @unlink($path)) {
-                OrganisationHasFile::where([
-                    'file_id' => $this->file->id,
-                    'organisation_id' => $this->organisationID,
-                ])->delete();
+        if (is_file($path) && @unlink($path)) {
+            OrganisationHasFile::where([
+                'file_id' => $this->file->id,
+                'organisation_id' => $this->organisationID,
+            ])->delete();
 
-                $this->file->delete();
-            }
+            $this->file->delete();
         }
     }
 }
