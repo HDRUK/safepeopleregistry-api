@@ -40,7 +40,7 @@ class ProcessCSVSubmission implements ShouldQueue
      */
     public function handle(): void
     {
-        $path = storage_path().'/app/public/scanned/'.$this->file->path;
+        $path = Storage::disk($this->fileSystem . '_scanned')->get($this->file->path);
         $file = fopen($path, 'r');
         $allData = csvToArray($path);
         fclose($file);
