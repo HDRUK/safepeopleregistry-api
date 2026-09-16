@@ -53,25 +53,26 @@ class ProcessCSVSubmission implements ShouldQueue
             ])->first();
 
             if (!$user) {
+                $user['user_group'] = User::GROUP_USERS;
                 $unclaimedUser = RMC::createUnclaimedUser($row);
 
                 $input = [
                     'type' => 'USER',
                     'to' => $unclaimedUser->id,
                     'by' => $this->organisationID,
-                    'identifier' => 'researcher_invite',
+                    'identifier' => 'organisation_user_invite',
                 ];
 
                 TriggerEmail::spawnEmail($input);
+            }
 
-                if (is_file($path) && @unlink($path)) {
-                    OrganisationHasFile::where([
-                        'file_id' => $this->file->id,
-                        'organisation_id' => $this->organisationID,
-                    ])->delete();
+            if (is_file($path) && @unlink($path)) {
+                OrganisationHasFile::where([
+                    'file_id' => $this->file->id,
+                    'organisation_id' => $this->organisationID,
+                ])->delete();
 
-                    $this->file->delete();
-                }
+                $this->file->delete();
             }
         }
     }
