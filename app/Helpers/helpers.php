@@ -22,6 +22,7 @@ if (!function_exists('csvToArray')) {
         if (($handle = fopen($filename, 'r')) !== false) {
             while (($row = fgetcsv($handle, 1000, $delimiter)) !== false) {
                 if (! $header) {
+                    $row[0] = trim($row[0], "\xEF\xBB\xBF"); // trim BOM from first column of header row if present
                     $header = $row;
                 } else {
                     $data[] = array_combine($header, $row);
