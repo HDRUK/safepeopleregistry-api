@@ -41,40 +41,47 @@ class ProcessCSVSubmission implements ShouldQueue
      */
     public function handle(): void
     {
-        $path = Storage::disk('gcs_scanned')->path($this->file->path);
-        $file = fopen($path, 'r');
-        $allData = csvToArray($path);
-        fclose($file);
+        $disk = Storage::disk(config('speedi.system.scanning_filesystem_disk') . '_scanned');
+        $tmpPath = tempnam(sys_get_temp_dir(), 'researcher_list_');
+        $source = $disk->readStream($this->file->path);
+        $target = fopen($tmpPath, 'w');
+        stream_copy_to_stream($source, $target);
+        fclose($target);
+        fclose($source);
 
-        foreach ($allData as $row) {
-            $user = User::where([
-                'first_name' => $row['firstname'],
-                'last_name' => $row['lastname'],
-                'email' => $row['email'],
-            ])->first();
+        try {
+            $allData = csvToArray($tmpPath);
 
-            if (!$user) {
-                $user['user_group'] = User::GROUP_USERS;
-                $unclaimedUser = RMC::createUnclaimedUser($row);
+            foreach ($allData as $row) {
+                $user = User::where([
+                    'first_name' => $row['firstname'],
+                    'last_name' => $row['lastname'],
+                    'email' => $row['email'],
+                ])->first();
 
-                $input = [
-                    'type' => 'USER',
-                    'to' => $unclaimedUser->id,
-                    'by' => $this->organisationID,
-                    'identifier' => 'organisation_user_invite',
-                ];
+                if (!$user) {
+                    $row['user_group'] = User::GROUP_USERS;
+                    $unclaimedUser = RMC::createUnclaimedUser($row);
 
-                TriggerEmail::spawnEmail($input);
+                    $input = [
+                        'type' => 'USER',
+                        'to' => $unclaimedUser->id,
+                        'by' => $this->organisationID,
+                        'identifier' => 'organisation_user_invite',
+                    ];
+
+                    TriggerEmail::spawnEmail($input);
+                }
             }
-        }
+        } finally {
+            if (is_file($tmpPath) && @unlink($tmpPath)) {
+                OrganisationHasFile::where([
+                    'file_id' => $this->file->id,
+                    'organisation_id' => $this->organisationID,
+                ])->delete();
 
-        if (is_file($path) && @unlink($path)) {
-            OrganisationHasFile::where([
-                'file_id' => $this->file->id,
-                'organisation_id' => $this->organisationID,
-            ])->delete();
-
-            $this->file->delete();
+                $disk->delete($this->file->path);
+            }
         }
     }
 }
