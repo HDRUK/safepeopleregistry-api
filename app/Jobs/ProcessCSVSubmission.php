@@ -11,6 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
 use TriggerEmail;
 use RegistryManagementController as RMC;
 
@@ -40,38 +41,45 @@ class ProcessCSVSubmission implements ShouldQueue
      */
     public function handle(): void
     {
-        $path = storage_path().'/app/public/scanned/'.$this->file->path;
-        $file = fopen($path, 'r');
-        $allData = csvToArray($path);
-        fclose($file);
+        $disk = Storage::disk(config('speedi.system.scanning_filesystem_disk') . '_scanned');
+        $tmpPath = tempnam(sys_get_temp_dir(), 'researcher_list_');
+        $source = $disk->readStream($this->file->path);
+        $target = fopen($tmpPath, 'w');
+        stream_copy_to_stream($source, $target);
+        fclose($target);
+        fclose($source);
 
-        foreach ($allData as $row) {
-            $user = User::where([
-                'first_name' => $row['firstname'],
-                'last_name' => $row['lastname'],
-                'email' => $row['email'],
-            ])->first();
+        try {
+            $allData = csvToArray($tmpPath);
+            foreach ($allData as $row) {
+                $user = User::where([
+                    'first_name' => $row['firstname'],
+                    'last_name' => $row['lastname'],
+                    'email' => $row['email'],
+                ])->first();
 
-            if (!$user) {
-                $unclaimedUser = RMC::createUnclaimedUser($row);
+                if (!$user) {
+                    $row['user_group'] = User::GROUP_USERS;
+                    $unclaimedUser = RMC::createUnclaimedUser($row);
 
-                $input = [
-                    'type' => 'USER',
-                    'to' => $unclaimedUser->id,
-                    'by' => $this->organisationID,
-                    'identifier' => 'researcher_invite',
-                ];
+                    $input = [
+                        'type' => 'USER',
+                        'to' => $unclaimedUser->id,
+                        'by' => $this->organisationID,
+                        'identifier' => 'organisation_user_invite',
+                    ];
 
-                TriggerEmail::spawnEmail($input);
-
-                if (is_file($path) && @unlink($path)) {
-                    OrganisationHasFile::where([
-                        'file_id' => $this->file->id,
-                        'organisation_id' => $this->organisationID,
-                    ])->delete();
-
-                    $this->file->delete();
+                    TriggerEmail::spawnEmail($input);
                 }
+            }
+        } finally {
+            if (is_file($tmpPath) && @unlink($tmpPath)) {
+                OrganisationHasFile::where([
+                    'file_id' => $this->file->id,
+                    'organisation_id' => $this->organisationID,
+                ])->delete();
+
+                $disk->delete($this->file->path);
             }
         }
     }
