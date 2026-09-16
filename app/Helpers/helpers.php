@@ -26,7 +26,6 @@ if (!function_exists('csvToArray')) {
                     $header = $row;
                 } else {
                     $data[] = array_combine($header, $row);
-                    \Log::info('Row data: ' . json_encode($data));
                 }
             }
 

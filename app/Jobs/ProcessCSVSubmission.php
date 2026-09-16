@@ -51,7 +51,6 @@ class ProcessCSVSubmission implements ShouldQueue
 
         try {
             $allData = csvToArray($tmpPath);
-            \Log::info('CSV Data: ' . json_encode($allData));
             foreach ($allData as $row) {
                 $user = User::where([
                     'first_name' => $row['firstname'],
