@@ -1,3 +1,11 @@
+## [1.36.1](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.36.0...v1.36.1) (2026-09-18)
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-000:** Update affiliation deletion policy (#799) ([912c70a](https://github.com/HDRUK/safepeopleregistry-api/commit/912c70a64fc7a4146b4c975cda75eb1ac2690a16))
+* **REGISTRY-000:** Update command to use updated column name (#797) ([85288a9](https://github.com/HDRUK/safepeopleregistry-api/commit/85288a9a078857198809bbf8d5bc7291459108d2))
+* **REGISTRY-2743:** Fix bulk invitation of users by organisation (#800) ([04de9f7](https://github.com/HDRUK/safepeopleregistry-api/commit/04de9f7b7bab47a0e68f83c3a1d01bdf4f912568))
+
 ## [1.36.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.35.0...v1.36.0) (2026-09-11)
 
 ### ✨ Features
