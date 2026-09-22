@@ -2207,13 +2207,30 @@ class OrganisationController extends Controller
         // Extract the File IDs from the organisation has file table, then we can chain that into the files table
         $file_ids = $organisationhasfile -> get('file_id');
 
-        // Now get the path to the SRO declaration
-        $sro_declaration = File::where([
+        // Now get the path to the SRO declaration.
+        $file = File::find([
             'id' => $file_ids,
             'type' => File::FILE_TYPE_DECLARATION_SRO
         ]) 
-        -> get(['name','path'])
+        -> get('path','name')
+        // Assume that we need the first entry, although it could be sorted by latest date so we get the most recent one?
+        // Does the API stop at pulling that file, or does it go as far as reaching into the file storage to pull the actual file?
+        // Check file upload logic to see what needs to be done. 
         -> first();
+        // Check the file actually exists, if it doesnt, return a 404
+                if (!$file) {
+                return $this->NotFoundResponse();
+            }
+
+                if ($file->status !== FILE::FILE_STATUS_PROCESSED) {
+                return $this->NotFoundResponse();
+            }
+
+        // Configure access to the filesystem
+        $fileSystem = config('speedi.system.scanning_filesystem_disk');
+        $scannedFileSystem = $fileSystem . '_scanned';
+
+
     }
     
 }
