@@ -16,6 +16,7 @@ use App\Models\Project;
 use App\Models\DebugLog;
 use App\Models\Affiliation;
 use App\Models\Organisation;
+use App\Models\File;
 use Illuminate\Http\Request;
 use App\Models\PendingInvite;
 use App\Http\Traits\Responses;
@@ -31,6 +32,7 @@ use App\Exceptions\NotFoundException;
 use App\Models\ProjectHasSponsorship;
 use RegistryManagementController as RMC;
 use App\Models\OrganisationHasDepartment;
+use App\Models\OrganisationHasFile;
 use App\Http\Requests\Organisations\GetUser;
 use Illuminate\Support\Facades\Notification;
 use App\Http\Requests\Organisations\GetProject;
@@ -63,6 +65,7 @@ use App\Traits\OrganisationsProjectUtils;
 use App\Notifications\Organisations\OrganisationUpdateProfile;
 use App\Http\Requests\Organisations\OrganisationUpdateApprover;
 use App\Http\Requests\Organisations\GetStatus;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class OrganisationController extends Controller
 {
@@ -2183,9 +2186,34 @@ class OrganisationController extends Controller
     public function getSroDeclarations(GetSroDeclaration $request, int $id)
     {
         $input = $request->all();
+        $organisation_id = $id;
         // Use the Organisation Id to get the File IDs, then sort the File IDs to get the SRO 
         // declaration and collect the first one, ensure that the SRO declaration is unique if possible,
         // Otherwise, raise an issue with the superadmins to resolve.
-    }
+        // Initially see if the organisation exists based on the ID
+        // If it exists see if theres any files in there that belong to that organisation
+        // If files exist, look for some that have the description SRO_description
+        // Do I need anything beyond the organisation ID?
+        // 
 
+        try{
+            // Check to see if we have an entry in the intermediate Organisation-file pivot table to say they have files. 
+        $organisationhasfile = OrganisationHasFile::findOrFail('organisation_id',$organisation_id);
+        }
+        catch(ModelNotFoundException $e)
+        {
+            // Raise an error if model isnt found. Error TBD
+        };
+        // Extract the File IDs from the organisation has file table, then we can chain that into the files table
+        $file_ids = $organisationhasfile -> get('file_id');
+
+        // Now get the path to the SRO declaration
+        $sro_declaration = File::where([
+            'id' => $file_ids,
+            'type' => File::FILE_TYPE_DECLARATION_SRO
+        ]) 
+        -> get(['name','path'])
+        -> first();
+    }
+    
 }
