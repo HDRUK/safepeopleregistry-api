@@ -2191,11 +2191,8 @@ class OrganisationController extends Controller
         $organisation_id = $id;
         try{
         $organisationhasfile = OrganisationHasFile::findOrFail('organisation_id',$organisation_id);
-        }
-        catch(ModelNotFoundException $e)
-        {
-            // Raise an error if model isnt found. Error TBD
-        };
+        
+
         
         $file_ids = $organisationhasfile -> get('file_id');
         if(!$file_ids)
@@ -2229,7 +2226,9 @@ class OrganisationController extends Controller
                'Access-Control-Expose-Headers' => 'Content-Disposition'
             ];
             return Storage::disk($scannedFileSystem)->download($filePath, $file->name, $headers);
-
+        }
+        catch (Exception $e) {
+            return $this->ErrorResponse($e->getMessage());
     }
-    
+    }
 }
