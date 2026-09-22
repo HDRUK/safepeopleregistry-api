@@ -57,6 +57,7 @@ use App\Http\Requests\Organisations\GetCountPresentProject;
 use App\Http\Requests\Organisations\OrganisationInviteUser;
 use App\Http\Requests\Organisations\OrganisationValidateRor;
 use App\Http\Requests\Organisations\UpdateSponsorshipStatus;
+use App\Http\Requests\Organisations\GetSroDeclaration;
 use App\Traits\Notifications\NotificationOrganisationManager;
 use App\Traits\OrganisationsProjectUtils;
 use App\Notifications\Organisations\OrganisationUpdateProfile;
@@ -2178,6 +2179,13 @@ class OrganisationController extends Controller
             ->get();
 
         Notification::send($user, new OrganisationDelegates($loggedInUser, $delegate, 'add'));
+    }
+    public function getSroDeclarations(GetSroDeclaration $request, int $id)
+    {
+        $input = $request->all();
+        // Use the Organisation Id to get the File IDs, then sort the File IDs to get the SRO 
+        // declaration and collect the first one, ensure that the SRO declaration is unique if possible,
+        // Otherwise, raise an issue with the superadmins to resolve.
     }
 
 }
