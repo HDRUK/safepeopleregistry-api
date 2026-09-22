@@ -2184,45 +2184,31 @@ class OrganisationController extends Controller
 
         Notification::send($user, new OrganisationDelegates($loggedInUser, $delegate, 'add'));
     }
+
+
     public function getSroDeclarations(GetSroDeclaration $request, int $id)
     {
-        $input = $request->all();
         $organisation_id = $id;
-        // Use the Organisation Id to get the File IDs, then sort the File IDs to get the SRO 
-        // declaration and collect the first one, ensure that the SRO declaration is unique if possible,
-        // Otherwise, raise an issue with the superadmins to resolve.
-        // Initially see if the organisation exists based on the ID
-        // If it exists see if theres any files in there that belong to that organisation
-        // If files exist, look for some that have the description SRO_description
-        // Do I need anything beyond the organisation ID?
-        // 
-
         try{
-            // Check to see if we have an entry in the intermediate Organisation-file pivot table to say they have files. 
         $organisationhasfile = OrganisationHasFile::findOrFail('organisation_id',$organisation_id);
         }
         catch(ModelNotFoundException $e)
         {
             // Raise an error if model isnt found. Error TBD
         };
-        // Extract the File IDs from the organisation has file table, then we can chain that into the files table
         
         $file_ids = $organisationhasfile -> get('file_id');
         if(!$file_ids)
             {
                 return $this->NotFoundResponse();
             }
-        // Now get the path to the SRO declaration.
         $file = File::find([
             'id' => $file_ids,
             'type' => File::FILE_TYPE_DECLARATION_SRO
         ]) 
         -> get('path','name')
-        // Assume that we need the first entry, although it could be sorted by latest date so we get the most recent one?
-        // Does the API stop at pulling that file, or does it go as far as reaching into the file storage to pull the actual file?
-        // Check file upload logic to see what needs to be done. 
+
         -> first();
-        // Check the file actually exists, if it doesnt, return a 404
                 if (!$file) {
                 return $this->NotFoundResponse();
             }
@@ -2231,7 +2217,7 @@ class OrganisationController extends Controller
                 return $this->NotFoundResponse();
             }
         $filePath = $file -> path();
-        // Configure access to the filesystem
+
         $fileSystem = config('speedi.system.scanning_filesystem_disk');
         $scannedFileSystem = $fileSystem . '_scanned';
 
