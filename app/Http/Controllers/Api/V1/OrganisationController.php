@@ -2186,14 +2186,62 @@ class OrganisationController extends Controller
     }
 
 
+
+    /**
+     * @OA\Get(
+     *      path="/api/v1/organisation/{id}/download",
+     *      operationId="filesDownload",
+     *      x={"internal"="true"},
+     *      summary="Download an uploaded Senior responsible officer Declaration form",
+     *      description="Downloads the specified SRO Declaration",
+     *      tags={"Files"},
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="File ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="File ID",
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="File downloaded successfully",
+     *          content={
+     *              @OA\MediaType(
+     *                  mediaType="application/octet-stream",
+     *                  @OA\Schema(
+     *                      type="string",
+     *                      format="binary"
+     *                  )
+     *              )
+     *          }
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="File not found",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="File not found"),
+     *          ),
+     *      ),
+     * )
+     */
     public function getSroDeclarations(GetSroDeclaration $request, int $id)
     {
         $organisation_id = $id;
         try{
         $organisationhasfile = OrganisationHasFile::findOrFail('organisation_id',$organisation_id);
-        
-
-        
+                
         $file_ids = $organisationhasfile -> get('file_id');
         if(!$file_ids)
             {
