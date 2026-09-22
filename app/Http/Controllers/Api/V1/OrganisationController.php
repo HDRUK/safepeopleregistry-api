@@ -2206,8 +2206,12 @@ class OrganisationController extends Controller
             // Raise an error if model isnt found. Error TBD
         };
         // Extract the File IDs from the organisation has file table, then we can chain that into the files table
+        
         $file_ids = $organisationhasfile -> get('file_id');
-
+        if(!$file_ids)
+            {
+                return $this->NotFoundResponse();
+            }
         // Now get the path to the SRO declaration.
         $file = File::find([
             'id' => $file_ids,
