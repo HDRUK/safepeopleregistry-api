@@ -28,6 +28,7 @@ use App\Models\UserHasDepartments;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 use App\Exceptions\NotFoundException;
 use App\Models\ProjectHasSponsorship;
 use RegistryManagementController as RMC;
@@ -2225,11 +2226,19 @@ class OrganisationController extends Controller
                 if ($file->status !== FILE::FILE_STATUS_PROCESSED) {
                 return $this->NotFoundResponse();
             }
-
+        $filePath = $file -> path();
         // Configure access to the filesystem
         $fileSystem = config('speedi.system.scanning_filesystem_disk');
         $scannedFileSystem = $fileSystem . '_scanned';
 
+        if (!Storage::disk($scannedFileSystem)->exists($filePath)) {
+                return $this->NotFoundResponse();
+            }
+
+            $headers = [
+               'Access-Control-Expose-Headers' => 'Content-Disposition'
+            ];
+            return Storage::disk($scannedFileSystem)->download($filePath, $file->name, $headers);
 
     }
     
