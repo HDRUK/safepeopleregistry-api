@@ -32,6 +32,7 @@ use App\Models\ProjectHasSponsorship;
 use RegistryManagementController as RMC;
 use App\Models\OrganisationHasDepartment;
 use App\Http\Requests\Organisations\GetUser;
+use App\Notifications\OrganisationRequested;
 use Illuminate\Support\Facades\Notification;
 use App\Http\Requests\Organisations\GetProject;
 use App\Models\CustodianHasProjectOrganisation;
@@ -1426,6 +1427,59 @@ class OrganisationController extends Controller
                 'message' => 'success',
                 'data' => $unclaimedUser->id,
             ], 201);
+        } catch (Exception $e) {
+            DebugLog::create([
+                'class' => __CLASS__,
+                'log' => $e,
+            ]);
+
+            throw $e;
+        }
+    }
+
+    public function inviteToContactSuperadmin(OrganisationInviteUser $request, int $organisationId): JsonResponse
+    {
+        try {
+            $input = $request->all();
+            if (User::where("email", $input['email'])->exists()) {
+                return $this->ConflictResponse();
+            }
+
+            $loggedInUserId = $request->user()->id;
+            $loggedInUser = User::where('id', $loggedInUserId)->first();
+
+            $email = [];
+            if ($loggedInUser->user_group === User::GROUP_CUSTODIANS) {
+                $email = [
+                    'type' => 'ORGANISATION_INVITE_BY_CUSTODIAN',
+                    'to' => $input['email'],
+                    'by' => $loggedInUserId,
+                    'identifier' => 'organisation_invite_by_custodian',
+                    'organisationId' => $organisationId,
+                ];
+            } else {
+                $email = [
+                    'type' => 'ORGANISATION_INVITE_BY_USER',
+                    'to' => $input['email'],
+                    'by' => $loggedInUserId,
+                    'identifier' => 'organisation_invite_by_user',
+                    'organisationId' => $organisationId,
+                ];
+            }
+
+            TriggerEmail::spawnEmail($email);
+
+            $organisation = Organisation::where('id', $organisationId)->firstOrFail();
+
+            $userAdmins = User::where('user_group', User::GROUP_ADMINS)->select(['id'])->get();
+            foreach ($userAdmins as $userAdmin) {
+                Notification::send($userAdmin, new OrganisationRequested($loggedInUser, $organisation->organisation_name, $input['email']));
+            }
+
+            return response()->json([
+                'message' => 'success',
+                'data' => $organisationId,
+            ], 200);
         } catch (Exception $e) {
             DebugLog::create([
                 'class' => __CLASS__,

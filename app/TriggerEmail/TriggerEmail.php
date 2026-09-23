@@ -534,6 +534,94 @@ class TriggerEmail
 
                 break;
 
+            case 'ORGANISATION_INVITE_BY_SUPERADMIN':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $user = User::where('id', $to)->first();
+                $organisation = Organisation::where('id', $organisationId)->first();
+
+                $newRecipients = [
+                    'id' => $to,
+                    'email' => $user->email,
+                ];
+
+                $replacements = [
+                    '[[organisation.organisation_name]]' => $organisation->organisation_name,
+                    '[[inviteCode]]' => $inviteCode,
+                    '[[registration.email]]' => urlencode($organisation->lead_applicant_email),
+                    '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),
+                    // '[[digi_ident]]' => User::where('id', $unclaimedUserId)->first()->registry->digi_ident,
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[USER_NAME]]' => $userName,
+                    '[[SRO_TEMPLATE_DECLARATION_URL]]' => config('speedi.system.portal_url') . '/Registry_SRO_Declaration.pdf',
+                ];
+
+                if (!$inviteId) {
+                    PendingInvite::create([
+                        'user_id' => $unclaimedUserId,
+                        'status' => PendingInvite::STATE_PENDING,
+                        'invite_sent_at' => Carbon::now(),
+                        'invite_code' => $inviteCode,
+                        'organisation_id' => $to,
+                        'type' => 'organisation_invite',
+                    ]);
+                }
+
+                break;
+
+            case 'ORGANISATION_INVITE_BY_CUSTODIAN':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $organisation = Organisation::where('id', $organisationId)->first();
+                $dataCustodian = User::where('id', $by)->first();
+
+                $newRecipients = [
+                    'id' => 0,
+                    'email' => $to,
+                ];
+
+                $replacements = [
+                    '[[organisation.organisation_name]]' => $organisation->organisation_name,
+                    '[[inviteCode]]' => $inviteCode,
+                    '[[registration.email]]' => urlencode($organisation->lead_applicant_email),
+                    '[[custodian.name]]' => $dataCustodian-> first_name . ' ' . $dataCustodian->last_name,
+                    '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[user.name]]' => 'TO REPLACE',
+                    '[[SRO_TEMPLATE_DECLARATION_URL]]' => config('speedi.system.portal_url') . '/Registry_SRO_Declaration.pdf',
+                ];
+
+                break;
+
+            case 'ORGANISATION_INVITE_BY_USER':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $organisation = Organisation::where('id', $organisationId)->first();
+                $fromUser = User::where('id', $by)->first();
+
+                $newRecipients = [
+                    'id' => 0,
+                    'email' => $to,
+                ];
+
+                $replacements = [
+                    '[[organisation.organisation_name]]' => $organisation->organisation_name,
+                    '[[inviteCode]]' => $inviteCode,
+                    '[[registration.email]]' => urlencode($organisation->lead_applicant_email),
+                    '[[user.name]]' => $fromUser->first_name . ' ' . $fromUser->last_name,
+                    '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[SRO_TEMPLATE_DECLARATION_URL]]' => config('speedi.system.portal_url') . '/Registry_SRO_Declaration.pdf',
+                ];
+
+                break;
+
             default: // Unknown type.
                 break;
         }
