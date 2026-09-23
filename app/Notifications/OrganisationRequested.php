@@ -45,10 +45,11 @@ class OrganisationRequested extends Notification
 
     public function generateMessage()
     {
+        $message = "User " . $this->requester->first_name . " " . $this->requester->last_name . " has requested organisation '" . $this->organisationName . "' be invited to the Safe People Registry.";
         if ($this->emailAddress) {
-            return "User " . $this->requester->first_name . " " . $this->requester->last_name . " has requested organisation '" . $this->organisationName . "' be invited to the Safe People Registry. They have provided the email address: " . $this->emailAddress . ". An email has been sent to that email address with instructions on how to contact the system administrator.";
+            return $message . " They have provided the email address: " . $this->emailAddress . ". An email has been sent to that email address with instructions on how to contact the system administrator.";
         } else {
-            return "User " . $this->requester->first_name . " " . $this->requester->last_name . " has requested organisation '" . $this->organisationName . "' be invited to the Safe People Registry.";
+            return $message;
         }
     }
 }

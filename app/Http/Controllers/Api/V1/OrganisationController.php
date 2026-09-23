@@ -1448,7 +1448,6 @@ class OrganisationController extends Controller
             $loggedInUserId = $request->user()->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();
 
-            $email = [];
             if ($loggedInUser->user_group === User::GROUP_CUSTODIANS) {
                 $email = [
                     'type' => 'ORGANISATION_INVITE_BY_CUSTODIAN',
