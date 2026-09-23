@@ -431,6 +431,7 @@ Route::middleware('auth:api')
             Route::post('/new_account', 'createOrgWithUser');
             Route::post('/unclaimed', 'storeUnclaimed');
             Route::post('/{id}/invite', 'invite');
+            Route::post('/{id}/invite_to_contact_superadmin', 'inviteToContactSuperadmin');
             Route::post('/{id}/invite_user', 'inviteUser');
             Route::post('/{id}/custodian_invite_user', 'custodianInviteUser');
 
