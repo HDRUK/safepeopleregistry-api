@@ -406,6 +406,82 @@ class OrganisationTest extends TestCase
     //     $response->assertStatus(200);
     // }
 
+    public function test_a_researcher_can_create_unclaimed_organisations_before_superadmin_invitation(): void
+    {
+        $this->assertSame(User::GROUP_USERS, $this->user->user_group);
+
+        $organisation = $this->createOrganisationBeforeSuperadminInvitation($this->user);
+
+        $this->assertSame('Barchester Infirmary', $organisation->organisation_name);
+        $this->assertNull($organisation->lead_applicant_email);
+        $this->assertTrue($organisation->unclaimed);
+        $this->assertNotEmpty($organisation->organisation_unique_id);
+    }
+
+    public function test_a_custodian_can_create_unclaimed_organisations_before_superadmin_invitation(): void
+    {
+        $this->assertSame(User::GROUP_CUSTODIANS, $this->custodian_admin->user_group);
+
+        $organisation = $this->createOrganisationBeforeSuperadminInvitation($this->custodian_admin);
+
+        $this->assertSame('Barchester Infirmary', $organisation->organisation_name);
+        $this->assertNull($organisation->lead_applicant_email);
+        $this->assertTrue($organisation->unclaimed);
+        $this->assertNotEmpty($organisation->organisation_unique_id);
+    }
+
+    public function test_creating_an_unclaimed_organisation_before_superadmin_invitation_leaves_it_stateless(): void
+    {
+        $organisation = $this->createOrganisationBeforeSuperadminInvitation($this->user);
+
+        $this->assertNull($organisation->getState());
+        $this->assertDatabaseMissing('model_states', [
+            'stateable_id' => $organisation->id,
+            'stateable_type' => Organisation::class,
+        ]);
+    }
+
+    public function test_the_application_stores_the_optional_fields_given_before_superadmin_invitation(): void
+    {
+        $email = fake()->email();
+
+        $organisation = $this->createOrganisationBeforeSuperadminInvitation($this->user, [
+            'lead_applicant_email' => $email,
+            'unclaimed' => 0,
+            'sro_profile_uri' => 'https://myprofile.something',
+            'ods_id' => 'ABC123',
+            'dsptk_status' => 'Standards Met',
+            'dsptk_date_last_published' => '2026-01-31',
+            'ico_registration_id' => 'ZA123456',
+            'ico_date_registered' => '2025-06-01',
+            'ico_expiry_date' => '2027-06-01',
+        ]);
+
+        $this->assertSame($email, $organisation->lead_applicant_email);
+        $this->assertFalse($organisation->unclaimed);
+        $this->assertSame('https://myprofile.something', $organisation->sro_profile_uri);
+        $this->assertSame('ABC123', $organisation->ods_id);
+        $this->assertSame('Standards Met', $organisation->dsptk_status);
+        $this->assertSame('2026-01-31', $organisation->dsptk_date_last_published);
+        $this->assertSame('ZA123456', $organisation->ico_registration_id);
+        $this->assertSame('2025-06-01', $organisation->ico_date_registered);
+        $this->assertSame('2027-06-01', $organisation->ico_expiry_date);
+    }
+
+    private function createOrganisationBeforeSuperadminInvitation(User $actor, array $payload = []): Organisation
+    {
+        $response = $this->actingAs($actor)
+            ->json(
+                'POST',
+                self::TEST_URL . '/unclaimed_before_superadmin_invitation',
+                array_merge(['organisation_name' => 'Barchester Infirmary'], $payload)
+            );
+
+        $response->assertStatus(201);
+
+        return Organisation::findOrFail($response->decodeResponseJson()['data']);
+    }
+
     public function test_the_application_can_create_organisations_with_departments(): void
     {
         $isoCertified = fake()->randomElement([1, 0]);
