@@ -1490,38 +1490,41 @@ class OrganisationController extends Controller
     {
         try {
             $input = $request->all();
-            if (User::where("email", $input['email'])->exists()) {
-                return $this->ConflictResponse();
-            }
 
             $loggedInUserId = $request->user()->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();
 
-            if ($loggedInUser->user_group === User::GROUP_CUSTODIANS) {
-                $email = [
-                    'type' => 'ORGANISATION_INVITE_BY_CUSTODIAN',
-                    'to' => $input['email'],
-                    'by' => $loggedInUserId,
-                    'identifier' => 'organisation_invite_by_custodian',
-                    'organisationId' => $organisationId,
-                ];
-            } else {
-                $email = [
-                    'type' => 'ORGANISATION_INVITE_BY_USER',
-                    'to' => $input['email'],
-                    'by' => $loggedInUserId,
-                    'identifier' => 'organisation_invite_by_user',
-                    'organisationId' => $organisationId,
-                ];
+            if (array_key_exists('email', $input) && User::where("email", $input['email'])->exists()) {
+                return $this->ConflictResponse();
             }
-
-            TriggerEmail::spawnEmail($email);
 
             $organisation = Organisation::where('id', $organisationId)->firstOrFail();
 
+            if (array_key_exists('email', $input)) {
+                if ($loggedInUser->user_group === User::GROUP_CUSTODIANS) {
+                    $email = [
+                        'type' => 'ORGANISATION_INVITE_BY_CUSTODIAN',
+                        'to' => $input['email'],
+                        'by' => $loggedInUserId,
+                        'identifier' => 'organisation_invite_by_custodian',
+                        'organisationId' => $organisationId,
+                    ];
+                } else {
+                    $email = [
+                        'type' => 'ORGANISATION_INVITE_BY_USER',
+                        'to' => $input['email'],
+                        'by' => $loggedInUserId,
+                        'identifier' => 'organisation_invite_by_user',
+                        'organisationId' => $organisationId,
+                    ];
+                }
+
+                TriggerEmail::spawnEmail($email);
+            }
+
             $userAdmins = User::where('user_group', User::GROUP_ADMINS)->select(['id'])->get();
             foreach ($userAdmins as $userAdmin) {
-                Notification::send($userAdmin, new OrganisationRequested($loggedInUser, $organisation->organisation_name, $input['email']));
+                Notification::send($userAdmin, new OrganisationRequested($loggedInUser, $organisation->organisation_name, $input['email'] ?? null));
             }
 
             return response()->json([
