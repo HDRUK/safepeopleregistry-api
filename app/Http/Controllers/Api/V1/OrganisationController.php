@@ -641,6 +641,55 @@ class OrganisationController extends Controller
         }
     }
 
+     public function storeUnclaimedBeforeSuperadminInvitation(Request $request): JsonResponse
+    {
+        try {
+            $input = $request->all();
+            $organisation = Organisation::create([
+                'organisation_name' => $input['organisation_name'],
+                'address_1' => '',
+                'address_2' => '',
+                'town' => '',
+                'county' => '',
+                'country' => '',
+                'postcode' => '',
+                'lead_applicant_organisation_name' => '',
+                'lead_applicant_email' => $input['lead_applicant_email'] ?? null,
+                'applicant_names' => '',
+                'funders_and_sponsors' => '',
+                'sub_license_arrangements' => '',
+                'verified' => 0,
+                'companies_house_no' => '',
+                'sector_id' => 0,
+                'dsptk_ods_code' => '',
+                'dsptk_expiry_date' => null,
+                'iso_27001_certification_num' => '',
+                'iso_expiry_date' => null,
+                'ce_certification_num' => '',
+                'ce_expiry_date' => null,
+                'ce_plus_certification_num' => '',
+                'ce_plus_expiry_date' => null,
+                'ror_id' => '',
+                'website' => '',
+                'smb_status' => 0,
+                'organisation_size' => null,
+                'unclaimed' => $input['unclaimed'] ?? 1,
+                'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
+                'organisation_unique_id' => Str::random(40),
+                'ods_id' => $input['ods_id'] ?? null,
+                'dsptk_status' => $input['dsptk_status'] ?? null,
+                'dsptk_date_last_published' => $input['dsptk_date_last_published'] ?? null,
+                'ico_registration_id' => $input['ico_registration_id'] ?? null,
+                'ico_date_registered' => $input['ico_date_registered'] ?? null,
+                'ico_expiry_date' => $input['ico_expiry_date'] ?? null,
+            ]);
+
+            return $this->CreatedResponse($organisation->id);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
     /**
      * @OA\Put(
      *      path="/api/v1/organisations/{id}",

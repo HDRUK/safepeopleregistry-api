@@ -430,6 +430,7 @@ Route::middleware('auth:api')
             Route::post('/', 'store');
             Route::post('/new_account', 'createOrgWithUser');
             Route::post('/unclaimed', 'storeUnclaimed');
+            Route::post('/unclaimed_before_superadmin_invitation', 'storeUnclaimedBeforeSuperadminInvitation');
             Route::post('/{id}/invite', 'invite');
             Route::post('/{id}/invite_to_contact_superadmin', 'inviteToContactSuperadmin');
             Route::post('/{id}/invite_user', 'inviteUser');
