@@ -2236,24 +2236,24 @@ class OrganisationController extends Controller
      *      ),
      * )
      */
-    public function getSroDeclarations(GetSroDeclaration $request, int $id)
+    public function getSroDeclarations(GetSroDeclaration $request, int $organisationId)
     {
-        $organisation_id = $id;
+        $organisation_id = str($organisationId);
         try{
-        $organisationhasfile = OrganisationHasFile::findOrFail('organisation_id',$organisation_id);
-                
+        // This line is misbehaving massively, we cant find a file ID
+        $organisationhasfile = OrganisationHasFile::where('organisation_id','=',$organisation_id);
+                error_log("Passed Organisationhasfile finding step");
         $file_ids = $organisationhasfile -> get('file_id');
         if(!$file_ids)
             {
                 return $this->NotFoundResponse();
             }
-        $file = File::find([
-            'id' => $file_ids,
-            'type' => File::FILE_TYPE_DECLARATION_SRO
-        ]) 
-        -> get('path','name')
-
-        -> first();
+        error_log("Claims there is an object to check");
+        $file = File::where('id','=',$file_ids)
+          ->where('type', '=', File::FILE_TYPE_DECLARATION_SRO)
+          ->get('name','path','status');
+    
+        error_log("Finds a File");
                 if (!$file) {
                 return $this->NotFoundResponse();
             }
