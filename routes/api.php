@@ -1,57 +1,57 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\V1\EmailLogController;
+use App\Http\Controllers\Api\V1\AccreditationController;
+use App\Http\Controllers\Api\V1\ActionLogController;
+use App\Http\Controllers\Api\V1\AffiliationController;
+use App\Http\Controllers\Api\V1\AuditLogController;
 use App\Http\Controllers\Api\V1\AuthController;
-use App\Http\Controllers\Api\V1\TestController;
-use App\Http\Controllers\Api\V1\UserController;
-use App\Http\Controllers\Api\V1\QueryController;
-use App\Http\Controllers\Api\V1\SectorController;
+use App\Http\Controllers\Api\V1\CustodianController;
+use App\Http\Controllers\Api\V1\CustodianHasProjectOrganisationController;
+use App\Http\Controllers\Api\V1\CustodianHasProjectUserController;
+use App\Http\Controllers\Api\V1\CustodianModelConfigController;
+use App\Http\Controllers\Api\V1\CustodianUserController;
+use App\Http\Controllers\Api\V1\DepartmentController;
+use App\Http\Controllers\Api\V1\EducationController;
+use App\Http\Controllers\Api\V1\EmailLogController;
+use App\Http\Controllers\Api\V1\EmailTemplateController;
+use App\Http\Controllers\Api\V1\EndorsementController;
+use App\Http\Controllers\Api\V1\ExperienceController;
 use App\Http\Controllers\Api\V1\FeatureController;
+use App\Http\Controllers\Api\V1\FileUploadController;
 use App\Http\Controllers\Api\V1\HandoffCodeController;
 use App\Http\Controllers\Api\V1\HistoryController;
-use App\Http\Controllers\Api\V1\ProjectController;
-use App\Http\Controllers\Api\V1\WebhookController;
-use App\Http\Controllers\Api\V1\AuditLogController;
 use App\Http\Controllers\Api\V1\IdentityController;
+use App\Http\Controllers\Api\V1\InfringementController;
 use App\Http\Controllers\Api\V1\LinkedIdentityController;
-use App\Http\Controllers\Api\V1\RegistryController;
-use App\Http\Controllers\Api\V1\TrainingController;
-use App\Http\Controllers\Api\V1\ActionLogController;
-use App\Http\Controllers\Api\V1\CustodianController;
-use App\Http\Controllers\Api\V1\EducationController;
-use App\Http\Controllers\Api\V1\DepartmentController;
-use App\Http\Controllers\Api\V1\ExperienceController;
-use App\Http\Controllers\Api\V1\FileUploadController;
+use App\Http\Controllers\Api\V1\NotificationController;
+use App\Http\Controllers\Api\V1\ONSSubmissionController;
+use App\Http\Controllers\Api\V1\OrganisationController;
+use App\Http\Controllers\Api\V1\PendingInviteController;
 use App\Http\Controllers\Api\V1\PermissionController;
+use App\Http\Controllers\Api\V1\ProfessionalRegistrationController;
+use App\Http\Controllers\Api\V1\ProjectController;
+use App\Http\Controllers\Api\V1\ProjectDetailController;
+use App\Http\Controllers\Api\V1\ProjectHasOrganisationController;
+use App\Http\Controllers\Api\V1\ProjectHasUserController;
+use App\Http\Controllers\Api\V1\ProjectRoleController;
+use App\Http\Controllers\Api\V1\QueryController;
+use App\Http\Controllers\Api\V1\RegistryController;
 use App\Http\Controllers\Api\V1\ResolutionController;
+use App\Http\Controllers\Api\V1\SectorController;
 use App\Http\Controllers\Api\V1\SsoTenantController;
 use App\Http\Controllers\Api\V1\SubsidiaryController;
-use App\Http\Controllers\Api\V1\AffiliationController;
-use App\Http\Controllers\Api\V1\EndorsementController;
-use App\Http\Controllers\Api\V1\ProjectRoleController;
-use App\Http\Controllers\Api\V1\InfringementController;
-use App\Http\Controllers\Api\V1\NotificationController;
-use App\Http\Controllers\Api\V1\OrganisationController;
 use App\Http\Controllers\Api\V1\SystemConfigController;
+use App\Http\Controllers\Api\V1\TestController;
+use App\Http\Controllers\Api\V1\TrainingController;
 use App\Http\Controllers\Api\V1\TriggerEmailController;
-use App\Http\Controllers\Api\V1\AccreditationController;
-use App\Http\Controllers\Api\V1\CustodianUserController;
-use App\Http\Controllers\Api\V1\EmailTemplateController;
-use App\Http\Controllers\Api\V1\ONSSubmissionController;
-use App\Http\Controllers\Api\V1\PendingInviteController;
-use App\Http\Controllers\Api\V1\ProjectDetailController;
-use App\Http\Controllers\Api\V1\ValidationLogController;
-use App\Http\Controllers\Api\V1\ProjectHasUserController;
+use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\ValidationCheckController;
-use App\Http\Controllers\Api\V1\CustodianModelConfigController;
 use App\Http\Controllers\Api\V1\ValidationLogCommentController;
+use App\Http\Controllers\Api\V1\ValidationLogController;
 use App\Http\Controllers\Api\V1\VendorWebhookReceiverController;
-use App\Http\Controllers\Api\V1\ProjectHasOrganisationController;
-use App\Http\Controllers\Api\V1\CustodianHasProjectUserController;
-use App\Http\Controllers\Api\V1\ProfessionalRegistrationController;
-use App\Http\Controllers\Api\V1\CustodianHasProjectOrganisationController;
 use App\Http\Controllers\Api\V1\VersionStatusController;
+use App\Http\Controllers\Api\V1\WebhookController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -68,7 +68,6 @@ Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1
 Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1/validate', [UserController::class, 'validateUserRequest']);
 Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1/custodian_users/bulk', [CustodianUserController::class, 'bulkStore']);
 Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1/project_users/bulk', [ProjectController::class, 'bulkInviteProjectUsers']);
-
 
 // --- AUTH ---
 Route::middleware('api')->get('auth/me', [AuthController::class, 'me']);
@@ -94,22 +93,19 @@ Route::middleware(['auth:api'])
         Route::get('/{id}/projects', [UserController::class, 'userProjects']);
         Route::get('/pending_invites/invite_code/{inviteCode}', [UserController::class, 'getPendingInviteByInviteCode']);
 
-
         // create
         Route::post('/', [UserController::class, 'store']);
         Route::post('/invite', [UserController::class, 'invite']);
         Route::post('/permissions', [PermissionController::class, 'assignUserPermissionsToFrom']);
         Route::post('/search_affiliations', [UserController::class, 'searchUsersByNameAndProfessionalEmail']);
 
-
-        //update
+        // update
         Route::put('/{id}', [UserController::class, 'update']);
         Route::put('/pending_invites/claim_email/{inviteCode}', [UserController::class, 'updateUserEmailByInviteCode']);
 
         // the method not found in controller
         // Route::patch('/{id}', [UserController::class, 'edit']);
         Route::delete('/{id}', [UserController::class, 'destroy']);
-
 
         // Notifications
         Route::get('/{id}/notifications', [NotificationController::class, 'getUserNotifications']);
@@ -134,7 +130,6 @@ Route::middleware('auth:api')
         Route::put('action_log/{id}', [ActionLogController::class, 'update']);
     });
 
-
 // --- VersionStatus ---
 Route::middleware('auth:api')
     ->prefix('v1')
@@ -151,8 +146,6 @@ Route::middleware('auth:api')
         Route::get('/', 'index');
         Route::post('{inviteId}/resend_invite', 'resendInvite');
     });
-
-
 
 // --- VALIDATION LOGS ---
 Route::middleware('auth:api')
@@ -213,7 +206,6 @@ Route::middleware('auth:api')
                 Route::get('/', 'getCustodianValidationChecks');
             });
     });
-
 
 // --- TRAINING ---
 Route::middleware('auth:api')
@@ -285,7 +277,6 @@ Route::middleware(['auth:api', 'feature:EnterpriseSAMLSSOEnabled'])
 // behind auth:api. Throttled since it's a domain-existence oracle otherwise.
 Route::middleware(['throttle:30,1', 'feature:EnterpriseSAMLSSOEnabled'])
     ->post('v1/sso/lookup', [SsoTenantController::class, 'lookupDomain']);
-
 
 // --- CUSTODIAN USERS ---
 Route::middleware('auth:api')
@@ -425,7 +416,7 @@ Route::middleware('auth:api')
             Route::get('/{id}/delegates', 'getDelegates');
             Route::get('/{id}/registries', 'getRegistries');
             Route::get('/ror/{ror}', 'validateRor');
-            Route::get('/{id}/sro','getSroDeclarations');
+            Route::get('/{id}/sro', 'getSroDeclarations');
 
             // Create
             Route::post('/', 'store');
@@ -685,7 +676,6 @@ Route::middleware('auth:api')
         Route::get('/workflowTransitions', 'getWorkflowTransitions');
     });
 
-
 // --- ORGANISATION CUSTODIAN VALIDATIONS ---
 Route::middleware('auth:api')
     ->prefix('v1/custodian_approvals/{custodianId}')
@@ -748,7 +738,6 @@ Route::middleware('auth:api')->post('v1/ons_researcher_feed', [ONSSubmissionCont
 
 // test
 Route::get('v1/test', [TestController::class, 'test']);
-
 
 // stop all all other routes
 Route::fallback(function () {

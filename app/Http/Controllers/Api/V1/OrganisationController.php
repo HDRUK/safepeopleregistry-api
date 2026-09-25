@@ -2,78 +2,76 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use DB;
-use Str;
-use Http;
-use Keycloak;
-use Exception;
-use TriggerEmail;
-use Carbon\Carbon;
-use App\Models\User;
-use App\Models\State;
-use App\Models\Charity;
-use App\Models\Project;
-use App\Models\DebugLog;
-use App\Models\Affiliation;
-use App\Models\Organisation;
-use App\Models\File;
-use Illuminate\Http\Request;
-use App\Models\PendingInvite;
+use App\Exceptions\NotFoundException;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Organisations\DeleteOrganisation;
+use App\Http\Requests\Organisations\GetCountCertifications;
+use App\Http\Requests\Organisations\GetCountPastProject;
+use App\Http\Requests\Organisations\GetCountPresentProject;
+use App\Http\Requests\Organisations\GetCountUsers;
+use App\Http\Requests\Organisations\GetDelegate;
+use App\Http\Requests\Organisations\GetFutureProject;
+use App\Http\Requests\Organisations\GetOrganisation;
+use App\Http\Requests\Organisations\GetOrganisationIdvt;
+use App\Http\Requests\Organisations\GetPastProject;
+use App\Http\Requests\Organisations\GetPresentProject;
+use App\Http\Requests\Organisations\GetProject;
+use App\Http\Requests\Organisations\GetRegistry;
+use App\Http\Requests\Organisations\GetSroDeclaration;
+use App\Http\Requests\Organisations\GetStatus;
+use App\Http\Requests\Organisations\GetUser;
+use App\Http\Requests\Organisations\OrganisationInvite;
+use App\Http\Requests\Organisations\OrganisationInviteUser;
+use App\Http\Requests\Organisations\OrganisationUpdateApprover;
+use App\Http\Requests\Organisations\OrganisationValidateRor;
+use App\Http\Requests\Organisations\ResentInvite;
+use App\Http\Requests\Organisations\UpdateOrganisation;
+use App\Http\Requests\Organisations\UpdateSponsorshipStatus;
 use App\Http\Traits\Responses;
 use App\Jobs\OrganisationIDVT;
+use App\Models\Affiliation;
+use App\Models\Charity;
+use App\Models\CustodianHasProjectHasSponsorship;
+use App\Models\CustodianHasProjectOrganisation;
+use App\Models\DebugLog;
 use App\Models\DecisionModelType;
-use App\Traits\CommonFunctions;
-use Illuminate\Http\JsonResponse;
-use App\Models\UserHasDepartments;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Storage;
-use App\Exceptions\NotFoundException;
-use App\Models\ProjectHasSponsorship;
-use RegistryManagementController as RMC;
+use App\Models\File;
+use App\Models\Organisation;
 use App\Models\OrganisationHasDepartment;
 use App\Models\OrganisationHasFile;
-use App\Http\Requests\Organisations\GetUser;
-use Illuminate\Support\Facades\Notification;
-use App\Http\Requests\Organisations\GetProject;
-use App\Models\CustodianHasProjectOrganisation;
-use App\Http\Requests\Organisations\GetDelegate;
-use App\Http\Requests\Organisations\GetRegistry;
-use App\Http\Requests\Organisations\ResentInvite;
-use App\Models\CustodianHasProjectHasSponsorship;
-use App\Services\DecisionEvaluatorService as DES;
-use App\Http\Requests\Organisations\GetCountUsers;
-use App\Http\Requests\Organisations\GetPastProject;
-use App\Http\Requests\Organisations\GetOrganisation;
-use App\Http\Requests\Organisations\GetFutureProject;
-use App\Http\Requests\Organisations\GetPresentProject;
-use App\Http\Requests\Organisations\DeleteOrganisation;
-use App\Http\Requests\Organisations\OrganisationInvite;
-use App\Http\Requests\Organisations\UpdateOrganisation;
-use App\Http\Requests\Organisations\GetCountPastProject;
-use App\Http\Requests\Organisations\GetOrganisationIdvt;
+use App\Models\PendingInvite;
+use App\Models\Project;
+use App\Models\ProjectHasSponsorship;
+use App\Models\State;
+use App\Models\User;
+use App\Models\UserHasDepartments;
 use App\Notifications\Organisations\OrganisationApproved;
 use App\Notifications\Organisations\OrganisationDelegates;
-use App\Http\Requests\Organisations\GetCountCertifications;
-use App\Http\Requests\Organisations\GetCountPresentProject;
-use App\Http\Requests\Organisations\OrganisationInviteUser;
-use App\Http\Requests\Organisations\OrganisationValidateRor;
-use App\Http\Requests\Organisations\UpdateSponsorshipStatus;
-use App\Http\Requests\Organisations\GetSroDeclaration;
+use App\Notifications\Organisations\OrganisationUpdateProfile;
+use App\Services\DecisionEvaluatorService as DES;
+use App\Traits\CommonFunctions;
 use App\Traits\Notifications\NotificationOrganisationManager;
 use App\Traits\OrganisationsProjectUtils;
-use App\Notifications\Organisations\OrganisationUpdateProfile;
-use App\Http\Requests\Organisations\OrganisationUpdateApprover;
-use App\Http\Requests\Organisations\GetStatus;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Carbon\Carbon;
+use Exception;
+use Http;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
+use Keycloak;
+use RegistryManagementController as RMC;
+use Str;
+use TriggerEmail;
 
 class OrganisationController extends Controller
 {
     use CommonFunctions;
+    use NotificationOrganisationManager;
     use OrganisationsProjectUtils;
     use Responses;
-    use NotificationOrganisationManager;
 
     protected $decisionEvaluator = null;
 
@@ -87,15 +85,20 @@ class OrganisationController extends Controller
      *      tags={"organisation"},
      *      summary="organisation@index",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data",
      *                  ref="#/components/schemas/Organisation",
      *                  @OA\Property(property="charities", type="array",
+     *
      *                      @OA\Items(
+     *
      *                          @OA\Property(property="id", type="integer", example="1"),
      *                          @OA\Property(property="registration_id", type="string", example="1186569"),
      *                          @OA\Property(property="name", type="string", example="Health Pathways UK Charity"),
@@ -111,10 +114,13 @@ class OrganisationController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -128,7 +134,7 @@ class OrganisationController extends Controller
         $custodianId = $request->get('custodian_id');
         $perPage = $request->get('per_page');
 
-        if (!$custodianId) {
+        if (! $custodianId) {
             $organisations = Organisation::searchViaRequest()
                 ->filterByState()
                 ->applySorting()
@@ -143,7 +149,7 @@ class OrganisationController extends Controller
                     'registries.user.permissions',
                     'delegates',
                     'sroOfficer.invitedBy.custodian_user',
-                    'modelState.state'
+                    'modelState.state',
                 ])
                 ->filterWhen('has_delegates', function ($query, $hasDelegates) {
                     if ($hasDelegates) {
@@ -152,11 +158,12 @@ class OrganisationController extends Controller
                         $query->whereDoesntHave('delegates');
                     }
                 })
-                ->paginate($perPage ?? (int)$this->getSystemConfig('PER_PAGE'));
+                ->paginate($perPage ?? (int) $this->getSystemConfig('PER_PAGE'));
 
             $evaluations = $this->decisionEvaluator->evaluate($organisations->items(), true);
             $organisations->setCollection($organisations->getCollection()->map(function ($organisation) use ($evaluations) {
                 $organisation->evaluation = $evaluations[$organisation->id] ?? null;
+
                 return $organisation;
             }));
         }
@@ -174,26 +181,33 @@ class OrganisationController extends Controller
      *      tags={"organisations"},
      *      summary="organisations@show",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="organisations entry ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="organisations entry ID",
      *         ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data",
      *                  ref="#/components/schemas/Organisation",
      *                  @OA\Property(property="charities", type="array",
+     *
      *                      @OA\Items(
+     *
      *                          @OA\Property(property="id", type="integer", example="1"),
      *                          @OA\Property(property="registration_id", type="string", example="1186569"),
      *                          @OA\Property(property="name", type="string", example="Health Pathways UK Charity"),
@@ -209,17 +223,23 @@ class OrganisationController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=400,
      *          description="Invalid argument(s)",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
      *          )
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -248,10 +268,11 @@ class OrganisationController extends Controller
 
         if ($organisation) {
             $organisation['rules'] = $this->decisionEvaluator->evaluate($organisation);
+
             return $this->OKResponse($organisation);
         }
 
-        throw new NotFoundException();
+        throw new NotFoundException;
     }
 
     // No swagger, internal call
@@ -260,7 +281,7 @@ class OrganisationController extends Controller
         $projects = Project::with('organisations')
             ->where('start_date', '<', Carbon::now())
             ->where('end_date', '<', Carbon::now())
-            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+            ->paginate((int) $this->getSystemConfig('PER_PAGE'));
 
         return $this->OKResponse($projects);
     }
@@ -271,7 +292,7 @@ class OrganisationController extends Controller
         $projects = Project::with('organisations')
             ->where('start_date', '<=', Carbon::now())
             ->where('end_date', '>=', Carbon::now())
-            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+            ->paginate((int) $this->getSystemConfig('PER_PAGE'));
 
         return $this->OKResponse($projects);
     }
@@ -282,7 +303,7 @@ class OrganisationController extends Controller
         $projects = Project::with('organisations')
             ->where('start_date', '>', Carbon::now())
             ->where('end_date', '>', Carbon::now())
-            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+            ->paginate((int) $this->getSystemConfig('PER_PAGE'));
 
         return $this->OKResponse($projects);
     }
@@ -297,21 +318,26 @@ class OrganisationController extends Controller
      *      tags={"organisations"},
      *      summary="organisations@idvt",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="organisations entry ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="organisations entry ID",
      *         ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -322,17 +348,23 @@ class OrganisationController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=400,
      *          description="Invalid argument(s)",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
      *          )
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -349,7 +381,7 @@ class OrganisationController extends Controller
                     'idvt_result' => $organisation->idvt_result,
                     'idvt_errors' => $organisation->idvt_errors,
                     'idvt_completed_at' => $organisation->idvt_completed_at,
-                    'idvt_result_perc' => $organisation->idvt_result_perc
+                    'idvt_result_perc' => $organisation->idvt_result_perc,
                 ]
             );
         }
@@ -367,16 +399,23 @@ class OrganisationController extends Controller
      *      tags={"organisations"},
      *      summary="organisations@store",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="organisations definition",
+     *
      *          @OA\JsonContent(
      *              ref="#/components/schemas/Organisation",
+     *
      *              @OA\Property(property="departments", type="array",
+     *
      *                  @OA\Items(type="integer"),
      *              ),
+     *
      *              @OA\Property(property="charities", type="array",
+     *
      *                  @OA\Items(
+     *
      *                      @OA\Property(property="id", type="integer", example="1"),
      *                      @OA\Property(property="registration_id", type="string", example="1186569"),
      *                      @OA\Property(property="name", type="string", example="Health Pathways UK Charity"),
@@ -391,27 +430,36 @@ class OrganisationController extends Controller
      *              ),
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=201,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -419,7 +467,7 @@ class OrganisationController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        if (!Gate::allows('admin')) {
+        if (! Gate::allows('admin')) {
             return $this->ForbiddenResponse();
         }
 
@@ -474,7 +522,7 @@ class OrganisationController extends Controller
 
             if (isset($input['charities']) && is_array($input['charities'])) {
                 foreach ($input['charities'] as $charityData) {
-                    if (!isset($charityData['registration_id'])) {
+                    if (! isset($charityData['registration_id'])) {
                         continue;
                     }
 
@@ -497,7 +545,7 @@ class OrganisationController extends Controller
             }
 
             // Run automated IDVT
-            if (!in_array(config('speedi.system.app_env'), ['testing', 'ci'])) {
+            if (! in_array(config('speedi.system.app_env'), ['testing', 'ci'])) {
                 OrganisationIDVT::dispatchSync($organisation);
             }
 
@@ -578,8 +626,8 @@ class OrganisationController extends Controller
                 $payload = $response->json();
 
                 $request->replace([
-                    "organisation_id" => $organisation->id,
-                    "is_org_admin" => 1
+                    'organisation_id' => $organisation->id,
+                    'is_org_admin' => 1,
                 ]);
 
                 $user = RMC::createOrganisationUser($payload, $request);
@@ -655,33 +703,42 @@ class OrganisationController extends Controller
      *      tags={"organisations"},
      *      summary="organisations@update",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="organisations entry ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="organisations entry ID",
      *         ),
      *      ),
+     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="organisations definition",
+     *
      *          @OA\JsonContent(
      *              ref="#/components/schemas/Organisation",
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data",
      *                  ref="#/components/schemas/Organisation",
      *                  @OA\Property(property="charities", type="array",
+     *
      *                      @OA\Items(
+     *
      *                          @OA\Property(property="id", type="integer", example="1"),
      *                          @OA\Property(property="registration_id", type="string", example="1186569"),
      *                          @OA\Property(property="name", type="string", example="Health Pathways UK Charity"),
@@ -697,24 +754,33 @@ class OrganisationController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=400,
      *          description="Invalid argument(s)",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
      *          )
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -726,7 +792,7 @@ class OrganisationController extends Controller
             $input = $request->only(app(Organisation::class)->getFillable());
             $org = Organisation::findOrFail($id);
 
-            if (!Gate::allows('update', $org)) {
+            if (! Gate::allows('update', $org)) {
                 return $this->ForbiddenResponse();
             }
 
@@ -747,13 +813,11 @@ class OrganisationController extends Controller
 
                 $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_ORG_IN_PROGRESS);
 
-
                 Affiliation::with(['registry.user'])
                     ->where('organisation_id', $id)
                     ->whereHas(
                         'registry.user',
-                        fn ($q) =>
-                        $q->where('unclaimed', false)
+                        fn ($q) => $q->where('unclaimed', false)
                     )->each(fn ($affiliation) => $affiliation->setState(State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS));
 
             }
@@ -773,10 +837,10 @@ class OrganisationController extends Controller
                 ->causedBy(Auth::user())
                 ->performedOn($org)
                 ->withProperties([
-                    'organisation_id'   => $org->id,
+                    'organisation_id' => $org->id,
                     'organisation_name' => $org->organisation_name,
-                    'attributes'        => $org->getChanges(),
-                    'old'               => $originalOrg,
+                    'attributes' => $org->getChanges(),
+                    'old' => $originalOrg,
                 ])
                 ->event('updated')
                 ->log('updated');
@@ -793,7 +857,7 @@ class OrganisationController extends Controller
 
         // organisation
         $users = User::where([
-            'organisation_id' => $organisationId
+            'organisation_id' => $organisationId,
         ])->get();
         Notification::send($users, new OrganisationUpdateProfile($loggedInUser, $newOrgDetails, $oldOrgDetails, 'organisation'));
 
@@ -821,42 +885,56 @@ class OrganisationController extends Controller
      *      tags={"organisations"},
      *      summary="organisations@destroy",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="organisations entry ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="organisations entry ID",
      *         ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success")
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=400,
      *          description="Invalid argument(s)",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
      *           ),
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *           ),
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -867,7 +945,7 @@ class OrganisationController extends Controller
         try {
             $organisation = Organisation::findOrFail($id);
 
-            if (!Gate::allows('delete', $organisation)) {
+            if (! Gate::allows('delete', $organisation)) {
                 return $this->ForbiddenResponse();
             }
             $organisation->delete();
@@ -892,7 +970,7 @@ class OrganisationController extends Controller
                 $organisation->dsptk_certified,
                 $organisation->ce_certified,
                 $organisation->ce_plus_certified,
-                $organisation->iso_27001_certified
+                $organisation->iso_27001_certified,
             ]));
 
             return response()->json([
@@ -914,21 +992,26 @@ class OrganisationController extends Controller
      *      tags={"organisation"},
      *      summary="organisation@getProjects",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Organisation ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Organisation ID",
      *         ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -942,17 +1025,23 @@ class OrganisationController extends Controller
      *              ),
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=400,
      *          description="Invalid argument(s)",
+     *
      *           @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
      *          )
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *           @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -973,14 +1062,14 @@ class OrganisationController extends Controller
                     $query->whereHas('projectOrganisation', function ($query2) use ($organisationId) {
                         $query2->where('organisation_id', $organisationId);
                     })
-                    ->with('modelState.state');
+                        ->with('modelState.state');
                 },
             ])
             ->whereHas('organisations', function ($query) use ($organisationId) {
                 $query->where('organisations.id', $organisationId);
             })
             ->withCount('projectUsers')
-            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+            ->paginate((int) $this->getSystemConfig('PER_PAGE'));
 
         if ($projects) {
             return response()->json([
@@ -1005,21 +1094,26 @@ class OrganisationController extends Controller
      *      tags={"organisation"},
      *      summary="organisation@getSponsorshipsProjects",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Organisation ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Organisation ID",
      *         ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="id", type="integer", example="123"),
@@ -1033,17 +1127,23 @@ class OrganisationController extends Controller
      *              ),
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=400,
      *          description="Invalid argument(s)",
+     *
      *           @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
      *          )
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *           @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -1066,14 +1166,14 @@ class OrganisationController extends Controller
                     $query->whereHas('projectHasSponsorships', function ($query2) use ($organisationId) {
                         $query2->where('sponsor_id', $organisationId);
                     })
-                    ->with('modelState.state');
+                        ->with('modelState.state');
                 },
             ])
             ->whereHas('sponsors', function ($query) use ($organisationId) {
                 $query->where('organisations.id', $organisationId);
             })
             ->withCount('projectUsers')
-            ->paginate($perPage ?? (int)$this->getSystemConfig('PER_PAGE'));
+            ->paginate($perPage ?? (int) $this->getSystemConfig('PER_PAGE'));
 
         if ($projects) {
             return response()->json([
@@ -1087,6 +1187,7 @@ class OrganisationController extends Controller
             'data' => null,
         ], 404);
     }
+
     /**
      * @OA\Get(
      *      path="/api/v1/organisations/{id}/users",
@@ -1097,26 +1198,33 @@ class OrganisationController extends Controller
      *      tags={"organisation"},
      *      summary="organisation@getUsers",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Organisation ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Organisation ID",
      *         ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="object",
      *                  @OA\Property(property="current_page", type="integer", example=1),
      *                  @OA\Property(property="data", type="array",
+     *
      *                      @OA\Items(
+     *
      *                          @OA\Property(property="id", type="integer", example=1),
      *                          @OA\Property(property="first_name", type="string", example="John"),
      *                          @OA\Property(property="last_name", type="string", example="Doe"),
@@ -1138,17 +1246,23 @@ class OrganisationController extends Controller
      *              )
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=400,
      *          description="Invalid argument(s)",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
      *          )
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
      *      )
@@ -1158,7 +1272,7 @@ class OrganisationController extends Controller
     {
         try {
             $org = Organisation::findOrFail($organisationId);
-            if (!Gate::allows('viewDetailed', $org)) {
+            if (! Gate::allows('viewDetailed', $org)) {
                 return $this->ForbiddenResponse();
             }
             $users = User::searchViaRequest()
@@ -1172,7 +1286,7 @@ class OrganisationController extends Controller
                     'registry.education',
                     'registry.trainings',
                 ])->where('organisation_id', $organisationId)
-                ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+                ->paginate((int) $this->getSystemConfig('PER_PAGE'));
 
             return response()->json([
                 'message' => 'success',
@@ -1192,24 +1306,31 @@ class OrganisationController extends Controller
      *      description="Return all delegates associated with an organisation",
      *      tags={"organisation"},
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Organisation ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Organisation ID"
      *         ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="array",
+     *
      *                  @OA\Items(
+     *
      *                      @OA\Property(property="id", type="integer", example=1),
      *                      @OA\Property(property="first_name", type="string", example="John"),
      *                      @OA\Property(property="last_name", type="string", example="Doe"),
@@ -1220,17 +1341,23 @@ class OrganisationController extends Controller
      *              )
      *          )
      *      ),
+     *
      *      @OA\Response(
      *          response=400,
      *          description="Invalid argument(s)",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
      *          )
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="Not found response",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="not found")
      *          )
      *      )
@@ -1240,21 +1367,21 @@ class OrganisationController extends Controller
     {
         try {
             $org = Organisation::findOrFail($organisationId);
-            if (!Gate::allows('viewDetailed', $org)) {
+            if (! Gate::allows('viewDetailed', $org)) {
                 return $this->ForbiddenResponse();
             }
             $delegates = User::with('departments')
-            ->select('users.*')
-            ->selectSub(function ($query) use ($organisationId) {
-                $query->from('pending_invites')
-                    ->select('status')
-                    ->whereColumn('pending_invites.user_id', 'users.id')
-                    ->where('organisation_id', $organisationId)
-                    ->limit(1);
-            }, 'invite_status')
-            ->where('organisation_id', $organisationId)
-            ->where('is_delegate', 1)
-            ->get();
+                ->select('users.*')
+                ->selectSub(function ($query) use ($organisationId) {
+                    $query->from('pending_invites')
+                        ->select('status')
+                        ->whereColumn('pending_invites.user_id', 'users.id')
+                        ->where('organisation_id', $organisationId)
+                        ->limit(1);
+                }, 'invite_status')
+                ->where('organisation_id', $organisationId)
+                ->where('is_delegate', 1)
+                ->get();
 
             return response()->json([
                 'message' => 'success',
@@ -1299,21 +1426,26 @@ class OrganisationController extends Controller
      *      tags={"organisations"},
      *      summary="organisations@invite_user",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="organisations entry ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="organisations entry ID",
      *         ),
      *      ),
+     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Invite definition",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="last_name", type="string", example="Smith"),
      *              @OA\Property(property="first_name", type="string", example="John"),
      *              @OA\Property(property="email", type="string", example="someone@somewhere.com"),
@@ -1324,32 +1456,44 @@ class OrganisationController extends Controller
      *              @OA\Property(property="from_custodian", type="bool", example="true"),
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=201,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="integer", example="1"),
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=400,
      *          description="Invalid argument(s)",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
      *          )
      *      ),
+     *
      *      @OA\Response(
      *          response=403,
      *          description="forbidden",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="forbidden")
      *          )
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -1359,7 +1503,7 @@ class OrganisationController extends Controller
     {
         try {
             $input = $request->all();
-            if (User::where("email", $input['email'])->exists()) {
+            if (User::where('email', $input['email'])->exists()) {
                 return $this->ConflictResponse();
             }
 
@@ -1378,7 +1522,7 @@ class OrganisationController extends Controller
                 'user_group' => isset($input['user_group']) ? $input['user_group'] : 'USERS',
                 'role' => isset($input['role']) ? $input['role'] : null,
                 'invited_by' => $request->user()->id,
-                'is_sro' => 0
+                'is_sro' => 0,
             ]);
 
             if (isset($input['department_id']) && $input['department_id'] !== 0 && $input['department_id'] != null) {
@@ -1386,7 +1530,7 @@ class OrganisationController extends Controller
                     'user_id' => $unclaimedUser->id,
                     'department_id' => $request['department_id'],
                 ]);
-            };
+            }
             $email = [];
             if (isset($input['is_delegate'])) {
                 $email = [
@@ -1451,21 +1595,26 @@ class OrganisationController extends Controller
      *      tags={"organisations"},
      *      summary="organisations@custodian_invite_user",
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="organisations entry ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="organisations entry ID",
      *         ),
      *      ),
+     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="Invite definition",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="last_name", type="string", example="Smith"),
      *              @OA\Property(property="first_name", type="string", example="John"),
      *              @OA\Property(property="email", type="string", example="someone@somewhere.com"),
@@ -1476,25 +1625,34 @@ class OrganisationController extends Controller
      *              @OA\Property(property="from_custodian", type="bool", example="true"),
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=201,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="integer", example="1"),
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=400,
      *          description="Invalid argument(s)",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
      *          )
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -1504,7 +1662,7 @@ class OrganisationController extends Controller
     {
         try {
             $input = $request->all();
-            if (User::where("email", $input['email'])->exists()) {
+            if (User::where('email', $input['email'])->exists()) {
                 return $this->ConflictResponse();
             }
 
@@ -1531,7 +1689,7 @@ class OrganisationController extends Controller
                     'user_id' => $unclaimedUser->id,
                     'department_id' => $request['department_id'],
                 ]);
-            };
+            }
 
             $user = User::where('id', $unclaimedUser->id)->first();
             $user->setState(State::STATE_INVITED);
@@ -1577,12 +1735,12 @@ class OrganisationController extends Controller
         }
     }
 
-    //Hide from swagger docs
+    // Hide from swagger docs
     public function invite(OrganisationInvite $request, int $id): JsonResponse
     {
         try {
             $organisation = Organisation::where('id', $id)->first();
-            if (!$organisation) {
+            if (! $organisation) {
                 return response()->json([
                     'message' => 'Organisation not found.',
                 ], 404);
@@ -1594,10 +1752,10 @@ class OrganisationController extends Controller
                 'user_group' => User::GROUP_ORGANISATIONS,
                 'organisation_id' => $id,
                 'invited_by' => $request->user()->id,
-                'is_sro' => 1
+                'is_sro' => 1,
             ]);
 
-            if (!$unclaimedUser->unclaimed) {
+            if (! $unclaimedUser->unclaimed) {
                 return response()->json([
                     'message' => 'Lead applicant has already claimed their account.',
                 ], 400);
@@ -1626,7 +1784,7 @@ class OrganisationController extends Controller
         }
     }
 
-    //Hide from swagger docs
+    // Hide from swagger docs
     public function resentInvite(ResentInvite $request, int $id)
     {
         try {
@@ -1636,7 +1794,7 @@ class OrganisationController extends Controller
             $pendingInvites = PendingInvite::where([
                 'organisation_id' => $id,
                 'status' => PendingInvite::STATE_PENDING,
-                'type' => 'organisation_invite'
+                'type' => 'organisation_invite',
             ])->first();
 
             if (is_null($pendingInvites)) {
@@ -1736,7 +1894,7 @@ class OrganisationController extends Controller
 
     public function validateRor(OrganisationValidateRor $request, string $ror): JsonResponse
     {
-        $response = Http::get(config('speedi.system.ror_api_url') . '/' . $ror);
+        $response = Http::get(config('speedi.system.ror_api_url').'/'.$ror);
         if ($response->status() === 200) {
             $payload = $response->json();
             $response->close();
@@ -1762,29 +1920,36 @@ class OrganisationController extends Controller
      *      description="Returns all registries associated with the specified organisation",
      *      tags={"organisations"},
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *          name="id",
      *          in="path",
      *          description="Organisation ID",
      *          required=true,
+     *
      *          @OA\Schema(
      *              type="integer",
      *              format="int64"
      *          )
      *      ),
+     *
      *      @OA\Parameter(
      *          name="show_pending",
      *          in="query",
      *          description="Include users with pending invitations (true/false)",
      *          required=false,
+     *
      *          @OA\Schema(
      *             type="boolean"
      *          )
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="Successful operation",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(
      *                  property="data",
@@ -1793,7 +1958,9 @@ class OrganisationController extends Controller
      *                  @OA\Property(
      *                      property="data",
      *                      type="array",
+     *
      *                      @OA\Items(
+     *
      *                          @OA\Property(property="registry_id", type="integer"),
      *                          @OA\Property(property="organisation_id", type="integer")
      *                      )
@@ -1811,17 +1978,23 @@ class OrganisationController extends Controller
      *              )
      *          )
      *      ),
+     *
      *      @OA\Response(
      *          response=400,
      *          description="Invalid argument(s)",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
      *          )
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="No registries found for this organisation",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="No registries found for this organisation")
      *          )
      *      )
@@ -1830,7 +2003,7 @@ class OrganisationController extends Controller
     public function getRegistries(GetRegistry $request, int $id): JsonResponse
     {
         try {
-            $showPending = $request->boolean("show_pending");
+            $showPending = $request->boolean('show_pending');
             $affiliationIds = Organisation::getCurrentAffiliations($id)->filterByState()->pluck('id');
 
             $users = User::searchViaRequest()
@@ -1838,14 +2011,14 @@ class OrganisationController extends Controller
                 ->with([
                     'registry.affiliations' => function ($q) use ($affiliationIds, $id) {
                         $q->whereIn('id', $affiliationIds)
-                          ->where('organisation_id', $id)->limit(1);
+                            ->where('organisation_id', $id)->limit(1);
                     },
                     'registry.affiliations.modelState.state',
-                    'modelState.state'
+                    'modelState.state',
                 ])
                 ->whereHas('registry.affiliations', function ($query) use ($affiliationIds, $id) {
                     $query->whereIn('id', $affiliationIds)
-                          ->where('organisation_id', $id);
+                        ->where('organisation_id', $id);
                 })
                 ->where(function ($query) use ($showPending, $id) {
                     if ($showPending) {
@@ -1857,7 +2030,7 @@ class OrganisationController extends Controller
                         $query->orWhereIn('id', $pendingInviteUserIds);
                     }
                 })
-                ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+                ->paginate((int) $this->getSystemConfig('PER_PAGE'));
 
             return response()->json([
                 'message' => 'success',
@@ -1867,7 +2040,6 @@ class OrganisationController extends Controller
             throw new Exception($e->getMessage());
         }
     }
-
 
     /**
      * @OA\Get(
@@ -1884,6 +2056,7 @@ class OrganisationController extends Controller
      *         in="path",
      *         required=true,
      *         description="Organisation ID",
+     *
      *         @OA\Schema(
      *             type="integer",
      *             example=1
@@ -1893,8 +2066,10 @@ class OrganisationController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
+     *
      *         @OA\JsonContent(
      *             type="object",
+     *
      *             @OA\Property(
      *                 property="message",
      *                 type="string",
@@ -1905,12 +2080,10 @@ class OrganisationController extends Controller
      *                 type="object",
      *                 @OA\Property(property="id", type="integer", example=1),
      *                 @OA\Property(property="name", type="string", example="Example Organisation"),
-     *
      *                 @OA\Property(
      *                     property="model_state",
      *                     type="object",
      *                     @OA\Property(property="id", type="integer", example=5),
-     *
      *                     @OA\Property(
      *                         property="state",
      *                         type="object",
@@ -1925,7 +2098,9 @@ class OrganisationController extends Controller
      *     @OA\Response(
      *         response=400,
      *         description="Invalid argument(s)",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string", example="Invalid argument(s)")
      *         )
      *     ),
@@ -1933,7 +2108,9 @@ class OrganisationController extends Controller
      *     @OA\Response(
      *         response=404,
      *         description="Organisation not found",
+     *
      *         @OA\JsonContent(
+     *
      *             @OA\Property(property="message", type="string", example="Organisation not found")
      *         )
      *     )
@@ -1943,7 +2120,8 @@ class OrganisationController extends Controller
     {
         try {
             $organisation = Organisation::with('modelState.state')
-            ->findOrFail($id);
+                ->findOrFail($id);
+
             return $this->OKResponse($organisation->modelState);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -1959,43 +2137,57 @@ class OrganisationController extends Controller
      *      description="Updates the system_approved flag for an organisation",
      *      tags={"organisations"},
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="organisations entry ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="organisations entry ID",
      *         ),
      *      ),
+     *
      *      @OA\RequestBody(
      *          required=true,
      *          description="System approval update definition",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="system_approved", type="bool", example="true"),
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=201,
      *          description="Success",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="success"),
      *              @OA\Property(property="data", type="integer", example="1"),
      *          ),
      *      ),
+     *
      *      @OA\Response(
      *          response=400,
      *          description="Invalid argument(s)",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
      *          )
      *      ),
+     *
      *      @OA\Response(
      *          response=500,
      *          description="Error",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="error")
      *          )
      *      )
@@ -2008,7 +2200,7 @@ class OrganisationController extends Controller
             $org = Organisation::findOrFail($id);
             $originalOrg = $org->getOriginal();
 
-            if (!Gate::allows('admin')) {
+            if (! Gate::allows('admin')) {
                 return $this->ForbiddenResponse();
             }
 
@@ -2016,7 +2208,7 @@ class OrganisationController extends Controller
                 return $this->NoContent();
             }
 
-            if (!isset($input['system_approved'])) {
+            if (! isset($input['system_approved'])) {
                 return $this->BadRequestResponse();
             }
 
@@ -2024,25 +2216,23 @@ class OrganisationController extends Controller
             $org->system_approved_at = Carbon::now();
             $org->save();
 
-            if (!$org->unclaimed) {
-                if (!$input['system_approved']) {
+            if (! $org->unclaimed) {
+                if (! $input['system_approved']) {
                     $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_SYSTEM_APPROVAL);
                 } else {
                     $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_PENDING);
                     $org->setState(State::STATE_PENDING);
 
                     Affiliation::with(['registry.user'])
-                    ->where('organisation_id', $org->id)
-                    ->whereHas(
-                        'modelState.state',
-                        fn ($q) =>
-                        $q->where('slug', State::STATE_AFFILIATION_REVIEW)
-                    )
-                    ->whereHas(
-                        'registry.user',
-                        fn ($q) =>
-                        $q->where('unclaimed', false)
-                    )->each(fn ($affiliation) => $affiliation->setState(State::STATE_AFFILIATION_PENDING));
+                        ->where('organisation_id', $org->id)
+                        ->whereHas(
+                            'modelState.state',
+                            fn ($q) => $q->where('slug', State::STATE_AFFILIATION_REVIEW)
+                        )
+                        ->whereHas(
+                            'registry.user',
+                            fn ($q) => $q->where('unclaimed', false)
+                        )->each(fn ($affiliation) => $affiliation->setState(State::STATE_AFFILIATION_PENDING));
                 }
             }
 
@@ -2051,7 +2241,7 @@ class OrganisationController extends Controller
                 'type' => 'ORGANISATION_CONFIRMATION_WITH_SUCCESS',
                 'to' => $id,
                 'by' => -1,
-                'identifier' => 'organisation_confirmation_with_success'
+                'identifier' => 'organisation_confirmation_with_success',
             ];
 
             TriggerEmail::spawnEmail($input);
@@ -2074,10 +2264,10 @@ class OrganisationController extends Controller
                 ->causedBy(Auth::user())
                 ->performedOn($org)
                 ->withProperties([
-                    'organisation_id'   => $org->id,
+                    'organisation_id' => $org->id,
                     'organisation_name' => $org->organisation_name,
-                    'attributes'        => $org->getChanges(),
-                    'old'               => $originalOrg,
+                    'attributes' => $org->getChanges(),
+                    'old' => $originalOrg,
                 ])
                 ->event('updated')
                 ->log('approved');
@@ -2173,7 +2363,7 @@ class OrganisationController extends Controller
 
     private function getNotificationUsers(int $orgId)
     {
-        return User::where("organisation_id", $orgId)->get();
+        return User::where('organisation_id', $orgId)->get();
     }
 
     private function sendNotificationOnDelegate($loggedInUser, $delegate)
@@ -2185,8 +2375,6 @@ class OrganisationController extends Controller
         Notification::send($user, new OrganisationDelegates($loggedInUser, $delegate, 'add'));
     }
 
-
-
     /**
      * @OA\Get(
      *      path="/api/v1/organisation/{id}/download",
@@ -2196,23 +2384,28 @@ class OrganisationController extends Controller
      *      description="Downloads the specified SRO Declaration",
      *      tags={"Files"},
      *      security={{"bearerAuth":{}}},
+     *
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
      *         description="Organisation ID",
      *         required=true,
      *         example="1",
+     *
      *         @OA\Schema(
      *            type="integer",
      *            description="Organsiation ID",
      *         ),
      *      ),
+     *
      *      @OA\Response(
      *          response=200,
      *          description="File downloaded successfully",
      *          content={
+     *
      *              @OA\MediaType(
      *                  mediaType="application/octet-stream",
+     *
      *                  @OA\Schema(
      *                      type="string",
      *                      format="binary"
@@ -2220,17 +2413,23 @@ class OrganisationController extends Controller
      *              )
      *          }
      *      ),
+     *
      *      @OA\Response(
      *          response=400,
      *          description="Invalid argument(s)",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
      *          )
      *      ),
+     *
      *      @OA\Response(
      *          response=404,
      *          description="File not found",
+     *
      *          @OA\JsonContent(
+     *
      *              @OA\Property(property="message", type="string", example="File not found"),
      *          ),
      *      ),
@@ -2238,38 +2437,37 @@ class OrganisationController extends Controller
      */
     public function getSroDeclarations(GetSroDeclaration $request, int $organisationId)
     {
-        try{
-        $organisationhasfile = OrganisationHasFile::where('organisation_id','=',$organisationId)
-        -> pluck('file_id');
+        try {
+            $fileIds = OrganisationHasFile::where('organisation_id', '=', $organisationId)
+                ->pluck('file_id');
 
-        if(!$organisationhasfile)
-            {
+            if (! $fileIds) {
                 return $this->NotFoundResponse();
             }
-        $file = File::whereIn('id',$organisationhasfile)
-        ->where("type", "=", File::FILE_TYPE_DECLARATION_SRO)
-          ->latest()
-          -> first();
-                if (empty($file)) {
+            $file = File::whereIn('id', $fileIds)
+                ->where('type', '=', File::FILE_TYPE_DECLARATION_SRO)
+                ->latest()
+                ->first();
+            if (empty($file)) {
                 return $this->NotFoundResponse();
             }
-                if ($file->status !== FILE::FILE_STATUS_PROCESSED) {
+            if ($file->status !== FILE::FILE_STATUS_PROCESSED) {
                 return $this->NotFoundResponse();
             }
-        $filePath = $file -> path;
-        
-        $fileSystem = config('speedi.system.scanning_filesystem_disk');
-        $scannedFileSystem = $fileSystem . '_scanned';
-        if (!Storage::disk($scannedFileSystem)->exists($filePath)) {
+            $filePath = $file->path;
+
+            $fileSystem = config('speedi.system.scanning_filesystem_disk');
+            $scannedFileSystem = $fileSystem.'_scanned';
+            if (! Storage::disk($scannedFileSystem)->exists($filePath)) {
                 return $this->NotFoundResponse();
             }
             $headers = [
-               'Access-Control-Expose-Headers' => 'Content-Disposition'
+                'Access-Control-Expose-Headers' => 'Content-Disposition',
             ];
+
             return Storage::disk($scannedFileSystem)->download($filePath, $file->name, $headers);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             return $this->ErrorResponse($e->getMessage());
-    }
+        }
     }
 }
