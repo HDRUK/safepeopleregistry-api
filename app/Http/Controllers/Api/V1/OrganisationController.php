@@ -2239,10 +2239,8 @@ class OrganisationController extends Controller
     public function getSroDeclarations(GetSroDeclaration $request, int $organisationId)
     {
         try{
-            // We want the logic to pull all files where the organisation is included then filter down to the one we want later
         $organisationhasfile = OrganisationHasFile::where('organisation_id','=',$organisationId)
         -> pluck('file_id');
-        // Multiple entries could be found here, which need to be hydrated 
 
         if(!$organisationhasfile)
             {
