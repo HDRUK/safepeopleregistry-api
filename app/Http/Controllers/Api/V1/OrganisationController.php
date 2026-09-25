@@ -2238,40 +2238,39 @@ class OrganisationController extends Controller
      */
     public function getSroDeclarations(GetSroDeclaration $request, int $organisationId)
     {
-        // $organisation_id = str($organisationId);
         try{
+            // Find in the Organisation has file table the IDs of each of the organisations files. 
         $organisationhasfile = OrganisationHasFile::where('organisation_id','=',$organisationId)
-        -> get('file_id');
+        -> first();
 
-        // error_log(empty($organisationhasfile));
-        // TODO: Fix why this doesnt work?
-        if(empty($organisationhasfile)== true)
+        // What happens if the organisation doesnt have a file!
+        if(!$organisationhasfile)
             {
                 return $this->NotFoundResponse();
             }
-        error_log("Claims there is an object to check");
-        $file = File::where('id','=',$organisationhasfile)
+
+            // Question: Why can I not extract a file_id here?
+            // Go and Fetch the file information based on the files we have found, where the filetype is SRO Declaration
+        // 
+        $file = File::where('id','=',$organisationhasfile->file_id)
+        // TODO: FIX This This is wrong!
         //   ->where('type', '=', File::FILE_TYPE_DECLARATION_SRO)
-          ->latest()
-          ->get('name','path','status');
-    
+          ->first();
         error_log("Finds a File");
                 if (empty($file)) {
                 return $this->NotFoundResponse();
             }
-
                 if ($file->status !== FILE::FILE_STATUS_PROCESSED) {
+                    error_log("File isnt ready for download yet!");
                 return $this->NotFoundResponse();
             }
-        $filePath = $file -> path();
-
+        $filePath = $file -> path;
+        
         $fileSystem = config('speedi.system.scanning_filesystem_disk');
         $scannedFileSystem = $fileSystem . '_scanned';
-
         if (!Storage::disk($scannedFileSystem)->exists($filePath)) {
                 return $this->NotFoundResponse();
             }
-
             $headers = [
                'Access-Control-Expose-Headers' => 'Content-Disposition'
             ];
