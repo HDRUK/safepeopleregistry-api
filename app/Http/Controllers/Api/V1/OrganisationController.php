@@ -2239,22 +2239,23 @@ class OrganisationController extends Controller
     public function getSroDeclarations(GetSroDeclaration $request, int $organisationId)
     {
         try{
+            // We want the logic to pull all files where the organisation is included then filter down to the one we want later
         $organisationhasfile = OrganisationHasFile::where('organisation_id','=',$organisationId)
-        -> first();
+        -> pluck('file_id');
+        // Multiple entries could be found here, which need to be hydrated 
 
         if(!$organisationhasfile)
             {
                 return $this->NotFoundResponse();
             }
-        $file = File::find($organisationhasfile)
-          ->where("type", "=", File::FILE_TYPE_DECLARATION_SRO)
-          ->first();
-        error_log("Finds a File");
+        $file = File::whereIn('id',$organisationhasfile)
+        ->where("type", "=", File::FILE_TYPE_DECLARATION_SRO)
+          ->latest()
+          -> first();
                 if (empty($file)) {
                 return $this->NotFoundResponse();
             }
                 if ($file->status !== FILE::FILE_STATUS_PROCESSED) {
-                    error_log("File isnt ready for download yet!");
                 return $this->NotFoundResponse();
             }
         $filePath = $file -> path;
