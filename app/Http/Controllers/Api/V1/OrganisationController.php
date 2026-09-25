@@ -2190,7 +2190,7 @@ class OrganisationController extends Controller
     /**
      * @OA\Get(
      *      path="/api/v1/organisation/{id}/download",
-     *      operationId="filesDownload",
+     *      operationId="sroFilesDownload",
      *      x={"internal"="true"},
      *      summary="Download an uploaded Senior responsible officer Declaration form",
      *      description="Downloads the specified SRO Declaration",
@@ -2199,12 +2199,12 @@ class OrganisationController extends Controller
      *      @OA\Parameter(
      *         name="id",
      *         in="path",
-     *         description="File ID",
+     *         description="Organisation ID",
      *         required=true,
      *         example="1",
      *         @OA\Schema(
      *            type="integer",
-     *            description="File ID",
+     *            description="Organsiation ID",
      *         ),
      *      ),
      *      @OA\Response(
