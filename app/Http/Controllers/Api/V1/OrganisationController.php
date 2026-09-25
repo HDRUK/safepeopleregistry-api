@@ -2239,22 +2239,15 @@ class OrganisationController extends Controller
     public function getSroDeclarations(GetSroDeclaration $request, int $organisationId)
     {
         try{
-            // Find in the Organisation has file table the IDs of each of the organisations files. 
         $organisationhasfile = OrganisationHasFile::where('organisation_id','=',$organisationId)
         -> first();
 
-        // What happens if the organisation doesnt have a file!
         if(!$organisationhasfile)
             {
                 return $this->NotFoundResponse();
             }
-
-            // Question: Why can I not extract a file_id here?
-            // Go and Fetch the file information based on the files we have found, where the filetype is SRO Declaration
-        // 
-        $file = File::where('id','=',$organisationhasfile->file_id)
-        // TODO: FIX This This is wrong!
-        //   ->where('type', '=', File::FILE_TYPE_DECLARATION_SRO)
+        $file = File::find($organisationhasfile)
+          ->where("type", "=", File::FILE_TYPE_DECLARATION_SRO)
           ->first();
         error_log("Finds a File");
                 if (empty($file)) {
