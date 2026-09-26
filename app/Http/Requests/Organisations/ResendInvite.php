@@ -4,7 +4,7 @@ namespace App\Http\Requests\Organisations;
 
 use App\Http\Requests\BaseFormRequest;
 
-class ResentInvite extends BaseFormRequest
+class ResendInvite extends BaseFormRequest
 {
     /**
      * Get the validation rules that apply to the request.

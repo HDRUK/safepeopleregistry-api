@@ -38,7 +38,7 @@ use App\Http\Requests\Organisations\GetProject;
 use App\Models\CustodianHasProjectOrganisation;
 use App\Http\Requests\Organisations\GetDelegate;
 use App\Http\Requests\Organisations\GetRegistry;
-use App\Http\Requests\Organisations\ResentInvite;
+use App\Http\Requests\Organisations\ResendInvite;
 use App\Models\CustodianHasProjectHasSponsorship;
 use App\Services\DecisionEvaluatorService as DES;
 use App\Http\Requests\Organisations\GetCountUsers;
@@ -1727,7 +1727,7 @@ class OrganisationController extends Controller
     }
 
     //Hide from swagger docs
-    public function resentInvite(ResentInvite $request, int $id)
+    public function resendInvite(ResendInvite $request, int $id)
     {
         try {
             $loggedInUserId = $request->user()?->id;
