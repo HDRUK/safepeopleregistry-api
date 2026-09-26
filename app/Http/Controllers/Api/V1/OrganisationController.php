@@ -1706,14 +1706,25 @@ class OrganisationController extends Controller
             $loggedInUserId = $request->user()?->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();
 
-            $input = [
-                'type' => 'ORGANISATION',
-                'to' => $organisation->id,
-                'unclaimed_user_id' => $unclaimedUser->id,
-                'by' => $id,
-                'identifier' => 'organisation_invite',
-                'userName' => $loggedInUser->name,
-            ];
+            if (!Feature::active('SroRequirementEnabled')) {
+                $input = [
+                    'type' => 'ORGANISATION',
+                    'to' => $organisation->id,
+                    'unclaimed_user_id' => $unclaimedUser->id,
+                    'by' => $id,
+                    'identifier' => 'organisation_invite',
+                    'userName' => $loggedInUser->name,
+                ];
+            } else {
+                $input = [
+                    'type' => 'ORGANISATION_INVITE_BY_SUPERADMIN',
+                    'to' => $organisation->id,
+                    'unclaimed_user_id' => $unclaimedUser->id,
+                    'by' => $id,
+                    'identifier' => 'organisation_invite_by_superadmin',
+                    'userName' => $loggedInUser->name,
+                ];
+            }
 
             TriggerEmail::spawnEmail($input);
 
