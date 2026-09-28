@@ -2242,14 +2242,14 @@ class OrganisationController extends Controller
             if (!Gate::allows('viewDetailed', $organisationId)) {
                 return $this->ForbiddenResponse();
             }
-            $file_ids = OrganisationHasFile::where('organisation_id','=',$organisationId)
+            $fileIds = OrganisationHasFile::where('organisation_id','=',$organisationId)
             ->pluck('file_id');
 
-            if($file_ids->isEmpty()) {
+            if($fileIds->isEmpty()) {
                 return $this->NotFoundResponse();
             }
 
-            $file = File::whereIn('id',$file_ids)
+            $file = File::whereIn('id',$fileIds)
             ->where("type", "=", File::FILE_TYPE_DECLARATION_SRO)
             ->latest()
             ->first();
