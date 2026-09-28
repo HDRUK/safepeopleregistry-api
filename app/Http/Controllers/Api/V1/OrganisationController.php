@@ -595,8 +595,10 @@ class OrganisationController extends Controller
     {
         try {
             $input = $request->all();
-            $organisation = Organisation::create([
+            $organisation = Organisation::updateOrCreate([
                 'organisation_name' => $input['organisation_name'],
+                'lead_applicant_email' => $input['lead_applicant_email'],
+            ], [
                 'address_1' => '',
                 'address_2' => '',
                 'town' => '',
@@ -604,7 +606,6 @@ class OrganisationController extends Controller
                 'country' => '',
                 'postcode' => '',
                 'lead_applicant_organisation_name' => '',
-                'lead_applicant_email' => $input['lead_applicant_email'],
                 'applicant_names' => '',
                 'funders_and_sponsors' => '',
                 'sub_license_arrangements' => '',
