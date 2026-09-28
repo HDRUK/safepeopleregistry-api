@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use TriggerEmail;
 use App\Models\User;
 use App\Models\Affiliation;
+use Laravel\Pennant\Feature;
 use Illuminate\Http\Request;
 use App\Models\PendingInvite;
 use App\Http\Traits\Responses;
