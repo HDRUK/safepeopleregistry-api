@@ -2242,28 +2242,29 @@ class OrganisationController extends Controller
             if (!Gate::allows('viewDetailed', $organisationId)) {
                 return $this->ForbiddenResponse();
             }
-        $file_ids = OrganisationHasFile::where('organisation_id','=',$organisationId)
-        -> pluck('file_id');
+            $file_ids = OrganisationHasFile::where('organisation_id','=',$organisationId)
+            ->pluck('file_id');
 
-        if(!$file_ids)
-            {
+            if($file_ids->isEmpty()) {
                 return $this->NotFoundResponse();
             }
-        $file = File::whereIn('id',$file_ids)
-        ->where("type", "=", File::FILE_TYPE_DECLARATION_SRO)
-          ->latest()
-          -> first();
-                if ($file->isEmpty()) {
+
+            $file = File::whereIn('id',$file_ids)
+            ->where("type", "=", File::FILE_TYPE_DECLARATION_SRO)
+            ->latest()
+            ->first();
+
+            if (!$file) {
+                return $this->NotFoundResponse();            
+            }
+            
+            if ($file->status !== FILE::FILE_STATUS_PROCESSED) {
                 return $this->NotFoundResponse();
             }
-                if ($file->status !== FILE::FILE_STATUS_PROCESSED) {
-                return $this->NotFoundResponse();
-            }
-        $filePath = $file -> path;
-        
-        $fileSystem = config('speedi.system.scanning_filesystem_disk');
-        $scannedFileSystem = $fileSystem . '_scanned';
-        if (!Storage::disk($scannedFileSystem)->exists($filePath)) {
+            $filePath = $file -> path;
+            $fileSystem = config('speedi.system.scanning_filesystem_disk');
+            $scannedFileSystem = $fileSystem . '_scanned';
+            if (!Storage::disk($scannedFileSystem)->exists($filePath)) {
                 return $this->NotFoundResponse();
             }
             $headers = [
