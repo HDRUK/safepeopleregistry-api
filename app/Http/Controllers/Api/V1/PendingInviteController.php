@@ -148,14 +148,25 @@ class PendingInviteController extends Controller
         }
 
         if ($user->user_group === User::GROUP_ORGANISATIONS) {
-            $sendEmail = [
-                'type' => 'ORGANISATION',
-                'to' => $user->organisation_id,
-                'unclaimed_user_id' => $user->id,
-                'by' => $user->organisation_id,
-                'identifier' => 'organisation_invite',
-                'inviteId' => $inviteId,
-            ];
+            if (!Feature::active('SroRequirementEnabled')) {
+                $input = [
+                    'type' => 'ORGANISATION',
+                    'to' => $user->organisation_id,
+                    'unclaimed_user_id' => $user->id,
+                    'by' => $user->organisation_id,
+                    'identifier' => 'organisation_invite',
+                    'inviteId' => $inviteId,
+                ];
+            } else {
+                $input = [
+                    'type' => 'ORGANISATION_INVITE_BY_SUPERADMIN',
+                    'to' => $user->organisation_id,
+                    'unclaimed_user_id' => $user->id,
+                    'by' => $user->organisation_id,
+                    'identifier' => 'organisation_invite_by_superadmin',
+                    'inviteId' => $inviteId,
+                ];
+            }
         }
 
         if (is_null($sendEmail)) {
