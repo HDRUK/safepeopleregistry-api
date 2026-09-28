@@ -16,6 +16,7 @@ use App\Models\Project;
 use App\Models\DebugLog;
 use App\Models\Affiliation;
 use App\Models\Organisation;
+use Laravel\Pennant\Feature;
 use Illuminate\Http\Request;
 use App\Models\PendingInvite;
 use App\Http\Traits\Responses;
