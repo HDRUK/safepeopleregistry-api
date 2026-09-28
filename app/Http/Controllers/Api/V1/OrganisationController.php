@@ -2189,12 +2189,12 @@ class OrganisationController extends Controller
 
     /**
      * @OA\Get(
-     *      path="/api/v1/organisation/{id}/download",
+     *      path="/api/v1/organisation/{id}/sro_declaration",
      *      operationId="sroFilesDownload",
      *      x={"internal"="true"},
      *      summary="Download an uploaded Senior responsible officer Declaration form",
      *      description="Downloads the specified SRO Declaration",
-     *      tags={"Files"},
+     *      tags={"organisations"},
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *         name="id",
@@ -2236,21 +2236,24 @@ class OrganisationController extends Controller
      *      ),
      * )
      */
-    public function getSroDeclarations(GetSroDeclaration $request, int $organisationId)
+    public function getSroDeclaration(GetSroDeclaration $request, int $organisationId)
     {
         try{
-        $organisationhasfile = OrganisationHasFile::where('organisation_id','=',$organisationId)
+            if (!Gate::allows('viewDetailed', $organisationId)) {
+                return $this->ForbiddenResponse();
+            }
+        $file_ids = OrganisationHasFile::where('organisation_id','=',$organisationId)
         -> pluck('file_id');
 
-        if(!$organisationhasfile)
+        if(!$file_ids)
             {
                 return $this->NotFoundResponse();
             }
-        $file = File::whereIn('id',$organisationhasfile)
+        $file = File::whereIn('id',$file_ids)
         ->where("type", "=", File::FILE_TYPE_DECLARATION_SRO)
           ->latest()
           -> first();
-                if (empty($file)) {
+                if ($file->isEmpty()) {
                 return $this->NotFoundResponse();
             }
                 if ($file->status !== FILE::FILE_STATUS_PROCESSED) {
