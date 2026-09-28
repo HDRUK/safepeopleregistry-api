@@ -2261,7 +2261,7 @@ class OrganisationController extends Controller
             if ($file->status !== FILE::FILE_STATUS_PROCESSED) {
                 return $this->NotFoundResponse();
             }
-            $filePath = $file -> path;
+            $filePath = $file->path;
             $fileSystem = config('speedi.system.scanning_filesystem_disk');
             $scannedFileSystem = $fileSystem . '_scanned';
             if (!Storage::disk($scannedFileSystem)->exists($filePath)) {

@@ -10,10 +10,12 @@ use App\Models\Sector;
 use App\Models\Project;
 use App\Models\ActionLog;
 use App\Models\Custodian;
+use App\Models\File;
 use App\Jobs\SendEmailJob;
 use App\Models\ModelState;
 use App\Models\Affiliation;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Organisation;
 use App\Models\PendingInvite;
 use Tests\Traits\Authorisation;
@@ -22,6 +24,7 @@ use Illuminate\Support\Facades\Queue;
 use App\Models\ProjectHasOrganisation;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\OrganisationHasDepartment;
+use App\Models\OrganisationHasFile;
 
 class OrganisationTest extends TestCase
 {
@@ -30,12 +33,28 @@ class OrganisationTest extends TestCase
 
     public const TEST_URL = '/api/v1/organisations';
     private $testOrg = [];
+    private $testOrgFilePivot = [];
+    private $testFile = [];
 
     public function setUp(): void
     {
         parent::setUp();
         $this->withMiddleware();
         $this->withUsers();
+
+        config(['scanning_filesystem_disk' => 'local_scan']);
+        Storage::fake('local_scan');
+
+        $this ->testOrgFilePivot = [
+            'organisation_id' => 1,
+            'file_id' => 1
+        ];
+        $this ->testFile = [
+            'status' => File::FILE_STATUS_PENDING,
+            'type' => FILE::FILE_TYPE_DECLARATION_SRO,
+            'path' => 'testfile.txt',
+            'name' => 'testfile.txt',
+        ];
 
         $this->testOrg = [
             'organisation_name' => 'HEALTH DATA RESEARCH UK',
@@ -77,6 +96,8 @@ class OrganisationTest extends TestCase
             'sro_profile_uri' => 'https://myprofile.something',
         ];
     }
+
+
 
     public function test_the_application_can_search_on_org_name(): void
     {
