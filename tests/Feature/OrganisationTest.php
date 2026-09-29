@@ -142,7 +142,7 @@ class OrganisationTest extends TestCase
                 'GET',
                 self::TEST_URL . '/' . '1'. '/sro_declaration'
             );
-            $response->assertStatus(404);
+        $response->assertStatus(404);
     }
 
     public function test_sro_declaration_cannot_be_downloaded_if_file_not_processed():void
@@ -162,7 +162,7 @@ class OrganisationTest extends TestCase
                 'GET',
                 self::TEST_URL . '/' . '1'. '/sro_declaration'
             );
-            $response->assertStatus(404);
+        $response->assertStatus(404);
 
     }
 

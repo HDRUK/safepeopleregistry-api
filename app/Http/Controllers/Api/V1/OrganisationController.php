@@ -2244,16 +2244,16 @@ class OrganisationController extends Controller
                 return $this->ForbiddenResponse();
             }
             $fileIds = OrganisationHasFile::where('organisation_id','=',$organisationId)
-            ->pluck('file_id');
+                    ->pluck('file_id');
 
             if($fileIds->isEmpty()) {
                 return $this->NotFoundResponse();
             }
 
             $file = File::whereIn('id',$fileIds)
-            ->where("type", "=", File::FILE_TYPE_DECLARATION_SRO)
-            ->latest()
-            ->first();
+                ->where("type", "=", File::FILE_TYPE_DECLARATION_SRO)
+                ->latest()
+                ->first();
 
             if (!$file) {
                 return $this->NotFoundResponse();            
@@ -2272,8 +2272,7 @@ class OrganisationController extends Controller
                'Access-Control-Expose-Headers' => 'Content-Disposition'
             ];
             return Storage::disk($scannedFileSystem)->download($filePath, $file->name, $headers);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             return $this->ErrorResponse($e->getMessage());
         }
     }
