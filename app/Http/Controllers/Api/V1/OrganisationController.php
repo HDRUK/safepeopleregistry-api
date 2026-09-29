@@ -16,6 +16,7 @@ use App\Models\Project;
 use App\Models\DebugLog;
 use App\Models\Affiliation;
 use App\Models\Organisation;
+use Laravel\Pennant\Feature;
 use Illuminate\Http\Request;
 use App\Models\PendingInvite;
 use App\Http\Traits\Responses;
@@ -38,7 +39,7 @@ use App\Http\Requests\Organisations\GetProject;
 use App\Models\CustodianHasProjectOrganisation;
 use App\Http\Requests\Organisations\GetDelegate;
 use App\Http\Requests\Organisations\GetRegistry;
-use App\Http\Requests\Organisations\ResentInvite;
+use App\Http\Requests\Organisations\ResendInvite;
 use App\Models\CustodianHasProjectHasSponsorship;
 use App\Services\DecisionEvaluatorService as DES;
 use App\Http\Requests\Organisations\GetCountUsers;
@@ -1706,14 +1707,25 @@ class OrganisationController extends Controller
             $loggedInUserId = $request->user()?->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();
 
-            $input = [
-                'type' => 'ORGANISATION',
-                'to' => $organisation->id,
-                'unclaimed_user_id' => $unclaimedUser->id,
-                'by' => $id,
-                'identifier' => 'organisation_invite',
-                'userName' => $loggedInUser->name,
-            ];
+            if (!Feature::active('SroRequirementEnabled')) {
+                $input = [
+                    'type' => 'ORGANISATION',
+                    'to' => $organisation->id,
+                    'unclaimed_user_id' => $unclaimedUser->id,
+                    'by' => $id,
+                    'identifier' => 'organisation_invite',
+                    'userName' => $loggedInUser->name,
+                ];
+            } else {
+                $input = [
+                    'type' => 'ORGANISATION_INVITE_BY_SUPERADMIN',
+                    'to' => $organisation->id,
+                    'unclaimed_user_id' => $unclaimedUser->id,
+                    'by' => $id,
+                    'identifier' => 'organisation_invite_by_superadmin',
+                    'userName' => $loggedInUser->name,
+                ];
+            }
 
             TriggerEmail::spawnEmail($input);
 
@@ -1727,7 +1739,7 @@ class OrganisationController extends Controller
     }
 
     //Hide from swagger docs
-    public function resentInvite(ResentInvite $request, int $id)
+    public function resendInvite(ResendInvite $request, int $id)
     {
         try {
             $loggedInUserId = $request->user()?->id;

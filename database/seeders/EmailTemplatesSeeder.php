@@ -1367,6 +1367,7 @@ class EmailTemplatesSeeder extends Seeder
                                   Therefore, making an Organisation account will enable Data Custodians to validate your Organisation as well as your staff/students to speed up gaining access to sensitive data.
                                   <div><br></div>
                                   <b>Would you like to claim this account?</b>
+                                  <div><br></div>
                                   Please reply to this email [[env(SUPPORT_EMAIL)]] to claim this Organisation account, providing some context for your role at your Organisation. Once added, you can add other Delegates from your Organisation to help administer the account (which can be very handy where your Organisation might have multiple departments or institutes!).
                                   <div><br></div>
                                   Thanks,
@@ -1414,12 +1415,12 @@ class EmailTemplatesSeeder extends Seeder
                                   Therefore, making an Organisation account will enable Data Custodians to validate your Organisation as well as your staff/students to speed up gaining access to sensitive data.
                                   <div><br></div>
                                   <b>Would you like to claim this account?</b>
+                                  <div><br></div>
                                   Please reply to this email [[env(SUPPORT_EMAIL)]] to claim this Organisation account, providing some context for your role at your Organisation. Once added, you can add other Delegates from your Organisation to help administer the account (which can be very handy where your Organisation might have multiple departments or institutes!).
                                   <div><br></div>
                                   Thanks,
                                   <div><br></div>
                                   [[env(APP_NAME)]] Team
-                                  ' . $this->supportFooter . '
                                 </mj-text>
                               </mj-column>
                             </mj-section>

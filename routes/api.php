@@ -447,7 +447,7 @@ Route::middleware('auth:api')
 
             Route::patch('/{id}/sponsorships/statuses', 'updateSponsorshipStatuses');
 
-            Route::patch('/{id}/resendInvite', 'resentInvite');
+            Route::patch('/{id}/resendInvite', 'resendInvite');
         });
 
         Route::controller(PermissionController::class)->group(function () {
