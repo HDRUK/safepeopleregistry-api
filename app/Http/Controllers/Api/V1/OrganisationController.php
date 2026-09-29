@@ -1512,7 +1512,7 @@ class OrganisationController extends Controller
             $loggedInUserId = $request->user()->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();
 
-            if (array_key_exists('email', $input) && User::where("email", $input['email'])->exists()) {
+            if (array_key_exists('email', $input) && User::where(["email" => $input['email'], "unclaimed" => 0])->exists()) {
                 return $this->ConflictResponse();
             }
 
