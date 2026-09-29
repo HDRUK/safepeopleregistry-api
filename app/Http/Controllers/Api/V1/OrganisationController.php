@@ -2192,7 +2192,7 @@ class OrganisationController extends Controller
      *      path="/api/v1/organisation/{id}/sro_declaration",
      *      operationId="sroFilesDownload",
      *      x={"internal"="true"},
-     *      summary="Download an uploaded Senior responsible officer Declaration form",
+     *      summary="Download an uploaded Senior Responsible Officer Declaration form",
      *      description="Downloads the specified SRO Declaration",
      *      tags={"organisations"},
      *      security={{"bearerAuth":{}}},
@@ -2204,7 +2204,7 @@ class OrganisationController extends Controller
      *         example="1",
      *         @OA\Schema(
      *            type="integer",
-     *            description="Organsiation ID",
+     *            description="Organisation ID",
      *         ),
      *      ),
      *      @OA\Response(
@@ -2275,6 +2275,6 @@ class OrganisationController extends Controller
         }
         catch (Exception $e) {
             return $this->ErrorResponse($e->getMessage());
-    }
+        }
     }
 }

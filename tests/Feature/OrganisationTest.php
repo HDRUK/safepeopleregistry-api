@@ -85,13 +85,13 @@ class OrganisationTest extends TestCase
 
     public function test_sro_declaration_cannot_be_accessed_by_non_custodian_user(): void
     {
-        $file=File::create([
+        $file = File::create([
             'status' => File::FILE_STATUS_PROCESSED,
             'type' => File::FILE_TYPE_DECLARATION_SRO,
             'path' => 'testfile.txt',
             'name' => 'testfile.txt'
         ]);
-        $orgFilePivot=OrganisationHasFile::create([
+        $orgFilePivot = OrganisationHasFile::create([
             'organisation_id' => 1,
             'file_id' => 1
         ]);
@@ -103,23 +103,21 @@ class OrganisationTest extends TestCase
 
         $response->assertStatus(403);
     }
-// This test is not currently passing, Unsure Why
     public function test_sro_declaration_can_be_accessed_by_custodian_user(): void
     {
-        $file=File::create([
+        $file = File::create([
             'status' => File::FILE_STATUS_PROCESSED,
             'type' => FILE::FILE_TYPE_DECLARATION_SRO,
             'path' => 'testfile.txt',
             'name' => 'testfile.txt',
         ]);
-        $orgFilePivot=OrganisationHasFile::create([
+        $orgFilePivot = OrganisationHasFile::create([
             'organisation_id' => 1,
             'file_id' => 1
         ]);
         $response=$this->actingAs($this->custodian_admin)
             ->json(
                 'GET',
-                // How to make sure we get the right file here. It wants to have an organisation ID
                 self::TEST_URL . '/' . '1'. '/sro_declaration'
             );
         
@@ -128,18 +126,18 @@ class OrganisationTest extends TestCase
 
     public function test_sro_declaration_cannot_be_accessed_if_not_sro_declaration_type(): void
     {
-        $file=File::create([
+        $file = File::create([
             'status' => File::FILE_STATUS_PROCESSED,
             'type' => FILE::FILE_TYPE_CV,
             'path' => 'testfile.txt',
             'name' => 'testfile.txt',
         ]);
-        $orgFilePivot=OrganisationHasFile::create([
+        $orgFilePivot = OrganisationHasFile::create([
             'organisation_id' => 1,
             'file_id' => 1
         ]);
 
-        $response=$this->actingAs($this->custodian_admin)
+        $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'GET',
                 self::TEST_URL . '/' . '1'. '/sro_declaration'
@@ -149,17 +147,17 @@ class OrganisationTest extends TestCase
 
     public function test_sro_declaration_cannot_be_downloaded_if_file_not_processed():void
     {
-        $file=File::create([
+        $file = File::create([
             'status' => File::FILE_STATUS_PENDING,
             'type' => FILE::FILE_TYPE_CV,
             'path' => 'testfile.txt',
             'name' => 'testfile.txt',
         ]);
-        $orgFilePivot=OrganisationHasFile::create([
+        $orgFilePivot = OrganisationHasFile::create([
             'organisation_id' => 1,
             'file_id' => 1
         ]);
-        $response=$this->actingAs($this->custodian_admin)
+        $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'GET',
                 self::TEST_URL . '/' . '1'. '/sro_declaration'
@@ -170,13 +168,13 @@ class OrganisationTest extends TestCase
 
     public function test_sro_declaration_can_be_downloaded(): void
     {
-        $file=File::create([
+        $file = File::create([
             'status' => File::FILE_STATUS_PROCESSED,
             'type' => FILE::FILE_TYPE_DECLARATION_SRO,
             'path' => 'testfile.txt',
             'name' => 'testfile.txt',
         ]);
-        $orgFilePivot=OrganisationHasFile::create([
+        $orgFilePivot = OrganisationHasFile::create([
             'organisation_id' => 1,
             'file_id' => 1
         ]);
@@ -187,7 +185,7 @@ class OrganisationTest extends TestCase
         $fullPath = Storage::disk('local_scan_scanned')->path('testfile.txt');
 
         $this->assertTrue(file_exists($fullPath));
-        $response=$this->actingAs($this->custodian_admin)
+        $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'GET',
                 self::TEST_URL . '/' . '1' . '/sro_declaration'
