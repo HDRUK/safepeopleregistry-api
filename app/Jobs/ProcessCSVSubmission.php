@@ -62,6 +62,20 @@ class ProcessCSVSubmission implements ShouldQueue
                     $row['user_group'] = User::GROUP_USERS;
                     $unclaimedUser = RMC::createUnclaimedUser($row);
 
+                    $affiliation = Affiliation::create([
+                        'organisation_id' => $this->organisationID,
+                        'member_id' => '',
+                        'relationship' => '',
+                        'from' => '',
+                        'to' => '',
+                        'department' => '',
+                        'role' => '',
+                        'email' => $row['email'],
+                        'ror' => '',
+                        'registry_id' => $unclaimedUser->registry_id,
+                    ]);
+                    $affiliation->setState(State::STATE_AFFILIATION_INVITED);
+
                     $input = [
                         'type' => 'USER',
                         'to' => $unclaimedUser->id,
