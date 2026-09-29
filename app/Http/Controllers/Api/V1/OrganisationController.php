@@ -17,6 +17,7 @@ use App\Models\DebugLog;
 use App\Models\Affiliation;
 use App\Models\Organisation;
 use App\Models\File;
+use Laravel\Pennant\Feature;
 use Illuminate\Http\Request;
 use App\Models\PendingInvite;
 use App\Http\Traits\Responses;
@@ -35,12 +36,13 @@ use RegistryManagementController as RMC;
 use App\Models\OrganisationHasDepartment;
 use App\Models\OrganisationHasFile;
 use App\Http\Requests\Organisations\GetUser;
+use App\Notifications\OrganisationRequested;
 use Illuminate\Support\Facades\Notification;
 use App\Http\Requests\Organisations\GetProject;
 use App\Models\CustodianHasProjectOrganisation;
 use App\Http\Requests\Organisations\GetDelegate;
 use App\Http\Requests\Organisations\GetRegistry;
-use App\Http\Requests\Organisations\ResentInvite;
+use App\Http\Requests\Organisations\ResendInvite;
 use App\Models\CustodianHasProjectHasSponsorship;
 use App\Services\DecisionEvaluatorService as DES;
 use App\Http\Requests\Organisations\GetCountUsers;
@@ -638,6 +640,55 @@ class OrganisationController extends Controller
             ]);
 
             $organisation->setState(State::STATE_INVITED);
+
+            return $this->CreatedResponse($organisation->id);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+     public function storeUnclaimedBeforeSuperadminInvitation(Request $request): JsonResponse
+    {
+        try {
+            $input = $request->all();
+            $organisation = Organisation::create([
+                'organisation_name' => $input['organisation_name'],
+                'address_1' => '',
+                'address_2' => '',
+                'town' => '',
+                'county' => '',
+                'country' => '',
+                'postcode' => '',
+                'lead_applicant_organisation_name' => '',
+                'lead_applicant_email' => $input['lead_applicant_email'] ?? null,
+                'applicant_names' => '',
+                'funders_and_sponsors' => '',
+                'sub_license_arrangements' => '',
+                'verified' => 0,
+                'companies_house_no' => '',
+                'sector_id' => 0,
+                'dsptk_ods_code' => '',
+                'dsptk_expiry_date' => null,
+                'iso_27001_certification_num' => '',
+                'iso_expiry_date' => null,
+                'ce_certification_num' => '',
+                'ce_expiry_date' => null,
+                'ce_plus_certification_num' => '',
+                'ce_plus_expiry_date' => null,
+                'ror_id' => '',
+                'website' => '',
+                'smb_status' => 0,
+                'organisation_size' => null,
+                'unclaimed' => $input['unclaimed'] ?? 1,
+                'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
+                'organisation_unique_id' => Str::random(40),
+                'ods_id' => $input['ods_id'] ?? null,
+                'dsptk_status' => $input['dsptk_status'] ?? null,
+                'dsptk_date_last_published' => $input['dsptk_date_last_published'] ?? null,
+                'ico_registration_id' => $input['ico_registration_id'] ?? null,
+                'ico_date_registered' => $input['ico_date_registered'] ?? null,
+                'ico_expiry_date' => $input['ico_expiry_date'] ?? null,
+            ]);
 
             return $this->CreatedResponse($organisation->id);
         } catch (Exception $e) {
@@ -1441,6 +1492,61 @@ class OrganisationController extends Controller
         }
     }
 
+    public function inviteToContactSuperadmin(OrganisationInviteUser $request, int $organisationId): JsonResponse
+    {
+        try {
+            $input = $request->all();
+
+            $loggedInUserId = $request->user()->id;
+            $loggedInUser = User::where('id', $loggedInUserId)->first();
+
+            if (array_key_exists('email', $input) && User::where("email", $input['email'])->exists()) {
+                return $this->ConflictResponse();
+            }
+
+            $organisation = Organisation::where('id', $organisationId)->firstOrFail();
+
+            if (array_key_exists('email', $input)) {
+                if ($loggedInUser->user_group === User::GROUP_CUSTODIANS) {
+                    $email = [
+                        'type' => 'ORGANISATION_INVITE_BY_CUSTODIAN',
+                        'to' => $input['email'],
+                        'by' => $loggedInUserId,
+                        'identifier' => 'organisation_invite_by_custodian',
+                        'organisationId' => $organisationId,
+                    ];
+                } else {
+                    $email = [
+                        'type' => 'ORGANISATION_INVITE_BY_USER',
+                        'to' => $input['email'],
+                        'by' => $loggedInUserId,
+                        'identifier' => 'organisation_invite_by_user',
+                        'organisationId' => $organisationId,
+                    ];
+                }
+
+                TriggerEmail::spawnEmail($email);
+            }
+
+            $userAdmins = User::where('user_group', User::GROUP_ADMINS)->select(['id'])->get();
+            foreach ($userAdmins as $userAdmin) {
+                Notification::send($userAdmin, new OrganisationRequested($loggedInUser, $organisation->organisation_name, $input['email'] ?? null));
+            }
+
+            return response()->json([
+                'message' => 'success',
+                'data' => $organisationId,
+            ], 200);
+        } catch (Exception $e) {
+            DebugLog::create([
+                'class' => __CLASS__,
+                'log' => $e,
+            ]);
+
+            throw $e;
+        }
+    }
+
     /**
      * @OA\Post(
      *      path="/api/v1/organisations/{id}/custodian_invite_user",
@@ -1606,14 +1712,25 @@ class OrganisationController extends Controller
             $loggedInUserId = $request->user()?->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();
 
-            $input = [
-                'type' => 'ORGANISATION',
-                'to' => $organisation->id,
-                'unclaimed_user_id' => $unclaimedUser->id,
-                'by' => $id,
-                'identifier' => 'organisation_invite',
-                'userName' => $loggedInUser->name,
-            ];
+            if (!Feature::active('SroRequirementEnabled')) {
+                $input = [
+                    'type' => 'ORGANISATION',
+                    'to' => $organisation->id,
+                    'unclaimed_user_id' => $unclaimedUser->id,
+                    'by' => $id,
+                    'identifier' => 'organisation_invite',
+                    'userName' => $loggedInUser->name,
+                ];
+            } else {
+                $input = [
+                    'type' => 'ORGANISATION_INVITE_BY_SUPERADMIN',
+                    'to' => $organisation->id,
+                    'unclaimed_user_id' => $unclaimedUser->id,
+                    'by' => $id,
+                    'identifier' => 'organisation_invite_by_superadmin',
+                    'userName' => $loggedInUser->name,
+                ];
+            }
 
             TriggerEmail::spawnEmail($input);
 
@@ -1627,7 +1744,7 @@ class OrganisationController extends Controller
     }
 
     //Hide from swagger docs
-    public function resentInvite(ResentInvite $request, int $id)
+    public function resendInvite(ResendInvite $request, int $id)
     {
         try {
             $loggedInUserId = $request->user()?->id;

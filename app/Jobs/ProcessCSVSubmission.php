@@ -5,6 +5,8 @@ namespace App\Jobs;
 use App\Models\File;
 use App\Models\OrganisationHasFile;
 use App\Models\User;
+use App\Models\State;
+use App\Models\Affiliation;
 use App\Traits\CommonFunctions;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -61,6 +63,20 @@ class ProcessCSVSubmission implements ShouldQueue
                 if (!$user) {
                     $row['user_group'] = User::GROUP_USERS;
                     $unclaimedUser = RMC::createUnclaimedUser($row);
+
+                    $affiliation = Affiliation::create([
+                        'organisation_id' => $this->organisationID,
+                        'member_id' => '',
+                        'relationship' => '',
+                        'from' => '',
+                        'to' => '',
+                        'department' => '',
+                        'role' => '',
+                        'email' => $row['email'],
+                        'ror' => '',
+                        'registry_id' => $unclaimedUser->registry_id,
+                    ]);
+                    $affiliation->setState(State::STATE_AFFILIATION_INVITED);
 
                     $input = [
                         'type' => 'USER',

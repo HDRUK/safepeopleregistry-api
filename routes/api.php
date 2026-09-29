@@ -431,7 +431,9 @@ Route::middleware('auth:api')
             Route::post('/', 'store');
             Route::post('/new_account', 'createOrgWithUser');
             Route::post('/unclaimed', 'storeUnclaimed');
+            Route::post('/unclaimed_before_superadmin_invitation', 'storeUnclaimedBeforeSuperadminInvitation');
             Route::post('/{id}/invite', 'invite');
+            Route::post('/{id}/invite_to_contact_superadmin', 'inviteToContactSuperadmin');
             Route::post('/{id}/invite_user', 'inviteUser');
             Route::post('/{id}/custodian_invite_user', 'custodianInviteUser');
 
@@ -446,7 +448,7 @@ Route::middleware('auth:api')
 
             Route::patch('/{id}/sponsorships/statuses', 'updateSponsorshipStatuses');
 
-            Route::patch('/{id}/resendInvite', 'resentInvite');
+            Route::patch('/{id}/resendInvite', 'resendInvite');
         });
 
         Route::controller(PermissionController::class)->group(function () {
