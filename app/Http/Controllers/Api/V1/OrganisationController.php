@@ -2239,7 +2239,8 @@ class OrganisationController extends Controller
     public function getSroDeclaration(GetSroDeclaration $request, int $organisationId)
     {
         try{
-            if (!Gate::allows('viewDetailed', $organisationId)) {
+            $org = Organisation::findOrFail($organisationId);
+            if (!Gate::allows('viewDetailed', $org)) {
                 return $this->ForbiddenResponse();
             }
             $fileIds = OrganisationHasFile::where('organisation_id','=',$organisationId)
