@@ -10,10 +10,12 @@ use App\Models\Sector;
 use App\Models\Project;
 use App\Models\ActionLog;
 use App\Models\Custodian;
+use App\Models\File;
 use App\Jobs\SendEmailJob;
 use App\Models\ModelState;
 use App\Models\Affiliation;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Organisation;
 use App\Models\PendingInvite;
 use Tests\Traits\Authorisation;
@@ -22,6 +24,7 @@ use Illuminate\Support\Facades\Queue;
 use App\Models\ProjectHasOrganisation;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\OrganisationHasDepartment;
+use App\Models\OrganisationHasFile;
 
 class OrganisationTest extends TestCase
 {
@@ -36,6 +39,8 @@ class OrganisationTest extends TestCase
         parent::setUp();
         $this->withMiddleware();
         $this->withUsers();
+        config(['scanning_filesystem_disk' => 'local_scan']);
+        Storage::fake('local_scan');
 
         $this->testOrg = [
             'organisation_name' => 'HEALTH DATA RESEARCH UK',
@@ -76,6 +81,121 @@ class OrganisationTest extends TestCase
             'system_approved' => false,
             'sro_profile_uri' => 'https://myprofile.something',
         ];
+    }
+
+    public function test_sro_declaration_cannot_be_accessed_by_non_custodian_user(): void
+    {
+        $file = File::create([
+            'status' => File::FILE_STATUS_PROCESSED,
+            'type' => File::FILE_TYPE_DECLARATION_SRO,
+            'path' => 'testfile.txt',
+            'name' => 'testfile.txt'
+        ]);
+        $orgFilePivot = OrganisationHasFile::create([
+            'organisation_id' => 1,
+            'file_id' => 1
+        ]);
+        $response=$this->actingAs($this->user)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . '1'. '/sro_declaration'
+            );
+
+        $response->assertStatus(403);
+    }
+    public function test_sro_declaration_can_be_accessed_by_custodian_user(): void
+    {
+        $file = File::create([
+            'status' => File::FILE_STATUS_PROCESSED,
+            'type' => FILE::FILE_TYPE_DECLARATION_SRO,
+            'path' => 'testfile.txt',
+            'name' => 'testfile.txt',
+        ]);
+        $orgFilePivot = OrganisationHasFile::create([
+            'organisation_id' => 1,
+            'file_id' => 1
+        ]);
+        $response=$this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . '1'. '/sro_declaration'
+            );
+        
+        $response->assertStatus(200);
+    }
+
+    public function test_sro_declaration_cannot_be_accessed_if_not_sro_declaration_type(): void
+    {
+        $file = File::create([
+            'status' => File::FILE_STATUS_PROCESSED,
+            'type' => FILE::FILE_TYPE_CV,
+            'path' => 'testfile.txt',
+            'name' => 'testfile.txt',
+        ]);
+        $orgFilePivot = OrganisationHasFile::create([
+            'organisation_id' => 1,
+            'file_id' => 1
+        ]);
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . '1'. '/sro_declaration'
+            );
+        $response->assertStatus(404);
+    }
+
+    public function test_sro_declaration_cannot_be_downloaded_if_file_not_processed():void
+    {
+        $file = File::create([
+            'status' => File::FILE_STATUS_PENDING,
+            'type' => FILE::FILE_TYPE_CV,
+            'path' => 'testfile.txt',
+            'name' => 'testfile.txt',
+        ]);
+        $orgFilePivot = OrganisationHasFile::create([
+            'organisation_id' => 1,
+            'file_id' => 1
+        ]);
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . '1'. '/sro_declaration'
+            );
+        $response->assertStatus(404);
+
+    }
+
+    public function test_sro_declaration_can_be_downloaded(): void
+    {
+        $file = File::create([
+            'status' => File::FILE_STATUS_PROCESSED,
+            'type' => FILE::FILE_TYPE_DECLARATION_SRO,
+            'path' => 'testfile.txt',
+            'name' => 'testfile.txt',
+        ]);
+        $orgFilePivot = OrganisationHasFile::create([
+            'organisation_id' => 1,
+            'file_id' => 1
+        ]);
+
+        Storage::disk('local_scan_scanned')->put('testfile.txt', 'test file content');
+        Storage::disk('local_scan_scanned')->assertExists('testfile.txt');
+
+        $fullPath = Storage::disk('local_scan_scanned')->path('testfile.txt');
+
+        $this->assertTrue(file_exists($fullPath));
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . '1' . '/sro_declaration'
+            );
+
+        $response->assertStatus(200);
+        $response->assertHeader('Access-Control-Expose-Headers', 'Content-Disposition');
+        $response->assertHeader('Content-Disposition', 'attachment; filename=testfile.txt');
+
+        $response->assertDownload('testfile.txt');
     }
 
     public function test_the_application_can_search_on_org_name(): void

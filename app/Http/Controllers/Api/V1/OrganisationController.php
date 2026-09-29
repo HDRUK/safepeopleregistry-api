@@ -16,6 +16,7 @@ use App\Models\Project;
 use App\Models\DebugLog;
 use App\Models\Affiliation;
 use App\Models\Organisation;
+use App\Models\File;
 use Laravel\Pennant\Feature;
 use Illuminate\Http\Request;
 use App\Models\PendingInvite;
@@ -28,10 +29,12 @@ use App\Models\UserHasDepartments;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 use App\Exceptions\NotFoundException;
 use App\Models\ProjectHasSponsorship;
 use RegistryManagementController as RMC;
 use App\Models\OrganisationHasDepartment;
+use App\Models\OrganisationHasFile;
 use App\Http\Requests\Organisations\GetUser;
 use App\Notifications\OrganisationRequested;
 use Illuminate\Support\Facades\Notification;
@@ -59,11 +62,13 @@ use App\Http\Requests\Organisations\GetCountPresentProject;
 use App\Http\Requests\Organisations\OrganisationInviteUser;
 use App\Http\Requests\Organisations\OrganisationValidateRor;
 use App\Http\Requests\Organisations\UpdateSponsorshipStatus;
+use App\Http\Requests\Organisations\GetSroDeclaration;
 use App\Traits\Notifications\NotificationOrganisationManager;
 use App\Traits\OrganisationsProjectUtils;
 use App\Notifications\Organisations\OrganisationUpdateProfile;
 use App\Http\Requests\Organisations\OrganisationUpdateApprover;
 use App\Http\Requests\Organisations\GetStatus;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class OrganisationController extends Controller
 {
@@ -2297,4 +2302,95 @@ class OrganisationController extends Controller
         Notification::send($user, new OrganisationDelegates($loggedInUser, $delegate, 'add'));
     }
 
+
+
+    /**
+     * @OA\Get(
+     *      path="/api/v1/organisation/{id}/sro_declaration",
+     *      operationId="sroFilesDownload",
+     *      x={"internal"="true"},
+     *      summary="Download an uploaded Senior Responsible Officer Declaration form",
+     *      description="Downloads the specified SRO Declaration",
+     *      tags={"organisations"},
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Organisation ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Organisation ID",
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="File downloaded successfully",
+     *          content={
+     *              @OA\MediaType(
+     *                  mediaType="application/octet-stream",
+     *                  @OA\Schema(
+     *                      type="string",
+     *                      format="binary"
+     *                  )
+     *              )
+     *          }
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="File not found",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="File not found"),
+     *          ),
+     *      ),
+     * )
+     */
+    public function getSroDeclaration(GetSroDeclaration $request, int $organisationId)
+    {
+        try {
+            $org = Organisation::findOrFail($organisationId);
+            if (!Gate::allows('viewDetailed', $org)) {
+                return $this->ForbiddenResponse();
+            }
+            $fileIds = OrganisationHasFile::where('organisation_id','=',$organisationId)
+                    ->pluck('file_id');
+
+            if($fileIds->isEmpty()) {
+                return $this->NotFoundResponse();
+            }
+
+            $file = File::whereIn('id',$fileIds)
+                ->where("type", "=", File::FILE_TYPE_DECLARATION_SRO)
+                ->latest()
+                ->first();
+
+            if (!$file) {
+                return $this->NotFoundResponse();            
+            }
+            
+            if ($file->status !== FILE::FILE_STATUS_PROCESSED) {
+                return $this->NotFoundResponse();
+            }
+            $filePath = $file->path;
+            $fileSystem = config('speedi.system.scanning_filesystem_disk');
+            $scannedFileSystem = $fileSystem . '_scanned';
+            if (!Storage::disk($scannedFileSystem)->exists($filePath)) {
+                return $this->NotFoundResponse();
+            }
+            $headers = [
+               'Access-Control-Expose-Headers' => 'Content-Disposition'
+            ];
+            return Storage::disk($scannedFileSystem)->download($filePath, $file->name, $headers);
+        } catch (Exception $e) {
+            return $this->ErrorResponse($e->getMessage());
+        }
+    }
 }
