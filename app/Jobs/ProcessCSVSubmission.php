@@ -5,6 +5,8 @@ namespace App\Jobs;
 use App\Models\File;
 use App\Models\OrganisationHasFile;
 use App\Models\User;
+use App\Models\State;
+use App\Models\Affiliation;
 use App\Traits\CommonFunctions;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
