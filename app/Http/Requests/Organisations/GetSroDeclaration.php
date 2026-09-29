@@ -14,12 +14,12 @@ class GetSroDeclaration extends BaseFormRequest
      */
     public function rules(): array
     {
-        return[
+        return [
             'id' => [
             'required',
             'integer',
             'exists:organisations,id',
-            ],
+            ]
 
     ];
     }
