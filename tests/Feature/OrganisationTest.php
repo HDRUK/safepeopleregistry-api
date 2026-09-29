@@ -172,7 +172,38 @@ class OrganisationTest extends TestCase
 
     }
 
+    public function test_sro_declaration_can_be_downloaded(): void
+    {
+        $file=File::create([
+            'id' => 1,
+            'status' => File::FILE_STATUS_PENDING,
+            'type' => FILE::FILE_TYPE_CV,
+            'path' => 'testfile.txt',
+            'name' => 'testfile.txt',
+        ]);
+        $orgFilePivot=OrganisationHasFile::create([
+            'organisation_id' => 1,
+            'file_id' => 1
+        ]);
 
+        Storage::disk('local_scan_scanned')->put('testfile.txt', 'test file content');
+        Storage::disk('local_scan_scanned')->assertExists('testfile.txt');
+
+        $fullPath = Storage::disk('local_scan_scanned')->path('testfile.txt');
+
+        $this->assertTrue(file_exists($fullPath));
+        $response=$this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . '1'. '/sro_declaration'
+            );
+
+        $response->assertStatus(200);
+        $response->assertHeader('Access-Control-Expose-Headers', 'Content-Disposition');
+        $response->assertHeader('Content-Disposition', 'attachment; filename=testfile.txt');
+
+        $response->assertDownload('testfile.txt');
+    }
 
     public function test_the_application_can_search_on_org_name(): void
     {
