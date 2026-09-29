@@ -647,8 +647,25 @@ class OrganisationController extends Controller
     {
         try {
             $input = $request->all();
-            $organisation = Organisation::create([
+
+            $existingClaimedOrganisation = Organisation::where(
+                [
+                    'organisation_name' => $input['organisation_name'],
+                    'lead_applicant_email' => $input['lead_applicant_email'] ?? null,
+                    'unclaimed' => 0
+                ])
+                ->first();
+
+            // Guards against overwriting existing claimed Organisations via this endpoint.
+            if ($existingClaimedOrganisation) {
+                return $this->ConflictResponse();
+            }
+
+            $organisation = Organisation::updateOrCreate([
                 'organisation_name' => $input['organisation_name'],
+                'lead_applicant_email' => $input['lead_applicant_email'] ?? null,
+            ],
+            [
                 'address_1' => '',
                 'address_2' => '',
                 'town' => '',
@@ -656,7 +673,6 @@ class OrganisationController extends Controller
                 'country' => '',
                 'postcode' => '',
                 'lead_applicant_organisation_name' => '',
-                'lead_applicant_email' => $input['lead_applicant_email'] ?? null,
                 'applicant_names' => '',
                 'funders_and_sponsors' => '',
                 'sub_license_arrangements' => '',
