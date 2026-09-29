@@ -86,7 +86,6 @@ class OrganisationTest extends TestCase
     public function test_sro_declaration_cannot_be_accessed_by_non_custodian_user(): void
     {
         $file=File::create([
-            'id' => 1,
             'status' => File::FILE_STATUS_PROCESSED,
             'type' => File::FILE_TYPE_DECLARATION_SRO,
             'path' => 'testfile.txt',
@@ -108,7 +107,6 @@ class OrganisationTest extends TestCase
     public function test_sro_declaration_can_be_accessed_by_custodian_user(): void
     {
         $file=File::create([
-            'id' => 1,
             'status' => File::FILE_STATUS_PROCESSED,
             'type' => FILE::FILE_TYPE_DECLARATION_SRO,
             'path' => 'testfile.txt',
@@ -131,7 +129,6 @@ class OrganisationTest extends TestCase
     public function test_sro_declaration_cannot_be_accessed_if_not_sro_declaration_type(): void
     {
         $file=File::create([
-            'id' => 1,
             'status' => File::FILE_STATUS_PROCESSED,
             'type' => FILE::FILE_TYPE_CV,
             'path' => 'testfile.txt',
@@ -153,7 +150,6 @@ class OrganisationTest extends TestCase
     public function test_sro_declaration_cannot_be_downloaded_if_file_not_processed():void
     {
         $file=File::create([
-            'id' => 1,
             'status' => File::FILE_STATUS_PENDING,
             'type' => FILE::FILE_TYPE_CV,
             'path' => 'testfile.txt',
@@ -175,9 +171,8 @@ class OrganisationTest extends TestCase
     public function test_sro_declaration_can_be_downloaded(): void
     {
         $file=File::create([
-            'id' => 1,
-            'status' => File::FILE_STATUS_PENDING,
-            'type' => FILE::FILE_TYPE_CV,
+            'status' => File::FILE_STATUS_PROCESSED,
+            'type' => FILE::FILE_TYPE_DECLARATION_SRO,
             'path' => 'testfile.txt',
             'name' => 'testfile.txt',
         ]);
@@ -195,7 +190,7 @@ class OrganisationTest extends TestCase
         $response=$this->actingAs($this->custodian_admin)
             ->json(
                 'GET',
-                self::TEST_URL . '/' . '1'. '/sro_declaration'
+                self::TEST_URL . '/' . '1' . '/sro_declaration'
             );
 
         $response->assertStatus(200);
