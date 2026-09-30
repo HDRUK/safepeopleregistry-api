@@ -1512,10 +1512,6 @@ class OrganisationController extends Controller
 
             $organisation = Organisation::where('id', $organisationId)->firstOrFail();
 
-            if (!$organisation->lead_applicant_email) {
-                return $this->BadRequestResponse('No lead_applicant_email provided');
-            }
-
             if ($organisation->lead_applicant_email && User::where(["email" => $organisation->lead_applicant_email, "unclaimed" => 0])->exists()) {
                 return $this->ConflictResponse();
             }
