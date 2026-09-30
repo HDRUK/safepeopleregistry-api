@@ -1540,7 +1540,7 @@ class OrganisationController extends Controller
 
             $userAdmins = User::where('user_group', User::GROUP_ADMINS)->select(['id'])->get();
             foreach ($userAdmins as $userAdmin) {
-                Notification::send($userAdmin, new OrganisationRequested($loggedInUser, $organisation->organisation_name, $input['email'] ?? null));
+                Notification::send($userAdmin, new OrganisationRequested($loggedInUser, $organisation->organisation_name, $organisation->lead_applicant_email ?? null));
             }
 
             return response()->json([

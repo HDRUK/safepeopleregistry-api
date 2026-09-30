@@ -19,6 +19,8 @@ use App\Models\PendingInvite;
 use Tests\Traits\Authorisation;
 use App\Models\ProjectHasSponsorship;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\OrganisationRequested;
 use Laravel\Pennant\Feature;
 use App\Models\ProjectHasOrganisation;
 use KeycloakGuard\ActingAsKeycloakUser;
@@ -651,10 +653,15 @@ class OrganisationTest extends TestCase
         Queue::assertNotPushed(SendEmailJob::class);
     }
 
-    public function test_an_organisation_without_a_lead_applicant_email_cannot_be_invited_to_contact_the_superadmin(): void
+    public function test_an_organisation_without_a_lead_applicant_email_generates_a_notification_to_the_superadmin(): void
     {
+        Notification::fake();
+
         $organisation = $this->createOrganisationBeforeSuperadminInvitation($this->user);
         $this->assertNull($organisation->lead_applicant_email);
+
+        $superadmins = User::where('user_group', User::GROUP_ADMINS)->get();
+        $this->assertNotEmpty($superadmins);
 
         $response = $this->actingAs($this->user)
             ->json(
@@ -662,8 +669,20 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . '/' . $organisation->id . '/invite_to_contact_superadmin'
             );
 
-        $response->assertStatus(400);
+        $response->assertStatus(200);
         Queue::assertNotPushed(SendEmailJob::class);
+
+        Notification::assertSentTo(
+            $superadmins,
+            OrganisationRequested::class,
+            function (OrganisationRequested $notification, array $channels, User $notifiable) use ($organisation) {
+                $details = $notification->toDatabase($notifiable)['details'];
+
+                return $details['organisation_name'] === $organisation->organisation_name
+                    && $details['email_address'] === null;
+            }
+        );
+        Notification::assertNotSentTo($this->user, OrganisationRequested::class);
     }
 
     public function test_a_custodian_can_invite_an_organisation_to_contact_the_superadmin(): void
