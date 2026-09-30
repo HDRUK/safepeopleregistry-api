@@ -149,7 +149,7 @@ class PendingInviteController extends Controller
         }
 
         if ($user->user_group === User::GROUP_ORGANISATIONS) {
-            if (!Feature::active('SroRequirementEnabled')) {
+            if (Feature::active('SroRequirementEnabled')) {
                 $sendEmail = [
                     'type' => 'ORGANISATION',
                     'to' => $user->organisation_id,
@@ -161,6 +161,7 @@ class PendingInviteController extends Controller
             } else {
                 $sendEmail = [
                     'type' => 'ORGANISATION_INVITE_BY_SUPERADMIN',
+                    'organisationId' => $user->organisation_id,
                     'to' => $user->organisation_id,
                     'unclaimed_user_id' => $user->id,
                     'by' => $user->organisation_id,

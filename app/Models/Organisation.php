@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -313,6 +314,7 @@ use App\Traits\FilterManager;
  * @property-read int|null $tertiary_action_logs_count
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation applySorting()
  * @method static \Database\Factories\OrganisationFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation claimedMatching(string $organisationName, ?string $leadApplicantEmail)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation filterByState()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation filterWhen(string $filter, $callback)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation getCurrentAffiliations($id)
@@ -612,6 +614,19 @@ class Organisation extends Model
         return $this->hasOne(
             User::class,
         )->where('is_sro', 1);
+    }
+
+    /**
+     * Claimed Organisations with the given name and lead applicant email.
+     * A null email matches Organisations with no lead applicant email.
+     */
+    public function scopeClaimedMatching(Builder $query, string $organisationName, ?string $leadApplicantEmail): Builder
+    {
+        return $query->where([
+            'organisation_name' => $organisationName,
+            'lead_applicant_email' => $leadApplicantEmail,
+            'unclaimed' => 0,
+        ]);
     }
 
     //Possible refactor candidate

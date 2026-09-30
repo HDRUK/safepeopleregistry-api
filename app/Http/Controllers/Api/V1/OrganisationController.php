@@ -595,9 +595,15 @@ class OrganisationController extends Controller
     {
         try {
             $input = $request->all();
+
+            // Guards against overwriting existing claimed Organisations via this endpoint.
+            if (Organisation::claimedMatching($input['organisation_name'], $input['lead_applicant_email'] ?? null)->exists()) {
+                return $this->ConflictResponse();
+            }
+
             $organisation = Organisation::updateOrCreate([
                 'organisation_name' => $input['organisation_name'],
-                'lead_applicant_email' => $input['lead_applicant_email'],
+                'lead_applicant_email' => $input['lead_applicant_email'] ?? null,
             ], [
                 'address_1' => '',
                 'address_2' => '',
@@ -648,16 +654,8 @@ class OrganisationController extends Controller
         try {
             $input = $request->all();
 
-            $existingClaimedOrganisation = Organisation::where(
-                [
-                    'organisation_name' => $input['organisation_name'],
-                    'lead_applicant_email' => $input['lead_applicant_email'] ?? null,
-                    'unclaimed' => 0
-                ])
-                ->first();
-
             // Guards against overwriting existing claimed Organisations via this endpoint.
-            if ($existingClaimedOrganisation) {
+            if (Organisation::claimedMatching($input['organisation_name'], $input['lead_applicant_email'] ?? null)->exists()) {
                 return $this->ConflictResponse();
             }
 
@@ -1512,17 +1510,21 @@ class OrganisationController extends Controller
             $loggedInUserId = $request->user()->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();
 
-            if (array_key_exists('email', $input) && User::where(["email" => $input['email'], "unclaimed" => 0])->exists()) {
+            $organisation = Organisation::where('id', $organisationId)->firstOrFail();
+
+            if (!$organisation->lead_applicant_email) {
+                return $this->BadRequestResponse('No lead_applicant_email provided');
+            }
+
+            if ($organisation->lead_applicant_email && User::where(["email" => $organisation->lead_applicant_email, "unclaimed" => 0])->exists()) {
                 return $this->ConflictResponse();
             }
 
-            $organisation = Organisation::where('id', $organisationId)->firstOrFail();
-
-            if (array_key_exists('email', $input)) {
+            if ($organisation->lead_applicant_email) {
                 if ($loggedInUser->user_group === User::GROUP_CUSTODIANS) {
                     $email = [
                         'type' => 'ORGANISATION_INVITE_BY_CUSTODIAN',
-                        'to' => $input['email'],
+                        'to' => $organisation->lead_applicant_email,
                         'by' => $loggedInUserId,
                         'identifier' => 'organisation_invite_by_custodian',
                         'organisationId' => $organisationId,
@@ -1530,7 +1532,7 @@ class OrganisationController extends Controller
                 } else {
                     $email = [
                         'type' => 'ORGANISATION_INVITE_BY_USER',
-                        'to' => $input['email'],
+                        'to' => $organisation->lead_applicant_email,
                         'by' => $loggedInUserId,
                         'identifier' => 'organisation_invite_by_user',
                         'organisationId' => $organisationId,
@@ -1724,7 +1726,7 @@ class OrganisationController extends Controller
             $loggedInUserId = $request->user()?->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();
 
-            if (!Feature::active('SroRequirementEnabled')) {
+            if (Feature::active('SroRequirementEnabled')) {
                 $input = [
                     'type' => 'ORGANISATION',
                     'to' => $organisation->id,
@@ -1736,6 +1738,7 @@ class OrganisationController extends Controller
             } else {
                 $input = [
                     'type' => 'ORGANISATION_INVITE_BY_SUPERADMIN',
+                    'organisationId' => $organisation->id,
                     'to' => $organisation->id,
                     'unclaimed_user_id' => $unclaimedUser->id,
                     'by' => $id,
