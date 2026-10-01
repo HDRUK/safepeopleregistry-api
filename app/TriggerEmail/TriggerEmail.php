@@ -536,12 +536,11 @@ class TriggerEmail
 
             case 'ORGANISATION_INVITE_BY_SUPERADMIN':
                 $template = EmailTemplate::where('identifier', $identifier)->first();
-                $user = User::where('id', $to)->first();
                 $organisation = Organisation::where('id', $organisationId)->first();
 
                 $newRecipients = [
                     'id' => $to,
-                    'email' => $user->email,
+                    'email' => $organisation->lead_applicant_email,
                 ];
 
                 $replacements = [
@@ -564,7 +563,7 @@ class TriggerEmail
                         'status' => PendingInvite::STATE_PENDING,
                         'invite_sent_at' => Carbon::now(),
                         'invite_code' => $inviteCode,
-                        'organisation_id' => $to,
+                        'organisation_id' => $organisationId,
                         'type' => 'organisation_invite',
                     ]);
                 }
@@ -578,7 +577,7 @@ class TriggerEmail
 
                 $newRecipients = [
                     'id' => 0,
-                    'email' => $to,
+                    'email' => $organisation->lead_applicant_email,
                 ];
 
                 $replacements = [
@@ -604,7 +603,7 @@ class TriggerEmail
 
                 $newRecipients = [
                     'id' => 0,
-                    'email' => $to,
+                    'email' => $organisation->lead_applicant_email,
                 ];
 
                 $replacements = [
@@ -625,7 +624,7 @@ class TriggerEmail
             default: // Unknown type.
                 break;
         }
-
+        // newRecipients needs to have 'id' and 'email'
         SendEmailJob::dispatch($newRecipients, $template, $replacements, $newRecipients['email']);
     }
 }

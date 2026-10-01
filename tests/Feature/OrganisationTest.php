@@ -21,6 +21,9 @@ use App\Models\PendingInvite;
 use Tests\Traits\Authorisation;
 use App\Models\ProjectHasSponsorship;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\OrganisationRequested;
+use Laravel\Pennant\Feature;
 use App\Models\ProjectHasOrganisation;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\OrganisationHasDepartment;
@@ -600,6 +603,273 @@ class OrganisationTest extends TestCase
         $response->assertStatus(201);
 
         return Organisation::findOrFail($response->decodeResponseJson()['data']);
+    }
+
+    public function test_reinviting_an_unclaimed_organisation_before_superadmin_invitation_updates_it_rather_than_duplicating(): void
+    {
+        $email = fake()->unique()->safeEmail();
+
+        $first = $this->createOrganisationBeforeSuperadminInvitation($this->user, [
+            'lead_applicant_email' => $email,
+            'ods_id' => 'FIRST',
+        ]);
+        $second = $this->createOrganisationBeforeSuperadminInvitation($this->custodian_admin, [
+            'lead_applicant_email' => $email,
+            'ods_id' => 'SECOND',
+        ]);
+
+        $this->assertSame($first->id, $second->id);
+        $this->assertSame('SECOND', $second->ods_id);
+        $this->assertSame(1, Organisation::where([
+            'organisation_name' => 'Barchester Infirmary',
+            'lead_applicant_email' => $email,
+        ])->count());
+    }
+
+    public function test_reinviting_an_unclaimed_organisation_before_superadmin_invitation_without_an_email_updates_it_rather_than_duplicating(): void
+    {
+        $first = $this->createOrganisationBeforeSuperadminInvitation($this->user);
+        $second = $this->createOrganisationBeforeSuperadminInvitation($this->user);
+
+        $this->assertSame($first->id, $second->id);
+        $this->assertSame(1, Organisation::where('organisation_name', 'Barchester Infirmary')->count());
+    }
+
+    public function test_organisations_before_superadmin_invitation_are_matched_on_both_name_and_email(): void
+    {
+        $email = fake()->unique()->safeEmail();
+
+        $original = $this->createOrganisationBeforeSuperadminInvitation($this->user, [
+            'lead_applicant_email' => $email,
+        ]);
+        $sameNameDifferentEmail = $this->createOrganisationBeforeSuperadminInvitation($this->user, [
+            'lead_applicant_email' => fake()->unique()->safeEmail(),
+        ]);
+        $sameEmailDifferentName = $this->createOrganisationBeforeSuperadminInvitation($this->user, [
+            'organisation_name' => 'St Ewolds Hospital',
+            'lead_applicant_email' => $email,
+        ]);
+
+        $this->assertCount(3, collect([$original->id, $sameNameDifferentEmail->id, $sameEmailDifferentName->id])->unique());
+    }
+
+    public function test_a_claimed_organisation_cannot_be_overwritten_before_superadmin_invitation(): void
+    {
+        $claimed = Organisation::factory()->create([
+            'organisation_name' => 'Barchester Infirmary',
+            'lead_applicant_email' => fake()->unique()->safeEmail(),
+            'unclaimed' => 0,
+            'ods_id' => 'ORIGINAL',
+        ]);
+        $organisationCount = Organisation::count();
+
+        $response = $this->actingAs($this->user)
+            ->json(
+                'POST',
+                self::TEST_URL . '/unclaimed_before_superadmin_invitation',
+                [
+                    'organisation_name' => $claimed->organisation_name,
+                    'lead_applicant_email' => $claimed->lead_applicant_email,
+                    'ods_id' => 'OVERWRITTEN',
+                ]
+            );
+
+        $response->assertStatus(409);
+        $this->assertSame($organisationCount, Organisation::count());
+        $this->assertSame('ORIGINAL', $claimed->fresh()->ods_id);
+        $this->assertFalse($claimed->fresh()->unclaimed);
+    }
+
+    public function test_a_superadmin_reinviting_an_unclaimed_organisation_does_not_duplicate_it_when_sro_requirement_is_disabled(): void
+    {
+        $this->withSroRequirement(false, fn () => $this->assertSuperadminReinviteDoesNotDuplicate('organisation_invite_by_superadmin'));
+    }
+
+    public function test_a_superadmin_reinviting_an_unclaimed_organisation_does_not_duplicate_it_when_sro_requirement_is_enabled(): void
+    {
+        $this->withSroRequirement(true, fn () => $this->assertSuperadminReinviteDoesNotDuplicate('organisation_invite'));
+    }
+
+    private function withSroRequirement(bool $enabled, callable $callback): void
+    {
+        $wasEnabled = Feature::active('SroRequirementEnabled');
+
+        try {
+            $enabled
+                ? Feature::activate('SroRequirementEnabled')
+                : Feature::deactivate('SroRequirementEnabled');
+
+            $callback();
+        } finally {
+            $wasEnabled
+                ? Feature::activate('SroRequirementEnabled')
+                : Feature::deactivate('SroRequirementEnabled');
+        }
+    }
+
+    public function test_a_claimed_organisation_cannot_be_overwritten_by_a_superadmin_invitation(): void
+    {
+        $claimed = Organisation::factory()->create([
+            'organisation_name' => 'Barchester Infirmary',
+            'lead_applicant_email' => fake()->unique()->safeEmail(),
+            'unclaimed' => 0,
+            'address_1' => '1 Cathedral Close',
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'POST',
+                self::TEST_URL . '/unclaimed',
+                [
+                    'organisation_name' => $claimed->organisation_name,
+                    'lead_applicant_email' => $claimed->lead_applicant_email,
+                ]
+            );
+
+        $response->assertStatus(409);
+        $this->assertSame('1 Cathedral Close', $claimed->fresh()->address_1);
+        $this->assertFalse($claimed->fresh()->unclaimed);
+    }
+
+    public function test_an_unclaimed_organisation_contact_can_be_reinvited_to_contact_the_superadmin(): void
+    {
+        $unclaimedContact = User::factory()->create([
+            'email' => fake()->unique()->safeEmail(),
+            'unclaimed' => 1,
+        ]);
+        $organisation = $this->createOrganisationBeforeSuperadminInvitation($this->user, [
+            'lead_applicant_email' => $unclaimedContact->email,
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->json(
+                'POST',
+                self::TEST_URL . '/' . $organisation->id . '/invite_to_contact_superadmin',
+                ['email' => $unclaimedContact->email]
+            );
+
+        $response->assertStatus(200);
+        Queue::assertPushed(SendEmailJob::class, fn (SendEmailJob $job) => $job->to['email'] === $unclaimedContact->email);
+    }
+
+    public function test_a_claimed_user_cannot_be_invited_to_contact_the_superadmin(): void
+    {
+        $claimedContact = User::factory()->create([
+            'email' => fake()->unique()->safeEmail(),
+            'unclaimed' => 0,
+        ]);
+        $organisation = $this->createOrganisationBeforeSuperadminInvitation($this->user, [
+            'lead_applicant_email' => $claimedContact->email,
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->json(
+                'POST',
+                self::TEST_URL . '/' . $organisation->id . '/invite_to_contact_superadmin',
+                ['email' => $claimedContact->email]
+            );
+
+        $response->assertStatus(409);
+        Queue::assertNotPushed(SendEmailJob::class);
+    }
+
+    public function test_an_organisation_without_a_lead_applicant_email_generates_a_notification_to_the_superadmin(): void
+    {
+        Notification::fake();
+
+        $organisation = $this->createOrganisationBeforeSuperadminInvitation($this->user);
+        $this->assertNull($organisation->lead_applicant_email);
+
+        $superadmins = User::where('user_group', User::GROUP_ADMINS)->get();
+        $this->assertNotEmpty($superadmins);
+
+        $response = $this->actingAs($this->user)
+            ->json(
+                'POST',
+                self::TEST_URL . '/' . $organisation->id . '/invite_to_contact_superadmin'
+            );
+
+        $response->assertStatus(200);
+        Queue::assertNotPushed(SendEmailJob::class);
+
+        Notification::assertSentTo(
+            $superadmins,
+            OrganisationRequested::class,
+            function (OrganisationRequested $notification, array $channels, User $notifiable) use ($organisation) {
+                $details = $notification->toDatabase($notifiable)['details'];
+
+                return $details['organisation_name'] === $organisation->organisation_name
+                    && $details['email_address'] === null;
+            }
+        );
+        Notification::assertNotSentTo($this->user, OrganisationRequested::class);
+    }
+
+    public function test_a_custodian_can_invite_an_organisation_to_contact_the_superadmin(): void
+    {
+        $email = fake()->unique()->safeEmail();
+        $organisation = $this->createOrganisationBeforeSuperadminInvitation($this->custodian_admin, [
+            'lead_applicant_email' => $email,
+        ]);
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'POST',
+                self::TEST_URL . '/' . $organisation->id . '/invite_to_contact_superadmin'
+            );
+
+        $response->assertStatus(200);
+        Queue::assertPushed(
+            SendEmailJob::class,
+            fn (SendEmailJob $job) => $job->to['email'] === $email
+                && $this->templateIdentifierOf($job) === 'organisation_invite_by_custodian'
+        );
+    }
+
+    /**
+     * SendEmailJob keeps its template private, and EmailTemplate declares a
+     * public $identifier property that shadows the Eloquent attribute.
+     */
+    private function templateIdentifierOf(SendEmailJob $job): ?string
+    {
+        return (fn () => $this->template->getAttribute('identifier'))->call($job);
+    }
+
+    private function assertSuperadminReinviteDoesNotDuplicate(string $expectedTemplateIdentifier): void
+    {
+        $email = fake()->unique()->safeEmail();
+        $payload = [
+            'organisation_name' => 'Barchester Infirmary',
+            'lead_applicant_email' => $email,
+        ];
+
+        $organisationIds = collect([1, 2])->map(function () use ($payload) {
+            $response = $this->actingAs($this->admin)
+                ->json('POST', self::TEST_URL . '/unclaimed', $payload);
+            $response->assertStatus(201);
+
+            $organisationId = $response->decodeResponseJson()['data'];
+
+            $this->actingAs($this->admin)
+                ->json('POST', self::TEST_URL . '/' . $organisationId . '/invite')
+                ->assertStatus(201);
+
+            return $organisationId;
+        });
+
+        $this->assertCount(1, $organisationIds->unique());
+
+        $organisation = Organisation::findOrFail($organisationIds->first());
+        $this->assertTrue($organisation->unclaimed);
+        $this->assertSame(State::STATE_INVITED, $organisation->getState());
+        $this->assertSame(1, Organisation::where($payload)->count());
+        $this->assertSame(1, User::where('email', $email)->count());
+
+        Queue::assertPushed(
+            SendEmailJob::class,
+            fn (SendEmailJob $job) => $job->to['email'] === $email
+                && $this->templateIdentifierOf($job) === $expectedTemplateIdentifier
+        );
     }
 
     public function test_the_application_can_create_organisations_with_departments(): void
