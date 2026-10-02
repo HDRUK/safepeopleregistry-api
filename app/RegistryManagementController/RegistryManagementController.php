@@ -275,10 +275,10 @@ class RegistryManagementController
                 'organisation_id' => $user['organisation_id'] ?? null,
                 'custodian_id' => $user['custodian_id'] ?? null,
                 'custodian_user_id' => $user['custodian_user_id'] ?? null,
-                'is_delegate' => $user['is_delegate'] ?? 0,
+                'is_delegate' => $isOrgGroup ? ($user['is_delegate'] ?? 0) : 0,
                 'role' => $user['role'] ?? null,
                 'invited_by' => $user['invited_by'] ?? null,
-                'is_sro' => $user['is_sro'] ?? $isOrgGroup ? 1 : 0,
+                'is_sro' => $isOrgGroup ? ($user['is_sro'] ?? 0) : 0,
             ];
 
             if ($strictCreate) {

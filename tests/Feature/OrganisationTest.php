@@ -1283,7 +1283,6 @@ class OrganisationTest extends TestCase
             'last_name' => $lastName,
             'email' => $email,
             'organisation_id' => 1,
-            'is_delegate' => 0,
             'user_group' => 'ORGANISATIONS',
             'role' => null,
         ]);
@@ -1319,6 +1318,104 @@ class OrganisationTest extends TestCase
             );
 
         $response->assertStatus(400);
+    }
+
+    public function test_a_custodian_invited_organisation_user_is_a_delegate_when_sro_requirement_is_disabled(): void
+    {
+        $this->withSroRequirement(false, fn () => $this->assertCustodianInvitedUserRoles(
+            User::GROUP_ORGANISATIONS,
+            expectedIsDelegate: 1,
+            expectedIsSro: 0,
+        ));
+    }
+
+    public function test_a_custodian_invited_organisation_user_is_an_sro_not_delegate_when_sro_requirement_is_enabled(): void
+    {
+        $this->withSroRequirement(true, fn () => $this->assertCustodianInvitedUserRoles(
+            User::GROUP_ORGANISATIONS,
+            expectedIsDelegate: 0,
+            expectedIsSro: 1,
+        ));
+    }
+
+    public function test_a_custodian_invited_researcher_is_never_a_delegate_or_sro_when_sro_requirement_is_disabled(): void
+    {
+        $this->withSroRequirement(false, fn () => $this->assertCustodianInvitedUserRoles(
+            User::GROUP_USERS,
+            expectedIsDelegate: 0,
+            expectedIsSro: 0,
+        ));
+    }
+
+    public function test_a_custodian_invited_researcher_is_never_a_delegate_or_sro_when_sro_requirement_is_enabled(): void
+    {
+        $this->withSroRequirement(true, fn () => $this->assertCustodianInvitedUserRoles(
+            User::GROUP_USERS,
+            expectedIsDelegate: 0,
+            expectedIsSro: 0,
+        ));
+    }
+
+    private function assertCustodianInvitedUserRoles(string $userGroup, int $expectedIsDelegate, int $expectedIsSro): void
+    {
+        $email = fake()->unique()->safeEmail();
+
+        $this->actingAs($this->custodian_admin)
+            ->json(
+                'POST',
+                self::TEST_URL . '/1/custodian_invite_user',
+                [
+                    'first_name' => 'Jane',
+                    'last_name' => 'Doe',
+                    'email' => $email,
+                    'user_group' => $userGroup,
+                ],
+            )
+            ->assertStatus(201);
+
+        $this->assertDatabaseHas('users', [
+            'email' => $email,
+            'user_group' => $userGroup,
+            'is_delegate' => $expectedIsDelegate,
+            'is_sro' => $expectedIsSro,
+        ]);
+    }
+
+    public function test_an_invited_lead_applicant_is_a_delegate_not_an_sro_when_sro_requirement_is_disabled(): void
+    {
+        $this->withSroRequirement(false, fn () => $this->assertInvitedLeadApplicantRoles(
+            expectedIsDelegate: 1,
+            expectedIsSro: 0,
+        ));
+    }
+
+    public function test_an_invited_lead_applicant_is_an_sro_not_a_delegate_when_sro_requirement_is_enabled(): void
+    {
+        $this->withSroRequirement(true, fn () => $this->assertInvitedLeadApplicantRoles(
+            expectedIsDelegate: 0,
+            expectedIsSro: 1,
+        ));
+    }
+
+    private function assertInvitedLeadApplicantRoles(int $expectedIsDelegate, int $expectedIsSro): void
+    {
+        $email = fake()->unique()->safeEmail();
+        $organisation = Organisation::factory()->create([
+            'lead_applicant_email' => $email,
+            'unclaimed' => 1,
+        ]);
+
+        $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/' . $organisation->id . '/invite')
+            ->assertStatus(201);
+
+        $this->assertDatabaseHas('users', [
+            'email' => $email,
+            'user_group' => User::GROUP_ORGANISATIONS,
+            'organisation_id' => $organisation->id,
+            'is_delegate' => $expectedIsDelegate,
+            'is_sro' => $expectedIsSro,
+        ]);
     }
 
     public function test_the_application_can_invite_organisations(): void

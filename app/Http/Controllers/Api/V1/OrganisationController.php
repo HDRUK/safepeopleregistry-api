@@ -1640,8 +1640,9 @@ class OrganisationController extends Controller
                 'firstname' => $input['first_name'],
                 'lastname' => $input['last_name'],
                 'email' => $input['email'],
-                'organisation_id' => (isset($input['user_group']) && $input['user_group'] === User::GROUP_ORGANISATIONS) ? $id : 0,
-                'is_delegate' => 0,
+                'organisation_id' => ($userGroup === User::GROUP_ORGANISATIONS) ? $id : 0,
+                'is_delegate' => (Feature::active('SroRequirementEnabled') || $userGroup !== User::GROUP_ORGANISATIONS) ? 0 : 1,
+                'is_sro' => (Feature::active('SroRequirementEnabled') && $userGroup === User::GROUP_ORGANISATIONS) ? 1 : 0,
                 'user_group' => $userGroup,
                 'role' => isset($input['role']) ? $input['role'] : null,
                 'invited_by' => $request->user()->id,
@@ -1715,7 +1716,8 @@ class OrganisationController extends Controller
                 'user_group' => User::GROUP_ORGANISATIONS,
                 'organisation_id' => $id,
                 'invited_by' => $request->user()->id,
-                'is_sro' => 1
+                'is_sro' => Feature::active('SroRequirementEnabled') ? 1 : 0,
+                'is_delegate' => Feature::active('SroRequirementEnabled') ? 0 : 1,
             ]);
 
             if (!$unclaimedUser->unclaimed) {
