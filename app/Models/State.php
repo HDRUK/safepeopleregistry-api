@@ -120,6 +120,9 @@ class State extends Model
     public const STATE_SPONSORSHIP_APPROVED = 'sponsorship_approved';
     public const STATE_SPONSORSHIP_REJECTED = 'sponsorship_rejected';
 
+    public const STATE_ORGANISATION_PLACEHOLDER = 'organisation_placeholder';
+    public const STATE_ORGANISATION_INVITED_BY_NONADMIN = 'organisation_invited_by_nonadmin';
+    public const STATE_ORGANISATION_INVITED_BY_ADMIN = 'organisation_invited_by_admin';
     public const STATE_ORGANISATION_REGISTERED = 'organisation_registered';
 
     public const STATE_AFFILIATION_INFO_REQUIRED = 'affiliation_info_required';
@@ -163,6 +166,9 @@ class State extends Model
         self::STATE_SPONSORSHIP_REJECTED,
         self::STATE_AFFILIATION_INFO_REQUIRED,
         self::STATE_AFFILIATION_ORGANISATION_INVITED,
+        self::STATE_ORGANISATION_PLACEHOLDER,
+        self::STATE_ORGANISATION_INVITED_BY_NONADMIN,
+        self::STATE_ORGANISATION_INVITED_BY_ADMIN,
         self::STATE_ORGANISATION_REGISTERED,
         self::STATE_ORG_IN_PROGRESS,
         self::STATE_SYSTEM_APPROVAL,

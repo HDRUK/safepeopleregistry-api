@@ -646,7 +646,7 @@ class OrganisationController extends Controller
                 'ico_expiry_date' => $input['ico_expiry_date'] ?? null,
             ]);
 
-            $organisation->setState(State::STATE_INVITED);
+            $organisation->setState(State::STATE_ORGANISATION_INVITED_BY_ADMIN);
 
             return $this->CreatedResponse($organisation->id);
         } catch (Exception $e) {
@@ -704,6 +704,8 @@ class OrganisationController extends Controller
                 'ico_date_registered' => $input['ico_date_registered'] ?? null,
                 'ico_expiry_date' => $input['ico_expiry_date'] ?? null,
             ]);
+
+            $organisation->setState(State::STATE_ORGANISATION_PLACEHOLDER);
 
             return $this->CreatedResponse($organisation->id);
         } catch (Exception $e) {
@@ -1541,6 +1543,8 @@ class OrganisationController extends Controller
                 }
 
                 TriggerEmail::spawnEmail($email);
+
+                $organisation->setState(State::ORGANISATION_INVITED_BY_NONADMIN);
             }
 
             $userAdmins = User::where('user_group', User::GROUP_ADMINS)->select(['id'])->get();
@@ -1749,6 +1753,7 @@ class OrganisationController extends Controller
                     'userName' => $loggedInUser->name,
                 ];
             }
+            $organisation->setState(State::STATE_ORGANISATION_INVITED_BY_ADMIN);
 
             TriggerEmail::spawnEmail($input);
 
@@ -1787,6 +1792,11 @@ class OrganisationController extends Controller
                 'userName' => $loggedInUser->name,
                 '$inviteId' => $pendingInvites->id,
             ];
+
+            $organisation = Organisation::where('id', $id)->first();
+            if ($organisation->getState() !== State::STATE_ORGANISATION_REGISTERED) {
+                $organisation->setState(State::STATE_ORGANISATION_INVITED_BY_ADMIN);
+            }
 
             TriggerEmail::spawnEmail($input);
 
