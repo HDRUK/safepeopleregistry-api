@@ -553,15 +553,15 @@ class OrganisationTest extends TestCase
         $this->assertNotEmpty($organisation->organisation_unique_id);
     }
 
-    public function test_creating_an_unclaimed_organisation_before_superadmin_invitation_leaves_it_stateless(): void
+    public function test_creating_an_unclaimed_organisation_before_superadmin_invitation_creates_a_placeholder(): void
     {
         $organisation = $this->createOrganisationBeforeSuperadminInvitation($this->user);
 
-        $this->assertNull($organisation->getState());
-        $this->assertDatabaseMissing('model_states', [
-            'stateable_id' => $organisation->id,
-            'stateable_type' => Organisation::class,
-        ]);
+        $this->assertSame(State::STATE_ORGANISATION_PLACEHOLDER, $organisation->getState());
+        $this->assertSame('Barchester Infirmary', $organisation->organisation_name);
+        $this->assertNull($organisation->lead_applicant_email);
+        $this->assertTrue($organisation->unclaimed);
+        $this->assertNotEmpty($organisation->organisation_unique_id);
     }
 
     public function test_the_application_stores_the_optional_fields_given_before_superadmin_invitation(): void
@@ -843,7 +843,9 @@ class OrganisationTest extends TestCase
             'lead_applicant_email' => $email,
         ];
 
-        $organisationIds = collect([1, 2])->map(function () use ($payload) {
+        $existingOrganisationsCount = Organisation::count();
+
+        $organisationIds = collect([$existingOrganisationsCount, $existingOrganisationsCount + 1])->map(function () use ($payload) {
             $response = $this->actingAs($this->admin)
                 ->json('POST', self::TEST_URL . '/unclaimed', $payload);
             $response->assertStatus(201);
@@ -861,7 +863,7 @@ class OrganisationTest extends TestCase
 
         $organisation = Organisation::findOrFail($organisationIds->first());
         $this->assertTrue($organisation->unclaimed);
-        $this->assertSame(State::STATE_INVITED, $organisation->getState());
+        $this->assertSame(Feature::active('SroRequirementEnabled') ? State::STATE_INVITED : State::STATE_ORGANISATION_INVITED_BY_ADMIN, $organisation->getState());
         $this->assertSame(1, Organisation::where($payload)->count());
         $this->assertSame(1, User::where('email', $email)->count());
 
