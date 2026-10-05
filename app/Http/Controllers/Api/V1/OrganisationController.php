@@ -1795,6 +1795,11 @@ class OrganisationController extends Controller
             ];
 
             $organisation = Organisation::where('id', $id)->first();
+
+            if (is_null($organisation)) {
+                throw new Exception('Organisation not found');
+            }
+
             if ($organisation->getState() !== State::STATE_ORGANISATION_REGISTERED) {
                 $organisation->setState(State::STATE_ORGANISATION_INVITED_BY_ADMIN);
             }
