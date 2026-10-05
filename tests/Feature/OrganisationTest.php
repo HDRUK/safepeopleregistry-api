@@ -558,10 +558,10 @@ class OrganisationTest extends TestCase
         $organisation = $this->createOrganisationBeforeSuperadminInvitation($this->user);
 
         $this->assertSame(State::STATE_ORGANISATION_PLACEHOLDER, $organisation->getState());
-        $this->assertDatabaseMissing('model_states', [
-            'stateable_id' => $organisation->id,
-            'stateable_type' => Organisation::class,
-        ]);
+        $this->assertSame('Barchester Infirmary', $organisation->organisation_name);
+        $this->assertNull($organisation->lead_applicant_email);
+        $this->assertTrue($organisation->unclaimed);
+        $this->assertNotEmpty($organisation->organisation_unique_id);
     }
 
     public function test_the_application_stores_the_optional_fields_given_before_superadmin_invitation(): void
