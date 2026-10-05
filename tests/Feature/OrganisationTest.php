@@ -553,11 +553,11 @@ class OrganisationTest extends TestCase
         $this->assertNotEmpty($organisation->organisation_unique_id);
     }
 
-    public function test_creating_an_unclaimed_organisation_before_superadmin_invitation_leaves_it_stateless(): void
+    public function test_creating_an_unclaimed_organisation_before_superadmin_invitation_creates_a_placeholder(): void
     {
         $organisation = $this->createOrganisationBeforeSuperadminInvitation($this->user);
 
-        $this->assertNull($organisation->getState());
+        $this->assertSame(State::STATE_ORGANISATION_PLACEHOLDER, $organisation->getState());
         $this->assertDatabaseMissing('model_states', [
             'stateable_id' => $organisation->id,
             'stateable_type' => Organisation::class,
@@ -861,7 +861,7 @@ class OrganisationTest extends TestCase
 
         $organisation = Organisation::findOrFail($organisationIds->first());
         $this->assertTrue($organisation->unclaimed);
-        $this->assertSame(State::STATE_INVITED, $organisation->getState());
+        $this->assertSame(Feature::active('SroRequirementEnabled') ? State::STATE_INVITED : State::STATE_ORGANISATION_INVITED_BY_ADMIN, $organisation->getState());
         $this->assertSame(1, Organisation::where($payload)->count());
         $this->assertSame(1, User::where('email', $email)->count());
 
