@@ -1742,6 +1742,7 @@ class OrganisationController extends Controller
                     'identifier' => 'organisation_invite',
                     'userName' => $loggedInUser->name,
                 ];
+                $organisation->setState(State::STATE_INVITED);
             } else {
                 $input = [
                     'type' => 'ORGANISATION_INVITE_BY_SUPERADMIN',
@@ -1752,8 +1753,8 @@ class OrganisationController extends Controller
                     'identifier' => 'organisation_invite_by_superadmin',
                     'userName' => $loggedInUser->name,
                 ];
+                $organisation->setState(State::STATE_ORGANISATION_INVITED_BY_ADMIN);
             }
-            $organisation->setState(State::STATE_ORGANISATION_INVITED_BY_ADMIN);
 
             TriggerEmail::spawnEmail($input);
 
