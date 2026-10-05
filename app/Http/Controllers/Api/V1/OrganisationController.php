@@ -1544,7 +1544,7 @@ class OrganisationController extends Controller
 
                 TriggerEmail::spawnEmail($email);
 
-                $organisation->setState(State::ORGANISATION_INVITED_BY_NONADMIN);
+                $organisation->setState(State::STATE_ORGANISATION_INVITED_BY_NONADMIN);
             }
 
             $userAdmins = User::where('user_group', User::GROUP_ADMINS)->select(['id'])->get();
