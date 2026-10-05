@@ -842,7 +842,7 @@ class OrganisationTest extends TestCase
             'organisation_name' => 'Barchester Infirmary',
             'lead_applicant_email' => $email,
         ];
-
+        var_dump('Organisation count before', Organisation::count());
         $organisationIds = collect([1, 2])->map(function () use ($payload) {
             $response = $this->actingAs($this->admin)
                 ->json('POST', self::TEST_URL . '/unclaimed', $payload);
@@ -856,6 +856,7 @@ class OrganisationTest extends TestCase
 
             return $organisationId;
         });
+        var_dump('Organisation count after', Organisation::count());
 
         $this->assertCount(1, $organisationIds->unique());
 
