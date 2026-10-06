@@ -9,8 +9,12 @@ class OrganisationPolicy
 {
     public function update(User $user, Organisation $organisation): bool
     {
-        return $user->isAdmin() || ($user->inGroup([User::GROUP_ORGANISATIONS]) &&
-            !$user->is_delegate && $user->organisation_id === $organisation->id);
+        return $user->isAdmin() ||
+            (
+                $user->inGroup([User::GROUP_ORGANISATIONS]) &&
+                ($user->is_delegate || $user->is_sro) &&
+                $user->organisation_id === $organisation->id
+            );
     }
 
     public function delete(User $user, Organisation $organisation): bool
