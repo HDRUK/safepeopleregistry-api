@@ -273,7 +273,7 @@ class PermissionMatrixTest extends TestCase
                     'custodian2' => 403,
                     'organisation1' => 200,
                     'organisation2' => 403,
-                    'delegate' => 403,
+                    'delegate' => 200,
                     'researcher1' => 403,
                     'researcher2' => 403,
                 ],
