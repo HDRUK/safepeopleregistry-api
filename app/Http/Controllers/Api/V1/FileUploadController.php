@@ -12,6 +12,7 @@ use App\Models\Affiliation;
 use App\Jobs\ScanFileUpload;
 use App\Models\Organisation;
 use Illuminate\Http\Request;
+use Laravel\Pennant\Feature;
 use App\Http\Traits\Responses;
 use App\Models\RegistryHasFile;
 use App\Traits\CommonFunctions;
@@ -298,27 +299,29 @@ class FileUploadController extends Controller
                     $inReview = State::STATE_AFFILIATION_REVIEW;
                     $orgInReview = State::STATE_ORG_IN_REVIEW;
 
-                    CustodianHasProjectOrganisation::whereRelation(
-                        'projectOrganisation',
-                        'organisation_id',
-                        $organisationId
-                    )->each(
-                        fn ($approval) =>
-                        $approval->setState($orgInReview)
-                    );
+                    if (Feature::active('SroRequirementEnabled')) {
+                        CustodianHasProjectOrganisation::whereRelation(
+                            'projectOrganisation',
+                            'organisation_id',
+                            $organisationId
+                        )->each(
+                            fn ($approval) =>
+                            $approval->setState($orgInReview)
+                        );
 
-                    Affiliation::with(['registry.user'])
-                     ->where('organisation_id', $organisation->id)
-                     ->whereHas(
-                         'modelState.state',
-                         fn ($q) =>
-                         $q->where('slug', $inProgressState)
-                     )
-                     ->whereHas(
-                         'registry.user',
-                         fn ($q) =>
-                         $q->where('unclaimed', false)
-                     )->each(fn ($affiliation) => $affiliation->setState($inReview));
+                        Affiliation::with(['registry.user'])
+                        ->where('organisation_id', $organisation->id)
+                        ->whereHas(
+                            'modelState.state',
+                            fn ($q) =>
+                            $q->where('slug', $inProgressState)
+                        )
+                        ->whereHas(
+                            'registry.user',
+                            fn ($q) =>
+                            $q->where('unclaimed', false)
+                        )->each(fn ($affiliation) => $affiliation->setState($inReview));
+                    }
 
                     $userAdmins = User::where('user_group', User::GROUP_ADMINS)->select(['id'])->get();
                     foreach ($userAdmins as $userAdmin) {
