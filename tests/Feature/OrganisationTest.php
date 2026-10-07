@@ -690,6 +690,47 @@ class OrganisationTest extends TestCase
         $this->withSroRequirement(true, fn () => $this->assertSuperadminReinviteDoesNotDuplicate('organisation_invite'));
     }
 
+    public function test_a_superadmin_invitation_approves_the_organisation_when_sro_requirement_is_disabled(): void
+    {
+        $this->withSroRequirement(false, function () {
+            $now = $this->freezeSecond();
+
+            $organisation = $this->inviteOrganisationAsSuperadmin();
+
+            $this->assertTrue($organisation->system_approved);
+            $this->assertEquals($now, $organisation->system_approved_at);
+        });
+    }
+
+    public function test_a_superadmin_invitation_does_not_approve_the_organisation_when_sro_requirement_is_enabled(): void
+    {
+        $this->withSroRequirement(true, function () {
+            $organisation = $this->inviteOrganisationAsSuperadmin();
+
+            $this->assertFalse($organisation->system_approved);
+            $this->assertNull($organisation->system_approved_at);
+        });
+    }
+
+    private function inviteOrganisationAsSuperadmin(): Organisation
+    {
+        $response = $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/unclaimed', [
+                'organisation_name' => 'Barchester Infirmary',
+                'lead_applicant_email' => fake()->unique()->safeEmail(),
+            ]);
+        $response->assertStatus(201);
+
+        $organisationId = $response->decodeResponseJson()['data'];
+        $this->assertFalse(Organisation::findOrFail($organisationId)->system_approved);
+
+        $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/' . $organisationId . '/invite')
+            ->assertStatus(201);
+
+        return Organisation::findOrFail($organisationId);
+    }
+
     private function withSroRequirement(bool $enabled, callable $callback): void
     {
         $wasEnabled = Feature::active('SroRequirementEnabled');

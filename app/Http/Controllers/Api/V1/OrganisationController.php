@@ -1754,6 +1754,9 @@ class OrganisationController extends Controller
                     'userName' => $loggedInUser->name,
                 ];
                 $organisation->setState(State::STATE_ORGANISATION_INVITED_BY_ADMIN);
+                $organisation->system_approved = true;
+                $organisation->system_approved_at = Carbon::now();
+                $organisation->save();
             }
 
             TriggerEmail::spawnEmail($input);
