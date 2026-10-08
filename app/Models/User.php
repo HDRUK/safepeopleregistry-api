@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use DB;
+use App\Enums\OrganisationRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -444,6 +445,18 @@ class User extends Authenticatable
     public function inGroup(array $groups): bool
     {
         return in_array($this->user_group, $groups);
+    }
+
+    /**
+     * is_sro takes precedence over is_delegate; any other organisation user is a delegate.
+     */
+    public function organisationRole(): ?OrganisationRole
+    {
+        if (!$this->isOrganisation()) {
+            return null;
+        }
+
+        return $this->is_sro ? OrganisationRole::Sro : OrganisationRole::Delegate;
     }
 
     public static function getTransitions(): array
