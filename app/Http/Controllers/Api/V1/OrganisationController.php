@@ -813,17 +813,17 @@ class OrganisationController extends Controller
 
                 $org->setState(State::STATE_ORGANISATION_REGISTERED);
 
-                $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_ORG_IN_PROGRESS);
+                if (Feature::active('SroRequirementEnabled')) {
+                    $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_ORG_IN_PROGRESS);
 
-
-                Affiliation::with(['registry.user'])
-                    ->where('organisation_id', $id)
-                    ->whereHas(
-                        'registry.user',
-                        fn ($q) =>
-                        $q->where('unclaimed', false)
-                    )->each(fn ($affiliation) => $affiliation->setState(State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS));
-
+                    Affiliation::with(['registry.user'])
+                        ->where('organisation_id', $id)
+                        ->whereHas(
+                            'registry.user',
+                            fn ($q) =>
+                            $q->where('unclaimed', false)
+                        )->each(fn ($affiliation) => $affiliation->setState(State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS));
+                }
             }
 
             $loggedInUserId = $request->user()->id;
@@ -1704,6 +1704,8 @@ class OrganisationController extends Controller
     }
 
     //Hide from swagger docs
+
+    // This is the endpoint that the superadmin invitation triggers
     public function invite(OrganisationInvite $request, int $id): JsonResponse
     {
         try {
