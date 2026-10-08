@@ -19,12 +19,22 @@ class OrganisationRoleTest extends TestCase
         ];
     }
 
+    public static function detachedOrganisationUsers(): array
+    {
+        return [
+            'sro only' => [1, 0],
+            'sro and delegate' => [1, 1],
+            'delegate only' => [0, 1],
+            'neither flag' => [0, 0],
+        ];
+    }
+
     public static function nonOrganisationUsers(): array
     {
         $cases = [];
 
         foreach ([User::GROUP_USERS, User::GROUP_ADMINS, User::GROUP_CUSTODIANS] as $group) {
-            foreach ([[1, 0], [1, 1], [0, 1], [0, 0]] as [$isSro, $isDelegate]) {
+            foreach (self::detachedOrganisationUsers() as [$isSro, $isDelegate]) {
                 $cases["{$group} sro={$isSro} delegate={$isDelegate}"] = [$group, $isSro, $isDelegate];
             }
         }
@@ -40,11 +50,25 @@ class OrganisationRoleTest extends TestCase
     ): void {
         $user = new User([
             'user_group' => User::GROUP_ORGANISATIONS,
+            'organisation_id' => 1,
             'is_sro' => $isSro,
             'is_delegate' => $isDelegate,
         ]);
 
         $this->assertSame($expected, $user->organisationRole());
+    }
+
+    #[DataProvider('detachedOrganisationUsers')]
+    public function test_it_has_no_organisation_role_without_an_organisation(int $isSro, int $isDelegate): void
+    {
+        $user = new User([
+            'user_group' => User::GROUP_ORGANISATIONS,
+            'organisation_id' => null,
+            'is_sro' => $isSro,
+            'is_delegate' => $isDelegate,
+        ]);
+
+        $this->assertNull($user->organisationRole());
     }
 
     #[DataProvider('nonOrganisationUsers')]
