@@ -771,7 +771,7 @@ class Organisation extends Model
     {
         return $this->hasMany(
             User::class,
-        )->where('is_delegate', 1);
+        )->delegates();
     }
 
     /**

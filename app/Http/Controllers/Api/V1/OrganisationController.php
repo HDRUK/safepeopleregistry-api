@@ -1321,7 +1321,7 @@ class OrganisationController extends Controller
                     ->limit(1);
             }, 'invite_status')
             ->where('organisation_id', $organisationId)
-            ->where('is_delegate', 1)
+            ->delegates()
             ->get();
 
             return response()->json([
