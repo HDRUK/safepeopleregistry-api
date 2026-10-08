@@ -418,7 +418,6 @@ class Organisation extends Model
         'organisation_size',
         'unclaimed',
         'sro_profile_uri',
-        'is_sro',
         'ods_id',
         'dsptk_date_last_published' ,
         'ico_registration_id',
