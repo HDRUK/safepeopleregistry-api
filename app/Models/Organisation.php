@@ -803,6 +803,14 @@ class Organisation extends Model
         return $this->attributes['evaluation'] ?? null;
     }
 
+    /**
+     * Not in $appends: runs a query, so only append it where it is needed.
+     */
+    public function getHasSroAttribute(): bool
+    {
+        return $this->hasSro();
+    }
+
     public function getCeCertifiedAttribute()
     {
         return $this->ce_certification_num && $this->ce_expiry_date && $this->ce_expiry_date > now();
