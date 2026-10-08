@@ -4,6 +4,7 @@ namespace App\Models;
 
 use DB;
 use App\Enums\OrganisationRole;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -457,6 +458,22 @@ class User extends Authenticatable
         }
 
         return $this->is_sro ? OrganisationRole::Sro : OrganisationRole::Delegate;
+    }
+
+    /**
+     * Query equivalent of organisationRole() === OrganisationRole::Sro.
+     */
+    public function scopeSros(Builder $query): Builder
+    {
+        return $query->where('user_group', self::GROUP_ORGANISATIONS)->where('is_sro', 1);
+    }
+
+    /**
+     * Query equivalent of organisationRole() === OrganisationRole::Delegate.
+     */
+    public function scopeDelegates(Builder $query): Builder
+    {
+        return $query->where('user_group', self::GROUP_ORGANISATIONS)->where('is_sro', 0);
     }
 
     public static function getTransitions(): array
