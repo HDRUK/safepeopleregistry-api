@@ -616,6 +616,17 @@ class Organisation extends Model
     }
 
     /**
+     * Queries on every call so the answer reflects the current state of the users table.
+     */
+    public function hasSro(): bool
+    {
+        return $this->hasMany(User::class)
+            ->sros()
+            ->where('unclaimed', 0)
+            ->exists();
+    }
+
+    /**
      * Claimed Organisations with the given name and lead applicant email.
      * A null email matches Organisations with no lead applicant email.
      */
