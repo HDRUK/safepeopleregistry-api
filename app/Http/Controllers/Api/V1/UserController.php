@@ -966,7 +966,7 @@ class UserController extends Controller
         }
 
         $user = User::where('email', $email)->first();
-        if (!is_null($user) && $user->unclaimed === 0) {
+        if (!is_null($user) && $user->unclaimed === false) {
             return $this->ErrorResponse('User with email ' . $email . ' already claimed');
         }
 

@@ -119,29 +119,53 @@ class AuthController extends Controller
     public function claimUser(Request $request, int $userId): JsonResponse
     {
         $response = Keycloak::getUserInfo($request->headers->get('Authorization'));
+
+        $token = Auth::token();
+
+        if (!$token || $token === 'null') {
+            return response()->json([
+                'message' => 'unauthorised',
+                'data' => null,
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $arr = json_decode($token, true);
+
+        if (!isset($arr['sub'])) {
+            return response()->json([
+                'message' => 'unauthorised',
+                'data' => null,
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+
+
         $input = $response->json();
 
-        $userToReplace = User::where('id', $userId)->first();
+        $userToReplace = User::where([
+            'id' => $userId,
+            'keycloak_id' => $arr['sub']
+        ])
+        ->first();
 
         if (!$userToReplace) {
             return response()->json([
                 'message' => 'User not found',
                 'data' => null,
-            ], 400);
+            ], Response::HTTP_UNAUTHORIZED);
         }
 
         if ($userToReplace->user_group !== User::GROUP_ORGANISATIONS) {
             return response()->json([
                 'message' => 'Only works for organisation admins ',
                 'data' => null,
-            ], 400);
+            ], Response::HTTP_BAD_REQUEST);
         }
 
-        if ($userToReplace->unclaimed === 0) {
+        if ($userToReplace->unclaimed === false) {
             return response()->json([
                 'message' => 'Account already claimed',
                 'data' => null,
-            ], 400);
+            ], Response::HTTP_BAD_REQUEST);
         }
 
         $this->acceptInvite($userToReplace->id);
@@ -150,7 +174,7 @@ class AuthController extends Controller
         $userToReplace->last_name = $input['family_name'];
         $userToReplace->email = $input['email'];
         $userToReplace->keycloak_id = $input['sub'];
-        $userToReplace->unclaimed = 0;
+        $userToReplace->unclaimed = false;
         $userToReplace->t_and_c_agreed = 1;
         $userToReplace->t_and_c_agreement_date = now();
 

@@ -246,6 +246,7 @@ class User extends Authenticatable
         'consent_scrape' => 'boolean',
         'orcid_scanning' => 'boolean',
         'is_sro' => 'boolean',
+        'unclaimed' => 'boolean',
     ];
 
     protected $appends = ['status', 'evaluation'];
@@ -255,7 +256,7 @@ class User extends Authenticatable
         parent::boot();
 
         static::created(function ($model) {
-            if ($model->user_group === self::GROUP_USERS && $model->unclaimed === 0) {
+            if ($model->user_group === self::GROUP_USERS && $model->unclaimed === false) {
                 $model->setState(State::STATE_INVITED);
                 $model->save();
             }
@@ -264,7 +265,7 @@ class User extends Authenticatable
 
     public function getStatusAttribute(): string
     {
-        return $this->unclaimed === 1 ? State::STATE_INVITED : State::STATE_REGISTERED;
+        return $this->unclaimed === true ? State::STATE_INVITED : State::STATE_REGISTERED;
     }
 
     /**
