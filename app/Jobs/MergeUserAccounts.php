@@ -39,7 +39,7 @@ class MergeUserAccounts implements ShouldQueue
         $user = $this->affiliation->registry->user;
         $registry = $user->registry;
 
-        if ($user->unclaimed === 1) {
+        if ($user->unclaimed === true) {
             DebugLog::create([
                 'class' => __CLASS__,
                 'log' => 'Affiliation associated to unclaimed account so skipping merging of user accounts'

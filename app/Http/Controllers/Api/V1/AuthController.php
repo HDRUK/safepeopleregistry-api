@@ -174,7 +174,7 @@ class AuthController extends Controller
         $userToReplace->last_name = $input['family_name'];
         $userToReplace->email = $input['email'];
         $userToReplace->keycloak_id = $input['sub'];
-        $userToReplace->unclaimed = 0;
+        $userToReplace->unclaimed = false;
         $userToReplace->t_and_c_agreed = 1;
         $userToReplace->t_and_c_agreement_date = now();
 

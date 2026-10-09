@@ -50,7 +50,7 @@ class UserObserver
         }
 
         // Check the existence within keycloak.
-        if ($user->unclaimed === 0) {
+        if ($user->unclaimed === false) {
             if (!Keycloak::checkUserExists($user->id)) {
                 // If not found, create and update local copy with keycloak id.
 
@@ -153,7 +153,7 @@ class UserObserver
         if ($user->user_group === User::GROUP_USERS &&
             $user->isDirty('unclaimed') &&
             $user->getOriginal('unclaimed') === 1 &&
-            $user->unclaimed === 0 &&
+            $user->unclaimed === false &&
             ($pendingInvites && in_array($pendingInvites->type, ['custodian_user_invite', 'organisation_user_invite']))) {
 
             $affiliations = Affiliation::where('registry_id', $user->registry_id)->first();
