@@ -119,9 +119,45 @@ class AuthController extends Controller
     public function claimUser(Request $request, int $userId): JsonResponse
     {
         $response = Keycloak::getUserInfo($request->headers->get('Authorization'));
+
+        $token = Auth::token();
+
+        if (!$token || $token === 'null') {
+            return response()->json([
+                'message' => 'unauthorised',
+                'data' => null,
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $arr = json_decode($token, true);
+
+        if (!isset($arr['sub'])) {
+            return response()->json([
+                'message' => 'not found',
+                'data' => null,
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+
         $input = $response->json();
 
-        $userToReplace = User::where('id', $userId)->first();
+        // $arr = json_decode($token, true);
+
+        // if (!empty($inviteCode['invite_code'])) {
+        //     $pendingInvite = PendingInvite::where([
+        //         'invite_code' => $inviteCode['invite_code'],
+        //         'user_id' => $userId
+        //     ])->first();
+        //     $userToReplace = User::where(['id' => $pendingInvite->user_id, 'unclaimed' => 1])->first();
+        // } elseif (isset($arr['email'])) {
+        //     $userToReplace = User::where(['email' => $arr['email'], 'unclaimed' => 1])->first();
+        // }
+
+        $userToReplace = User::where([
+            'id' => $userId,
+            'keycloak_id' => $arr['sub']
+        ])
+        ->first();
 
         if (!$userToReplace) {
             return response()->json([

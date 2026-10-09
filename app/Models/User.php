@@ -246,6 +246,7 @@ class User extends Authenticatable
         'consent_scrape' => 'boolean',
         'orcid_scanning' => 'boolean',
         'is_sro' => 'boolean',
+        'unclaimed' => 'boolean',
     ];
 
     protected $appends = ['status', 'evaluation'];
