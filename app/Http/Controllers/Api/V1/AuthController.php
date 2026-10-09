@@ -133,25 +133,13 @@ class AuthController extends Controller
 
         if (!isset($arr['sub'])) {
             return response()->json([
-                'message' => 'not found',
+                'message' => 'unauthorised',
                 'data' => null,
-            ], Response::HTTP_NOT_FOUND);
+            ], Response::HTTP_UNAUTHORIZED);
         }
 
 
         $input = $response->json();
-
-        // $arr = json_decode($token, true);
-
-        // if (!empty($inviteCode['invite_code'])) {
-        //     $pendingInvite = PendingInvite::where([
-        //         'invite_code' => $inviteCode['invite_code'],
-        //         'user_id' => $userId
-        //     ])->first();
-        //     $userToReplace = User::where(['id' => $pendingInvite->user_id, 'unclaimed' => 1])->first();
-        // } elseif (isset($arr['email'])) {
-        //     $userToReplace = User::where(['email' => $arr['email'], 'unclaimed' => 1])->first();
-        // }
 
         $userToReplace = User::where([
             'id' => $userId,
@@ -173,7 +161,7 @@ class AuthController extends Controller
             ], 400);
         }
 
-        if ($userToReplace->unclaimed === 0) {
+        if ($userToReplace->unclaimed === false) {
             return response()->json([
                 'message' => 'Account already claimed',
                 'data' => null,
