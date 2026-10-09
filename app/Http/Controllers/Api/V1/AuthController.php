@@ -151,21 +151,21 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'User not found',
                 'data' => null,
-            ], 400);
+            ], Response::HTTP_UNAUTHORIZED);
         }
 
         if ($userToReplace->user_group !== User::GROUP_ORGANISATIONS) {
             return response()->json([
                 'message' => 'Only works for organisation admins ',
                 'data' => null,
-            ], 400);
+            ], Response::HTTP_BAD_REQUEST);
         }
 
         if ($userToReplace->unclaimed === false) {
             return response()->json([
                 'message' => 'Account already claimed',
                 'data' => null,
-            ], 400);
+            ], Response::HTTP_BAD_REQUEST);
         }
 
         $this->acceptInvite($userToReplace->id);
