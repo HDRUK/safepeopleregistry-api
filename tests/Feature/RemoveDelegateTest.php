@@ -55,7 +55,8 @@ class RemoveDelegateTest extends TestCase
             'admin' => ['admin', false, 200],
             'sro' => ['sro', true, 200],
             'delegate before the organisation has an sro' => ['delegate', false, 200],
-            'delegate once the organisation has an sro' => ['delegate', true, 403],
+            'delegate once the organisation has an sro' => ['delegate', true, 200],
+            'detached delegate' => ['detached delegate', false, 403],
             'delegate of another organisation' => ['other organisation delegate', false, 403],
             'researcher' => ['researcher', false, 403],
         ];
@@ -72,6 +73,12 @@ class RemoveDelegateTest extends TestCase
             'delegate' => $this->createOrganisationUser($this->organisation, isSro: 0),
             'other organisation delegate' => $this->createOrganisationUser(Organisation::factory()->create(), isSro: 0),
             'researcher' => $this->user,
+            'detached delegate' => User::factory()->create([
+                'user_group' => User::GROUP_ORGANISATIONS,
+                'organisation_id' => null,
+                'is_sro' => 0,
+                'is_delegate' => 1,
+            ]),
         };
 
         $this->removeDelegate($user, $this->delegate->id)->assertStatus($expectedStatus);
@@ -85,6 +92,15 @@ class RemoveDelegateTest extends TestCase
         $this->removeDelegate($this->delegate, $this->delegate->id)->assertStatus(403);
 
         $this->assertSame($this->organisation->id, $this->delegate->fresh()->organisation_id);
+    }
+
+    public function test_a_delegate_cannot_remove_the_sro(): void
+    {
+        $sro = $this->createOrganisationUser($this->organisation, isSro: 1);
+
+        $this->removeDelegate($this->delegate, $sro->id)->assertStatus(404);
+
+        $this->assertSame($this->organisation->id, $sro->fresh()->organisation_id);
     }
 
     public function test_the_sro_cannot_be_removed(): void

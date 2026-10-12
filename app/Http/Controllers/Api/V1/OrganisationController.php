@@ -956,7 +956,7 @@ class OrganisationController extends Controller
      *      path="/api/v1/organisations/{id}/delegates/{userId}",
      *      operationId="organisationsRemoveDelegate",
      *      summary="Remove a delegate from an organisation",
-     *      description="Detaches a delegate from the organisation and notifies them and the remaining members. Delegates can remove other delegates until the organisation has an SRO; after that only the SRO can. Nobody can remove themselves.",
+     *      description="Detaches a delegate from the organisation and notifies them and the remaining members. The SRO and delegates of the organisation can remove other delegates; the SRO cannot be removed and nobody can remove themselves.",
      *      tags={"organisations"},
      *      summary="organisations@removeDelegate",
      *      security={{"bearerAuth":{}}},
