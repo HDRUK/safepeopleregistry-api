@@ -50,6 +50,14 @@ class OrganisationPolicy
         };
     }
 
+    /**
+     * An SRO-restricted action, except that nobody can remove themselves.
+     */
+    public function removeDelegate(User $user, Organisation $organisation, int $delegateId): bool
+    {
+        return $user->id !== $delegateId && $this->performSroRestrictedAction($user, $organisation);
+    }
+
     public function updateIsOrganisation(User $user): bool
     {
         return $user->isOrganisation();

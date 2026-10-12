@@ -45,12 +45,14 @@ use App\Http\Requests\Organisations\GetRegistry;
 use App\Http\Requests\Organisations\ResendInvite;
 use App\Models\CustodianHasProjectHasSponsorship;
 use App\Services\DecisionEvaluatorService as DES;
+use App\Services\OrganisationMembershipService;
 use App\Http\Requests\Organisations\GetCountUsers;
 use App\Http\Requests\Organisations\GetPastProject;
 use App\Http\Requests\Organisations\GetOrganisation;
 use App\Http\Requests\Organisations\GetFutureProject;
 use App\Http\Requests\Organisations\GetPresentProject;
 use App\Http\Requests\Organisations\DeleteOrganisation;
+use App\Http\Requests\Organisations\RemoveDelegate;
 use App\Http\Requests\Organisations\OrganisationInvite;
 use App\Http\Requests\Organisations\UpdateOrganisation;
 use App\Http\Requests\Organisations\GetCountPastProject;
@@ -947,6 +949,92 @@ class OrganisationController extends Controller
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
+    }
+
+    /**
+     * @OA\Delete(
+     *      path="/api/v1/organisations/{id}/delegates/{userId}",
+     *      operationId="organisationsRemoveDelegate",
+     *      summary="Remove a delegate from an organisation",
+     *      description="Detaches a delegate from the organisation and notifies them and the remaining members. Delegates can remove other delegates until the organisation has an SRO; after that only the SRO can. Nobody can remove themselves.",
+     *      tags={"organisations"},
+     *      summary="organisations@removeDelegate",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="organisations entry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="organisations entry ID",
+     *         ),
+     *      ),
+     *      @OA\Parameter(
+     *         name="userId",
+     *         in="path",
+     *         description="ID of the delegate to remove",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="users entry ID",
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *           ),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="forbidden")
+     *           ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="The user is not a delegate of this organisation",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *           ),
+     *      )
+     * )
+     */
+    public function removeDelegate(
+        RemoveDelegate $request,
+        OrganisationMembershipService $membership,
+        int $id,
+        int $userId
+    ): JsonResponse {
+        $organisation = Organisation::findOrFail($id);
+
+        if (!Gate::allows('removeDelegate', [$organisation, $userId])) {
+            return $this->ForbiddenResponse();
+        }
+
+        $actor = $request->user();
+
+        if (!$actor instanceof User) {
+            return $this->UnauthorisedResponse();
+        }
+
+        if (!$membership->removeDelegate($organisation, $userId, $actor)) {
+            return $this->NotFoundResponse();
+        }
+
+        return $this->OKResponse(null);
     }
 
     /**

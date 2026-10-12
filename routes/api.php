@@ -443,6 +443,7 @@ Route::middleware('auth:api')
 
             // Delete
             Route::delete('/{id}', 'destroy');
+            Route::delete('/{id}/delegates/{userId}', 'removeDelegate');
 
             Route::get('/{id}/history', [AuditLogController::class, 'showOrganisationHistory'])->whereNumber('id');
 
