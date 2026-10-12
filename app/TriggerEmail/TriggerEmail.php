@@ -192,6 +192,7 @@ class TriggerEmail
                     '[[organisation.organisation_name]]' => $organisation->organisation_name,
                     '[[delegate_first_name]]' => $delegate->first_name,
                     '[[delegate_last_name]]' => $delegate->last_name,
+                    '[[inviteCode]]' => $inviteCode,
                     '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
                     '[[env(INVITE_TIME_HOURS)]]' => config('speedi.system.invite_time_hours'),
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
@@ -209,6 +210,7 @@ class TriggerEmail
                         'organisation_id' => $organisation->id,
                         'invite_sent_at' => Carbon::now(),
                         'status' => PendingInvite::STATE_PENDING,
+                        'invite_code' => $inviteCode,
                         'type' => $typeInvite,
                     ]);
                 }
