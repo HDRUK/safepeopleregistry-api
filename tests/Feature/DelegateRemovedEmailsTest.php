@@ -22,13 +22,19 @@ class DelegateRemovedEmailsTest extends TestCase
     private User $removed;
     private User $recipient;
 
+    // Placeholder only: Http::fake intercepts it, so no request leaves the test.
+    private const MJML_RENDER_URL = 'https://mjml.example.test/render';
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        config(['mail.default' => 'smtp']);
+        config([
+            'mail.default' => 'smtp',
+            'mjml.default.access.mjmlRenderUrl' => self::MJML_RENDER_URL,
+        ]);
         Mail::fake();
-        Http::fake(['*' => Http::response(['html' => '<html></html>'], 201)]);
+        Http::fake([self::MJML_RENDER_URL => Http::response(['html' => '<html></html>'], 201)]);
 
         $this->organisation = Organisation::factory()->create(['organisation_name' => 'Example Research Institute']);
         $this->actor = User::factory()->create(['first_name' => 'Alex', 'last_name' => 'Actor']);
