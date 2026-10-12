@@ -508,7 +508,7 @@ class Organisation extends Model
                 ]
             );
 
-            if ( $model->unclaimed === false) {
+            if ( (int)$model->unclaimed === 0) {
                 $model->setState(State::STATE_INVITED);
                 $model->save();
             }
