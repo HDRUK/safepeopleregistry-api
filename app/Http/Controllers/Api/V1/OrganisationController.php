@@ -1024,11 +1024,9 @@ class OrganisationController extends Controller
             return $this->ForbiddenResponse();
         }
 
+        // auth:api and the policy's non-nullable User guarantee an authenticated user here.
+        /** @var User $actor */
         $actor = $request->user();
-
-        if (!$actor instanceof User) {
-            return $this->UnauthorisedResponse();
-        }
 
         if (!$membership->removeDelegate($organisation, $userId, $actor)) {
             return $this->NotFoundResponse();
