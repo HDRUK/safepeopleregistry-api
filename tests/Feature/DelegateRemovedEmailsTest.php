@@ -32,6 +32,7 @@ class DelegateRemovedEmailsTest extends TestCase
         config([
             'mail.default' => 'smtp',
             'mjml.default.access.mjmlRenderUrl' => self::MJML_RENDER_URL,
+            'mjml.email.from_address' => 'noreply@example.com',
         ]);
         Mail::fake();
         Http::fake([self::MJML_RENDER_URL => Http::response(['html' => '<html></html>'], 201)]);
