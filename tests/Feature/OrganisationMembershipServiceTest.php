@@ -136,6 +136,13 @@ class OrganisationMembershipServiceTest extends TestCase
         $this->assertNotContains($unclaimedDelegate->email, $emailed);
         $this->assertNotContains($otherOrganisationDelegate->email, $emailed);
 
-        Notification::assertSentTo($delegate, OrganisationDelegates::class);
+        Notification::assertSentTo(
+            $delegate,
+            OrganisationDelegates::class,
+            fn (OrganisationDelegates $notification) => str_contains(
+                $notification->toDatabase($delegate)['message'],
+                "removed {$delegate->first_name} {$delegate->last_name} as delegate"
+            )
+        );
     }
 }
