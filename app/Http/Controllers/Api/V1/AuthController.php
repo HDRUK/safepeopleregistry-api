@@ -15,6 +15,8 @@ use App\Http\Traits\Responses;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use App\Http\Requests\Auth\ClaimUser;
 use RegistryManagementController as RMC;
 
 class AuthController extends Controller
@@ -116,10 +118,8 @@ class AuthController extends Controller
         ], 400);
     }
 
-    public function claimUser(Request $request, int $userId): JsonResponse
+    public function claimUser(ClaimUser $request, int $userId): JsonResponse
     {
-        $response = Keycloak::getUserInfo($request->headers->get('Authorization'));
-
         $token = Auth::token();
 
         if (!$token || $token === 'null') {
@@ -139,52 +139,53 @@ class AuthController extends Controller
         }
 
 
-        $input = $response->json();
+        $input = Keycloak::getUserInfo($request->headers->get('Authorization'))->json();
 
-        $userToReplace = User::where([
-            'id' => $userId,
-            'keycloak_id' => $arr['sub']
-        ])
-        ->first();
+        return DB::transaction(function () use ($request, $userId, $input) {
+            // The emailed invite code, not the guessable user id, proves who is being claimed.
+            // Locked so two requests with the same code cannot both claim.
+            $invite = PendingInvite::where([
+                'invite_code' => $request->input('invite_code'),
+                'user_id' => $userId,
+                'status' => PendingInvite::STATE_PENDING,
+            ])
+                ->lockForUpdate()
+                ->first();
 
-        if (!$userToReplace) {
+            $userToReplace = $invite
+                ? User::where(['id' => $userId, 'unclaimed' => 1])->first()
+                : null;
+
+            if (!$userToReplace) {
+                return $this->NotFoundResponse();
+            }
+
+            if ($userToReplace->user_group !== User::GROUP_ORGANISATIONS) {
+                return response()->json([
+                    'message' => 'Only works for organisation admins ',
+                    'data' => null,
+                ], Response::HTTP_BAD_REQUEST);
+            }
+
+            $invite->invite_accepted_at = Carbon::now();
+            $invite->status = PendingInvite::STATE_COMPLETE;
+            $invite->save();
+
+            $userToReplace->first_name = $input['given_name'];
+            $userToReplace->last_name = $input['family_name'];
+            $userToReplace->email = $input['email'];
+            $userToReplace->keycloak_id = $input['sub'];
+            $userToReplace->unclaimed = false;
+            $userToReplace->t_and_c_agreed = 1;
+            $userToReplace->t_and_c_agreement_date = now();
+
+            $userToReplace->save();
+
             return response()->json([
-                'message' => 'User not found',
-                'data' => null,
-            ], Response::HTTP_UNAUTHORIZED);
-        }
-
-        if ($userToReplace->user_group !== User::GROUP_ORGANISATIONS) {
-            return response()->json([
-                'message' => 'Only works for organisation admins ',
-                'data' => null,
-            ], Response::HTTP_BAD_REQUEST);
-        }
-
-        if ($userToReplace->unclaimed === false) {
-            return response()->json([
-                'message' => 'Account already claimed',
-                'data' => null,
-            ], Response::HTTP_BAD_REQUEST);
-        }
-
-        $this->acceptInvite($userToReplace->id);
-
-        $userToReplace->first_name = $input['given_name'];
-        $userToReplace->last_name = $input['family_name'];
-        $userToReplace->email = $input['email'];
-        $userToReplace->keycloak_id = $input['sub'];
-        $userToReplace->unclaimed = false;
-        $userToReplace->t_and_c_agreed = 1;
-        $userToReplace->t_and_c_agreement_date = now();
-
-        $userToReplace->save();
-
-
-        return response()->json([
-            'message' => 'success',
-            'data' => $userToReplace
-        ], 201);
+                'message' => 'success',
+                'data' => $userToReplace
+            ], 201);
+        });
     }
 
     public function meUnclaimed(Request $request): JsonResponse
