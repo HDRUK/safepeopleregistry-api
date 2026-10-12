@@ -418,7 +418,6 @@ class Organisation extends Model
         'organisation_size',
         'unclaimed',
         'sro_profile_uri',
-        'is_sro',
         'ods_id',
         'dsptk_date_last_published' ,
         'ico_registration_id',
@@ -617,6 +616,17 @@ class Organisation extends Model
     }
 
     /**
+     * Queries on every call so the answer reflects the current state of the users table.
+     */
+    public function hasSro(): bool
+    {
+        return $this->hasMany(User::class)
+            ->sros()
+            ->where('unclaimed', 0)
+            ->exists();
+    }
+
+    /**
      * Claimed Organisations with the given name and lead applicant email.
      * A null email matches Organisations with no lead applicant email.
      */
@@ -772,7 +782,7 @@ class Organisation extends Model
     {
         return $this->hasMany(
             User::class,
-        )->where('is_delegate', 1);
+        )->delegates();
     }
 
     /**
@@ -791,6 +801,14 @@ class Organisation extends Model
     public function getEvaluationAttribute()
     {
         return $this->attributes['evaluation'] ?? null;
+    }
+
+    /**
+     * Not in $appends: runs a query, so only append it where it is needed.
+     */
+    public function getHasSroAttribute(): bool
+    {
+        return $this->hasSro();
     }
 
     public function getCeCertifiedAttribute()
