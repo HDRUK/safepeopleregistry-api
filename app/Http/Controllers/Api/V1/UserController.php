@@ -24,7 +24,6 @@ use App\Models\UserHasDepartments;
 use App\Traits\TracksModelChanges;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Users\GetUser;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\Users\CreateUser;
 use App\Http\Requests\Users\DeleteUser;
@@ -37,7 +36,6 @@ use App\Http\Requests\Users\UpdateUserKeycloak;
 use App\Models\CustodianHasProjectOrganisation;
 use App\Http\Requests\Users\CheckUserInviteCode;
 use App\Services\DecisionEvaluatorService as DES;
-use App\Notifications\Organisations\OrganisationDelegates;
 use App\Notifications\Organisations\OrganisationUpdateProfileSro;
 
 class UserController extends Controller
@@ -569,7 +567,6 @@ class UserController extends Controller
             $user->registry_id = isset($input['registry_id']) ? $input['registry_id'] : $user->registry_id;
             $user->consent_scrape = isset($input['consent_scrape']) ? $input['consent_scrape'] : $user->consent_scrape;
             $user->public_opt_in = isset($input['public_opt_in']) ? $input['public_opt_in'] : $user->public_opt_in;
-            $user->organisation_id = isset($input['organisation_id']) ? $input['organisation_id'] : $user->organisation_id;
             $user->orc_id = isset($input['orc_id']) ? $input['orc_id'] : $user->orc_id;
             $user->location = isset($input['location']) ? $input['location'] : $user->location;
             $user->t_and_c_agreed = isset($input['t_and_c_agreed'])
@@ -577,32 +574,13 @@ class UserController extends Controller
                 : $user->t_and_c_agreed;
             $user->t_and_c_agreement_date = isset($input['lt_and_c_agreement_date']) ? $input['t_and_c_agreement_date'] : $user->t_and_c_agreement_date;
             $user->is_sro = isset($input['is_sro']) ? $input['is_sro'] : $user->is_sro;
-            $user->is_delegate = isset($input['is_delegate']) ? $input['is_delegate'] : $user->is_delegate;
             $user->role = isset($input['role']) ? $input['role'] : $user->role;
             $user->save();
             $newUserData = $user->fresh();
 
-            if (!$user->is_delegate) {
-                $this->sendNotificationOnDelegate($loggedInUser, $user);
-            }
-
             if ($user->is_sro) {
                 $changes = $this->getUserTrackedChanges($originalUserData, $newUserData);
                 $this->sendNotificationOnSroUpdate($changes, $loggedInUser, $user);
-            }
-
-            if (!$user->is_delegate && $originalUserData['is_delegate'] && $loggedInUser->user_group === User::GROUP_ORGANISATIONS) {
-                $organisation = Organisation::find($loggedInUser->organisation_id);
-                activity('user')
-                    ->causedBy(Auth::user())
-                    ->performedOn($organisation)
-                    ->withProperties([
-                        'id' => $user->id,
-                        'attributes' => $user->getChanges(),
-                        'old' => $originalUserData,
-                    ])
-                    ->event('updated')
-                    ->log('updated');
             }
 
             if (isset($input['email']) && trim(strtoupper($input['email'])) !== trim(strtoupper($user->email))) {
@@ -619,15 +597,6 @@ class UserController extends Controller
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
-    }
-
-    private function sendNotificationOnDelegate($loggedInUser, $delegate)
-    {
-        $userNotifiy = User::where('organisation_id', $delegate->organisation_id)
-            ->where('id', $delegate->id)
-            ->get();
-
-        Notification::send($userNotifiy, new OrganisationDelegates($loggedInUser, $delegate, 'remove'));
     }
 
     private function sendNotificationOnSroUpdate($changes, $loggedInUser, $user)

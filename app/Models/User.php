@@ -451,10 +451,11 @@ class User extends Authenticatable
 
     /**
      * is_sro takes precedence over is_delegate; any other organisation user is a delegate.
+     * Organisation users detached from their organisation have no role.
      */
     public function organisationRole(): ?OrganisationRole
     {
-        if (!$this->isOrganisation()) {
+        if (!$this->isOrganisation() || $this->organisation_id === null) {
             return null;
         }
 
@@ -466,7 +467,9 @@ class User extends Authenticatable
      */
     public function scopeSros(Builder $query): Builder
     {
-        return $query->where('user_group', self::GROUP_ORGANISATIONS)->where('is_sro', 1);
+        return $query->where('user_group', self::GROUP_ORGANISATIONS)
+            ->whereNotNull('organisation_id')
+            ->where('is_sro', 1);
     }
 
     /**
@@ -474,7 +477,9 @@ class User extends Authenticatable
      */
     public function scopeDelegates(Builder $query): Builder
     {
-        return $query->where('user_group', self::GROUP_ORGANISATIONS)->where('is_sro', 0);
+        return $query->where('user_group', self::GROUP_ORGANISATIONS)
+            ->whereNotNull('organisation_id')
+            ->where('is_sro', 0);
     }
 
     public static function getTransitions(): array

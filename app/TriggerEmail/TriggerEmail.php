@@ -621,6 +621,57 @@ class TriggerEmail
 
                 break;
 
+            case 'DELEGATE_REMOVED_USER':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $organisation = Organisation::where('id', $organisationId)->first();
+                $delegate = User::where('id', $to)->first();
+                $actor = User::where('id', $by)->first();
+
+                $newRecipients = [
+                    'id' => $delegate->id,
+                    'email' => $delegate->email,
+                ];
+
+                $replacements = [
+                    '[[organisation.organisation_name]]' => $organisation->organisation_name,
+                    '[[delegate_first_name]]' => $delegate->first_name,
+                    '[[actor_first_name]]' => $actor->first_name,
+                    '[[actor_last_name]]' => $actor->last_name,
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                ];
+
+                break;
+
+            case 'DELEGATE_REMOVED_ORGANISATION':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $organisation = Organisation::where('id', $organisationId)->first();
+                $recipient = User::where('id', $to)->first();
+                $delegate = User::where('id', $for)->first();
+                $actor = User::where('id', $by)->first();
+
+                $newRecipients = [
+                    'id' => $recipient->id,
+                    'email' => $recipient->email,
+                ];
+
+                $replacements = [
+                    '[[organisation.organisation_name]]' => $organisation->organisation_name,
+                    '[[recipient_first_name]]' => $recipient->first_name,
+                    '[[delegate_first_name]]' => $delegate->first_name,
+                    '[[delegate_last_name]]' => $delegate->last_name,
+                    '[[actor_first_name]]' => $actor->first_name,
+                    '[[actor_last_name]]' => $actor->last_name,
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                ];
+
+                break;
+
             default: // Unknown type.
                 break;
         }

@@ -75,6 +75,17 @@ class UserPolicyOrganisationRoleTest extends TestCase
         $this->assertFalse(Gate::forUser($actor)->allows('update', $target));
     }
 
+    public function test_organisation_users_without_an_organisation_cannot_update_each_other(): void
+    {
+        [$actor, $target] = User::factory()->count(2)->create([
+            'user_group' => User::GROUP_ORGANISATIONS,
+            'organisation_id' => null,
+            'is_sro' => 1,
+        ]);
+
+        $this->assertFalse(Gate::forUser($actor)->allows('update', $target));
+    }
+
     #[DataProvider('allFlags')]
     public function test_organisation_users_can_update_themselves(array $flags): void
     {

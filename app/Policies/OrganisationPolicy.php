@@ -50,6 +50,21 @@ class OrganisationPolicy
         };
     }
 
+    /**
+     * Admins and any member of the organisation (SRO or delegate) can remove a delegate,
+     * except that nobody can remove themselves. Which users are removable is enforced by
+     * OrganisationMembershipService::removeDelegate (delegates only, never the SRO).
+     */
+    public function removeDelegate(User $user, Organisation $organisation, int $delegateId): bool
+    {
+        if ($user->id === $delegateId) {
+            return false;
+        }
+
+        return $user->isAdmin()
+            || ($user->organisationRole() !== null && $user->organisation_id === $organisation->id);
+    }
+
     public function updateIsOrganisation(User $user): bool
     {
         return $user->isOrganisation();

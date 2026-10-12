@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Enums\OrganisationRole;
+use App\Models\Organisation;
 use App\Models\User;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
 use Tests\TestCase;
@@ -17,12 +18,27 @@ class OrganisationRoleScopesTest extends TestCase
     ): void {
         $user = User::factory()->create([
             'user_group' => User::GROUP_ORGANISATIONS,
+            'organisation_id' => Organisation::factory()->create()->id,
             'is_sro' => $isSro,
             'is_delegate' => $isDelegate,
         ]);
 
         $this->assertSame($expected === OrganisationRole::Sro, User::sros()->whereKey($user->id)->exists());
         $this->assertSame($expected === OrganisationRole::Delegate, User::delegates()->whereKey($user->id)->exists());
+    }
+
+    #[DataProviderExternal(OrganisationRoleTest::class, 'detachedOrganisationUsers')]
+    public function test_scopes_exclude_organisation_users_without_an_organisation(int $isSro, int $isDelegate): void
+    {
+        $user = User::factory()->create([
+            'user_group' => User::GROUP_ORGANISATIONS,
+            'organisation_id' => null,
+            'is_sro' => $isSro,
+            'is_delegate' => $isDelegate,
+        ]);
+
+        $this->assertFalse(User::sros()->whereKey($user->id)->exists());
+        $this->assertFalse(User::delegates()->whereKey($user->id)->exists());
     }
 
     #[DataProviderExternal(OrganisationRoleTest::class, 'nonOrganisationUsers')]
@@ -43,6 +59,15 @@ class OrganisationRoleScopesTest extends TestCase
 
     public function test_scopes_agree_with_organisation_role_for_every_user(): void
     {
+        foreach (OrganisationRoleTest::detachedOrganisationUsers() as [$isSro, $isDelegate]) {
+            User::factory()->create([
+                'user_group' => User::GROUP_ORGANISATIONS,
+                'organisation_id' => null,
+                'is_sro' => $isSro,
+                'is_delegate' => $isDelegate,
+            ]);
+        }
+
         $users = User::all();
 
         $expectedSroIds = $users

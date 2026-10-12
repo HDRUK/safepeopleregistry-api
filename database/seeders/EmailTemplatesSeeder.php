@@ -1441,6 +1441,88 @@ class EmailTemplatesSeeder extends Seeder
                       </mjml >',
             'buttons' => '',
           ],
+          [
+            'identifier' => 'delegate_removed_user',
+            'subject' => 'Safe People Registry | You have been removed from [[organisation.organisation_name]]',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#f6dff1" width="600px" >
+
+                          ' . $this->titleBar('Removed from Organisation') . '
+
+                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                                <mj-text align="left" padding="20px 0px 20px 0px">
+                                  Hello [[delegate_first_name]],
+                                  <div><br></div>
+                                  [[actor_first_name]] [[actor_last_name]] has removed you as a Delegate for <b>[[organisation.organisation_name]]</b> on the [[env(APP_NAME)]].
+                                  <div><br></div>
+                                  You can no longer view or manage this Organisation\'s account. Your [[env(APP_NAME)]] account has not been deleted.
+                                  <div><br></div>
+                                  If you think this is a mistake, please contact [[organisation.organisation_name]] directly, or email us at [[env(SUPPORT_EMAIL)]].
+                                  <div><br></div>
+                                  Thanks,
+                                  <div><br></div>
+                                  [[env(APP_NAME)]] Team
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
+                              <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]" padding="10px 15px 15px 15px">
+                                  Go to the Safe People Registry
+                                </mj-button>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+
+                        </mj-body>
+                      </mjml >',
+            'buttons' => '',
+          ],
+          [
+            'identifier' => 'delegate_removed_organisation',
+            'subject' => 'Safe People Registry | [[delegate_first_name]] [[delegate_last_name]] has been removed from [[organisation.organisation_name]]',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#f6dff1" width="600px" >
+
+                          ' . $this->titleBar('Delegate removed') . '
+
+                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                                <mj-text align="left" padding="20px 0px 20px 0px">
+                                  Hello [[recipient_first_name]],
+                                  <div><br></div>
+                                  [[actor_first_name]] [[actor_last_name]] has removed [[delegate_first_name]] [[delegate_last_name]] as a Delegate for <b>[[organisation.organisation_name]]</b> on the [[env(APP_NAME)]]. They no longer have access to your Organisation\'s account.
+                                  <div><br></div>
+                                  You can review your Organisation\'s Delegates at any time from your [[env(APP_NAME)]] account.
+                                  <div><br></div>
+                                  If you weren\'t expecting this change, please contact [[env(SUPPORT_EMAIL)]].
+                                  <div><br></div>
+                                  Thanks,
+                                  <div><br></div>
+                                  [[env(APP_NAME)]] Team
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
+                              <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]" padding="10px 15px 15px 15px">
+                                  Go to the Safe People Registry
+                                </mj-button>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+
+                        </mj-body>
+                      </mjml >',
+            'buttons' => '',
+          ],
         ];
 
         foreach ($templates as $template) {
