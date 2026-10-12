@@ -43,6 +43,23 @@ class TriggerEmail
         return Str::uuid();
     }
 
+    /**
+     * A resend must email the code stored on the invite, otherwise its link points at a
+     * code that was never saved. Invites created before codes were stored are given one
+     * here, so this mutates the invite.
+     */
+    private function storedInviteCode(int $inviteId): string
+    {
+        $invite = PendingInvite::findOrFail($inviteId);
+
+        if ($invite->invite_code === null) {
+            $invite->invite_code = $this->generateInviteCode();
+            $invite->save();
+        }
+
+        return $invite->invite_code;
+    }
+
     public function spawnEmail(array $input): void
     {
         $replacements = [];
@@ -59,7 +76,7 @@ class TriggerEmail
         $custodianId = isset($input['custodianId']) ? $input['custodianId'] : null;
         $identifier = $input['identifier'];
         $inviteId = isset($input['inviteId']) ? $input['inviteId'] : null;
-        $inviteCode = $this->generateInviteCode();
+        $inviteCode = $inviteId === null ? $this->generateInviteCode() : $this->storedInviteCode($inviteId);
         $userName = isset($input['userName']) ? $input['userName'] : null;
         $organisationId = isset($input['organisationId']) ? $input['organisationId'] : null;
         $projectId = isset($input['projectId']) ? $input['projectId'] : null;
