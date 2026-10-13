@@ -153,7 +153,7 @@ class AuthController extends Controller
                 ->first();
 
             $userToReplace = $invite
-                ? User::where(['id' => $userId, 'unclaimed' => 1])->first()
+                ? User::where(['id' => $userId, 'unclaimed' => true])->first()
                 : null;
 
             if (!$userToReplace) {
