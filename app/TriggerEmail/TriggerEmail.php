@@ -43,6 +43,23 @@ class TriggerEmail
         return Str::uuid();
     }
 
+    /**
+     * A resend must email the code stored on the invite, otherwise its link points at a
+     * code that was never saved. Invites created before codes were stored are given one
+     * here, so this mutates the invite.
+     */
+    private function storedInviteCode(int $inviteId): string
+    {
+        $invite = PendingInvite::findOrFail($inviteId);
+
+        if ($invite->invite_code === null) {
+            $invite->invite_code = $this->generateInviteCode();
+            $invite->save();
+        }
+
+        return $invite->invite_code;
+    }
+
     public function spawnEmail(array $input): void
     {
         $replacements = [];
@@ -59,7 +76,7 @@ class TriggerEmail
         $custodianId = isset($input['custodianId']) ? $input['custodianId'] : null;
         $identifier = $input['identifier'];
         $inviteId = isset($input['inviteId']) ? $input['inviteId'] : null;
-        $inviteCode = $this->generateInviteCode();
+        $inviteCode = $inviteId === null ? $this->generateInviteCode() : $this->storedInviteCode($inviteId);
         $userName = isset($input['userName']) ? $input['userName'] : null;
         $organisationId = isset($input['organisationId']) ? $input['organisationId'] : null;
         $projectId = isset($input['projectId']) ? $input['projectId'] : null;
@@ -175,6 +192,7 @@ class TriggerEmail
                     '[[organisation.organisation_name]]' => $organisation->organisation_name,
                     '[[delegate_first_name]]' => $delegate->first_name,
                     '[[delegate_last_name]]' => $delegate->last_name,
+                    '[[inviteCode]]' => $inviteCode,
                     '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
                     '[[env(INVITE_TIME_HOURS)]]' => config('speedi.system.invite_time_hours'),
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
@@ -192,6 +210,7 @@ class TriggerEmail
                         'organisation_id' => $organisation->id,
                         'invite_sent_at' => Carbon::now(),
                         'status' => PendingInvite::STATE_PENDING,
+                        'invite_code' => $inviteCode,
                         'type' => $typeInvite,
                     ]);
                 }

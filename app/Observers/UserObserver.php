@@ -152,7 +152,7 @@ class UserObserver
 
         if ($user->user_group === User::GROUP_USERS &&
             $user->isDirty('unclaimed') &&
-            $user->getOriginal('unclaimed') === 1 &&
+            $user->getOriginal('unclaimed') === true &&
             $user->unclaimed === false &&
             ($pendingInvites && in_array($pendingInvites->type, ['custodian_user_invite', 'organisation_user_invite']))) {
 
