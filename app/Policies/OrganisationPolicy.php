@@ -46,7 +46,7 @@ class OrganisationPolicy
 
         return match ($role) {
             OrganisationRole::Sro => true,
-            OrganisationRole::Delegate => !$organisation->hasSro(),
+            OrganisationRole::Delegate => !$organisation->hasClaimedSro(),
         };
     }
 

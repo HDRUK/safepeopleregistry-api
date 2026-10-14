@@ -196,7 +196,7 @@ class OrganisationController extends Controller
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data",
      *                  ref="#/components/schemas/Organisation",
-     *                  @OA\Property(property="has_sro", type="boolean", example="true"),
+     *                  @OA\Property(property="has_claimed_sro", type="boolean", example="true"),
      *                  @OA\Property(property="charities", type="array",
      *                      @OA\Items(
      *                          @OA\Property(property="id", type="integer", example="1"),
@@ -249,7 +249,8 @@ class OrganisationController extends Controller
             'registries.user.permissions',
             'sector',
             'files',
-        ])->findOrFail($id)->append('has_sro');
+            'claimedSro.departments',
+        ])->findOrFail($id)->append('has_claimed_sro');
 
         if ($organisation) {
             $organisation['rules'] = $this->decisionEvaluator->evaluate($organisation);

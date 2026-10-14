@@ -32,7 +32,7 @@ class OrganisationHasSroResponseTest extends TestCase
     }
 
     #[DataProvider('sroStates')]
-    public function test_show_reports_whether_the_organisation_has_an_sro(?int $sroUnclaimed, bool $expected): void
+    public function test_show_reports_whether_the_organisation_has_a_claimed_sro(?int $sroUnclaimed, bool $expected): void
     {
         $organisation = Organisation::factory()->create();
 
@@ -48,10 +48,37 @@ class OrganisationHasSroResponseTest extends TestCase
         $this->actingAs($this->admin)
             ->json('GET', self::TEST_URL . "/{$organisation->id}")
             ->assertStatus(200)
-            ->assertJsonPath('data.has_sro', $expected);
+            ->assertJsonPath('data.has_claimed_sro', $expected);
     }
 
-    public function test_index_does_not_report_has_sro(): void
+    #[DataProvider('sroStates')]
+    public function test_show_returns_only_a_claimed_sro(?int $sroUnclaimed, bool $isClaimed): void
+    {
+        $organisation = Organisation::factory()->create();
+        $sro = null;
+
+        if ($sroUnclaimed !== null) {
+            $sro = User::factory()->create([
+                'user_group' => User::GROUP_ORGANISATIONS,
+                'organisation_id' => $organisation->id,
+                'is_sro' => 1,
+                'unclaimed' => $sroUnclaimed,
+            ]);
+        }
+
+        $response = $this->actingAs($this->admin)
+            ->json('GET', self::TEST_URL . "/{$organisation->id}")
+            ->assertStatus(200);
+
+        if ($isClaimed) {
+            $response->assertJsonPath('data.claimed_sro.id', $sro->id)
+                ->assertJsonPath('data.claimed_sro.departments', []);
+        } else {
+            $response->assertJsonPath('data.claimed_sro', null);
+        }
+    }
+
+    public function test_index_does_not_report_has_claimed_sro(): void
     {
         $organisation = Organisation::factory()->create();
 
@@ -62,6 +89,6 @@ class OrganisationHasSroResponseTest extends TestCase
 
         $listed = collect($organisations)->firstWhere('id', $organisation->id);
         $this->assertNotNull($listed);
-        $this->assertArrayNotHasKey('has_sro', $listed);
+        $this->assertArrayNotHasKey('has_claimed_sro', $listed);
     }
 }
