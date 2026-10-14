@@ -134,6 +134,16 @@ class ClaimUserTest extends TestCase
         $this->claim($this->invitee->id)->assertStatus(404);
     }
 
+    public function test_an_invited_sro_is_still_an_sro_after_claiming(): void
+    {
+        $this->invitee->is_sro = true;
+        $this->invitee->save();
+
+        $this->claim($this->invitee->id)->assertStatus(201);
+
+        $this->assertTrue($this->invitee->fresh()->is_sro);
+    }
+
     public function test_only_organisation_users_can_be_claimed(): void
     {
         $researcher = $this->createUnclaimedUser(User::GROUP_USERS);
