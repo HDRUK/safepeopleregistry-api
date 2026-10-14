@@ -191,14 +191,19 @@ class User extends Authenticatable
         'location',
         't_and_c_agreed',
         't_and_c_agreement_date',
-        'is_sro',
         'invited_by',
+    ];
+
+    // Set explicitly where an SRO is appointed, never from request input.
+    protected $guarded = [
+        'is_sro',
     ];
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly($this->fillable)
+            // is_sro is guarded rather than fillable, but SRO changes must still be audited.
+            ->logOnly([...$this->fillable, 'is_sro'])
             ->logOnlyDirty()
             ->useLogName('user')
             ->dontSubmitEmptyLogs();

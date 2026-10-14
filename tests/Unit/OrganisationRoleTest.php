@@ -48,7 +48,8 @@ class OrganisationRoleTest extends TestCase
         int $isDelegate,
         OrganisationRole $expected
     ): void {
-        $user = new User([
+        // forceFill because is_sro is guarded against mass assignment.
+        $user = (new User())->forceFill([
             'user_group' => User::GROUP_ORGANISATIONS,
             'organisation_id' => 1,
             'is_sro' => $isSro,
@@ -61,7 +62,7 @@ class OrganisationRoleTest extends TestCase
     #[DataProvider('detachedOrganisationUsers')]
     public function test_it_has_no_organisation_role_without_an_organisation(int $isSro, int $isDelegate): void
     {
-        $user = new User([
+        $user = (new User())->forceFill([
             'user_group' => User::GROUP_ORGANISATIONS,
             'organisation_id' => null,
             'is_sro' => $isSro,
@@ -77,7 +78,7 @@ class OrganisationRoleTest extends TestCase
         int $isSro,
         int $isDelegate
     ): void {
-        $user = new User([
+        $user = (new User())->forceFill([
             'user_group' => $group,
             'is_sro' => $isSro,
             'is_delegate' => $isDelegate,
