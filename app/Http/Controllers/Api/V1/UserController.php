@@ -574,8 +574,8 @@ class UserController extends Controller
                 ? filter_var($input['t_and_c_agreed'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)
                 : $user->t_and_c_agreed;
             $user->t_and_c_agreement_date = isset($input['lt_and_c_agreement_date']) ? $input['t_and_c_agreement_date'] : $user->t_and_c_agreement_date;
-            $user->is_sro = isset($input['is_sro']) ? $input['is_sro'] : $user->is_sro;
             $user->role = isset($input['role']) ? $input['role'] : $user->role;
+            // is_sro is deliberately not updatable here: SROs are appointed via PUT /organisations/{id}/sro.
             $user->save();
             $newUserData = $user->fresh();
 

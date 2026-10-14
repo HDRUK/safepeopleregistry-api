@@ -75,6 +75,43 @@ class UpdateUserOrganisationFieldsTest extends TestCase
         $this->assertSame('Data Manager', $this->delegate->fresh()->role);
     }
 
+    private function createSro(): User
+    {
+        return User::factory()->create([
+            'user_group' => User::GROUP_ORGANISATIONS,
+            'organisation_id' => $this->organisation->id,
+            'is_sro' => 1,
+            'is_delegate' => 0,
+        ]);
+    }
+
+    public static function isSroChanges(): array
+    {
+        return [
+            'making a delegate sro' => [false, true],
+            'making a delegate sro with 1' => [false, 1],
+            'demoting an sro' => [true, false],
+            'demoting an sro with 0' => [true, 0],
+        ];
+    }
+
+    #[DataProvider('isSroChanges')]
+    public function test_is_sro_is_ignored(bool $isSro, mixed $submitted): void
+    {
+        $user = $isSro ? $this->createSro() : $this->delegate;
+
+        $this->actingAs($this->admin)
+            ->json('PUT', self::TEST_URL . "/{$user->id}", [
+                'is_sro' => $submitted,
+                'role' => 'Data Manager',
+            ])
+            ->assertStatus(200);
+
+        $user = $user->fresh();
+        $this->assertSame('Data Manager', $user->role);
+        $this->assertSame($isSro, $user->is_sro);
+    }
+
     public function test_updating_an_sro_does_not_tell_them_they_were_removed_as_a_delegate(): void
     {
         $sro = User::factory()->create([
