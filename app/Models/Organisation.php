@@ -632,7 +632,7 @@ class Organisation extends Model
     /**
      * Queries on every call so the answer reflects the current state of the users table.
      */
-    public function hasSro(): bool
+    public function hasClaimedSro(): bool
     {
         return $this->claimedSro()->exists();
     }
@@ -817,9 +817,9 @@ class Organisation extends Model
     /**
      * Not in $appends: runs a query, so only append it where it is needed.
      */
-    public function getHasSroAttribute(): bool
+    public function getHasClaimedSroAttribute(): bool
     {
-        return $this->hasSro();
+        return $this->hasClaimedSro();
     }
 
     public function getCeCertifiedAttribute()

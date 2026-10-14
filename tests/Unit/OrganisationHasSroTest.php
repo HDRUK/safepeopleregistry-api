@@ -33,7 +33,7 @@ class OrganisationHasSroTest extends TestCase
     }
 
     #[DataProvider('organisationMembers')]
-    public function test_has_sro_only_when_a_claimed_sro_belongs_to_the_organisation(
+    public function test_has_claimed_sro_only_when_a_claimed_sro_belongs_to_the_organisation(
         array $members,
         bool $expected
     ): void {
@@ -47,7 +47,7 @@ class OrganisationHasSroTest extends TestCase
             ]);
         }
 
-        $this->assertSame($expected, $organisation->hasSro());
+        $this->assertSame($expected, $organisation->hasClaimedSro());
     }
 
     public function test_a_claimed_sro_in_another_organisation_does_not_count(): void
@@ -60,10 +60,10 @@ class OrganisationHasSroTest extends TestCase
             'unclaimed' => 0,
         ]);
 
-        $this->assertFalse($organisation->hasSro());
+        $this->assertFalse($organisation->hasClaimedSro());
     }
 
-    public function test_has_sro_once_the_invited_sro_claims_their_account(): void
+    public function test_has_claimed_sro_once_the_invited_sro_claims_their_account(): void
     {
         $organisation = Organisation::factory()->create();
         $sro = User::factory()->create([
@@ -73,10 +73,10 @@ class OrganisationHasSroTest extends TestCase
             'unclaimed' => 1,
         ]);
 
-        $this->assertFalse($organisation->hasSro());
+        $this->assertFalse($organisation->hasClaimedSro());
 
         $sro->update(['unclaimed' => 0]);
 
-        $this->assertTrue($organisation->hasSro());
+        $this->assertTrue($organisation->hasClaimedSro());
     }
 }

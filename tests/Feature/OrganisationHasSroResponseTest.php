@@ -32,7 +32,7 @@ class OrganisationHasSroResponseTest extends TestCase
     }
 
     #[DataProvider('sroStates')]
-    public function test_show_reports_whether_the_organisation_has_an_sro(?int $sroUnclaimed, bool $expected): void
+    public function test_show_reports_whether_the_organisation_has_a_claimed_sro(?int $sroUnclaimed, bool $expected): void
     {
         $organisation = Organisation::factory()->create();
 
@@ -48,7 +48,7 @@ class OrganisationHasSroResponseTest extends TestCase
         $this->actingAs($this->admin)
             ->json('GET', self::TEST_URL . "/{$organisation->id}")
             ->assertStatus(200)
-            ->assertJsonPath('data.has_sro', $expected);
+            ->assertJsonPath('data.has_claimed_sro', $expected);
     }
 
     #[DataProvider('sroStates')]
@@ -78,7 +78,7 @@ class OrganisationHasSroResponseTest extends TestCase
         }
     }
 
-    public function test_index_does_not_report_has_sro(): void
+    public function test_index_does_not_report_has_claimed_sro(): void
     {
         $organisation = Organisation::factory()->create();
 
@@ -89,6 +89,6 @@ class OrganisationHasSroResponseTest extends TestCase
 
         $listed = collect($organisations)->firstWhere('id', $organisation->id);
         $this->assertNotNull($listed);
-        $this->assertArrayNotHasKey('has_sro', $listed);
+        $this->assertArrayNotHasKey('has_claimed_sro', $listed);
     }
 }
