@@ -308,6 +308,7 @@ use App\Traits\FilterManager;
  * @property-read int|null $secondary_action_logs_count
  * @property-read \App\Models\Sector|null $sector
  * @property-read \App\Models\User|null $sroOfficer
+ * @property-read \App\Models\User|null $claimedSro
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Subsidiary> $subsidiaries
  * @property-read int|null $subsidiaries_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ActionLog> $tertiaryActionLogs
@@ -616,14 +617,24 @@ class Organisation extends Model
     }
 
     /**
+     * The SRO who has claimed their account. Unlike sroOfficer(), an invited SRO who has
+     * not yet claimed does not count.
+     *
+     *  @return \Illuminate\Database\Eloquent\Relations\HasOne<\App\Models\User>
+     */
+    public function claimedSro(): HasOne
+    {
+        return $this->hasOne(User::class)
+            ->sros()
+            ->where('unclaimed', 0);
+    }
+
+    /**
      * Queries on every call so the answer reflects the current state of the users table.
      */
     public function hasSro(): bool
     {
-        return $this->hasMany(User::class)
-            ->sros()
-            ->where('unclaimed', 0)
-            ->exists();
+        return $this->claimedSro()->exists();
     }
 
     /**

@@ -249,6 +249,7 @@ class OrganisationController extends Controller
             'registries.user.permissions',
             'sector',
             'files',
+            'claimedSro.departments',
         ])->findOrFail($id)->append('has_sro');
 
         if ($organisation) {
