@@ -1020,7 +1020,10 @@ class OrganisationController extends Controller
             return $this->ForbiddenResponse();
         }
 
-        if (!$membership->appointSro($organisation, $request->integer('user_id'))) {
+        /** @var User $actor */
+        $actor = $request->user();
+
+        if (!$membership->appointSro($organisation, $request->integer('user_id'), $actor)) {
             return $this->NotFoundResponse();
         }
 

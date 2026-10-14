@@ -56,11 +56,15 @@ class OrganisationMembershipService
      * Makes a claimed member of the organisation its SRO, handing over immediately: the current
      * SRO becomes a delegate, and an invited SRO keeps their invitation but will join as a delegate.
      *
+     * Once committed, the organisation's claimed members are emailed about the new SRO, and a
+     * replaced claimed SRO is told separately. Re-appointing the current SRO sends nothing.
+     *
      * Returns false, changing nothing, when the user is not a claimed member of the organisation.
      */
-    public function appointSro(Organisation $organisation, int $userId): bool
+    public function appointSro(Organisation $organisation, int $userId, User $actor): bool
     {
-        return DB::transaction(function () use ($organisation, $userId): bool {
+        /** @var array{sroChanged: bool, replacedSroId: ?int}|null $outcome */
+        $outcome = DB::transaction(function () use ($organisation, $userId): ?array {
             // Locked so concurrent appointments cannot leave the organisation with two SROs.
             $members = User::query()
                 ->where('organisation_id', $organisation->id)
@@ -73,13 +77,20 @@ class OrganisationMembershipService
             );
 
             if ($appointee === null) {
-                return false;
+                return null;
             }
+
+            $sroChanged = !$appointee->is_sro;
+            $replacedSroId = null;
 
             // Saved one by one, not mass updated, so observers and the activity log see each change.
             foreach ($members as $member) {
                 if ($member->id === $appointee->id || !$member->is_sro) {
                     continue;
+                }
+
+                if (!$member->unclaimed) {
+                    $replacedSroId = $member->id;
                 }
 
                 $member->is_sro = false;
@@ -92,8 +103,52 @@ class OrganisationMembershipService
             $appointee->is_delegate = 0;
             $appointee->save();
 
-            return true;
+            return ['sroChanged' => $sroChanged, 'replacedSroId' => $replacedSroId];
         });
+
+        if ($outcome === null) {
+            return false;
+        }
+
+        // Notify only once the appointment has committed.
+        if ($outcome['sroChanged']) {
+            $this->notifySroAppointed($organisation, $userId, $outcome['replacedSroId'], $actor);
+        }
+
+        return true;
+    }
+
+    private function notifySroAppointed(Organisation $organisation, int $sroId, ?int $replacedSroId, User $actor): void
+    {
+        if ($replacedSroId !== null) {
+            TriggerEmail::spawnEmail([
+                'type' => 'SRO_REPLACED_USER',
+                'identifier' => 'sro_replaced_user',
+                'to' => $replacedSroId,
+                'by' => $actor->id,
+                'for' => $sroId,
+                'organisationId' => $organisation->id,
+            ]);
+        }
+
+        // The replaced SRO has had their own email.
+        $recipients = User::query()
+            ->where('organisation_id', $organisation->id)
+            ->where('user_group', User::GROUP_ORGANISATIONS)
+            ->where('unclaimed', 0)
+            ->when($replacedSroId !== null, fn ($query) => $query->whereKeyNot($replacedSroId))
+            ->pluck('id');
+
+        foreach ($recipients as $recipientId) {
+            TriggerEmail::spawnEmail([
+                'type' => 'SRO_APPOINTED_ORGANISATION',
+                'identifier' => 'sro_appointed_organisation',
+                'to' => $recipientId,
+                'by' => $actor->id,
+                'for' => $sroId,
+                'organisationId' => $organisation->id,
+            ]);
+        }
     }
 
     private function notifyDelegateRemoved(Organisation $organisation, User $delegate, User $actor): void
