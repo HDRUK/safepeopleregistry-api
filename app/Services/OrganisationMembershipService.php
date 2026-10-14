@@ -52,6 +52,50 @@ class OrganisationMembershipService
         return $removed;
     }
 
+    /**
+     * Makes a claimed member of the organisation its SRO, handing over immediately: the current
+     * SRO becomes a delegate, and an invited SRO keeps their invitation but will join as a delegate.
+     *
+     * Returns false, changing nothing, when the user is not a claimed member of the organisation.
+     */
+    public function appointSro(Organisation $organisation, int $userId): bool
+    {
+        return DB::transaction(function () use ($organisation, $userId): bool {
+            // Locked so concurrent appointments cannot leave the organisation with two SROs.
+            $members = User::query()
+                ->where('organisation_id', $organisation->id)
+                ->where('user_group', User::GROUP_ORGANISATIONS)
+                ->lockForUpdate()
+                ->get();
+
+            $appointee = $members->first(
+                fn (User $member) => $member->id === $userId && !$member->unclaimed
+            );
+
+            if ($appointee === null) {
+                return false;
+            }
+
+            // Saved one by one, not mass updated, so observers and the activity log see each change.
+            foreach ($members as $member) {
+                if ($member->id === $appointee->id || !$member->is_sro) {
+                    continue;
+                }
+
+                $member->is_sro = false;
+                $member->is_delegate = 1;
+                $member->save();
+            }
+
+            // is_delegate is legacy but still read (e.g. SsoTenantController), so keep it consistent.
+            $appointee->is_sro = true;
+            $appointee->is_delegate = 0;
+            $appointee->save();
+
+            return true;
+        });
+    }
+
     private function notifyDelegateRemoved(Organisation $organisation, User $delegate, User $actor): void
     {
         Notification::send($delegate, new OrganisationDelegates($actor, $delegate, 'remove'));
