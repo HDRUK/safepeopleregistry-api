@@ -387,7 +387,7 @@ class UserController extends Controller
         try {
             $input = $request->all();
 
-            $user = User::create([
+            $user = new User([
                 'first_name' => $input['first_name'],
                 'last_name' => $input['last_name'],
                 'email' => $input['email'],
@@ -398,8 +398,9 @@ class UserController extends Controller
                 'consent_scrape' => isset($input['consent_scrape']) ? $input['consent_scrape'] : 0,
                 'public_opt_in' => isset($input['public_opt_in']) ? $input['public_opt_in'] : false,
                 'organisation_id' => isset($input['organisation_id']) ? $input['organisation_id'] : null,
-                'is_sro' => isset($input['is_sro']) ? $input['is_sro'] : 0,
             ]);
+            $user->is_sro = isset($input['is_sro']) ? $input['is_sro'] : 0;
+            $user->save();
 
             // TODO - Close Pending invite when we're sure how org id is handled
 
