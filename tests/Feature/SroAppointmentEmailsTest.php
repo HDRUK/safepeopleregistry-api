@@ -22,13 +22,18 @@ class SroAppointmentEmailsTest extends TestCase
     // Placeholder only: Http::fake intercepts it, so no request leaves the test.
     private const MJML_RENDER_URL = 'https://mjml.example.test/render';
 
-    private const PLACEHOLDERS = [
+    private const COMMON_PLACEHOLDERS = [
         '[[organisation.organisation_name]]',
         '[[recipient_first_name]]',
-        '[[sro_first_name]]',
-        '[[sro_last_name]]',
         '[[actor_first_name]]',
         '[[actor_last_name]]',
+    ];
+
+    // The new SRO's own email is addressed to them, so it does not name the SRO separately.
+    private const TEMPLATES = [
+        'sro_replaced_user' => ['[[sro_first_name]]', '[[sro_last_name]]'],
+        'sro_appointed_organisation' => ['[[sro_first_name]]', '[[sro_last_name]]'],
+        'sro_appointed_user' => [],
     ];
 
     private Organisation $organisation;
@@ -54,14 +59,14 @@ class SroAppointmentEmailsTest extends TestCase
         $this->recipient = User::factory()->create(['first_name' => 'Riley', 'last_name' => 'Recipient']);
     }
 
-    private function sendEmail(string $type, string $identifier): void
+    private function sendEmail(string $type, string $identifier, ?User $sro = null): void
     {
         TriggerEmail::spawnEmail([
             'type' => $type,
             'identifier' => $identifier,
             'to' => $this->recipient->id,
             'by' => $this->actor->id,
-            'for' => $this->newSro->id,
+            'for' => ($sro ?? $this->newSro)->id,
             'organisationId' => $this->organisation->id,
         ]);
     }
@@ -89,19 +94,18 @@ class SroAppointmentEmailsTest extends TestCase
 
     public function test_the_seeder_creates_the_sro_appointment_templates(): void
     {
-        $identifiers = ['sro_replaced_user', 'sro_appointed_organisation'];
-        EmailTemplate::whereIn('identifier', $identifiers)->forceDelete();
+        EmailTemplate::whereIn('identifier', array_keys(self::TEMPLATES))->forceDelete();
 
         $this->seed(EmailTemplatesSeeder::class);
 
-        foreach ($identifiers as $identifier) {
+        foreach (self::TEMPLATES as $identifier => $placeholders) {
             $template = EmailTemplate::where('identifier', $identifier)->first();
 
             $this->assertNotNull($template, "{$identifier} was not created");
 
             // EmailTemplate declares public $subject/$body properties that shadow the attributes,
             // so read them via array access as SendEmailJob does.
-            foreach (self::PLACEHOLDERS as $placeholder) {
+            foreach ([...self::COMMON_PLACEHOLDERS, ...$placeholders] as $placeholder) {
                 $this->assertStringContainsString($placeholder, $template['subject'] . $template['body']);
             }
         }
@@ -127,6 +131,18 @@ class SroAppointmentEmailsTest extends TestCase
             'Hello Riley,',
             'Sam Senior has been appointed as the Senior Responsible Officer (SRO) for <b>Example Research Institute</b>',
             'by Alex Actor',
+        ]);
+    }
+
+    public function test_the_new_sro_is_emailed(): void
+    {
+        $this->sendEmail('SRO_APPOINTED_USER', 'sro_appointed_user', sro: $this->recipient);
+
+        $this->assertRenderedEmail([
+            'Hello Riley,',
+            'You have been appointed as the Senior Responsible Officer (SRO) for <b>Example Research Institute</b>',
+            'by Alex Actor',
+            'SRO declaration',
         ]);
     }
 }

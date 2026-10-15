@@ -692,8 +692,9 @@ class TriggerEmail
                 break;
 
             case 'SRO_REPLACED_USER':
+            case 'SRO_APPOINTED_USER':
             case 'SRO_APPOINTED_ORGANISATION':
-                // Same placeholders; the identifier picks the outgoing-SRO or organisation template.
+                // Same placeholders; the identifier picks the replaced-SRO, new-SRO or organisation template.
                 $template = EmailTemplate::where('identifier', $identifier)->first();
                 $organisation = Organisation::where('id', $organisationId)->first();
                 $recipient = User::where('id', $to)->first();
