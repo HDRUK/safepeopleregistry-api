@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Enums\OrganisationRole;
+use Carbon\Carbon;
 use App\Models\Organisation;
+use App\Models\PendingInvite;
 use App\Models\User;
 use App\Notifications\Organisations\OrganisationDelegates;
 use App\RegistryManagementController\RegistryManagementController as RMC;
@@ -153,6 +155,55 @@ class OrganisationMembershipService
         }
 
         return $invitee;
+    }
+
+    /**
+     * Resends the organisation's pending SRO invitation, with the code it already has.
+     *
+     * Returns false when there is nothing to resend: no pending SRO invitation, or its invitee
+     * has since been replaced and will now join as a delegate.
+     */
+    public function resendSroInvite(Organisation $organisation, User $actor): bool
+    {
+        $invite = $this->pendingSroInvite($organisation);
+
+        if ($invite === null) {
+            return false;
+        }
+
+        // So the invite shows when it was last sent.
+        $invite->invite_sent_at = Carbon::now();
+        $invite->save();
+
+        TriggerEmail::spawnEmail([
+            'type' => 'SRO_INVITE',
+            'identifier' => 'sro_invite',
+            'to' => $invite->user_id,
+            'by' => $actor->id,
+            'organisationId' => $organisation->id,
+            'inviteId' => $invite->id,
+        ]);
+
+        return true;
+    }
+
+    /**
+     * The pending invitation of the organisation's invited SRO, if there is one.
+     */
+    public function pendingSroInvite(Organisation $organisation): ?PendingInvite
+    {
+        return PendingInvite::query()
+            ->where('organisation_id', $organisation->id)
+            ->where('type', 'sro_invite')
+            ->where('status', PendingInvite::STATE_PENDING)
+            // Still an invited SRO of this organisation: not replaced, not yet claimed.
+            ->whereIn('user_id', User::query()
+                ->sros()
+                ->where('organisation_id', $organisation->id)
+                ->where('unclaimed', 1)
+                ->select('id'))
+            ->latest('id')
+            ->first();
     }
 
     /**

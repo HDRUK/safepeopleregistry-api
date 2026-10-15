@@ -1121,6 +1121,71 @@ class OrganisationController extends Controller
     }
 
     /**
+     * @OA\Post(
+     *      path="/api/v1/organisations/{id}/sro/resend_invite",
+     *      operationId="organisationsResendSroInvite",
+     *      summary="Resend the invitation to an organisation's invited SRO",
+     *      description="Resends the pending SRO invitation with the code it already has. Delegates can resend while the organisation has no claimed SRO; after that only the SRO can.",
+     *      tags={"organisations"},
+     *      summary="organisations@resendSroInvite",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="organisations entry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="organisations entry ID",
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="forbidden")
+     *           ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="The organisation has no pending SRO invitation",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *           ),
+     *      )
+     * )
+     */
+    public function resendSroInvite(
+        GetOrganisation $request,
+        OrganisationMembershipService $membership,
+        int $id
+    ): JsonResponse {
+        $organisation = Organisation::findOrFail($id);
+
+        if (!Gate::allows('performSroRestrictedAction', $organisation)) {
+            return $this->ForbiddenResponse();
+        }
+
+        // auth:api and the policy's non-nullable User guarantee an authenticated user here.
+        /** @var User $actor */
+        $actor = $request->user();
+
+        if (!$membership->resendSroInvite($organisation, $actor)) {
+            return $this->NotFoundResponse();
+        }
+
+        return $this->OKResponse(null);
+    }
+
+    /**
      * @OA\Delete(
      *      path="/api/v1/organisations/{id}/delegates/{userId}",
      *      operationId="organisationsRemoveDelegate",

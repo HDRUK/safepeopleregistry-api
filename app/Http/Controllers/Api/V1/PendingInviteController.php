@@ -148,7 +148,17 @@ class PendingInviteController extends Controller
             }
         }
 
-        if ($user->user_group === User::GROUP_ORGANISATIONS) {
+        if ($user->user_group === User::GROUP_ORGANISATIONS && $pendingInvite->type === 'sro_invite' && $user->is_sro) {
+            // An SRO invitation is resent as one, not as the organisation's lead-applicant invite.
+            $sendEmail = [
+                'type' => 'SRO_INVITE',
+                'to' => $user->id,
+                'by' => $request->user()->id,
+                'organisationId' => $user->organisation_id,
+                'identifier' => 'sro_invite',
+                'inviteId' => $inviteId,
+            ];
+        } elseif ($user->user_group === User::GROUP_ORGANISATIONS) {
             if (Feature::active('SroRequirementEnabled')) {
                 $sendEmail = [
                     'type' => 'ORGANISATION',
