@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\OrganisationRole;
 use App\Models\Organisation;
 use App\Models\User;
 use App\Notifications\Organisations\OrganisationDelegates;
@@ -152,6 +153,39 @@ class OrganisationMembershipService
         }
 
         return $invitee;
+    }
+
+    /**
+     * Completes the handover when an invited SRO claims their account: every other SRO in their
+     * organisation becomes a delegate. Call it inside the claim's transaction, so the claim and
+     * the handover commit together, then pass the result to notifySroClaimed() once committed.
+     *
+     * Returns null when the claimed user is not their organisation's SRO, so nothing changes.
+     */
+    public function completeSroClaim(User $claimed): ?SroHandover
+    {
+        if ($claimed->organisationRole() !== OrganisationRole::Sro) {
+            return null;
+        }
+
+        $organisation = Organisation::findOrFail($claimed->organisation_id);
+        $members = $this->lockMembers($organisation);
+        $newSro = $members->firstWhere('id', $claimed->id);
+
+        // Named in the emails as whoever appointed them: the person who sent the invitation, or
+        // the new SRO themselves if that is no longer known.
+        $actor = User::find($claimed->invited_by) ?? $claimed;
+
+        return new SroHandover($organisation, $claimed->id, $this->handOverSro($members, $newSro), $actor);
+    }
+
+    /**
+     * Tells a replaced SRO and the organisation about an SRO who has claimed their account. The
+     * new SRO is not emailed: accepting the invitation already told them.
+     */
+    public function notifySroClaimed(SroHandover $handover): void
+    {
+        $this->notifySroHandover($handover);
     }
 
     /**
