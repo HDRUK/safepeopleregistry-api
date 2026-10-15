@@ -102,9 +102,9 @@ use Spatie\Activitylog\LogOptions;
  *      )
  * )
  *
- * @property \Illuminate\Database\Eloquent\Collection|\Illuminate\Notifications\DatabaseNotification[] $unreadNotifications
+ * @property \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $unreadNotifications
  * @property-read \App\Models\ModelState|null $modelState
- * @method \Illuminate\Notifications\DatabaseNotification[] unreadNotifications()
+ * @method \Illuminate\Database\Eloquent\Relations\MorphMany<\Illuminate\Notifications\DatabaseNotification, $this> unreadNotifications()
  * @property-read string $status
  * @property-read mixed $evaluation
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User searchViaRequest(array|null $input = null)
