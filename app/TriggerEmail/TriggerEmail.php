@@ -691,6 +691,36 @@ class TriggerEmail
 
                 break;
 
+            case 'SRO_REPLACED_USER':
+            case 'SRO_APPOINTED_USER':
+            case 'SRO_APPOINTED_ORGANISATION':
+                // Same placeholders; the identifier picks the replaced-SRO, new-SRO or organisation template.
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $organisation = Organisation::where('id', $organisationId)->first();
+                $recipient = User::where('id', $to)->first();
+                $sro = User::where('id', $for)->first();
+                $actor = User::where('id', $by)->first();
+
+                $newRecipients = [
+                    'id' => $recipient->id,
+                    'email' => $recipient->email,
+                ];
+
+                $replacements = [
+                    '[[organisation.organisation_name]]' => $organisation->organisation_name,
+                    '[[recipient_first_name]]' => $recipient->first_name,
+                    '[[sro_first_name]]' => $sro->first_name,
+                    '[[sro_last_name]]' => $sro->last_name,
+                    '[[actor_first_name]]' => $actor->first_name,
+                    '[[actor_last_name]]' => $actor->last_name,
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                ];
+
+                break;
+
             default: // Unknown type.
                 break;
         }

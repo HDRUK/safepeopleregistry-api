@@ -53,6 +53,7 @@ use App\Http\Requests\Organisations\GetFutureProject;
 use App\Http\Requests\Organisations\GetPresentProject;
 use App\Http\Requests\Organisations\DeleteOrganisation;
 use App\Http\Requests\Organisations\RemoveDelegate;
+use App\Http\Requests\Organisations\AppointSro;
 use App\Http\Requests\Organisations\OrganisationInvite;
 use App\Http\Requests\Organisations\UpdateOrganisation;
 use App\Http\Requests\Organisations\GetCountPastProject;
@@ -950,6 +951,83 @@ class OrganisationController extends Controller
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
+    }
+
+    /**
+     * @OA\Put(
+     *      path="/api/v1/organisations/{id}/sro",
+     *      operationId="organisationsAppointSro",
+     *      summary="Appoint a claimed member of an organisation as its SRO",
+     *      description="Hands the SRO role over immediately: the appointee becomes SRO, the current SRO becomes a delegate, and an invited SRO keeps their invitation but will join as a delegate. Delegates can appoint while the organisation has no claimed SRO; after that only the SRO can.",
+     *      tags={"organisations"},
+     *      summary="organisations@appointSro",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="organisations entry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="organisations entry ID",
+     *         ),
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              @OA\Property(property="user_id", type="integer", example="1", description="ID of the claimed member to appoint")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *           ),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="forbidden")
+     *           ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="The user is not a claimed member of this organisation",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *           ),
+     *      )
+     * )
+     */
+    public function appointSro(
+        AppointSro $request,
+        OrganisationMembershipService $membership,
+        int $id
+    ): JsonResponse {
+        $organisation = Organisation::findOrFail($id);
+
+        if (!Gate::allows('performSroRestrictedAction', $organisation)) {
+            return $this->ForbiddenResponse();
+        }
+
+        /** @var User $actor */
+        $actor = $request->user();
+
+        if (!$membership->appointSro($organisation, $request->integer('user_id'), $actor)) {
+            return $this->NotFoundResponse();
+        }
+
+        return $this->OKResponse(null);
     }
 
     /**
