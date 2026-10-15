@@ -171,6 +171,24 @@ class OrganisationController extends Controller
     }
 
     /**
+     * The organisation's invited SRO, with when they were last sent their invitation. Only
+     * invite_sent_at is exposed from the invitation: its code is the invitee's secret.
+     */
+    private function pendingSro(Organisation $organisation, OrganisationMembershipService $membership): ?User
+    {
+        $invite = $membership->pendingSroInvite($organisation);
+
+        if ($invite === null) {
+            return null;
+        }
+
+        $pendingSro = $invite->user()->with('departments')->first();
+        $pendingSro?->setRelation('pendingSroInvite', $invite->setVisible(['invite_sent_at']));
+
+        return $pendingSro;
+    }
+
+    /**
      * @OA\Get(
      *      path="/api/v1/organisations/{id}",
      *      operationId="organisationsShow",
@@ -199,6 +217,16 @@ class OrganisationController extends Controller
      *              @OA\Property(property="data",
      *                  ref="#/components/schemas/Organisation",
      *                  @OA\Property(property="has_claimed_sro", type="boolean", example="true"),
+     *                  @OA\Property(property="pending_sro", type="object", nullable=true,
+     *                      description="The invited SRO who has not yet claimed their account, or null",
+     *                      @OA\Property(property="id", type="integer", example="1"),
+     *                      @OA\Property(property="first_name", type="string", example="Sam"),
+     *                      @OA\Property(property="last_name", type="string", example="Senior"),
+     *                      @OA\Property(property="email", type="string", example="sam.senior@example.com"),
+     *                      @OA\Property(property="pending_sro_invite", type="object",
+     *                          @OA\Property(property="invite_sent_at", type="string", example="2026-10-15 09:00:00")
+     *                      )
+     *                  ),
      *                  @OA\Property(property="charities", type="array",
      *                      @OA\Items(
      *                          @OA\Property(property="id", type="integer", example="1"),
@@ -232,7 +260,7 @@ class OrganisationController extends Controller
      *      )
      * )
      */
-    public function show(GetOrganisation $request, int $id): JsonResponse
+    public function show(GetOrganisation $request, OrganisationMembershipService $membership, int $id): JsonResponse
     {
         $this->decisionEvaluator = new DES([DecisionModelType::ORG_VALIDATION_RULES]);
 
@@ -253,6 +281,8 @@ class OrganisationController extends Controller
             'files',
             'claimedSro.departments',
         ])->findOrFail($id)->append('has_claimed_sro');
+
+        $organisation->setRelation('pendingSro', $this->pendingSro($organisation, $membership));
 
         if ($organisation) {
             $organisation['rules'] = $this->decisionEvaluator->evaluate($organisation);
