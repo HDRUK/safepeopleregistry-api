@@ -158,7 +158,7 @@ class AppointSroTest extends TestCase
 
         $this->assertEqualsCanonicalizing([
             ['type' => 'SRO_REPLACED_USER', 'to' => $currentSro->id],
-            ['type' => 'SRO_APPOINTED_ORGANISATION', 'to' => $delegate->id],
+            ['type' => 'SRO_APPOINTED_USER', 'to' => $delegate->id],
             ['type' => 'SRO_APPOINTED_ORGANISATION', 'to' => $otherDelegate->id],
         ], $this->spawnedEmails());
 
@@ -182,9 +182,26 @@ class AppointSroTest extends TestCase
         $this->service->appointSro($this->organisation, $delegate->id, $this->actor);
 
         $this->assertEqualsCanonicalizing([
-            ['type' => 'SRO_APPOINTED_ORGANISATION', 'to' => $delegate->id],
+            ['type' => 'SRO_APPOINTED_USER', 'to' => $delegate->id],
             ['type' => 'SRO_APPOINTED_ORGANISATION', 'to' => $otherDelegate->id],
         ], $this->spawnedEmails());
+    }
+
+    public function test_a_delegate_who_appoints_themselves_is_emailed_as_the_new_sro(): void
+    {
+        TriggerEmail::spy();
+        $delegate = $this->createMember($this->organisation, isSro: false);
+
+        $this->service->appointSro($this->organisation, $delegate->id, $delegate);
+
+        TriggerEmail::shouldHaveReceived('spawnEmail')->with(Mockery::on(
+            fn (array $input) => $input['type'] === 'SRO_APPOINTED_USER'
+                && $input['to'] === $delegate->id
+                && $input['by'] === $delegate->id
+        ));
+        TriggerEmail::shouldNotHaveReceived('spawnEmail', [Mockery::on(
+            fn (array $input) => $input['type'] === 'SRO_APPOINTED_ORGANISATION' && $input['to'] === $delegate->id
+        )]);
     }
 
     public function test_replacing_only_an_invited_sro_does_not_send_a_replaced_email(): void

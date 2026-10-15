@@ -56,8 +56,9 @@ class OrganisationMembershipService
      * Makes a claimed member of the organisation its SRO, handing over immediately: the current
      * SRO becomes a delegate, and an invited SRO keeps their invitation but will join as a delegate.
      *
-     * Once committed, the organisation's claimed members are emailed about the new SRO, and a
-     * replaced claimed SRO is told separately. Re-appointing the current SRO sends nothing.
+     * Once committed, the new SRO and a replaced claimed SRO each get their own email, and the
+     * organisation's other claimed members are told who the new SRO is. Re-appointing the
+     * current SRO sends nothing.
      *
      * Returns false, changing nothing, when the user is not a claimed member of the organisation.
      */
@@ -131,12 +132,21 @@ class OrganisationMembershipService
             ]);
         }
 
-        // The replaced SRO has had their own email.
+        TriggerEmail::spawnEmail([
+            'type' => 'SRO_APPOINTED_USER',
+            'identifier' => 'sro_appointed_user',
+            'to' => $sroId,
+            'by' => $actor->id,
+            'for' => $sroId,
+            'organisationId' => $organisation->id,
+        ]);
+
+        // The new SRO and the replaced SRO have had their own emails.
         $recipients = User::query()
             ->where('organisation_id', $organisation->id)
             ->where('user_group', User::GROUP_ORGANISATIONS)
             ->where('unclaimed', 0)
-            ->when($replacedSroId !== null, fn ($query) => $query->whereKeyNot($replacedSroId))
+            ->whereKeyNot(array_filter([$sroId, $replacedSroId]))
             ->pluck('id');
 
         foreach ($recipients as $recipientId) {
