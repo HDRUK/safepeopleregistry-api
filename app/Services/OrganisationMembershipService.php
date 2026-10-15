@@ -180,11 +180,20 @@ class OrganisationMembershipService
     }
 
     /**
-     * Tells a replaced SRO and the organisation about an SRO who has claimed their account. The
-     * new SRO is not emailed: accepting the invitation already told them.
+     * Confirms to an SRO who has claimed their account that they now hold the role, for their
+     * records, and tells a replaced SRO and the organisation.
      */
     public function notifySroClaimed(SroHandover $handover): void
     {
+        TriggerEmail::spawnEmail([
+            'type' => 'SRO_CLAIMED_USER',
+            'identifier' => 'sro_claimed_user',
+            'to' => $handover->newSroId,
+            'by' => $handover->actor->id,
+            'for' => $handover->newSroId,
+            'organisationId' => $handover->organisation->id,
+        ]);
+
         $this->notifySroHandover($handover);
     }
 
@@ -256,7 +265,7 @@ class OrganisationMembershipService
 
     /**
      * Tells a replaced claimed SRO, and the organisation's other claimed members, who the new SRO is.
-     * The new SRO is not included: whether they need telling depends on how they got the role.
+     * The new SRO is emailed separately by the caller, in words that fit how they got the role.
      */
     private function notifySroHandover(SroHandover $handover): void
     {

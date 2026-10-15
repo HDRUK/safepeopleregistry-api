@@ -140,7 +140,7 @@ class SroClaimHandoverTest extends TestCase
         $this->assertSame($this->invitedSro->id, $handover->actor->id);
     }
 
-    public function test_claiming_via_the_invite_code_hands_over_and_emails_the_organisation(): void
+    public function test_claiming_via_the_invite_code_hands_over_and_emails_everyone_affected(): void
     {
         $previousSro = $this->createMember(isSro: true);
 
@@ -156,8 +156,8 @@ class SroClaimHandoverTest extends TestCase
             return true;
         });
 
-        // The new SRO is not emailed: accepting the invitation already told them.
         $this->assertEqualsCanonicalizing([
+            ['type' => 'SRO_CLAIMED_USER', 'to' => $this->invitedSro->id, 'by' => $this->inviter->id],
             ['type' => 'SRO_REPLACED_USER', 'to' => $previousSro->id, 'by' => $this->inviter->id],
             ['type' => 'SRO_APPOINTED_ORGANISATION', 'to' => $this->inviter->id, 'by' => $this->inviter->id],
         ], $emails);
