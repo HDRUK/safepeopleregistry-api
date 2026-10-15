@@ -113,6 +113,17 @@ class AppointSroTest extends TestCase
         $this->assertTrue($currentSro->fresh()->is_sro);
     }
 
+    public function test_re_appointing_the_current_sro_leaves_an_invited_sro_alone(): void
+    {
+        $currentSro = $this->createMember($this->organisation, isSro: true);
+        $invitedSro = $this->createMember($this->organisation, isSro: true, unclaimed: 1);
+
+        $this->service->appointSro($this->organisation, $currentSro->id, $this->actor);
+
+        $this->assertTrue($invitedSro->fresh()->is_sro);
+        $this->assertSame(0, $invitedSro->fresh()->is_delegate);
+    }
+
     public static function usersWhoCannotBeAppointed(): array
     {
         return [
