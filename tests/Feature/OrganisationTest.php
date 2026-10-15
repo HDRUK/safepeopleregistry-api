@@ -1213,7 +1213,8 @@ class OrganisationTest extends TestCase
                 ],
             );
 
-        $response->assertStatus(400);
+        $response->assertStatus(403);
+        $this->assertDatabaseMissing('users', ['email' => $email]);
     }
 
     public function test_the_application_can_invite_a_user_for_organisations_by_custodian(): void

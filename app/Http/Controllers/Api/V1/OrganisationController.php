@@ -1592,6 +1592,11 @@ class OrganisationController extends Controller
     public function inviteUser(OrganisationInviteUser $request, int $id): JsonResponse
     {
         try {
+            // Checked before anything else, so outsiders cannot use this to probe which emails exist.
+            if (!Gate::allows('inviteUser', Organisation::findOrFail($id))) {
+                return $this->ForbiddenResponse();
+            }
+
             $input = $request->all();
             if (User::where("email", $input['email'])->exists()) {
                 return $this->ConflictResponse();
@@ -1599,9 +1604,6 @@ class OrganisationController extends Controller
 
             $loggedInUserId = $request->user()->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();
-            if ($loggedInUser->user_group !== User::GROUP_ORGANISATIONS && $loggedInUser->user_group !== User::GROUP_ADMINS) {
-                return $this->BadRequestResponse('Non-organisation users cannot invite members via this endpoint.');
-            }
 
             $unclaimedUser = RMC::createUnclaimedUser([
                 'firstname' => $input['first_name'],
