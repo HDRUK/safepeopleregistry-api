@@ -132,12 +132,33 @@ class ResendSroInviteTest extends TestCase
         TriggerEmail::shouldNotHaveReceived('spawnEmail');
     }
 
+    private function adminResend()
+    {
+        return $this->actingAs($this->admin)
+            ->json('POST', "/api/v1/pending_invites/{$this->invite->id}/resend_invite");
+    }
+
     public function test_an_admin_resending_an_sro_invitation_sends_it_as_one(): void
     {
-        $this->actingAs($this->admin)
-            ->json('POST', "/api/v1/pending_invites/{$this->invite->id}/resend_invite")
-            ->assertStatus(200);
+        $this->adminResend()->assertStatus(200);
 
         $this->assertSroInviteResent($this->admin);
+        $this->assertTrue(Carbon::parse($this->invite->fresh()->invite_sent_at)->isToday());
+    }
+
+    public function test_an_admin_resending_to_a_replaced_sro_invitee_invites_them_as_a_delegate(): void
+    {
+        $this->invitedSro->forceFill(['is_sro' => false, 'is_delegate' => 1])->save();
+
+        $this->adminResend()->assertStatus(200);
+
+        TriggerEmail::shouldHaveReceived('spawnEmail')->once()->with(Mockery::on(
+            fn (array $input) => $input['type'] === 'USER_DELEGATE'
+                && $input['to'] === $this->invitedSro->id
+                && $input['by'] === $this->organisation->id
+                && $input['identifier'] === 'delegate_invite'
+                && $input['inviteId'] === $this->invite->id
+        ));
+        $this->assertTrue(Carbon::parse($this->invite->fresh()->invite_sent_at)->isToday());
     }
 }

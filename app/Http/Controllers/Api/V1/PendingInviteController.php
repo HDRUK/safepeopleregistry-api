@@ -148,16 +148,27 @@ class PendingInviteController extends Controller
             }
         }
 
-        if ($user->user_group === User::GROUP_ORGANISATIONS && $pendingInvite->type === 'sro_invite' && $user->is_sro) {
-            // An SRO invitation is resent as one, not as the organisation's lead-applicant invite.
-            $sendEmail = [
-                'type' => 'SRO_INVITE',
-                'to' => $user->id,
-                'by' => $request->user()->id,
-                'organisationId' => $user->organisation_id,
-                'identifier' => 'sro_invite',
-                'inviteId' => $inviteId,
-            ];
+        if ($user->user_group === User::GROUP_ORGANISATIONS && $pendingInvite->type === 'sro_invite') {
+            if ($user->is_sro) {
+                // An SRO invitation is resent as one, not as the organisation's lead-applicant invite.
+                $sendEmail = [
+                    'type' => 'SRO_INVITE',
+                    'to' => $user->id,
+                    'by' => $request->user()->id,
+                    'organisationId' => $user->organisation_id,
+                    'identifier' => 'sro_invite',
+                    'inviteId' => $inviteId,
+                ];
+            } else {
+                // Someone else became SRO, so this invitee now joins as a delegate and is invited as one.
+                $sendEmail = [
+                    'type' => 'USER_DELEGATE',
+                    'to' => $user->id,
+                    'by' => $user->organisation_id,
+                    'identifier' => 'delegate_invite',
+                    'inviteId' => $inviteId,
+                ];
+            }
         } elseif ($user->user_group === User::GROUP_ORGANISATIONS) {
             if (Feature::active('SroRequirementEnabled')) {
                 $sendEmail = [
@@ -187,7 +198,12 @@ class PendingInviteController extends Controller
 
         TriggerEmail::spawnEmail($sendEmail);
 
-        $pendingInvite->updated_at = now();
+        $now = now();
+        $pendingInvite->updated_at = $now;
+        if ($pendingInvite->type === 'sro_invite') {
+            // GET /organisations/{id} shows the organisation when an SRO invitation was last sent.
+            $pendingInvite->invite_sent_at = $now;
+        }
         $pendingInvite->save();
 
         return $this->OKResponse('Email invite resent');
