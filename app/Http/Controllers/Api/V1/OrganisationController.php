@@ -54,6 +54,7 @@ use App\Http\Requests\Organisations\GetPresentProject;
 use App\Http\Requests\Organisations\DeleteOrganisation;
 use App\Http\Requests\Organisations\RemoveDelegate;
 use App\Http\Requests\Organisations\AppointSro;
+use App\Http\Requests\Organisations\InviteSro;
 use App\Http\Requests\Organisations\OrganisationInvite;
 use App\Http\Requests\Organisations\UpdateOrganisation;
 use App\Http\Requests\Organisations\GetCountPastProject;
@@ -1028,6 +1029,95 @@ class OrganisationController extends Controller
         }
 
         return $this->OKResponse(null);
+    }
+
+    /**
+     * @OA\Post(
+     *      path="/api/v1/organisations/{id}/sro/invite",
+     *      operationId="organisationsInviteSro",
+     *      summary="Invite someone new to be an organisation's SRO",
+     *      description="Creates an invited (unclaimed) SRO and emails them an invitation. The current SRO keeps the role until the invitee claims their account; any other invited SRO keeps their invitation but will join as a delegate. Delegates can invite while the organisation has no claimed SRO; after that only the SRO can.",
+     *      tags={"organisations"},
+     *      summary="organisations@inviteSro",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="organisations entry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="organisations entry ID",
+     *         ),
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              @OA\Property(property="first_name", type="string", example="Jane"),
+     *              @OA\Property(property="last_name", type="string", example="Doe"),
+     *              @OA\Property(property="email", type="string", example="jane.doe@example.com")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Created",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="integer", example="1", description="ID of the invited user")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *           ),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="forbidden")
+     *           ),
+     *      ),
+     *      @OA\Response(
+     *          response=409,
+     *          description="The email already belongs to a user; appoint an existing member with PUT /organisations/{id}/sro instead",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="conflict")
+     *           ),
+     *      )
+     * )
+     */
+    public function inviteSro(
+        InviteSro $request,
+        OrganisationMembershipService $membership,
+        int $id
+    ): JsonResponse {
+        $organisation = Organisation::findOrFail($id);
+
+        if (!Gate::allows('performSroRestrictedAction', $organisation)) {
+            return $this->ForbiddenResponse();
+        }
+
+        // auth:api and the policy's non-nullable User guarantee an authenticated user here.
+        /** @var User $actor */
+        $actor = $request->user();
+
+        $invitee = $membership->inviteSro(
+            $organisation,
+            $request->string('first_name')->toString(),
+            $request->string('last_name')->toString(),
+            $request->string('email')->toString(),
+            $actor
+        );
+
+        if ($invitee === null) {
+            return $this->ConflictResponse();
+        }
+
+        return $this->CreatedResponse($invitee->id);
     }
 
     /**

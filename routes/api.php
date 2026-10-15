@@ -441,6 +441,7 @@ Route::middleware('auth:api')
             Route::put('/{id}', 'update');
             Route::put('/{id}/approved', 'updateApproved');
             Route::put('/{id}/sro', 'appointSro');
+            Route::post('/{id}/sro/invite', 'inviteSro');
 
             // Delete
             Route::delete('/{id}', 'destroy');

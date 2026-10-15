@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Organisation;
 use App\Models\User;
 use App\Notifications\Organisations\OrganisationDelegates;
+use App\RegistryManagementController\RegistryManagementController as RMC;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use TriggerEmail;
@@ -117,6 +118,68 @@ class OrganisationMembershipService
         }
 
         return true;
+    }
+
+    /**
+     * Invites someone new to be the organisation's SRO. The current SRO keeps the role until the
+     * invitee claims their account; any other invited SRO keeps their invitation but will join
+     * as a delegate.
+     *
+     * Returns null, creating nothing, when the email already belongs to a user; an existing
+     * member should be appointed with appointSro() instead.
+     */
+    public function inviteSro(
+        Organisation $organisation,
+        string $firstName,
+        string $lastName,
+        string $email,
+        User $actor
+    ): ?User {
+        $invitee = DB::transaction(function () use ($organisation, $firstName, $lastName, $email, $actor): ?User {
+            if (User::where('email', $email)->exists()) {
+                return null;
+            }
+
+            // Locked so concurrent invitations cannot leave two invited SROs.
+            $invitedSros = User::query()
+                ->where('organisation_id', $organisation->id)
+                ->where('user_group', User::GROUP_ORGANISATIONS)
+                ->where('is_sro', 1)
+                ->where('unclaimed', 1)
+                ->lockForUpdate()
+                ->get();
+
+            // Saved one by one, not mass updated, so observers and the activity log see each change.
+            foreach ($invitedSros as $invitedSro) {
+                $invitedSro->is_sro = false;
+                $invitedSro->is_delegate = 1;
+                $invitedSro->save();
+            }
+
+            return RMC::createUnclaimedUser([
+                'firstname' => $firstName,
+                'lastname' => $lastName,
+                'email' => $email,
+                'user_group' => User::GROUP_ORGANISATIONS,
+                'organisation_id' => $organisation->id,
+                'is_sro' => 1,
+                'is_delegate' => 0,
+                'invited_by' => $actor->id,
+            ], strictCreate: true);
+        });
+
+        // Email only once the invitee has been committed.
+        if ($invitee !== null) {
+            TriggerEmail::spawnEmail([
+                'type' => 'SRO_INVITE',
+                'identifier' => 'sro_invite',
+                'to' => $invitee->id,
+                'by' => $actor->id,
+                'organisationId' => $organisation->id,
+            ]);
+        }
+
+        return $invitee;
     }
 
     private function notifySroAppointed(Organisation $organisation, int $sroId, ?int $replacedSroId, User $actor): void
