@@ -1347,7 +1347,7 @@ class EmailTemplatesSeeder extends Seeder
           ],
           [
             'identifier' => 'organisation_invite_by_custodian',
-            'subject' => 'Safe People Registry | Organisation invite from [[custodian.name]] on behalf of [[user.name]]',
+            'subject' => 'Safe People Registry | Organisation invite from [[inviter_name]] on behalf of [[custodian_name]]',
             'body' => '<mjml>
                         ' . $this->mjmlHead . '
                         <mj-body background-color="#f6dff1" width="600px" >
@@ -1360,7 +1360,7 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="20px 0px 20px 0px">
                                   [[organisation.organisation_name]]
                                   <div><br></div>
-                                  You\'ve been invited to sign-up as a trusted Organisation, for the [[env(APP_NAME)]] by [[custodian.name]].
+                                  You\'ve been invited to sign-up as a trusted Organisation, for the [[env(APP_NAME)]] by [[inviter_name]].
                                   <div><br></div>
                                   ' . $this->whatIsBlurb . '
                                   <div><br></div>
@@ -1395,7 +1395,7 @@ class EmailTemplatesSeeder extends Seeder
           ],
           [
             'identifier' => 'organisation_invite_by_user',
-            'subject' => 'Safe People Registry | Organisation invite from [[user.name]]',
+            'subject' => 'Safe People Registry | Organisation invite from [[inviter_name]]',
             'body' => '<mjml>
                         ' . $this->mjmlHead . '
                         <mj-body background-color="#f6dff1" width="600px" >
@@ -1408,7 +1408,7 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="20px 0px 20px 0px">
                                   [[organisation.organisation_name]]
                                   <div><br></div>
-                                  You\'ve been invited to sign-up as a trusted Organisation, for the [[env(APP_NAME)]] by [[user.name]].
+                                  You\'ve been invited to sign-up as a trusted Organisation, for the [[env(APP_NAME)]] by [[inviter_name]].
                                   <div><br></div>
                                   ' . $this->whatIsBlurb . '
                                   <div><br></div>
