@@ -593,7 +593,7 @@ class TriggerEmail
             case 'ORGANISATION_INVITE_BY_CUSTODIAN':
                 $template = EmailTemplate::where('identifier', $identifier)->first();
                 $organisation = Organisation::where('id', $organisationId)->first();
-                $inviter = User::with('custodian_user.custodian')->where('id', $by)->first();
+                $inviter = User::with('custodian_user.custodian')->where('id', $by)->firstOrFail();
                 $custodian = $inviter->custodian_user->custodian
                     ?? throw (new ModelNotFoundException)->setModel(Custodian::class);
 
@@ -621,7 +621,7 @@ class TriggerEmail
             case 'ORGANISATION_INVITE_BY_USER':
                 $template = EmailTemplate::where('identifier', $identifier)->first();
                 $organisation = Organisation::where('id', $organisationId)->first();
-                $inviter = User::where('id', $by)->first();
+                $inviter = User::where('id', $by)->firstOrFail();
 
                 $newRecipients = [
                     'id' => 0,
