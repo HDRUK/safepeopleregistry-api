@@ -691,10 +691,50 @@ class TriggerEmail
 
                 break;
 
+            case 'SRO_INVITE':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $organisation = Organisation::where('id', $organisationId)->first();
+                $invitee = User::where('id', $to)->first();
+                $actor = User::where('id', $by)->first();
+
+                $newRecipients = [
+                    'id' => $invitee->id,
+                    'email' => $invitee->email,
+                ];
+
+                $replacements = [
+                    '[[organisation.organisation_name]]' => $organisation->organisation_name,
+                    '[[recipient_first_name]]' => $invitee->first_name,
+                    '[[actor_first_name]]' => $actor->first_name,
+                    '[[actor_last_name]]' => $actor->last_name,
+                    '[[inviteCode]]' => $inviteCode,
+                    '[[registration.email]]' => urlencode($invitee->email),
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                ];
+
+                // A resend passes inviteId and reuses the code already stored on that invite.
+                if (!$inviteId) {
+                    PendingInvite::create([
+                        'user_id' => $invitee->id,
+                        'organisation_id' => $organisation->id,
+                        'invite_sent_at' => Carbon::now(),
+                        'status' => PendingInvite::STATE_PENDING,
+                        'invite_code' => $inviteCode,
+                        'type' => 'sro_invite',
+                    ]);
+                }
+
+                break;
+
             case 'SRO_REPLACED_USER':
             case 'SRO_APPOINTED_USER':
+            case 'SRO_CLAIMED_USER':
             case 'SRO_APPOINTED_ORGANISATION':
-                // Same placeholders; the identifier picks the replaced-SRO, new-SRO or organisation template.
+                // Same placeholders; the identifier picks which SRO template is sent.
                 $template = EmailTemplate::where('identifier', $identifier)->first();
                 $organisation = Organisation::where('id', $organisationId)->first();
                 $recipient = User::where('id', $to)->first();

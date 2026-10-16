@@ -2,9 +2,14 @@
 
 namespace App\Services;
 
+use App\Enums\OrganisationRole;
+use Carbon\Carbon;
 use App\Models\Organisation;
+use App\Models\PendingInvite;
 use App\Models\User;
 use App\Notifications\Organisations\OrganisationDelegates;
+use App\RegistryManagementController\RegistryManagementController as RMC;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use TriggerEmail;
@@ -58,105 +63,292 @@ class OrganisationMembershipService
      *
      * Once committed, the new SRO and a replaced claimed SRO each get their own email, and the
      * organisation's other claimed members are told who the new SRO is. Re-appointing the
-     * current SRO sends nothing.
+     * current SRO changes nothing and sends nothing.
      *
      * Returns false, changing nothing, when the user is not a claimed member of the organisation.
      */
     public function appointSro(Organisation $organisation, int $userId, User $actor): bool
     {
-        /** @var array{sroChanged: bool, replacedSroId: ?int}|null $outcome */
-        $outcome = DB::transaction(function () use ($organisation, $userId): ?array {
-            // Locked so concurrent appointments cannot leave the organisation with two SROs.
-            $members = User::query()
-                ->where('organisation_id', $organisation->id)
-                ->where('user_group', User::GROUP_ORGANISATIONS)
-                ->lockForUpdate()
-                ->get();
+        /** @var SroHandover|false|null $handover false: refused; null: already the SRO, nothing changed. */
+        $handover = DB::transaction(function () use ($organisation, $userId, $actor): SroHandover|false|null {
+            $members = $this->lockMembers($organisation);
 
             $appointee = $members->first(
                 fn (User $member) => $member->id === $userId && !$member->unclaimed
             );
 
             if ($appointee === null) {
+                return false;
+            }
+
+            // Re-appointing the current SRO changes nothing, including any invited SRO.
+            if ($appointee->is_sro) {
                 return null;
             }
 
-            $sroChanged = !$appointee->is_sro;
-            $replacedSroId = null;
-
-            // Saved one by one, not mass updated, so observers and the activity log see each change.
-            foreach ($members as $member) {
-                if ($member->id === $appointee->id || !$member->is_sro) {
-                    continue;
-                }
-
-                if (!$member->unclaimed) {
-                    $replacedSroId = $member->id;
-                }
-
-                $member->is_sro = false;
-                $member->is_delegate = 1;
-                $member->save();
-            }
-
-            // is_delegate is legacy but still read (e.g. SsoTenantController), so keep it consistent.
-            $appointee->is_sro = true;
-            $appointee->is_delegate = 0;
-            $appointee->save();
-
-            return ['sroChanged' => $sroChanged, 'replacedSroId' => $replacedSroId];
+            return new SroHandover(
+                $organisation,
+                $appointee->id,
+                $this->handOverSro($members, $appointee),
+                $actor
+            );
         });
 
-        if ($outcome === null) {
+        if ($handover === false) {
             return false;
         }
 
         // Notify only once the appointment has committed.
-        if ($outcome['sroChanged']) {
-            $this->notifySroAppointed($organisation, $userId, $outcome['replacedSroId'], $actor);
+        if ($handover !== null) {
+            $this->notifyNewSro($handover);
+            $this->notifySroHandover($handover);
         }
 
         return true;
     }
 
-    private function notifySroAppointed(Organisation $organisation, int $sroId, ?int $replacedSroId, User $actor): void
-    {
-        if ($replacedSroId !== null) {
+    /**
+     * Invites someone new to be the organisation's SRO. The current SRO keeps the role until the
+     * invitee claims their account; any other invited SRO keeps their invitation but will join
+     * as a delegate.
+     *
+     * Returns null, creating nothing, when the email already belongs to a user; an existing
+     * member should be appointed with appointSro() instead.
+     */
+    public function inviteSro(
+        Organisation $organisation,
+        string $firstName,
+        string $lastName,
+        string $email,
+        User $actor
+    ): ?User {
+        $invitee = DB::transaction(function () use ($organisation, $firstName, $lastName, $email, $actor): ?User {
+            if (User::where('email', $email)->exists()) {
+                return null;
+            }
+
+            $this->lockMembers($organisation)
+                ->filter(fn (User $member) => $member->is_sro && $member->unclaimed)
+                ->each(fn (User $invitedSro) => $this->demoteToDelegate($invitedSro));
+
+            return RMC::createUnclaimedUser([
+                'firstname' => $firstName,
+                'lastname' => $lastName,
+                'email' => $email,
+                'user_group' => User::GROUP_ORGANISATIONS,
+                'organisation_id' => $organisation->id,
+                'is_sro' => 1,
+                'is_delegate' => 0,
+                'invited_by' => $actor->id,
+            ], strictCreate: true);
+        });
+
+        // Email only once the invitee has been committed.
+        if ($invitee !== null) {
             TriggerEmail::spawnEmail([
-                'type' => 'SRO_REPLACED_USER',
-                'identifier' => 'sro_replaced_user',
-                'to' => $replacedSroId,
+                'type' => 'SRO_INVITE',
+                'identifier' => 'sro_invite',
+                'to' => $invitee->id,
                 'by' => $actor->id,
-                'for' => $sroId,
                 'organisationId' => $organisation->id,
             ]);
         }
 
+        return $invitee;
+    }
+
+    /**
+     * Resends the organisation's pending SRO invitation, with the code it already has.
+     *
+     * Returns false when there is nothing to resend: no pending SRO invitation, or its invitee
+     * has since been replaced and will now join as a delegate.
+     */
+    public function resendSroInvite(Organisation $organisation, User $actor): bool
+    {
+        $invite = $this->pendingSroInvite($organisation);
+
+        if ($invite === null) {
+            return false;
+        }
+
+        // So the invite shows when it was last sent.
+        $invite->invite_sent_at = Carbon::now();
+        $invite->save();
+
+        TriggerEmail::spawnEmail([
+            'type' => 'SRO_INVITE',
+            'identifier' => 'sro_invite',
+            'to' => $invite->user_id,
+            'by' => $actor->id,
+            'organisationId' => $organisation->id,
+            'inviteId' => $invite->id,
+        ]);
+
+        return true;
+    }
+
+    /**
+     * The pending invitation of the organisation's invited SRO, if there is one.
+     */
+    public function pendingSroInvite(Organisation $organisation): ?PendingInvite
+    {
+        return PendingInvite::query()
+            ->where('organisation_id', $organisation->id)
+            ->where('type', 'sro_invite')
+            ->where('status', PendingInvite::STATE_PENDING)
+            // Still an invited SRO of this organisation: not replaced, not yet claimed.
+            ->whereIn('user_id', User::query()
+                ->sros()
+                ->where('organisation_id', $organisation->id)
+                ->where('unclaimed', 1)
+                ->select('id'))
+            ->latest('id')
+            ->first();
+    }
+
+    /**
+     * Completes the handover when an invited SRO claims their account: every other SRO in their
+     * organisation becomes a delegate. Call it inside the claim's transaction, so the claim and
+     * the handover commit together, then pass the result to notifySroClaimed() once committed.
+     *
+     * Returns null when the claimed user is not their organisation's SRO, so nothing changes.
+     */
+    public function completeSroClaim(User $claimed): ?SroHandover
+    {
+        if ($claimed->organisationRole() !== OrganisationRole::Sro) {
+            return null;
+        }
+
+        $organisation = Organisation::findOrFail($claimed->organisation_id);
+        $members = $this->lockMembers($organisation);
+        $newSro = $members->firstWhere('id', $claimed->id);
+
+        // Named in the emails as whoever appointed them: the person who sent the invitation, or
+        // the new SRO themselves if that is no longer known.
+        $actor = User::find($claimed->invited_by) ?? $claimed;
+
+        return new SroHandover($organisation, $claimed->id, $this->handOverSro($members, $newSro), $actor);
+    }
+
+    /**
+     * Confirms to an SRO who has claimed their account that they now hold the role, for their
+     * records, and tells a replaced SRO and the organisation.
+     */
+    public function notifySroClaimed(SroHandover $handover): void
+    {
+        TriggerEmail::spawnEmail([
+            'type' => 'SRO_CLAIMED_USER',
+            'identifier' => 'sro_claimed_user',
+            'to' => $handover->newSroId,
+            'by' => $handover->actor->id,
+            'for' => $handover->newSroId,
+            'organisationId' => $handover->organisation->id,
+        ]);
+
+        $this->notifySroHandover($handover);
+    }
+
+    /**
+     * The organisation's users, locked so concurrent SRO changes cannot leave two SROs.
+     *
+     * @return Collection<int, User>
+     */
+    private function lockMembers(Organisation $organisation): Collection
+    {
+        return User::query()
+            ->where('organisation_id', $organisation->id)
+            ->where('user_group', User::GROUP_ORGANISATIONS)
+            ->lockForUpdate()
+            ->get();
+    }
+
+    /**
+     * Makes $newSro the only SRO among $members: everyone else with the role becomes a delegate,
+     * and an invited SRO keeps their invitation but will join as a delegate.
+     *
+     * Returns the claimed SRO who lost the role, if any.
+     *
+     * @param Collection<int, User> $members
+     */
+    private function handOverSro(Collection $members, User $newSro): ?int
+    {
+        $replacedSroId = null;
+
+        foreach ($members as $member) {
+            if ($member->id === $newSro->id || !$member->is_sro) {
+                continue;
+            }
+
+            if (!$member->unclaimed) {
+                $replacedSroId = $member->id;
+            }
+
+            $this->demoteToDelegate($member);
+        }
+
+        // is_delegate is legacy but still read (e.g. SsoTenantController), so keep it consistent.
+        $newSro->is_sro = true;
+        $newSro->is_delegate = 0;
+        $newSro->save();
+
+        return $replacedSroId;
+    }
+
+    // Saved, not mass updated, so observers and the activity log see the change.
+    private function demoteToDelegate(User $member): void
+    {
+        $member->is_sro = false;
+        $member->is_delegate = 1;
+        $member->save();
+    }
+
+    private function notifyNewSro(SroHandover $handover): void
+    {
         TriggerEmail::spawnEmail([
             'type' => 'SRO_APPOINTED_USER',
             'identifier' => 'sro_appointed_user',
-            'to' => $sroId,
-            'by' => $actor->id,
-            'for' => $sroId,
-            'organisationId' => $organisation->id,
+            'to' => $handover->newSroId,
+            'by' => $handover->actor->id,
+            'for' => $handover->newSroId,
+            'organisationId' => $handover->organisation->id,
         ]);
+    }
 
-        // The new SRO and the replaced SRO have had their own emails.
+    /**
+     * Tells a replaced claimed SRO, and the organisation's other claimed members, who the new SRO is.
+     * The new SRO is emailed separately by the caller, in words that fit how they got the role.
+     */
+    private function notifySroHandover(SroHandover $handover): void
+    {
+        $email = [
+            'by' => $handover->actor->id,
+            'for' => $handover->newSroId,
+            'organisationId' => $handover->organisation->id,
+        ];
+
+        if ($handover->replacedSroId !== null) {
+            TriggerEmail::spawnEmail([
+                ...$email,
+                'type' => 'SRO_REPLACED_USER',
+                'identifier' => 'sro_replaced_user',
+                'to' => $handover->replacedSroId,
+            ]);
+        }
+
+        // The new SRO and the replaced SRO are emailed separately, if at all.
         $recipients = User::query()
-            ->where('organisation_id', $organisation->id)
+            ->where('organisation_id', $handover->organisation->id)
             ->where('user_group', User::GROUP_ORGANISATIONS)
             ->where('unclaimed', 0)
-            ->whereKeyNot(array_filter([$sroId, $replacedSroId]))
+            ->whereKeyNot(array_filter([$handover->newSroId, $handover->replacedSroId]))
             ->pluck('id');
 
         foreach ($recipients as $recipientId) {
             TriggerEmail::spawnEmail([
+                ...$email,
                 'type' => 'SRO_APPOINTED_ORGANISATION',
                 'identifier' => 'sro_appointed_organisation',
                 'to' => $recipientId,
-                'by' => $actor->id,
-                'for' => $sroId,
-                'organisationId' => $organisation->id,
             ]);
         }
     }

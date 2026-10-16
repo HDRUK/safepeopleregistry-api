@@ -34,6 +34,7 @@ class SroAppointmentEmailsTest extends TestCase
         'sro_replaced_user' => ['[[sro_first_name]]', '[[sro_last_name]]'],
         'sro_appointed_organisation' => ['[[sro_first_name]]', '[[sro_last_name]]'],
         'sro_appointed_user' => [],
+        'sro_claimed_user' => [],
     ];
 
     private Organisation $organisation;
@@ -142,6 +143,17 @@ class SroAppointmentEmailsTest extends TestCase
             'Hello Riley,',
             'You have been appointed as the Senior Responsible Officer (SRO) for <b>Example Research Institute</b>',
             'by Alex Actor',
+            'SRO declaration',
+        ]);
+    }
+
+    public function test_an_sro_who_has_claimed_their_account_gets_a_confirmation(): void
+    {
+        $this->sendEmail('SRO_CLAIMED_USER', 'sro_claimed_user', sro: $this->recipient);
+
+        $this->assertRenderedEmail([
+            'Hello Riley,',
+            'This confirms that you have accepted the invitation from Alex Actor and are now the Senior Responsible Officer (SRO) for <b>Example Research Institute</b>',
             'SRO declaration',
         ]);
     }

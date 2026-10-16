@@ -54,6 +54,7 @@ use App\Http\Requests\Organisations\GetPresentProject;
 use App\Http\Requests\Organisations\DeleteOrganisation;
 use App\Http\Requests\Organisations\RemoveDelegate;
 use App\Http\Requests\Organisations\AppointSro;
+use App\Http\Requests\Organisations\InviteSro;
 use App\Http\Requests\Organisations\OrganisationInvite;
 use App\Http\Requests\Organisations\UpdateOrganisation;
 use App\Http\Requests\Organisations\GetCountPastProject;
@@ -170,6 +171,24 @@ class OrganisationController extends Controller
     }
 
     /**
+     * The organisation's invited SRO, with when they were last sent their invitation. Only
+     * invite_sent_at is exposed from the invitation: its code is the invitee's secret.
+     */
+    private function pendingSro(Organisation $organisation, OrganisationMembershipService $membership): ?User
+    {
+        $invite = $membership->pendingSroInvite($organisation);
+
+        if ($invite === null) {
+            return null;
+        }
+
+        $pendingSro = $invite->user()->with('departments')->first();
+        $pendingSro?->setRelation('pendingSroInvite', $invite->setVisible(['invite_sent_at']));
+
+        return $pendingSro;
+    }
+
+    /**
      * @OA\Get(
      *      path="/api/v1/organisations/{id}",
      *      operationId="organisationsShow",
@@ -198,6 +217,16 @@ class OrganisationController extends Controller
      *              @OA\Property(property="data",
      *                  ref="#/components/schemas/Organisation",
      *                  @OA\Property(property="has_claimed_sro", type="boolean", example="true"),
+     *                  @OA\Property(property="pending_sro", type="object", nullable=true,
+     *                      description="The invited SRO who has not yet claimed their account, or null",
+     *                      @OA\Property(property="id", type="integer", example="1"),
+     *                      @OA\Property(property="first_name", type="string", example="Sam"),
+     *                      @OA\Property(property="last_name", type="string", example="Senior"),
+     *                      @OA\Property(property="email", type="string", example="sam.senior@example.com"),
+     *                      @OA\Property(property="pending_sro_invite", type="object",
+     *                          @OA\Property(property="invite_sent_at", type="string", example="2026-10-15 09:00:00")
+     *                      )
+     *                  ),
      *                  @OA\Property(property="charities", type="array",
      *                      @OA\Items(
      *                          @OA\Property(property="id", type="integer", example="1"),
@@ -231,7 +260,7 @@ class OrganisationController extends Controller
      *      )
      * )
      */
-    public function show(GetOrganisation $request, int $id): JsonResponse
+    public function show(GetOrganisation $request, OrganisationMembershipService $membership, int $id): JsonResponse
     {
         $this->decisionEvaluator = new DES([DecisionModelType::ORG_VALIDATION_RULES]);
 
@@ -252,6 +281,8 @@ class OrganisationController extends Controller
             'files',
             'claimedSro.departments',
         ])->findOrFail($id)->append('has_claimed_sro');
+
+        $organisation->setRelation('pendingSro', $this->pendingSro($organisation, $membership));
 
         if ($organisation) {
             $organisation['rules'] = $this->decisionEvaluator->evaluate($organisation);
@@ -1031,6 +1062,160 @@ class OrganisationController extends Controller
     }
 
     /**
+     * @OA\Post(
+     *      path="/api/v1/organisations/{id}/sro/invite",
+     *      operationId="organisationsInviteSro",
+     *      summary="Invite someone new to be an organisation's SRO",
+     *      description="Creates an invited (unclaimed) SRO and emails them an invitation. The current SRO keeps the role until the invitee claims their account; any other invited SRO keeps their invitation but will join as a delegate. Delegates can invite while the organisation has no claimed SRO; after that only the SRO can.",
+     *      tags={"organisations"},
+     *      summary="organisations@inviteSro",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="organisations entry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="organisations entry ID",
+     *         ),
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              @OA\Property(property="first_name", type="string", example="Jane"),
+     *              @OA\Property(property="last_name", type="string", example="Doe"),
+     *              @OA\Property(property="email", type="string", example="jane.doe@example.com")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Created",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="integer", example="1", description="ID of the invited user")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *           ),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="forbidden")
+     *           ),
+     *      ),
+     *      @OA\Response(
+     *          response=409,
+     *          description="The email already belongs to a user; appoint an existing member with PUT /organisations/{id}/sro instead",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="conflict")
+     *           ),
+     *      )
+     * )
+     */
+    public function inviteSro(
+        InviteSro $request,
+        OrganisationMembershipService $membership,
+        int $id
+    ): JsonResponse {
+        $organisation = Organisation::findOrFail($id);
+
+        if (!Gate::allows('performSroRestrictedAction', $organisation)) {
+            return $this->ForbiddenResponse();
+        }
+
+        // auth:api and the policy's non-nullable User guarantee an authenticated user here.
+        /** @var User $actor */
+        $actor = $request->user();
+
+        $invitee = $membership->inviteSro(
+            $organisation,
+            $request->string('first_name')->toString(),
+            $request->string('last_name')->toString(),
+            $request->string('email')->toString(),
+            $actor
+        );
+
+        if ($invitee === null) {
+            return $this->ConflictResponse();
+        }
+
+        return $this->CreatedResponse($invitee->id);
+    }
+
+    /**
+     * @OA\Post(
+     *      path="/api/v1/organisations/{id}/sro/resend_invite",
+     *      operationId="organisationsResendSroInvite",
+     *      summary="Resend the invitation to an organisation's invited SRO",
+     *      description="Resends the pending SRO invitation with the code it already has. Delegates can resend while the organisation has no claimed SRO; after that only the SRO can.",
+     *      tags={"organisations"},
+     *      summary="organisations@resendSroInvite",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="organisations entry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="organisations entry ID",
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="forbidden")
+     *           ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="The organisation has no pending SRO invitation",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *           ),
+     *      )
+     * )
+     */
+    public function resendSroInvite(
+        GetOrganisation $request,
+        OrganisationMembershipService $membership,
+        int $id
+    ): JsonResponse {
+        $organisation = Organisation::findOrFail($id);
+
+        if (!Gate::allows('performSroRestrictedAction', $organisation)) {
+            return $this->ForbiddenResponse();
+        }
+
+        // auth:api and the policy's non-nullable User guarantee an authenticated user here.
+        /** @var User $actor */
+        $actor = $request->user();
+
+        if (!$membership->resendSroInvite($organisation, $actor)) {
+            return $this->NotFoundResponse();
+        }
+
+        return $this->OKResponse(null);
+    }
+
+    /**
      * @OA\Delete(
      *      path="/api/v1/organisations/{id}/delegates/{userId}",
      *      operationId="organisationsRemoveDelegate",
@@ -1592,6 +1777,11 @@ class OrganisationController extends Controller
     public function inviteUser(OrganisationInviteUser $request, int $id): JsonResponse
     {
         try {
+            // Checked before anything else, so outsiders cannot use this to probe which emails exist.
+            if (!Gate::allows('inviteUser', Organisation::findOrFail($id))) {
+                return $this->ForbiddenResponse();
+            }
+
             $input = $request->all();
             if (User::where("email", $input['email'])->exists()) {
                 return $this->ConflictResponse();
@@ -1599,9 +1789,6 @@ class OrganisationController extends Controller
 
             $loggedInUserId = $request->user()->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();
-            if ($loggedInUser->user_group !== User::GROUP_ORGANISATIONS && $loggedInUser->user_group !== User::GROUP_ADMINS) {
-                return $this->BadRequestResponse('Non-organisation users cannot invite members via this endpoint.');
-            }
 
             $unclaimedUser = RMC::createUnclaimedUser([
                 'firstname' => $input['first_name'],

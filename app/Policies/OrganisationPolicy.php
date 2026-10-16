@@ -65,6 +65,15 @@ class OrganisationPolicy
             || ($user->organisationRole() !== null && $user->organisation_id === $organisation->id);
     }
 
+    /**
+     * Admins and members of the organisation (SRO or delegate) can invite users into it.
+     */
+    public function inviteUser(User $user, Organisation $organisation): bool
+    {
+        return $user->isAdmin()
+            || ($user->organisationRole() !== null && $user->organisation_id === $organisation->id);
+    }
+
     public function updateIsOrganisation(User $user): bool
     {
         return $user->isOrganisation();
