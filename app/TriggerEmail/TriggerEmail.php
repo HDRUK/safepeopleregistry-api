@@ -14,6 +14,7 @@ use App\Models\Organisation;
 use App\Models\CustodianUser;
 use App\Models\PendingInvite;
 use Hdruk\LaravelMjml\Models\EmailTemplate;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class TriggerEmail
 {
@@ -592,7 +593,9 @@ class TriggerEmail
             case 'ORGANISATION_INVITE_BY_CUSTODIAN':
                 $template = EmailTemplate::where('identifier', $identifier)->first();
                 $organisation = Organisation::where('id', $organisationId)->first();
-                $dataCustodian = User::where('id', $by)->first();
+                $dataCustodian = User::with('custodian_user.custodian')->where('id', $by)->first();
+                $custodian = $dataCustodian->custodian_user->custodian
+                    ?? throw (new ModelNotFoundException)->setModel(Custodian::class);
 
                 $newRecipients = [
                     'id' => 0,
@@ -603,13 +606,13 @@ class TriggerEmail
                     '[[organisation.organisation_name]]' => $organisation->organisation_name,
                     '[[inviteCode]]' => $inviteCode,
                     '[[registration.email]]' => urlencode($organisation->lead_applicant_email),
-                    '[[custodian.name]]' => $dataCustodian-> first_name . ' ' . $dataCustodian->last_name,
+                    '[[custodian.name]]' => $dataCustodian->first_name . ' ' . $dataCustodian->last_name,
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
                     '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
                     '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),
                     '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
                     '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
-                    '[[user.name]]' => 'TO REPLACE',
+                    '[[user.name]]' => $custodian->name,
                     '[[SRO_TEMPLATE_DECLARATION_URL]]' => config('speedi.system.portal_url') . '/Registry_SRO_Declaration.pdf',
                 ];
 
