@@ -57,6 +57,7 @@ use App\Http\Requests\Organisations\AppointSro;
 use App\Http\Requests\Organisations\InviteSro;
 use App\Http\Requests\Organisations\OrganisationInvite;
 use App\Http\Requests\Organisations\UpdateOrganisation;
+use App\Http\Requests\Organisations\StoreUnclaimedOrganisation;
 use App\Http\Requests\Organisations\GetCountPastProject;
 use App\Http\Requests\Organisations\GetOrganisationIdvt;
 use App\Notifications\Organisations\OrganisationApproved;
@@ -632,18 +633,18 @@ class OrganisationController extends Controller
         }
     }
 
-    public function storeUnclaimed(Request $request): JsonResponse
+    public function storeUnclaimed(StoreUnclaimedOrganisation $request): JsonResponse
     {
         try {
             $input = $request->all();
 
             // Guards against recreating an existing Organisation via this endpoint.
-            if (Organisation::organisationMatching($input['organisation_name'], $input['lead_applicant_email'] ?? null)->exists()) {
+            if (Organisation::organisationMatching($input['organisation_name'], $input['lead_applicant_email'])->exists()) {
                 return $this->ConflictResponse('duplicate'); // "This Org already exists, no need to re-create it"
             }
 
             // Guards against creating a new Organisation with an email that already exists on a different Organisation.
-            if (Organisation::where('lead_applicant_email', $input['lead_applicant_email'] ?? null)
+            if (Organisation::where('lead_applicant_email', $input['lead_applicant_email'])
                 ->where('organisation_name', '!=', $input['organisation_name'])->exists()
             ) {
                 return $this->ConflictResponse('email_in_use'); // "This Org already exists with a different name, so use the row-invite to rename it at invite time"
@@ -652,7 +653,7 @@ class OrganisationController extends Controller
             // This Organisation does not exist, so create it as unclaimed.
             $organisation = Organisation::create([
                 'organisation_name' => $input['organisation_name'],
-                'lead_applicant_email' => $input['lead_applicant_email'] ?? null,
+                'lead_applicant_email' => $input['lead_applicant_email'],
                 'address_1' => '',
                 'address_2' => '',
                 'town' => '',

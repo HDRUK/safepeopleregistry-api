@@ -876,6 +876,62 @@ class OrganisationTest extends TestCase
         $this->assertSame($existingOrganisationsCount, Organisation::count());
     }
 
+    public function test_store_unclaimed_requires_a_lead_applicant_email(): void
+    {
+        Organisation::factory()->create([
+            'organisation_name' => 'Barchester Infirmary',
+            'lead_applicant_email' => null,
+        ]);
+        $existingOrganisationsCount = Organisation::count();
+
+        $response = $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/unclaimed', [
+                'organisation_name' => 'St Ewold Hospital',
+            ]);
+
+        $response->assertStatus(400);
+        $response->assertJsonFragment([
+            'field' => 'lead_applicant_email',
+            'reason' => 'REQUIRED',
+        ]);
+        $this->assertSame($existingOrganisationsCount, Organisation::count());
+    }
+
+    public function test_store_unclaimed_requires_an_organisation_name(): void
+    {
+        $existingOrganisationsCount = Organisation::count();
+
+        $response = $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/unclaimed', [
+                'lead_applicant_email' => 'lead@example.com',
+            ]);
+
+        $response->assertStatus(400);
+        $response->assertJsonFragment([
+            'field' => 'organisation_name',
+            'reason' => 'REQUIRED',
+        ]);
+        $this->assertSame($existingOrganisationsCount, Organisation::count());
+    }
+
+    public function test_store_unclaimed_rejects_an_invalid_lead_applicant_email(): void
+    {
+        $existingOrganisationsCount = Organisation::count();
+
+        $response = $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/unclaimed', [
+                'organisation_name' => 'Barchester Infirmary',
+                'lead_applicant_email' => 'not-an-email',
+            ]);
+
+        $response->assertStatus(400);
+        $response->assertJsonFragment([
+            'field' => 'lead_applicant_email',
+            'reason' => 'EMAIL',
+        ]);
+        $this->assertSame($existingOrganisationsCount, Organisation::count());
+    }
+
     public function test_a_claimed_organisation_cannot_be_overwritten_by_a_superadmin_invitation(): void
     {
         $claimed = Organisation::factory()->create([
