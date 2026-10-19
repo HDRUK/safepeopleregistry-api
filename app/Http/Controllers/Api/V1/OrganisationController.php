@@ -929,17 +929,15 @@ class OrganisationController extends Controller
 
                 $org->setState(State::STATE_ORGANISATION_REGISTERED);
 
-                if (Feature::active('SroRequirementEnabled')) {
-                    $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_ORG_IN_PROGRESS);
+                $this->updateAllCustodianHasProjectOrganisationStates($org, $org->unclaimed ? State::STATE_ORG_IN_PROGRESS : State::STATE_ORG_REGISTERED);
 
-                    Affiliation::with(['registry.user'])
-                        ->where('organisation_id', $id)
-                        ->whereHas(
-                            'registry.user',
-                            fn ($q) =>
-                            $q->where('unclaimed', false)
-                        )->each(fn ($affiliation) => $affiliation->setState(State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS));
-                }
+                Affiliation::with(['registry.user'])
+                    ->where('organisation_id', $id)
+                    ->whereHas(
+                        'registry.user',
+                        fn ($q) =>
+                        $q->where('unclaimed', false)
+                    )->each(fn ($affiliation) => $affiliation->setState($org->unclaimed ? State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS : State::STATE_AFFILIATION_PENDING));
             }
 
             $loggedInUserId = $request->user()->id;
