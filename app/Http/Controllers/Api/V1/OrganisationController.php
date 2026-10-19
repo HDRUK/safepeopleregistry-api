@@ -757,15 +757,15 @@ class OrganisationController extends Controller
                 return $this->CreatedResponse($newOrganisation->id); // New Organisation created with this name and email, return the ID for the superadmin to invite them
             }
 
-            // Email not provided, so we can only match on name. If an existing org exists with this name, return its ID for the superadmin to invite them. Otherwise create a new unclaimed org and return its ID for the superadmin to invite them.
             if (!isset($input['organisation_name'])) {
                 return $this->ErrorResponse('missing_organisation_name'); // "Organisation name is required if lead_applicant_email is not provided"
             }
 
+            // Email not provided, so we can only match on name. If an existing org exists with this name, return its ID for the superadmin to invite them. Otherwise create a new unclaimed org and return its ID for the superadmin to invite them.
             $matchedOrganisation = Organisation::where('organisation_name', $input['organisation_name'])->first();
             if ($matchedOrganisation) {
                 if ($matchedOrganisation->unclaimed === false) {
-                    return $this->ConflictResponse('claimed_duplicate'); // "This Org already exists and is claimed, no need to re-invite it"
+                    return $this->ConflictResponse('claimed_duplicate_without_email'); // "This Org already exists and is claimed, no need to re-invite it"
                 }
                 if ($matchedOrganisation->unclaimed === true) {
                     return $this->ConflictResponse('unclaimed_duplicate_without_email'); // "This Org already exists and is unclaimed, no need to re-invite it"
