@@ -702,16 +702,79 @@ class OrganisationController extends Controller
         try {
             $input = $request->all();
 
-            // Guards against overwriting existing claimed Organisations via this endpoint.
-            if (Organisation::claimedMatching($input['organisation_name'], $input['lead_applicant_email'] ?? null)->exists()) {
-                return $this->ConflictResponse();
+            if (isset($input['lead_applicant_email'])) {
+                $existingOrganisation = Organisation::where('lead_applicant_email', $input['lead_applicant_email'])->first();
+                if ($existingOrganisation) {
+                    if ($existingOrganisation->unclaimed === false) {
+                        return $this->ConflictResponse('claimed_duplicate'); // "This Org already exists and is claimed, no need to re-invite it"
+                    }
+                    if ($existingOrganisation->unclaimed === true) {
+                        return $this->ConflictResponse('unclaimed_duplicate'); // "This Org already exists, no need to re-create it"
+                    }
+                    return $this->ErrorResponse();
+                }
+
+                $newOrganisation = Organisation::create([
+                    'organisation_name' => $input['organisation_name'],
+                    'lead_applicant_email' => $input['lead_applicant_email'],
+                    'address_1' => '',
+                    'address_2' => '',
+                    'town' => '',
+                    'county' => '',
+                    'country' => '',
+                    'postcode' => '',
+                    'lead_applicant_organisation_name' => '',
+                    'applicant_names' => '',
+                    'funders_and_sponsors' => '',
+                    'sub_license_arrangements' => '',
+                    'verified' => 0,
+                    'companies_house_no' => '',
+                    'sector_id' => 0,
+                    'dsptk_ods_code' => '',
+                    'dsptk_expiry_date' => null,
+                    'iso_27001_certification_num' => '',
+                    'iso_expiry_date' => null,
+                    'ce_certification_num' => '',
+                    'ce_expiry_date' => null,
+                    'ce_plus_certification_num' => '',
+                    'ce_plus_expiry_date' => null,
+                    'ror_id' => '',
+                    'website' => '',
+                    'smb_status' => 0,
+                    'organisation_size' => null,
+                    'unclaimed' => $input['unclaimed'] ?? 1,
+                    'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
+                    'organisation_unique_id' => Str::random(40),
+                    'ods_id' => $input['ods_id'] ?? null,
+                    'dsptk_status' => $input['dsptk_status'] ?? null,
+                    'dsptk_date_last_published' => $input['dsptk_date_last_published'] ?? null,
+                    'ico_registration_id' => $input['ico_registration_id'] ?? null,
+                    'ico_date_registered' => $input['ico_date_registered'] ?? null,
+                    'ico_expiry_date' => $input['ico_expiry_date'] ?? null,
+                ]);
+                $newOrganisation->setState(State::STATE_ORGANISATION_INVITED_BY_NONADMIN);
+
+                return $this->CreatedResponse($newOrganisation->id); // New Organisation created with this name and email, return the ID for the superadmin to invite them
             }
 
-            $organisation = Organisation::updateOrCreate([
+            // Email not provided, so we can only match on name. If an existing org exists with this name, return its ID for the superadmin to invite them. Otherwise create a new unclaimed org and return its ID for the superadmin to invite them.
+            if (!isset($input['organisation_name'])) {
+                return $this->ErrorResponse('missing_organisation_name'); // "Organisation name is required if lead_applicant_email is not provided"
+            }
+
+            $matchedOrganisation = Organisation::where('organisation_name', $input['organisation_name'])->first();
+            if ($matchedOrganisation) {
+                if ($matchedOrganisation->unclaimed === false) {
+                    return $this->ConflictResponse('claimed_duplicate'); // "This Org already exists and is claimed, no need to re-invite it"
+                }
+                if ($matchedOrganisation->unclaimed === true) {
+                    return $this->ConflictResponse('unclaimed_duplicate_without_email'); // "This Org already exists and is unclaimed, no need to re-invite it"
+                }
+                return $this->ErrorResponse();
+            }
+
+            $newOrganisation = Organisation::create([
                 'organisation_name' => $input['organisation_name'],
-                'lead_applicant_email' => $input['lead_applicant_email'] ?? null,
-            ],
-            [
                 'address_1' => '',
                 'address_2' => '',
                 'town' => '',
@@ -747,10 +810,9 @@ class OrganisationController extends Controller
                 'ico_date_registered' => $input['ico_date_registered'] ?? null,
                 'ico_expiry_date' => $input['ico_expiry_date'] ?? null,
             ]);
+            $newOrganisation->setState(State::STATE_ORGANISATION_PLACEHOLDER);
 
-            $organisation->setState(State::STATE_ORGANISATION_PLACEHOLDER);
-
-            return $this->CreatedResponse($organisation->id);
+            return $this->CreatedResponse($newOrganisation->id); // New Organisation created with this name and no email, return the ID for the superadmin to invite them
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
