@@ -78,7 +78,13 @@ class PendingInviteController extends Controller
                     return $query->where('email', 'LIKE', '%' . $value . '%');
                 });
             })
+            // Only id and name are joined, so the unqualified columns used by
+            // searchViaRequest (e.g. updated_at) stay unambiguous.
+            ->joinSub(User::select('id', 'name'), 'users', 'users.id', '=', 'pending_invites.user_id')
             ->applySorting()
+            // Tiebreak so pagination order is deterministic.
+            ->orderBy('pending_invites.id', 'desc')
+            ->select('pending_invites.*')
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return $this->OKResponse($pendingInvites);

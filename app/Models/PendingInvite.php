@@ -132,6 +132,7 @@ class PendingInvite extends Model
 
     protected static array $sortableColumns = [
         'invite_sent_at',
+        'users.name',
     ];
 
     /**
