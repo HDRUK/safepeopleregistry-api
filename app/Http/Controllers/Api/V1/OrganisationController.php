@@ -158,6 +158,7 @@ class OrganisationController extends Controller
                     'sroOfficer.invitedBy.custodian_user',
                     'modelState.state'
                 ])
+                ->withSroStatus()
                 ->filterWhen('has_delegates', function ($query, $hasDelegates) {
                     if ($hasDelegates) {
                         $query->whereHas('delegates');
@@ -175,7 +176,7 @@ class OrganisationController extends Controller
             $evaluations = $this->decisionEvaluator->evaluate($organisations->items(), true);
             $organisations->setCollection($organisations->getCollection()->map(function ($organisation) use ($evaluations) {
                 $organisation->evaluation = $evaluations[$organisation->id] ?? null;
-                return $organisation;
+                return $organisation->append('sro_status');
             }));
         }
 

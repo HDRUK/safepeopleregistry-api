@@ -171,6 +171,62 @@ class OrganisationIndexFiltersTest extends TestCase
         $this->assertSame($expected, $this->fixturesReturnedFor("sro_status={$status}", $fixtures));
     }
 
+    /**
+     * @return array<int, array<string, mixed>> the fixture Organisations in the response, keyed by id
+     */
+    private function fixtureOrganisationsFor(string $query, array $fixtures): array
+    {
+        $organisations = $this->actingAs($this->admin)
+            ->json('GET', self::TEST_URL . "?{$query}&per_page=1000")
+            ->assertStatus(200)
+            ->json('data.data');
+
+        return collect($organisations)
+            ->whereIn('id', array_values($fixtures))
+            ->keyBy('id')
+            ->all();
+    }
+
+    public function test_index_reports_each_organisations_sro_status(): void
+    {
+        $fixtures = $this->createSroStatusFixtures();
+        $organisations = $this->fixtureOrganisationsFor('', $fixtures);
+
+        $this->assertSame(
+            [
+                'claimed' => 'claimed',
+                'invited' => 'invited',
+                'claimedAndInvited' => 'claimed',
+                'delegatesOnly' => 'none',
+                'noUsers' => 'none',
+            ],
+            array_map(fn (int $id) => $organisations[$id]['sro_status'], $fixtures)
+        );
+    }
+
+    public function test_index_does_not_expose_the_flags_behind_sro_status(): void
+    {
+        $fixtures = $this->createSroStatusFixtures();
+
+        foreach ($this->fixtureOrganisationsFor('', $fixtures) as $organisation) {
+            $this->assertArrayNotHasKey('has_claimed_sro_exists', $organisation);
+            $this->assertArrayNotHasKey('has_sro_exists', $organisation);
+        }
+    }
+
+    #[DataProvider('sroStatusProvider')]
+    public function test_reported_sro_status_matches_the_sro_status_filter(string $status): void
+    {
+        $fixtures = $this->createSroStatusFixtures();
+        $organisations = $this->fixtureOrganisationsFor("sro_status={$status}", $fixtures);
+
+        $this->assertNotEmpty($organisations);
+        $this->assertSame(
+            [$status],
+            array_values(array_unique(array_column($organisations, 'sro_status')))
+        );
+    }
+
     public function test_system_approved_filter_returns_only_matching_organisations(): void
     {
         $fixtures = [
