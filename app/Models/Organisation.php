@@ -316,6 +316,7 @@ use App\Traits\FilterManager;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation applySorting()
  * @method static \Database\Factories\OrganisationFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation claimedMatching(string $organisationName, ?string $leadApplicantEmail)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation organisationMatching(string $organisationName, ?string $leadApplicantEmail)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation filterByState()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation filterWhen(string $filter, $callback)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation getCurrentAffiliations($id)
@@ -647,6 +648,18 @@ class Organisation extends Model
             'organisation_name' => $organisationName,
             'lead_applicant_email' => $leadApplicantEmail,
             'unclaimed' => 0,
+        ]);
+    }
+
+    /**
+     * Organisations with the given name and lead applicant email.
+     * A null email matches Organisations with no lead applicant email.
+     */
+    public function scopeOrganisationMatching(Builder $query, string $organisationName, ?string $leadApplicantEmail): Builder
+    {
+        return $query->where([
+            'organisation_name' => $organisationName,
+            'lead_applicant_email' => $leadApplicantEmail,
         ]);
     }
 

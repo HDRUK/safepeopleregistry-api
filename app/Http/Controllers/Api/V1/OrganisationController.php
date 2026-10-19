@@ -637,15 +637,22 @@ class OrganisationController extends Controller
         try {
             $input = $request->all();
 
-            // Guards against overwriting existing claimed Organisations via this endpoint.
-            if (Organisation::claimedMatching($input['organisation_name'], $input['lead_applicant_email'] ?? null)->exists()) {
-                return $this->ConflictResponse();
+            // Guards against recreating an existing Organisation via this endpoint.
+            if (Organisation::organisationMatching($input['organisation_name'], $input['lead_applicant_email'] ?? null)->exists()) {
+                return $this->ConflictResponse('duplicate'); // "This Org already exists, no need to re-create it"
             }
 
-            $organisation = Organisation::updateOrCreate([
+            // Guards against creating a new Organisation with an email that already exists on a different Organisation.
+            if (Organisation::where('lead_applicant_email', $input['lead_applicant_email'] ?? null)
+                ->where('organisation_name', '!=', $input['organisation_name'])->exists()
+            ) {
+                return $this->ConflictResponse('email_in_use'); // "This Org already exists with a different name, so use the row-invite to rename it at invite time"
+            }
+
+            // This Organisation does not exist, so create it as unclaimed.
+            $organisation = Organisation::create([
                 'organisation_name' => $input['organisation_name'],
                 'lead_applicant_email' => $input['lead_applicant_email'] ?? null,
-            ], [
                 'address_1' => '',
                 'address_2' => '',
                 'town' => '',

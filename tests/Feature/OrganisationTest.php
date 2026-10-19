@@ -748,6 +748,64 @@ class OrganisationTest extends TestCase
         }
     }
 
+    public function test_store_unclaimed_creates_an_organisation_when_no_organisation_has_the_email(): void
+    {
+        Organisation::factory()->create([
+            'organisation_name' => 'Barchester Infirmary',
+            'lead_applicant_email' => 'existing@example.com',
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/unclaimed', [
+                'organisation_name' => 'Barchester Infirmary',
+                'lead_applicant_email' => 'new@example.com',
+            ]);
+
+        $response->assertStatus(201);
+        $organisation = Organisation::findOrFail($response->decodeResponseJson()['data']);
+        $this->assertSame('Barchester Infirmary', $organisation->organisation_name);
+        $this->assertSame('new@example.com', $organisation->lead_applicant_email);
+        $this->assertTrue($organisation->unclaimed);
+    }
+
+    public function test_store_unclaimed_rejects_a_duplicate_of_an_organisation_with_the_same_email_and_name(): void
+    {
+        Organisation::factory()->create([
+            'organisation_name' => 'Barchester Infirmary',
+            'lead_applicant_email' => 'lead@example.com',
+        ]);
+        $existingOrganisationsCount = Organisation::count();
+
+        $response = $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/unclaimed', [
+                'organisation_name' => 'Barchester Infirmary',
+                'lead_applicant_email' => 'lead@example.com',
+            ]);
+
+        $response->assertStatus(409);
+        $response->assertJsonPath('data', 'duplicate');
+        $this->assertSame($existingOrganisationsCount, Organisation::count());
+    }
+
+    public function test_store_unclaimed_rejects_an_email_used_by_an_organisation_with_a_different_name(): void
+    {
+        Organisation::factory()->create([
+            'organisation_name' => 'Barchester Infirmary',
+            'lead_applicant_email' => 'lead@example.com',
+        ]);
+        $existingOrganisationsCount = Organisation::count();
+
+        $response = $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/unclaimed', [
+                'organisation_name' => 'St Ewold Hospital',
+                'lead_applicant_email' => 'lead@example.com',
+            ]);
+
+        $response->assertStatus(409);
+        $response->assertJsonPath('data', 'email_in_use');
+        $this->assertSame($existingOrganisationsCount, Organisation::count());
+    }
+
     public function test_a_claimed_organisation_cannot_be_overwritten_by_a_superadmin_invitation(): void
     {
         $claimed = Organisation::factory()->create([
@@ -884,25 +942,22 @@ class OrganisationTest extends TestCase
             'lead_applicant_email' => $email,
         ];
 
-        $existingOrganisationsCount = Organisation::count();
+        $response = $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/unclaimed', $payload);
+        $response->assertStatus(201);
 
-        $organisationIds = collect([$existingOrganisationsCount, $existingOrganisationsCount + 1])->map(function () use ($payload) {
-            $response = $this->actingAs($this->admin)
-                ->json('POST', self::TEST_URL . '/unclaimed', $payload);
-            $response->assertStatus(201);
+        $organisationId = $response->decodeResponseJson()['data'];
 
-            $organisationId = $response->decodeResponseJson()['data'];
+        $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/' . $organisationId . '/invite')
+            ->assertStatus(201);
 
-            $this->actingAs($this->admin)
-                ->json('POST', self::TEST_URL . '/' . $organisationId . '/invite')
-                ->assertStatus(201);
+        $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/unclaimed', $payload)
+            ->assertStatus(409)
+            ->assertJsonPath('data', 'duplicate');
 
-            return $organisationId;
-        });
-
-        $this->assertCount(1, $organisationIds->unique());
-
-        $organisation = Organisation::findOrFail($organisationIds->first());
+        $organisation = Organisation::findOrFail($organisationId);
         $this->assertTrue($organisation->unclaimed);
         $this->assertSame(Feature::active('SroRequirementEnabled') ? State::STATE_INVITED : State::STATE_ORGANISATION_INVITED_BY_ADMIN, $organisation->getState());
         $this->assertSame(1, Organisation::where($payload)->count());
