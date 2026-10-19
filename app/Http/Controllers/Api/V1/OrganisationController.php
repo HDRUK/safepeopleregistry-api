@@ -855,7 +855,7 @@ class OrganisationController extends Controller
                     ->exists();
 
                 if ($duplicateExists) {
-                    return $this->ConflictResponse();
+                    return $this->ConflictResponse('email_in_use');
                 }
             }
 
