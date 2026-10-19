@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use App\Enums\OrganisationAccountStatus;
+use App\Enums\OrganisationSroStatus;
 use App\Traits\SearchManager;
 use App\Traits\ActionManager;
 use App\Traits\StateWorkflow;
@@ -630,6 +632,17 @@ class Organisation extends Model
     }
 
     /**
+     * Every SRO, claimed or only invited. An Organisation has more than one while a
+     * replacement SRO is invited.
+     *
+     *  @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\User>
+     */
+    public function sros(): HasMany
+    {
+        return $this->hasMany(User::class)->sros();
+    }
+
+    /**
      * Queries on every call so the answer reflects the current state of the users table.
      */
     public function hasClaimedSro(): bool
@@ -648,6 +661,43 @@ class Organisation extends Model
             'lead_applicant_email' => $leadApplicantEmail,
             'unclaimed' => 0,
         ]);
+    }
+
+    /**
+     * Organisations with the given account status. A claimed Organisation's account is
+     * created whatever its state; an unclaimed one not in an invited state is a placeholder.
+     */
+    public function scopeWhereAccountStatus(Builder $query, OrganisationAccountStatus $status): Builder
+    {
+        $invitedStates = [
+            OrganisationAccountStatus::InvitedByAdmin->value,
+            OrganisationAccountStatus::InvitedByNonAdmin->value,
+        ];
+
+        return match ($status) {
+            OrganisationAccountStatus::AccountCreated => $query->where('unclaimed', 0),
+            OrganisationAccountStatus::InvitedByAdmin,
+            OrganisationAccountStatus::InvitedByNonAdmin => $query
+                ->where('unclaimed', 1)
+                ->whereHas('modelState.state', fn (Builder $state) => $state->where('slug', $status->value)),
+            OrganisationAccountStatus::Placeholder => $query
+                ->where('unclaimed', 1)
+                ->whereDoesntHave('modelState.state', fn (Builder $state) => $state->whereIn('slug', $invitedStates)),
+        };
+    }
+
+    /**
+     * Organisations with the given SRO status. A claimed SRO wins over any invited one.
+     */
+    public function scopeWhereSroStatus(Builder $query, OrganisationSroStatus $status): Builder
+    {
+        return match ($status) {
+            OrganisationSroStatus::Claimed => $query->whereHas('claimedSro'),
+            OrganisationSroStatus::Invited => $query
+                ->whereHas('sros', fn (Builder $sro) => $sro->where('unclaimed', 1))
+                ->whereDoesntHave('claimedSro'),
+            OrganisationSroStatus::None => $query->whereDoesntHave('sros'),
+        };
     }
 
     //Possible refactor candidate
