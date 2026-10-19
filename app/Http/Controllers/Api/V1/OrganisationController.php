@@ -929,7 +929,7 @@ class OrganisationController extends Controller
 
                 $org->setState(State::STATE_ORGANISATION_REGISTERED);
 
-                $this->updateAllCustodianHasProjectOrganisationStates($org, $org->unclaimed ? State::STATE_ORG_IN_PROGRESS : State::STATE_ORG_REGISTERED);
+                $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_PENDING);
 
                 Affiliation::with(['registry.user'])
                     ->where('organisation_id', $id)
@@ -937,7 +937,7 @@ class OrganisationController extends Controller
                         'registry.user',
                         fn ($q) =>
                         $q->where('unclaimed', false)
-                    )->each(fn ($affiliation) => $affiliation->setState($org->unclaimed ? State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS : State::STATE_AFFILIATION_PENDING));
+                    )->each(fn ($affiliation) => $affiliation->setState(State::STATE_AFFILIATION_PENDING));
             }
 
             $loggedInUserId = $request->user()->id;
