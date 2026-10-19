@@ -841,7 +841,18 @@ class OrganisationController extends Controller
             //     return $this->ForbiddenResponse();
             // }
 
-            $isRegistering = isset($input['unclaimed']) && $input['unclaimed'] === 0 && $org->unclaimed;
+            // Guards against duplicating another Organisation's lead_applicant_email.
+            if (isset($input['lead_applicant_email'])) {
+                $duplicateExists = Organisation::where('lead_applicant_email', $input['lead_applicant_email'])
+                    ->where('id', '!=', $org->id)
+                    ->exists();
+
+                if ($duplicateExists) {
+                    return $this->ConflictResponse();
+                }
+            }
+
+            $isRegistering = isset($input['unclaimed']) && $input['unclaimed'] === false && $org->unclaimed;
 
             $org->update($input);
 

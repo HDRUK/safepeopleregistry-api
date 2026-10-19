@@ -2291,6 +2291,84 @@ class OrganisationTest extends TestCase
         $this->assertEquals($contentResponseApproveProjects['data'], State::STATE_SPONSORSHIP_REJECTED);
     }
 
+    public function test_it_rejects_an_email_used_by_another_organisation(): void
+    {
+        Organisation::factory()->create([
+            'organisation_name' => 'Existing Organisation',
+            'lead_applicant_email' => 'lead@example.com',
+        ]);
+        $org = Organisation::factory()->create([
+            'organisation_name' => 'Updated Organisation',
+            'lead_applicant_email' => 'original@example.com',
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->json('PUT', self::TEST_URL . "/{$org->id}", [
+                'lead_applicant_email' => 'lead@example.com',
+            ]);
+
+        $response->assertStatus(409);
+        $this->assertEquals('original@example.com', $org->refresh()->lead_applicant_email);
+    }
+
+    public function test_it_rejects_an_email_used_by_another_organisation_with_the_same_name(): void
+    {
+        Organisation::factory()->create([
+            'organisation_name' => 'Same Organisation',
+            'lead_applicant_email' => 'lead@example.com',
+        ]);
+        $org = Organisation::factory()->create([
+            'organisation_name' => 'Same Organisation',
+            'lead_applicant_email' => 'original@example.com',
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->json('PUT', self::TEST_URL . "/{$org->id}", [
+                'organisation_name' => 'Same Organisation',
+                'lead_applicant_email' => 'lead@example.com',
+            ]);
+
+        $response->assertStatus(409);
+        $this->assertEquals('original@example.com', $org->refresh()->lead_applicant_email);
+    }
+
+    public function test_it_allows_an_organisation_to_keep_its_own_email(): void
+    {
+        $org = Organisation::factory()->create([
+            'organisation_name' => 'Original Name',
+            'lead_applicant_email' => 'lead@example.com',
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->json('PUT', self::TEST_URL . "/{$org->id}", [
+                'organisation_name' => 'Renamed Organisation',
+                'lead_applicant_email' => 'lead@example.com',
+            ]);
+
+        $response->assertStatus(200);
+        $this->assertEquals('Renamed Organisation', $org->refresh()->organisation_name);
+    }
+
+    public function test_it_allows_an_email_no_other_organisation_uses(): void
+    {
+        Organisation::factory()->create([
+            'organisation_name' => 'Same Organisation',
+            'lead_applicant_email' => 'lead@example.com',
+        ]);
+        $org = Organisation::factory()->create([
+            'organisation_name' => 'Same Organisation',
+            'lead_applicant_email' => 'original@example.com',
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->json('PUT', self::TEST_URL . "/{$org->id}", [
+                'lead_applicant_email' => 'unused@example.com',
+            ]);
+
+        $response->assertStatus(200);
+        $this->assertEquals('unused@example.com', $org->refresh()->lead_applicant_email);
+    }
+
     // LS - Removed as doesn't run in GH - possibly blocked by ROR
     // needs investigation
     //
