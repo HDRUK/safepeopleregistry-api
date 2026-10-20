@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use App\Enums\OrganisationAccountStatus;
+use App\Enums\OrganisationSroStatus;
 use App\Traits\SearchManager;
 use App\Traits\ActionManager;
 use App\Traits\StateWorkflow;
@@ -309,6 +311,7 @@ use App\Traits\FilterManager;
  * @property-read \App\Models\Sector|null $sector
  * @property-read \App\Models\User|null $sroOfficer
  * @property-read \App\Models\User|null $claimedSro
+ * @property-read \App\Models\User|null $unclaimedSro
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Subsidiary> $subsidiaries
  * @property-read int|null $subsidiaries_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ActionLog> $tertiaryActionLogs
@@ -463,7 +466,7 @@ class Organisation extends Model
             'idvt_errors',
             'idvt_completed_at',
             'permissions',
-            'files'
+            'files',
          ];
 
     protected $appends = [
@@ -631,6 +634,18 @@ class Organisation extends Model
     }
 
     /**
+     * An SRO who has been invited but not yet claimed their account. The counterpart of claimedSro().
+     *
+     *  @return \Illuminate\Database\Eloquent\Relations\HasOne<\App\Models\User>
+     */
+    public function unclaimedSro(): HasOne
+    {
+        return $this->hasOne(User::class)
+            ->sros()
+            ->where('unclaimed', 1);
+    }
+
+    /**
      * Queries on every call so the answer reflects the current state of the users table.
      */
     public function hasClaimedSro(): bool
@@ -661,6 +676,50 @@ class Organisation extends Model
             'organisation_name' => $organisationName,
             'lead_applicant_email' => $leadApplicantEmail,
         ]);
+    }
+
+    /**
+     * Organisations with the given account status. A claimed Organisation's account is
+     * created whatever its state; an unclaimed one not in an invited state is a placeholder.
+     */
+    public function scopeWhereAccountStatus(Builder $query, OrganisationAccountStatus $status): Builder
+    {
+        $invitedStates = [
+            OrganisationAccountStatus::InvitedByAdmin->value,
+            OrganisationAccountStatus::InvitedByNonAdmin->value,
+        ];
+
+        return match ($status) {
+            OrganisationAccountStatus::AccountCreated => $query->where('unclaimed', 0),
+            OrganisationAccountStatus::InvitedByAdmin,
+            OrganisationAccountStatus::InvitedByNonAdmin => $query
+                ->where('unclaimed', 1)
+                ->whereHas('modelState.state', fn (Builder $state) => $state->where('slug', $status->value)),
+            OrganisationAccountStatus::Placeholder => $query
+                ->where('unclaimed', 1)
+                ->whereDoesntHave('modelState.state', fn (Builder $state) => $state->whereIn('slug', $invitedStates)),
+        };
+    }
+
+    /**
+     * Not in $appends: hasClaimedSro() runs a query, so only append it where it is needed.
+     * Must agree with scopeWhereSroStatus().
+     */
+    public function getSroStatusAttribute(): string
+    {
+        return OrganisationSroStatus::fromSroFlags($this->hasClaimedSro(), $this->unclaimedSro()->exists())->value;
+    }
+
+    /**
+     * Organisations with the given SRO status. A claimed SRO wins over any invited one.
+     */
+    public function scopeWhereSroStatus(Builder $query, OrganisationSroStatus $status): Builder
+    {
+        return match ($status) {
+            OrganisationSroStatus::Claimed => $query->whereHas('claimedSro'),
+            OrganisationSroStatus::Invited => $query->whereHas('unclaimedSro')->whereDoesntHave('claimedSro'),
+            OrganisationSroStatus::None => $query->whereDoesntHave('claimedSro')->whereDoesntHave('unclaimedSro'),
+        };
     }
 
     //Possible refactor candidate

@@ -36,6 +36,9 @@ use RegistryManagementController as RMC;
 use App\Models\OrganisationHasDepartment;
 use App\Models\OrganisationHasFile;
 use App\Http\Requests\Organisations\GetUser;
+use App\Http\Requests\Organisations\GetOrganisations;
+use App\Enums\OrganisationAccountStatus;
+use App\Enums\OrganisationSroStatus;
 use App\Notifications\OrganisationRequested;
 use Illuminate\Support\Facades\Notification;
 use App\Http\Requests\Organisations\GetProject;
@@ -127,18 +130,22 @@ class OrganisationController extends Controller
      *      )
      * )
      */
-    public function index(Request $request): JsonResponse
+    public function index(GetOrganisations $request): JsonResponse
     {
         $organisations = [];
         $this->decisionEvaluator = new DES([DecisionModelType::ORG_VALIDATION_RULES]);
 
         $custodianId = $request->get('custodian_id');
         $perPage = $request->get('per_page');
+        $accountStatus = $request->enum('account_status', OrganisationAccountStatus::class);
+        $sroStatus = $request->enum('sro_status', OrganisationSroStatus::class);
 
         if (!$custodianId) {
             $organisations = Organisation::searchViaRequest()
                 ->filterByState()
                 ->applySorting()
+                // Tie-breaker so pages are stable when sorted values repeat, e.g. equal names.
+                ->orderBy('organisations.id')
                 ->with([
                     'departments',
                     'subsidiaries',
@@ -159,12 +166,17 @@ class OrganisationController extends Controller
                         $query->whereDoesntHave('delegates');
                     }
                 })
+                ->filterWhen('system_approved', function ($query, $systemApproved) {
+                    $query->where('system_approved', $systemApproved);
+                })
+                ->when($accountStatus, fn ($query, $status) => $query->whereAccountStatus($status))
+                ->when($sroStatus, fn ($query, $status) => $query->whereSroStatus($status))
                 ->paginate($perPage ?? (int)$this->getSystemConfig('PER_PAGE'));
 
             $evaluations = $this->decisionEvaluator->evaluate($organisations->items(), true);
             $organisations->setCollection($organisations->getCollection()->map(function ($organisation) use ($evaluations) {
                 $organisation->evaluation = $evaluations[$organisation->id] ?? null;
-                return $organisation;
+                return $organisation->append('sro_status');
             }));
         }
 
