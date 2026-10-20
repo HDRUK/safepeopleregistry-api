@@ -1160,7 +1160,9 @@ class OrganisationController extends Controller
      *          @OA\JsonContent(
      *              @OA\Property(property="first_name", type="string", example="Jane"),
      *              @OA\Property(property="last_name", type="string", example="Doe"),
-     *              @OA\Property(property="email", type="string", example="jane.doe@example.com")
+     *              @OA\Property(property="email", type="string", example="jane.doe@example.com"),
+     *              @OA\Property(property="role", type="string", example="Head of Research", description="Job title"),
+     *              @OA\Property(property="department_id", type="integer", nullable=true, example="1", description="One of the organisation's departments")
      *          ),
      *      ),
      *      @OA\Response(
@@ -1214,6 +1216,8 @@ class OrganisationController extends Controller
             $request->string('first_name')->toString(),
             $request->string('last_name')->toString(),
             $request->string('email')->toString(),
+            $request->string('role')->toString(),
+            $request->filled('department_id') ? $request->integer('department_id') : null,
             $actor
         );
 

@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\Department;
 use App\Models\Organisation;
+use App\Models\OrganisationHasDepartment;
 use App\Models\User;
 use Illuminate\Support\Facades\Notification;
 use KeycloakGuard\ActingAsKeycloakUser;
@@ -22,6 +24,7 @@ class InviteSroEndpointTest extends TestCase
         'first_name' => 'Sam',
         'last_name' => 'Senior',
         'email' => 'sam.senior@example.com',
+        'role' => 'Head of Research',
     ];
 
     private Organisation $organisation;
@@ -127,6 +130,7 @@ class InviteSroEndpointTest extends TestCase
             'missing first name' => [['first_name' => null]],
             'missing last name' => [['last_name' => null]],
             'missing email' => [['email' => null]],
+            'missing job title' => [['role' => null]],
             'invalid email' => [['email' => 'not-an-email']],
         ];
     }
@@ -135,6 +139,39 @@ class InviteSroEndpointTest extends TestCase
     public function test_the_invitee_details_must_be_valid(array $override): void
     {
         $this->inviteSro($this->delegate, [...self::PAYLOAD, ...$override])->assertStatus(400);
+
+        $this->assertNotInvited();
+    }
+
+    private function createDepartment(Organisation $organisation): Department
+    {
+        $department = Department::create(['name' => 'Research']);
+        OrganisationHasDepartment::create([
+            'organisation_id' => $organisation->id,
+            'department_id' => $department->id,
+        ]);
+
+        return $department;
+    }
+
+    public function test_the_invitee_gets_the_job_title_and_department(): void
+    {
+        $department = $this->createDepartment($this->organisation);
+
+        $this->inviteSro($this->delegate, [...self::PAYLOAD, 'department_id' => $department->id])
+            ->assertStatus(201);
+
+        $invitee = User::where('email', self::PAYLOAD['email'])->sole();
+        $this->assertSame('Head of Research', $invitee->role);
+        $this->assertSame([$department->id], $invitee->departments()->pluck('departments.id')->all());
+    }
+
+    public function test_the_department_must_belong_to_the_organisation(): void
+    {
+        $department = $this->createDepartment(Organisation::factory()->create());
+
+        $this->inviteSro($this->delegate, [...self::PAYLOAD, 'department_id' => $department->id])
+            ->assertStatus(400);
 
         $this->assertNotInvited();
     }
