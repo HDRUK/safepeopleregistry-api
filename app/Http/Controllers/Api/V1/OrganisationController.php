@@ -906,11 +906,6 @@ class OrganisationController extends Controller
 
             $originalOrg = $org->getOriginal();
 
-            // we need more discussion aroud this disable
-            // if (!$org->system_approved && (!isset($input['system_approved']) || $input['system_approved'] === false)) {
-            //     return $this->ForbiddenResponse();
-            // }
-
             // Guards against duplicating another Organisation's lead_applicant_email.
             if (isset($input['lead_applicant_email'])) {
                 $duplicateExists = Organisation::where('lead_applicant_email', $input['lead_applicant_email'])
