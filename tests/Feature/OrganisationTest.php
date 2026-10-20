@@ -605,52 +605,121 @@ class OrganisationTest extends TestCase
         return Organisation::findOrFail($response->decodeResponseJson()['data']);
     }
 
-    public function test_reinviting_an_unclaimed_organisation_before_superadmin_invitation_updates_it_rather_than_duplicating(): void
+    public function test_reinviting_an_unclaimed_organisation_before_superadmin_invitation_is_a_conflict(): void
     {
         $email = fake()->unique()->safeEmail();
 
-        $first = $this->createOrganisationBeforeSuperadminInvitation($this->user, [
+        $unclaimed = $this->createOrganisationBeforeSuperadminInvitation($this->user, [
             'lead_applicant_email' => $email,
-            'ods_id' => 'FIRST',
+            'ods_id' => 'ORIGINAL',
         ]);
-        $second = $this->createOrganisationBeforeSuperadminInvitation($this->custodian_admin, [
-            'lead_applicant_email' => $email,
-            'ods_id' => 'SECOND',
-        ]);
+        $organisationCount = Organisation::count();
 
-        $this->assertSame($first->id, $second->id);
-        $this->assertSame('SECOND', $second->ods_id);
-        $this->assertSame(1, Organisation::where([
-            'organisation_name' => 'Barchester Infirmary',
-            'lead_applicant_email' => $email,
-        ])->count());
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'POST',
+                self::TEST_URL . '/unclaimed_before_superadmin_invitation',
+                [
+                    'organisation_name' => $unclaimed->organisation_name,
+                    'lead_applicant_email' => $email,
+                    'ods_id' => 'OVERWRITTEN',
+                ]
+            );
+
+        $response->assertStatus(409);
+        $response->assertJsonPath('data', 'unclaimed_duplicate');
+        $this->assertSame($organisationCount, Organisation::count());
+        $this->assertSame('ORIGINAL', $unclaimed->fresh()->ods_id);
+        $this->assertTrue($unclaimed->fresh()->unclaimed);
     }
 
-    public function test_reinviting_an_unclaimed_organisation_before_superadmin_invitation_without_an_email_updates_it_rather_than_duplicating(): void
+    public function test_reinviting_an_unclaimed_organisation_before_superadmin_invitation_without_an_email_is_a_conflict(): void
     {
-        $first = $this->createOrganisationBeforeSuperadminInvitation($this->user);
-        $second = $this->createOrganisationBeforeSuperadminInvitation($this->user);
+        $unclaimed = $this->createOrganisationBeforeSuperadminInvitation($this->user, [
+            'ods_id' => 'ORIGINAL',
+        ]);
+        $organisationCount = Organisation::count();
 
-        $this->assertSame($first->id, $second->id);
-        $this->assertSame(1, Organisation::where('organisation_name', 'Barchester Infirmary')->count());
+        $response = $this->actingAs($this->user)
+            ->json(
+                'POST',
+                self::TEST_URL . '/unclaimed_before_superadmin_invitation',
+                [
+                    'organisation_name' => $unclaimed->organisation_name,
+                    'ods_id' => 'OVERWRITTEN',
+                ]
+            );
+
+        $response->assertStatus(409);
+        $response->assertJsonPath('data', 'unclaimed_duplicate_without_email');
+        $this->assertSame($organisationCount, Organisation::count());
+        $this->assertSame('ORIGINAL', $unclaimed->fresh()->ods_id);
+        $this->assertTrue($unclaimed->fresh()->unclaimed);
     }
 
-    public function test_organisations_before_superadmin_invitation_are_matched_on_both_name_and_email(): void
+    public function test_an_organisation_with_the_same_name_and_a_different_email_is_created_before_superadmin_invitation(): void
+    {
+        $original = $this->createOrganisationBeforeSuperadminInvitation($this->user, [
+            'lead_applicant_email' => fake()->unique()->safeEmail(),
+        ]);
+        $sameNameDifferentEmail = $this->createOrganisationBeforeSuperadminInvitation($this->user, [
+            'lead_applicant_email' => fake()->unique()->safeEmail(),
+        ]);
+
+        $this->assertNotSame($original->id, $sameNameDifferentEmail->id);
+        $this->assertSame(2, Organisation::where('organisation_name', 'Barchester Infirmary')->count());
+    }
+
+    public function test_an_organisation_with_the_same_email_and_a_different_name_is_a_conflict_before_superadmin_invitation(): void
     {
         $email = fake()->unique()->safeEmail();
 
         $original = $this->createOrganisationBeforeSuperadminInvitation($this->user, [
             'lead_applicant_email' => $email,
         ]);
-        $sameNameDifferentEmail = $this->createOrganisationBeforeSuperadminInvitation($this->user, [
-            'lead_applicant_email' => fake()->unique()->safeEmail(),
-        ]);
-        $sameEmailDifferentName = $this->createOrganisationBeforeSuperadminInvitation($this->user, [
-            'organisation_name' => 'St Ewolds Hospital',
-            'lead_applicant_email' => $email,
-        ]);
+        $organisationCount = Organisation::count();
 
-        $this->assertCount(3, collect([$original->id, $sameNameDifferentEmail->id, $sameEmailDifferentName->id])->unique());
+        $response = $this->actingAs($this->user)
+            ->json(
+                'POST',
+                self::TEST_URL . '/unclaimed_before_superadmin_invitation',
+                [
+                    'organisation_name' => 'St Ewolds Hospital',
+                    'lead_applicant_email' => $email,
+                ]
+            );
+
+        $response->assertStatus(409);
+        $response->assertJsonPath('data', 'unclaimed_duplicate');
+        $this->assertSame($organisationCount, Organisation::count());
+        $this->assertSame('Barchester Infirmary', $original->fresh()->organisation_name);
+    }
+
+    public function test_a_claimed_organisation_cannot_be_overwritten_by_name_before_superadmin_invitation(): void
+    {
+        $claimed = Organisation::factory()->create([
+            'organisation_name' => 'Barchester Infirmary',
+            'lead_applicant_email' => fake()->unique()->safeEmail(),
+            'unclaimed' => 0,
+            'ods_id' => 'ORIGINAL',
+        ]);
+        $organisationCount = Organisation::count();
+
+        $response = $this->actingAs($this->user)
+            ->json(
+                'POST',
+                self::TEST_URL . '/unclaimed_before_superadmin_invitation',
+                [
+                    'organisation_name' => $claimed->organisation_name,
+                    'ods_id' => 'OVERWRITTEN',
+                ]
+            );
+
+        $response->assertStatus(409);
+        $response->assertJsonPath('data', 'claimed_duplicate_without_email');
+        $this->assertSame($organisationCount, Organisation::count());
+        $this->assertSame('ORIGINAL', $claimed->fresh()->ods_id);
+        $this->assertFalse($claimed->fresh()->unclaimed);
     }
 
     public function test_a_claimed_organisation_cannot_be_overwritten_before_superadmin_invitation(): void
@@ -675,6 +744,7 @@ class OrganisationTest extends TestCase
             );
 
         $response->assertStatus(409);
+        $response->assertJsonPath('data', 'claimed_duplicate');
         $this->assertSame($organisationCount, Organisation::count());
         $this->assertSame('ORIGINAL', $claimed->fresh()->ods_id);
         $this->assertFalse($claimed->fresh()->unclaimed);
@@ -748,6 +818,120 @@ class OrganisationTest extends TestCase
         }
     }
 
+    public function test_store_unclaimed_creates_an_organisation_when_no_organisation_has_the_email(): void
+    {
+        Organisation::factory()->create([
+            'organisation_name' => 'Barchester Infirmary',
+            'lead_applicant_email' => 'existing@example.com',
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/unclaimed', [
+                'organisation_name' => 'Barchester Infirmary',
+                'lead_applicant_email' => 'new@example.com',
+            ]);
+
+        $response->assertStatus(201);
+        $organisation = Organisation::findOrFail($response->decodeResponseJson()['data']);
+        $this->assertSame('Barchester Infirmary', $organisation->organisation_name);
+        $this->assertSame('new@example.com', $organisation->lead_applicant_email);
+        $this->assertTrue($organisation->unclaimed);
+    }
+
+    public function test_store_unclaimed_rejects_a_duplicate_of_an_organisation_with_the_same_email_and_name(): void
+    {
+        Organisation::factory()->create([
+            'organisation_name' => 'Barchester Infirmary',
+            'lead_applicant_email' => 'lead@example.com',
+        ]);
+        $existingOrganisationsCount = Organisation::count();
+
+        $response = $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/unclaimed', [
+                'organisation_name' => 'Barchester Infirmary',
+                'lead_applicant_email' => 'lead@example.com',
+            ]);
+
+        $response->assertStatus(409);
+        $response->assertJsonPath('data', 'duplicate');
+        $this->assertSame($existingOrganisationsCount, Organisation::count());
+    }
+
+    public function test_store_unclaimed_rejects_an_email_used_by_an_organisation_with_a_different_name(): void
+    {
+        Organisation::factory()->create([
+            'organisation_name' => 'Barchester Infirmary',
+            'lead_applicant_email' => 'lead@example.com',
+        ]);
+        $existingOrganisationsCount = Organisation::count();
+
+        $response = $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/unclaimed', [
+                'organisation_name' => 'St Ewold Hospital',
+                'lead_applicant_email' => 'lead@example.com',
+            ]);
+
+        $response->assertStatus(409);
+        $response->assertJsonPath('data', 'email_in_use');
+        $this->assertSame($existingOrganisationsCount, Organisation::count());
+    }
+
+    public function test_store_unclaimed_requires_a_lead_applicant_email(): void
+    {
+        Organisation::factory()->create([
+            'organisation_name' => 'Barchester Infirmary',
+            'lead_applicant_email' => null,
+        ]);
+        $existingOrganisationsCount = Organisation::count();
+
+        $response = $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/unclaimed', [
+                'organisation_name' => 'St Ewold Hospital',
+            ]);
+
+        $response->assertStatus(400);
+        $response->assertJsonFragment([
+            'field' => 'lead_applicant_email',
+            'reason' => 'REQUIRED',
+        ]);
+        $this->assertSame($existingOrganisationsCount, Organisation::count());
+    }
+
+    public function test_store_unclaimed_requires_an_organisation_name(): void
+    {
+        $existingOrganisationsCount = Organisation::count();
+
+        $response = $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/unclaimed', [
+                'lead_applicant_email' => 'lead@example.com',
+            ]);
+
+        $response->assertStatus(400);
+        $response->assertJsonFragment([
+            'field' => 'organisation_name',
+            'reason' => 'REQUIRED',
+        ]);
+        $this->assertSame($existingOrganisationsCount, Organisation::count());
+    }
+
+    public function test_store_unclaimed_rejects_an_invalid_lead_applicant_email(): void
+    {
+        $existingOrganisationsCount = Organisation::count();
+
+        $response = $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/unclaimed', [
+                'organisation_name' => 'Barchester Infirmary',
+                'lead_applicant_email' => 'not-an-email',
+            ]);
+
+        $response->assertStatus(400);
+        $response->assertJsonFragment([
+            'field' => 'lead_applicant_email',
+            'reason' => 'EMAIL',
+        ]);
+        $this->assertSame($existingOrganisationsCount, Organisation::count());
+    }
+
     public function test_a_claimed_organisation_cannot_be_overwritten_by_a_superadmin_invitation(): void
     {
         $claimed = Organisation::factory()->create([
@@ -768,6 +952,7 @@ class OrganisationTest extends TestCase
             );
 
         $response->assertStatus(409);
+        $response->assertJsonPath('data', 'duplicate');
         $this->assertSame('1 Cathedral Close', $claimed->fresh()->address_1);
         $this->assertFalse($claimed->fresh()->unclaimed);
     }
@@ -884,25 +1069,22 @@ class OrganisationTest extends TestCase
             'lead_applicant_email' => $email,
         ];
 
-        $existingOrganisationsCount = Organisation::count();
+        $response = $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/unclaimed', $payload);
+        $response->assertStatus(201);
 
-        $organisationIds = collect([$existingOrganisationsCount, $existingOrganisationsCount + 1])->map(function () use ($payload) {
-            $response = $this->actingAs($this->admin)
-                ->json('POST', self::TEST_URL . '/unclaimed', $payload);
-            $response->assertStatus(201);
+        $organisationId = $response->decodeResponseJson()['data'];
 
-            $organisationId = $response->decodeResponseJson()['data'];
+        $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/' . $organisationId . '/invite')
+            ->assertStatus(201);
 
-            $this->actingAs($this->admin)
-                ->json('POST', self::TEST_URL . '/' . $organisationId . '/invite')
-                ->assertStatus(201);
+        $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/unclaimed', $payload)
+            ->assertStatus(409)
+            ->assertJsonPath('data', 'duplicate');
 
-            return $organisationId;
-        });
-
-        $this->assertCount(1, $organisationIds->unique());
-
-        $organisation = Organisation::findOrFail($organisationIds->first());
+        $organisation = Organisation::findOrFail($organisationId);
         $this->assertTrue($organisation->unclaimed);
         $this->assertSame(Feature::active('SroRequirementEnabled') ? State::STATE_INVITED : State::STATE_ORGANISATION_INVITED_BY_ADMIN, $organisation->getState());
         $this->assertSame(1, Organisation::where($payload)->count());
@@ -2289,6 +2471,86 @@ class OrganisationTest extends TestCase
         $contentResponseApproveProjects = $responseApproveProjects->decodeResponseJson();
 
         $this->assertEquals($contentResponseApproveProjects['data'], State::STATE_SPONSORSHIP_REJECTED);
+    }
+
+    public function test_it_rejects_an_email_used_by_another_organisation(): void
+    {
+        Organisation::factory()->create([
+            'organisation_name' => 'Existing Organisation',
+            'lead_applicant_email' => 'lead@example.com',
+        ]);
+        $org = Organisation::factory()->create([
+            'organisation_name' => 'Updated Organisation',
+            'lead_applicant_email' => 'original@example.com',
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->json('PUT', self::TEST_URL . "/{$org->id}", [
+                'lead_applicant_email' => 'lead@example.com',
+            ]);
+
+        $response->assertStatus(409);
+        $response->assertJsonPath('data', 'email_in_use');
+        $this->assertEquals('original@example.com', $org->refresh()->lead_applicant_email);
+    }
+
+    public function test_it_rejects_an_email_used_by_another_organisation_with_the_same_name(): void
+    {
+        Organisation::factory()->create([
+            'organisation_name' => 'Same Organisation',
+            'lead_applicant_email' => 'lead@example.com',
+        ]);
+        $org = Organisation::factory()->create([
+            'organisation_name' => 'Same Organisation',
+            'lead_applicant_email' => 'original@example.com',
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->json('PUT', self::TEST_URL . "/{$org->id}", [
+                'organisation_name' => 'Same Organisation',
+                'lead_applicant_email' => 'lead@example.com',
+            ]);
+
+        $response->assertStatus(409);
+        $response->assertJsonPath('data', 'email_in_use');
+        $this->assertEquals('original@example.com', $org->refresh()->lead_applicant_email);
+    }
+
+    public function test_it_allows_an_organisation_to_keep_its_own_email(): void
+    {
+        $org = Organisation::factory()->create([
+            'organisation_name' => 'Original Name',
+            'lead_applicant_email' => 'lead@example.com',
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->json('PUT', self::TEST_URL . "/{$org->id}", [
+                'organisation_name' => 'Renamed Organisation',
+                'lead_applicant_email' => 'lead@example.com',
+            ]);
+
+        $response->assertStatus(200);
+        $this->assertEquals('Renamed Organisation', $org->refresh()->organisation_name);
+    }
+
+    public function test_it_allows_an_email_no_other_organisation_uses(): void
+    {
+        Organisation::factory()->create([
+            'organisation_name' => 'Same Organisation',
+            'lead_applicant_email' => 'lead@example.com',
+        ]);
+        $org = Organisation::factory()->create([
+            'organisation_name' => 'Same Organisation',
+            'lead_applicant_email' => 'original@example.com',
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->json('PUT', self::TEST_URL . "/{$org->id}", [
+                'lead_applicant_email' => 'unused@example.com',
+            ]);
+
+        $response->assertStatus(200);
+        $this->assertEquals('unused@example.com', $org->refresh()->lead_applicant_email);
     }
 
     // LS - Removed as doesn't run in GH - possibly blocked by ROR
