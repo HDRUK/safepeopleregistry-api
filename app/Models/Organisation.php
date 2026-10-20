@@ -466,9 +466,6 @@ class Organisation extends Model
             'idvt_completed_at',
             'permissions',
             'files',
-            // Loaded by scopeWithSroStatus(); exposed as sro_status instead.
-            'has_claimed_sro_exists',
-            'has_sro_exists',
          ];
 
     protected $appends = [
@@ -636,17 +633,6 @@ class Organisation extends Model
     }
 
     /**
-     * Every SRO, claimed or only invited. An Organisation has more than one while a
-     * replacement SRO is invited.
-     *
-     *  @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\User>
-     */
-    public function sros(): HasMany
-    {
-        return $this->hasMany(User::class)->sros();
-    }
-
-    /**
      * Queries on every call so the answer reflects the current state of the users table.
      */
     public function hasClaimedSro(): bool
@@ -703,31 +689,12 @@ class Organisation extends Model
     }
 
     /**
-     * Loads what the sro_status attribute needs as two EXISTS subqueries in the same query,
-     * so listing Organisations does not query each one.
-     */
-    public function scopeWithSroStatus(Builder $query): Builder
-    {
-        return $query->withExists([
-            'claimedSro as has_claimed_sro_exists',
-            'sros as has_sro_exists',
-        ]);
-    }
-
-    /**
-     * Not in $appends: needs scopeWithSroStatus(), so only append it where that is applied.
+     * Not in $appends: hasClaimedSro() runs a query, so only append it where it is needed.
      * Must agree with scopeWhereSroStatus().
      */
     public function getSroStatusAttribute(): string
     {
-        if (!array_key_exists('has_sro_exists', $this->attributes)) {
-            throw new \LogicException('sro_status needs the Organisation loaded withSroStatus().');
-        }
-
-        return OrganisationSroStatus::fromSroFlags(
-            (bool) $this->attributes['has_claimed_sro_exists'],
-            (bool) $this->attributes['has_sro_exists'],
-        )->value;
+        return OrganisationSroStatus::fromSroFlags($this->hasClaimedSro(), $this->sroOfficer !== null)->value;
     }
 
     /**
@@ -738,9 +705,9 @@ class Organisation extends Model
         return match ($status) {
             OrganisationSroStatus::Claimed => $query->whereHas('claimedSro'),
             OrganisationSroStatus::Invited => $query
-                ->whereHas('sros', fn (Builder $sro) => $sro->where('unclaimed', 1))
+                ->whereHas('sroOfficer', fn (Builder $sro) => $sro->where('unclaimed', 1))
                 ->whereDoesntHave('claimedSro'),
-            OrganisationSroStatus::None => $query->whereDoesntHave('sros'),
+            OrganisationSroStatus::None => $query->whereDoesntHave('sroOfficer'),
         };
     }
 

@@ -204,16 +204,6 @@ class OrganisationIndexFiltersTest extends TestCase
         );
     }
 
-    public function test_index_does_not_expose_the_flags_behind_sro_status(): void
-    {
-        $fixtures = $this->createSroStatusFixtures();
-
-        foreach ($this->fixtureOrganisationsFor('', $fixtures) as $organisation) {
-            $this->assertArrayNotHasKey('has_claimed_sro_exists', $organisation);
-            $this->assertArrayNotHasKey('has_sro_exists', $organisation);
-        }
-    }
-
     #[DataProvider('sroStatusProvider')]
     public function test_reported_sro_status_matches_the_sro_status_filter(string $status): void
     {

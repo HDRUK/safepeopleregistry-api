@@ -159,7 +159,6 @@ class OrganisationController extends Controller
                     'sroOfficer.invitedBy.custodian_user',
                     'modelState.state'
                 ])
-                ->withSroStatus()
                 ->filterWhen('has_delegates', function ($query, $hasDelegates) {
                     if ($hasDelegates) {
                         $query->whereHas('delegates');
