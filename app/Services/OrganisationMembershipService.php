@@ -120,9 +120,11 @@ class OrganisationMembershipService
         string $firstName,
         string $lastName,
         string $email,
+        string $role,
+        ?int $departmentId,
         User $actor
     ): ?User {
-        $invitee = DB::transaction(function () use ($organisation, $firstName, $lastName, $email, $actor): ?User {
+        $invitee = DB::transaction(function () use ($organisation, $firstName, $lastName, $email, $role, $departmentId, $actor): ?User {
             if (User::where('email', $email)->exists()) {
                 return null;
             }
@@ -131,16 +133,23 @@ class OrganisationMembershipService
                 ->filter(fn (User $member) => $member->is_sro && $member->unclaimed)
                 ->each(fn (User $invitedSro) => $this->demoteToDelegate($invitedSro));
 
-            return RMC::createUnclaimedUser([
+            $invitee = RMC::createUnclaimedUser([
                 'firstname' => $firstName,
                 'lastname' => $lastName,
                 'email' => $email,
+                'role' => $role,
                 'user_group' => User::GROUP_ORGANISATIONS,
                 'organisation_id' => $organisation->id,
                 'is_sro' => 1,
                 'is_delegate' => 0,
                 'invited_by' => $actor->id,
             ], strictCreate: true);
+
+            if ($departmentId !== null) {
+                $invitee->departments()->attach($departmentId);
+            }
+
+            return $invitee;
         });
 
         // Email only once the invitee has been committed.

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Organisations;
 
 use App\Http\Requests\BaseFormRequest;
+use Illuminate\Validation\Rule;
 
 class InviteSro extends BaseFormRequest
 {
@@ -33,6 +34,18 @@ class InviteSro extends BaseFormRequest
                 'required',
                 'email',
                 'max:255',
+            ],
+            'role' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+            // Only one of the organisation's own departments.
+            'department_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('organisation_has_departments', 'department_id')
+                    ->where('organisation_id', $this->route('id')),
             ],
         ];
     }

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Department;
 use App\Models\Organisation;
 use App\Models\PendingInvite;
 use App\Models\User;
@@ -41,9 +42,17 @@ class InviteSroTest extends TestCase
         ]);
     }
 
-    private function invite(string $email = 'sam.senior@example.com'): ?User
+    private function invite(string $email = 'sam.senior@example.com', ?int $departmentId = null): ?User
     {
-        return $this->service->inviteSro($this->organisation, 'Sam', 'Senior', $email, $this->actor);
+        return $this->service->inviteSro(
+            $this->organisation,
+            'Sam',
+            'Senior',
+            $email,
+            'Head of Research',
+            $departmentId,
+            $this->actor
+        );
     }
 
     public function test_it_creates_an_invited_sro_in_the_organisation(): void
@@ -57,6 +66,23 @@ class InviteSroTest extends TestCase
         $this->assertSame(0, $invitee->is_delegate);
         $this->assertTrue($invitee->unclaimed);
         $this->assertSame($this->actor->id, $invitee->invited_by);
+    }
+
+    public function test_it_records_the_invitees_job_title_and_department(): void
+    {
+        $department = Department::create(['name' => 'Research']);
+
+        $invitee = $this->invite(departmentId: $department->id)->fresh();
+
+        $this->assertSame('Head of Research', $invitee->role);
+        $this->assertSame([$department->id], $invitee->departments()->pluck('departments.id')->all());
+    }
+
+    public function test_the_invitee_has_no_department_when_none_is_given(): void
+    {
+        $invitee = $this->invite()->fresh();
+
+        $this->assertSame(0, $invitee->departments()->count());
     }
 
     public function test_it_emails_the_invitation(): void
