@@ -311,6 +311,7 @@ use App\Traits\FilterManager;
  * @property-read \App\Models\Sector|null $sector
  * @property-read \App\Models\User|null $sroOfficer
  * @property-read \App\Models\User|null $claimedSro
+ * @property-read \App\Models\User|null $unclaimedSro
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Subsidiary> $subsidiaries
  * @property-read int|null $subsidiaries_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ActionLog> $tertiaryActionLogs
@@ -633,6 +634,18 @@ class Organisation extends Model
     }
 
     /**
+     * An SRO who has been invited but not yet claimed their account. The counterpart of claimedSro().
+     *
+     *  @return \Illuminate\Database\Eloquent\Relations\HasOne<\App\Models\User>
+     */
+    public function unclaimedSro(): HasOne
+    {
+        return $this->hasOne(User::class)
+            ->sros()
+            ->where('unclaimed', 1);
+    }
+
+    /**
      * Queries on every call so the answer reflects the current state of the users table.
      */
     public function hasClaimedSro(): bool
@@ -694,7 +707,7 @@ class Organisation extends Model
      */
     public function getSroStatusAttribute(): string
     {
-        return OrganisationSroStatus::fromSroFlags($this->hasClaimedSro(), $this->sroOfficer !== null)->value;
+        return OrganisationSroStatus::fromSroFlags($this->hasClaimedSro(), $this->unclaimedSro()->exists())->value;
     }
 
     /**
@@ -704,10 +717,8 @@ class Organisation extends Model
     {
         return match ($status) {
             OrganisationSroStatus::Claimed => $query->whereHas('claimedSro'),
-            OrganisationSroStatus::Invited => $query
-                ->whereHas('sroOfficer', fn (Builder $sro) => $sro->where('unclaimed', 1))
-                ->whereDoesntHave('claimedSro'),
-            OrganisationSroStatus::None => $query->whereDoesntHave('sroOfficer'),
+            OrganisationSroStatus::Invited => $query->whereHas('unclaimedSro')->whereDoesntHave('claimedSro'),
+            OrganisationSroStatus::None => $query->whereDoesntHave('claimedSro')->whereDoesntHave('unclaimedSro'),
         };
     }
 

@@ -139,12 +139,22 @@ class OrganisationIndexFiltersTest extends TestCase
         $delegatesOnly = $this->createOrganisation();
         $this->createOrganisationUser($delegatesOnly, isSro: false, unclaimed: false);
 
+        // is_sro alone does not make an SRO: User::sros() also needs the organisations group.
+        $sroOutsideOrganisationsGroup = $this->createOrganisation();
+        User::factory()->create([
+            'user_group' => User::GROUP_USERS,
+            'organisation_id' => $sroOutsideOrganisationsGroup->id,
+            'is_sro' => true,
+            'unclaimed' => true,
+        ]);
+
         return [
             'claimed' => $claimed->id,
             'invited' => $invited->id,
             'claimedAndInvited' => $claimedAndInvited->id,
             'delegatesOnly' => $delegatesOnly->id,
             'noUsers' => $this->createOrganisation()->id,
+            'sroOutsideOrganisationsGroup' => $sroOutsideOrganisationsGroup->id,
         ];
     }
 
@@ -156,7 +166,7 @@ class OrganisationIndexFiltersTest extends TestCase
         return [
             'claimed' => ['claimed', ['claimed', 'claimedAndInvited']],
             'invited' => ['invited', ['invited']],
-            'none' => ['none', ['delegatesOnly', 'noUsers']],
+            'none' => ['none', ['delegatesOnly', 'noUsers', 'sroOutsideOrganisationsGroup']],
         ];
     }
 
@@ -199,6 +209,7 @@ class OrganisationIndexFiltersTest extends TestCase
                 'claimedAndInvited' => 'claimed',
                 'delegatesOnly' => 'none',
                 'noUsers' => 'none',
+                'sroOutsideOrganisationsGroup' => 'none',
             ],
             array_map(fn (int $id) => $organisations[$id]['sro_status'], $fixtures)
         );

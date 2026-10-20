@@ -14,15 +14,16 @@ class OrganisationSroStatusTest extends TestCase
     public static function sroFlags(): array
     {
         return [
-            'claimed sro' => [true, true, OrganisationSroStatus::Claimed],
-            'invited sro only' => [false, true, OrganisationSroStatus::Invited],
+            'claimed sro and an unclaimed sro' => [true, true, OrganisationSroStatus::Claimed],
+            'claimed sro, no unclaimed sro' => [true, false, OrganisationSroStatus::Claimed],
+            'unclaimed sro only' => [false, true, OrganisationSroStatus::Invited],
             'no sro' => [false, false, OrganisationSroStatus::None],
         ];
     }
 
     #[DataProvider('sroFlags')]
-    public function test_from_sro_flags(bool $hasClaimedSro, bool $hasSro, OrganisationSroStatus $expected): void
+    public function test_from_sro_flags(bool $hasClaimedSro, bool $hasUnclaimedSro, OrganisationSroStatus $expected): void
     {
-        $this->assertSame($expected, OrganisationSroStatus::fromSroFlags($hasClaimedSro, $hasSro));
+        $this->assertSame($expected, OrganisationSroStatus::fromSroFlags($hasClaimedSro, $hasUnclaimedSro));
     }
 }

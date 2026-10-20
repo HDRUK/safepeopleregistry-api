@@ -14,11 +14,11 @@ enum OrganisationSroStatus: string
     // The Organisation has no SRO.
     case None = 'none';
 
-    public static function fromSroFlags(bool $hasClaimedSro, bool $hasSro): self
+    public static function fromSroFlags(bool $hasClaimedSro, bool $hasUnclaimedSro): self
     {
         return match (true) {
             $hasClaimedSro => self::Claimed,
-            $hasSro => self::Invited,
+            $hasUnclaimedSro => self::Invited,
             default => self::None,
         };
     }
