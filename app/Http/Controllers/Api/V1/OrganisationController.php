@@ -34,7 +34,6 @@ use App\Exceptions\NotFoundException;
 use App\Models\ProjectHasSponsorship;
 use RegistryManagementController as RMC;
 use App\Models\OrganisationHasDepartment;
-use App\Models\OrganisationHasFile;
 use App\Http\Requests\Organisations\GetUser;
 use App\Http\Requests\Organisations\GetOrganisations;
 use App\Enums\OrganisationAccountStatus;
@@ -71,6 +70,7 @@ use App\Http\Requests\Organisations\OrganisationInviteUser;
 use App\Http\Requests\Organisations\OrganisationValidateRor;
 use App\Http\Requests\Organisations\UpdateSponsorshipStatus;
 use App\Http\Requests\Organisations\GetSroDeclaration;
+use App\Http\Requests\Organisations\GetSroDeclarationDetails;
 use App\Traits\Notifications\NotificationOrganisationManager;
 use App\Traits\OrganisationsProjectUtils;
 use App\Notifications\Organisations\OrganisationUpdateProfile;
@@ -2842,17 +2842,7 @@ class OrganisationController extends Controller
             if (!Gate::allows('viewDetailed', $org)) {
                 return $this->ForbiddenResponse();
             }
-            $fileIds = OrganisationHasFile::where('organisation_id','=',$organisationId)
-                    ->pluck('file_id');
-
-            if($fileIds->isEmpty()) {
-                return $this->NotFoundResponse();
-            }
-
-            $file = File::whereIn('id',$fileIds)
-                ->where("type", "=", File::FILE_TYPE_DECLARATION_SRO)
-                ->latest()
-                ->first();
+            $file = $org->latestSroDeclaration();
 
             if (!$file) {
                 return $this->NotFoundResponse();            
@@ -2871,6 +2861,76 @@ class OrganisationController extends Controller
                'Access-Control-Expose-Headers' => 'Content-Disposition'
             ];
             return Storage::disk($scannedFileSystem)->download($filePath, $file->name, $headers);
+        } catch (Exception $e) {
+            return $this->ErrorResponse($e->getMessage());
+        }
+    }
+
+    /**
+     * @OA\Get(
+     *      path="/api/v1/organisations/{id}/sro_declaration/details",
+     *      operationId="sroDeclarationDetails",
+     *      x={"internal"="true"},
+     *      summary="Details of an Organisation's latest SRO Declaration",
+     *      description="The most recently uploaded SRO Declaration, whatever its scan status, or null when none has been uploaded",
+     *      tags={"organisations"},
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Organisation ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Organisation ID",
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="object",
+     *                  nullable=true,
+     *                  @OA\Property(property="id", type="integer", example=1),
+     *                  @OA\Property(property="name", type="string", example="declaration.pdf"),
+     *                  @OA\Property(property="type", type="string", example="DECLARATION_SRO"),
+     *                  @OA\Property(property="status", type="string", enum={"pending", "processed", "failed"}),
+     *                  @OA\Property(property="created_at", type="string", format="date-time"),
+     *                  @OA\Property(property="updated_at", type="string", format="date-time"),
+     *              ),
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="forbidden"),
+     *          ),
+     *      ),
+     * )
+     */
+    public function getSroDeclarationDetails(GetSroDeclarationDetails $request, int $organisationId): JsonResponse
+    {
+        try {
+            $org = Organisation::findOrFail($organisationId);
+            if (!Gate::allows('viewDetailed', $org)) {
+                return $this->ForbiddenResponse();
+            }
+
+            return $this->OKResponse(
+                $org->latestSroDeclaration()?->only([
+                    'id',
+                    'name',
+                    'type',
+                    'status',
+                    'created_at',
+                    'updated_at',
+                ])
+            );
         } catch (Exception $e) {
             return $this->ErrorResponse($e->getMessage());
         }
