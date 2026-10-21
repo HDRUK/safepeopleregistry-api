@@ -150,23 +150,98 @@ class OrganisationTest extends TestCase
 
     public function test_sro_declaration_cannot_be_downloaded_if_file_not_processed():void
     {
-        $file = File::create([
-            'status' => File::FILE_STATUS_PENDING,
-            'type' => FILE::FILE_TYPE_CV,
-            'path' => 'testfile.txt',
-            'name' => 'testfile.txt',
-        ]);
-        $orgFilePivot = OrganisationHasFile::create([
-            'organisation_id' => 1,
-            'file_id' => 1
-        ]);
+        Storage::fake('local_scan_scanned');
+        $organisation = Organisation::factory()->create();
+        $this->createSroDeclaration($organisation, 'pending.pdf', File::FILE_STATUS_PENDING);
+
         $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'GET',
-                self::TEST_URL . '/' . '1'. '/sro_declaration'
+                self::TEST_URL . '/' . $organisation->id . '/sro_declaration'
             );
         $response->assertStatus(404);
+    }
 
+    public function test_sro_declaration_is_found_by_the_type_uploads_store(): void
+    {
+        Storage::fake('local_scan_scanned');
+        $organisation = Organisation::factory()->create();
+        // The web app uploads declarations with an upper case type.
+        $this->createSroDeclaration($organisation, 'declaration.pdf', type: 'DECLARATION_SRO');
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $organisation->id . '/sro_declaration'
+            );
+
+        $response->assertStatus(200);
+        $response->assertDownload('declaration.pdf');
+    }
+
+    public function test_latest_sro_declaration_is_the_most_recently_uploaded(): void
+    {
+        Storage::fake('local_scan_scanned');
+        $organisation = Organisation::factory()->create();
+        $this->createSroDeclaration($organisation, 'newer.pdf', createdAt: '2026-02-01 00:00:00');
+        // Created second, so it has the higher id, but was uploaded earlier.
+        $this->createSroDeclaration($organisation, 'older.pdf', createdAt: '2026-01-01 00:00:00');
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $organisation->id . '/sro_declaration'
+            );
+
+        $response->assertStatus(200);
+        $response->assertDownload('newer.pdf');
+    }
+
+    public function test_latest_sro_declaration_is_the_highest_id_when_uploaded_in_the_same_second(): void
+    {
+        Storage::fake('local_scan_scanned');
+        $organisation = Organisation::factory()->create();
+        $this->createSroDeclaration($organisation, 'first.pdf', createdAt: '2026-01-01 00:00:00');
+        $this->createSroDeclaration($organisation, 'second.pdf', createdAt: '2026-01-01 00:00:00');
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $organisation->id . '/sro_declaration'
+            );
+
+        $response->assertStatus(200);
+        $response->assertDownload('second.pdf');
+    }
+
+    private function createSroDeclaration(
+        Organisation $organisation,
+        string $name,
+        string $status = File::FILE_STATUS_PROCESSED,
+        string $type = File::FILE_TYPE_DECLARATION_SRO,
+        string $createdAt = '2026-01-01 00:00:00',
+    ): File {
+        Storage::disk('local_scan_scanned')->put($name, 'declaration');
+
+        // Set the clock rather than updating created_at, which would fire
+        // the File observer.
+        Carbon::setTestNow($createdAt);
+
+        $file = File::create([
+            'status' => $status,
+            'type' => $type,
+            'path' => $name,
+            'name' => $name,
+        ]);
+
+        Carbon::setTestNow();
+
+        OrganisationHasFile::create([
+            'organisation_id' => $organisation->id,
+            'file_id' => $file->id,
+        ]);
+
+        return $file;
     }
 
     public function test_sro_declaration_can_be_downloaded(): void

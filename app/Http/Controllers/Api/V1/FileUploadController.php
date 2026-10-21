@@ -378,7 +378,7 @@ class FileUploadController extends Controller
     public function sendNotificationOnUploadSroDoc($organisationId, $fileId)
     {
         $file = File::where('id', $fileId)->first();
-        if ($file->type !== File::FILE_TYPE_DECLARATION_SRO) {
+        if (!$file->isType(File::FILE_TYPE_DECLARATION_SRO)) {
             return;
         }
 

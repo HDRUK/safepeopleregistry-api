@@ -2850,8 +2850,8 @@ class OrganisationController extends Controller
             }
 
             $file = File::whereIn('id',$fileIds)
-                ->where("type", "=", File::FILE_TYPE_DECLARATION_SRO)
-                ->latest()
+                ->ofType(File::FILE_TYPE_DECLARATION_SRO)
+                ->latestUploaded()
                 ->first();
 
             if (!$file) {
