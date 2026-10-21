@@ -1,4 +1,4 @@
-FROM dunglas/frankenphp:php8.4-trixie
+FROM dunglas/frankenphp:php8.4.27-trixie
 
 ENV COMPOSER_PROCESS_TIMEOUT=600
 ENV REBUILD_DB=1
