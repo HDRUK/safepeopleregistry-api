@@ -34,7 +34,6 @@ use App\Exceptions\NotFoundException;
 use App\Models\ProjectHasSponsorship;
 use RegistryManagementController as RMC;
 use App\Models\OrganisationHasDepartment;
-use App\Models\OrganisationHasFile;
 use App\Http\Requests\Organisations\GetUser;
 use App\Http\Requests\Organisations\GetOrganisations;
 use App\Enums\OrganisationAccountStatus;
@@ -2842,17 +2841,7 @@ class OrganisationController extends Controller
             if (!Gate::allows('viewDetailed', $org)) {
                 return $this->ForbiddenResponse();
             }
-            $fileIds = OrganisationHasFile::where('organisation_id','=',$organisationId)
-                    ->pluck('file_id');
-
-            if($fileIds->isEmpty()) {
-                return $this->NotFoundResponse();
-            }
-
-            $file = File::whereIn('id',$fileIds)
-                ->ofType(File::FILE_TYPE_DECLARATION_SRO)
-                ->latestUploaded()
-                ->first();
+            $file = $org->latestSroDeclaration();
 
             if (!$file) {
                 return $this->NotFoundResponse();            

@@ -601,6 +601,17 @@ class Organisation extends Model
     }
 
     /**
+     * The most recently uploaded SRO declaration, whatever its scan status.
+     */
+    public function latestSroDeclaration(): ?File
+    {
+        return $this->files()
+            ->ofType(File::FILE_TYPE_DECLARATION_SRO)
+            ->latestUploaded()
+            ->first();
+    }
+
+    /**
      *  @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Sector>
      */
     public function sector()

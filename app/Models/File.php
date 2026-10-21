@@ -112,7 +112,11 @@ class File extends Model
      */
     public function scopeOfType(Builder $query, string $type): Builder
     {
-        return $query->whereRaw('LOWER(type) = ?', [strtolower($type)]);
+        // Qualified, as relations such as Organisation::files() join a pivot.
+        return $query->whereRaw(
+            'LOWER(' . $query->qualifyColumn('type') . ') = ?',
+            [strtolower($type)]
+        );
     }
 
     /**
@@ -121,7 +125,9 @@ class File extends Model
      */
     public function scopeLatestUploaded(Builder $query): Builder
     {
-        return $query->orderByDesc('created_at')->orderByDesc('id');
+        return $query
+            ->orderByDesc($query->qualifyColumn('created_at'))
+            ->orderByDesc($query->qualifyColumn('id'));
     }
 
     public function isType(string $type): bool
