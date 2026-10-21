@@ -214,6 +214,132 @@ class OrganisationTest extends TestCase
         $response->assertDownload('second.pdf');
     }
 
+    public function test_sro_declaration_details_are_the_latest_declaration_whatever_its_status(): void
+    {
+        Storage::fake('local_scan_scanned');
+        $organisation = Organisation::factory()->create();
+        $this->createSroDeclaration($organisation, 'older.pdf', createdAt: '2026-01-01 00:00:00');
+        $latest = $this->createSroDeclaration(
+            $organisation,
+            'newer.pdf',
+            File::FILE_STATUS_PENDING,
+            createdAt: '2026-02-01 00:00:00',
+        );
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json('GET', $this->sroDeclarationDetailsUrl($organisation));
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('data.id', $latest->id);
+        $response->assertJsonPath('data.name', 'newer.pdf');
+        $response->assertJsonPath('data.status', File::FILE_STATUS_PENDING);
+    }
+
+    public function test_sro_declaration_details_only_include_what_the_client_needs(): void
+    {
+        Storage::fake('local_scan_scanned');
+        $organisation = Organisation::factory()->create();
+        $this->createSroDeclaration($organisation, 'declaration.pdf');
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json('GET', $this->sroDeclarationDetailsUrl($organisation));
+
+        // No storage path, and no pivot from the organisation relation.
+        $response->assertStatus(200);
+        $response->assertExactJsonStructure([
+            'message',
+            'data' => ['id', 'name', 'type', 'status', 'created_at', 'updated_at'],
+        ]);
+    }
+
+    public function test_sro_declaration_details_find_the_type_uploads_store(): void
+    {
+        Storage::fake('local_scan_scanned');
+        $organisation = Organisation::factory()->create();
+        $declaration = $this->createSroDeclaration($organisation, 'declaration.pdf', type: 'DECLARATION_SRO');
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json('GET', $this->sroDeclarationDetailsUrl($organisation));
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('data.id', $declaration->id);
+    }
+
+    public function test_sro_declaration_details_are_the_highest_id_when_uploaded_in_the_same_second(): void
+    {
+        Storage::fake('local_scan_scanned');
+        $organisation = Organisation::factory()->create();
+        $this->createSroDeclaration($organisation, 'first.pdf', createdAt: '2026-01-01 00:00:00');
+        $second = $this->createSroDeclaration($organisation, 'second.pdf', createdAt: '2026-01-01 00:00:00');
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json('GET', $this->sroDeclarationDetailsUrl($organisation));
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('data.id', $second->id);
+    }
+
+    public function test_sro_declaration_details_are_null_when_there_is_no_declaration(): void
+    {
+        $organisation = Organisation::factory()->create();
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json('GET', $this->sroDeclarationDetailsUrl($organisation));
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('data', null);
+    }
+
+    public function test_sro_declaration_details_can_be_seen_by_the_organisations_users(): void
+    {
+        Storage::fake('local_scan_scanned');
+        $organisation = Organisation::factory()->create();
+        $declaration = $this->createSroDeclaration($organisation, 'declaration.pdf');
+        $organisationUser = User::factory()->create([
+            'user_group' => User::GROUP_ORGANISATIONS,
+            'organisation_id' => $organisation->id,
+        ]);
+
+        $response = $this->actingAs($organisationUser)
+            ->json('GET', $this->sroDeclarationDetailsUrl($organisation));
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('data.id', $declaration->id);
+    }
+
+    public function test_sro_declaration_details_cannot_be_seen_by_another_organisations_users(): void
+    {
+        Storage::fake('local_scan_scanned');
+        $organisation = Organisation::factory()->create();
+        $this->createSroDeclaration($organisation, 'declaration.pdf');
+        $otherOrganisationUser = User::factory()->create([
+            'user_group' => User::GROUP_ORGANISATIONS,
+            'organisation_id' => Organisation::factory()->create()->id,
+        ]);
+
+        $response = $this->actingAs($otherOrganisationUser)
+            ->json('GET', $this->sroDeclarationDetailsUrl($organisation));
+
+        $response->assertStatus(403);
+    }
+
+    public function test_sro_declaration_details_cannot_be_seen_by_researchers(): void
+    {
+        Storage::fake('local_scan_scanned');
+        $organisation = Organisation::factory()->create();
+        $this->createSroDeclaration($organisation, 'declaration.pdf');
+
+        $response = $this->actingAs($this->user)
+            ->json('GET', $this->sroDeclarationDetailsUrl($organisation));
+
+        $response->assertStatus(403);
+    }
+
+    private function sroDeclarationDetailsUrl(Organisation $organisation): string
+    {
+        return self::TEST_URL . '/' . $organisation->id . '/sro_declaration/details';
+    }
+
     private function createSroDeclaration(
         Organisation $organisation,
         string $name,
