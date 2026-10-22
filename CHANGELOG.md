@@ -1,3 +1,39 @@
+## [1.37.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.36.1...v1.37.0) (2026-10-22)
+
+### ✨ Features
+
+* **REGISTRY-000:** file upload fixes (#835) ([4c6901f](https://github.com/HDRUK/safepeopleregistry-api/commit/4c6901f108d02c13a1f0ab0d306c799b4d65973e))
+* **REGISTRY-2301:** Remove redundant old templates (#818) ([cfebd81](https://github.com/HDRUK/safepeopleregistry-api/commit/cfebd81fa32a9879e6b7f5ef85da4e7de9706d1e))
+* **REGISTRY-2579:** Create new API endpoint to allow custodian download of SRO documents (#807) ([2a28f4e](https://github.com/HDRUK/safepeopleregistry-api/commit/2a28f4e6b48d0eb6423008cf22b4756b7d5404ce))
+* **REGISTRY-2886:** Amend docblock to account for new changes to  (#826) ([1137678](https://github.com/HDRUK/safepeopleregistry-api/commit/1137678e1d4c8cc0330ff27bdac86bb995e8c6a5))
+* **REGISTRY-2886:** Remove un-needed foreach loop on mark all notifications as read (#824) ([193d751](https://github.com/HDRUK/safepeopleregistry-api/commit/193d751c9fa7bcc4a2cf63809e2a45a10c98a748))
+* **REGISTRY-2930:** Add a new endpoint for unclaimed Organisation created ahead of superadmin invitation (#805) ([13007cc](https://github.com/HDRUK/safepeopleregistry-api/commit/13007cc1daa4170ee78c021fe9108b2b968f7569))
+* **REGISTRY-2930:** Require superadmin invitation for Organisation claims (#804) ([d584848](https://github.com/HDRUK/safepeopleregistry-api/commit/d584848239b1ccdd525c5bca715a4f9e76129ac6))
+* **REGISTRY-2933:** Add SroRequirementEnabled feature flag via seeder and migration (#802) ([d87900d](https://github.com/HDRUK/safepeopleregistry-api/commit/d87900d23c76477bf0ca31e1727d2f2b40fbb6fe))
+* **REGISTRY-2936:** Approve Organisations automatically at time of superadmin invitation (#816) ([03da0dd](https://github.com/HDRUK/safepeopleregistry-api/commit/03da0dd78b91157ee637ad19f17a92f3b1ff2249))
+* **REGISTRY-2938:** Add new states to track the invitation status of Organisations (#814) ([670d401](https://github.com/HDRUK/safepeopleregistry-api/commit/670d40197310717648f6fa1bbdf1c5681aa53706))
+* **REGISTRY-2938:** Fix Organisation invitation logic (#832) ([557bf2d](https://github.com/HDRUK/safepeopleregistry-api/commit/557bf2d757d16c0ab2ff48e388531cfccc75ad94))
+* **REGISTRY-2938:** Update organisation state management when SroRequirementEnabled is false (#817) ([27bdde3](https://github.com/HDRUK/safepeopleregistry-api/commit/27bdde3943e895c87686ea311c4e4c04f5963c8c))
+* **REGISTRY-2939:** Initial Organisation members should be delegates, not SROs, under false feature flag (#813) ([aef1c8b](https://github.com/HDRUK/safepeopleregistry-api/commit/aef1c8bb26a9da8ca20110aa419674ebf7b15b21))
+* **REGISTRY-2943:** Add job and department to SRO invite (#834) ([b03c84f](https://github.com/HDRUK/safepeopleregistry-api/commit/b03c84f3b286a4aaf0219b143dd3240b5ccc1314))
+* **REGISTRY-2943:** Guard is_sro flag on Users (#825) ([3668f1e](https://github.com/HDRUK/safepeopleregistry-api/commit/3668f1e25332a54f442d0ececf1194d9c9ca4b44))
+* **REGISTRY-2943:** Sro appointment (#827) ([c0673af](https://github.com/HDRUK/safepeopleregistry-api/commit/c0673af05c4c4adc5a8caf65af54f3ddf9d15972))
+* **REGISTRY-2943:** Sro invite (#828) ([06390e1](https://github.com/HDRUK/safepeopleregistry-api/commit/06390e14541835e88185af1060636241c23ca637))
+* **REGISTRY-2957:** Invitation template fixes for SRO (#808) ([a006e93](https://github.com/HDRUK/safepeopleregistry-api/commit/a006e93933185a91335dccd2501cafe33ed3438e))
+* **REGISTRY-2960:** Allow delegates to update claim state (#815) ([71dc7e7](https://github.com/HDRUK/safepeopleregistry-api/commit/71dc7e7cddc177754fdd80710723b27506b33fad))
+* **REGISTRY-2960:** Update existing organisation from superadmin invite (#811) ([c797a02](https://github.com/HDRUK/safepeopleregistry-api/commit/c797a02c00307a92c1b41542a1002f66cbaec8d6))
+* **REGISTRY-2969:** Derive organisation roles (SRO/Delegate) from is_sro/delegate and sro permissions (#819) ([9889f50](https://github.com/HDRUK/safepeopleregistry-api/commit/9889f506e557a424004474608b7dd9e77840ca81))
+* **REGISTRY-2969:** Rewrite delegate removal process (#821) ([648e57d](https://github.com/HDRUK/safepeopleregistry-api/commit/648e57d777255f6506326f5d535c67ed5e20a131))
+* **REGISTRY-2977:** Update Pending invite model to allow for sorting by date invite sent and by name (#831) ([2e53edf](https://github.com/HDRUK/safepeopleregistry-api/commit/2e53edf3904396152f6996b2e1f7eda91ee6b585))
+* **REGISTRY-2980:** return the claimed SRO from GET /organisations/{id} (#823) ([db5a7b4](https://github.com/HDRUK/safepeopleregistry-api/commit/db5a7b4f29aeccb993d22124be9bdcb23ea1f217))
+* **REGISTRY-2982:** Add Filters to Organisations Super Admin Panel  (#833) ([088da56](https://github.com/HDRUK/safepeopleregistry-api/commit/088da564e76470ee44e8522d659c10fb8df07908))
+
+### 🐛 Bug Fixes
+
+* **GAT-8643:** Upgrade the base OS version  (#806) ([f30693b](https://github.com/HDRUK/safepeopleregistry-api/commit/f30693b7f8327db0d8729a27e36850863df7dac4)), closes [GAT-8643](undefinedGAT-8643)
+* **REGISTRY-2743:** Create an affiliation for each bulk-invited user (#810) ([20987f7](https://github.com/HDRUK/safepeopleregistry-api/commit/20987f7dd5e76c8d6510c0e78cb192bb48d6b0e8))
+* **REGISTRY-2985:** Org invite email subject line fix  (#829) ([d10685e](https://github.com/HDRUK/safepeopleregistry-api/commit/d10685e038e7fed21e5419c04ba6c8f3be2e0c9d))
+
 ## [1.36.1](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.36.0...v1.36.1) (2026-09-18)
 
 ### 🐛 Bug Fixes
