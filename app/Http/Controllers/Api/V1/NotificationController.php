@@ -213,9 +213,7 @@ class NotificationController extends Controller
             return $this->ForbiddenResponse();
         }
 
-        foreach ($user->unreadNotifications as $notification) {
-            $notification->markAsRead();
-        }
+        $user->unreadNotifications->markAsRead();
 
         return response()->json(['message' => 'Notifications marked as read']);
     }

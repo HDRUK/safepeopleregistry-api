@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,6 +11,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use App\Enums\OrganisationAccountStatus;
+use App\Enums\OrganisationSroStatus;
 use App\Traits\SearchManager;
 use App\Traits\ActionManager;
 use App\Traits\StateWorkflow;
@@ -307,12 +310,16 @@ use App\Traits\FilterManager;
  * @property-read int|null $secondary_action_logs_count
  * @property-read \App\Models\Sector|null $sector
  * @property-read \App\Models\User|null $sroOfficer
+ * @property-read \App\Models\User|null $claimedSro
+ * @property-read \App\Models\User|null $unclaimedSro
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Subsidiary> $subsidiaries
  * @property-read int|null $subsidiaries_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ActionLog> $tertiaryActionLogs
  * @property-read int|null $tertiary_action_logs_count
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation applySorting()
  * @method static \Database\Factories\OrganisationFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation claimedMatching(string $organisationName, ?string $leadApplicantEmail)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation organisationMatching(string $organisationName, ?string $leadApplicantEmail)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation filterByState()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation filterWhen(string $filter, $callback)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation getCurrentAffiliations($id)
@@ -416,7 +423,6 @@ class Organisation extends Model
         'organisation_size',
         'unclaimed',
         'sro_profile_uri',
-        'is_sro',
         'ods_id',
         'dsptk_date_last_published' ,
         'ico_registration_id',
@@ -460,7 +466,7 @@ class Organisation extends Model
             'idvt_errors',
             'idvt_completed_at',
             'permissions',
-            'files'
+            'files',
          ];
 
     protected $appends = [
@@ -506,7 +512,7 @@ class Organisation extends Model
                 ]
             );
 
-            if ((int) $model->unclaimed === 0) {
+            if ( (int)$model->unclaimed === 0) {
                 $model->setState(State::STATE_INVITED);
                 $model->save();
             }
@@ -595,6 +601,17 @@ class Organisation extends Model
     }
 
     /**
+     * The most recently uploaded SRO declaration, whatever its scan status.
+     */
+    public function latestSroDeclaration(): ?File
+    {
+        return $this->files()
+            ->ofType(File::FILE_TYPE_DECLARATION_SRO)
+            ->latestUploaded()
+            ->first();
+    }
+
+    /**
      *  @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Sector>
      */
     public function sector()
@@ -612,6 +629,108 @@ class Organisation extends Model
         return $this->hasOne(
             User::class,
         )->where('is_sro', 1);
+    }
+
+    /**
+     * The SRO who has claimed their account. Unlike sroOfficer(), an invited SRO who has
+     * not yet claimed does not count.
+     *
+     *  @return \Illuminate\Database\Eloquent\Relations\HasOne<\App\Models\User>
+     */
+    public function claimedSro(): HasOne
+    {
+        return $this->hasOne(User::class)
+            ->sros()
+            ->where('unclaimed', 0);
+    }
+
+    /**
+     * An SRO who has been invited but not yet claimed their account. The counterpart of claimedSro().
+     *
+     *  @return \Illuminate\Database\Eloquent\Relations\HasOne<\App\Models\User>
+     */
+    public function unclaimedSro(): HasOne
+    {
+        return $this->hasOne(User::class)
+            ->sros()
+            ->where('unclaimed', 1);
+    }
+
+    /**
+     * Queries on every call so the answer reflects the current state of the users table.
+     */
+    public function hasClaimedSro(): bool
+    {
+        return $this->claimedSro()->exists();
+    }
+
+    /**
+     * Claimed Organisations with the given name and lead applicant email.
+     * A null email matches Organisations with no lead applicant email.
+     */
+    public function scopeClaimedMatching(Builder $query, string $organisationName, ?string $leadApplicantEmail): Builder
+    {
+        return $query->where([
+            'organisation_name' => $organisationName,
+            'lead_applicant_email' => $leadApplicantEmail,
+            'unclaimed' => 0,
+        ]);
+    }
+
+    /**
+     * Organisations with the given name and lead applicant email.
+     * A null email matches Organisations with no lead applicant email.
+     */
+    public function scopeOrganisationMatching(Builder $query, string $organisationName, ?string $leadApplicantEmail): Builder
+    {
+        return $query->where([
+            'organisation_name' => $organisationName,
+            'lead_applicant_email' => $leadApplicantEmail,
+        ]);
+    }
+
+    /**
+     * Organisations with the given account status. A claimed Organisation's account is
+     * created whatever its state; an unclaimed one not in an invited state is a placeholder.
+     */
+    public function scopeWhereAccountStatus(Builder $query, OrganisationAccountStatus $status): Builder
+    {
+        $invitedStates = [
+            OrganisationAccountStatus::InvitedByAdmin->value,
+            OrganisationAccountStatus::InvitedByNonAdmin->value,
+        ];
+
+        return match ($status) {
+            OrganisationAccountStatus::AccountCreated => $query->where('unclaimed', 0),
+            OrganisationAccountStatus::InvitedByAdmin,
+            OrganisationAccountStatus::InvitedByNonAdmin => $query
+                ->where('unclaimed', 1)
+                ->whereHas('modelState.state', fn (Builder $state) => $state->where('slug', $status->value)),
+            OrganisationAccountStatus::Placeholder => $query
+                ->where('unclaimed', 1)
+                ->whereDoesntHave('modelState.state', fn (Builder $state) => $state->whereIn('slug', $invitedStates)),
+        };
+    }
+
+    /**
+     * Not in $appends: hasClaimedSro() runs a query, so only append it where it is needed.
+     * Must agree with scopeWhereSroStatus().
+     */
+    public function getSroStatusAttribute(): string
+    {
+        return OrganisationSroStatus::fromSroFlags($this->hasClaimedSro(), $this->unclaimedSro()->exists())->value;
+    }
+
+    /**
+     * Organisations with the given SRO status. A claimed SRO wins over any invited one.
+     */
+    public function scopeWhereSroStatus(Builder $query, OrganisationSroStatus $status): Builder
+    {
+        return match ($status) {
+            OrganisationSroStatus::Claimed => $query->whereHas('claimedSro'),
+            OrganisationSroStatus::Invited => $query->whereHas('unclaimedSro')->whereDoesntHave('claimedSro'),
+            OrganisationSroStatus::None => $query->whereDoesntHave('claimedSro')->whereDoesntHave('unclaimedSro'),
+        };
     }
 
     //Possible refactor candidate
@@ -757,7 +876,7 @@ class Organisation extends Model
     {
         return $this->hasMany(
             User::class,
-        )->where('is_delegate', 1);
+        )->delegates();
     }
 
     /**
@@ -776,6 +895,14 @@ class Organisation extends Model
     public function getEvaluationAttribute()
     {
         return $this->attributes['evaluation'] ?? null;
+    }
+
+    /**
+     * Not in $appends: runs a query, so only append it where it is needed.
+     */
+    public function getHasClaimedSroAttribute(): bool
+    {
+        return $this->hasClaimedSro();
     }
 
     public function getCeCertifiedAttribute()

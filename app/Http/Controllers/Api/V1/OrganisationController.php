@@ -16,6 +16,8 @@ use App\Models\Project;
 use App\Models\DebugLog;
 use App\Models\Affiliation;
 use App\Models\Organisation;
+use App\Models\File;
+use Laravel\Pennant\Feature;
 use Illuminate\Http\Request;
 use App\Models\PendingInvite;
 use App\Http\Traits\Responses;
@@ -27,27 +29,37 @@ use App\Models\UserHasDepartments;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 use App\Exceptions\NotFoundException;
 use App\Models\ProjectHasSponsorship;
 use RegistryManagementController as RMC;
 use App\Models\OrganisationHasDepartment;
 use App\Http\Requests\Organisations\GetUser;
+use App\Http\Requests\Organisations\GetOrganisations;
+use App\Enums\OrganisationAccountStatus;
+use App\Enums\OrganisationSroStatus;
+use App\Notifications\OrganisationRequested;
 use Illuminate\Support\Facades\Notification;
 use App\Http\Requests\Organisations\GetProject;
 use App\Models\CustodianHasProjectOrganisation;
 use App\Http\Requests\Organisations\GetDelegate;
 use App\Http\Requests\Organisations\GetRegistry;
-use App\Http\Requests\Organisations\ResentInvite;
+use App\Http\Requests\Organisations\ResendInvite;
 use App\Models\CustodianHasProjectHasSponsorship;
 use App\Services\DecisionEvaluatorService as DES;
+use App\Services\OrganisationMembershipService;
 use App\Http\Requests\Organisations\GetCountUsers;
 use App\Http\Requests\Organisations\GetPastProject;
 use App\Http\Requests\Organisations\GetOrganisation;
 use App\Http\Requests\Organisations\GetFutureProject;
 use App\Http\Requests\Organisations\GetPresentProject;
 use App\Http\Requests\Organisations\DeleteOrganisation;
+use App\Http\Requests\Organisations\RemoveDelegate;
+use App\Http\Requests\Organisations\AppointSro;
+use App\Http\Requests\Organisations\InviteSro;
 use App\Http\Requests\Organisations\OrganisationInvite;
 use App\Http\Requests\Organisations\UpdateOrganisation;
+use App\Http\Requests\Organisations\StoreUnclaimedOrganisation;
 use App\Http\Requests\Organisations\GetCountPastProject;
 use App\Http\Requests\Organisations\GetOrganisationIdvt;
 use App\Notifications\Organisations\OrganisationApproved;
@@ -57,11 +69,14 @@ use App\Http\Requests\Organisations\GetCountPresentProject;
 use App\Http\Requests\Organisations\OrganisationInviteUser;
 use App\Http\Requests\Organisations\OrganisationValidateRor;
 use App\Http\Requests\Organisations\UpdateSponsorshipStatus;
+use App\Http\Requests\Organisations\GetSroDeclaration;
+use App\Http\Requests\Organisations\GetSroDeclarationDetails;
 use App\Traits\Notifications\NotificationOrganisationManager;
 use App\Traits\OrganisationsProjectUtils;
 use App\Notifications\Organisations\OrganisationUpdateProfile;
 use App\Http\Requests\Organisations\OrganisationUpdateApprover;
 use App\Http\Requests\Organisations\GetStatus;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class OrganisationController extends Controller
 {
@@ -115,18 +130,22 @@ class OrganisationController extends Controller
      *      )
      * )
      */
-    public function index(Request $request): JsonResponse
+    public function index(GetOrganisations $request): JsonResponse
     {
         $organisations = [];
         $this->decisionEvaluator = new DES([DecisionModelType::ORG_VALIDATION_RULES]);
 
         $custodianId = $request->get('custodian_id');
         $perPage = $request->get('per_page');
+        $accountStatus = $request->enum('account_status', OrganisationAccountStatus::class);
+        $sroStatus = $request->enum('sro_status', OrganisationSroStatus::class);
 
         if (!$custodianId) {
             $organisations = Organisation::searchViaRequest()
                 ->filterByState()
                 ->applySorting()
+                // Tie-breaker so pages are stable when sorted values repeat, e.g. equal names.
+                ->orderBy('organisations.id')
                 ->with([
                     'departments',
                     'subsidiaries',
@@ -147,16 +166,39 @@ class OrganisationController extends Controller
                         $query->whereDoesntHave('delegates');
                     }
                 })
+                ->filterWhen('system_approved', function ($query, $systemApproved) {
+                    $query->where('system_approved', $systemApproved);
+                })
+                ->when($accountStatus, fn ($query, $status) => $query->whereAccountStatus($status))
+                ->when($sroStatus, fn ($query, $status) => $query->whereSroStatus($status))
                 ->paginate($perPage ?? (int)$this->getSystemConfig('PER_PAGE'));
 
             $evaluations = $this->decisionEvaluator->evaluate($organisations->items(), true);
             $organisations->setCollection($organisations->getCollection()->map(function ($organisation) use ($evaluations) {
                 $organisation->evaluation = $evaluations[$organisation->id] ?? null;
-                return $organisation;
+                return $organisation->append('sro_status');
             }));
         }
 
         return $this->OKResponse($organisations);
+    }
+
+    /**
+     * The organisation's invited SRO, with when they were last sent their invitation. Only
+     * invite_sent_at is exposed from the invitation: its code is the invitee's secret.
+     */
+    private function pendingSro(Organisation $organisation, OrganisationMembershipService $membership): ?User
+    {
+        $invite = $membership->pendingSroInvite($organisation);
+
+        if ($invite === null) {
+            return null;
+        }
+
+        $pendingSro = $invite->user()->with('departments')->first();
+        $pendingSro?->setRelation('pendingSroInvite', $invite->setVisible(['invite_sent_at']));
+
+        return $pendingSro;
     }
 
     /**
@@ -187,6 +229,17 @@ class OrganisationController extends Controller
      *              @OA\Property(property="message", type="string"),
      *              @OA\Property(property="data",
      *                  ref="#/components/schemas/Organisation",
+     *                  @OA\Property(property="has_claimed_sro", type="boolean", example="true"),
+     *                  @OA\Property(property="pending_sro", type="object", nullable=true,
+     *                      description="The invited SRO who has not yet claimed their account, or null",
+     *                      @OA\Property(property="id", type="integer", example="1"),
+     *                      @OA\Property(property="first_name", type="string", example="Sam"),
+     *                      @OA\Property(property="last_name", type="string", example="Senior"),
+     *                      @OA\Property(property="email", type="string", example="sam.senior@example.com"),
+     *                      @OA\Property(property="pending_sro_invite", type="object",
+     *                          @OA\Property(property="invite_sent_at", type="string", example="2026-10-15 09:00:00")
+     *                      )
+     *                  ),
      *                  @OA\Property(property="charities", type="array",
      *                      @OA\Items(
      *                          @OA\Property(property="id", type="integer", example="1"),
@@ -220,7 +273,7 @@ class OrganisationController extends Controller
      *      )
      * )
      */
-    public function show(GetOrganisation $request, int $id): JsonResponse
+    public function show(GetOrganisation $request, OrganisationMembershipService $membership, int $id): JsonResponse
     {
         $this->decisionEvaluator = new DES([DecisionModelType::ORG_VALIDATION_RULES]);
 
@@ -239,7 +292,10 @@ class OrganisationController extends Controller
             'registries.user.permissions',
             'sector',
             'files',
-        ])->findOrFail($id);
+            'claimedSro.departments',
+        ])->findOrFail($id)->append('has_claimed_sro');
+
+        $organisation->setRelation('pendingSro', $this->pendingSro($organisation, $membership));
 
         if ($organisation) {
             $organisation['rules'] = $this->decisionEvaluator->evaluate($organisation);
@@ -589,12 +645,27 @@ class OrganisationController extends Controller
         }
     }
 
-    public function storeUnclaimed(Request $request): JsonResponse
+    public function storeUnclaimed(StoreUnclaimedOrganisation $request): JsonResponse
     {
         try {
             $input = $request->all();
+
+            // Guards against recreating an existing Organisation via this endpoint.
+            if (Organisation::organisationMatching($input['organisation_name'], $input['lead_applicant_email'])->exists()) {
+                return $this->ConflictResponse('duplicate'); // "This Org already exists, no need to re-create it"
+            }
+
+            // Guards against creating a new Organisation with an email that already exists on a different Organisation.
+            if (Organisation::where('lead_applicant_email', $input['lead_applicant_email'])
+                ->where('organisation_name', '!=', $input['organisation_name'])->exists()
+            ) {
+                return $this->ConflictResponse('email_in_use'); // "This Org already exists with a different name, so use the row-invite to rename it at invite time"
+            }
+
+            // This Organisation does not exist, so create it as unclaimed.
             $organisation = Organisation::create([
                 'organisation_name' => $input['organisation_name'],
+                'lead_applicant_email' => $input['lead_applicant_email'],
                 'address_1' => '',
                 'address_2' => '',
                 'town' => '',
@@ -602,7 +673,6 @@ class OrganisationController extends Controller
                 'country' => '',
                 'postcode' => '',
                 'lead_applicant_organisation_name' => '',
-                'lead_applicant_email' => $input['lead_applicant_email'],
                 'applicant_names' => '',
                 'funders_and_sponsors' => '',
                 'sub_license_arrangements' => '',
@@ -632,9 +702,130 @@ class OrganisationController extends Controller
                 'ico_expiry_date' => $input['ico_expiry_date'] ?? null,
             ]);
 
-            $organisation->setState(State::STATE_INVITED);
+            $organisation->setState(State::STATE_ORGANISATION_INVITED_BY_ADMIN);
 
             return $this->CreatedResponse($organisation->id);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage());
+        }
+    }
+
+     public function storeUnclaimedBeforeSuperadminInvitation(Request $request): JsonResponse
+    {
+        try {
+            $input = $request->all();
+
+            if (isset($input['lead_applicant_email'])) {
+                $existingOrganisation = Organisation::where('lead_applicant_email', $input['lead_applicant_email'])->first();
+                if ($existingOrganisation) {
+                    if ($existingOrganisation->unclaimed === false) {
+                        return $this->ConflictResponse('claimed_duplicate'); // "This Org already exists and is claimed, no need to re-invite it"
+                    }
+                    if ($existingOrganisation->unclaimed === true) {
+                        return $this->ConflictResponse('unclaimed_duplicate'); // "This Org already exists, no need to re-create it"
+                    }
+                    return $this->ErrorResponse();
+                }
+
+                $newOrganisation = Organisation::create([
+                    'organisation_name' => $input['organisation_name'],
+                    'lead_applicant_email' => $input['lead_applicant_email'],
+                    'address_1' => '',
+                    'address_2' => '',
+                    'town' => '',
+                    'county' => '',
+                    'country' => '',
+                    'postcode' => '',
+                    'lead_applicant_organisation_name' => '',
+                    'applicant_names' => '',
+                    'funders_and_sponsors' => '',
+                    'sub_license_arrangements' => '',
+                    'verified' => 0,
+                    'companies_house_no' => '',
+                    'sector_id' => 0,
+                    'dsptk_ods_code' => '',
+                    'dsptk_expiry_date' => null,
+                    'iso_27001_certification_num' => '',
+                    'iso_expiry_date' => null,
+                    'ce_certification_num' => '',
+                    'ce_expiry_date' => null,
+                    'ce_plus_certification_num' => '',
+                    'ce_plus_expiry_date' => null,
+                    'ror_id' => '',
+                    'website' => '',
+                    'smb_status' => 0,
+                    'organisation_size' => null,
+                    'unclaimed' => $input['unclaimed'] ?? 1,
+                    'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
+                    'organisation_unique_id' => Str::random(40),
+                    'ods_id' => $input['ods_id'] ?? null,
+                    'dsptk_status' => $input['dsptk_status'] ?? null,
+                    'dsptk_date_last_published' => $input['dsptk_date_last_published'] ?? null,
+                    'ico_registration_id' => $input['ico_registration_id'] ?? null,
+                    'ico_date_registered' => $input['ico_date_registered'] ?? null,
+                    'ico_expiry_date' => $input['ico_expiry_date'] ?? null,
+                ]);
+                $newOrganisation->setState(State::STATE_ORGANISATION_INVITED_BY_NONADMIN);
+
+                return $this->CreatedResponse($newOrganisation->id); // New Organisation created with this name and email, return the ID for the superadmin to invite them
+            }
+
+            if (!isset($input['organisation_name'])) {
+                return $this->ErrorResponse('missing_organisation_name'); // "Organisation name is required if lead_applicant_email is not provided"
+            }
+
+            // Email not provided, so we can only match on name. If an existing org exists with this name, return its ID for the superadmin to invite them. Otherwise create a new unclaimed org and return its ID for the superadmin to invite them.
+            $matchedOrganisation = Organisation::where('organisation_name', $input['organisation_name'])->first();
+            if ($matchedOrganisation) {
+                if ($matchedOrganisation->unclaimed === false) {
+                    return $this->ConflictResponse('claimed_duplicate_without_email'); // "This Org already exists and is claimed, no need to re-invite it"
+                }
+                if ($matchedOrganisation->unclaimed === true) {
+                    return $this->ConflictResponse('unclaimed_duplicate_without_email'); // "This Org already exists and is unclaimed, no need to re-invite it"
+                }
+                return $this->ErrorResponse();
+            }
+
+            $newOrganisation = Organisation::create([
+                'organisation_name' => $input['organisation_name'],
+                'address_1' => '',
+                'address_2' => '',
+                'town' => '',
+                'county' => '',
+                'country' => '',
+                'postcode' => '',
+                'lead_applicant_organisation_name' => '',
+                'applicant_names' => '',
+                'funders_and_sponsors' => '',
+                'sub_license_arrangements' => '',
+                'verified' => 0,
+                'companies_house_no' => '',
+                'sector_id' => 0,
+                'dsptk_ods_code' => '',
+                'dsptk_expiry_date' => null,
+                'iso_27001_certification_num' => '',
+                'iso_expiry_date' => null,
+                'ce_certification_num' => '',
+                'ce_expiry_date' => null,
+                'ce_plus_certification_num' => '',
+                'ce_plus_expiry_date' => null,
+                'ror_id' => '',
+                'website' => '',
+                'smb_status' => 0,
+                'organisation_size' => null,
+                'unclaimed' => $input['unclaimed'] ?? 1,
+                'sro_profile_uri' => $input['sro_profile_uri'] ?? null,
+                'organisation_unique_id' => Str::random(40),
+                'ods_id' => $input['ods_id'] ?? null,
+                'dsptk_status' => $input['dsptk_status'] ?? null,
+                'dsptk_date_last_published' => $input['dsptk_date_last_published'] ?? null,
+                'ico_registration_id' => $input['ico_registration_id'] ?? null,
+                'ico_date_registered' => $input['ico_date_registered'] ?? null,
+                'ico_expiry_date' => $input['ico_expiry_date'] ?? null,
+            ]);
+            $newOrganisation->setState(State::STATE_ORGANISATION_PLACEHOLDER);
+
+            return $this->CreatedResponse($newOrganisation->id); // New Organisation created with this name and no email, return the ID for the superadmin to invite them
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
@@ -727,12 +918,18 @@ class OrganisationController extends Controller
 
             $originalOrg = $org->getOriginal();
 
-            // we need more discussion aroud this disable
-            // if (!$org->system_approved && (!isset($input['system_approved']) || $input['system_approved'] === false)) {
-            //     return $this->ForbiddenResponse();
-            // }
+            // Guards against duplicating another Organisation's lead_applicant_email.
+            if (isset($input['lead_applicant_email'])) {
+                $duplicateExists = Organisation::where('lead_applicant_email', $input['lead_applicant_email'])
+                    ->where('id', '!=', $org->id)
+                    ->exists();
 
-            $isRegistering = isset($input['unclaimed']) && $input['unclaimed'] === 0 && $org->unclaimed;
+                if ($duplicateExists) {
+                    return $this->ConflictResponse('email_in_use');
+                }
+            }
+
+            $isRegistering = isset($input['unclaimed']) && $input['unclaimed'] === false && $org->unclaimed;
 
             $org->update($input);
 
@@ -740,8 +937,7 @@ class OrganisationController extends Controller
 
                 $org->setState(State::STATE_ORGANISATION_REGISTERED);
 
-                $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_ORG_IN_PROGRESS);
-
+                $this->updateAllCustodianHasProjectOrganisationStates($org, State::STATE_PENDING);
 
                 Affiliation::with(['registry.user'])
                     ->where('organisation_id', $id)
@@ -749,8 +945,7 @@ class OrganisationController extends Controller
                         'registry.user',
                         fn ($q) =>
                         $q->where('unclaimed', false)
-                    )->each(fn ($affiliation) => $affiliation->setState(State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS));
-
+                    )->each(fn ($affiliation) => $affiliation->setState(State::STATE_AFFILIATION_PENDING));
             }
 
             $loggedInUserId = $request->user()->id;
@@ -873,6 +1068,325 @@ class OrganisationController extends Controller
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
+    }
+
+    /**
+     * @OA\Put(
+     *      path="/api/v1/organisations/{id}/sro",
+     *      operationId="organisationsAppointSro",
+     *      summary="Appoint a claimed member of an organisation as its SRO",
+     *      description="Hands the SRO role over immediately: the appointee becomes SRO, the current SRO becomes a delegate, and an invited SRO keeps their invitation but will join as a delegate. Delegates can appoint while the organisation has no claimed SRO; after that only the SRO can.",
+     *      tags={"organisations"},
+     *      summary="organisations@appointSro",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="organisations entry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="organisations entry ID",
+     *         ),
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              @OA\Property(property="user_id", type="integer", example="1", description="ID of the claimed member to appoint")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *           ),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="forbidden")
+     *           ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="The user is not a claimed member of this organisation",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *           ),
+     *      )
+     * )
+     */
+    public function appointSro(
+        AppointSro $request,
+        OrganisationMembershipService $membership,
+        int $id
+    ): JsonResponse {
+        $organisation = Organisation::findOrFail($id);
+
+        if (!Gate::allows('performSroRestrictedAction', $organisation)) {
+            return $this->ForbiddenResponse();
+        }
+
+        /** @var User $actor */
+        $actor = $request->user();
+
+        if (!$membership->appointSro($organisation, $request->integer('user_id'), $actor)) {
+            return $this->NotFoundResponse();
+        }
+
+        return $this->OKResponse(null);
+    }
+
+    /**
+     * @OA\Post(
+     *      path="/api/v1/organisations/{id}/sro/invite",
+     *      operationId="organisationsInviteSro",
+     *      summary="Invite someone new to be an organisation's SRO",
+     *      description="Creates an invited (unclaimed) SRO and emails them an invitation. The current SRO keeps the role until the invitee claims their account; any other invited SRO keeps their invitation but will join as a delegate. Delegates can invite while the organisation has no claimed SRO; after that only the SRO can.",
+     *      tags={"organisations"},
+     *      summary="organisations@inviteSro",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="organisations entry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="organisations entry ID",
+     *         ),
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              @OA\Property(property="first_name", type="string", example="Jane"),
+     *              @OA\Property(property="last_name", type="string", example="Doe"),
+     *              @OA\Property(property="email", type="string", example="jane.doe@example.com"),
+     *              @OA\Property(property="role", type="string", example="Head of Research", description="Job title"),
+     *              @OA\Property(property="department_id", type="integer", nullable=true, example="1", description="One of the organisation's departments")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="Created",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="integer", example="1", description="ID of the invited user")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *           ),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="forbidden")
+     *           ),
+     *      ),
+     *      @OA\Response(
+     *          response=409,
+     *          description="The email already belongs to a user; appoint an existing member with PUT /organisations/{id}/sro instead",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="conflict")
+     *           ),
+     *      )
+     * )
+     */
+    public function inviteSro(
+        InviteSro $request,
+        OrganisationMembershipService $membership,
+        int $id
+    ): JsonResponse {
+        $organisation = Organisation::findOrFail($id);
+
+        if (!Gate::allows('performSroRestrictedAction', $organisation)) {
+            return $this->ForbiddenResponse();
+        }
+
+        // auth:api and the policy's non-nullable User guarantee an authenticated user here.
+        /** @var User $actor */
+        $actor = $request->user();
+
+        $invitee = $membership->inviteSro(
+            $organisation,
+            $request->string('first_name')->toString(),
+            $request->string('last_name')->toString(),
+            $request->string('email')->toString(),
+            $request->string('role')->toString(),
+            $request->filled('department_id') ? $request->integer('department_id') : null,
+            $actor
+        );
+
+        if ($invitee === null) {
+            return $this->ConflictResponse();
+        }
+
+        return $this->CreatedResponse($invitee->id);
+    }
+
+    /**
+     * @OA\Post(
+     *      path="/api/v1/organisations/{id}/sro/resend_invite",
+     *      operationId="organisationsResendSroInvite",
+     *      summary="Resend the invitation to an organisation's invited SRO",
+     *      description="Resends the pending SRO invitation with the code it already has. Delegates can resend while the organisation has no claimed SRO; after that only the SRO can.",
+     *      tags={"organisations"},
+     *      summary="organisations@resendSroInvite",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="organisations entry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="organisations entry ID",
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="forbidden")
+     *           ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="The organisation has no pending SRO invitation",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *           ),
+     *      )
+     * )
+     */
+    public function resendSroInvite(
+        GetOrganisation $request,
+        OrganisationMembershipService $membership,
+        int $id
+    ): JsonResponse {
+        $organisation = Organisation::findOrFail($id);
+
+        if (!Gate::allows('performSroRestrictedAction', $organisation)) {
+            return $this->ForbiddenResponse();
+        }
+
+        // auth:api and the policy's non-nullable User guarantee an authenticated user here.
+        /** @var User $actor */
+        $actor = $request->user();
+
+        if (!$membership->resendSroInvite($organisation, $actor)) {
+            return $this->NotFoundResponse();
+        }
+
+        return $this->OKResponse(null);
+    }
+
+    /**
+     * @OA\Delete(
+     *      path="/api/v1/organisations/{id}/delegates/{userId}",
+     *      operationId="organisationsRemoveDelegate",
+     *      summary="Remove a delegate from an organisation",
+     *      description="Detaches a delegate from the organisation and notifies them and the remaining members. The SRO and delegates of the organisation can remove other delegates; the SRO cannot be removed and nobody can remove themselves.",
+     *      tags={"organisations"},
+     *      summary="organisations@removeDelegate",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="organisations entry ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="organisations entry ID",
+     *         ),
+     *      ),
+     *      @OA\Parameter(
+     *         name="userId",
+     *         in="path",
+     *         description="ID of the delegate to remove",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="users entry ID",
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *           ),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="forbidden")
+     *           ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="The user is not a delegate of this organisation",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found")
+     *           ),
+     *      )
+     * )
+     */
+    public function removeDelegate(
+        RemoveDelegate $request,
+        OrganisationMembershipService $membership,
+        int $id,
+        int $userId
+    ): JsonResponse {
+        $organisation = Organisation::findOrFail($id);
+
+        if (!Gate::allows('removeDelegate', [$organisation, $userId])) {
+            return $this->ForbiddenResponse();
+        }
+
+        // auth:api and the policy's non-nullable User guarantee an authenticated user here.
+        /** @var User $actor */
+        $actor = $request->user();
+
+        if (!$membership->removeDelegate($organisation, $userId, $actor)) {
+            return $this->NotFoundResponse();
+        }
+
+        return $this->OKResponse(null);
     }
 
     /**
@@ -1248,7 +1762,7 @@ class OrganisationController extends Controller
                     ->limit(1);
             }, 'invite_status')
             ->where('organisation_id', $organisationId)
-            ->where('is_delegate', 1)
+            ->delegates()
             ->get();
 
             return response()->json([
@@ -1353,6 +1867,11 @@ class OrganisationController extends Controller
     public function inviteUser(OrganisationInviteUser $request, int $id): JsonResponse
     {
         try {
+            // Checked before anything else, so outsiders cannot use this to probe which emails exist.
+            if (!Gate::allows('inviteUser', Organisation::findOrFail($id))) {
+                return $this->ForbiddenResponse();
+            }
+
             $input = $request->all();
             if (User::where("email", $input['email'])->exists()) {
                 return $this->ConflictResponse();
@@ -1360,9 +1879,6 @@ class OrganisationController extends Controller
 
             $loggedInUserId = $request->user()->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();
-            if ($loggedInUser->user_group !== User::GROUP_ORGANISATIONS && $loggedInUser->user_group !== User::GROUP_ADMINS) {
-                return $this->BadRequestResponse('Non-organisation users cannot invite members via this endpoint.');
-            }
 
             $unclaimedUser = RMC::createUnclaimedUser([
                 'firstname' => $input['first_name'],
@@ -1426,6 +1942,63 @@ class OrganisationController extends Controller
                 'message' => 'success',
                 'data' => $unclaimedUser->id,
             ], 201);
+        } catch (Exception $e) {
+            DebugLog::create([
+                'class' => __CLASS__,
+                'log' => $e,
+            ]);
+
+            throw $e;
+        }
+    }
+
+    public function inviteToContactSuperadmin(OrganisationInviteUser $request, int $organisationId): JsonResponse
+    {
+        try {
+            $input = $request->all();
+
+            $loggedInUserId = $request->user()->id;
+            $loggedInUser = User::where('id', $loggedInUserId)->first();
+
+            $organisation = Organisation::where('id', $organisationId)->firstOrFail();
+
+            if ($organisation->lead_applicant_email && User::where(["email" => $organisation->lead_applicant_email, "unclaimed" => 0])->exists()) {
+                return $this->ConflictResponse();
+            }
+
+            if ($organisation->lead_applicant_email) {
+                if ($loggedInUser->user_group === User::GROUP_CUSTODIANS) {
+                    $email = [
+                        'type' => 'ORGANISATION_INVITE_BY_CUSTODIAN',
+                        'to' => $organisation->lead_applicant_email,
+                        'by' => $loggedInUserId,
+                        'identifier' => 'organisation_invite_by_custodian',
+                        'organisationId' => $organisationId,
+                    ];
+                } else {
+                    $email = [
+                        'type' => 'ORGANISATION_INVITE_BY_USER',
+                        'to' => $organisation->lead_applicant_email,
+                        'by' => $loggedInUserId,
+                        'identifier' => 'organisation_invite_by_user',
+                        'organisationId' => $organisationId,
+                    ];
+                }
+
+                TriggerEmail::spawnEmail($email);
+
+                $organisation->setState(State::STATE_ORGANISATION_INVITED_BY_NONADMIN);
+            }
+
+            $userAdmins = User::where('user_group', User::GROUP_ADMINS)->select(['id'])->get();
+            foreach ($userAdmins as $userAdmin) {
+                Notification::send($userAdmin, new OrganisationRequested($loggedInUser, $organisation->organisation_name, $organisation->lead_applicant_email ?? null));
+            }
+
+            return response()->json([
+                'message' => 'success',
+                'data' => $organisationId,
+            ], 200);
         } catch (Exception $e) {
             DebugLog::create([
                 'class' => __CLASS__,
@@ -1514,8 +2087,9 @@ class OrganisationController extends Controller
                 'firstname' => $input['first_name'],
                 'lastname' => $input['last_name'],
                 'email' => $input['email'],
-                'organisation_id' => (isset($input['user_group']) && $input['user_group'] === User::GROUP_ORGANISATIONS) ? $id : 0,
-                'is_delegate' => 0,
+                'organisation_id' => ($userGroup === User::GROUP_ORGANISATIONS) ? $id : 0,
+                'is_delegate' => (Feature::active('SroRequirementEnabled') || $userGroup !== User::GROUP_ORGANISATIONS) ? 0 : 1,
+                'is_sro' => (Feature::active('SroRequirementEnabled') && $userGroup === User::GROUP_ORGANISATIONS) ? 1 : 0,
                 'user_group' => $userGroup,
                 'role' => isset($input['role']) ? $input['role'] : null,
                 'invited_by' => $request->user()->id,
@@ -1573,6 +2147,8 @@ class OrganisationController extends Controller
     }
 
     //Hide from swagger docs
+
+    // This is the endpoint that the superadmin invitation triggers
     public function invite(OrganisationInvite $request, int $id): JsonResponse
     {
         try {
@@ -1589,7 +2165,8 @@ class OrganisationController extends Controller
                 'user_group' => User::GROUP_ORGANISATIONS,
                 'organisation_id' => $id,
                 'invited_by' => $request->user()->id,
-                'is_sro' => 1
+                'is_sro' => Feature::active('SroRequirementEnabled') ? 1 : 0,
+                'is_delegate' => Feature::active('SroRequirementEnabled') ? 0 : 1,
             ]);
 
             if (!$unclaimedUser->unclaimed) {
@@ -1601,14 +2178,31 @@ class OrganisationController extends Controller
             $loggedInUserId = $request->user()?->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();
 
-            $input = [
-                'type' => 'ORGANISATION',
-                'to' => $organisation->id,
-                'unclaimed_user_id' => $unclaimedUser->id,
-                'by' => $id,
-                'identifier' => 'organisation_invite',
-                'userName' => $loggedInUser->name,
-            ];
+            if (Feature::active('SroRequirementEnabled')) {
+                $input = [
+                    'type' => 'ORGANISATION',
+                    'to' => $organisation->id,
+                    'unclaimed_user_id' => $unclaimedUser->id,
+                    'by' => $id,
+                    'identifier' => 'organisation_invite',
+                    'userName' => $loggedInUser->name,
+                ];
+                $organisation->setState(State::STATE_INVITED);
+            } else {
+                $input = [
+                    'type' => 'ORGANISATION_INVITE_BY_SUPERADMIN',
+                    'organisationId' => $organisation->id,
+                    'to' => $organisation->id,
+                    'unclaimed_user_id' => $unclaimedUser->id,
+                    'by' => $id,
+                    'identifier' => 'organisation_invite_by_superadmin',
+                    'userName' => $loggedInUser->name,
+                ];
+                $organisation->setState(State::STATE_ORGANISATION_INVITED_BY_ADMIN);
+                $organisation->system_approved = true;
+                $organisation->system_approved_at = Carbon::now();
+                $organisation->save();
+            }
 
             TriggerEmail::spawnEmail($input);
 
@@ -1622,7 +2216,7 @@ class OrganisationController extends Controller
     }
 
     //Hide from swagger docs
-    public function resentInvite(ResentInvite $request, int $id)
+    public function resendInvite(ResendInvite $request, int $id)
     {
         try {
             $loggedInUserId = $request->user()?->id;
@@ -1647,6 +2241,16 @@ class OrganisationController extends Controller
                 'userName' => $loggedInUser->name,
                 '$inviteId' => $pendingInvites->id,
             ];
+
+            $organisation = Organisation::where('id', $id)->first();
+
+            if (is_null($organisation)) {
+                throw new Exception('Organisation not found');
+            }
+
+            if ($organisation->getState() !== State::STATE_ORGANISATION_REGISTERED) {
+                $organisation->setState(State::STATE_ORGANISATION_INVITED_BY_ADMIN);
+            }
 
             TriggerEmail::spawnEmail($input);
 
@@ -2180,4 +2784,155 @@ class OrganisationController extends Controller
         Notification::send($user, new OrganisationDelegates($loggedInUser, $delegate, 'add'));
     }
 
+
+
+    /**
+     * @OA\Get(
+     *      path="/api/v1/organisation/{id}/sro_declaration",
+     *      operationId="sroFilesDownload",
+     *      x={"internal"="true"},
+     *      summary="Download an uploaded Senior Responsible Officer Declaration form",
+     *      description="Downloads the specified SRO Declaration",
+     *      tags={"organisations"},
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Organisation ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Organisation ID",
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="File downloaded successfully",
+     *          content={
+     *              @OA\MediaType(
+     *                  mediaType="application/octet-stream",
+     *                  @OA\Schema(
+     *                      type="string",
+     *                      format="binary"
+     *                  )
+     *              )
+     *          }
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="File not found",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="File not found"),
+     *          ),
+     *      ),
+     * )
+     */
+    public function getSroDeclaration(GetSroDeclaration $request, int $organisationId)
+    {
+        try {
+            $org = Organisation::findOrFail($organisationId);
+            if (!Gate::allows('viewDetailed', $org)) {
+                return $this->ForbiddenResponse();
+            }
+            $file = $org->latestSroDeclaration();
+
+            if (!$file) {
+                return $this->NotFoundResponse();            
+            }
+            
+            if ($file->status !== FILE::FILE_STATUS_PROCESSED) {
+                return $this->NotFoundResponse();
+            }
+            $filePath = $file->path;
+            $fileSystem = config('speedi.system.scanning_filesystem_disk');
+            $scannedFileSystem = $fileSystem . '_scanned';
+            if (!Storage::disk($scannedFileSystem)->exists($filePath)) {
+                return $this->NotFoundResponse();
+            }
+            $headers = [
+               'Access-Control-Expose-Headers' => 'Content-Disposition'
+            ];
+            return Storage::disk($scannedFileSystem)->download($filePath, $file->name, $headers);
+        } catch (Exception $e) {
+            return $this->ErrorResponse($e->getMessage());
+        }
+    }
+
+    /**
+     * @OA\Get(
+     *      path="/api/v1/organisations/{id}/sro_declaration/details",
+     *      operationId="sroDeclarationDetails",
+     *      x={"internal"="true"},
+     *      summary="Details of an Organisation's latest SRO Declaration",
+     *      description="The most recently uploaded SRO Declaration, whatever its scan status, or null when none has been uploaded",
+     *      tags={"organisations"},
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Organisation ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Organisation ID",
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(
+     *                  property="data",
+     *                  type="object",
+     *                  nullable=true,
+     *                  @OA\Property(property="id", type="integer", example=1),
+     *                  @OA\Property(property="name", type="string", example="declaration.pdf"),
+     *                  @OA\Property(property="type", type="string", example="DECLARATION_SRO"),
+     *                  @OA\Property(property="status", type="string", enum={"pending", "processed", "failed"}),
+     *                  @OA\Property(property="created_at", type="string", format="date-time"),
+     *                  @OA\Property(property="updated_at", type="string", format="date-time"),
+     *              ),
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="forbidden"),
+     *          ),
+     *      ),
+     * )
+     */
+    public function getSroDeclarationDetails(GetSroDeclarationDetails $request, int $organisationId): JsonResponse
+    {
+        try {
+            $org = Organisation::findOrFail($organisationId);
+            if (!Gate::allows('viewDetailed', $org)) {
+                return $this->ForbiddenResponse();
+            }
+
+            return $this->OKResponse(
+                $org->latestSroDeclaration()?->only([
+                    'id',
+                    'name',
+                    'type',
+                    'status',
+                    'created_at',
+                    'updated_at',
+                ])
+            );
+        } catch (Exception $e) {
+            return $this->ErrorResponse($e->getMessage());
+        }
+    }
 }

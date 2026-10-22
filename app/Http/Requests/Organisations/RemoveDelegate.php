@@ -4,7 +4,7 @@ namespace App\Http\Requests\Organisations;
 
 use App\Http\Requests\BaseFormRequest;
 
-class ResentInvite extends BaseFormRequest
+class RemoveDelegate extends BaseFormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -14,10 +14,14 @@ class ResentInvite extends BaseFormRequest
     public function rules(): array
     {
         return [
-            'organisationId' => [
+            'id' => [
                 'required',
                 'integer',
                 'exists:organisations,id',
+            ],
+            'userId' => [
+                'required',
+                'integer',
             ],
         ];
     }
@@ -29,6 +33,9 @@ class ResentInvite extends BaseFormRequest
      */
     protected function prepareForValidation()
     {
-        $this->merge(['organisationId' => $this->route('id')]);
+        $this->merge([
+            'id' => $this->route('id'),
+            'userId' => $this->route('userId'),
+        ]);
     }
 }

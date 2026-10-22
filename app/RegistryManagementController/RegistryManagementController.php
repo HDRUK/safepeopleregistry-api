@@ -275,34 +275,44 @@ class RegistryManagementController
                 'organisation_id' => $user['organisation_id'] ?? null,
                 'custodian_id' => $user['custodian_id'] ?? null,
                 'custodian_user_id' => $user['custodian_user_id'] ?? null,
-                'is_delegate' => $user['is_delegate'] ?? 0,
+                'is_delegate' => $isOrgGroup ? ($user['is_delegate'] ?? 0) : 0,
                 'role' => $user['role'] ?? null,
                 'invited_by' => $user['invited_by'] ?? null,
-                'is_sro' => $user['is_sro'] ?? $isOrgGroup ? 1 : 0,
             ];
+            // is_sro is guarded, so it is set explicitly on every path below.
+            $isSro = $isOrgGroup ? ($user['is_sro'] ?? 0) : 0;
+
+            $saveWithSroFlag = function (User $unclaimedUser) use ($isSro): User {
+                $unclaimedUser->is_sro = $isSro;
+                $unclaimedUser->save();
+
+                return $unclaimedUser;
+            };
 
             if ($strictCreate) {
-                return User::create($userData);
+                return $saveWithSroFlag(new User($userData));
             } else {
                 $existingUser = User::where('email', $user['email'])->first();
 
                 if ($existingUser) {
                     if ($existingUser->unclaimed) {
-                        $existingUser->update($userData);
+                        $saveWithSroFlag($existingUser->fill($userData));
                         unset($userData);
                     }
                     return $existingUser;
                 }
 
                 if ($isRegistry) {
-                    return User::create($userData);
+                    return $saveWithSroFlag(new User($userData));
                 } else {
-                    return User::firstOrCreate(
+                    $newUser = User::firstOrNew(
                         [
                             'email' => $user['email'],
                         ],
                         $userData
                     );
+
+                    return $newUser->exists ? $newUser : $saveWithSroFlag($newUser);
                 }
             }
         } catch (Exception $e) {

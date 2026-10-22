@@ -10,18 +10,24 @@ use App\Models\Sector;
 use App\Models\Project;
 use App\Models\ActionLog;
 use App\Models\Custodian;
+use App\Models\File;
 use App\Jobs\SendEmailJob;
 use App\Models\ModelState;
 use App\Models\Affiliation;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Organisation;
 use App\Models\PendingInvite;
 use Tests\Traits\Authorisation;
 use App\Models\ProjectHasSponsorship;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\OrganisationRequested;
+use Laravel\Pennant\Feature;
 use App\Models\ProjectHasOrganisation;
 use KeycloakGuard\ActingAsKeycloakUser;
 use App\Models\OrganisationHasDepartment;
+use App\Models\OrganisationHasFile;
 
 class OrganisationTest extends TestCase
 {
@@ -36,6 +42,8 @@ class OrganisationTest extends TestCase
         parent::setUp();
         $this->withMiddleware();
         $this->withUsers();
+        config(['scanning_filesystem_disk' => 'local_scan']);
+        Storage::fake('local_scan');
 
         $this->testOrg = [
             'organisation_name' => 'HEALTH DATA RESEARCH UK',
@@ -76,6 +84,322 @@ class OrganisationTest extends TestCase
             'system_approved' => false,
             'sro_profile_uri' => 'https://myprofile.something',
         ];
+    }
+
+    public function test_sro_declaration_cannot_be_accessed_by_non_custodian_user(): void
+    {
+        $file = File::create([
+            'status' => File::FILE_STATUS_PROCESSED,
+            'type' => File::FILE_TYPE_DECLARATION_SRO,
+            'path' => 'testfile.txt',
+            'name' => 'testfile.txt'
+        ]);
+        $orgFilePivot = OrganisationHasFile::create([
+            'organisation_id' => 1,
+            'file_id' => 1
+        ]);
+        $response=$this->actingAs($this->user)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . '1'. '/sro_declaration'
+            );
+
+        $response->assertStatus(403);
+    }
+    public function test_sro_declaration_can_be_accessed_by_custodian_user(): void
+    {
+        $file = File::create([
+            'status' => File::FILE_STATUS_PROCESSED,
+            'type' => FILE::FILE_TYPE_DECLARATION_SRO,
+            'path' => 'testfile.txt',
+            'name' => 'testfile.txt',
+        ]);
+        $orgFilePivot = OrganisationHasFile::create([
+            'organisation_id' => 1,
+            'file_id' => 1
+        ]);
+        $response=$this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . '1'. '/sro_declaration'
+            );
+        
+        $response->assertStatus(200);
+    }
+
+    public function test_sro_declaration_cannot_be_accessed_if_not_sro_declaration_type(): void
+    {
+        $file = File::create([
+            'status' => File::FILE_STATUS_PROCESSED,
+            'type' => FILE::FILE_TYPE_CV,
+            'path' => 'testfile.txt',
+            'name' => 'testfile.txt',
+        ]);
+        $orgFilePivot = OrganisationHasFile::create([
+            'organisation_id' => 1,
+            'file_id' => 1
+        ]);
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . '1'. '/sro_declaration'
+            );
+        $response->assertStatus(404);
+    }
+
+    public function test_sro_declaration_cannot_be_downloaded_if_file_not_processed():void
+    {
+        Storage::fake('local_scan_scanned');
+        $organisation = Organisation::factory()->create();
+        $this->createSroDeclaration($organisation, 'pending.pdf', File::FILE_STATUS_PENDING);
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $organisation->id . '/sro_declaration'
+            );
+        $response->assertStatus(404);
+    }
+
+    public function test_sro_declaration_is_found_by_the_type_uploads_store(): void
+    {
+        Storage::fake('local_scan_scanned');
+        $organisation = Organisation::factory()->create();
+        // The web app uploads declarations with an upper case type.
+        $this->createSroDeclaration($organisation, 'declaration.pdf', type: 'DECLARATION_SRO');
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $organisation->id . '/sro_declaration'
+            );
+
+        $response->assertStatus(200);
+        $response->assertDownload('declaration.pdf');
+    }
+
+    public function test_latest_sro_declaration_is_the_most_recently_uploaded(): void
+    {
+        Storage::fake('local_scan_scanned');
+        $organisation = Organisation::factory()->create();
+        $this->createSroDeclaration($organisation, 'newer.pdf', createdAt: '2026-02-01 00:00:00');
+        // Created second, so it has the higher id, but was uploaded earlier.
+        $this->createSroDeclaration($organisation, 'older.pdf', createdAt: '2026-01-01 00:00:00');
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $organisation->id . '/sro_declaration'
+            );
+
+        $response->assertStatus(200);
+        $response->assertDownload('newer.pdf');
+    }
+
+    public function test_latest_sro_declaration_is_the_highest_id_when_uploaded_in_the_same_second(): void
+    {
+        Storage::fake('local_scan_scanned');
+        $organisation = Organisation::factory()->create();
+        $this->createSroDeclaration($organisation, 'first.pdf', createdAt: '2026-01-01 00:00:00');
+        $this->createSroDeclaration($organisation, 'second.pdf', createdAt: '2026-01-01 00:00:00');
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . $organisation->id . '/sro_declaration'
+            );
+
+        $response->assertStatus(200);
+        $response->assertDownload('second.pdf');
+    }
+
+    public function test_sro_declaration_details_are_the_latest_declaration_whatever_its_status(): void
+    {
+        Storage::fake('local_scan_scanned');
+        $organisation = Organisation::factory()->create();
+        $this->createSroDeclaration($organisation, 'older.pdf', createdAt: '2026-01-01 00:00:00');
+        $latest = $this->createSroDeclaration(
+            $organisation,
+            'newer.pdf',
+            File::FILE_STATUS_PENDING,
+            createdAt: '2026-02-01 00:00:00',
+        );
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json('GET', $this->sroDeclarationDetailsUrl($organisation));
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('data.id', $latest->id);
+        $response->assertJsonPath('data.name', 'newer.pdf');
+        $response->assertJsonPath('data.status', File::FILE_STATUS_PENDING);
+    }
+
+    public function test_sro_declaration_details_only_include_what_the_client_needs(): void
+    {
+        Storage::fake('local_scan_scanned');
+        $organisation = Organisation::factory()->create();
+        $this->createSroDeclaration($organisation, 'declaration.pdf');
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json('GET', $this->sroDeclarationDetailsUrl($organisation));
+
+        // No storage path, and no pivot from the organisation relation.
+        $response->assertStatus(200);
+        $response->assertExactJsonStructure([
+            'message',
+            'data' => ['id', 'name', 'type', 'status', 'created_at', 'updated_at'],
+        ]);
+    }
+
+    public function test_sro_declaration_details_find_the_type_uploads_store(): void
+    {
+        Storage::fake('local_scan_scanned');
+        $organisation = Organisation::factory()->create();
+        $declaration = $this->createSroDeclaration($organisation, 'declaration.pdf', type: 'DECLARATION_SRO');
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json('GET', $this->sroDeclarationDetailsUrl($organisation));
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('data.id', $declaration->id);
+    }
+
+    public function test_sro_declaration_details_are_the_highest_id_when_uploaded_in_the_same_second(): void
+    {
+        Storage::fake('local_scan_scanned');
+        $organisation = Organisation::factory()->create();
+        $this->createSroDeclaration($organisation, 'first.pdf', createdAt: '2026-01-01 00:00:00');
+        $second = $this->createSroDeclaration($organisation, 'second.pdf', createdAt: '2026-01-01 00:00:00');
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json('GET', $this->sroDeclarationDetailsUrl($organisation));
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('data.id', $second->id);
+    }
+
+    public function test_sro_declaration_details_are_null_when_there_is_no_declaration(): void
+    {
+        $organisation = Organisation::factory()->create();
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json('GET', $this->sroDeclarationDetailsUrl($organisation));
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('data', null);
+    }
+
+    public function test_sro_declaration_details_can_be_seen_by_the_organisations_users(): void
+    {
+        Storage::fake('local_scan_scanned');
+        $organisation = Organisation::factory()->create();
+        $declaration = $this->createSroDeclaration($organisation, 'declaration.pdf');
+        $organisationUser = User::factory()->create([
+            'user_group' => User::GROUP_ORGANISATIONS,
+            'organisation_id' => $organisation->id,
+        ]);
+
+        $response = $this->actingAs($organisationUser)
+            ->json('GET', $this->sroDeclarationDetailsUrl($organisation));
+
+        $response->assertStatus(200);
+        $response->assertJsonPath('data.id', $declaration->id);
+    }
+
+    public function test_sro_declaration_details_cannot_be_seen_by_another_organisations_users(): void
+    {
+        Storage::fake('local_scan_scanned');
+        $organisation = Organisation::factory()->create();
+        $this->createSroDeclaration($organisation, 'declaration.pdf');
+        $otherOrganisationUser = User::factory()->create([
+            'user_group' => User::GROUP_ORGANISATIONS,
+            'organisation_id' => Organisation::factory()->create()->id,
+        ]);
+
+        $response = $this->actingAs($otherOrganisationUser)
+            ->json('GET', $this->sroDeclarationDetailsUrl($organisation));
+
+        $response->assertStatus(403);
+    }
+
+    public function test_sro_declaration_details_cannot_be_seen_by_researchers(): void
+    {
+        Storage::fake('local_scan_scanned');
+        $organisation = Organisation::factory()->create();
+        $this->createSroDeclaration($organisation, 'declaration.pdf');
+
+        $response = $this->actingAs($this->user)
+            ->json('GET', $this->sroDeclarationDetailsUrl($organisation));
+
+        $response->assertStatus(403);
+    }
+
+    private function sroDeclarationDetailsUrl(Organisation $organisation): string
+    {
+        return self::TEST_URL . '/' . $organisation->id . '/sro_declaration/details';
+    }
+
+    private function createSroDeclaration(
+        Organisation $organisation,
+        string $name,
+        string $status = File::FILE_STATUS_PROCESSED,
+        string $type = File::FILE_TYPE_DECLARATION_SRO,
+        string $createdAt = '2026-01-01 00:00:00',
+    ): File {
+        Storage::disk('local_scan_scanned')->put($name, 'declaration');
+
+        // Set the clock rather than updating created_at, which would fire
+        // the File observer.
+        Carbon::setTestNow($createdAt);
+
+        $file = File::create([
+            'status' => $status,
+            'type' => $type,
+            'path' => $name,
+            'name' => $name,
+        ]);
+
+        Carbon::setTestNow();
+
+        OrganisationHasFile::create([
+            'organisation_id' => $organisation->id,
+            'file_id' => $file->id,
+        ]);
+
+        return $file;
+    }
+
+    public function test_sro_declaration_can_be_downloaded(): void
+    {
+        $file = File::create([
+            'status' => File::FILE_STATUS_PROCESSED,
+            'type' => FILE::FILE_TYPE_DECLARATION_SRO,
+            'path' => 'testfile.txt',
+            'name' => 'testfile.txt',
+        ]);
+        $orgFilePivot = OrganisationHasFile::create([
+            'organisation_id' => 1,
+            'file_id' => 1
+        ]);
+
+        Storage::disk('local_scan_scanned')->put('testfile.txt', 'test file content');
+        Storage::disk('local_scan_scanned')->assertExists('testfile.txt');
+
+        $fullPath = Storage::disk('local_scan_scanned')->path('testfile.txt');
+
+        $this->assertTrue(file_exists($fullPath));
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'GET',
+                self::TEST_URL . '/' . '1' . '/sro_declaration'
+            );
+
+        $response->assertStatus(200);
+        $response->assertHeader('Access-Control-Expose-Headers', 'Content-Disposition');
+        $response->assertHeader('Content-Disposition', 'attachment; filename=testfile.txt');
+
+        $response->assertDownload('testfile.txt');
     }
 
     public function test_the_application_can_search_on_org_name(): void
@@ -406,6 +730,574 @@ class OrganisationTest extends TestCase
     //     $response->assertStatus(200);
     // }
 
+    public function test_a_researcher_can_create_unclaimed_organisations_before_superadmin_invitation(): void
+    {
+        $this->assertSame(User::GROUP_USERS, $this->user->user_group);
+
+        $organisation = $this->createOrganisationBeforeSuperadminInvitation($this->user);
+
+        $this->assertSame('Barchester Infirmary', $organisation->organisation_name);
+        $this->assertNull($organisation->lead_applicant_email);
+        $this->assertTrue($organisation->unclaimed);
+        $this->assertNotEmpty($organisation->organisation_unique_id);
+    }
+
+    public function test_a_custodian_can_create_unclaimed_organisations_before_superadmin_invitation(): void
+    {
+        $this->assertSame(User::GROUP_CUSTODIANS, $this->custodian_admin->user_group);
+
+        $organisation = $this->createOrganisationBeforeSuperadminInvitation($this->custodian_admin);
+
+        $this->assertSame('Barchester Infirmary', $organisation->organisation_name);
+        $this->assertNull($organisation->lead_applicant_email);
+        $this->assertTrue($organisation->unclaimed);
+        $this->assertNotEmpty($organisation->organisation_unique_id);
+    }
+
+    public function test_creating_an_unclaimed_organisation_before_superadmin_invitation_creates_a_placeholder(): void
+    {
+        $organisation = $this->createOrganisationBeforeSuperadminInvitation($this->user);
+
+        $this->assertSame(State::STATE_ORGANISATION_PLACEHOLDER, $organisation->getState());
+        $this->assertSame('Barchester Infirmary', $organisation->organisation_name);
+        $this->assertNull($organisation->lead_applicant_email);
+        $this->assertTrue($organisation->unclaimed);
+        $this->assertNotEmpty($organisation->organisation_unique_id);
+    }
+
+    public function test_the_application_stores_the_optional_fields_given_before_superadmin_invitation(): void
+    {
+        $email = fake()->email();
+
+        $organisation = $this->createOrganisationBeforeSuperadminInvitation($this->user, [
+            'lead_applicant_email' => $email,
+            'unclaimed' => 0,
+            'sro_profile_uri' => 'https://myprofile.something',
+            'ods_id' => 'ABC123',
+            'dsptk_status' => 'Standards Met',
+            'dsptk_date_last_published' => '2026-01-31',
+            'ico_registration_id' => 'ZA123456',
+            'ico_date_registered' => '2025-06-01',
+            'ico_expiry_date' => '2027-06-01',
+        ]);
+
+        $this->assertSame($email, $organisation->lead_applicant_email);
+        $this->assertFalse($organisation->unclaimed);
+        $this->assertSame('https://myprofile.something', $organisation->sro_profile_uri);
+        $this->assertSame('ABC123', $organisation->ods_id);
+        $this->assertSame('Standards Met', $organisation->dsptk_status);
+        $this->assertSame('2026-01-31', $organisation->dsptk_date_last_published);
+        $this->assertSame('ZA123456', $organisation->ico_registration_id);
+        $this->assertSame('2025-06-01', $organisation->ico_date_registered);
+        $this->assertSame('2027-06-01', $organisation->ico_expiry_date);
+    }
+
+    private function createOrganisationBeforeSuperadminInvitation(User $actor, array $payload = []): Organisation
+    {
+        $response = $this->actingAs($actor)
+            ->json(
+                'POST',
+                self::TEST_URL . '/unclaimed_before_superadmin_invitation',
+                array_merge(['organisation_name' => 'Barchester Infirmary'], $payload)
+            );
+
+        $response->assertStatus(201);
+
+        return Organisation::findOrFail($response->decodeResponseJson()['data']);
+    }
+
+    public function test_reinviting_an_unclaimed_organisation_before_superadmin_invitation_is_a_conflict(): void
+    {
+        $email = fake()->unique()->safeEmail();
+
+        $unclaimed = $this->createOrganisationBeforeSuperadminInvitation($this->user, [
+            'lead_applicant_email' => $email,
+            'ods_id' => 'ORIGINAL',
+        ]);
+        $organisationCount = Organisation::count();
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'POST',
+                self::TEST_URL . '/unclaimed_before_superadmin_invitation',
+                [
+                    'organisation_name' => $unclaimed->organisation_name,
+                    'lead_applicant_email' => $email,
+                    'ods_id' => 'OVERWRITTEN',
+                ]
+            );
+
+        $response->assertStatus(409);
+        $response->assertJsonPath('data', 'unclaimed_duplicate');
+        $this->assertSame($organisationCount, Organisation::count());
+        $this->assertSame('ORIGINAL', $unclaimed->fresh()->ods_id);
+        $this->assertTrue($unclaimed->fresh()->unclaimed);
+    }
+
+    public function test_reinviting_an_unclaimed_organisation_before_superadmin_invitation_without_an_email_is_a_conflict(): void
+    {
+        $unclaimed = $this->createOrganisationBeforeSuperadminInvitation($this->user, [
+            'ods_id' => 'ORIGINAL',
+        ]);
+        $organisationCount = Organisation::count();
+
+        $response = $this->actingAs($this->user)
+            ->json(
+                'POST',
+                self::TEST_URL . '/unclaimed_before_superadmin_invitation',
+                [
+                    'organisation_name' => $unclaimed->organisation_name,
+                    'ods_id' => 'OVERWRITTEN',
+                ]
+            );
+
+        $response->assertStatus(409);
+        $response->assertJsonPath('data', 'unclaimed_duplicate_without_email');
+        $this->assertSame($organisationCount, Organisation::count());
+        $this->assertSame('ORIGINAL', $unclaimed->fresh()->ods_id);
+        $this->assertTrue($unclaimed->fresh()->unclaimed);
+    }
+
+    public function test_an_organisation_with_the_same_name_and_a_different_email_is_created_before_superadmin_invitation(): void
+    {
+        $original = $this->createOrganisationBeforeSuperadminInvitation($this->user, [
+            'lead_applicant_email' => fake()->unique()->safeEmail(),
+        ]);
+        $sameNameDifferentEmail = $this->createOrganisationBeforeSuperadminInvitation($this->user, [
+            'lead_applicant_email' => fake()->unique()->safeEmail(),
+        ]);
+
+        $this->assertNotSame($original->id, $sameNameDifferentEmail->id);
+        $this->assertSame(2, Organisation::where('organisation_name', 'Barchester Infirmary')->count());
+    }
+
+    public function test_an_organisation_with_the_same_email_and_a_different_name_is_a_conflict_before_superadmin_invitation(): void
+    {
+        $email = fake()->unique()->safeEmail();
+
+        $original = $this->createOrganisationBeforeSuperadminInvitation($this->user, [
+            'lead_applicant_email' => $email,
+        ]);
+        $organisationCount = Organisation::count();
+
+        $response = $this->actingAs($this->user)
+            ->json(
+                'POST',
+                self::TEST_URL . '/unclaimed_before_superadmin_invitation',
+                [
+                    'organisation_name' => 'St Ewolds Hospital',
+                    'lead_applicant_email' => $email,
+                ]
+            );
+
+        $response->assertStatus(409);
+        $response->assertJsonPath('data', 'unclaimed_duplicate');
+        $this->assertSame($organisationCount, Organisation::count());
+        $this->assertSame('Barchester Infirmary', $original->fresh()->organisation_name);
+    }
+
+    public function test_a_claimed_organisation_cannot_be_overwritten_by_name_before_superadmin_invitation(): void
+    {
+        $claimed = Organisation::factory()->create([
+            'organisation_name' => 'Barchester Infirmary',
+            'lead_applicant_email' => fake()->unique()->safeEmail(),
+            'unclaimed' => 0,
+            'ods_id' => 'ORIGINAL',
+        ]);
+        $organisationCount = Organisation::count();
+
+        $response = $this->actingAs($this->user)
+            ->json(
+                'POST',
+                self::TEST_URL . '/unclaimed_before_superadmin_invitation',
+                [
+                    'organisation_name' => $claimed->organisation_name,
+                    'ods_id' => 'OVERWRITTEN',
+                ]
+            );
+
+        $response->assertStatus(409);
+        $response->assertJsonPath('data', 'claimed_duplicate_without_email');
+        $this->assertSame($organisationCount, Organisation::count());
+        $this->assertSame('ORIGINAL', $claimed->fresh()->ods_id);
+        $this->assertFalse($claimed->fresh()->unclaimed);
+    }
+
+    public function test_a_claimed_organisation_cannot_be_overwritten_before_superadmin_invitation(): void
+    {
+        $claimed = Organisation::factory()->create([
+            'organisation_name' => 'Barchester Infirmary',
+            'lead_applicant_email' => fake()->unique()->safeEmail(),
+            'unclaimed' => 0,
+            'ods_id' => 'ORIGINAL',
+        ]);
+        $organisationCount = Organisation::count();
+
+        $response = $this->actingAs($this->user)
+            ->json(
+                'POST',
+                self::TEST_URL . '/unclaimed_before_superadmin_invitation',
+                [
+                    'organisation_name' => $claimed->organisation_name,
+                    'lead_applicant_email' => $claimed->lead_applicant_email,
+                    'ods_id' => 'OVERWRITTEN',
+                ]
+            );
+
+        $response->assertStatus(409);
+        $response->assertJsonPath('data', 'claimed_duplicate');
+        $this->assertSame($organisationCount, Organisation::count());
+        $this->assertSame('ORIGINAL', $claimed->fresh()->ods_id);
+        $this->assertFalse($claimed->fresh()->unclaimed);
+    }
+
+    public function test_a_superadmin_reinviting_an_unclaimed_organisation_does_not_duplicate_it_when_sro_requirement_is_disabled(): void
+    {
+        $this->withSroRequirement(false, fn () => $this->assertSuperadminReinviteDoesNotDuplicate('organisation_invite_by_superadmin'));
+    }
+
+    public function test_a_superadmin_reinviting_an_unclaimed_organisation_does_not_duplicate_it_when_sro_requirement_is_enabled(): void
+    {
+        $this->withSroRequirement(true, fn () => $this->assertSuperadminReinviteDoesNotDuplicate('organisation_invite'));
+    }
+
+    public function test_a_superadmin_invitation_approves_the_organisation_when_sro_requirement_is_disabled(): void
+    {
+        $this->withSroRequirement(false, function () {
+            $now = $this->freezeSecond();
+
+            $organisation = $this->inviteOrganisationAsSuperadmin();
+
+            $this->assertTrue($organisation->system_approved);
+            $this->assertEquals($now, $organisation->system_approved_at);
+        });
+    }
+
+    public function test_a_superadmin_invitation_does_not_approve_the_organisation_when_sro_requirement_is_enabled(): void
+    {
+        $this->withSroRequirement(true, function () {
+            $organisation = $this->inviteOrganisationAsSuperadmin();
+
+            $this->assertFalse($organisation->system_approved);
+            $this->assertNull($organisation->system_approved_at);
+        });
+    }
+
+    private function inviteOrganisationAsSuperadmin(): Organisation
+    {
+        $response = $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/unclaimed', [
+                'organisation_name' => 'Barchester Infirmary',
+                'lead_applicant_email' => fake()->unique()->safeEmail(),
+            ]);
+        $response->assertStatus(201);
+
+        $organisationId = $response->decodeResponseJson()['data'];
+        $this->assertFalse(Organisation::findOrFail($organisationId)->system_approved);
+
+        $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/' . $organisationId . '/invite')
+            ->assertStatus(201);
+
+        return Organisation::findOrFail($organisationId);
+    }
+
+    private function withSroRequirement(bool $enabled, callable $callback): void
+    {
+        $wasEnabled = Feature::active('SroRequirementEnabled');
+
+        try {
+            $enabled
+                ? Feature::activate('SroRequirementEnabled')
+                : Feature::deactivate('SroRequirementEnabled');
+
+            $callback();
+        } finally {
+            $wasEnabled
+                ? Feature::activate('SroRequirementEnabled')
+                : Feature::deactivate('SroRequirementEnabled');
+        }
+    }
+
+    public function test_store_unclaimed_creates_an_organisation_when_no_organisation_has_the_email(): void
+    {
+        Organisation::factory()->create([
+            'organisation_name' => 'Barchester Infirmary',
+            'lead_applicant_email' => 'existing@example.com',
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/unclaimed', [
+                'organisation_name' => 'Barchester Infirmary',
+                'lead_applicant_email' => 'new@example.com',
+            ]);
+
+        $response->assertStatus(201);
+        $organisation = Organisation::findOrFail($response->decodeResponseJson()['data']);
+        $this->assertSame('Barchester Infirmary', $organisation->organisation_name);
+        $this->assertSame('new@example.com', $organisation->lead_applicant_email);
+        $this->assertTrue($organisation->unclaimed);
+    }
+
+    public function test_store_unclaimed_rejects_a_duplicate_of_an_organisation_with_the_same_email_and_name(): void
+    {
+        Organisation::factory()->create([
+            'organisation_name' => 'Barchester Infirmary',
+            'lead_applicant_email' => 'lead@example.com',
+        ]);
+        $existingOrganisationsCount = Organisation::count();
+
+        $response = $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/unclaimed', [
+                'organisation_name' => 'Barchester Infirmary',
+                'lead_applicant_email' => 'lead@example.com',
+            ]);
+
+        $response->assertStatus(409);
+        $response->assertJsonPath('data', 'duplicate');
+        $this->assertSame($existingOrganisationsCount, Organisation::count());
+    }
+
+    public function test_store_unclaimed_rejects_an_email_used_by_an_organisation_with_a_different_name(): void
+    {
+        Organisation::factory()->create([
+            'organisation_name' => 'Barchester Infirmary',
+            'lead_applicant_email' => 'lead@example.com',
+        ]);
+        $existingOrganisationsCount = Organisation::count();
+
+        $response = $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/unclaimed', [
+                'organisation_name' => 'St Ewold Hospital',
+                'lead_applicant_email' => 'lead@example.com',
+            ]);
+
+        $response->assertStatus(409);
+        $response->assertJsonPath('data', 'email_in_use');
+        $this->assertSame($existingOrganisationsCount, Organisation::count());
+    }
+
+    public function test_store_unclaimed_requires_a_lead_applicant_email(): void
+    {
+        Organisation::factory()->create([
+            'organisation_name' => 'Barchester Infirmary',
+            'lead_applicant_email' => null,
+        ]);
+        $existingOrganisationsCount = Organisation::count();
+
+        $response = $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/unclaimed', [
+                'organisation_name' => 'St Ewold Hospital',
+            ]);
+
+        $response->assertStatus(400);
+        $response->assertJsonFragment([
+            'field' => 'lead_applicant_email',
+            'reason' => 'REQUIRED',
+        ]);
+        $this->assertSame($existingOrganisationsCount, Organisation::count());
+    }
+
+    public function test_store_unclaimed_requires_an_organisation_name(): void
+    {
+        $existingOrganisationsCount = Organisation::count();
+
+        $response = $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/unclaimed', [
+                'lead_applicant_email' => 'lead@example.com',
+            ]);
+
+        $response->assertStatus(400);
+        $response->assertJsonFragment([
+            'field' => 'organisation_name',
+            'reason' => 'REQUIRED',
+        ]);
+        $this->assertSame($existingOrganisationsCount, Organisation::count());
+    }
+
+    public function test_store_unclaimed_rejects_an_invalid_lead_applicant_email(): void
+    {
+        $existingOrganisationsCount = Organisation::count();
+
+        $response = $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/unclaimed', [
+                'organisation_name' => 'Barchester Infirmary',
+                'lead_applicant_email' => 'not-an-email',
+            ]);
+
+        $response->assertStatus(400);
+        $response->assertJsonFragment([
+            'field' => 'lead_applicant_email',
+            'reason' => 'EMAIL',
+        ]);
+        $this->assertSame($existingOrganisationsCount, Organisation::count());
+    }
+
+    public function test_a_claimed_organisation_cannot_be_overwritten_by_a_superadmin_invitation(): void
+    {
+        $claimed = Organisation::factory()->create([
+            'organisation_name' => 'Barchester Infirmary',
+            'lead_applicant_email' => fake()->unique()->safeEmail(),
+            'unclaimed' => 0,
+            'address_1' => '1 Cathedral Close',
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->json(
+                'POST',
+                self::TEST_URL . '/unclaimed',
+                [
+                    'organisation_name' => $claimed->organisation_name,
+                    'lead_applicant_email' => $claimed->lead_applicant_email,
+                ]
+            );
+
+        $response->assertStatus(409);
+        $response->assertJsonPath('data', 'duplicate');
+        $this->assertSame('1 Cathedral Close', $claimed->fresh()->address_1);
+        $this->assertFalse($claimed->fresh()->unclaimed);
+    }
+
+    public function test_an_unclaimed_organisation_contact_can_be_reinvited_to_contact_the_superadmin(): void
+    {
+        $unclaimedContact = User::factory()->create([
+            'email' => fake()->unique()->safeEmail(),
+            'unclaimed' => 1,
+        ]);
+        $organisation = $this->createOrganisationBeforeSuperadminInvitation($this->user, [
+            'lead_applicant_email' => $unclaimedContact->email,
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->json(
+                'POST',
+                self::TEST_URL . '/' . $organisation->id . '/invite_to_contact_superadmin',
+                ['email' => $unclaimedContact->email]
+            );
+
+        $response->assertStatus(200);
+        Queue::assertPushed(SendEmailJob::class, fn (SendEmailJob $job) => $job->to['email'] === $unclaimedContact->email);
+    }
+
+    public function test_a_claimed_user_cannot_be_invited_to_contact_the_superadmin(): void
+    {
+        $claimedContact = User::factory()->create([
+            'email' => fake()->unique()->safeEmail(),
+            'unclaimed' => 0,
+        ]);
+        $organisation = $this->createOrganisationBeforeSuperadminInvitation($this->user, [
+            'lead_applicant_email' => $claimedContact->email,
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->json(
+                'POST',
+                self::TEST_URL . '/' . $organisation->id . '/invite_to_contact_superadmin',
+                ['email' => $claimedContact->email]
+            );
+
+        $response->assertStatus(409);
+        Queue::assertNotPushed(SendEmailJob::class);
+    }
+
+    public function test_an_organisation_without_a_lead_applicant_email_generates_a_notification_to_the_superadmin(): void
+    {
+        Notification::fake();
+
+        $organisation = $this->createOrganisationBeforeSuperadminInvitation($this->user);
+        $this->assertNull($organisation->lead_applicant_email);
+
+        $superadmins = User::where('user_group', User::GROUP_ADMINS)->get();
+        $this->assertNotEmpty($superadmins);
+
+        $response = $this->actingAs($this->user)
+            ->json(
+                'POST',
+                self::TEST_URL . '/' . $organisation->id . '/invite_to_contact_superadmin'
+            );
+
+        $response->assertStatus(200);
+        Queue::assertNotPushed(SendEmailJob::class);
+
+        Notification::assertSentTo(
+            $superadmins,
+            OrganisationRequested::class,
+            function (OrganisationRequested $notification, array $channels, User $notifiable) use ($organisation) {
+                $details = $notification->toDatabase($notifiable)['details'];
+
+                return $details['organisation_name'] === $organisation->organisation_name
+                    && $details['email_address'] === null;
+            }
+        );
+        Notification::assertNotSentTo($this->user, OrganisationRequested::class);
+    }
+
+    public function test_a_custodian_can_invite_an_organisation_to_contact_the_superadmin(): void
+    {
+        $email = fake()->unique()->safeEmail();
+        $organisation = $this->createOrganisationBeforeSuperadminInvitation($this->custodian_admin, [
+            'lead_applicant_email' => $email,
+        ]);
+
+        $response = $this->actingAs($this->custodian_admin)
+            ->json(
+                'POST',
+                self::TEST_URL . '/' . $organisation->id . '/invite_to_contact_superadmin'
+            );
+
+        $response->assertStatus(200);
+        Queue::assertPushed(
+            SendEmailJob::class,
+            fn (SendEmailJob $job) => $job->to['email'] === $email
+                && $this->templateIdentifierOf($job) === 'organisation_invite_by_custodian'
+        );
+    }
+
+    /**
+     * SendEmailJob keeps its template private, and EmailTemplate declares a
+     * public $identifier property that shadows the Eloquent attribute.
+     */
+    private function templateIdentifierOf(SendEmailJob $job): ?string
+    {
+        return (fn () => $this->template->getAttribute('identifier'))->call($job);
+    }
+
+    private function assertSuperadminReinviteDoesNotDuplicate(string $expectedTemplateIdentifier): void
+    {
+        $email = fake()->unique()->safeEmail();
+        $payload = [
+            'organisation_name' => 'Barchester Infirmary',
+            'lead_applicant_email' => $email,
+        ];
+
+        $response = $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/unclaimed', $payload);
+        $response->assertStatus(201);
+
+        $organisationId = $response->decodeResponseJson()['data'];
+
+        $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/' . $organisationId . '/invite')
+            ->assertStatus(201);
+
+        $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/unclaimed', $payload)
+            ->assertStatus(409)
+            ->assertJsonPath('data', 'duplicate');
+
+        $organisation = Organisation::findOrFail($organisationId);
+        $this->assertTrue($organisation->unclaimed);
+        $this->assertSame(Feature::active('SroRequirementEnabled') ? State::STATE_INVITED : State::STATE_ORGANISATION_INVITED_BY_ADMIN, $organisation->getState());
+        $this->assertSame(1, Organisation::where($payload)->count());
+        $this->assertSame(1, User::where('email', $email)->count());
+
+        Queue::assertPushed(
+            SendEmailJob::class,
+            fn (SendEmailJob $job) => $job->to['email'] === $email
+                && $this->templateIdentifierOf($job) === $expectedTemplateIdentifier
+        );
+    }
+
     public function test_the_application_can_create_organisations_with_departments(): void
     {
         $isoCertified = fake()->randomElement([1, 0]);
@@ -704,7 +1596,8 @@ class OrganisationTest extends TestCase
                 ],
             );
 
-        $response->assertStatus(400);
+        $response->assertStatus(403);
+        $this->assertDatabaseMissing('users', ['email' => $email]);
     }
 
     public function test_the_application_can_invite_a_user_for_organisations_by_custodian(): void
@@ -817,7 +1710,6 @@ class OrganisationTest extends TestCase
             'last_name' => $lastName,
             'email' => $email,
             'organisation_id' => 1,
-            'is_delegate' => 0,
             'user_group' => 'ORGANISATIONS',
             'role' => null,
         ]);
@@ -853,6 +1745,104 @@ class OrganisationTest extends TestCase
             );
 
         $response->assertStatus(400);
+    }
+
+    public function test_a_custodian_invited_organisation_user_is_a_delegate_when_sro_requirement_is_disabled(): void
+    {
+        $this->withSroRequirement(false, fn () => $this->assertCustodianInvitedUserRoles(
+            User::GROUP_ORGANISATIONS,
+            expectedIsDelegate: 1,
+            expectedIsSro: 0,
+        ));
+    }
+
+    public function test_a_custodian_invited_organisation_user_is_an_sro_not_delegate_when_sro_requirement_is_enabled(): void
+    {
+        $this->withSroRequirement(true, fn () => $this->assertCustodianInvitedUserRoles(
+            User::GROUP_ORGANISATIONS,
+            expectedIsDelegate: 0,
+            expectedIsSro: 1,
+        ));
+    }
+
+    public function test_a_custodian_invited_researcher_is_never_a_delegate_or_sro_when_sro_requirement_is_disabled(): void
+    {
+        $this->withSroRequirement(false, fn () => $this->assertCustodianInvitedUserRoles(
+            User::GROUP_USERS,
+            expectedIsDelegate: 0,
+            expectedIsSro: 0,
+        ));
+    }
+
+    public function test_a_custodian_invited_researcher_is_never_a_delegate_or_sro_when_sro_requirement_is_enabled(): void
+    {
+        $this->withSroRequirement(true, fn () => $this->assertCustodianInvitedUserRoles(
+            User::GROUP_USERS,
+            expectedIsDelegate: 0,
+            expectedIsSro: 0,
+        ));
+    }
+
+    private function assertCustodianInvitedUserRoles(string $userGroup, int $expectedIsDelegate, int $expectedIsSro): void
+    {
+        $email = fake()->unique()->safeEmail();
+
+        $this->actingAs($this->custodian_admin)
+            ->json(
+                'POST',
+                self::TEST_URL . '/1/custodian_invite_user',
+                [
+                    'first_name' => 'Jane',
+                    'last_name' => 'Doe',
+                    'email' => $email,
+                    'user_group' => $userGroup,
+                ],
+            )
+            ->assertStatus(201);
+
+        $this->assertDatabaseHas('users', [
+            'email' => $email,
+            'user_group' => $userGroup,
+            'is_delegate' => $expectedIsDelegate,
+            'is_sro' => $expectedIsSro,
+        ]);
+    }
+
+    public function test_an_invited_lead_applicant_is_a_delegate_not_an_sro_when_sro_requirement_is_disabled(): void
+    {
+        $this->withSroRequirement(false, fn () => $this->assertInvitedLeadApplicantRoles(
+            expectedIsDelegate: 1,
+            expectedIsSro: 0,
+        ));
+    }
+
+    public function test_an_invited_lead_applicant_is_an_sro_not_a_delegate_when_sro_requirement_is_enabled(): void
+    {
+        $this->withSroRequirement(true, fn () => $this->assertInvitedLeadApplicantRoles(
+            expectedIsDelegate: 0,
+            expectedIsSro: 1,
+        ));
+    }
+
+    private function assertInvitedLeadApplicantRoles(int $expectedIsDelegate, int $expectedIsSro): void
+    {
+        $email = fake()->unique()->safeEmail();
+        $organisation = Organisation::factory()->create([
+            'lead_applicant_email' => $email,
+            'unclaimed' => 1,
+        ]);
+
+        $this->actingAs($this->admin)
+            ->json('POST', self::TEST_URL . '/' . $organisation->id . '/invite')
+            ->assertStatus(201);
+
+        $this->assertDatabaseHas('users', [
+            'email' => $email,
+            'user_group' => User::GROUP_ORGANISATIONS,
+            'organisation_id' => $organisation->id,
+            'is_delegate' => $expectedIsDelegate,
+            'is_sro' => $expectedIsSro,
+        ]);
     }
 
     public function test_the_application_can_invite_organisations(): void
@@ -1682,6 +2672,86 @@ class OrganisationTest extends TestCase
         $contentResponseApproveProjects = $responseApproveProjects->decodeResponseJson();
 
         $this->assertEquals($contentResponseApproveProjects['data'], State::STATE_SPONSORSHIP_REJECTED);
+    }
+
+    public function test_it_rejects_an_email_used_by_another_organisation(): void
+    {
+        Organisation::factory()->create([
+            'organisation_name' => 'Existing Organisation',
+            'lead_applicant_email' => 'lead@example.com',
+        ]);
+        $org = Organisation::factory()->create([
+            'organisation_name' => 'Updated Organisation',
+            'lead_applicant_email' => 'original@example.com',
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->json('PUT', self::TEST_URL . "/{$org->id}", [
+                'lead_applicant_email' => 'lead@example.com',
+            ]);
+
+        $response->assertStatus(409);
+        $response->assertJsonPath('data', 'email_in_use');
+        $this->assertEquals('original@example.com', $org->refresh()->lead_applicant_email);
+    }
+
+    public function test_it_rejects_an_email_used_by_another_organisation_with_the_same_name(): void
+    {
+        Organisation::factory()->create([
+            'organisation_name' => 'Same Organisation',
+            'lead_applicant_email' => 'lead@example.com',
+        ]);
+        $org = Organisation::factory()->create([
+            'organisation_name' => 'Same Organisation',
+            'lead_applicant_email' => 'original@example.com',
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->json('PUT', self::TEST_URL . "/{$org->id}", [
+                'organisation_name' => 'Same Organisation',
+                'lead_applicant_email' => 'lead@example.com',
+            ]);
+
+        $response->assertStatus(409);
+        $response->assertJsonPath('data', 'email_in_use');
+        $this->assertEquals('original@example.com', $org->refresh()->lead_applicant_email);
+    }
+
+    public function test_it_allows_an_organisation_to_keep_its_own_email(): void
+    {
+        $org = Organisation::factory()->create([
+            'organisation_name' => 'Original Name',
+            'lead_applicant_email' => 'lead@example.com',
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->json('PUT', self::TEST_URL . "/{$org->id}", [
+                'organisation_name' => 'Renamed Organisation',
+                'lead_applicant_email' => 'lead@example.com',
+            ]);
+
+        $response->assertStatus(200);
+        $this->assertEquals('Renamed Organisation', $org->refresh()->organisation_name);
+    }
+
+    public function test_it_allows_an_email_no_other_organisation_uses(): void
+    {
+        Organisation::factory()->create([
+            'organisation_name' => 'Same Organisation',
+            'lead_applicant_email' => 'lead@example.com',
+        ]);
+        $org = Organisation::factory()->create([
+            'organisation_name' => 'Same Organisation',
+            'lead_applicant_email' => 'original@example.com',
+        ]);
+
+        $response = $this->actingAs($this->admin)
+            ->json('PUT', self::TEST_URL . "/{$org->id}", [
+                'lead_applicant_email' => 'unused@example.com',
+            ]);
+
+        $response->assertStatus(200);
+        $this->assertEquals('unused@example.com', $org->refresh()->lead_applicant_email);
     }
 
     // LS - Removed as doesn't run in GH - possibly blocked by ROR

@@ -14,7 +14,7 @@ class FileObserver
 {
     public function updated(File $file): void
     {
-        if (strtolower($file->type) === File::FILE_TYPE_RESEARCHER_LIST &&
+        if ($file->isType(File::FILE_TYPE_RESEARCHER_LIST) &&
             strtolower($file->status) === File::FILE_STATUS_PROCESSED) {
             $org = OrganisationHasFile::where([
                 'file_id' => $file->id,
@@ -23,7 +23,7 @@ class FileObserver
             ProcessCSVSubmission::dispatch($file, $org);
         }
 
-        if (strtolower($file->type) === File::FILE_TYPE_DECLARATION_SRO &&
+        if ($file->isType(File::FILE_TYPE_DECLARATION_SRO) &&
             strtolower($file->status) === File::FILE_STATUS_PROCESSED) {
             $organisationId = OrganisationHasFile::where([
                 'file_id' => $file->id,

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -104,4 +105,33 @@ class File extends Model
         'path',
         'status',
     ];
+
+    /**
+     * Files of the given type. Types are stored as the client sends them
+     * (the web app sends upper case), so compare without case.
+     */
+    public function scopeOfType(Builder $query, string $type): Builder
+    {
+        // Qualified, as relations such as Organisation::files() join a pivot.
+        return $query->whereRaw(
+            'LOWER(' . $query->qualifyColumn('type') . ') = ?',
+            [strtolower($type)]
+        );
+    }
+
+    /**
+     * Most recently uploaded first. Timestamps are only accurate to the
+     * second, so ids break ties between files uploaded together.
+     */
+    public function scopeLatestUploaded(Builder $query): Builder
+    {
+        return $query
+            ->orderByDesc($query->qualifyColumn('created_at'))
+            ->orderByDesc($query->qualifyColumn('id'));
+    }
+
+    public function isType(string $type): bool
+    {
+        return strtolower($this->type) === strtolower($type);
+    }
 }

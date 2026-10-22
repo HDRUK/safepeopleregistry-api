@@ -14,6 +14,7 @@ use App\Models\Organisation;
 use App\Models\CustodianUser;
 use App\Models\PendingInvite;
 use Hdruk\LaravelMjml\Models\EmailTemplate;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class TriggerEmail
 {
@@ -43,6 +44,23 @@ class TriggerEmail
         return Str::uuid();
     }
 
+    /**
+     * A resend must email the code stored on the invite, otherwise its link points at a
+     * code that was never saved. Invites created before codes were stored are given one
+     * here, so this mutates the invite.
+     */
+    private function storedInviteCode(int $inviteId): string
+    {
+        $invite = PendingInvite::findOrFail($inviteId);
+
+        if ($invite->invite_code === null) {
+            $invite->invite_code = $this->generateInviteCode();
+            $invite->save();
+        }
+
+        return $invite->invite_code;
+    }
+
     public function spawnEmail(array $input): void
     {
         $replacements = [];
@@ -59,7 +77,7 @@ class TriggerEmail
         $custodianId = isset($input['custodianId']) ? $input['custodianId'] : null;
         $identifier = $input['identifier'];
         $inviteId = isset($input['inviteId']) ? $input['inviteId'] : null;
-        $inviteCode = $this->generateInviteCode();
+        $inviteCode = $inviteId === null ? $this->generateInviteCode() : $this->storedInviteCode($inviteId);
         $userName = isset($input['userName']) ? $input['userName'] : null;
         $organisationId = isset($input['organisationId']) ? $input['organisationId'] : null;
         $projectId = isset($input['projectId']) ? $input['projectId'] : null;
@@ -175,6 +193,7 @@ class TriggerEmail
                     '[[organisation.organisation_name]]' => $organisation->organisation_name,
                     '[[delegate_first_name]]' => $delegate->first_name,
                     '[[delegate_last_name]]' => $delegate->last_name,
+                    '[[inviteCode]]' => $inviteCode,
                     '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
                     '[[env(INVITE_TIME_HOURS)]]' => config('speedi.system.invite_time_hours'),
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
@@ -192,6 +211,7 @@ class TriggerEmail
                         'organisation_id' => $organisation->id,
                         'invite_sent_at' => Carbon::now(),
                         'status' => PendingInvite::STATE_PENDING,
+                        'invite_code' => $inviteCode,
                         'type' => $typeInvite,
                     ]);
                 }
@@ -534,10 +554,220 @@ class TriggerEmail
 
                 break;
 
+            case 'ORGANISATION_INVITE_BY_SUPERADMIN':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $organisation = Organisation::where('id', $organisationId)->first();
+
+                $newRecipients = [
+                    'id' => $to,
+                    'email' => $organisation->lead_applicant_email,
+                ];
+
+                $replacements = [
+                    '[[organisation.organisation_name]]' => $organisation->organisation_name,
+                    '[[inviteCode]]' => $inviteCode,
+                    '[[registration.email]]' => urlencode($organisation->lead_applicant_email),
+                    '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),
+                    // '[[digi_ident]]' => User::where('id', $unclaimedUserId)->first()->registry->digi_ident,
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[USER_NAME]]' => $userName,
+                    '[[SRO_TEMPLATE_DECLARATION_URL]]' => config('speedi.system.portal_url') . '/Registry_SRO_Declaration.pdf',
+                ];
+
+                if (!$inviteId) {
+                    PendingInvite::create([
+                        'user_id' => $unclaimedUserId,
+                        'status' => PendingInvite::STATE_PENDING,
+                        'invite_sent_at' => Carbon::now(),
+                        'invite_code' => $inviteCode,
+                        'organisation_id' => $organisationId,
+                        'type' => 'organisation_invite',
+                    ]);
+                }
+
+                break;
+
+            case 'ORGANISATION_INVITE_BY_CUSTODIAN':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $organisation = Organisation::where('id', $organisationId)->first();
+                $inviter = User::with('custodian_user.custodian')->where('id', $by)->firstOrFail();
+                $custodian = $inviter->custodian_user->custodian
+                    ?? throw (new ModelNotFoundException)->setModel(Custodian::class);
+
+                $newRecipients = [
+                    'id' => 0,
+                    'email' => $organisation->lead_applicant_email,
+                ];
+
+                $replacements = [
+                    '[[organisation.organisation_name]]' => $organisation->organisation_name,
+                    '[[inviteCode]]' => $inviteCode,
+                    '[[registration.email]]' => urlencode($organisation->lead_applicant_email),
+                    '[[inviter_name]]' => $inviter->first_name . ' ' . $inviter->last_name,
+                    '[[custodian_name]]' => $custodian->name,
+                    '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[SRO_TEMPLATE_DECLARATION_URL]]' => config('speedi.system.portal_url') . '/Registry_SRO_Declaration.pdf',
+                ];
+
+                break;
+
+            case 'ORGANISATION_INVITE_BY_USER':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $organisation = Organisation::where('id', $organisationId)->first();
+                $inviter = User::where('id', $by)->firstOrFail();
+
+                $newRecipients = [
+                    'id' => 0,
+                    'email' => $organisation->lead_applicant_email,
+                ];
+
+                $replacements = [
+                    '[[organisation.organisation_name]]' => $organisation->organisation_name,
+                    '[[inviteCode]]' => $inviteCode,
+                    '[[registration.email]]' => urlencode($organisation->lead_applicant_email),
+                    '[[inviter_name]]' => $inviter->first_name . ' ' . $inviter->last_name,
+                    '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[SRO_TEMPLATE_DECLARATION_URL]]' => config('speedi.system.portal_url') . '/Registry_SRO_Declaration.pdf',
+                ];
+
+                break;
+
+            case 'DELEGATE_REMOVED_USER':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $organisation = Organisation::where('id', $organisationId)->first();
+                $delegate = User::where('id', $to)->first();
+                $actor = User::where('id', $by)->first();
+
+                $newRecipients = [
+                    'id' => $delegate->id,
+                    'email' => $delegate->email,
+                ];
+
+                $replacements = [
+                    '[[organisation.organisation_name]]' => $organisation->organisation_name,
+                    '[[delegate_first_name]]' => $delegate->first_name,
+                    '[[actor_first_name]]' => $actor->first_name,
+                    '[[actor_last_name]]' => $actor->last_name,
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                ];
+
+                break;
+
+            case 'DELEGATE_REMOVED_ORGANISATION':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $organisation = Organisation::where('id', $organisationId)->first();
+                $recipient = User::where('id', $to)->first();
+                $delegate = User::where('id', $for)->first();
+                $actor = User::where('id', $by)->first();
+
+                $newRecipients = [
+                    'id' => $recipient->id,
+                    'email' => $recipient->email,
+                ];
+
+                $replacements = [
+                    '[[organisation.organisation_name]]' => $organisation->organisation_name,
+                    '[[recipient_first_name]]' => $recipient->first_name,
+                    '[[delegate_first_name]]' => $delegate->first_name,
+                    '[[delegate_last_name]]' => $delegate->last_name,
+                    '[[actor_first_name]]' => $actor->first_name,
+                    '[[actor_last_name]]' => $actor->last_name,
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                ];
+
+                break;
+
+            case 'SRO_INVITE':
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $organisation = Organisation::where('id', $organisationId)->first();
+                $invitee = User::where('id', $to)->first();
+                $actor = User::where('id', $by)->first();
+
+                $newRecipients = [
+                    'id' => $invitee->id,
+                    'email' => $invitee->email,
+                ];
+
+                $replacements = [
+                    '[[organisation.organisation_name]]' => $organisation->organisation_name,
+                    '[[recipient_first_name]]' => $invitee->first_name,
+                    '[[actor_first_name]]' => $actor->first_name,
+                    '[[actor_last_name]]' => $actor->last_name,
+                    '[[inviteCode]]' => $inviteCode,
+                    '[[registration.email]]' => urlencode($invitee->email),
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                ];
+
+                // A resend passes inviteId and reuses the code already stored on that invite.
+                if (!$inviteId) {
+                    PendingInvite::create([
+                        'user_id' => $invitee->id,
+                        'organisation_id' => $organisation->id,
+                        'invite_sent_at' => Carbon::now(),
+                        'status' => PendingInvite::STATE_PENDING,
+                        'invite_code' => $inviteCode,
+                        'type' => 'sro_invite',
+                    ]);
+                }
+
+                break;
+
+            case 'SRO_REPLACED_USER':
+            case 'SRO_APPOINTED_USER':
+            case 'SRO_CLAIMED_USER':
+            case 'SRO_APPOINTED_ORGANISATION':
+                // Same placeholders; the identifier picks which SRO template is sent.
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $organisation = Organisation::where('id', $organisationId)->first();
+                $recipient = User::where('id', $to)->first();
+                $sro = User::where('id', $for)->first();
+                $actor = User::where('id', $by)->first();
+
+                $newRecipients = [
+                    'id' => $recipient->id,
+                    'email' => $recipient->email,
+                ];
+
+                $replacements = [
+                    '[[organisation.organisation_name]]' => $organisation->organisation_name,
+                    '[[recipient_first_name]]' => $recipient->first_name,
+                    '[[sro_first_name]]' => $sro->first_name,
+                    '[[sro_last_name]]' => $sro->last_name,
+                    '[[actor_first_name]]' => $actor->first_name,
+                    '[[actor_last_name]]' => $actor->last_name,
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                ];
+
+                break;
+
             default: // Unknown type.
                 break;
         }
-
+        // newRecipients needs to have 'id' and 'email'
         SendEmailJob::dispatch($newRecipients, $template, $replacements, $newRecipients['email']);
     }
 }

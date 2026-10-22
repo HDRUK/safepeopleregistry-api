@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use TriggerEmail;
 use App\Models\User;
 use App\Models\Affiliation;
+use Laravel\Pennant\Feature;
 use Illuminate\Http\Request;
 use App\Models\PendingInvite;
 use App\Http\Traits\Responses;
@@ -77,7 +78,13 @@ class PendingInviteController extends Controller
                     return $query->where('email', 'LIKE', '%' . $value . '%');
                 });
             })
+            // Only id and name are joined, so the unqualified columns used by
+            // searchViaRequest (e.g. updated_at) stay unambiguous.
+            ->joinSub(User::select('id', 'name'), 'users', 'users.id', '=', 'pending_invites.user_id')
             ->applySorting()
+            // Tiebreak so pagination order is deterministic.
+            ->orderBy('pending_invites.id', 'desc')
+            ->select('pending_invites.*')
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return $this->OKResponse($pendingInvites);
@@ -147,15 +154,48 @@ class PendingInviteController extends Controller
             }
         }
 
-        if ($user->user_group === User::GROUP_ORGANISATIONS) {
-            $sendEmail = [
-                'type' => 'ORGANISATION',
-                'to' => $user->organisation_id,
-                'unclaimed_user_id' => $user->id,
-                'by' => $user->organisation_id,
-                'identifier' => 'organisation_invite',
-                'inviteId' => $inviteId,
-            ];
+        if ($user->user_group === User::GROUP_ORGANISATIONS && $pendingInvite->type === 'sro_invite') {
+            if ($user->is_sro) {
+                // An SRO invitation is resent as one, not as the organisation's lead-applicant invite.
+                $sendEmail = [
+                    'type' => 'SRO_INVITE',
+                    'to' => $user->id,
+                    'by' => $request->user()->id,
+                    'organisationId' => $user->organisation_id,
+                    'identifier' => 'sro_invite',
+                    'inviteId' => $inviteId,
+                ];
+            } else {
+                // Someone else became SRO, so this invitee now joins as a delegate and is invited as one.
+                $sendEmail = [
+                    'type' => 'USER_DELEGATE',
+                    'to' => $user->id,
+                    'by' => $user->organisation_id,
+                    'identifier' => 'delegate_invite',
+                    'inviteId' => $inviteId,
+                ];
+            }
+        } elseif ($user->user_group === User::GROUP_ORGANISATIONS) {
+            if (Feature::active('SroRequirementEnabled')) {
+                $sendEmail = [
+                    'type' => 'ORGANISATION',
+                    'to' => $user->organisation_id,
+                    'unclaimed_user_id' => $user->id,
+                    'by' => $user->organisation_id,
+                    'identifier' => 'organisation_invite',
+                    'inviteId' => $inviteId,
+                ];
+            } else {
+                $sendEmail = [
+                    'type' => 'ORGANISATION_INVITE_BY_SUPERADMIN',
+                    'organisationId' => $user->organisation_id,
+                    'to' => $user->organisation_id,
+                    'unclaimed_user_id' => $user->id,
+                    'by' => $user->organisation_id,
+                    'identifier' => 'organisation_invite_by_superadmin',
+                    'inviteId' => $inviteId,
+                ];
+            }
         }
 
         if (is_null($sendEmail)) {
@@ -164,7 +204,12 @@ class PendingInviteController extends Controller
 
         TriggerEmail::spawnEmail($sendEmail);
 
-        $pendingInvite->updated_at = now();
+        $now = now();
+        $pendingInvite->updated_at = $now;
+        if ($pendingInvite->type === 'sro_invite') {
+            // GET /organisations/{id} shows the organisation when an SRO invitation was last sent.
+            $pendingInvite->invite_sent_at = $now;
+        }
         $pendingInvite->save();
 
         return $this->OKResponse('Email invite resent');

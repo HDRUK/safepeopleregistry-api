@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\OrganisationRole;
 use App\Models\User;
 
 class UserPolicy
@@ -35,22 +36,20 @@ class UserPolicy
             return true;
         }
 
-        // Organisation admins can update themselves
+        $userRole = $user->organisationRole();
+        $modelRole = $model->organisationRole();
+
         if (
-            $user->user_group === User::GROUP_ORGANISATIONS &&
-            $model->user_group === User::GROUP_ORGANISATIONS &&
+            $userRole !== null &&
+            $modelRole !== null &&
             $user->organisation_id === $model->organisation_id
         ) {
-            // Org admins can update anyone in the same org
-            if (!$user->is_delegate) {
-                return true;
-            }
-
-            // Delegates can only update other delegates
-            /** @phpstan-ignore-next-line */
-            if ($user->is_delegate && $model->is_delegate) {
-                return true;
-            }
+            return match ($userRole) {
+                // SROs can update anyone in the same org
+                OrganisationRole::Sro => true,
+                // Delegates can only update other delegates, including themselves
+                OrganisationRole::Delegate => $modelRole === OrganisationRole::Delegate,
+            };
         }
 
         // others they can self-update

@@ -620,7 +620,7 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="10px 15px 0px 15px">
                                   Create your account by clicking the button below.
                                 </mj-text>
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]?login_hint=[[registration.email]]" padding="10px 15px 15px 15px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]?invite_code=[[inviteCode]]&login_hint=[[registration.email]]" padding="10px 15px 15px 15px">
                                   Sign me up!
                                 </mj-button>
                               </mj-column>
@@ -1298,7 +1298,434 @@ class EmailTemplatesSeeder extends Seeder
                       </mjml >',
             'buttons' => '',
           ],
+          [
+            'identifier' => 'organisation_invite_by_superadmin',
+            'subject' => 'Safe People Registry | Organisation invite from HDR UK',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#f6dff1" width="600px" >
 
+                          ' . $this->titleBar('Organisation invite') . '
+
+                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                                <mj-text align="left" padding="20px 0px 20px 0px">
+                                  You\'ve been invited to sign-up [[organisation.organisation_name]] as a trusted Organisation, for the [[env(APP_NAME)]] by HDR UK.
+                                  <div><br></div>
+                                  ' . $this->whatIsBlurb . '
+                                  <div><br></div>
+                                  Therefore, making an Organisation account will enable Data Custodians to validate you and your staff/students to gain access to sensitive data.
+                                  <div><br></div>
+                                  This will also give you oversight of the projects your Organisation is engaged with, which individuals at your Organisation are accessing sensitive data, and the ability to log when they leave your Organisation, automatically notifying Data Custodians to remove their access to sensitive data.
+                                  <div><br></div>
+                                  <b>How to make an account</b>
+                                  Follow the link below to claim your Organisation account.
+                                  <div><br></div>
+                                  After you have created an account, you can add Delegates to help administer it, as well as start affiliating staff/students with your Organisation. This helps speed up the validation process for gaining access to sensitive data.
+                                  <div><br></div>
+                                  ' . $this->supportFooter . '
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
+                              <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
+                                <mj-text align="left" padding="10px 15px 0px 15px">
+                                Create your account by clicking the button below.
+                                </mj-text>
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]?invite_code=[[inviteCode]]&login_hint=[[registration.email]]" padding="10px 15px 15px 15px">
+                                  Sign me up!
+                                </mj-button>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+
+                        </mj-body>
+                      </mjml >',
+            'buttons' => '',
+          ],
+          [
+            'identifier' => 'organisation_invite_by_custodian',
+            'subject' => 'Safe People Registry | Organisation invite from [[inviter_name]] on behalf of [[custodian_name]]',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#f6dff1" width="600px" >
+
+                          ' . $this->titleBar('Organisation invite from custodian') . '
+
+                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                                <mj-text align="left" padding="20px 0px 20px 0px">
+                                  [[organisation.organisation_name]]
+                                  <div><br></div>
+                                  You\'ve been invited to sign-up as a trusted Organisation, for the [[env(APP_NAME)]] by [[inviter_name]].
+                                  <div><br></div>
+                                  ' . $this->whatIsBlurb . '
+                                  <div><br></div>
+                                  Therefore, making an Organisation account will enable Data Custodians to validate your Organisation as well as your staff/students to speed up gaining access to sensitive data.
+                                  <div><br></div>
+                                  <b>Would you like to claim this account?</b>
+                                  <div><br></div>
+                                  Please reply to this email [[env(SUPPORT_EMAIL)]] to claim this Organisation account, providing some context for your role at your Organisation. Once added, you can add other Delegates from your Organisation to help administer the account (which can be very handy where your Organisation might have multiple departments or institutes!).
+                                  <div><br></div>
+                                  Thanks,
+                                  <div><br></div>
+                                  [[env(APP_NAME)]] Team
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
+                              <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
+                                <mj-text align="left" padding="10px 15px 0px 15px">
+                                Learn more about the Safe People Registry by following the link below.
+                                </mj-text>
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]" padding="10px 15px 15px 15px">
+                                  Go to the Safe People Registry
+                                </mj-button>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+
+                        </mj-body>
+                      </mjml >',
+            'buttons' => '',
+          ],
+          [
+            'identifier' => 'organisation_invite_by_user',
+            'subject' => 'Safe People Registry | Organisation invite from [[inviter_name]]',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#f6dff1" width="600px" >
+
+                          ' . $this->titleBar('Organisation invite from user') . '
+
+                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                                <mj-text align="left" padding="20px 0px 20px 0px">
+                                  [[organisation.organisation_name]]
+                                  <div><br></div>
+                                  You\'ve been invited to sign-up as a trusted Organisation, for the [[env(APP_NAME)]] by [[inviter_name]].
+                                  <div><br></div>
+                                  ' . $this->whatIsBlurb . '
+                                  <div><br></div>
+                                  Therefore, making an Organisation account will enable Data Custodians to validate your Organisation as well as your staff/students to speed up gaining access to sensitive data.
+                                  <div><br></div>
+                                  <b>Would you like to claim this account?</b>
+                                  <div><br></div>
+                                  Please reply to this email [[env(SUPPORT_EMAIL)]] to claim this Organisation account, providing some context for your role at your Organisation. Once added, you can add other Delegates from your Organisation to help administer the account (which can be very handy where your Organisation might have multiple departments or institutes!).
+                                  <div><br></div>
+                                  Thanks,
+                                  <div><br></div>
+                                  [[env(APP_NAME)]] Team
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
+                              <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
+                                <mj-text align="left" padding="10px 15px 0px 15px">
+                                Learn more about the Safe People Registry by following the link below.
+                                </mj-text>
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]" padding="10px 15px 15px 15px">
+                                  Go to the Safe People Registry
+                                </mj-button>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+
+                        </mj-body>
+                      </mjml >',
+            'buttons' => '',
+          ],
+          [
+            'identifier' => 'delegate_removed_user',
+            'subject' => 'Safe People Registry | You have been removed from [[organisation.organisation_name]]',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#f6dff1" width="600px" >
+
+                          ' . $this->titleBar('Removed from Organisation') . '
+
+                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                                <mj-text align="left" padding="20px 0px 20px 0px">
+                                  Hello [[delegate_first_name]],
+                                  <div><br></div>
+                                  [[actor_first_name]] [[actor_last_name]] has removed you as a Delegate for <b>[[organisation.organisation_name]]</b> on the [[env(APP_NAME)]].
+                                  <div><br></div>
+                                  You can no longer view or manage this Organisation\'s account. Your [[env(APP_NAME)]] account has not been deleted.
+                                  <div><br></div>
+                                  If you think this is a mistake, please contact [[organisation.organisation_name]] directly, or email us at [[env(SUPPORT_EMAIL)]].
+                                  <div><br></div>
+                                  Thanks,
+                                  <div><br></div>
+                                  [[env(APP_NAME)]] Team
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
+                              <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]" padding="10px 15px 15px 15px">
+                                  Go to the Safe People Registry
+                                </mj-button>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+
+                        </mj-body>
+                      </mjml >',
+            'buttons' => '',
+          ],
+          [
+            'identifier' => 'delegate_removed_organisation',
+            'subject' => 'Safe People Registry | [[delegate_first_name]] [[delegate_last_name]] has been removed from [[organisation.organisation_name]]',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#f6dff1" width="600px" >
+
+                          ' . $this->titleBar('Delegate removed') . '
+
+                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                                <mj-text align="left" padding="20px 0px 20px 0px">
+                                  Hello [[recipient_first_name]],
+                                  <div><br></div>
+                                  [[actor_first_name]] [[actor_last_name]] has removed [[delegate_first_name]] [[delegate_last_name]] as a Delegate for <b>[[organisation.organisation_name]]</b> on the [[env(APP_NAME)]]. They no longer have access to your Organisation\'s account.
+                                  <div><br></div>
+                                  You can review your Organisation\'s Delegates at any time from your [[env(APP_NAME)]] account.
+                                  <div><br></div>
+                                  If you weren\'t expecting this change, please contact [[env(SUPPORT_EMAIL)]].
+                                  <div><br></div>
+                                  Thanks,
+                                  <div><br></div>
+                                  [[env(APP_NAME)]] Team
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
+                              <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]" padding="10px 15px 15px 15px">
+                                  Go to the Safe People Registry
+                                </mj-button>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+
+                        </mj-body>
+                      </mjml >',
+            'buttons' => '',
+          ],
+          [
+            'identifier' => 'sro_replaced_user',
+            'subject' => 'Safe People Registry | You are no longer the SRO for [[organisation.organisation_name]]',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#f6dff1" width="600px" >
+
+                          ' . $this->titleBar('SRO changed') . '
+
+                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                                <mj-text align="left" padding="20px 0px 20px 0px">
+                                  Hello [[recipient_first_name]],
+                                  <div><br></div>
+                                  [[sro_first_name]] [[sro_last_name]] has been appointed as the Senior Responsible Officer (SRO) for <b>[[organisation.organisation_name]]</b> on the [[env(APP_NAME)]] by [[actor_first_name]] [[actor_last_name]].
+                                  <div><br></div>
+                                  You are no longer the SRO, but you remain a Delegate for the Organisation.
+                                  <div><br></div>
+                                  If you think this is a mistake, please contact [[organisation.organisation_name]] directly, or email us at [[env(SUPPORT_EMAIL)]].
+                                  <div><br></div>
+                                  Thanks,
+                                  <div><br></div>
+                                  [[env(APP_NAME)]] Team
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
+                              <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]" padding="10px 15px 15px 15px">
+                                  Go to the Safe People Registry
+                                </mj-button>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+
+                        </mj-body>
+                      </mjml >',
+            'buttons' => '',
+          ],
+          [
+            'identifier' => 'sro_appointed_organisation',
+            'subject' => 'Safe People Registry | [[sro_first_name]] [[sro_last_name]] is now the SRO for [[organisation.organisation_name]]',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#f6dff1" width="600px" >
+
+                          ' . $this->titleBar('New SRO') . '
+
+                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                                <mj-text align="left" padding="20px 0px 20px 0px">
+                                  Hello [[recipient_first_name]],
+                                  <div><br></div>
+                                  [[sro_first_name]] [[sro_last_name]] has been appointed as the Senior Responsible Officer (SRO) for <b>[[organisation.organisation_name]]</b> on the [[env(APP_NAME)]] by [[actor_first_name]] [[actor_last_name]].
+                                  <div><br></div>
+                                  If you weren\'t expecting this change, please contact [[env(SUPPORT_EMAIL)]].
+                                  <div><br></div>
+                                  Thanks,
+                                  <div><br></div>
+                                  [[env(APP_NAME)]] Team
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
+                              <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]" padding="10px 15px 15px 15px">
+                                  Go to the Safe People Registry
+                                </mj-button>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+
+                        </mj-body>
+                      </mjml >',
+            'buttons' => '',
+          ],
+          [
+            'identifier' => 'sro_appointed_user',
+            'subject' => 'Safe People Registry | You are now the SRO for [[organisation.organisation_name]]',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#f6dff1" width="600px" >
+
+                          ' . $this->titleBar('You are now the SRO') . '
+
+                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                                <mj-text align="left" padding="20px 0px 20px 0px">
+                                  Hello [[recipient_first_name]],
+                                  <div><br></div>
+                                  You have been appointed as the Senior Responsible Officer (SRO) for <b>[[organisation.organisation_name]]</b> on the [[env(APP_NAME)]] by [[actor_first_name]] [[actor_last_name]].
+                                  <div><br></div>
+                                  As SRO you are responsible for your Organisation\'s Delegates, who affiliate your employees or students, and you will need to complete the SRO declaration confirming you have the authority to do so.
+                                  <div><br></div>
+                                  If you weren\'t expecting this change, please contact [[organisation.organisation_name]] directly, or email us at [[env(SUPPORT_EMAIL)]].
+                                  <div><br></div>
+                                  Thanks,
+                                  <div><br></div>
+                                  [[env(APP_NAME)]] Team
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
+                              <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]" padding="10px 15px 15px 15px">
+                                  Go to the Safe People Registry
+                                </mj-button>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+
+                        </mj-body>
+                      </mjml >',
+            'buttons' => '',
+          ],
+          [
+            'identifier' => 'sro_invite',
+            'subject' => 'Safe People Registry | You have been invited to be the SRO for [[organisation.organisation_name]]',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#f6dff1" width="600px" >
+
+                          ' . $this->titleBar('SRO invite') . '
+
+                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                                <mj-text align="left" padding="20px 0px 20px 0px">
+                                  Hello [[recipient_first_name]],
+                                  <div><br></div>
+                                  [[actor_first_name]] [[actor_last_name]] has invited you to be the Senior Responsible Officer (SRO) for <b>[[organisation.organisation_name]]</b> on the [[env(APP_NAME)]].
+                                  <div><br></div>
+                                  As SRO you will be responsible for your Organisation\'s Delegates, who affiliate your employees or students, and you will need to complete the SRO declaration confirming you have the authority to do so. You become the SRO once you create your account using the button below.
+                                  <div><br></div>
+                                  If you weren\'t expecting this invitation, please contact [[organisation.organisation_name]] directly, or email us at [[env(SUPPORT_EMAIL)]].
+                                  <div><br></div>
+                                  Thanks,
+                                  <div><br></div>
+                                  [[env(APP_NAME)]] Team
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
+                              <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]?invite_code=[[inviteCode]]&login_hint=[[registration.email]]" padding="10px 15px 15px 15px">
+                                  Accept the invitation
+                                </mj-button>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+
+                        </mj-body>
+                      </mjml >',
+            'buttons' => '',
+          ],
+          [
+            'identifier' => 'sro_claimed_user',
+            'subject' => 'Safe People Registry | You are now the SRO for [[organisation.organisation_name]]',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#f6dff1" width="600px" >
+
+                          ' . $this->titleBar('You are now the SRO') . '
+
+                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                                <mj-text align="left" padding="20px 0px 20px 0px">
+                                  Hello [[recipient_first_name]],
+                                  <div><br></div>
+                                  This confirms that you have accepted the invitation from [[actor_first_name]] [[actor_last_name]] and are now the Senior Responsible Officer (SRO) for <b>[[organisation.organisation_name]]</b> on the [[env(APP_NAME)]].
+                                  <div><br></div>
+                                  As SRO you are responsible for your Organisation\'s Delegates, who affiliate your employees or students, and you will need to complete the SRO declaration confirming you have the authority to do so.
+                                  <div><br></div>
+                                  If you weren\'t expecting this, please contact [[organisation.organisation_name]] directly, or email us at [[env(SUPPORT_EMAIL)]].
+                                  <div><br></div>
+                                  Thanks,
+                                  <div><br></div>
+                                  [[env(APP_NAME)]] Team
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
+                              <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]" padding="10px 15px 15px 15px">
+                                  Go to the Safe People Registry
+                                </mj-button>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+
+                        </mj-body>
+                      </mjml >',
+            'buttons' => '',
+          ],
         ];
 
         foreach ($templates as $template) {

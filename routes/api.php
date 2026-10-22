@@ -425,27 +425,35 @@ Route::middleware('auth:api')
             Route::get('/{id}/delegates', 'getDelegates');
             Route::get('/{id}/registries', 'getRegistries');
             Route::get('/ror/{ror}', 'validateRor');
+            Route::get('/{id}/sro_declaration','getSroDeclaration');
+            Route::get('/{id}/sro_declaration/details', 'getSroDeclarationDetails');
 
             // Create
             Route::post('/', 'store');
             Route::post('/new_account', 'createOrgWithUser');
             Route::post('/unclaimed', 'storeUnclaimed');
+            Route::post('/unclaimed_before_superadmin_invitation', 'storeUnclaimedBeforeSuperadminInvitation');
             Route::post('/{id}/invite', 'invite');
+            Route::post('/{id}/invite_to_contact_superadmin', 'inviteToContactSuperadmin');
             Route::post('/{id}/invite_user', 'inviteUser');
             Route::post('/{id}/custodian_invite_user', 'custodianInviteUser');
 
             // Update
             Route::put('/{id}', 'update');
             Route::put('/{id}/approved', 'updateApproved');
+            Route::put('/{id}/sro', 'appointSro');
+            Route::post('/{id}/sro/invite', 'inviteSro');
+            Route::post('/{id}/sro/resend_invite', 'resendSroInvite');
 
             // Delete
             Route::delete('/{id}', 'destroy');
+            Route::delete('/{id}/delegates/{userId}', 'removeDelegate');
 
             Route::get('/{id}/history', [AuditLogController::class, 'showOrganisationHistory'])->whereNumber('id');
 
             Route::patch('/{id}/sponsorships/statuses', 'updateSponsorshipStatuses');
 
-            Route::patch('/{id}/resendInvite', 'resentInvite');
+            Route::patch('/{id}/resendInvite', 'resendInvite');
         });
 
         Route::controller(PermissionController::class)->group(function () {

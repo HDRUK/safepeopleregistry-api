@@ -18,7 +18,7 @@ class OrganisationApproved extends Notification implements ShouldQueue
      */
     public function __construct($org)
     {
-        $this->message = "$org->organisation_name was approved by the admin. You can now start inviting delegates and affiliationg users";
+        $this->message = "$org->organisation_name was approved by the admin. You can now start inviting and affiliating users";
         $this->details = 'The organization was approved by the admin.';
     }
 

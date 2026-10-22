@@ -411,7 +411,6 @@ class UserTest extends TestCase
                         'first_name' => 'Updated',
                         'last_name' => 'Name',
                         'email' => $newEmail,
-                        'organisation_id' => 2,
                         'location' => 1
                     ]
                 );
@@ -422,7 +421,8 @@ class UserTest extends TestCase
             $this->assertEquals($content['first_name'], 'Updated');
             $this->assertEquals($content['last_name'], 'Name');
             $this->assertEquals($content['consent_scrape'], true);
-            $this->assertEquals($content['organisation_id'], 2);
+            // organisation_id cannot be changed via this endpoint; see UpdateUserOrganisationFieldsTest
+            $this->assertEquals($content['organisation_id'], 1);
 
             $response = $this->actingAs($this->admin)
                 ->json(

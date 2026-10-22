@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use DB;
+use App\Enums\OrganisationRole;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -100,9 +102,9 @@ use Spatie\Activitylog\LogOptions;
  *      )
  * )
  *
- * @property \Illuminate\Database\Eloquent\Collection|\Illuminate\Notifications\DatabaseNotification[] $unreadNotifications
+ * @property \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $unreadNotifications
  * @property-read \App\Models\ModelState|null $modelState
- * @method \Illuminate\Notifications\DatabaseNotification[] unreadNotifications()
+ * @method \Illuminate\Database\Eloquent\Relations\MorphMany<\Illuminate\Notifications\DatabaseNotification, $this> unreadNotifications()
  * @property-read string $status
  * @property-read mixed $evaluation
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User searchViaRequest(array|null $input = null)
@@ -189,14 +191,19 @@ class User extends Authenticatable
         'location',
         't_and_c_agreed',
         't_and_c_agreement_date',
-        'is_sro',
         'invited_by',
+    ];
+
+    // Set explicitly where an SRO is appointed, never from request input.
+    protected $guarded = [
+        'is_sro',
     ];
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly($this->fillable)
+            // is_sro is guarded rather than fillable, but SRO changes must still be audited.
+            ->logOnly([...$this->fillable, 'is_sro'])
             ->logOnlyDirty()
             ->useLogName('user')
             ->dontSubmitEmptyLogs();
@@ -246,6 +253,7 @@ class User extends Authenticatable
         'consent_scrape' => 'boolean',
         'orcid_scanning' => 'boolean',
         'is_sro' => 'boolean',
+        'unclaimed' => 'boolean',
     ];
 
     protected $appends = ['status', 'evaluation'];
@@ -255,7 +263,7 @@ class User extends Authenticatable
         parent::boot();
 
         static::created(function ($model) {
-            if ($model->user_group === self::GROUP_USERS && $model->unclaimed === 0) {
+            if ($model->user_group === self::GROUP_USERS && $model->unclaimed === false) {
                 $model->setState(State::STATE_INVITED);
                 $model->save();
             }
@@ -264,7 +272,7 @@ class User extends Authenticatable
 
     public function getStatusAttribute(): string
     {
-        return $this->unclaimed === 1 ? State::STATE_INVITED : State::STATE_REGISTERED;
+        return $this->unclaimed === true ? State::STATE_INVITED : State::STATE_REGISTERED;
     }
 
     /**
@@ -444,6 +452,39 @@ class User extends Authenticatable
     public function inGroup(array $groups): bool
     {
         return in_array($this->user_group, $groups);
+    }
+
+    /**
+     * is_sro takes precedence over is_delegate; any other organisation user is a delegate.
+     * Organisation users detached from their organisation have no role.
+     */
+    public function organisationRole(): ?OrganisationRole
+    {
+        if (!$this->isOrganisation() || $this->organisation_id === null) {
+            return null;
+        }
+
+        return $this->is_sro ? OrganisationRole::Sro : OrganisationRole::Delegate;
+    }
+
+    /**
+     * Query equivalent of organisationRole() === OrganisationRole::Sro.
+     */
+    public function scopeSros(Builder $query): Builder
+    {
+        return $query->where('user_group', self::GROUP_ORGANISATIONS)
+            ->whereNotNull('organisation_id')
+            ->where('is_sro', 1);
+    }
+
+    /**
+     * Query equivalent of organisationRole() === OrganisationRole::Delegate.
+     */
+    public function scopeDelegates(Builder $query): Builder
+    {
+        return $query->where('user_group', self::GROUP_ORGANISATIONS)
+            ->whereNotNull('organisation_id')
+            ->where('is_sro', 0);
     }
 
     public static function getTransitions(): array

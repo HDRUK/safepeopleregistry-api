@@ -15,6 +15,9 @@ use App\Http\Traits\Responses;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use App\Http\Requests\Auth\ClaimUser;
+use App\Services\OrganisationMembershipService;
 use RegistryManagementController as RMC;
 
 class AuthController extends Controller
@@ -43,12 +46,26 @@ class AuthController extends Controller
         return $pendingInvite;
     }
 
-    public function registerKeycloakUser(Request $request): JsonResponse
+    public function registerKeycloakUser(Request $request, OrganisationMembershipService $membership): JsonResponse
     {
         $response = Keycloak::getUserInfo($request->headers->get('Authorization'));
         $payload = $response->json();
 
-        $createdUser = RMC::createNewUser($payload, $request);
+        // createNewUser also claims an unclaimed user with the same email. An invited SRO claimed
+        // this way must hand over in the same transaction, so the organisation never has two SROs.
+        [$createdUser, $handover] = DB::transaction(function () use ($payload, $request, $membership): array {
+            $createdUser = RMC::createNewUser($payload, $request);
+
+            $handover = isset($createdUser['unclaimed_user_id'])
+                ? $membership->completeSroClaim(User::findOrFail($createdUser['unclaimed_user_id']))
+                : null;
+
+            return [$createdUser, $handover];
+        });
+
+        if ($handover !== null) {
+            $membership->notifySroClaimed($handover);
+        }
 
         if ($createdUser) {
             $userId = isset($createdUser['unclaimed_user_id']) ? $createdUser['unclaimed_user_id'] : $createdUser['user_id'];
@@ -85,7 +102,8 @@ class AuthController extends Controller
                         ]);
                         $newAffiliation->setState(State::STATE_AFFILIATION_INFO_REQUIRED);
 
-                    } else {
+                    } elseif ($existingAffiliation !== null) {
+                        // Organisation users have no affiliation to update.
                         $existingAffiliation->setState(State::STATE_AFFILIATION_INFO_REQUIRED);
                     }
 
@@ -116,51 +134,81 @@ class AuthController extends Controller
         ], 400);
     }
 
-    public function claimUser(Request $request, int $userId): JsonResponse
+    public function claimUser(ClaimUser $request, OrganisationMembershipService $membership, int $userId): JsonResponse
     {
-        $response = Keycloak::getUserInfo($request->headers->get('Authorization'));
-        $input = $response->json();
+        $token = Auth::token();
 
-        $userToReplace = User::where('id', $userId)->first();
-
-        if (!$userToReplace) {
+        if (!$token || $token === 'null') {
             return response()->json([
-                'message' => 'User not found',
+                'message' => 'unauthorised',
                 'data' => null,
-            ], 400);
+            ], Response::HTTP_UNAUTHORIZED);
         }
 
-        if ($userToReplace->user_group !== User::GROUP_ORGANISATIONS) {
+        $arr = json_decode($token, true);
+
+        if (!isset($arr['sub'])) {
             return response()->json([
-                'message' => 'Only works for organisation admins ',
+                'message' => 'unauthorised',
                 'data' => null,
-            ], 400);
+            ], Response::HTTP_UNAUTHORIZED);
         }
 
-        if ($userToReplace->unclaimed === 0) {
-            return response()->json([
-                'message' => 'Account already claimed',
-                'data' => null,
-            ], 400);
+
+        $input = Keycloak::getUserInfo($request->headers->get('Authorization'))->json();
+
+        // The SRO handover commits with the claim; its emails are sent once both have committed.
+        [$response, $handover] = DB::transaction(function () use ($request, $userId, $input, $membership): array {
+            // The emailed invite code, not the guessable user id, proves who is being claimed.
+            // Locked so two requests with the same code cannot both claim.
+            $invite = PendingInvite::where([
+                'invite_code' => $request->input('invite_code'),
+                'user_id' => $userId,
+                'status' => PendingInvite::STATE_PENDING,
+            ])
+                ->lockForUpdate()
+                ->first();
+
+            $userToReplace = $invite
+                ? User::where(['id' => $userId, 'unclaimed' => true])->first()
+                : null;
+
+            if (!$userToReplace) {
+                return [$this->NotFoundResponse(), null];
+            }
+
+            if ($userToReplace->user_group !== User::GROUP_ORGANISATIONS) {
+                return [response()->json([
+                    'message' => 'Only works for organisation admins ',
+                    'data' => null,
+                ], Response::HTTP_BAD_REQUEST), null];
+            }
+
+            $invite->invite_accepted_at = Carbon::now();
+            $invite->status = PendingInvite::STATE_COMPLETE;
+            $invite->save();
+
+            $userToReplace->first_name = $input['given_name'];
+            $userToReplace->last_name = $input['family_name'];
+            $userToReplace->email = $input['email'];
+            $userToReplace->keycloak_id = $input['sub'];
+            $userToReplace->unclaimed = false;
+            $userToReplace->t_and_c_agreed = 1;
+            $userToReplace->t_and_c_agreement_date = now();
+
+            $userToReplace->save();
+
+            return [response()->json([
+                'message' => 'success',
+                'data' => $userToReplace
+            ], 201), $membership->completeSroClaim($userToReplace)];
+        });
+
+        if ($handover !== null) {
+            $membership->notifySroClaimed($handover);
         }
 
-        $this->acceptInvite($userToReplace->id);
-
-        $userToReplace->first_name = $input['given_name'];
-        $userToReplace->last_name = $input['family_name'];
-        $userToReplace->email = $input['email'];
-        $userToReplace->keycloak_id = $input['sub'];
-        $userToReplace->unclaimed = 0;
-        $userToReplace->t_and_c_agreed = 1;
-        $userToReplace->t_and_c_agreement_date = now();
-
-        $userToReplace->save();
-
-
-        return response()->json([
-            'message' => 'success',
-            'data' => $userToReplace
-        ], 201);
+        return $response;
     }
 
     public function meUnclaimed(Request $request): JsonResponse
