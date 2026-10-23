@@ -130,13 +130,14 @@ class UserObserver
                 );
             }
         }
-
-        // send email to admin if user->is_sro
-        if ($user->is_sro && !empty($changes)) {
-            Organisation::where('id', $user->organisation_id)->update([
-                'system_approved' => 0,
-            ]);
-        }
+        // Needs to be revisited, Removes system approval if any change is made to the SRO. 
+        // Or in other words Unexpected State detected. Enjoy your permanent vacation from access.
+        // // send email to admin if user->is_sro
+        // if ($user->is_sro && !empty($changes)) {
+        //     Organisation::where('id', $user->organisation_id)->update([
+        //         'system_approved' => 0,
+        //     ]);
+        // }
 
         if ($user->consent_scrape && filled($user->orc_id) && ($user->isDirty('orc_id') || $user->isDirty('consent_scrape'))) {
             // The OrcID scanner has been temporarily stopped.
