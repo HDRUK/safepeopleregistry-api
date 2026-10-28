@@ -2255,6 +2255,10 @@ class OrganisationController extends Controller
 
             TriggerEmail::spawnEmail($input);
 
+            // The organisations index sorts on when an organisation invite was last sent.
+            $pendingInvites->invite_sent_at = Carbon::now();
+            $pendingInvites->save();
+
             return $this->OKResponse('Organisation invite resent.');
         } catch (Exception $e) {
             throw new Exception($e->getMessage());

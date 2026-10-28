@@ -8,8 +8,10 @@ use App\Models\State;
 use App\Models\User;
 use Carbon\Carbon;
 use KeycloakGuard\ActingAsKeycloakUser;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
+use TriggerEmail;
 
 class OrganisationIndexSortTest extends TestCase
 {
@@ -70,25 +72,31 @@ class OrganisationIndexSortTest extends TestCase
         return Organisation::factory()->create(['unclaimed' => true, 'system_approved' => false]);
     }
 
-    private function createSroInvite(Organisation $organisation, int $day): PendingInvite
+    private function createInvite(Organisation $organisation, int $day, string $type, bool $isSro = false): PendingInvite
     {
         $this->travelTo($this->day($day));
 
-        $sro = User::factory()->create([
+        $invitee = User::factory()->create([
             'user_group' => User::GROUP_ORGANISATIONS,
             'organisation_id' => $organisation->id,
-            'is_sro' => true,
-            'is_delegate' => false,
+            'is_sro' => $isSro,
+            'is_delegate' => !$isSro,
             'unclaimed' => true,
+            'keycloak_id' => null,
         ]);
 
         return PendingInvite::create([
-            'user_id' => $sro->id,
+            'user_id' => $invitee->id,
             'organisation_id' => $organisation->id,
             'status' => PendingInvite::STATE_PENDING,
-            'type' => 'sro_invite',
+            'type' => $type,
             'invite_sent_at' => Carbon::now(),
         ]);
+    }
+
+    private function createSroInvite(Organisation $organisation, int $day): PendingInvite
+    {
+        return $this->createInvite($organisation, $day, 'sro_invite', isSro: true);
     }
 
     /**
@@ -169,15 +177,49 @@ class OrganisationIndexSortTest extends TestCase
         }
     }
 
-    public function test_resending_an_sro_invite_is_not_a_status_change(): void
+    public function test_sending_an_organisation_invite_is_a_status_change(): void
     {
         $organisation = $this->createOrganisationOn(1);
-        $invite = $this->createSroInvite($organisation, 2);
-
-        $this->travelTo($this->day(20));
-        $invite->update(['invite_sent_at' => Carbon::now()]);
+        $this->createInvite($organisation, 4, 'organisation_invite');
         $this->travelBack();
 
-        $this->assertTrue($this->statusChangedAtFor($organisation)->equalTo($this->day(2)));
+        $this->assertTrue($this->statusChangedAtFor($organisation)->equalTo($this->day(4)));
+    }
+
+    /**
+     * @return array<string, array{string, bool}>
+     */
+    public static function resendableInviteProvider(): array
+    {
+        return [
+            'organisation invite' => ['organisation_invite', false],
+            'sro invite' => ['sro_invite', true],
+        ];
+    }
+
+    #[DataProvider('resendableInviteProvider')]
+    public function test_resending_an_invite_is_a_status_change(string $type, bool $isSro): void
+    {
+        TriggerEmail::spy();
+
+        $organisation = $this->createOrganisationOn(1);
+        $invite = $this->createInvite($organisation, 2, $type, $isSro);
+
+        $this->travelTo($this->day(20));
+        $this->actingAs($this->admin)
+            ->json('POST', "/api/v1/pending_invites/{$invite->id}/resend_invite")
+            ->assertStatus(200);
+        $this->travelBack();
+
+        $this->assertTrue($this->statusChangedAtFor($organisation)->equalTo($this->day(20)));
+    }
+
+    public function test_inviting_an_organisations_users_is_not_a_status_change(): void
+    {
+        $organisation = $this->createOrganisationOn(1);
+        $this->createInvite($organisation, 5, 'organisation_user_invite');
+        $this->travelBack();
+
+        $this->assertTrue($this->statusChangedAtFor($organisation)->equalTo($this->day(1)));
     }
 }

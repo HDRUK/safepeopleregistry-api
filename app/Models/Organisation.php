@@ -742,8 +742,9 @@ class Organisation extends Model
 
     /**
      * Selects status_changed_at: when the Organisation's status last changed, so it can be sorted on.
-     * The latest of its model state change, system approval, and SRO invited or claimed, falling back
-     * to created_at. SRO changes outside an sro_invite, e.g. an SRO being removed, are not seen.
+     * The latest of its model state change, system approval, and its organisation and SRO invites being
+     * sent, resent or accepted, falling back to created_at. SRO changes outside an sro_invite, e.g. an
+     * SRO being removed, are not seen.
      */
     public function scopeWithStatusChangedAt(Builder $query): Builder
     {
@@ -763,11 +764,16 @@ class Organisation extends Model
                     WHERE model_states.stateable_type = ? AND model_states.stateable_id = organisations.id
                 ), organisations.created_at),
                 COALESCE((
-                    SELECT MAX(COALESCE(pending_invites.invite_accepted_at, pending_invites.created_at)) FROM pending_invites
-                    WHERE pending_invites.organisation_id = organisations.id AND pending_invites.type = ?
+                    SELECT MAX({$greatest}(
+                        pending_invites.created_at,
+                        COALESCE(pending_invites.invite_sent_at, pending_invites.created_at),
+                        COALESCE(pending_invites.invite_accepted_at, pending_invites.created_at)
+                    )) FROM pending_invites
+                    WHERE pending_invites.organisation_id = organisations.id AND pending_invites.type IN (?, ?)
                 ), organisations.created_at)
             ) AS status_changed_at",
-            [$this->getMorphClass(), 'sro_invite']
+            // Only invites to the Organisation itself and its SRO: inviting its users is not a status change.
+            [$this->getMorphClass(), 'organisation_invite', 'sro_invite']
         );
     }
 
