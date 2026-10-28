@@ -302,7 +302,7 @@ class RulesSeeder extends Seeder
                     'file_type' => \App\Models\File::FILE_TYPE_DECLARATION_SRO,
                 ]),
                 'rule_class' => \App\Rules\Organisations\SroDeclarationCheck::class,
-                'description' => 'An Organisation\'s current SRO has signed and uploaded an SRO declaration.',
+                'description' => 'An Organisation has uploaded an SRO declaration since its current SRO was appointed.',
                 'decision_model_type_id' => 3,
             ],
 

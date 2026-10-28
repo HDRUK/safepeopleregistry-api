@@ -157,6 +157,8 @@ class OrganisationController extends Controller
                     'registries.user.permissions',
                     'delegates',
                     'sroOfficer.invitedBy.custodian_user',
+                    // Read by the SRO declaration rule for every organisation on the page.
+                    'claimedSro',
                     'modelState.state'
                 ])
                 ->filterWhen('has_delegates', function ($query, $hasDelegates) {

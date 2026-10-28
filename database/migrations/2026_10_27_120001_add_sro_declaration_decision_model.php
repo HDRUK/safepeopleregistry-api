@@ -28,7 +28,7 @@ return new class () extends Migration {
                 'file_type' => \App\Models\File::FILE_TYPE_DECLARATION_SRO,
             ]),
             'rule_class' => SroDeclarationCheck::class,
-            'description' => 'An Organisation\'s current SRO has signed and uploaded an SRO declaration.',
+            'description' => 'An Organisation has uploaded an SRO declaration since its current SRO was appointed.',
             'decision_model_type_id' => $typeId,
             'created_at' => now(),
             'updated_at' => now(),

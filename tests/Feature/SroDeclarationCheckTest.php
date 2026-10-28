@@ -98,6 +98,41 @@ class SroDeclarationCheckTest extends TestCase
         $this->assertTrue($this->passes());
     }
 
+    public function test_a_latest_declaration_that_fails_its_scan_fails_it_despite_an_earlier_clean_one(): void
+    {
+        $this->createMember(isSro: true);
+        $this->travel(1)->minutes();
+        $this->uploadDeclaration();
+        $this->travel(1)->minutes();
+        $this->uploadDeclaration(File::FILE_STATUS_FAILED);
+
+        $this->assertFalse($this->passes());
+    }
+
+    public function test_a_latest_declaration_still_being_scanned_fails_it_despite_an_earlier_clean_one(): void
+    {
+        $this->createMember(isSro: true);
+        $this->travel(1)->minutes();
+        $this->uploadDeclaration();
+        $this->travel(1)->minutes();
+        $latest = $this->uploadDeclaration(File::FILE_STATUS_PENDING);
+
+        $this->assertFalse($this->passes());
+
+        $latest->update(['status' => File::FILE_STATUS_PROCESSED]);
+        $this->assertTrue($this->passes());
+    }
+
+    public function test_declarations_uploaded_in_the_same_second_are_ordered_by_id(): void
+    {
+        $this->createMember(isSro: true);
+        $this->travel(1)->minutes();
+        $this->uploadDeclaration();
+        $this->uploadDeclaration(File::FILE_STATUS_FAILED);
+
+        $this->assertFalse($this->passes());
+    }
+
     public function test_a_change_of_sro_fails_it_until_a_new_declaration_is_uploaded(): void
     {
         $this->createMember(isSro: true);
