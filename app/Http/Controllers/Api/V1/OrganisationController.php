@@ -143,6 +143,7 @@ class OrganisationController extends Controller
         if (!$custodianId) {
             $organisations = Organisation::searchViaRequest()
                 ->filterByState()
+                ->withStatusChangedAt()
                 ->applySorting()
                 // Tie-breaker so pages are stable when sorted values repeat, e.g. equal names.
                 ->orderBy('organisations.id')

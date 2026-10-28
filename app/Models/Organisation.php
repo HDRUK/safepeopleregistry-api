@@ -41,6 +41,11 @@ use App\Traits\FilterManager;
  *          type="string",
  *          example="2023-10-10T16:03:00Z"
  *      ),
+ *      @OA\Property(property="status_changed_at",
+ *          type="string",
+ *          example="2023-10-11T09:00:00Z",
+ *          description="When the organisation's status last changed. Only returned by the organisations index."
+ *      ),
  *      @OA\Property(property="organisation_name",
  *          type="string",
  *          example="An Organisation Ltd"
@@ -456,6 +461,8 @@ class Organisation extends Model
 
     protected static array $sortableColumns = [
         'organisation_name',
+        // Only sortable where the query uses withStatusChangedAt().
+        'status_changed_at',
     ];
 
     protected $hidden = [
@@ -731,6 +738,37 @@ class Organisation extends Model
             OrganisationSroStatus::Invited => $query->whereHas('unclaimedSro')->whereDoesntHave('claimedSro'),
             OrganisationSroStatus::None => $query->whereDoesntHave('claimedSro')->whereDoesntHave('unclaimedSro'),
         };
+    }
+
+    /**
+     * Selects status_changed_at: when the Organisation's status last changed, so it can be sorted on.
+     * The latest of its model state change, system approval, and SRO invited or claimed, falling back
+     * to created_at. SRO changes outside an sro_invite, e.g. an SRO being removed, are not seen.
+     */
+    public function scopeWithStatusChangedAt(Builder $query): Builder
+    {
+        if (is_null($query->getQuery()->columns)) {
+            $query->select('organisations.*');
+        }
+
+        // SQLite has no GREATEST; its multi-argument MAX() is the equivalent.
+        $greatest = $this->getConnection()->getDriverName() === 'sqlite' ? 'MAX' : 'GREATEST';
+
+        return $query->selectRaw(
+            "{$greatest}(
+                organisations.created_at,
+                COALESCE(organisations.system_approved_at, organisations.created_at),
+                COALESCE((
+                    SELECT MAX(model_states.updated_at) FROM model_states
+                    WHERE model_states.stateable_type = ? AND model_states.stateable_id = organisations.id
+                ), organisations.created_at),
+                COALESCE((
+                    SELECT MAX(COALESCE(pending_invites.invite_accepted_at, pending_invites.created_at)) FROM pending_invites
+                    WHERE pending_invites.organisation_id = organisations.id AND pending_invites.type = ?
+                ), organisations.created_at)
+            ) AS status_changed_at",
+            [$this->getMorphClass(), 'sro_invite']
+        );
     }
 
     //Possible refactor candidate
