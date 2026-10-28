@@ -752,17 +752,20 @@ class Organisation extends Model
             $query->select('organisations.*');
         }
 
-        // SQLite has no GREATEST; its multi-argument MAX() is the equivalent.
         $greatest = $this->getConnection()->getDriverName() === 'sqlite' ? 'MAX' : 'GREATEST';
 
         return $query->selectRaw(
+            // GREATEST returns NULL if any argument is NULL, so each value falls back to created_at.
             "{$greatest}(
                 organisations.created_at,
+                -- Approved, rejected or invited by a superadmin.
                 COALESCE(organisations.system_approved_at, organisations.created_at),
+                -- Last model state change: updated_at only moves when the state does.
                 COALESCE((
                     SELECT MAX(model_states.updated_at) FROM model_states
                     WHERE model_states.stateable_type = ? AND model_states.stateable_id = organisations.id
                 ), organisations.created_at),
+                -- Latest invite activity: each invite's first send, last resend or acceptance.
                 COALESCE((
                     SELECT MAX({$greatest}(
                         pending_invites.created_at,
