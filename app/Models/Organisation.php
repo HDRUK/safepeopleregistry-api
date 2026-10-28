@@ -575,6 +575,11 @@ class Organisation extends Model
                 'name' => 'signed_data_access_agreement',
                 'description' => 'Signed Data Access Agreement',
             ],
+            [
+                // The SRO declaration automated flag can only see that one was uploaded, not who signed it.
+                'name' => 'sro_declaration_verified',
+                'description' => 'Contact details tab: Check the SRO declaration is signed by the current SRO',
+            ],
         ];
     }
 
