@@ -94,6 +94,7 @@ class CheckingOrganisationAutomatedFlags extends Command
                             'registries.user.permissions',
                             'sector',
                             'files',
+                            'claimedSro',
                         ])->where('id', $oId)->first();
         $rules = $this->decisionEvaluator->evaluate($organisation);
 

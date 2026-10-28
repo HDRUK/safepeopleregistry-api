@@ -443,6 +443,7 @@ class Organisation extends Model
         'ce_certified' => 'boolean',
         'idvt_result' => 'boolean',
         'unclaimed' => 'boolean',
+        'sro_appointed_at' => 'datetime',
         'ce_expiry_date' => 'date:Y-m-d',
         'ce_plus_expiry_date' => 'date:Y-m-d',
         'iso_expiry_date' => 'date:Y-m-d',

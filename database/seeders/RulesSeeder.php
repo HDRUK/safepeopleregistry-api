@@ -294,6 +294,17 @@ class RulesSeeder extends Seeder
                 'description' => 'An Organisation has at least one Delegate/Key Contact to affiliate Users.',
                 'decision_model_type_id' => 3,
             ],
+            [
+                'name' => 'SRO declaration',
+                'model_type' => \App\Models\Organisation::class,
+                'conditions' => json_encode([
+                    'path' => 'files',
+                    'file_type' => \App\Models\File::FILE_TYPE_DECLARATION_SRO,
+                ]),
+                'rule_class' => \App\Rules\Organisations\SroDeclarationCheck::class,
+                'description' => 'An Organisation\'s current SRO has signed and uploaded an SRO declaration.',
+                'decision_model_type_id' => 3,
+            ],
 
 
         ];
