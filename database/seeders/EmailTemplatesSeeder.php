@@ -1311,18 +1311,17 @@ class EmailTemplatesSeeder extends Seeder
                             <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
                               <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
                                 <mj-text align="left" padding="20px 0px 20px 0px">
-                                  You\'ve been invited to sign-up [[organisation.organisation_name]] as a trusted Organisation, for the [[env(APP_NAME)]] by HDR UK.
+                                  You\'ve been invited to sign-up [[organisation.organisation_name]] as a trusted Organisation for the [[env(APP_NAME)]] by HDR UK.
                                   <div><br></div>
                                   ' . $this->whatIsBlurb . '
                                   <div><br></div>
-                                  Therefore, making an Organisation account will enable Data Custodians to validate you and your staff/students to gain access to sensitive data.
+                                  Therefore, making an Organisation account will enable Data Custodians to validate you and accelerate granting your staff/students access to sensitive data.
                                   <div><br></div>
-                                  This will also give you oversight of the projects your Organisation is engaged with, which individuals at your Organisation are accessing sensitive data, and the ability to log when they leave your Organisation, automatically notifying Data Custodians to remove their access to sensitive data.
+                                  This will also give you oversight of the projects your Organisation is engaged with, which individuals at your Organisation are accessing sensitive data, and the ability to log when they leave your Organisation, automatically notifying Data Custodians to remove their access to sensitive data. After you have created an account, you will be able to add Delegates to help administer it.
                                   <div><br></div>
-                                  <b>How to make an account</b>
+                                  <b>Would you like to claim your account</b>
+                                  <div><br></div>
                                   Follow the link below to claim your Organisation account.
-                                  <div><br></div>
-                                  After you have created an account, you can add Delegates to help administer it, as well as start affiliating staff/students with your Organisation. This helps speed up the validation process for gaining access to sensitive data.
                                   <div><br></div>
                                   ' . $this->supportFooter . '
                                 </mj-text>
@@ -1335,7 +1334,7 @@ class EmailTemplatesSeeder extends Seeder
                                 Create your account by clicking the button below.
                                 </mj-text>
                                 <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]?invite_code=[[inviteCode]]&login_hint=[[registration.email]]" padding="10px 15px 15px 15px">
-                                  Sign me up!
+                                  Claim your account
                                 </mj-button>
                               </mj-column>
                             </mj-section>
