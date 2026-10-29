@@ -595,7 +595,7 @@ class TriggerEmail
                 $organisation = Organisation::where('id', $organisationId)->first();
                 $inviter = User::with('custodian_user.custodian')->where('id', $by)->firstOrFail();
                 $custodian = $inviter->custodian_user->custodian
-                    ?? throw (new ModelNotFoundException)->setModel(Custodian::class);
+                    ?? throw (new ModelNotFoundException())->setModel(Custodian::class);
 
                 $newRecipients = [
                     'id' => 0,
@@ -608,6 +608,8 @@ class TriggerEmail
                     '[[registration.email]]' => urlencode($organisation->lead_applicant_email),
                     '[[inviter_name]]' => $inviter->first_name . ' ' . $inviter->last_name,
                     '[[custodian_name]]' => $custodian->name,
+                    '[[inviter_name_urlencoded]]' => rawurlencode($inviter->first_name . ' ' . $inviter->last_name),
+                    '[[organisation_name_urlencoded]]' => rawurlencode($organisation->organisation_name),
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
                     '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
                     '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),
@@ -633,6 +635,8 @@ class TriggerEmail
                     '[[inviteCode]]' => $inviteCode,
                     '[[registration.email]]' => urlencode($organisation->lead_applicant_email),
                     '[[inviter_name]]' => $inviter->first_name . ' ' . $inviter->last_name,
+                    '[[inviter_name_urlencoded]]' => rawurlencode($inviter->first_name . ' ' . $inviter->last_name),
+                    '[[organisation_name_urlencoded]]' => rawurlencode($organisation->organisation_name),
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
                     '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
                     '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),

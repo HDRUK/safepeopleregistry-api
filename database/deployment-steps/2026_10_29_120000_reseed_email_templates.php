@@ -21,6 +21,6 @@ return new class () extends DeploymentStep {
             $this->info("Seeded email templates");
         } catch (\Throwable $e) {
             $this->warn("Email templates could not be seeded: {$e->getMessage()}");
-        }; 
+        };
     }
 };

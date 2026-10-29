@@ -1351,7 +1351,7 @@ class EmailTemplatesSeeder extends Seeder
                         ' . $this->mjmlHead . '
                         <mj-body background-color="#f6dff1" width="600px" >
 
-                          ' . $this->titleBar('Organisation invite from custodian') . '
+                          ' . $this->titleBar('Organisation contact') . '
 
                           <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
                             <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
@@ -1359,15 +1359,15 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="20px 0px 20px 0px">
                                   [[organisation.organisation_name]]
                                   <div><br></div>
-                                  You\'ve been invited to sign-up as a trusted Organisation for the [[env(APP_NAME)]] by [[inviter_name]].
+                                  You\'ve been invited to sign-up as a trusted Organisation for the [[env(APP_NAME)]] by [[inviter_name]] on behalf of [[custodian_name]].
                                   <div><br></div>
                                   ' . $this->whatIsBlurb . '
                                   <div><br></div>
-                                  Therefore, making an Organisation account will enable Data Custodians to validate you and accelerate granting your staff/students access to sensitive data.
+                                  Therefore, making an Organisation account will enable Data Custodians to validate you and accelerate granting your staff/students access to sensitive data. Once you have created an account, you can add other Delegates from your Organisation to help administer the account (which can be very handy where your Organisation might have multiple departments or institutes!).
                                   <div><br></div>
                                   <b>Would you like to claim this account?</b>
                                   <div><br></div>
-                                  Please reply to this email [[env(SUPPORT_EMAIL)]] to claim this Organisation account, providing some context for your role at your Organisation. Once added, you can add other Delegates from your Organisation to help administer the account (which can be very handy where your Organisation might have multiple departments or institutes!).
+                                  Please click the button below to send us an email and claim this Organisation account, providing some context for your role at your Organisation, so that we can invite you onboard.
                                   <div><br></div>
                                   Thanks,
                                   <div><br></div>
@@ -1379,10 +1379,10 @@ class EmailTemplatesSeeder extends Seeder
                             <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
                               <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
                                 <mj-text align="left" padding="10px 15px 0px 15px">
-                                Learn more about the Safe People Registry by following the link below.
+                                Learn more about the Safe People Registry by following the link below, or you can email us at 
                                 </mj-text>
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]" padding="10px 15px 15px 15px">
-                                  Go to the Safe People Registry
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="mailto:enquiries@safepeopleregistry.org?subject=Organisation%20invite%20from%20[[inviter_name_urlencoded]]&body=Hello%20Safe%20People%20Registry%20team%2C%0D%0A%0D%0AI%27d%20like%20to%20claim%20the%20organisation%20account%20of%20[[organisation_name_urlencoded]].%20I%20work%20there%20as%20a%20..." padding="10px 15px 15px 15px">
+                                  Request your account
                                 </mj-button>
                               </mj-column>
                             </mj-section>
@@ -1399,7 +1399,7 @@ class EmailTemplatesSeeder extends Seeder
                         ' . $this->mjmlHead . '
                         <mj-body background-color="#f6dff1" width="600px" >
 
-                          ' . $this->titleBar('Organisation invite from user') . '
+                          ' . $this->titleBar('Organisation contact') . '
 
                           <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
                             <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
@@ -1411,10 +1411,11 @@ class EmailTemplatesSeeder extends Seeder
                                   <div><br></div>
                                   ' . $this->whatIsBlurb . '
                                   <div><br></div>
-                                  Therefore, making an Organisation account will enable Data Custodians to validate you and accelerate granting your staff/students access to sensitive data.
+                                  Therefore, making an Organisation account will enable Data Custodians to validate you and accelerate granting your staff/students access to sensitive data. Once you have created an account, you can add other Delegates from your Organisation to help administer the account (which can be very handy where your Organisation might have multiple departments or institutes!).
+                                  <div><br></div>
                                   <b>Would you like to claim this account?</b>
                                   <div><br></div>
-                                  Please reply to this email [[env(SUPPORT_EMAIL)]] to claim this Organisation account, providing some context for your role at your Organisation. Once added, you can add other Delegates from your Organisation to help administer the account (which can be very handy where your Organisation might have multiple departments or institutes!).
+                                  Please click the button below to send us an email and claim this Organisation account, providing some context for your role at your Organisation, so that we can invite you onboard.
                                   <div><br></div>
                                   Thanks,
                                   <div><br></div>
@@ -1426,10 +1427,10 @@ class EmailTemplatesSeeder extends Seeder
                             <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
                               <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
                                 <mj-text align="left" padding="10px 15px 0px 15px">
-                                Learn more about the Safe People Registry by following the link below.
+                                Learn more about the Safe People Registry by following the link below, or you can email us at 
                                 </mj-text>
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]" padding="10px 15px 15px 15px">
-                                  Go to the Safe People Registry
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="mailto:enquiries@safepeopleregistry.org?subject=Organisation%20invite%20from%20[[inviter_name_urlencoded]]&body=Hello%20Safe%20People%20Registry%20team%2C%0D%0A%0D%0AI%27d%20like%20to%20claim%20the%20organisation%20account%20of%20[[organisation_name_urlencoded]].%20I%20work%20there%20as%20a%20..." padding="10px 15px 15px 15px">
+                                  Request your account
                                 </mj-button>
                               </mj-column>
                             </mj-section>

@@ -76,7 +76,7 @@ class OrganisationInviteByCustodianEmailTest extends TestCase
         Mail::assertSent(Email::class, fn (Email $mail) => $mail->hasTo('lead.applicant@example.com')
             && $mail->envelope()->subject === 'Safe People Registry | Organisation invite from Jane Doe on behalf of Example Health Custodian');
 
-        Http::assertSent(fn (Request $request) => str_contains($request['mjml'], 'by Jane Doe.')
+        Http::assertSent(fn (Request $request) => str_contains($request['mjml'], 'by Jane Doe on behalf of Example Health Custodian.')
             && ! str_contains($request['mjml'], 'TO REPLACE')
             && ! str_contains($request['mjml'], '[['));
     }
