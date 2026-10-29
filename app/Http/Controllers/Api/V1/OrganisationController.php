@@ -143,6 +143,7 @@ class OrganisationController extends Controller
         if (!$custodianId) {
             $organisations = Organisation::searchViaRequest()
                 ->filterByState()
+                ->withStatusChangedAt()
                 ->applySorting()
                 // Tie-breaker so pages are stable when sorted values repeat, e.g. equal names.
                 ->orderBy('organisations.id')
@@ -2253,6 +2254,10 @@ class OrganisationController extends Controller
             }
 
             TriggerEmail::spawnEmail($input);
+
+            // The organisations index sorts on when an organisation invite was last sent.
+            $pendingInvites->invite_sent_at = Carbon::now();
+            $pendingInvites->save();
 
             return $this->OKResponse('Organisation invite resent.');
         } catch (Exception $e) {

@@ -41,6 +41,11 @@ use App\Traits\FilterManager;
  *          type="string",
  *          example="2023-10-10T16:03:00Z"
  *      ),
+ *      @OA\Property(property="status_changed_at",
+ *          type="string",
+ *          example="2023-10-11T09:00:00Z",
+ *          description="When the organisation's status last changed. Only returned by the organisations index."
+ *      ),
  *      @OA\Property(property="organisation_name",
  *          type="string",
  *          example="An Organisation Ltd"
@@ -456,6 +461,8 @@ class Organisation extends Model
 
     protected static array $sortableColumns = [
         'organisation_name',
+        // Only sortable where the query uses withStatusChangedAt().
+        'status_changed_at',
     ];
 
     protected $hidden = [
@@ -731,6 +738,46 @@ class Organisation extends Model
             OrganisationSroStatus::Invited => $query->whereHas('unclaimedSro')->whereDoesntHave('claimedSro'),
             OrganisationSroStatus::None => $query->whereDoesntHave('claimedSro')->whereDoesntHave('unclaimedSro'),
         };
+    }
+
+    /**
+     * Selects status_changed_at: when the Organisation's status last changed, so it can be sorted on.
+     * The latest of its model state change, system approval, and its organisation and SRO invites being
+     * sent, resent or accepted, falling back to created_at. SRO changes outside an sro_invite, e.g. an
+     * SRO being removed, are not seen.
+     */
+    public function scopeWithStatusChangedAt(Builder $query): Builder
+    {
+        if (is_null($query->getQuery()->columns)) {
+            $query->select('organisations.*');
+        }
+
+        $greatest = $this->getConnection()->getDriverName() === 'sqlite' ? 'MAX' : 'GREATEST';
+
+        return $query->selectRaw(
+            // GREATEST returns NULL if any argument is NULL, so each value falls back to created_at.
+            "{$greatest}(
+                organisations.created_at,
+                -- Approved, rejected or invited by a superadmin.
+                COALESCE(organisations.system_approved_at, organisations.created_at),
+                -- Last model state change: updated_at only moves when the state does.
+                COALESCE((
+                    SELECT MAX(model_states.updated_at) FROM model_states
+                    WHERE model_states.stateable_type = ? AND model_states.stateable_id = organisations.id
+                ), organisations.created_at),
+                -- Latest invite activity: each invite's first send, last resend or acceptance.
+                COALESCE((
+                    SELECT MAX({$greatest}(
+                        pending_invites.created_at,
+                        COALESCE(pending_invites.invite_sent_at, pending_invites.created_at),
+                        COALESCE(pending_invites.invite_accepted_at, pending_invites.created_at)
+                    )) FROM pending_invites
+                    WHERE pending_invites.organisation_id = organisations.id AND pending_invites.type IN (?, ?)
+                ), organisations.created_at)
+            ) AS status_changed_at",
+            // Only invites to the Organisation itself and its SRO: inviting its users is not a status change.
+            [$this->getMorphClass(), 'organisation_invite', 'sro_invite']
+        );
     }
 
     //Possible refactor candidate
