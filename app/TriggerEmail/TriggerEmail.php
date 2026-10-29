@@ -761,6 +761,8 @@ class TriggerEmail
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
                     '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
                     '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                    '[[SRO_TEMPLATE_DECLARATION_URL]]' => config('speedi.system.portal_url') . '/Registry_SRO_Declaration.pdf',
+
                 ];
 
                 break;

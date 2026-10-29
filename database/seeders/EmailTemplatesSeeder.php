@@ -1618,7 +1618,7 @@ class EmailTemplatesSeeder extends Seeder
                                   <div><br></div>
                                   You have been appointed as the Senior Responsible Officer (SRO) for <b>[[organisation.organisation_name]]</b> on the [[env(APP_NAME)]] by [[actor_first_name]] [[actor_last_name]].
                                   <div><br></div>
-                                  As SRO you are responsible for your Organisation\'s Delegates, who affiliate your employees or students, and you will need to complete the SRO declaration confirming you have the authority to do so.
+                                  As SRO you are responsible for your Organisation\'s Delegates, who affiliate your employees or students. You become the SRO once you create your account using the button below and upload the [<a href="[[SRO_TEMPLATE_DECLARATION_URL]]">SRO Declaration</a>]
                                   <div><br></div>
                                   If you weren\'t expecting this change, please contact [[organisation.organisation_name]] directly, or email us at [[env(SUPPORT_EMAIL)]].
                                   <div><br></div>
@@ -1631,12 +1631,11 @@ class EmailTemplatesSeeder extends Seeder
 
                             <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
                               <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]" padding="10px 15px 15px 15px">
-                                  Go to the Safe People Registry
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/organisation/profile/details/sro" padding="10px 15px 15px 15px">
+                                  Upload your SRO declaration
                                 </mj-button>
                               </mj-column>
                             </mj-section>
-                          </mj-wrapper>
 
                         </mj-body>
                       </mjml >',
@@ -1698,9 +1697,9 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="20px 0px 20px 0px">
                                   Hello [[recipient_first_name]],
                                   <div><br></div>
-                                  This confirms that you have accepted the invitation from [[actor_first_name]] [[actor_last_name]] and are now the Senior Responsible Officer (SRO) for <b>[[organisation.organisation_name]]</b> on the [[env(APP_NAME)]].
+                                  This confirms that you have accepted the invitation from [[actor_first_name]] [[actor_last_name]] and are now the Senior Responsible Officer (SRO) for <b>[[organisation.organisation_name]]</b> on the [[env(APP_NAME)]], pending upload of the SRO declaration confirming your authority.
                                   <div><br></div>
-                                  As SRO you are responsible for your Organisation\'s Delegates, who affiliate your employees or students, and you will need to complete the SRO declaration confirming you have the authority to do so.
+                                  As SRO you are responsible for your Organisation\'s Delegates, who affiliate your employees or students.
                                   <div><br></div>
                                   If you weren\'t expecting this, please contact [[organisation.organisation_name]] directly, or email us at [[env(SUPPORT_EMAIL)]].
                                   <div><br></div>
@@ -1710,11 +1709,10 @@ class EmailTemplatesSeeder extends Seeder
                                 </mj-text>
                               </mj-column>
                             </mj-section>
-
                             <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
                               <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]" padding="10px 15px 15px 15px">
-                                  Go to the Safe People Registry
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/organisation/profile/details/sro" padding="10px 15px 15px 15px">
+                                  Upload your SRO declaration
                                 </mj-button>
                               </mj-column>
                             </mj-section>
