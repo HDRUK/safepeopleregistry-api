@@ -1,0 +1,40 @@
+# Dependencies
+/node_modules
+/vendor
+
+# Lock files
+composer.lock
+package-lock.json
+
+# Build artefacts and generated output
+/public/build
+/public/hot
+/public/storage
+/storage/api-docs/api-docs.json
+/sdks
+_ide_helper.php
+_ide_helper_models.php
+.phpstorm.meta.php
+
+# Caches, logs and runtime storage
+/.phpunit.cache
+.phpunit.result.cache
+/storage/logs
+/storage/framework
+/bootstrap/cache
+npm-debug.log
+yarn-error.log
+
+# Secrets and local config (.env.example is fine to read)
+.env
+.env.backup
+.env.production
+auth.json
+tiltconf.json
+
+# Editor and local tooling
+/.idea
+/.fleet
+/.vscode
+**/caddy
+frankenphp
