@@ -7,6 +7,7 @@ use App\Models\Organisation;
 use App\Models\User;
 use App\Rules\Organisations\SroDeclarationCheck;
 use App\Services\OrganisationMembershipService;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
@@ -21,6 +22,13 @@ class SroDeclarationCheckTest extends TestCase
         Notification::fake();
 
         $this->organisation = Organisation::factory()->create();
+    }
+
+    public function tearDown(): void
+    {
+        Carbon::setTestNow();
+
+        parent::tearDown();
     }
 
     private function createMember(bool $isSro, int $unclaimed = 0): User
@@ -77,7 +85,7 @@ class SroDeclarationCheckTest extends TestCase
     public function test_it_passes_when_the_sro_has_uploaded_a_declaration(): void
     {
         $this->createMember(isSro: true);
-        $this->travel(1)->minutes();
+        Carbon::setTestNow(Carbon::now()->addMinute());
         $this->uploadDeclaration();
 
         $this->assertTrue($this->passes());
@@ -86,7 +94,7 @@ class SroDeclarationCheckTest extends TestCase
     public function test_it_fails_until_the_declaration_has_been_scanned_clean(): void
     {
         $this->createMember(isSro: true);
-        $this->travel(1)->minutes();
+        Carbon::setTestNow(Carbon::now()->addMinute());
         $file = $this->uploadDeclaration(File::FILE_STATUS_PENDING);
 
         $this->assertFalse($this->passes());
@@ -101,9 +109,9 @@ class SroDeclarationCheckTest extends TestCase
     public function test_a_latest_declaration_that_fails_its_scan_fails_it_despite_an_earlier_clean_one(): void
     {
         $this->createMember(isSro: true);
-        $this->travel(1)->minutes();
+        Carbon::setTestNow(Carbon::now()->addMinute());
         $this->uploadDeclaration();
-        $this->travel(1)->minutes();
+        Carbon::setTestNow(Carbon::now()->addMinute());
         $this->uploadDeclaration(File::FILE_STATUS_FAILED);
 
         $this->assertFalse($this->passes());
@@ -112,9 +120,9 @@ class SroDeclarationCheckTest extends TestCase
     public function test_a_latest_declaration_still_being_scanned_fails_it_despite_an_earlier_clean_one(): void
     {
         $this->createMember(isSro: true);
-        $this->travel(1)->minutes();
+        Carbon::setTestNow(Carbon::now()->addMinute());
         $this->uploadDeclaration();
-        $this->travel(1)->minutes();
+        Carbon::setTestNow(Carbon::now()->addMinute());
         $latest = $this->uploadDeclaration(File::FILE_STATUS_PENDING);
 
         $this->assertFalse($this->passes());
@@ -126,7 +134,7 @@ class SroDeclarationCheckTest extends TestCase
     public function test_declarations_uploaded_in_the_same_second_are_ordered_by_id(): void
     {
         $this->createMember(isSro: true);
-        $this->travel(1)->minutes();
+        Carbon::setTestNow(Carbon::now()->addMinute());
         $this->uploadDeclaration();
         $this->uploadDeclaration(File::FILE_STATUS_FAILED);
 
@@ -137,17 +145,17 @@ class SroDeclarationCheckTest extends TestCase
     {
         $this->createMember(isSro: true);
         $delegate = $this->createMember(isSro: false);
-        $this->travel(1)->minutes();
+        Carbon::setTestNow(Carbon::now()->addMinute());
         $this->uploadDeclaration();
         $this->assertTrue($this->passes());
 
-        $this->travel(1)->minutes();
+        Carbon::setTestNow(Carbon::now()->addMinute());
         $this->withTemporaryObservers(fn () => (new OrganisationMembershipService())
             ->appointSro($this->organisation, $delegate->id, User::factory()->create()));
 
         $this->assertFalse($this->passes());
 
-        $this->travel(1)->minutes();
+        Carbon::setTestNow(Carbon::now()->addMinute());
         $this->uploadDeclaration();
 
         $this->assertTrue($this->passes());
@@ -158,7 +166,7 @@ class SroDeclarationCheckTest extends TestCase
         $invitedSro = $this->createMember(isSro: true, unclaimed: 1);
         $this->assertNull($this->organisation->fresh()->sro_appointed_at);
 
-        $this->travel(1)->minutes();
+        Carbon::setTestNow(Carbon::now()->addMinute());
         $this->withTemporaryObservers(function () use ($invitedSro) {
             $invitedSro->unclaimed = false;
             $invitedSro->save();
@@ -171,7 +179,7 @@ class SroDeclarationCheckTest extends TestCase
     public function test_an_sro_appointed_before_it_was_recorded_keeps_their_existing_declaration(): void
     {
         $this->uploadDeclaration();
-        $this->travel(1)->minutes();
+        Carbon::setTestNow(Carbon::now()->addMinute());
         $this->createMember(isSro: true);
         $this->organisation->forceFill(['sro_appointed_at' => null])->saveQuietly();
 
