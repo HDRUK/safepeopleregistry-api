@@ -717,6 +717,7 @@ class TriggerEmail
                     '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
                     '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),
                     '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                    '[[SRO_TEMPLATE_DECLARATION_URL]]' => config('speedi.system.portal_url') . '/Registry_SRO_Declaration.pdf',
                 ];
 
                 // A resend passes inviteId and reuses the code already stored on that invite.

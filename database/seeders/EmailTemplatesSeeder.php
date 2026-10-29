@@ -1359,11 +1359,11 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="20px 0px 20px 0px">
                                   [[organisation.organisation_name]]
                                   <div><br></div>
-                                  You\'ve been invited to sign-up as a trusted Organisation, for the [[env(APP_NAME)]] by [[inviter_name]].
+                                  You\'ve been invited to sign-up as a trusted Organisation for the [[env(APP_NAME)]] by [[inviter_name]].
                                   <div><br></div>
                                   ' . $this->whatIsBlurb . '
                                   <div><br></div>
-                                  Therefore, making an Organisation account will enable Data Custodians to validate your Organisation as well as your staff/students to speed up gaining access to sensitive data.
+                                  Therefore, making an Organisation account will enable Data Custodians to validate you and accelerate granting your staff/students access to sensitive data.
                                   <div><br></div>
                                   <b>Would you like to claim this account?</b>
                                   <div><br></div>
@@ -1407,12 +1407,11 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="20px 0px 20px 0px">
                                   [[organisation.organisation_name]]
                                   <div><br></div>
-                                  You\'ve been invited to sign-up as a trusted Organisation, for the [[env(APP_NAME)]] by [[inviter_name]].
+                                  You\'ve been invited to sign-up as a trusted Organisation for the [[env(APP_NAME)]] by [[inviter_name]].
                                   <div><br></div>
                                   ' . $this->whatIsBlurb . '
                                   <div><br></div>
-                                  Therefore, making an Organisation account will enable Data Custodians to validate your Organisation as well as your staff/students to speed up gaining access to sensitive data.
-                                  <div><br></div>
+                                  Therefore, making an Organisation account will enable Data Custodians to validate you and accelerate granting your staff/students access to sensitive data.
                                   <b>Would you like to claim this account?</b>
                                   <div><br></div>
                                   Please reply to this email [[env(SUPPORT_EMAIL)]] to claim this Organisation account, providing some context for your role at your Organisation. Once added, you can add other Delegates from your Organisation to help administer the account (which can be very handy where your Organisation might have multiple departments or institutes!).
@@ -1660,7 +1659,7 @@ class EmailTemplatesSeeder extends Seeder
                                   <div><br></div>
                                   [[actor_first_name]] [[actor_last_name]] has invited you to be the Senior Responsible Officer (SRO) for <b>[[organisation.organisation_name]]</b> on the [[env(APP_NAME)]].
                                   <div><br></div>
-                                  As SRO you will be responsible for your Organisation\'s Delegates, who affiliate your employees or students, and you will need to complete the SRO declaration confirming you have the authority to do so. You become the SRO once you create your account using the button below.
+                                  As SRO you will be responsible for your Organisation\'s Delegates, who affiliate your employees or students. You become the SRO once you create your account using the button below and upload the [<a href="[[SRO_TEMPLATE_DECLARATION_URL]]">SRO Declaration</a>]
                                   <div><br></div>
                                   If you weren\'t expecting this invitation, please contact [[organisation.organisation_name]] directly, or email us at [[env(SUPPORT_EMAIL)]].
                                   <div><br></div>
