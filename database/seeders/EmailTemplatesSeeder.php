@@ -1311,18 +1311,17 @@ class EmailTemplatesSeeder extends Seeder
                             <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
                               <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
                                 <mj-text align="left" padding="20px 0px 20px 0px">
-                                  You\'ve been invited to sign-up [[organisation.organisation_name]] as a trusted Organisation, for the [[env(APP_NAME)]] by HDR UK.
+                                  You\'ve been invited to sign-up [[organisation.organisation_name]] as a trusted Organisation for the [[env(APP_NAME)]] by HDR UK.
                                   <div><br></div>
                                   ' . $this->whatIsBlurb . '
                                   <div><br></div>
-                                  Therefore, making an Organisation account will enable Data Custodians to validate you and your staff/students to gain access to sensitive data.
+                                  Therefore, making an Organisation account will enable Data Custodians to validate you and accelerate granting your staff/students access to sensitive data.
                                   <div><br></div>
-                                  This will also give you oversight of the projects your Organisation is engaged with, which individuals at your Organisation are accessing sensitive data, and the ability to log when they leave your Organisation, automatically notifying Data Custodians to remove their access to sensitive data.
+                                  This will also give you oversight of the projects your Organisation is engaged with, which individuals at your Organisation are accessing sensitive data, and the ability to log when they leave your Organisation, automatically notifying Data Custodians to remove their access to sensitive data. After you have created an account, you will be able to add Delegates to help administer it.
                                   <div><br></div>
-                                  <b>How to make an account</b>
+                                  <b>Would you like to claim your account</b>
+                                  <div><br></div>
                                   Follow the link below to claim your Organisation account.
-                                  <div><br></div>
-                                  After you have created an account, you can add Delegates to help administer it, as well as start affiliating staff/students with your Organisation. This helps speed up the validation process for gaining access to sensitive data.
                                   <div><br></div>
                                   ' . $this->supportFooter . '
                                 </mj-text>
@@ -1335,7 +1334,7 @@ class EmailTemplatesSeeder extends Seeder
                                 Create your account by clicking the button below.
                                 </mj-text>
                                 <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/[[env(PORTAL_PATH_INVITE)]]?invite_code=[[inviteCode]]&login_hint=[[registration.email]]" padding="10px 15px 15px 15px">
-                                  Sign me up!
+                                  Claim your account
                                 </mj-button>
                               </mj-column>
                             </mj-section>
@@ -1352,7 +1351,7 @@ class EmailTemplatesSeeder extends Seeder
                         ' . $this->mjmlHead . '
                         <mj-body background-color="#f6dff1" width="600px" >
 
-                          ' . $this->titleBar('Organisation invite from custodian') . '
+                          ' . $this->titleBar('Organisation contact') . '
 
                           <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
                             <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
@@ -1360,15 +1359,15 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="20px 0px 20px 0px">
                                   [[organisation.organisation_name]]
                                   <div><br></div>
-                                  You\'ve been invited to sign-up as a trusted Organisation, for the [[env(APP_NAME)]] by [[inviter_name]].
+                                  You\'ve been invited to sign-up as a trusted Organisation for the [[env(APP_NAME)]] by [[inviter_name]] on behalf of [[custodian_name]].
                                   <div><br></div>
                                   ' . $this->whatIsBlurb . '
                                   <div><br></div>
-                                  Therefore, making an Organisation account will enable Data Custodians to validate your Organisation as well as your staff/students to speed up gaining access to sensitive data.
+                                  Therefore, making an Organisation account will enable Data Custodians to validate you and accelerate granting your staff/students access to sensitive data. Once you have created an account, you can add other Delegates from your Organisation to help administer the account (which can be very handy where your Organisation might have multiple departments or institutes!).
                                   <div><br></div>
                                   <b>Would you like to claim this account?</b>
                                   <div><br></div>
-                                  Please reply to this email [[env(SUPPORT_EMAIL)]] to claim this Organisation account, providing some context for your role at your Organisation. Once added, you can add other Delegates from your Organisation to help administer the account (which can be very handy where your Organisation might have multiple departments or institutes!).
+                                  Please click the button below to send us an email and claim this Organisation account, providing some context for your role at your Organisation, so that we can invite you onboard.
                                   <div><br></div>
                                   Thanks,
                                   <div><br></div>
@@ -1380,10 +1379,10 @@ class EmailTemplatesSeeder extends Seeder
                             <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
                               <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
                                 <mj-text align="left" padding="10px 15px 0px 15px">
-                                Learn more about the Safe People Registry by following the link below.
+                                Learn more about the Safe People Registry by following the link below, or you can email us at 
                                 </mj-text>
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]" padding="10px 15px 15px 15px">
-                                  Go to the Safe People Registry
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="mailto:enquiries@safepeopleregistry.org?subject=Organisation%20invite%20from%20[[inviter_name_urlencoded]]&body=Hello%20Safe%20People%20Registry%20team%2C%0D%0A%0D%0AI%27d%20like%20to%20claim%20the%20organisation%20account%20of%20[[organisation_name_urlencoded]].%20I%20work%20there%20as%20a%20..." padding="10px 15px 15px 15px">
+                                  Request your account
                                 </mj-button>
                               </mj-column>
                             </mj-section>
@@ -1400,7 +1399,7 @@ class EmailTemplatesSeeder extends Seeder
                         ' . $this->mjmlHead . '
                         <mj-body background-color="#f6dff1" width="600px" >
 
-                          ' . $this->titleBar('Organisation invite from user') . '
+                          ' . $this->titleBar('Organisation contact') . '
 
                           <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
                             <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
@@ -1408,15 +1407,15 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="20px 0px 20px 0px">
                                   [[organisation.organisation_name]]
                                   <div><br></div>
-                                  You\'ve been invited to sign-up as a trusted Organisation, for the [[env(APP_NAME)]] by [[inviter_name]].
+                                  You\'ve been invited to sign-up as a trusted Organisation for the [[env(APP_NAME)]] by [[inviter_name]].
                                   <div><br></div>
                                   ' . $this->whatIsBlurb . '
                                   <div><br></div>
-                                  Therefore, making an Organisation account will enable Data Custodians to validate your Organisation as well as your staff/students to speed up gaining access to sensitive data.
+                                  Therefore, making an Organisation account will enable Data Custodians to validate you and accelerate granting your staff/students access to sensitive data. Once you have created an account, you can add other Delegates from your Organisation to help administer the account (which can be very handy where your Organisation might have multiple departments or institutes!).
                                   <div><br></div>
                                   <b>Would you like to claim this account?</b>
                                   <div><br></div>
-                                  Please reply to this email [[env(SUPPORT_EMAIL)]] to claim this Organisation account, providing some context for your role at your Organisation. Once added, you can add other Delegates from your Organisation to help administer the account (which can be very handy where your Organisation might have multiple departments or institutes!).
+                                  Please click the button below to send us an email and claim this Organisation account, providing some context for your role at your Organisation, so that we can invite you onboard.
                                   <div><br></div>
                                   Thanks,
                                   <div><br></div>
@@ -1428,10 +1427,10 @@ class EmailTemplatesSeeder extends Seeder
                             <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
                               <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
                                 <mj-text align="left" padding="10px 15px 0px 15px">
-                                Learn more about the Safe People Registry by following the link below.
+                                Learn more about the Safe People Registry by following the link below, or you can email us at 
                                 </mj-text>
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]" padding="10px 15px 15px 15px">
-                                  Go to the Safe People Registry
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="mailto:enquiries@safepeopleregistry.org?subject=Organisation%20invite%20from%20[[inviter_name_urlencoded]]&body=Hello%20Safe%20People%20Registry%20team%2C%0D%0A%0D%0AI%27d%20like%20to%20claim%20the%20organisation%20account%20of%20[[organisation_name_urlencoded]].%20I%20work%20there%20as%20a%20..." padding="10px 15px 15px 15px">
+                                  Request your account
                                 </mj-button>
                               </mj-column>
                             </mj-section>
@@ -1620,7 +1619,7 @@ class EmailTemplatesSeeder extends Seeder
                                   <div><br></div>
                                   You have been appointed as the Senior Responsible Officer (SRO) for <b>[[organisation.organisation_name]]</b> on the [[env(APP_NAME)]] by [[actor_first_name]] [[actor_last_name]].
                                   <div><br></div>
-                                  As SRO you are responsible for your Organisation\'s Delegates, who affiliate your employees or students, and you will need to complete the SRO declaration confirming you have the authority to do so.
+                                  As SRO you are responsible for your Organisation\'s Delegates, who affiliate your employees or students. You become the SRO once you create your account using the button below and upload the [<a href="[[SRO_TEMPLATE_DECLARATION_URL]]">SRO Declaration</a>]
                                   <div><br></div>
                                   If you weren\'t expecting this change, please contact [[organisation.organisation_name]] directly, or email us at [[env(SUPPORT_EMAIL)]].
                                   <div><br></div>
@@ -1633,12 +1632,11 @@ class EmailTemplatesSeeder extends Seeder
 
                             <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
                               <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]" padding="10px 15px 15px 15px">
-                                  Go to the Safe People Registry
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/organisation/profile/details/sro" padding="10px 15px 15px 15px">
+                                  Upload your SRO declaration
                                 </mj-button>
                               </mj-column>
                             </mj-section>
-                          </mj-wrapper>
 
                         </mj-body>
                       </mjml >',
@@ -1661,7 +1659,7 @@ class EmailTemplatesSeeder extends Seeder
                                   <div><br></div>
                                   [[actor_first_name]] [[actor_last_name]] has invited you to be the Senior Responsible Officer (SRO) for <b>[[organisation.organisation_name]]</b> on the [[env(APP_NAME)]].
                                   <div><br></div>
-                                  As SRO you will be responsible for your Organisation\'s Delegates, who affiliate your employees or students, and you will need to complete the SRO declaration confirming you have the authority to do so. You become the SRO once you create your account using the button below.
+                                  As SRO you will be responsible for your Organisation\'s Delegates, who affiliate your employees or students. You become the SRO once you create your account using the button below and upload the [<a href="[[SRO_TEMPLATE_DECLARATION_URL]]">SRO Declaration</a>]
                                   <div><br></div>
                                   If you weren\'t expecting this invitation, please contact [[organisation.organisation_name]] directly, or email us at [[env(SUPPORT_EMAIL)]].
                                   <div><br></div>
@@ -1700,9 +1698,9 @@ class EmailTemplatesSeeder extends Seeder
                                 <mj-text align="left" padding="20px 0px 20px 0px">
                                   Hello [[recipient_first_name]],
                                   <div><br></div>
-                                  This confirms that you have accepted the invitation from [[actor_first_name]] [[actor_last_name]] and are now the Senior Responsible Officer (SRO) for <b>[[organisation.organisation_name]]</b> on the [[env(APP_NAME)]].
+                                  This confirms that you have accepted the invitation from [[actor_first_name]] [[actor_last_name]] and are now the Senior Responsible Officer (SRO) for <b>[[organisation.organisation_name]]</b> on the [[env(APP_NAME)]], pending upload of the SRO declaration confirming your authority.
                                   <div><br></div>
-                                  As SRO you are responsible for your Organisation\'s Delegates, who affiliate your employees or students, and you will need to complete the SRO declaration confirming you have the authority to do so.
+                                  As SRO you are responsible for your Organisation\'s Delegates, who affiliate your employees or students.
                                   <div><br></div>
                                   If you weren\'t expecting this, please contact [[organisation.organisation_name]] directly, or email us at [[env(SUPPORT_EMAIL)]].
                                   <div><br></div>
@@ -1712,11 +1710,10 @@ class EmailTemplatesSeeder extends Seeder
                                 </mj-text>
                               </mj-column>
                             </mj-section>
-
                             <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
                               <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
-                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]" padding="10px 15px 15px 15px">
-                                  Go to the Safe People Registry
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/organisation/profile/details/sro" padding="10px 15px 15px 15px">
+                                  Upload your SRO declaration
                                 </mj-button>
                               </mj-column>
                             </mj-section>
