@@ -31,6 +31,24 @@ class UserObserver
     ];
 
     /**
+     * Records on the organisation when a user becomes its acting SRO: a claimed user with the role.
+     * An invited SRO is counted from when they claim, as that is when the handover happens.
+     * The SRO declaration rule needs a declaration uploaded since then.
+     */
+    public function saved(User $user): void
+    {
+        // Still dirty here: the original is only synced after the saved event.
+        if ($user->is_sro && !$user->unclaimed && $user->organisation_id
+            && $user->isDirty(['is_sro', 'unclaimed', 'organisation_id'])) {
+            // A query update rather than a model save, so the Organisation observer and activity log are
+            // not triggered. toBase() also stops Eloquent adding updated_at, so only this column changes.
+            Organisation::whereKey($user->organisation_id)
+                ->toBase()
+                ->update(['sro_appointed_at' => Carbon::now()]);
+        }
+    }
+
+    /**
      * Handle the User "created" event.
      */
     public function created(User $user): void
@@ -130,7 +148,7 @@ class UserObserver
                 );
             }
         }
-        // Needs to be revisited, Removes system approval if any change is made to the SRO. 
+        // Needs to be revisited, Removes system approval if any change is made to the SRO.
         // Or in other words Unexpected State detected. Enjoy your permanent vacation from access.
         // // send email to admin if user->is_sro
         // if ($user->is_sro && !empty($changes)) {

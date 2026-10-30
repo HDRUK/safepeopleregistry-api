@@ -448,6 +448,7 @@ class Organisation extends Model
         'ce_certified' => 'boolean',
         'idvt_result' => 'boolean',
         'unclaimed' => 'boolean',
+        'sro_appointed_at' => 'datetime',
         'ce_expiry_date' => 'date:Y-m-d',
         'ce_plus_expiry_date' => 'date:Y-m-d',
         'iso_expiry_date' => 'date:Y-m-d',
@@ -559,7 +560,8 @@ class Organisation extends Model
         return [
             [
                 'name' => 'sro_identity_verified',
-                'description' => 'Contact details tab: Verify SRO identity',
+                // The SRO declaration automated flag can only see that one was uploaded, not who signed it.
+                'description' => 'Contact details tab: Verify SRO identity and check SRO declaration',
             ],
             [
                 'name' => 'location_meets_requirements',

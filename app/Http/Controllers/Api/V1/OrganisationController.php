@@ -158,6 +158,8 @@ class OrganisationController extends Controller
                     'registries.user.permissions',
                     'delegates',
                     'sroOfficer.invitedBy.custodian_user',
+                    // Read by the SRO declaration rule for every organisation on the page.
+                    'claimedSro',
                     'modelState.state'
                 ])
                 ->filterWhen('has_delegates', function ($query, $hasDelegates) {
@@ -177,7 +179,8 @@ class OrganisationController extends Controller
             $evaluations = $this->decisionEvaluator->evaluate($organisations->items(), true);
             $organisations->setCollection($organisations->getCollection()->map(function ($organisation) use ($evaluations) {
                 $organisation->evaluation = $evaluations[$organisation->id] ?? null;
-                return $organisation->append('sro_status');
+                // Loaded only for the SRO declaration rule, not for the list response.
+                return $organisation->makeHidden('claimedSro')->append('sro_status');
             }));
         }
 
