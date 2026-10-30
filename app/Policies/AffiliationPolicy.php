@@ -52,9 +52,19 @@ class AffiliationPolicy
     }
 
     /**
-     * Delete an affiliation — the registry owner or the employing organisation may action it.
+     * Delete an affiliation — only the registry owner, to correct one they added by mistake.
+     * An Organisation records a leaver instead, so the affiliation's history is kept.
      */
     public function delete(User $user, Affiliation $affiliation): bool
+    {
+        return $user->registry_id === $affiliation->registry_id;
+    }
+
+    /**
+     * Record, change or remove an affiliation's end date — the registry owner or the employing
+     * organisation may action it.
+     */
+    public function recordEndDate(User $user, Affiliation $affiliation): bool
     {
         return $user->registry_id === $affiliation->registry_id
             || ($user->user_group === User::GROUP_ORGANISATIONS

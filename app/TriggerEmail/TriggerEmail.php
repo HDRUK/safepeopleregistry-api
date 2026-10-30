@@ -771,6 +771,40 @@ class TriggerEmail
 
                 break;
 
+            case 'AFFILIATION_ENDING_SOON_USER':
+            case 'AFFILIATION_ENDED_USER':
+            case 'AFFILIATION_ENDED_ORGANISATION':
+            case 'AFFILIATION_ENDED_CUSTODIAN':
+            case 'AFFILIATION_ACCESS_REVOCATION_REMINDER':
+                // Same placeholders; the identifier picks which leaver template is sent.
+                // `to` is the recipient, `for` the user whose affiliation is ending.
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $affiliation = Affiliation::with('organisation')->findOrFail($affiliationId);
+                $recipient = User::where('id', $to)->first();
+                $affiliatedUser = User::where('id', $for ?? $to)->first();
+                $project = $projectId ? Project::where('id', $projectId)->first() : null;
+
+                $newRecipients = [
+                    'id' => $recipient->id,
+                    'email' => $recipient->email,
+                ];
+
+                $replacements = [
+                    '[[organisation.organisation_name]]' => $affiliation->organisation?->organisation_name,
+                    '[[affiliation.end_date]]' => Carbon::parse($affiliation->to)->format('j F Y'),
+                    '[[affiliation.end_date_recorded_at]]' => ($affiliation->end_date_recorded_at ?? Carbon::now())->format('j F Y'),
+                    '[[recipient_first_name]]' => $recipient->first_name,
+                    '[[user_first_name]]' => $affiliatedUser->first_name,
+                    '[[user_last_name]]' => $affiliatedUser->last_name,
+                    '[[project.title]]' => $project?->title,
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                ];
+
+                break;
+
             default: // Unknown type.
                 break;
         }

@@ -8,6 +8,10 @@ use App\Models\User;
 use App\Models\State;
 use App\Models\Affiliation;
 use App\Traits\CommonFunctions;
+use App\Enums\AffiliationEndDateSource;
+use Carbon\Carbon;
+use Carbon\Exceptions\InvalidFormatException;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -64,18 +68,26 @@ class ProcessCSVSubmission implements ShouldQueue
                     $row['user_group'] = User::GROUP_USERS;
                     $unclaimedUser = RMC::createUnclaimedUser($row);
 
+                    $endDate = $this->readEndDate($row);
+
                     $affiliation = Affiliation::create([
                         'organisation_id' => $this->organisationID,
                         'member_id' => '',
                         'relationship' => '',
                         'from' => '',
-                        'to' => '',
+                        'to' => $endDate,
                         'department' => '',
                         'role' => '',
                         'email' => $row['email'],
                         'ror' => '',
                         'registry_id' => $unclaimedUser->registry_id,
                     ]);
+                    if ($endDate !== null) {
+                        $affiliation->end_date_recorded_at = Carbon::now();
+                        $affiliation->end_date_source = AffiliationEndDateSource::Organisation;
+                        $affiliation->save();
+                    }
+
                     $affiliation->setState(State::STATE_AFFILIATION_INVITED);
 
                     $input = [
@@ -98,5 +110,41 @@ class ProcessCSVSubmission implements ShouldQueue
                 $disk->delete($this->file->path);
             }
         }
+    }
+
+    /**
+     * The optional "end_date" column, as 'Y-m-d' or 'dd/mm/yyyy'. A blank, unreadable or past date
+     * is left out, so the user is still invited, just without an end date.
+     */
+    private function readEndDate(array $row): ?string
+    {
+        $value = trim($row['end_date'] ?? '');
+        if ($value === '') {
+            return null;
+        }
+
+        foreach (['!Y-m-d', '!d/m/Y'] as $format) {
+            try {
+                $date = Carbon::createFromFormat($format, $value);
+            } catch (InvalidFormatException) {
+                continue;
+            }
+
+            // Rejects overflowing dates, such as 31/02/2026.
+            if ($date->format(ltrim($format, '!')) !== $value) {
+                continue;
+            }
+
+            if ($date->gte(Carbon::today())) {
+                return $date->toDateString();
+            }
+        }
+
+        Log::warning('Bulk invite end date ignored', [
+            'organisation_id' => $this->organisationID,
+            'end_date' => $value,
+        ]);
+
+        return null;
     }
 }
