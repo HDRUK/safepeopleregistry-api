@@ -178,7 +178,8 @@ class OrganisationController extends Controller
             $evaluations = $this->decisionEvaluator->evaluate($organisations->items(), true);
             $organisations->setCollection($organisations->getCollection()->map(function ($organisation) use ($evaluations) {
                 $organisation->evaluation = $evaluations[$organisation->id] ?? null;
-                return $organisation->append('sro_status');
+                // Loaded only for the SRO declaration rule, not for the list response.
+                return $organisation->makeHidden('claimedSro')->append('sro_status');
             }));
         }
 
