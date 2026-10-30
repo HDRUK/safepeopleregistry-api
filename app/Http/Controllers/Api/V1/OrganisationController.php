@@ -15,6 +15,7 @@ use App\Models\Charity;
 use App\Models\Project;
 use App\Models\DebugLog;
 use App\Models\Affiliation;
+use App\Enums\AffiliationEndDateSource;
 use App\Models\Organisation;
 use App\Models\File;
 use Laravel\Pennant\Feature;
@@ -1925,13 +1926,20 @@ class OrganisationController extends Controller
                     'member_id' => '',
                     'relationship' => '',
                     'from' => '',
-                    'to' => '',
+                    'to' => $input['to'] ?? null,
                     'department' => '',
                     'role' => '',
                     'email' => $input['email'],
                     'ror' => '',
                     'registry_id' => $unclaimedUser->registry_id,
                 ]);
+
+                if ($affiliation->to !== null) {
+                    $affiliation->end_date_recorded_at = Carbon::now();
+                    $affiliation->end_date_recorded_by = $loggedInUserId;
+                    $affiliation->end_date_source = AffiliationEndDateSource::Organisation;
+                    $affiliation->save();
+                }
 
                 $affiliation->setState(State::STATE_AFFILIATION_INVITED);
             }
@@ -2438,14 +2446,15 @@ class OrganisationController extends Controller
     {
         try {
             $showPending = $request->boolean("show_pending");
-            $affiliationIds = Organisation::getCurrentAffiliations($id)->filterByState()->pluck('id');
+            // Leavers stay in the Organisation's records; each user is shown with their latest affiliation.
+            $affiliationIds = Affiliation::where('organisation_id', $id)->filterByState()->pluck('id');
 
             $users = User::searchViaRequest()
                 ->applySorting()
                 ->with([
                     'registry.affiliations' => function ($q) use ($affiliationIds, $id) {
                         $q->whereIn('id', $affiliationIds)
-                          ->where('organisation_id', $id)->limit(1);
+                          ->where('organisation_id', $id)->latest('id')->limit(1);
                     },
                     'registry.affiliations.modelState.state',
                     'modelState.state'

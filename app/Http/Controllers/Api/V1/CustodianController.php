@@ -33,6 +33,8 @@ use App\Models\CustodianWebhookReceiver;
 use RegistryManagementController as RMC;
 use App\Models\CustodianUserHasPermission;
 use App\Http\Requests\Custodians\GetCustodian;
+use App\Http\Requests\Custodians\ConfirmAccessRevoked;
+use App\Services\AffiliationLeaverService;
 use App\Models\CustodianHasProjectOrganisation;
 use App\Http\Requests\Custodians\GetUserProject;
 use App\Http\Requests\Custodians\DeleteCustodian;
@@ -983,6 +985,140 @@ class CustodianController extends Controller
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
         return $this->OKResponse($projectUsers);
+    }
+
+    /**
+     * @OA\Get(
+     *      path="/api/v1/custodians/{id}/access_revocations",
+     *      operationId="custodiansGetAccessRevocations",
+     *      x={"internal"="true"},
+     *      summary="Users who have left a project, whose data access the Custodian must confirm revoking",
+     *      description="A user who leaves their Organisation leaves every project they were on through that affiliation. That does not revoke their real data access, so each is listed here until the Custodian confirms they have.",
+     *      tags={"Custodian"},
+     *      summary="Custodian@getAccessRevocations",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Custodian ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Custodian ID",
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="object")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="forbidden"),
+     *          )
+     *      )
+     * )
+     */
+    public function getAccessRevocations(GetCustodian $request, int $custodianId): JsonResponse
+    {
+        $custodian = Custodian::findOrFail($custodianId);
+        if (! Gate::allows('update', $custodian)) {
+            return $this->ForbiddenResponse();
+        }
+
+        $projectUsers = CustodianHasProjectUser::with([
+            'projectHasUser.registry.user:id,registry_id,first_name,last_name,email',
+            'projectHasUser.project:id,title',
+            'projectHasUser.affiliation:id,organisation_id,to,end_date_recorded_at,end_date_source',
+            'projectHasUser.affiliation.organisation:id,organisation_name',
+        ])
+            ->where('custodian_id', $custodianId)
+            ->awaitingAccessRevocation()
+            ->orderBy('access_revocation_required_at')
+            ->paginate((int)$this->getSystemConfig('PER_PAGE'));
+
+        return $this->OKResponse($projectUsers);
+    }
+
+    /**
+     * @OA\Put(
+     *      path="/api/v1/custodians/{id}/access_revocations/{custodianProjectUserId}",
+     *      operationId="custodiansConfirmAccessRevoked",
+     *      x={"internal"="true"},
+     *      summary="Confirm a user's data access has been revoked",
+     *      description="Records that the Custodian has revoked the real data access of a user who left the project.",
+     *      tags={"Custodian"},
+     *      summary="Custodian@confirmAccessRevoked",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Custodian ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Custodian ID",
+     *         ),
+     *      ),
+     *      @OA\Parameter(
+     *         name="custodianProjectUserId",
+     *         in="path",
+     *         description="Custodian project user (access revocation) ID, not the project_has_user_id",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Custodian project user (access revocation) ID, not the project_has_user_id",
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="boolean", example=true)
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="forbidden"),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="No revocation is awaited",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found"),
+     *          )
+     *      )
+     * )
+     */
+    public function confirmAccessRevoked(
+        ConfirmAccessRevoked $request,
+        AffiliationLeaverService $leaver,
+        int $custodianId,
+        int $custodianProjectUserId
+    ): JsonResponse {
+        $custodian = Custodian::findOrFail($custodianId);
+        if (! Gate::allows('update', $custodian)) {
+            return $this->ForbiddenResponse();
+        }
+
+        $custodianProjectUser = CustodianHasProjectUser::where('custodian_id', $custodianId)->find($custodianProjectUserId);
+        if (!$custodianProjectUser || !$leaver->confirmAccessRevoked($custodianProjectUser, $request->user())) {
+            return $this->NotFoundResponse();
+        }
+
+        return $this->OKResponse(true);
     }
 
     public function getProjectsOrganisations(GetCustodian $request, int $custodianId): JsonResponse
