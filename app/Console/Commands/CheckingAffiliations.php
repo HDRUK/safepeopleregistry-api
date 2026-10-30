@@ -46,9 +46,7 @@ class CheckingAffiliations extends Command
 
     private function endAffiliations(AffiliationLeaverService $leaver): int
     {
-        $affiliations = $this->notEnded(Affiliation::query())
-            ->whereNotNull('to')
-            ->whereDate('to', '<=', Carbon::today());
+        $affiliations = Affiliation::query()->dueToEnd();
 
         return $this->each($affiliations, 'ending affiliation', function (Affiliation $affiliation) use ($leaver) {
             $leaver->end($affiliation);

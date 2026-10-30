@@ -319,6 +319,35 @@ class AffiliationLeaverTest extends TestCase
         $response->assertStatus(422);
     }
 
+    public function test_an_affiliation_cannot_be_added_with_an_unreadable_date(): void
+    {
+        $response = $this->actingAs($this->researcher)
+            ->json('POST', self::TEST_URL . "/{$this->researcher->registry_id}", [
+                'organisation_id' => $this->organisation->id,
+                'member_id' => fake()->uuid(),
+                'relationship' => 'employee',
+                'from' => 'not a date',
+                'department' => 'Research',
+                'role' => 'Researcher',
+                'email' => $this->researcher->email,
+                'ror' => generateRorID(),
+            ]);
+
+        $response->assertStatus(400);
+    }
+
+    public function test_an_affiliation_cannot_be_edited_with_an_unreadable_date(): void
+    {
+        $affiliation = $this->createAffiliation(State::STATE_AFFILIATION_PENDING);
+
+        $response = $this->actingAs($this->researcher)
+            ->json('PUT', self::TEST_URL . "/{$affiliation->id}", [
+                'to' => 'not a date',
+            ]);
+
+        $response->assertStatus(400);
+    }
+
     public function test_an_affiliation_can_be_added_with_a_future_end_date(): void
     {
         $endDate = Carbon::today()->addYear()->toDateString();
@@ -362,6 +391,42 @@ class AffiliationLeaverTest extends TestCase
         $this->assertEquals(State::STATE_AFFILIATION_NEVER_VERIFIED, $unverified->refresh()->getState());
         $this->assertEquals(State::STATE_AFFILIATION_REJECTED, $rejected->refresh()->getState());
         $this->assertEquals(State::STATE_AFFILIATION_APPROVED, $future->refresh()->getState());
+    }
+
+    public function test_the_deployment_step_ends_legacy_affiliations_quietly(): void
+    {
+        $pastDate = Carbon::today()->subYears(3)->toDateString();
+        $historic = $this->createAffiliation(State::STATE_AFFILIATION_PENDING, ['to' => $pastDate]);
+        $projectUser = $this->addToProject($historic);
+        $unverified = $this->createAffiliation(State::STATE_AFFILIATION_EMAIL_VERIFY, ['to' => $pastDate]);
+        $future = $this->createAffiliation(State::STATE_AFFILIATION_APPROVED, [
+            'to' => Carbon::today()->addYear()->toDateString(),
+        ]);
+        Queue::fake();
+
+        $step = require base_path('database/deployment-steps/2026_10_30_100200_end_legacy_affiliations_quietly.php');
+        $step->handle();
+
+        $historic->refresh();
+        $this->assertEquals(State::STATE_AFFILIATION_LEFT, $historic->getState());
+        $this->assertFalse($historic->current_employer);
+        $this->assertNotNull($historic->left_at);
+        $this->assertEquals(State::STATE_AFFILIATION_NEVER_VERIFIED, $unverified->refresh()->getState());
+        $this->assertEquals(State::STATE_AFFILIATION_APPROVED, $future->refresh()->getState());
+
+        // Projects are left, but Custodians are not asked to revoke access for a legacy leaver.
+        $projectUser->refresh();
+        $this->assertEquals(State::STATE_USER_LEFT_PROJECT, $projectUser->getState());
+        $this->assertNull($projectUser->access_revocation_required_at);
+
+        // Nobody is notified, and no emails or webhooks are queued.
+        Notification::assertNothingSent();
+        Queue::assertNothingPushed();
+
+        // The scheduler then has nothing left to end.
+        $this->artisan('app:checking-affiliations')->assertExitCode(0);
+        Notification::assertNothingSent();
+        Queue::assertNothingPushed();
     }
 
     public function test_the_scheduler_warns_once_that_an_affiliation_is_ending_soon(): void

@@ -95,8 +95,36 @@ class AffiliationLeaverService
      */
     public function end(Affiliation $affiliation): bool
     {
-        /** @var Collection<int, CustodianHasProjectUser>|null $projectUsers */
-        $projectUsers = DB::transaction(function () use ($affiliation): ?Collection {
+        $projectUsers = $this->endAffiliation($affiliation, true, 'affiliation ended');
+
+        if ($projectUsers === null) {
+            return false;
+        }
+
+        $affiliation->refresh();
+        $this->notifyEnded($affiliation, $projectUsers);
+
+        return true;
+    }
+
+    /**
+     * Ends an affiliation whose end date passed before the leaver flow existed, such as one a user
+     * added as historic. Its projects are left, but nobody is notified, no webhooks are sent and
+     * Custodians are not asked to revoke access for what may be a years-old leaver.
+     *
+     * Returns false, changing nothing, when the affiliation has already ended or was rejected.
+     */
+    public function endLegacy(Affiliation $affiliation): bool
+    {
+        return $this->endAffiliation($affiliation, false, 'legacy affiliation ended') !== null;
+    }
+
+    /**
+     * @return Collection<int, CustodianHasProjectUser>|null the project users who left, or null when nothing changed
+     */
+    private function endAffiliation(Affiliation $affiliation, bool $requireAccessRevocation, string $log): ?Collection
+    {
+        return DB::transaction(function () use ($affiliation, $requireAccessRevocation, $log): ?Collection {
             $affiliation = Affiliation::lockForUpdate()->with('modelState.state')->findOrFail($affiliation->id);
             $oldState = $affiliation->getState();
 
@@ -122,19 +150,10 @@ class AffiliationLeaverService
                     'to' => $affiliation->to,
                 ])
                 ->event('updated')
-                ->log('affiliation ended');
+                ->log($log);
 
-            return $this->leaveProjects($affiliation);
+            return $this->leaveProjects($affiliation, $requireAccessRevocation);
         });
-
-        if ($projectUsers === null) {
-            return false;
-        }
-
-        $affiliation->refresh();
-        $this->notifyEnded($affiliation, $projectUsers);
-
-        return true;
     }
 
     /**
@@ -229,7 +248,7 @@ class AffiliationLeaverService
      *
      * @return Collection<int, CustodianHasProjectUser> the Custodians' records of each project left
      */
-    private function leaveProjects(Affiliation $affiliation): Collection
+    private function leaveProjects(Affiliation $affiliation, bool $requireAccessRevocation): Collection
     {
         $projectUsers = CustodianHasProjectUser::with(['projectHasUser.project', 'modelState.state'])
             ->whereHas('projectHasUser', function ($query) use ($affiliation) {
@@ -243,7 +262,9 @@ class AffiliationLeaverService
             $oldState = $projectUser->getState();
 
             $projectUser->setState(State::STATE_USER_LEFT_PROJECT);
-            $projectUser->access_revocation_required_at = Carbon::now();
+            if ($requireAccessRevocation) {
+                $projectUser->access_revocation_required_at = Carbon::now();
+            }
             $projectUser->save();
 
             activity('project_has_user')

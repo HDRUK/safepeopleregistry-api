@@ -376,6 +376,19 @@ class Affiliation extends Model
     }
 
     /**
+     * Affiliations whose end date has arrived but which have not yet been ended (or were rejected).
+     */
+    public function scopeDueToEnd(Builder $query): Builder
+    {
+        return $query
+            ->whereNotNull('to')
+            ->whereDate('to', '<=', Carbon::today())
+            ->whereDoesntHave('modelState.state', function (Builder $query) {
+                $query->whereIn('slug', [...self::ENDED_STATES, State::STATE_AFFILIATION_REJECTED]);
+            });
+    }
+
+    /**
      * Affiliations that have not ended: not left or never verified, and with no end date in the past.
      */
     public function scopeCurrent(Builder $query): Builder
