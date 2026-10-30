@@ -9,6 +9,7 @@ use App\Models\Affiliation;
 use App\Models\CustodianUser;
 use App\Models\CustodianHasProjectUser;
 use App\Enums\AffiliationEndDateSource;
+use App\Enums\NotificationAudience;
 use App\Traits\UserLeftProjectWebhook;
 use App\Traits\Notifications\NotificationUserManager;
 use App\Notifications\Affiliations\AffiliationEnded;
@@ -292,13 +293,13 @@ class AffiliationLeaverService
 
         // Tell the other side; whoever recorded it already knows.
         if ($source === AffiliationEndDateSource::Organisation) {
-            Notification::send($user, new AffiliationEndDateRecorded($user, $affiliation, 'user'));
+            Notification::send($user, new AffiliationEndDateRecorded($user, $affiliation, $source));
             return;
         }
 
         $organisationUsers = $this->getAffiliationUserOrganisation($affiliation);
         if ($organisationUsers->isNotEmpty()) {
-            Notification::send($organisationUsers, new AffiliationEndDateRecorded($user, $affiliation, 'organisation'));
+            Notification::send($organisationUsers, new AffiliationEndDateRecorded($user, $affiliation, $source));
         }
     }
 
@@ -312,7 +313,7 @@ class AffiliationLeaverService
             return;
         }
 
-        Notification::send($user, new AffiliationEnded($user, $affiliation, 'user'));
+        Notification::send($user, new AffiliationEnded($user, $affiliation, NotificationAudience::User));
         TriggerEmail::spawnEmail([
             'type' => 'AFFILIATION_ENDED_USER',
             'identifier' => 'affiliation_ended_user',
@@ -325,7 +326,7 @@ class AffiliationLeaverService
         if ($affiliation->getState() === State::STATE_AFFILIATION_LEFT) {
             $organisationUsers = $this->getAffiliationUserOrganisation($affiliation);
             if ($organisationUsers->isNotEmpty()) {
-                Notification::send($organisationUsers, new AffiliationEnded($user, $affiliation, 'organisation'));
+                Notification::send($organisationUsers, new AffiliationEnded($user, $affiliation, NotificationAudience::Organisation));
             }
 
             foreach ($organisationUsers as $organisationUser) {
@@ -344,7 +345,7 @@ class AffiliationLeaverService
             $project = $projectUser->projectHasUser->project;
 
             foreach ($this->getCustodianUsers($projectUser->custodian_id) as $custodianUser) {
-                Notification::send($custodianUser, new AffiliationEnded($user, $affiliation, 'custodian', $project));
+                Notification::send($custodianUser, new AffiliationEnded($user, $affiliation, NotificationAudience::Custodian, $project));
                 TriggerEmail::spawnEmail([
                     'type' => 'AFFILIATION_ENDED_CUSTODIAN',
                     'identifier' => 'affiliation_ended_custodian',

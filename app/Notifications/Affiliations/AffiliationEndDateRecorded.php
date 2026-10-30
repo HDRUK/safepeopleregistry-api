@@ -5,6 +5,7 @@ namespace App\Notifications\Affiliations;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Affiliation;
+use App\Enums\AffiliationEndDateSource;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -21,7 +22,7 @@ class AffiliationEndDateRecorded extends Notification implements ShouldQueue
     public function __construct(
         private User $user,
         private Affiliation $affiliation,
-        private string $for
+        private AffiliationEndDateSource $recordedBy
     ) {
     }
 
@@ -48,7 +49,8 @@ class AffiliationEndDateRecorded extends Notification implements ShouldQueue
         $userName = "{$this->user->first_name} {$this->user->last_name}";
         $endDate = $this->affiliation->to ? Carbon::parse($this->affiliation->to)->format('j F Y') : null;
 
-        if ($this->for === 'user') {
+        // Sent to the side that did not record the end date.
+        if ($this->recordedBy === AffiliationEndDateSource::Organisation) {
             return $endDate
                 ? "Organisation {$organisationName} recorded the end date of your affiliation as {$endDate}."
                 : "Organisation {$organisationName} removed the end date of your affiliation.";

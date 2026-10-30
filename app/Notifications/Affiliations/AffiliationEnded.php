@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\State;
 use App\Models\Project;
 use App\Models\Affiliation;
+use App\Enums\NotificationAudience;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -24,7 +25,7 @@ class AffiliationEnded extends Notification implements ShouldQueue
     public function __construct(
         private User $user,
         private Affiliation $affiliation,
-        private string $for,
+        private NotificationAudience $for,
         private ?Project $project = null
     ) {
     }
@@ -53,20 +54,12 @@ class AffiliationEnded extends Notification implements ShouldQueue
         $endDate = Carbon::parse($this->affiliation->to)->format('j F Y');
         $neverVerified = $this->affiliation->getState() === State::STATE_AFFILIATION_NEVER_VERIFIED;
 
-        switch ($this->for) {
-            case 'user':
-                return $neverVerified
-                    ? "Your affiliation with Organisation {$organisationName} ended on {$endDate} without your professional email being verified."
-                    : "Your affiliation with Organisation {$organisationName} ended on {$endDate}.";
-
-            case 'organisation':
-                return "Person {$userName} left Organisation {$organisationName} on {$endDate}.";
-
-            case 'custodian':
-                return "Person {$userName} left Organisation {$organisationName} on {$endDate}, so has left project {$this->project?->title}. You must revoke any data access they still have, then confirm this in the Safe People Registry.";
-
-            default:
-                return '';
-        }
+        return match ($this->for) {
+            NotificationAudience::User => $neverVerified
+                ? "Your affiliation with Organisation {$organisationName} ended on {$endDate} without your professional email being verified."
+                : "Your affiliation with Organisation {$organisationName} ended on {$endDate}.",
+            NotificationAudience::Organisation => "Person {$userName} left Organisation {$organisationName} on {$endDate}.",
+            NotificationAudience::Custodian => "Person {$userName} left Organisation {$organisationName} on {$endDate}, so has left project {$this->project?->title}. You must revoke any data access they still have, then confirm this in the Safe People Registry.",
+        };
     }
 }
