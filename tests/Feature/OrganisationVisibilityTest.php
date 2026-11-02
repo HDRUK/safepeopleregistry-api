@@ -200,18 +200,7 @@ class OrganisationVisibilityTest extends TestCase
     {
         $organisation = $this->createOrganisationAs($this->researcher);
         $otherCustodianId = $this->otherCustodian->custodian_user->custodian_id;
-
-        $project = Project::factory()->create();
-        ProjectHasCustodian::create(['project_id' => $project->id, 'custodian_id' => $otherCustodianId]);
-        $projectOrganisation = ProjectHasOrganisation::create([
-            'project_id' => $project->id,
-            'organisation_id' => $organisation->id,
-        ]);
-        // Observers are disabled in tests, so create what ProjectHasOrganisationObserver would
-        CustodianHasProjectOrganisation::create([
-            'project_has_organisation_id' => $projectOrganisation->id,
-            'custodian_id' => $otherCustodianId,
-        ]);
+        $this->linkToProjectOfCustodian($organisation, $otherCustodianId);
 
         $projectOrganisationIds = fn () => $this->actingAs($this->otherCustodian)
             ->json('GET', "/api/v1/custodian_approvals/{$otherCustodianId}/projectOrganisations?per_page=1000")
@@ -225,6 +214,52 @@ class OrganisationVisibilityTest extends TestCase
             ->assertSuccessful();
 
         $this->assertContains($organisation->id, $projectOrganisationIds());
+    }
+
+    public function test_a_restricted_organisation_on_another_custodians_project_is_hidden_from_project_organisation_details_until_approved(): void
+    {
+        $organisation = $this->createOrganisationAs($this->researcher);
+        $otherCustodianId = $this->otherCustodian->custodian_user->custodian_id;
+        $projectOrganisation = $this->linkToProjectOfCustodian($organisation, $otherCustodianId);
+
+        $projectOrganisationUrl = "/api/v1/project_organisations/{$projectOrganisation->id}";
+        $custodianApprovalUrl = "/api/v1/custodian_approvals/{$otherCustodianId}/projectOrganisations/{$projectOrganisation->id}";
+
+        $this->actingAs($this->otherCustodian)->json('GET', $projectOrganisationUrl)->assertStatus(404);
+        $this->actingAs($this->researcher)->json('GET', $projectOrganisationUrl)->assertStatus(404);
+        $this->actingAs($this->admin)->json('GET', $projectOrganisationUrl)->assertStatus(200);
+        // Same as an unknown project organisation, so the restricted one's existence isn't revealed
+        $this->actingAs($this->otherCustodian)->json('GET', $custodianApprovalUrl)
+            ->assertStatus(200)
+            ->assertJsonPath('data', null);
+
+        $this->actingAs($this->admin)
+            ->json('PUT', self::TEST_URL . "/{$organisation->id}/approved", ['system_approved' => true])
+            ->assertSuccessful();
+
+        $this->actingAs($this->otherCustodian)->json('GET', $projectOrganisationUrl)
+            ->assertStatus(200)
+            ->assertJsonPath('data.organisation_id', $organisation->id);
+        $this->actingAs($this->otherCustodian)->json('GET', $custodianApprovalUrl)
+            ->assertStatus(200)
+            ->assertJsonPath('data.project_organisation.organisation_id', $organisation->id);
+    }
+
+    private function linkToProjectOfCustodian(Organisation $organisation, int $custodianId): ProjectHasOrganisation
+    {
+        $project = Project::factory()->create();
+        ProjectHasCustodian::create(['project_id' => $project->id, 'custodian_id' => $custodianId]);
+        $projectOrganisation = ProjectHasOrganisation::create([
+            'project_id' => $project->id,
+            'organisation_id' => $organisation->id,
+        ]);
+        // Observers are disabled in tests, so create what ProjectHasOrganisationObserver would
+        CustodianHasProjectOrganisation::create([
+            'project_has_organisation_id' => $projectOrganisation->id,
+            'custodian_id' => $custodianId,
+        ]);
+
+        return $projectOrganisation;
     }
 
     public function test_restriction_fields_cannot_be_set_by_the_client(): void
