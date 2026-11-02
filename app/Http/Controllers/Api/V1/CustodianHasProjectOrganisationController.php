@@ -106,6 +106,10 @@ class CustodianHasProjectOrganisationController extends Controller
                 }
             ])
                 ->where('custodian_id', $custodianId)
+                ->whereHas('projectOrganisation', fn ($query) => $query->whereIn(
+                    'organisation_id',
+                    Organisation::query()->visibleTo($request->user())->select('id')
+                ))
                 ->when(!empty($searchName), function ($query) use ($searchName) {
                     $query->where(function ($subQuery) use ($searchName) {
 

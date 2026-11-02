@@ -173,7 +173,8 @@ Route::middleware('auth:api')
             ->controller(ValidationLogController::class)
             ->group(function () {
                 Route::get('{custodianId}/projects/{projectId}/registries/{registryId}/validation_logs', 'getCustodianProjectUserValidationLogs');
-                Route::get('{custodianId}/organisations/{organisationId}/validation_logs', 'getCustodianOrganisationValidationLogs');
+                Route::get('{custodianId}/organisations/{organisationId}/validation_logs', 'getCustodianOrganisationValidationLogs')
+                    ->middleware('organisation.visible:organisationId');
                 Route::put('{custodianId}/validation_logs', 'updateCustodianValidationLogs');
             });
     });
@@ -246,7 +247,8 @@ Route::middleware(['auth:api'])
         Route::get('/{id}/custodian_users', 'getCustodianUsers');
         Route::get('/{id}/projects_users', 'getProjectsUsers');
         Route::get('/{id}/rules', 'getRules');
-        Route::get('/{id}/organisations/{organisationId}/users', 'getOrganisationUsers');
+        Route::get('/{id}/organisations/{organisationId}/users', 'getOrganisationUsers')
+            ->middleware('organisation.visible:organisationId');
         Route::get('/{id}/projectUsers/{projectUserId}/statuses', 'getStatusesUsers');
 
         // Write
@@ -350,8 +352,10 @@ Route::middleware('auth:api')
 
         Route::get('{projectId}/users/{userId}', 'getProjectByIdAndUserId');
 
-        Route::get('{projectId}/organisations/{organisationId}', 'getProjectByIdAndOrganisationId');
-        Route::get('{projectId}/organisations/{organisationId}/users', 'getProjectUsersByOrganisationId');
+        Route::get('{projectId}/organisations/{organisationId}', 'getProjectByIdAndOrganisationId')
+            ->middleware('organisation.visible:organisationId');
+        Route::get('{projectId}/organisations/{organisationId}/users', 'getProjectUsersByOrganisationId')
+            ->middleware('organisation.visible:organisationId');
 
         Route::patch('{projectId}/organisations/{organisationId}/sponsorship/resendRequest', 'resendSponsorshipRequest');
     });
@@ -409,24 +413,28 @@ Route::middleware('auth:api')
         Route::controller(OrganisationController::class)->group(function () {
             // Read
             Route::get('/', 'index');
-            Route::get('/{id}', 'show');
-            Route::get('/{id}/status', 'getStatus');
-            Route::get('/{id}/idvt', 'idvt');
-            Route::get('/{id}/counts/certifications', 'countCertifications');
-            Route::get('/{id}/counts/users', 'countUsers');
-            Route::get('/{id}/counts/projects/present', 'countPresentProjects');
-            Route::get('/{id}/counts/projects/past', 'countPastProjects');
-            Route::get('/{id}/projects/present', 'presentProjects');
-            Route::get('/{id}/projects/past', 'pastProjects');
-            Route::get('/{id}/projects/future', 'futureProjects');
-            Route::get('/{id}/projects', 'getProjects');
-            Route::get('/{id}/projects/sponsorships', 'getSponsorshipsProjects');
-            Route::get('/{id}/users', 'getUsers');
-            Route::get('/{id}/delegates', 'getDelegates');
-            Route::get('/{id}/registries', 'getRegistries');
             Route::get('/ror/{ror}', 'validateRor');
-            Route::get('/{id}/sro_declaration','getSroDeclaration');
-            Route::get('/{id}/sro_declaration/details', 'getSroDeclarationDetails');
+
+            // Restricted Organisations 404 for Users who can't see them
+            Route::middleware('organisation.visible')->group(function () {
+                Route::get('/{id}', 'show');
+                Route::get('/{id}/status', 'getStatus');
+                Route::get('/{id}/idvt', 'idvt');
+                Route::get('/{id}/counts/certifications', 'countCertifications');
+                Route::get('/{id}/counts/users', 'countUsers');
+                Route::get('/{id}/counts/projects/present', 'countPresentProjects');
+                Route::get('/{id}/counts/projects/past', 'countPastProjects');
+                Route::get('/{id}/projects/present', 'presentProjects');
+                Route::get('/{id}/projects/past', 'pastProjects');
+                Route::get('/{id}/projects/future', 'futureProjects');
+                Route::get('/{id}/projects', 'getProjects');
+                Route::get('/{id}/projects/sponsorships', 'getSponsorshipsProjects');
+                Route::get('/{id}/users', 'getUsers');
+                Route::get('/{id}/delegates', 'getDelegates');
+                Route::get('/{id}/registries', 'getRegistries');
+                Route::get('/{id}/sro_declaration','getSroDeclaration');
+                Route::get('/{id}/sro_declaration/details', 'getSroDeclarationDetails');
+            });
 
             // Create
             Route::post('/', 'store');
@@ -449,7 +457,9 @@ Route::middleware('auth:api')
             Route::delete('/{id}', 'destroy');
             Route::delete('/{id}/delegates/{userId}', 'removeDelegate');
 
-            Route::get('/{id}/history', [AuditLogController::class, 'showOrganisationHistory'])->whereNumber('id');
+            Route::get('/{id}/history', [AuditLogController::class, 'showOrganisationHistory'])
+                ->whereNumber('id')
+                ->middleware('organisation.visible');
 
             Route::patch('/{id}/sponsorships/statuses', 'updateSponsorshipStatuses');
 

@@ -213,6 +213,16 @@ use App\Traits\FilterManager;
  *          example="false",
  *          description="Whether this Organisation has been approved to use the system or not"
  *      ),
+ *      @OA\Property(property="is_restricted",
+ *          type="boolean",
+ *          example="false",
+ *          description="Whether this Organisation was created by a non-admin and is hidden from other users until system approved"
+ *      ),
+ *      @OA\Property(property="created_by_custodian_id",
+ *          type="integer",
+ *          example=1,
+ *          description="The Custodian that created this Organisation, if any"
+ *      ),
  *      @OA\Property(property="ods_id",
  *          type="string",
  *          example="ABC1234",
@@ -440,6 +450,8 @@ class Organisation extends Model
     protected $guarded = [
         'system_approved',
         'system_approved_at',
+        'is_restricted',
+        'created_by_custodian_id',
     ];
 
     protected $casts = [
@@ -454,6 +466,7 @@ class Organisation extends Model
         'iso_expiry_date' => 'date:Y-m-d',
         'dsptk_expiry_date' => 'date:Y-m-d',
         'system_approved' => 'boolean',
+        'is_restricted' => 'boolean',
     ];
 
     protected static array $searchableColumns = [
@@ -699,6 +712,48 @@ class Organisation extends Model
     }
 
     /**
+     * Organisations the given User can see. A restricted Organisation (created by a
+     * non-admin) is hidden until system approved, except from admins, the Custodian
+     * that created it and the Users whose current Organisation it is.
+     */
+    public function scopeVisibleTo(Builder $query, User $user): Builder
+    {
+        if ($user->isAdmin()) {
+            return $query;
+        }
+
+        return $query->where(fn (Builder $q) => $q
+            ->where($query->qualifyColumn('is_restricted'), false)
+            ->orWhere($query->qualifyColumn('system_approved'), true)
+            ->when(
+                $user->custodian_user?->custodian_id,
+                fn (Builder $q, int $custodianId) => $q->orWhere($query->qualifyColumn('created_by_custodian_id'), $custodianId)
+            )
+            ->when(
+                $user->organisation_id,
+                fn (Builder $q, int $organisationId) => $q->orWhere($query->qualifyColumn('id'), $organisationId)
+            )
+            ->when(
+                $user->registry_id,
+                fn (Builder $q, int $registryId) => $q->orWhereIn(
+                    $query->qualifyColumn('id'),
+                    Affiliation::query()
+                        ->where('registry_id', $registryId)
+                        ->where('current_employer', true)
+                        ->select('organisation_id')
+                )
+            ));
+    }
+
+    /**
+     * Single-record form of scopeVisibleTo, so policies apply the same rule as lists.
+     */
+    public function isVisibleTo(User $user): bool
+    {
+        return static::query()->visibleTo($user)->whereKey($this->getKey())->exists();
+    }
+
+    /**
      * Organisations with the given account status. A claimed Organisation's account is
      * created whatever its state; an unclaimed one not in an invited state is a placeholder.
      */
@@ -939,6 +994,14 @@ class Organisation extends Model
     public function modelState(): MorphOne
     {
         return $this->morphOne(ModelState::class, 'stateable');
+    }
+
+    /**
+     * @return BelongsTo<Custodian, $this>
+     */
+    public function createdByCustodian(): BelongsTo
+    {
+        return $this->belongsTo(Custodian::class, 'created_by_custodian_id');
     }
 
     public function getEvaluationAttribute()
