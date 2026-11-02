@@ -9,7 +9,10 @@ use App\Models\State;
 use App\Models\Affiliation;
 use Illuminate\Support\Str;
 use App\Models\Organisation;
+use App\Models\CustodianUser;
 use App\Models\CustodianHasProjectUser;
+use App\Enums\AffiliationEndDateSource;
+use App\Services\AffiliationLeaverService;
 use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
 use App\Traits\CommonFunctions;
@@ -28,6 +31,7 @@ use App\Http\Requests\Affiliations\GetAffiliationByRegistry;
 use App\Http\Requests\Affiliations\GetOrganisationAffiliation;
 use App\Http\Requests\Affiliations\CreateAffiliationByRegistry;
 use App\Http\Requests\Affiliations\UpdateAffiliationByRegistry;
+use App\Http\Requests\Affiliations\UpdateAffiliationEndDate;
 use App\Notifications\Organisations\OrganisationUserAffiliation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -199,7 +203,7 @@ class AffiliationController extends Controller
             return $this->ForbiddenResponse();
         }
 
-        $affiliation = Affiliation::with(
+        $query = Affiliation::with(
             [
                 'modelState.state',
                 'organisation' => function ($query) {
@@ -218,7 +222,10 @@ class AffiliationController extends Controller
                     'organisation_id' => $organisationId
                 ]
             )
-            ->first();
+            ->latest('id');
+
+        // A user who left and re-joined has several; the current one, else the latest, is shown.
+        $affiliation = (clone $query)->current()->first() ?? $query->first();
 
 
         return response()->json([
@@ -299,19 +306,24 @@ class AffiliationController extends Controller
             $user =  $request->user;
             $isCurrentEmail = (strtolower($input['email'] ?? '') === strtolower($request->user()->email));
 
-            $currentEmployer = isset($input['current_employer']) ? $input['current_employer'] : false;
+            // Users cannot add past affiliations: every affiliation starts current, with an optional future end date.
+            $endDate = Affiliation::toDateString($input['to'] ?? null);
+            if ($endDate !== null && Carbon::parse($endDate)->lt(Carbon::today())) {
+                return $this->UnprocessableContent('An affiliation cannot be added with an end date in the past.');
+            }
+
             $array = [
                 'organisation_id' => $input['organisation_id'],
                 'member_id' => $request['member_id'],
                 'relationship' => $input['relationship'],
                 'from' => $input['from'],
-                'to' => $input['to'],
+                'to' => $endDate,
                 'department' => $input['department'],
                 'role' => $input['role'],
                 'email' => $input['email'],
                 'ror' => $input['ror'],
                 'registry_id' => $registryId,
-                'current_employer' => $currentEmployer
+                'current_employer' => true,
             ];
 
             $organisation = Organisation::where('id', $array['organisation_id'])->first();
@@ -321,16 +333,20 @@ class AffiliationController extends Controller
 
             $affiliation = Affiliation::create($array);
 
-            if ($currentEmployer) {
-                $verificationCode = Str::uuid()->toString();
-                $affiliation->verification_code = $verificationCode;
-                $affiliation->verification_sent_at = Carbon::now();
-                $affiliation->verification_confirmed_at = null;
-                $affiliation->is_verified = 0;
+            if ($endDate !== null) {
+                $affiliation->end_date_recorded_at = Carbon::now();
+                $affiliation->end_date_recorded_by = $request->user()->id;
+                $affiliation->end_date_source = AffiliationEndDateSource::User;
                 $affiliation->save();
             }
 
-            if ($currentEmployer && $verificationCode && !$isCurrentEmail) {
+            $affiliation->verification_code = Str::uuid()->toString();
+            $affiliation->verification_sent_at = Carbon::now();
+            $affiliation->verification_confirmed_at = null;
+            $affiliation->is_verified = 0;
+            $affiliation->save();
+
+            if (!$isCurrentEmail) {
                 $affiliation->setState(State::STATE_AFFILIATION_EMAIL_VERIFY);
                 $this->sendEmailVerificationAffiliation($affiliation);
             } else {
@@ -460,7 +476,7 @@ class AffiliationController extends Controller
      *      )
      * )
      */
-    public function update(UpdateAffiliation $request, int $id): JsonResponse
+    public function update(UpdateAffiliation $request, AffiliationLeaverService $leaver, int $id): JsonResponse
     {
         try {
             $input = $request->only(app(Affiliation::class)->getFillable());
@@ -469,13 +485,37 @@ class AffiliationController extends Controller
             if (!Gate::allows('manage', $affiliation)) {
                 return $this->ForbiddenResponse();
             }
+
+            if (!$affiliation->isEditable()) {
+                return $this->UnprocessableContent('This affiliation can no longer be edited. Record its end date instead, or add a new affiliation.');
+            }
+
+            // The end date goes through the leaver flow, after the other changes are saved.
+            $hasEndDate = array_key_exists('to', $input);
+            $endDate = Affiliation::toDateString($input['to'] ?? null);
+            unset($input['to']);
+
+            if ($hasEndDate && $endDate !== $affiliation->to) {
+                if ($affiliation->end_date_source === AffiliationEndDateSource::Organisation) {
+                    return $this->UnprocessableContent('Your Organisation has recorded this affiliation\'s end date, so only they can change it.');
+                }
+
+                if ($endDate !== null && Carbon::parse($endDate)->lt(Carbon::today())) {
+                    return $this->UnprocessableContent('An affiliation cannot be given an end date in the past.');
+                }
+            }
+
+            // Users cannot have past affiliations, so every affiliation they edit is current.
+            $input['current_employer'] = true;
+            $wasCurrent = (bool) $affiliation->current_employer;
+
             $isCurrentEmail = (strtolower($input['email'] ?? '') === strtolower($request->user()->email));
 
             $originalAffiliation = $affiliation->getOriginal();
 
             $unclaimed = $affiliation->organisation->unclaimed;
 
-            if (!$affiliation->is_verified && $input['current_employer']) {
+            if (!$affiliation->is_verified) {
                 $affiliation->verification_code = Str::uuid()->toString();
                 $affiliation->verification_sent_at = Carbon::now();
                 $affiliation->verification_confirmed_at = null;
@@ -485,7 +525,7 @@ class AffiliationController extends Controller
             // We only allow email updates in the specific case where the user is changing an affiliation from historic to current,
             // _and_ they haven't already set an email before. This cuts out the complex case while still allowing that one case
             // (where we'd not have fired off a verification email yet).
-            if (!($input['current_employer'] && !$originalAffiliation['current_employer'] && empty($originalAffiliation['email']))) {
+            if ($wasCurrent || !empty($originalAffiliation['email'])) {
                 unset($input['email']);
             }
             $affiliation->fill($input);
@@ -532,6 +572,10 @@ class AffiliationController extends Controller
                 ])
                 ->event('updated')
                 ->log('updated');
+
+            if ($hasEndDate && $endDate !== $affiliation->to) {
+                $leaver->recordEndDate($affiliation, $endDate, $request->user(), AffiliationEndDateSource::User);
+            }
 
             return response()->json([
                 'message' => 'success',
@@ -714,6 +758,10 @@ class AffiliationController extends Controller
                 return $this->ForbiddenResponse();
             }
 
+            if (!$affiliation->isDeletable()) {
+                return $this->UnprocessableContent('This affiliation is part of the user\'s history, so it cannot be deleted. Record its end date instead.');
+            }
+
             $causer = null;
             if ($loggedUser->user_group === User::GROUP_USERS) {
                 $causer = $loggedUser;
@@ -770,6 +818,10 @@ class AffiliationController extends Controller
 
             if (!Gate::allows('approve', $affiliation)) {
                 return $this->ForbiddenResponse();
+            }
+
+            if ($affiliation->hasEnded()) {
+                return $this->UnprocessableContent('This affiliation has ended, so it can no longer be confirmed or declined.');
             }
 
             if ((!$affiliation->is_verified && $affiliation->current_employer && $status === 'approved') && ((int)$loggedUserOrgId !== (int)$affiliation->organisation_id)) {
@@ -852,11 +904,107 @@ class AffiliationController extends Controller
             ->pluck('custodian_id')->toArray();
 
         if ($userCustodianIds) {
-            $userCustodians = User::whereIn('custodian_user_id', $userCustodianIds)->get();
+            $userCustodians = User::whereIn(
+                'custodian_user_id',
+                CustodianUser::whereIn('custodian_id', $userCustodianIds)->select('id')
+            )->get();
             foreach ($userCustodians as $userCustodian) {
                 Notification::send($userCustodian, new OrganisationUserAffiliation($user, $organisation, $status, 'custodian'));
             }
         }
+    }
+
+    /**
+     * @OA\Put(
+     *      path="/api/v1/affiliations/{id}/end_date",
+     *      operationId="affiliationsUpdateEndDate",
+     *      x={"internal"="true"},
+     *      summary="Record, change or remove an affiliation's end date",
+     *      description="Records when a user leaves (or will leave) an organisation. A date of today or earlier ends the affiliation straight away, taking the user off every project they were on through it; a later date is ended by the scheduler. Null removes the end date. The organisation's date wins over the user's.",
+     *      tags={"Affiliations"},
+     *      summary="Affiliations@updateEndDate",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Affiliation ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(
+     *            type="integer",
+     *            description="Affiliation ID",
+     *         ),
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              @OA\Property(property="to", type="string", format="date", nullable=true, example="2026-12-31")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", ref="#/components/schemas/Affiliation")
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="forbidden"),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="The end date cannot be recorded",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="This affiliation has already ended."),
+     *          )
+     *      )
+     * )
+     */
+    public function updateEndDate(UpdateAffiliationEndDate $request, AffiliationLeaverService $leaver, int $id): JsonResponse
+    {
+        $affiliation = Affiliation::with('modelState.state')->findOrFail($id);
+
+        if (!Gate::allows('recordEndDate', $affiliation)) {
+            return $this->ForbiddenResponse();
+        }
+
+        $actor = $request->user();
+        $source = $actor->user_group === User::GROUP_USERS
+            ? AffiliationEndDateSource::User
+            : AffiliationEndDateSource::Organisation;
+        $endDate = Affiliation::toDateString($request->input('to'));
+
+        if ($affiliation->hasEnded()) {
+            return $this->UnprocessableContent('This affiliation has already ended.');
+        }
+
+        if ($affiliation->getState() === State::STATE_AFFILIATION_REJECTED) {
+            return $this->UnprocessableContent('A declined affiliation cannot be given an end date.');
+        }
+
+        if ($source === AffiliationEndDateSource::User && $affiliation->end_date_source === AffiliationEndDateSource::Organisation) {
+            return $this->UnprocessableContent('Your Organisation has recorded this affiliation\'s end date, so only they can change it.');
+        }
+
+        if ($endDate !== null && $affiliation->from !== null && Carbon::parse($endDate)->lt(Carbon::parse($affiliation->from))) {
+            return $this->UnprocessableContent('The end date cannot be before the start date.');
+        }
+
+        $affiliation = $leaver->recordEndDate($affiliation, $endDate, $actor, $source);
+
+        return $this->OKResponse($affiliation->load('modelState.state'));
     }
 
     public function getWorkflowStates(Request $request)
