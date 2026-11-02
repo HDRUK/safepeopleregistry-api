@@ -6,6 +6,7 @@ use Exception;
 use App\Http\Traits\Responses;
 use App\Traits\CommonFunctions;
 use App\Http\Controllers\Controller;
+use App\Models\Organisation;
 use App\Models\ProjectHasOrganisation;
 use App\Http\Requests\ProjectHasOrganisations\GetProjectHasOrganisation;
 
@@ -74,7 +75,10 @@ class ProjectHasOrganisationController extends Controller
             ])
                 ->where([
                     'id' => $id,
-                ])->first();
+                ])
+                // A restricted Organisation the User can't see is treated as not found
+                ->whereIn('organisation_id', Organisation::query()->visibleTo($request->user())->select('id'))
+                ->first();
 
             if (!$phu) {
                 return $this->NotFoundResponse();
