@@ -93,7 +93,7 @@ class OrganisationController extends Controller
      *      operationId="organisationIndex",
      *      x={"internal"="true"},
      *      summary="Return a list of organisations",
-     *      description="Return a list of organisations",
+     *      description="Return a list of organisations. Restricted Organisations (created by a non-admin and not yet system approved) are only included for admins, the Custodian that created them, their members and Users who currently work for them.",
      *      tags={"organisation"},
      *      summary="organisation@index",
      *      security={{"bearerAuth":{}}},
@@ -271,7 +271,7 @@ class OrganisationController extends Controller
      *      ),
      *      @OA\Response(
      *          response=404,
-     *          description="Not found response",
+     *          description="Not found response, or the Organisation is restricted and not visible to the user",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
@@ -387,7 +387,7 @@ class OrganisationController extends Controller
      *      ),
      *      @OA\Response(
      *          response=404,
-     *          description="Not found response",
+     *          description="Not found response, or the Organisation is restricted and not visible to the user",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
@@ -1492,7 +1492,7 @@ class OrganisationController extends Controller
      *      ),
      *      @OA\Response(
      *          response=404,
-     *          description="Not found response",
+     *          description="Not found response, or the Organisation is restricted and not visible to the user",
      *           @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
@@ -1583,7 +1583,7 @@ class OrganisationController extends Controller
      *      ),
      *      @OA\Response(
      *          response=404,
-     *          description="Not found response",
+     *          description="Not found response, or the Organisation is restricted and not visible to the user",
      *           @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
@@ -1688,7 +1688,7 @@ class OrganisationController extends Controller
      *      ),
      *      @OA\Response(
      *          response=404,
-     *          description="Not found response",
+     *          description="Not found response, or the Organisation is restricted and not visible to the user",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
@@ -1770,7 +1770,7 @@ class OrganisationController extends Controller
      *      ),
      *      @OA\Response(
      *          response=404,
-     *          description="Not found response",
+     *          description="Not found response, or the Organisation is restricted and not visible to the user",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="not found")
      *          )
@@ -2462,7 +2462,7 @@ class OrganisationController extends Controller
      *      ),
      *      @OA\Response(
      *          response=404,
-     *          description="No registries found for this organisation",
+     *          description="No registries found for this organisation, or the Organisation is restricted and not visible to the user",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="No registries found for this organisation")
      *          )
@@ -2574,7 +2574,7 @@ class OrganisationController extends Controller
      *
      *     @OA\Response(
      *         response=404,
-     *         description="Organisation not found",
+     *         description="Organisation not found, or the Organisation is restricted and not visible to the user",
      *         @OA\JsonContent(
      *             @OA\Property(property="message", type="string", example="Organisation not found")
      *         )
@@ -2871,7 +2871,7 @@ class OrganisationController extends Controller
      *      ),
      *      @OA\Response(
      *          response=404,
-     *          description="File not found",
+     *          description="File not found, or the Organisation is restricted and not visible to the user",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="File not found"),
      *          ),
@@ -2952,6 +2952,13 @@ class OrganisationController extends Controller
      *          description="Forbidden",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="forbidden"),
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="The Organisation is restricted and not visible to the user",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found"),
      *          ),
      *      ),
      * )

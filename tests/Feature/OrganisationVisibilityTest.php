@@ -245,6 +245,38 @@ class OrganisationVisibilityTest extends TestCase
             ->assertJsonPath('data.project_organisation.organisation_id', $organisation->id);
     }
 
+    public function test_a_restricted_organisation_is_left_out_of_another_custodians_projects_until_approved(): void
+    {
+        $organisation = $this->createOrganisationAs($this->researcher);
+        $otherCustodianId = $this->otherCustodian->custodian_user->custodian_id;
+        $this->linkToProjectOfCustodian($organisation, $otherCustodianId);
+
+        $projectOrganisationIds = fn () => $this->actingAs($this->otherCustodian)
+            ->json('GET', "/api/v1/custodians/{$otherCustodianId}/projects?per_page=1000")
+            ->assertStatus(200)
+            ->json('data.data.*.organisations.*.id');
+
+        $this->assertNotContains($organisation->id, $projectOrganisationIds());
+
+        $this->actingAs($this->admin)
+            ->json('PUT', self::TEST_URL . "/{$organisation->id}/approved", ['system_approved' => true])
+            ->assertSuccessful();
+
+        $this->assertContains($organisation->id, $projectOrganisationIds());
+    }
+
+    public function test_affiliations_do_not_return_the_organisation_lead_applicant_email(): void
+    {
+        $organisation = $this->createOrganisationAs($this->custodian_admin);
+        $this->affiliate($this->researcher, $organisation, currentEmployer: true);
+
+        $this->actingAs($this->otherCustodian)
+            ->json('GET', "/api/v1/affiliations/{$this->researcher->registry_id}")
+            ->assertStatus(200)
+            ->assertJsonPath('data.data.0.organisation.id', $organisation->id)
+            ->assertJsonMissingPath('data.data.0.organisation.lead_applicant_email');
+    }
+
     private function linkToProjectOfCustodian(Organisation $organisation, int $custodianId): ProjectHasOrganisation
     {
         $project = Project::factory()->create();
@@ -260,6 +292,17 @@ class OrganisationVisibilityTest extends TestCase
         ]);
 
         return $projectOrganisation;
+    }
+
+    public function test_restriction_fields_are_not_returned_by_the_api(): void
+    {
+        $organisation = $this->createOrganisationAs($this->custodian_admin);
+
+        $this->actingAs($this->custodian_admin)
+            ->json('GET', self::TEST_URL . "/{$organisation->id}")
+            ->assertStatus(200)
+            ->assertJsonMissingPath('data.is_restricted')
+            ->assertJsonMissingPath('data.created_by_custodian_id');
     }
 
     public function test_restriction_fields_cannot_be_set_by_the_client(): void

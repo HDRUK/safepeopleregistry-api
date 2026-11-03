@@ -832,7 +832,14 @@ class UserController extends Controller
             ->applySorting()
             ->filterByState()
             ->filterByCommon()
-            ->with(['organisations', 'modelState.state'])
+            ->with([
+                // Restricted Organisations the User can't see are left out of each Project
+                'organisations' => fn ($query) => $query->whereIn(
+                    'organisations.id',
+                    Organisation::visibleIdsFor($request->user())
+                ),
+                'modelState.state',
+            ])
             ->custodianHasProjectUser($userDigitalIdent)
             ->whereHas(
                 'custodianHasProjectUser',

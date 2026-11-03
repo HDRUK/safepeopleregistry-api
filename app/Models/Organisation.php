@@ -213,16 +213,6 @@ use App\Traits\FilterManager;
  *          example="false",
  *          description="Whether this Organisation has been approved to use the system or not"
  *      ),
- *      @OA\Property(property="is_restricted",
- *          type="boolean",
- *          example="false",
- *          description="Whether this Organisation was created by a non-admin and is hidden from other users until system approved"
- *      ),
- *      @OA\Property(property="created_by_custodian_id",
- *          type="integer",
- *          example=1,
- *          description="The Custodian that created this Organisation, if any"
- *      ),
  *      @OA\Property(property="ods_id",
  *          type="string",
  *          example="ABC1234",
@@ -488,6 +478,8 @@ class Organisation extends Model
             'idvt_completed_at',
             'permissions',
             'files',
+            'is_restricted',
+            'created_by_custodian_id',
          ];
 
     protected $appends = [
@@ -727,15 +719,15 @@ class Organisation extends Model
             ->orWhere($query->qualifyColumn('system_approved'), true)
             ->when(
                 $user->custodian_user?->custodian_id,
-                fn (Builder $q, int $custodianId) => $q->orWhere($query->qualifyColumn('created_by_custodian_id'), $custodianId)
+                fn (Builder $q, $custodianId) => $q->orWhere($query->qualifyColumn('created_by_custodian_id'), $custodianId)
             )
             ->when(
                 $user->organisation_id,
-                fn (Builder $q, int $organisationId) => $q->orWhere($query->qualifyColumn('id'), $organisationId)
+                fn (Builder $q, $organisationId) => $q->orWhere($query->qualifyColumn('id'), $organisationId)
             )
             ->when(
                 $user->registry_id,
-                fn (Builder $q, int $registryId) => $q->orWhereIn(
+                fn (Builder $q, $registryId) => $q->orWhereIn(
                     $query->qualifyColumn('id'),
                     Affiliation::query()
                         ->where('registry_id', $registryId)
@@ -750,7 +742,23 @@ class Organisation extends Model
      */
     public function isVisibleTo(User $user): bool
     {
+        // Most Organisations are visible to everyone, so skip the query when that's already known.
+        // Strict checks, so a partially loaded model (attributes null) falls through to the query.
+        if ($user->isAdmin() || $this->is_restricted === false || $this->system_approved === true) {
+            return true;
+        }
+
         return static::query()->visibleTo($user)->whereKey($this->getKey())->exists();
+    }
+
+    /**
+     * IDs of the Organisations the User can see, for filtering related records with whereIn.
+     *
+     * @return Builder<Organisation>
+     */
+    public static function visibleIdsFor(User $user): Builder
+    {
+        return self::query()->visibleTo($user)->select('id');
     }
 
     /**
