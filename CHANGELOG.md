@@ -1,3 +1,12 @@
+## [1.38.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.37.0...v1.38.0) (2026-11-03)
+
+### ✨ Features
+
+* **REGISTRY-2380:** Implements end dates for users and orgs to set leavers of affiliations (#844) ([635100c](https://github.com/HDRUK/safepeopleregistry-api/commit/635100cdb6d88f7ef0b14e59e1c9d3cb3c34698d))
+* **REGISTRY-2940:** Automated SRO Declaration flag and Manual SRO declaration content check (#841) ([f56d505](https://github.com/HDRUK/safepeopleregistry-api/commit/f56d50584d0c5731fd8fdaa86d88e38433fa13f6))
+* **REGISTRY-3017:** Make date of last interaction sortable and available for use in superadmin panel (#842) ([0acc138](https://github.com/HDRUK/safepeopleregistry-api/commit/0acc1385c8414d49bada507435a8afb39e7e78bd))
+* **REGISTRY-3019:** Update copy for Organisation invite from HDR-UK  (#843) ([50a3646](https://github.com/HDRUK/safepeopleregistry-api/commit/50a3646240bd7c6a6253d6d1cbee1895eadf9c89))
+
 ## [1.37.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.36.1...v1.37.0) (2026-10-22)
 
 ### ✨ Features
