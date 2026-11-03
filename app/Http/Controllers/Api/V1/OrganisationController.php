@@ -94,7 +94,7 @@ class OrganisationController extends Controller
      *      operationId="organisationIndex",
      *      x={"internal"="true"},
      *      summary="Return a list of organisations",
-     *      description="Return a list of organisations",
+     *      description="Return a list of organisations. Restricted Organisations (created by a non-admin and not yet system approved) are only included for admins, the Custodian that created them, their members and Users who currently work for them.",
      *      tags={"organisation"},
      *      summary="organisation@index",
      *      security={{"bearerAuth":{}}},
@@ -143,6 +143,7 @@ class OrganisationController extends Controller
 
         if (!$custodianId) {
             $organisations = Organisation::searchViaRequest()
+                ->visibleTo($request->user())
                 ->filterByState()
                 ->withStatusChangedAt()
                 ->applySorting()
@@ -271,7 +272,7 @@ class OrganisationController extends Controller
      *      ),
      *      @OA\Response(
      *          response=404,
-     *          description="Not found response",
+     *          description="Not found response, or the Organisation is restricted and not visible to the user",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
@@ -387,7 +388,7 @@ class OrganisationController extends Controller
      *      ),
      *      @OA\Response(
      *          response=404,
-     *          description="Not found response",
+     *          description="Not found response, or the Organisation is restricted and not visible to the user",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
@@ -654,6 +655,7 @@ class OrganisationController extends Controller
     {
         try {
             $input = $request->all();
+            $restriction = $this->restrictionFor($request->user());
 
             // Guards against recreating an existing Organisation via this endpoint.
             if (Organisation::organisationMatching($input['organisation_name'], $input['lead_applicant_email'])->exists()) {
@@ -668,7 +670,7 @@ class OrganisationController extends Controller
             }
 
             // This Organisation does not exist, so create it as unclaimed.
-            $organisation = Organisation::create([
+            $organisation = new Organisation([
                 'organisation_name' => $input['organisation_name'],
                 'lead_applicant_email' => $input['lead_applicant_email'],
                 'address_1' => '',
@@ -706,6 +708,8 @@ class OrganisationController extends Controller
                 'ico_date_registered' => $input['ico_date_registered'] ?? null,
                 'ico_expiry_date' => $input['ico_expiry_date'] ?? null,
             ]);
+            // Mass assignment protects the fields above; only the server-set restriction bypasses it
+            $organisation->forceFill($restriction)->save();
 
             $organisation->setState(State::STATE_ORGANISATION_INVITED_BY_ADMIN);
 
@@ -719,6 +723,7 @@ class OrganisationController extends Controller
     {
         try {
             $input = $request->all();
+            $restriction = $this->restrictionFor($request->user());
 
             if (isset($input['lead_applicant_email'])) {
                 $existingOrganisation = Organisation::where('lead_applicant_email', $input['lead_applicant_email'])->first();
@@ -732,7 +737,7 @@ class OrganisationController extends Controller
                     return $this->ErrorResponse();
                 }
 
-                $newOrganisation = Organisation::create([
+                $newOrganisation = new Organisation([
                     'organisation_name' => $input['organisation_name'],
                     'lead_applicant_email' => $input['lead_applicant_email'],
                     'address_1' => '',
@@ -770,6 +775,8 @@ class OrganisationController extends Controller
                     'ico_date_registered' => $input['ico_date_registered'] ?? null,
                     'ico_expiry_date' => $input['ico_expiry_date'] ?? null,
                 ]);
+                // Mass assignment protects the fields above; only the server-set restriction bypasses it
+                $newOrganisation->forceFill($restriction)->save();
                 $newOrganisation->setState(State::STATE_ORGANISATION_INVITED_BY_NONADMIN);
 
                 return $this->CreatedResponse($newOrganisation->id); // New Organisation created with this name and email, return the ID for the superadmin to invite them
@@ -791,7 +798,7 @@ class OrganisationController extends Controller
                 return $this->ErrorResponse();
             }
 
-            $newOrganisation = Organisation::create([
+            $newOrganisation = new Organisation([
                 'organisation_name' => $input['organisation_name'],
                 'address_1' => '',
                 'address_2' => '',
@@ -828,12 +835,33 @@ class OrganisationController extends Controller
                 'ico_date_registered' => $input['ico_date_registered'] ?? null,
                 'ico_expiry_date' => $input['ico_expiry_date'] ?? null,
             ]);
+            // Mass assignment protects the fields above; only the server-set restriction bypasses it
+            $newOrganisation->forceFill($restriction)->save();
             $newOrganisation->setState(State::STATE_ORGANISATION_PLACEHOLDER);
 
             return $this->CreatedResponse($newOrganisation->id); // New Organisation created with this name and no email, return the ID for the superadmin to invite them
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
+    }
+
+    /**
+     * A non-admin's new Organisation is hidden from other Users until system approved, see
+     * Organisation::scopeVisibleTo. Saved in the same insert, so the Organisation is never
+     * briefly visible before it is restricted.
+     *
+     * @return array{is_restricted?: bool, created_by_custodian_id?: int|null}
+     */
+    private function restrictionFor(?User $user): array
+    {
+        if (!$user || $user->isAdmin()) {
+            return [];
+        }
+
+        return [
+            'is_restricted' => true,
+            'created_by_custodian_id' => $user->custodian_user?->custodian_id,
+        ];
     }
 
     /**
@@ -1465,7 +1493,7 @@ class OrganisationController extends Controller
      *      ),
      *      @OA\Response(
      *          response=404,
-     *          description="Not found response",
+     *          description="Not found response, or the Organisation is restricted and not visible to the user",
      *           @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
@@ -1556,7 +1584,7 @@ class OrganisationController extends Controller
      *      ),
      *      @OA\Response(
      *          response=404,
-     *          description="Not found response",
+     *          description="Not found response, or the Organisation is restricted and not visible to the user",
      *           @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
@@ -1661,7 +1689,7 @@ class OrganisationController extends Controller
      *      ),
      *      @OA\Response(
      *          response=404,
-     *          description="Not found response",
+     *          description="Not found response, or the Organisation is restricted and not visible to the user",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
@@ -1743,7 +1771,7 @@ class OrganisationController extends Controller
      *      ),
      *      @OA\Response(
      *          response=404,
-     *          description="Not found response",
+     *          description="Not found response, or the Organisation is restricted and not visible to the user",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="not found")
      *          )
@@ -2164,6 +2192,13 @@ class OrganisationController extends Controller
     public function invite(OrganisationInvite $request, int $id): JsonResponse
     {
         try {
+            // With SroRequirementEnabled off this invites as superadmin and system approves
+            // the Organisation, so only admins may call it. The FE only calls it as a
+            // non-admin when the flag is on.
+            if (!Feature::active('SroRequirementEnabled') && !Gate::allows('admin')) {
+                return $this->ForbiddenResponse();
+            }
+
             $organisation = Organisation::where('id', $id)->first();
             if (!$organisation) {
                 return response()->json([
@@ -2435,7 +2470,7 @@ class OrganisationController extends Controller
      *      ),
      *      @OA\Response(
      *          response=404,
-     *          description="No registries found for this organisation",
+     *          description="No registries found for this organisation, or the Organisation is restricted and not visible to the user",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="No registries found for this organisation")
      *          )
@@ -2548,7 +2583,7 @@ class OrganisationController extends Controller
      *
      *     @OA\Response(
      *         response=404,
-     *         description="Organisation not found",
+     *         description="Organisation not found, or the Organisation is restricted and not visible to the user",
      *         @OA\JsonContent(
      *             @OA\Property(property="message", type="string", example="Organisation not found")
      *         )
@@ -2845,7 +2880,7 @@ class OrganisationController extends Controller
      *      ),
      *      @OA\Response(
      *          response=404,
-     *          description="File not found",
+     *          description="File not found, or the Organisation is restricted and not visible to the user",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="File not found"),
      *          ),
@@ -2926,6 +2961,13 @@ class OrganisationController extends Controller
      *          description="Forbidden",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="forbidden"),
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="The Organisation is restricted and not visible to the user",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found"),
      *          ),
      *      ),
      * )
