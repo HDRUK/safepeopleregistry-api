@@ -19,6 +19,14 @@ class CreateAffiliationByRegistry extends BaseFormRequest
                 'integer',
                 'exists:registries,id',
             ],
+            'from' => [
+                'nullable',
+                'date',
+            ],
+            'to' => [
+                'nullable',
+                'date',
+            ],
         ];
     }
 

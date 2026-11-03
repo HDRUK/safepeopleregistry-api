@@ -206,8 +206,9 @@ class PendingInviteController extends Controller
 
         $now = now();
         $pendingInvite->updated_at = $now;
-        if ($pendingInvite->type === 'sro_invite') {
-            // GET /organisations/{id} shows the organisation when an SRO invitation was last sent.
+        if (in_array($pendingInvite->type, ['sro_invite', 'organisation_invite'], true)) {
+            // GET /organisations/{id} shows the organisation when an SRO invitation was last sent,
+            // and the organisations index sorts on when either was last sent.
             $pendingInvite->invite_sent_at = $now;
         }
         $pendingInvite->save();

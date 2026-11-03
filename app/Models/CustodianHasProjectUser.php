@@ -26,6 +26,10 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
  * @property int $approved
  * @property string|null $comment
  * @property \Illuminate\Support\Carbon $created_at
+ * @property \Carbon\CarbonInterface|null $access_revocation_required_at
+ * @property \Carbon\CarbonInterface|null $access_revocation_reminded_at
+ * @property \Carbon\CarbonInterface|null $access_revoked_at
+ * @property int|null $access_revoked_by
  * @property-read \App\Models\Custodian $custodian
  * @property-read \App\Models\ProjectHasUser $projectHasUser
  * @property-read \App\Models\User $user
@@ -47,6 +51,7 @@ class CustodianHasProjectUser extends Model
     protected static array $transitions = [
         State::STATE_INVITED => [
             State::STATE_PENDING,
+            State::STATE_USER_LEFT_PROJECT,
         ],
         State::STATE_PENDING => [
             State::STATE_VALIDATION_IN_PROGRESS,
@@ -113,6 +118,9 @@ class CustodianHasProjectUser extends Model
 
     protected $casts = [
         'created_at' => 'datetime',
+        'access_revocation_required_at' => 'datetime',
+        'access_revocation_reminded_at' => 'datetime',
+        'access_revoked_at' => 'datetime',
     ];
 
     protected $fillable = [
@@ -169,6 +177,22 @@ class CustodianHasProjectUser extends Model
     public function modelState(): MorphOne
     {
         return $this->morphOne(ModelState::class, 'stateable');
+    }
+
+    /**
+     *  @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\User>
+     */
+    public function accessRevokedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'access_revoked_by');
+    }
+
+    /**
+     * Users who have left the project, whose real data access the Custodian has not yet confirmed revoking.
+     */
+    public function scopeAwaitingAccessRevocation($query)
+    {
+        return $query->whereNotNull('access_revocation_required_at')->whereNull('access_revoked_at');
     }
 
     public function scopeWithProjectJoins($query)

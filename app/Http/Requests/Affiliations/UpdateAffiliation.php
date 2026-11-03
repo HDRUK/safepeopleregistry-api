@@ -19,6 +19,14 @@ class UpdateAffiliation extends BaseFormRequest
                 'integer',
                 'exists:affiliations,id',
             ],
+            'from' => [
+                'nullable',
+                'date',
+            ],
+            'to' => [
+                'nullable',
+                'date',
+            ],
         ];
     }
 

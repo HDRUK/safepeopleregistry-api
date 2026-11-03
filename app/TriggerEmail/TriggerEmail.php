@@ -595,7 +595,7 @@ class TriggerEmail
                 $organisation = Organisation::where('id', $organisationId)->first();
                 $inviter = User::with('custodian_user.custodian')->where('id', $by)->firstOrFail();
                 $custodian = $inviter->custodian_user->custodian
-                    ?? throw (new ModelNotFoundException)->setModel(Custodian::class);
+                    ?? throw (new ModelNotFoundException())->setModel(Custodian::class);
 
                 $newRecipients = [
                     'id' => 0,
@@ -608,6 +608,8 @@ class TriggerEmail
                     '[[registration.email]]' => urlencode($organisation->lead_applicant_email),
                     '[[inviter_name]]' => $inviter->first_name . ' ' . $inviter->last_name,
                     '[[custodian_name]]' => $custodian->name,
+                    '[[inviter_name_urlencoded]]' => rawurlencode($inviter->first_name . ' ' . $inviter->last_name),
+                    '[[organisation_name_urlencoded]]' => rawurlencode($organisation->organisation_name),
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
                     '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
                     '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),
@@ -633,6 +635,8 @@ class TriggerEmail
                     '[[inviteCode]]' => $inviteCode,
                     '[[registration.email]]' => urlencode($organisation->lead_applicant_email),
                     '[[inviter_name]]' => $inviter->first_name . ' ' . $inviter->last_name,
+                    '[[inviter_name_urlencoded]]' => rawurlencode($inviter->first_name . ' ' . $inviter->last_name),
+                    '[[organisation_name_urlencoded]]' => rawurlencode($organisation->organisation_name),
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
                     '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
                     '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),
@@ -717,6 +721,7 @@ class TriggerEmail
                     '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
                     '[[env(PORTAL_PATH_INVITE)]]' => config('speedi.system.portal_path_invite'),
                     '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                    '[[SRO_TEMPLATE_DECLARATION_URL]]' => config('speedi.system.portal_url') . '/Registry_SRO_Declaration.pdf',
                 ];
 
                 // A resend passes inviteId and reuses the code already stored on that invite.
@@ -756,6 +761,42 @@ class TriggerEmail
                     '[[sro_last_name]]' => $sro->last_name,
                     '[[actor_first_name]]' => $actor->first_name,
                     '[[actor_last_name]]' => $actor->last_name,
+                    '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
+                    '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
+                    '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),
+                    '[[env(REGISTRY_IMAGE_URL)]]' => config('speedi.system.registry_image_url'),
+                    '[[SRO_TEMPLATE_DECLARATION_URL]]' => config('speedi.system.portal_url') . '/Registry_SRO_Declaration.pdf',
+
+                ];
+
+                break;
+
+            case 'AFFILIATION_ENDING_SOON_USER':
+            case 'AFFILIATION_ENDED_USER':
+            case 'AFFILIATION_ENDED_ORGANISATION':
+            case 'AFFILIATION_ENDED_CUSTODIAN':
+            case 'AFFILIATION_ACCESS_REVOCATION_REMINDER':
+                // Same placeholders; the identifier picks which leaver template is sent.
+                // `to` is the recipient, `for` the user whose affiliation is ending.
+                $template = EmailTemplate::where('identifier', $identifier)->first();
+                $affiliation = Affiliation::with('organisation')->findOrFail($affiliationId);
+                $recipient = User::where('id', $to)->first();
+                $affiliatedUser = User::where('id', $for ?? $to)->first();
+                $project = $projectId ? Project::where('id', $projectId)->first() : null;
+
+                $newRecipients = [
+                    'id' => $recipient->id,
+                    'email' => $recipient->email,
+                ];
+
+                $replacements = [
+                    '[[organisation.organisation_name]]' => $affiliation->organisation?->organisation_name,
+                    '[[affiliation.end_date]]' => Carbon::parse($affiliation->to)->format('j F Y'),
+                    '[[affiliation.end_date_recorded_at]]' => ($affiliation->end_date_recorded_at ?? Carbon::now())->format('j F Y'),
+                    '[[recipient_first_name]]' => $recipient->first_name,
+                    '[[user_first_name]]' => $affiliatedUser->first_name,
+                    '[[user_last_name]]' => $affiliatedUser->last_name,
+                    '[[project.title]]' => $project?->title,
                     '[[env(APP_NAME)]]' => config('speedi.system.app_name'),
                     '[[env(SUPPORT_EMAIL)]]' => config('speedi.system.support_email'),
                     '[[env(PORTAL_URL)]]' => config('speedi.system.portal_url'),

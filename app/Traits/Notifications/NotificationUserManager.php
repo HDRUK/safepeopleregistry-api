@@ -151,7 +151,7 @@ trait NotificationUserManager
 
         $userIds =  User::whereIn(
             'custodian_user_id',
-            CustodianUser::where('custodian_id', $custodianIds)->pluck('id')
+            CustodianUser::whereIn('custodian_id', $custodianIds)->pluck('id')
         )->pluck('id')->filter()->unique()->values()->toArray();
 
         return $userIds;

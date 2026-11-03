@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use Carbon\Carbon;
 use Tests\TestCase;
 use App\Models\Registry;
+use App\Models\State;
 use App\Models\Affiliation;
 use App\Models\Organisation;
 use App\Traits\CommonFunctions;
@@ -224,10 +225,14 @@ class AffiliationTest extends TestCase
 
     public function test_the_application_can_delete_an_affiliation(): void
     {
+        // Only a fresh affiliation, never affiliated and not on a project, can be deleted.
+        $affiliation = Affiliation::factory()->create(['registry_id' => $this->user->registry_id]);
+        $affiliation->setState(State::STATE_AFFILIATION_PENDING);
+
         $response = $this->actingAs($this->user)
             ->json(
                 'DELETE',
-                self::TEST_URL . '/1'
+                self::TEST_URL . "/{$affiliation->id}"
             );
 
         $response->assertStatus(200);

@@ -91,4 +91,24 @@ class OrganisationHasSroResponseTest extends TestCase
         $this->assertNotNull($listed);
         $this->assertArrayNotHasKey('has_claimed_sro', $listed);
     }
+
+    public function test_index_does_not_return_claimed_sro(): void
+    {
+        $organisation = Organisation::factory()->create();
+        User::factory()->create([
+            'user_group' => User::GROUP_ORGANISATIONS,
+            'organisation_id' => $organisation->id,
+            'is_sro' => 1,
+            'unclaimed' => 0,
+        ]);
+
+        $organisations = $this->actingAs($this->admin)
+            ->json('GET', self::TEST_URL . '?per_page=1000')
+            ->assertStatus(200)
+            ->json('data.data');
+
+        $listed = collect($organisations)->firstWhere('id', $organisation->id);
+        $this->assertNotNull($listed);
+        $this->assertArrayNotHasKey('claimed_sro', $listed);
+    }
 }

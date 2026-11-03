@@ -25,6 +25,13 @@ class AffiliationObserver
     public function updated(Affiliation $affiliation): void
     {
         $this->handleChange($affiliation);
+
+        // The leaver flow notifies everyone itself, in its own words.
+        $changed = array_diff(array_keys($affiliation->getChanges()), ['updated_at']);
+        if (array_diff($changed, Affiliation::LEAVER_ATTRIBUTES) === []) {
+            return;
+        }
+
         $old = new Affiliation($affiliation->getOriginal());
         $this->sendNotificationOnUpdate($affiliation, $old);
     }
