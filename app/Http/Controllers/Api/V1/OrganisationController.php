@@ -39,6 +39,7 @@ use App\Http\Requests\Organisations\GetOrganisations;
 use App\Enums\OrganisationAccountStatus;
 use App\Enums\OrganisationSroStatus;
 use App\Notifications\OrganisationRequested;
+use App\Notifications\RestrictedOrganisationRequested;
 use Illuminate\Support\Facades\Notification;
 use App\Http\Requests\Organisations\GetProject;
 use App\Models\CustodianHasProjectOrganisation;
@@ -654,18 +655,26 @@ class OrganisationController extends Controller
     {
         try {
             $input = $request->all();
-            $restriction = $this->restrictionFor($request->user());
+            $user = $request->user();
+            $restriction = $this->restrictionFor($user);
+
+            $matching = Organisation::organisationMatching($input['organisation_name'], $input['lead_applicant_email']);
+            $emailInUse = Organisation::where('lead_applicant_email', $input['lead_applicant_email'])
+                ->where('organisation_name', '!=', $input['organisation_name']);
 
             // Guards against recreating an existing Organisation via this endpoint.
-            if (Organisation::organisationMatching($input['organisation_name'], $input['lead_applicant_email'])->exists()) {
+            if ((clone $matching)->visibleTo($user)->exists()) {
                 return $this->ConflictResponse('duplicate'); // "This Org already exists, no need to re-create it"
             }
 
             // Guards against creating a new Organisation with an email that already exists on a different Organisation.
-            if (Organisation::where('lead_applicant_email', $input['lead_applicant_email'])
-                ->where('organisation_name', '!=', $input['organisation_name'])->exists()
-            ) {
+            if ((clone $emailInUse)->visibleTo($user)->exists()) {
                 return $this->ConflictResponse('email_in_use'); // "This Org already exists with a different name, so use the row-invite to rename it at invite time"
+            }
+
+            $hiddenMatch = $matching->first() ?? $emailInUse->first();
+            if ($hiddenMatch) {
+                return $this->pendingApprovalConflict($user, $hiddenMatch);
             }
 
             // This Organisation does not exist, so create it as unclaimed.
@@ -722,10 +731,16 @@ class OrganisationController extends Controller
     {
         try {
             $input = $request->all();
-            $restriction = $this->restrictionFor($request->user());
+            $user = $request->user();
+            $restriction = $this->restrictionFor($user);
 
             if (isset($input['lead_applicant_email'])) {
-                $existingOrganisation = Organisation::where('lead_applicant_email', $input['lead_applicant_email'])->first();
+                $emailMatch = Organisation::where('lead_applicant_email', $input['lead_applicant_email']);
+                $existingOrganisation = (clone $emailMatch)->visibleTo($user)->first();
+                $hiddenMatch = $existingOrganisation ? null : $emailMatch->first();
+                if ($hiddenMatch) {
+                    return $this->pendingApprovalConflict($user, $hiddenMatch);
+                }
                 if ($existingOrganisation) {
                     if ($existingOrganisation->unclaimed === false) {
                         return $this->ConflictResponse('claimed_duplicate'); // "This Org already exists and is claimed, no need to re-invite it"
@@ -786,7 +801,12 @@ class OrganisationController extends Controller
             }
 
             // Email not provided, so we can only match on name. If an existing org exists with this name, return its ID for the superadmin to invite them. Otherwise create a new unclaimed org and return its ID for the superadmin to invite them.
-            $matchedOrganisation = Organisation::where('organisation_name', $input['organisation_name'])->first();
+            $nameMatch = Organisation::where('organisation_name', $input['organisation_name']);
+            $matchedOrganisation = (clone $nameMatch)->visibleTo($user)->first();
+            $hiddenMatch = $matchedOrganisation ? null : $nameMatch->first();
+            if ($hiddenMatch) {
+                return $this->pendingApprovalConflict($user, $hiddenMatch);
+            }
             if ($matchedOrganisation) {
                 if ($matchedOrganisation->unclaimed === false) {
                     return $this->ConflictResponse('claimed_duplicate_without_email'); // "This Org already exists and is claimed, no need to re-invite it"
@@ -842,6 +862,20 @@ class OrganisationController extends Controller
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
+    }
+
+    /**
+     * For a duplicate check that matched only an Organisation the User can't see, which means
+     * it's restricted and awaiting approval. Admins are told it's wanted so the User isn't left
+     * stuck, and the same code is returned whatever matched, so nothing more is revealed
+     * about the hidden Organisation.
+     */
+    private function pendingApprovalConflict(User $user, Organisation $organisation): JsonResponse
+    {
+        $userAdmins = User::where('user_group', User::GROUP_ADMINS)->select(['id'])->get();
+        Notification::send($userAdmins, new RestrictedOrganisationRequested($user, $organisation));
+
+        return $this->ConflictResponse('pending_approval');
     }
 
     /**

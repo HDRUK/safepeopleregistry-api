@@ -13,6 +13,8 @@ use App\Models\ProjectHasCustodian;
 use App\Models\ProjectHasOrganisation;
 use App\Models\Registry;
 use App\Models\User;
+use App\Notifications\RestrictedOrganisationRequested;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Testing\TestResponse;
 use KeycloakGuard\ActingAsKeycloakUser;
@@ -469,6 +471,114 @@ class OrganisationVisibilityTest extends TestCase
         Queue::assertNotPushed(SendEmailJob::class);
 
         $inviteUser($this->custodian_admin)->assertStatus(201);
+    }
+
+    private function requestOrganisation(User $actor, array $payload): TestResponse
+    {
+        return $this->actingAs($actor)
+            ->json('POST', self::TEST_URL . '/unclaimed_before_superadmin_invitation', $payload);
+    }
+
+    private function assertAdminsToldItIsWanted(User $requester, Organisation $organisation): void
+    {
+        Notification::assertSentTo(
+            $this->admin,
+            RestrictedOrganisationRequested::class,
+            fn (RestrictedOrganisationRequested $notification) =>
+                $notification->toDatabase($this->admin)['details']['organisation_id'] === $organisation->id
+                && str_contains($notification->generateMessage(), $requester->first_name)
+        );
+    }
+
+    public static function hiddenDuplicatePayloads(): array
+    {
+        return [
+            'matched by email' => [true],
+            'matched by name, without email' => [false],
+        ];
+    }
+
+    // The custodian can't see, open or attach the match, so they're told it's awaiting
+    // approval and admins are told it's wanted, rather than leaving them stuck
+    #[DataProvider('hiddenDuplicatePayloads')]
+    public function test_requesting_another_custodians_restricted_organisation_notifies_admins(bool $withEmail): void
+    {
+        $email = fake()->unique()->safeEmail();
+        $name = fake()->unique()->company();
+        $payload = $withEmail
+            ? ['organisation_name' => $name, 'lead_applicant_email' => $email]
+            : ['organisation_name' => $name];
+
+        $this->requestOrganisation($this->custodian_admin, $payload)->assertStatus(201);
+        $organisation = Organisation::where('organisation_name', $name)->firstOrFail();
+        $count = Organisation::count();
+        Notification::fake();
+
+        // Same code whatever matched, so nothing more about the hidden Organisation is revealed
+        $this->requestOrganisation($this->otherCustodian, $withEmail
+            ? ['organisation_name' => fake()->unique()->company(), 'lead_applicant_email' => $email]
+            : $payload)
+            ->assertStatus(409)
+            ->assertJsonPath('data', 'pending_approval');
+
+        $this->assertSame($count, Organisation::count());
+        $this->assertAdminsToldItIsWanted($this->otherCustodian, $organisation);
+    }
+
+    public function test_a_visible_duplicate_still_gets_the_usual_conflict(): void
+    {
+        $payload = [
+            'organisation_name' => fake()->unique()->company(),
+            'lead_applicant_email' => fake()->unique()->safeEmail(),
+        ];
+        $this->requestOrganisation($this->custodian_admin, $payload)->assertStatus(201);
+        $organisation = Organisation::where('lead_applicant_email', $payload['lead_applicant_email'])->firstOrFail();
+        Notification::fake();
+
+        $this->requestOrganisation($this->custodian_admin, $payload)
+            ->assertStatus(409)
+            ->assertJsonPath('data', 'unclaimed_duplicate');
+        $this->requestOrganisation($this->admin, $payload)
+            ->assertStatus(409)
+            ->assertJsonPath('data', 'unclaimed_duplicate');
+
+        $this->actingAs($this->admin)
+            ->json('PUT', self::TEST_URL . "/{$organisation->id}/approved", ['system_approved' => true])
+            ->assertSuccessful();
+
+        $this->requestOrganisation($this->otherCustodian, $payload)
+            ->assertStatus(409)
+            ->assertJsonPath('data', 'unclaimed_duplicate');
+
+        Notification::assertNothingSent();
+    }
+
+    public function test_inviting_another_custodians_restricted_organisation_directly_notifies_admins(): void
+    {
+        $this->withSroRequirement(true, function () {
+            $organisation = $this->createUnclaimedOrganisationAs($this->custodian_admin);
+            $count = Organisation::count();
+            Notification::fake();
+
+            $unclaimed = fn (array $payload) => $this->actingAs($this->otherCustodian)
+                ->json('POST', self::TEST_URL . '/unclaimed', $payload)
+                ->assertStatus(409)
+                ->assertJsonPath('data', 'pending_approval');
+
+            // Would otherwise be 'duplicate'
+            $unclaimed([
+                'organisation_name' => $organisation->organisation_name,
+                'lead_applicant_email' => $organisation->lead_applicant_email,
+            ]);
+            // Would otherwise be 'email_in_use'
+            $unclaimed([
+                'organisation_name' => fake()->unique()->company(),
+                'lead_applicant_email' => $organisation->lead_applicant_email,
+            ]);
+
+            $this->assertSame($count, Organisation::count());
+            $this->assertAdminsToldItIsWanted($this->otherCustodian, $organisation);
+        });
     }
 
     public function test_a_restricted_organisations_invite_cannot_be_resent_by_those_who_cannot_see_it(): void

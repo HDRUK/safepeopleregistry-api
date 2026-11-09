@@ -810,7 +810,7 @@ class OrganisationTest extends TestCase
     {
         $email = fake()->unique()->safeEmail();
 
-        $unclaimed = $this->createOrganisationBeforeSuperadminInvitation($this->user, [
+        $unclaimed = $this->createOrganisationBeforeSuperadminInvitation($this->admin, [
             'lead_applicant_email' => $email,
             'ods_id' => 'ORIGINAL',
         ]);
@@ -836,7 +836,7 @@ class OrganisationTest extends TestCase
 
     public function test_reinviting_an_unclaimed_organisation_before_superadmin_invitation_without_an_email_is_a_conflict(): void
     {
-        $unclaimed = $this->createOrganisationBeforeSuperadminInvitation($this->user, [
+        $unclaimed = $this->createOrganisationBeforeSuperadminInvitation($this->admin, [
             'ods_id' => 'ORIGINAL',
         ]);
         $organisationCount = Organisation::count();
@@ -875,7 +875,7 @@ class OrganisationTest extends TestCase
     {
         $email = fake()->unique()->safeEmail();
 
-        $original = $this->createOrganisationBeforeSuperadminInvitation($this->user, [
+        $original = $this->createOrganisationBeforeSuperadminInvitation($this->admin, [
             'lead_applicant_email' => $email,
         ]);
         $organisationCount = Organisation::count();
