@@ -17,11 +17,6 @@ return new class () extends Migration {
                 ->after('is_restricted')
                 ->constrained('custodians')
                 ->nullOnDelete();
-            $table->foreignId('created_by_user_id')
-                ->nullable()
-                ->after('created_by_custodian_id')
-                ->constrained('users')
-                ->nullOnDelete();
         });
     }
 
@@ -31,7 +26,6 @@ return new class () extends Migration {
     public function down(): void
     {
         Schema::table('organisations', function (Blueprint $table) {
-            $table->dropConstrainedForeignId('created_by_user_id');
             $table->dropConstrainedForeignId('created_by_custodian_id');
             $table->dropColumn('is_restricted');
         });
