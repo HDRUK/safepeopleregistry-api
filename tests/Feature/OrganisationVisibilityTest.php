@@ -294,15 +294,33 @@ class OrganisationVisibilityTest extends TestCase
         return $projectOrganisation;
     }
 
-    public function test_restriction_fields_are_not_returned_by_the_api(): void
+    public function test_the_creating_custodian_is_not_returned_by_the_api(): void
     {
         $organisation = $this->createOrganisationAs($this->custodian_admin);
 
         $this->actingAs($this->custodian_admin)
             ->json('GET', self::TEST_URL . "/{$organisation->id}")
             ->assertStatus(200)
-            ->assertJsonMissingPath('data.is_restricted')
             ->assertJsonMissingPath('data.created_by_custodian_id');
+    }
+
+    // The web lets a researcher pick an unapproved Organisation when the API returned
+    // it because it is restricted, i.e. they may see it (e.g. their current employer)
+    public function test_a_researcher_is_told_their_current_employer_is_restricted(): void
+    {
+        $organisation = $this->createOrganisationAs($this->researcher);
+        $this->affiliate($this->researcher, $organisation, currentEmployer: true);
+
+        $returned = collect(
+            $this->actingAs($this->researcher)
+                ->json('GET', self::TEST_URL . '?per_page=1000')
+                ->assertStatus(200)
+                ->json('data.data')
+        )->firstWhere('id', $organisation->id);
+
+        $this->assertNotNull($returned);
+        $this->assertTrue($returned['is_restricted']);
+        $this->assertArrayNotHasKey('created_by_custodian_id', $returned);
     }
 
     public function test_restriction_fields_cannot_be_set_by_the_client(): void
