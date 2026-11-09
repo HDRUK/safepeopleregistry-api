@@ -67,10 +67,7 @@ class AuditLogController extends Controller
         }
 
         // A Custodian confirming they revoked the data access of a leaver is part of the leaver's history.
-        $custodianProjectUserIds = CustodianHasProjectUser::whereHas(
-            'projectHasUser.registry',
-            fn ($q) => $q->whereKey($user->registry_id)
-        )->pluck('id')->toArray();
+        $custodianProjectUserIds = $this->getVisibleAccessRevocationIds($user, $loggedInUser);
 
         // This will show activity associated to the given user, caused either by the user themselves or by other
         // users in the same custodian group as the logged-in user. It will also show activity caused by the user on other subjects,
@@ -171,6 +168,38 @@ class AuditLogController extends Controller
         // return $this->OKResponse($logs);
         // trim the output
         return ActivityResource::collection($logs);
+    }
+
+    /**
+     * The leaver's project users whose access revocations the viewer may see. Revocations name the project and
+     * the Custodian's staff, so the leaver sees them all, an Organisation those for projects the leaver was on
+     * through it, and a Custodian only its own. Nobody else sees any.
+     *
+     * @return array<int, int>
+     */
+    private function getVisibleAccessRevocationIds(User $user, ?User $viewer): array
+    {
+        $query = CustodianHasProjectUser::whereHas(
+            'projectHasUser.registry',
+            fn ($q) => $q->whereKey($user->registry_id)
+        );
+
+        if ($viewer?->id === $user->id) {
+            return $query->pluck('id')->toArray();
+        }
+
+        if ($viewer?->user_group === User::GROUP_CUSTODIANS && $viewer->custodian_user) {
+            return $query->where('custodian_id', $viewer->custodian_user->custodian_id)->pluck('id')->toArray();
+        }
+
+        if ($viewer?->user_group === User::GROUP_ORGANISATIONS && $viewer->organisation_id) {
+            return $query->whereHas(
+                'projectHasUser.affiliation',
+                fn ($q) => $q->where('organisation_id', $viewer->organisation_id)
+            )->pluck('id')->toArray();
+        }
+
+        return [];
     }
 
     public function showOrganisationHistory(GetOrganisationHistory $request, int $id)

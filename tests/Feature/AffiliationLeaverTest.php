@@ -22,6 +22,7 @@ use App\Notifications\Affiliations\AffiliationEndingSoon;
 use App\Notifications\Affiliations\AffiliationEndDateRecorded;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
+use Spatie\Activitylog\Models\Activity;
 use KeycloakGuard\ActingAsKeycloakUser;
 use Tests\Traits\Authorisation;
 
@@ -429,6 +430,29 @@ class AffiliationLeaverTest extends TestCase
         Queue::assertNothingPushed();
     }
 
+    public function test_the_deployment_step_renames_leaver_activity_events_logged_before_this_release(): void
+    {
+        $log = fn (string $logName, string $description, string $event = 'updated') => Activity::create([
+            'log_name' => $logName,
+            'description' => $description,
+            'event' => $event,
+        ]);
+        $revoked = $log('custodian_has_project_has_user', 'access revoked');
+        $ended = $log('affiliation', 'affiliation ended');
+        $legacy = $log('affiliation', 'legacy affiliation ended');
+        $recorded = $log('affiliation', 'end date recorded');
+        $unrelated = $log('affiliation', 'updated');
+
+        $step = require base_path('database/deployment-steps/2026_11_09_100000_rename_leaver_activity_log_events.php');
+        $step->handle();
+
+        $this->assertEquals('access_revoked', $revoked->refresh()->event);
+        $this->assertEquals('ended', $ended->refresh()->event);
+        $this->assertEquals('ended', $legacy->refresh()->event);
+        $this->assertEquals('end_date_recorded', $recorded->refresh()->event);
+        $this->assertEquals('updated', $unrelated->refresh()->event);
+    }
+
     public function test_the_scheduler_warns_once_that_an_affiliation_is_ending_soon(): void
     {
         $affiliation = $this->createAffiliation(State::STATE_AFFILIATION_APPROVED, [
@@ -507,6 +531,38 @@ class AffiliationLeaverTest extends TestCase
             $this->assertEquals($this->custodian_admin->id, $revocation['causer']['id']);
             $this->assertEquals($this->researcher->id, $revocation['subject']['id']);
             $this->assertEquals($projectTitle, $revocation['properties']['project_title']);
+        }
+    }
+
+    public function test_a_confirmed_access_revocation_is_hidden_from_those_with_no_part_in_it(): void
+    {
+        $affiliation = $this->createAffiliation(State::STATE_AFFILIATION_APPROVED);
+        $projectUser = $this->addToProject($affiliation);
+        $this->recordEndDate($this->delegate, $affiliation, Carbon::today()->toDateString())->assertStatus(200);
+
+        $this->actingAs($this->custodian_admin)
+            ->json('PUT', "/api/v1/custodians/{$this->custodianId}/access_revocations/{$projectUser->id}")
+            ->assertStatus(200);
+
+        $otherCustodianUser = CustodianUser::factory()->create(['custodian_id' => Custodian::factory()->create()->id]);
+        $viewers = [
+            'another Custodian' => User::factory()->create([
+                'user_group' => User::GROUP_CUSTODIANS,
+                'custodian_user_id' => $otherCustodianUser->id,
+            ]),
+            'another Organisation' => $this->createOrganisationUser(Organisation::factory()->create()),
+            'another user' => $this->createResearcher(),
+        ];
+
+        foreach ($viewers as $who => $viewer) {
+            $response = $this->actingAs($viewer)
+                ->json('GET', "/api/v1/users/{$this->researcher->id}/history");
+
+            $response->assertStatus(200);
+            $this->assertNull(
+                collect($response->decodeResponseJson()['data'])->firstWhere('event', 'access_revoked'),
+                "{$who} can see the revocation"
+            );
         }
     }
 
