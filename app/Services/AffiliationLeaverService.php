@@ -74,7 +74,7 @@ class AffiliationLeaverService
                     ],
                     'old' => $old,
                 ])
-                ->event('updated')
+                ->event('end_date_recorded')
                 ->log('end date recorded');
         });
 
@@ -150,7 +150,7 @@ class AffiliationLeaverService
                     'old' => $oldState,
                     'to' => $affiliation->to,
                 ])
-                ->event('updated')
+                ->event('ended')
                 ->log($log);
 
             return $this->leaveProjects($affiliation, $requireAccessRevocation);
@@ -237,7 +237,7 @@ class AffiliationLeaverService
                     'project_has_user_id' => $projectUser->project_has_user_id,
                     'custodian_id' => $projectUser->custodian_id,
                 ])
-                ->event('updated')
+                ->event('access_revoked')
                 ->log('access revoked');
 
             return true;

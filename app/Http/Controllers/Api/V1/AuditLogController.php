@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Affiliation;
 use App\Models\Organisation;
 use App\Models\ValidationLog;
+use App\Models\CustodianHasProjectUser;
 use App\Http\Traits\Responses;
 use App\Traits\CommonFunctions;
 use App\Http\Controllers\Controller;
@@ -33,6 +34,14 @@ class AuditLogController extends Controller
         Affiliation::class,
     ];
 
+    /**
+     * Subjects that may only appear in a user's history, not an Organisation's.
+     */
+    protected const USER_HISTORY_SUBJECT_TYPES = [
+        ...self::ALLOWED_TYPES,
+        CustodianHasProjectUser::class,
+    ];
+
     public function showUserHistory(GetUserHistory $request, int $id)
     {
         $loggedInUserId = $request->user()?->id;
@@ -57,11 +66,18 @@ class AuditLogController extends Controller
             )->pluck('id')->toArray();
         }
 
+        // A Custodian confirming they revoked the data access of a leaver is part of the leaver's history.
+        $custodianProjectUserIds = CustodianHasProjectUser::whereHas(
+            'projectHasUser.registry',
+            fn ($q) => $q->whereKey($user->registry_id)
+        )->pluck('id')->toArray();
+
         // This will show activity associated to the given user, caused either by the user themselves or by other
-        // users in the same custodian group as the logged-in user. It will also show activity caused by the user on other subjects.
+        // users in the same custodian group as the logged-in user. It will also show activity caused by the user on other subjects,
+        // and any Custodian's confirmation that the user's data access was revoked.
         // It also masks email addresses in the properties of the activity log
         $logs = Activity::query()
-            ->where(function ($query) use ($user, $userIdsInThisCustodian) {
+            ->where(function ($query) use ($user, $userIdsInThisCustodian, $custodianProjectUserIds) {
                 $query->where(function ($q) use ($user, $userIdsInThisCustodian) {
                     $q->where([
                             'subject_type' => get_class($user),
@@ -75,9 +91,14 @@ class AuditLogController extends Controller
                         'causer_type' => get_class($user),
                         'causer_id' => $user->id
                     ]);
+                })
+                ->orWhere(function ($q) use ($custodianProjectUserIds) {
+                    $q->where('subject_type', CustodianHasProjectUser::class)
+                        ->whereIn('subject_id', $custodianProjectUserIds)
+                        ->where('event', 'access_revoked');
                 });
             })
-            ->whereHasMorph('subject', self::ALLOWED_TYPES)
+            ->whereHasMorph('subject', self::USER_HISTORY_SUBJECT_TYPES)
             ->where(function ($query) {
                 $query->whereNull('causer_type')
                     ->orWhereHasMorph('causer', self::ALLOWED_TYPES);
@@ -114,6 +135,7 @@ class AuditLogController extends Controller
                                 ]),
                         ])->morphWith([
                             Affiliation::class => ['registry.user'],
+                            CustodianHasProjectUser::class => ['projectHasUser.registry.user', 'projectHasUser.project:id,title'],
                         ]);
                     }
                 },
@@ -137,7 +159,11 @@ class AuditLogController extends Controller
                 if (isset($attributes['email'])) {
                     $attributes['email'] = '***';
                 }
-                $activityLog->properties = collect(['old' => $old, 'attributes' => $attributes]);
+                $properties = ['old' => $old, 'attributes' => $attributes];
+                if ($activityLog->subject instanceof CustodianHasProjectUser) {
+                    $properties['project_title'] = $activityLog->subject->projectHasUser->project?->title;
+                }
+                $activityLog->properties = collect($properties);
 
                 return $activityLog;
             });

@@ -7,6 +7,7 @@ use App\Models\Affiliation;
 use App\Models\Organisation;
 use Illuminate\Http\Request;
 use App\Models\ValidationLog;
+use App\Models\CustodianHasProjectUser;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -55,6 +56,16 @@ class ActivityResource extends JsonResource
 
         if ($model instanceof Affiliation) {
             $u = $model->registry?->user;
+            return $u ? [
+                'id'         => $u->id,
+                'first_name' => $u->first_name,
+                'last_name'  => $u->last_name,
+            ] : null;
+        }
+
+        // A Custodian's record of a project user collapses to the user it is about
+        if ($model instanceof CustodianHasProjectUser) {
+            $u = $model->projectHasUser->registry?->user;
             return $u ? [
                 'id'         => $u->id,
                 'first_name' => $u->first_name,

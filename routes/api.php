@@ -427,7 +427,7 @@ Route::middleware('auth:api')
             Route::get('/{id}/delegates', 'getDelegates');
             Route::get('/{id}/registries', 'getRegistries');
             Route::get('/ror/{ror}', 'validateRor');
-            Route::get('/{id}/sro_declaration','getSroDeclaration');
+            Route::get('/{id}/sro_declaration', 'getSroDeclaration');
             Route::get('/{id}/sro_declaration/details', 'getSroDeclarationDetails');
 
             // Create

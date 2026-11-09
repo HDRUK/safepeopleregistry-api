@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use DB;
 use Str;
 use Http;
 use Keycloak;
@@ -77,7 +76,6 @@ use App\Traits\OrganisationsProjectUtils;
 use App\Notifications\Organisations\OrganisationUpdateProfile;
 use App\Http\Requests\Organisations\OrganisationUpdateApprover;
 use App\Http\Requests\Organisations\GetStatus;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class OrganisationController extends Controller
 {
@@ -715,7 +713,7 @@ class OrganisationController extends Controller
         }
     }
 
-     public function storeUnclaimedBeforeSuperadminInvitation(Request $request): JsonResponse
+    public function storeUnclaimedBeforeSuperadminInvitation(Request $request): JsonResponse
     {
         try {
             $input = $request->all();
@@ -2862,9 +2860,9 @@ class OrganisationController extends Controller
             $file = $org->latestSroDeclaration();
 
             if (!$file) {
-                return $this->NotFoundResponse();            
+                return $this->NotFoundResponse();
             }
-            
+
             if ($file->status !== FILE::FILE_STATUS_PROCESSED) {
                 return $this->NotFoundResponse();
             }

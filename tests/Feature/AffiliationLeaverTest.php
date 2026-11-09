@@ -483,6 +483,33 @@ class AffiliationLeaverTest extends TestCase
             ->assertStatus(404);
     }
 
+    public function test_a_confirmed_access_revocation_is_in_the_users_history(): void
+    {
+        $affiliation = $this->createAffiliation(State::STATE_AFFILIATION_APPROVED);
+        $projectUser = $this->addToProject($affiliation);
+        $this->recordEndDate($this->delegate, $affiliation, Carbon::today()->toDateString())->assertStatus(200);
+
+        $this->actingAs($this->custodian_admin)
+            ->json('PUT', "/api/v1/custodians/{$this->custodianId}/access_revocations/{$projectUser->id}")
+            ->assertStatus(200);
+
+        $projectTitle = $projectUser->projectHasUser->project->title;
+
+        foreach ([$this->custodian_admin, $this->delegate, $this->researcher] as $viewer) {
+            $response = $this->actingAs($viewer)
+                ->json('GET', "/api/v1/users/{$this->researcher->id}/history");
+
+            $response->assertStatus(200);
+            $revocation = collect($response->decodeResponseJson()['data'])
+                ->firstWhere('event', 'access_revoked');
+
+            $this->assertNotNull($revocation, "Viewer {$viewer->id} cannot see the revocation");
+            $this->assertEquals($this->custodian_admin->id, $revocation['causer']['id']);
+            $this->assertEquals($this->researcher->id, $revocation['subject']['id']);
+            $this->assertEquals($projectTitle, $revocation['properties']['project_title']);
+        }
+    }
+
     public function test_another_custodian_cannot_confirm_access_revocations(): void
     {
         $affiliation = $this->createAffiliation(State::STATE_AFFILIATION_APPROVED);
