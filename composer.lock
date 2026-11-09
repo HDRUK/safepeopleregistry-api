@@ -2166,12 +2166,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/HDRUK/laravel-hubspot-manager.git",
-                "reference": "b953f5980b514f6138ac36dd8ff1a2c9266371a9"
+                "reference": "728f0bc6371ed0b774b6ce4980595f5fadd2224a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/HDRUK/laravel-hubspot-manager/zipball/b953f5980b514f6138ac36dd8ff1a2c9266371a9",
-                "reference": "b953f5980b514f6138ac36dd8ff1a2c9266371a9",
+                "url": "https://api.github.com/repos/HDRUK/laravel-hubspot-manager/zipball/728f0bc6371ed0b774b6ce4980595f5fadd2224a",
+                "reference": "728f0bc6371ed0b774b6ce4980595f5fadd2224a",
                 "shasum": ""
             },
             "require": {
@@ -2225,7 +2225,7 @@
                 "source": "https://github.com/HDRUK/laravel-hubspot-manager/tree/dev",
                 "issues": "https://github.com/HDRUK/laravel-hubspot-manager/issues"
             },
-            "time": "2026-06-15T13:53:59+00:00"
+            "time": "2026-09-14T08:37:37+00:00"
         },
         {
             "name": "hdruk/laravel-job-failed-slack-notification",

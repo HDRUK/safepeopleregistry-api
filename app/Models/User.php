@@ -496,30 +496,31 @@ class User extends Authenticatable
 
     public function toHubspotProperties(): array
     {
+        // We are defensive here, handling multiple possible environment names,
+        // so as not to be tripped over by some unexpected environment name in a future deployment.
         $env_map = [
-            'development' => 'dev',
-            'dev' => 'dev',
-            'preprod' => 'preproduction',
-            'preproduction' => 'preproduction',
-            'prod' => 'production',
-            'production' => 'production',
+            'development' => 'safe_people_registry_development',
+            'dev' => 'safe_people_registry_development',
+            'preprod' => 'safe_people_registry_preproduction',
+            'preproduction' => 'safe_people_registry_preproduction',
+            'prod' => 'safe_people_registry_production',
+            'production' => 'safe_people_registry_production',
+        ];
+
+        $group_map = [
+            self::GROUP_USERS => 'Researcher/Innovator (User)',
+            self::GROUP_ORGANISATIONS => 'Organisation - employing or educating the researcher/innovator',
+            self::GROUP_CUSTODIANS => 'Data Custodian',
         ];
 
         return [
             'email'     => $this->email,
             'firstname' => $this->first_name,
             'lastname' => $this->last_name,
-            'technology_team_product_persona' => 'Registry',
-            'technology_product_environment' => $env_map[config('app.env')],
-            'hs_persona' => $this->user_group === self::GROUP_CUSTODIANS
-                            ? 'persona_1'
-                            : ($this->user_group === self::GROUP_USERS
-                              ? 'persona_2'
-                              : ($this->user_group === self::GROUP_ORGANISATION
-                                ? 'persona_3'
-                                : null
-                                )
-                              ),
+            $env_map[app()->environment()] => true,
+            ...($env_map[app()->environment()] === 'safe_people_registry_production'
+                ? ['safe_people_registry__prod_persona' => $group_map[$this->user_group] ?? null]
+                : []),
         ];
     }
 }
