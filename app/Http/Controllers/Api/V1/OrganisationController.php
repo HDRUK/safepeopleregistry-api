@@ -849,7 +849,7 @@ class OrganisationController extends Controller
      * Organisation::scopeVisibleTo. Saved in the same insert, so the Organisation is never
      * briefly visible before it is restricted.
      *
-     * @return array{is_restricted?: bool, created_by_custodian_id?: int|null}
+     * @return array{is_restricted?: bool, created_by_custodian_id?: int|null, created_by_user_id?: int}
      */
     private function restrictionFor(?User $user): array
     {
@@ -860,6 +860,7 @@ class OrganisationController extends Controller
         return [
             'is_restricted' => true,
             'created_by_custodian_id' => $user->custodian_user?->custodian_id,
+            'created_by_user_id' => $user->id,
         ];
     }
 
@@ -2191,12 +2192,13 @@ class OrganisationController extends Controller
                 return $this->ForbiddenResponse();
             }
 
-            $organisation = Organisation::where('id', $id)->first();
-            if (!$organisation) {
-                return response()->json([
-                    'message' => 'Organisation not found.',
-                ], 404);
+            $organisation = Organisation::find($id);
+
+            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+            if (!$organisation || !Gate::allows('invite', $organisation)) {
+                return $this->NotFoundResponse();
             }
+
             $unclaimedUser = RMC::createUnclaimedUser([
                 'firstname' => '',
                 'lastname' => '',
@@ -2247,7 +2249,8 @@ class OrganisationController extends Controller
 
             return response()->json([
                 'message' => 'success',
-                'data' => $organisation,
+                // Only the ID for a creator who can't otherwise see the Organisation
+                'data' => Gate::allows('view', $organisation) ? $organisation : $organisation->id,
             ], 201);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());

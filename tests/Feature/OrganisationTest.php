@@ -2303,9 +2303,8 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . "/{$organisationIdTest}/invite",
             );
 
-        $response->assertStatus(400);
-        $message = $response->decodeResponseJson()['message'];
-        $this->assertEquals('Invalid argument(s)', $message);
+        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
+        $response->assertStatus(404);
     }
 
     public function test_the_application_cannot_get_organisations_invite_user(): void

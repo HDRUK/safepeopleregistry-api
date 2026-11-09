@@ -31,6 +31,17 @@ class OrganisationPolicy
         return $organisation->isVisibleTo($user);
     }
 
+    /**
+     * Anyone who can see the Organisation, plus the User who created a restricted one until it
+     * has been invited: with SroRequirementEnabled on, a researcher invites the Organisation
+     * they've just added before their affiliation to it exists.
+     */
+    public function invite(User $user, Organisation $organisation): bool
+    {
+        return $this->view($user, $organisation)
+            || ($organisation->created_by_user_id === $user->id && !$organisation->hasBeenInvited());
+    }
+
     public function viewDetailed(User $user, Organisation $organisation): bool
     {
         if (!$this->view($user, $organisation)) {

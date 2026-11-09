@@ -444,7 +444,7 @@ Route::middleware('auth:api')
             Route::post('/{id}/invite', 'invite');
             Route::post('/{id}/invite_to_contact_superadmin', 'inviteToContactSuperadmin');
             Route::post('/{id}/invite_user', 'inviteUser');
-            Route::post('/{id}/custodian_invite_user', 'custodianInviteUser');
+            Route::post('/{id}/custodian_invite_user', 'custodianInviteUser')->middleware('organisation.visible');
 
             // Update
             Route::put('/{id}', 'update');
@@ -463,7 +463,7 @@ Route::middleware('auth:api')
 
             Route::patch('/{id}/sponsorships/statuses', 'updateSponsorshipStatuses');
 
-            Route::patch('/{id}/resendInvite', 'resendInvite');
+            Route::patch('/{id}/resendInvite', 'resendInvite')->middleware('organisation.visible');
         });
 
         Route::controller(PermissionController::class)->group(function () {

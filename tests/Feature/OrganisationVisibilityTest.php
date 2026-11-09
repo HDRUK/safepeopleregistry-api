@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\SendEmailJob;
 use App\Models\Affiliation;
 use App\Models\Custodian;
 use App\Models\CustodianHasProjectOrganisation;
@@ -12,6 +13,8 @@ use App\Models\ProjectHasCustodian;
 use App\Models\ProjectHasOrganisation;
 use App\Models\Registry;
 use App\Models\User;
+use Illuminate\Support\Facades\Queue;
+use Illuminate\Testing\TestResponse;
 use KeycloakGuard\ActingAsKeycloakUser;
 use Laravel\Pennant\Feature;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -121,6 +124,7 @@ class OrganisationVisibilityTest extends TestCase
 
         $this->assertTrue($organisation->is_restricted);
         $this->assertSame($this->custodian_admin->custodian_user->custodian_id, $organisation->created_by_custodian_id);
+        $this->assertSame($this->custodian_admin->id, $organisation->created_by_user_id);
 
         $this->assertVisibleTo($this->custodian_admin, $organisation);
         $this->assertVisibleTo($this->admin, $organisation);
@@ -301,7 +305,8 @@ class OrganisationVisibilityTest extends TestCase
         $this->actingAs($this->custodian_admin)
             ->json('GET', self::TEST_URL . "/{$organisation->id}")
             ->assertStatus(200)
-            ->assertJsonMissingPath('data.created_by_custodian_id');
+            ->assertJsonMissingPath('data.created_by_custodian_id')
+            ->assertJsonMissingPath('data.created_by_user_id');
     }
 
     // The web lets a researcher pick an unapproved Organisation when the API returned
@@ -331,12 +336,14 @@ class OrganisationVisibilityTest extends TestCase
             ->json('PUT', self::TEST_URL . "/{$organisation->id}", [
                 'is_restricted' => false,
                 'created_by_custodian_id' => null,
+                'created_by_user_id' => $this->researcher->id,
             ])
             ->assertSuccessful();
 
         $organisation->refresh();
         $this->assertTrue($organisation->is_restricted);
         $this->assertSame($this->custodian_admin->custodian_user->custodian_id, $organisation->created_by_custodian_id);
+        $this->assertSame($this->custodian_admin->id, $organisation->created_by_user_id);
     }
 
     public static function inviteActors(): array
@@ -367,5 +374,109 @@ class OrganisationVisibilityTest extends TestCase
         });
 
         $this->assertSame(!$sroRequirement && $asAdmin, $organisation->fresh()->system_approved);
+    }
+
+    // The flag-on create flow: /unclaimed, then /invite
+    private function createUnclaimedOrganisationAs(User $actor): Organisation
+    {
+        $response = $this->actingAs($actor)
+            ->json('POST', self::TEST_URL . '/unclaimed', [
+                'organisation_name' => fake()->unique()->company(),
+                'lead_applicant_email' => fake()->unique()->safeEmail(),
+            ]);
+
+        $response->assertStatus(201);
+
+        return Organisation::findOrFail($response->decodeResponseJson()['data']);
+    }
+
+    private function invite(User $actor, int $organisationId): TestResponse
+    {
+        return $this->actingAs($actor)->json('POST', self::TEST_URL . "/{$organisationId}/invite");
+    }
+
+    public function test_another_custodians_restricted_organisation_cannot_be_invited(): void
+    {
+        $this->withSroRequirement(true, function () {
+            $organisation = $this->createUnclaimedOrganisationAs($this->custodian_admin);
+            $state = $organisation->getState();
+            Queue::fake();
+
+            $this->invite($this->otherCustodian, $organisation->id)->assertStatus(404);
+            $this->invite($this->researcherWithRegistry(), $organisation->id)->assertStatus(404);
+
+            $this->assertFalse($organisation->hasBeenInvited());
+            $this->assertSame($state, $organisation->fresh()->getState());
+            Queue::assertNotPushed(SendEmailJob::class);
+        });
+    }
+
+    public function test_those_who_can_see_a_restricted_organisation_can_invite_it(): void
+    {
+        $this->withSroRequirement(true, function () {
+            $organisation = $this->createUnclaimedOrganisationAs($this->custodian_admin);
+
+            $this->invite($this->custodian_admin, $organisation->id)
+                ->assertStatus(201)
+                ->assertJsonPath('data.id', $organisation->id);
+
+            $other = $this->createUnclaimedOrganisationAs($this->custodian_admin);
+
+            $this->invite($this->admin, $other->id)
+                ->assertStatus(201)
+                ->assertJsonPath('data.id', $other->id);
+        });
+    }
+
+    // A researcher's "Organisation not listed?" flow invites before their affiliation exists
+    public function test_a_researcher_can_invite_the_restricted_organisation_they_created_once(): void
+    {
+        $this->withSroRequirement(true, function () {
+            $organisation = $this->createUnclaimedOrganisationAs($this->researcher);
+            $this->assertSame($this->researcher->id, $organisation->created_by_user_id);
+
+            // Only the ID, as the researcher can't otherwise see the Organisation
+            $this->invite($this->researcher, $organisation->id)
+                ->assertStatus(201)
+                ->assertJsonPath('data', $organisation->id);
+
+            $this->assertTrue($organisation->hasBeenInvited());
+
+            $this->invite($this->researcher, $organisation->id)->assertStatus(404);
+        });
+    }
+
+    public function test_inviting_an_unknown_organisation_looks_the_same_as_a_restricted_one(): void
+    {
+        $this->withSroRequirement(true, function () {
+            $this->invite($this->custodian_admin, Organisation::max('id') + 1000)->assertStatus(404);
+        });
+    }
+
+    public function test_users_cannot_be_invited_into_another_custodians_restricted_organisation(): void
+    {
+        $organisation = $this->createOrganisationAs($this->custodian_admin);
+        Queue::fake();
+
+        $inviteUser = fn (User $actor) => $this->actingAs($actor)
+            ->json('POST', self::TEST_URL . "/{$organisation->id}/custodian_invite_user", [
+                'first_name' => fake()->firstName(),
+                'last_name' => fake()->lastName(),
+                'email' => fake()->unique()->safeEmail(),
+            ]);
+
+        $inviteUser($this->otherCustodian)->assertStatus(404);
+        Queue::assertNotPushed(SendEmailJob::class);
+
+        $inviteUser($this->custodian_admin)->assertStatus(201);
+    }
+
+    public function test_a_restricted_organisations_invite_cannot_be_resent_by_those_who_cannot_see_it(): void
+    {
+        $organisation = $this->createOrganisationAs($this->custodian_admin);
+
+        $this->actingAs($this->otherCustodian)
+            ->json('PATCH', self::TEST_URL . "/{$organisation->id}/resendInvite")
+            ->assertStatus(404);
     }
 }

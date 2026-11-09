@@ -442,6 +442,7 @@ class Organisation extends Model
         'system_approved_at',
         'is_restricted',
         'created_by_custodian_id',
+        'created_by_user_id',
     ];
 
     protected $casts = [
@@ -481,6 +482,7 @@ class Organisation extends Model
             // is_restricted is returned: the web needs it to tell which unapproved
             // Organisations the API let a researcher see (see scopeVisibleTo)
             'created_by_custodian_id',
+            'created_by_user_id',
          ];
 
     protected $appends = [
@@ -750,6 +752,15 @@ class Organisation extends Model
         }
 
         return static::query()->visibleTo($user)->whereKey($this->getKey())->exists();
+    }
+
+    /**
+     * Whether /invite has been called for this Organisation, which creates its organisation
+     * User. Its state can't tell: /unclaimed already sets it to invited.
+     */
+    public function hasBeenInvited(): bool
+    {
+        return User::where('organisation_id', $this->id)->exists();
     }
 
     /**
