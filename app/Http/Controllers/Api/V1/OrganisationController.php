@@ -40,6 +40,7 @@ use App\Enums\OrganisationAccountStatus;
 use App\Enums\OrganisationSroStatus;
 use App\Notifications\OrganisationRequested;
 use App\Notifications\RestrictedOrganisationRequested;
+use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Notification;
 use App\Http\Requests\Organisations\GetProject;
 use App\Models\CustodianHasProjectOrganisation;
@@ -872,7 +873,20 @@ class OrganisationController extends Controller
      */
     private function pendingApprovalConflict(User $user, Organisation $organisation): JsonResponse
     {
-        $userAdmins = User::where('user_group', User::GROUP_ADMINS)->select(['id'])->get();
+        // Retries would otherwise fill admins' notifications with copies, so skip any admin
+        // who still has this User's request for this Organisation unread
+        $alreadyNotified = DatabaseNotification::query()
+            ->where('type', RestrictedOrganisationRequested::class)
+            ->where('notifiable_type', (new User())->getMorphClass())
+            ->whereNull('read_at')
+            ->where('data->details->organisation_id', $organisation->id)
+            ->where('data->details->requester_id', $user->id)
+            ->select('notifiable_id');
+
+        $userAdmins = User::where('user_group', User::GROUP_ADMINS)
+            ->whereNotIn('id', $alreadyNotified)
+            ->select(['id'])
+            ->get();
         Notification::send($userAdmins, new RestrictedOrganisationRequested($user, $organisation));
 
         return $this->ConflictResponse('pending_approval');

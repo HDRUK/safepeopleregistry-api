@@ -525,6 +525,34 @@ class OrganisationVisibilityTest extends TestCase
         $this->assertAdminsToldItIsWanted($this->otherCustodian, $organisation);
     }
 
+    // Not faked: the de-duplication reads admins' stored notifications
+    public function test_retrying_a_hidden_duplicate_does_not_repeat_an_unread_admin_notice(): void
+    {
+        $payload = ['organisation_name' => fake()->unique()->company()];
+        $this->requestOrganisation($this->researcher, $payload)->assertStatus(201);
+
+        $notices = fn () => $this->admin->unreadNotifications()
+            ->where('type', RestrictedOrganisationRequested::class)
+            ->count();
+        $retry = fn (User $actor) => $this->requestOrganisation($actor, $payload)
+            ->assertStatus(409)
+            ->assertJsonPath('data', 'pending_approval');
+
+        // Including the researcher re-submitting their own, which they can't see
+        $retry($this->researcher);
+        $retry($this->researcher);
+        $this->assertSame(1, $notices());
+
+        // A different requester is a separate notice
+        $retry($this->otherCustodian);
+        $this->assertSame(2, $notices());
+
+        // Once read, a later retry is worth telling the admin about again
+        $this->admin->unreadNotifications()->update(['read_at' => now()]);
+        $retry($this->researcher);
+        $this->assertSame(1, $notices());
+    }
+
     public function test_a_visible_duplicate_still_gets_the_usual_conflict(): void
     {
         $payload = [

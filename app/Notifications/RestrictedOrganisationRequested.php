@@ -37,6 +37,7 @@ class RestrictedOrganisationRequested extends Notification
         return [
             'message' => $this->generateMessage(),
             'details' => [
+                'requester_id' => $this->requester->id,
                 'organisation_id' => $this->organisation->id,
                 'organisation_name' => $this->organisation->organisation_name,
                 'email_address' => $this->organisation->lead_applicant_email,
