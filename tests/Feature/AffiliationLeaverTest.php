@@ -586,6 +586,33 @@ class AffiliationLeaverTest extends TestCase
         $this->assertNull($projectUser->refresh()->access_revoked_at);
     }
 
+    public function test_an_organisation_can_view_each_of_a_users_active_affiliations(): void
+    {
+        // e.g. a secondment alongside employment, the first ending soon
+        $ending = $this->createAffiliation(State::STATE_AFFILIATION_APPROVED, [
+            'to' => Carbon::today()->addDays(3)->toDateString(),
+        ]);
+        $added = $this->createAffiliation(State::STATE_AFFILIATION_PENDING);
+        $otherOrganisations = Affiliation::factory()->create([
+            'organisation_id' => Organisation::factory()->create()->id,
+            'registry_id' => $this->researcher->registry_id,
+        ]);
+
+        $get = fn (?int $affiliationId = null) => $this->actingAs($this->delegate)
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$this->researcher->registry_id}/organisation/{$this->organisation->id}"
+                    . ($affiliationId ? "?affiliation_id={$affiliationId}" : '')
+            )
+            ->assertStatus(200)
+            ->decodeResponseJson()['data'];
+
+        $this->assertEquals($added->id, $get()['id']);
+        $this->assertEquals($ending->id, $get($ending->id)['id']);
+        $this->assertEquals($added->id, $get($added->id)['id']);
+        $this->assertNull($get($otherOrganisations->id));
+    }
+
     public function test_users_can_only_be_added_to_a_project_through_a_current_affiliation(): void
     {
         $left = $this->createAffiliation(State::STATE_AFFILIATION_LEFT, [

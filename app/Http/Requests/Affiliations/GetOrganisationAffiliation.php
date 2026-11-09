@@ -24,6 +24,10 @@ class GetOrganisationAffiliation extends BaseFormRequest
                 'integer',
                 'exists:organisations,id',
             ],
+            'affiliation_id' => [
+                'nullable',
+                'integer',
+            ],
         ];
     }
 
