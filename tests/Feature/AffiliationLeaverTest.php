@@ -613,6 +613,28 @@ class AffiliationLeaverTest extends TestCase
         $this->assertNull($get($otherOrganisations->id));
     }
 
+    public function test_an_organisation_lists_each_of_a_users_affiliations(): void
+    {
+        $employee = $this->createAffiliation(State::STATE_AFFILIATION_APPROVED);
+        $honorary = $this->createAffiliation(State::STATE_AFFILIATION_PENDING);
+        Affiliation::factory()->create([
+            'organisation_id' => Organisation::factory()->create()->id,
+            'registry_id' => $this->researcher->registry_id,
+        ]);
+
+        $users = $this->actingAs($this->delegate)
+            ->json('GET', "/api/v1/organisations/{$this->organisation->id}/registries")
+            ->assertStatus(200)
+            ->decodeResponseJson()['data']['data'];
+
+        $user = collect($users)->firstWhere('id', $this->researcher->id);
+
+        $this->assertEquals(
+            [$honorary->id, $employee->id],
+            array_column($user['registry']['affiliations'], 'id')
+        );
+    }
+
     public function test_users_can_only_be_added_to_a_project_through_a_current_affiliation(): void
     {
         $left = $this->createAffiliation(State::STATE_AFFILIATION_LEFT, [

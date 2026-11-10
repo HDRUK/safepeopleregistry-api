@@ -2444,7 +2444,9 @@ class OrganisationController extends Controller
     {
         try {
             $showPending = $request->boolean("show_pending");
-            // Leavers stay in the Organisation's records; each user is shown with their latest affiliation.
+            // Leavers stay in the Organisation's records. A user can have several affiliations to the
+            // Organisation at once (e.g. employee and honorary contract), so each user is returned with
+            // all of them, latest first, for the Organisation to view and act on individually.
             $affiliationIds = Affiliation::where('organisation_id', $id)->filterByState()->pluck('id');
 
             $users = User::searchViaRequest()
@@ -2452,7 +2454,7 @@ class OrganisationController extends Controller
                 ->with([
                     'registry.affiliations' => function ($q) use ($affiliationIds, $id) {
                         $q->whereIn('id', $affiliationIds)
-                          ->where('organisation_id', $id)->latest('id')->limit(1);
+                          ->where('organisation_id', $id)->latest('id');
                     },
                     'registry.affiliations.modelState.state',
                     'modelState.state'
