@@ -498,13 +498,15 @@ class User extends Authenticatable
     {
         // We are defensive here, handling multiple possible environment names,
         // so as not to be tripped over by some unexpected environment name in a future deployment.
+        $prefix = 'safe_people_registry';
+
         $env_map = [
-            'development' => 'safe_people_registry_development',
-            'dev' => 'safe_people_registry_development',
-            'preprod' => 'safe_people_registry_preproduction',
-            'preproduction' => 'safe_people_registry_preproduction',
-            'prod' => 'safe_people_registry_production',
-            'production' => 'safe_people_registry_production',
+            'development' => "{$prefix}_development",
+            'dev' => "{$prefix}_development",
+            'preprod' => "{$prefix}_preproduction",
+            'preproduction' => "{$prefix}_preproduction",
+            'prod' => "{$prefix}_production",
+            'production' => "{$prefix}_production",
         ];
 
         $group_map = [
@@ -518,8 +520,8 @@ class User extends Authenticatable
             'firstname' => $this->first_name,
             'lastname' => $this->last_name,
             $env_map[app()->environment()] => true,
-            ...($env_map[app()->environment()] === 'safe_people_registry_production'
-                ? ['safe_people_registry__prod_persona' => $group_map[$this->user_group] ?? null]
+            ...($env_map[app()->environment()] === "{$prefix}_production"
+                ? ["{$prefix}__prod_persona" => $group_map[$this->user_group] ?? null]
                 : []),
         ];
     }
