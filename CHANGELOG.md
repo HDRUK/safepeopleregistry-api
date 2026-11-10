@@ -1,3 +1,15 @@
+## [1.39.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.38.0...v1.39.0) (2026-11-10)
+
+### ✨ Features
+
+* **REGISTRY-2380:** Handles comments raised by PO for Registry leave… (#852) ([740a9ef](https://github.com/HDRUK/safepeopleregistry-api/commit/740a9eff454206d89415d6bb253eb520431cee93))
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-2380:** Allow fe to send affiliation id for specific affi… (#853) ([e8b5a80](https://github.com/HDRUK/safepeopleregistry-api/commit/e8b5a806e63843a2af9f849dcd9befb7309904fe))
+* **REGISTRY-2380:** Bug in api limiting data pulled (#854) ([447e3ce](https://github.com/HDRUK/safepeopleregistry-api/commit/447e3ce79827371059ac64be69d8860318568d4b))
+* **REGISTRY-3004:** Hide the system-unapproval behind the feature flag so that it only triggers in the more rigid scenario (#847) ([a525022](https://github.com/HDRUK/safepeopleregistry-api/commit/a52502279908c1bd2ef330bde880afb755daefd4))
+
 ## [1.38.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.37.0...v1.38.0) (2026-11-03)
 
 ### ✨ Features
