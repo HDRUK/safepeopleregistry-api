@@ -133,6 +133,8 @@ class User extends Authenticatable
     public const GROUP_KC_CUSTODIANS = '\Custodians';
     public const GROUP_KC_ADMINS = '\Admins';
 
+    private const HUBSPOT_PREFIX = 'safe_people_registry';
+
     protected static array $transitions = [
         State::STATE_REGISTERED => [
             State::STATE_PENDING,
@@ -498,16 +500,17 @@ class User extends Authenticatable
     {
         // We are defensive here, handling multiple possible environment names,
         // so as not to be tripped over by some unexpected environment name in a future deployment.
-        $prefix = 'safe_people_registry';
-
         $env_map = [
-            'development' => "{$prefix}_development",
-            'dev' => "{$prefix}_development",
-            'preprod' => "{$prefix}_preproduction",
-            'preproduction' => "{$prefix}_preproduction",
-            'prod' => "{$prefix}_production",
-            'production' => "{$prefix}_production",
+            'development' => self::HUBSPOT_PREFIX . '_development',
+            'dev' => self::HUBSPOT_PREFIX . '_development',
+            'preprod' => self::HUBSPOT_PREFIX . '_preproduction',
+            'preproduction' => self::HUBSPOT_PREFIX . '_preproduction',
+            'prod' => self::HUBSPOT_PREFIX . '_production',
+            'production' => self::HUBSPOT_PREFIX . '_production',
         ];
+
+        // Environments not in the map (e.g. testing, local) send no environment flag.
+        $env_property = $env_map[app()->environment()] ?? null;
 
         $group_map = [
             self::GROUP_USERS => 'Researcher/Innovator (User)',
@@ -519,9 +522,9 @@ class User extends Authenticatable
             'email'     => $this->email,
             'firstname' => $this->first_name,
             'lastname' => $this->last_name,
-            $env_map[app()->environment()] => true,
-            ...($env_map[app()->environment()] === "{$prefix}_production"
-                ? ["{$prefix}__prod_persona" => $group_map[$this->user_group] ?? null]
+            ...($env_property !== null ? [$env_property => true] : []),
+            ...($env_property === self::HUBSPOT_PREFIX . '_production'
+                ? [self::HUBSPOT_PREFIX . '__prod_persona' => $group_map[$this->user_group] ?? null]
                 : []),
         ];
     }
