@@ -30,7 +30,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
-use App\Exceptions\NotFoundException;
 use App\Models\ProjectHasSponsorship;
 use RegistryManagementController as RMC;
 use App\Models\OrganisationHasDepartment;
@@ -39,6 +38,8 @@ use App\Http\Requests\Organisations\GetOrganisations;
 use App\Enums\OrganisationAccountStatus;
 use App\Enums\OrganisationSroStatus;
 use App\Notifications\OrganisationRequested;
+use App\Notifications\RestrictedOrganisationRequested;
+use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Notification;
 use App\Http\Requests\Organisations\GetProject;
 use App\Models\CustodianHasProjectOrganisation;
@@ -92,7 +93,7 @@ class OrganisationController extends Controller
      *      operationId="organisationIndex",
      *      x={"internal"="true"},
      *      summary="Return a list of organisations",
-     *      description="Return a list of organisations",
+     *      description="Return a list of organisations. Restricted Organisations (created by a non-admin and not yet system approved) are only included for admins, the Custodian that created them, their members and Users who currently work for them.",
      *      tags={"organisation"},
      *      summary="organisation@index",
      *      security={{"bearerAuth":{}}},
@@ -141,6 +142,7 @@ class OrganisationController extends Controller
 
         if (!$custodianId) {
             $organisations = Organisation::searchViaRequest()
+                ->visibleTo($request->user())
                 ->filterByState()
                 ->withStatusChangedAt()
                 ->applySorting()
@@ -269,7 +271,7 @@ class OrganisationController extends Controller
      *      ),
      *      @OA\Response(
      *          response=404,
-     *          description="Not found response",
+     *          description="Not found response, or the Organisation is restricted and not visible to the user",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
@@ -280,7 +282,14 @@ class OrganisationController extends Controller
     {
         $this->decisionEvaluator = new DES([DecisionModelType::ORG_VALIDATION_RULES]);
 
-        $organisation = Organisation::with([
+        $organisation = Organisation::find($id);
+
+        // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+        if (!$organisation || !Gate::allows('view', $organisation)) {
+            return $this->NotFoundResponse();
+        }
+
+        $organisation->load([
             'departments',
             'subsidiaries',
             'permissions',
@@ -296,21 +305,25 @@ class OrganisationController extends Controller
             'sector',
             'files',
             'claimedSro.departments',
-        ])->findOrFail($id)->append('has_claimed_sro');
+        ])->append('has_claimed_sro');
 
         $organisation->setRelation('pendingSro', $this->pendingSro($organisation, $membership));
 
-        if ($organisation) {
-            $organisation['rules'] = $this->decisionEvaluator->evaluate($organisation);
-            return $this->OKResponse($organisation);
-        }
+        $organisation['rules'] = $this->decisionEvaluator->evaluate($organisation);
 
-        throw new NotFoundException();
+        return $this->OKResponse($organisation);
     }
 
     // No swagger, internal call
     public function pastProjects(GetPastProject $request, int $id): JsonResponse
     {
+        $organisation = Organisation::find($id);
+
+        // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+        if (!$organisation || !Gate::allows('view', $organisation)) {
+            return $this->NotFoundResponse();
+        }
+
         $projects = Project::with('organisations')
             ->where('start_date', '<', Carbon::now())
             ->where('end_date', '<', Carbon::now())
@@ -322,6 +335,13 @@ class OrganisationController extends Controller
     // No swagger, internal call
     public function presentProjects(GetPresentProject $request, int $id): JsonResponse
     {
+        $organisation = Organisation::find($id);
+
+        // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+        if (!$organisation || !Gate::allows('view', $organisation)) {
+            return $this->NotFoundResponse();
+        }
+
         $projects = Project::with('organisations')
             ->where('start_date', '<=', Carbon::now())
             ->where('end_date', '>=', Carbon::now())
@@ -333,6 +353,13 @@ class OrganisationController extends Controller
     // No swagger, internal call
     public function futureProjects(GetFutureProject $request, int $id): JsonResponse
     {
+        $organisation = Organisation::find($id);
+
+        // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+        if (!$organisation || !Gate::allows('view', $organisation)) {
+            return $this->NotFoundResponse();
+        }
+
         $projects = Project::with('organisations')
             ->where('start_date', '>', Carbon::now())
             ->where('end_date', '>', Carbon::now())
@@ -385,7 +412,7 @@ class OrganisationController extends Controller
      *      ),
      *      @OA\Response(
      *          response=404,
-     *          description="Not found response",
+     *          description="Not found response, or the Organisation is restricted and not visible to the user",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
@@ -394,21 +421,22 @@ class OrganisationController extends Controller
      */
     public function idvt(GetOrganisationIdvt $request, int $id): JsonResponse
     {
-        $organisation = Organisation::findOrFail($id);
+        $organisation = Organisation::find($id);
 
-        if ($organisation) {
-            return $this->OKResponse(
-                [
-                    'id' => $organisation->id,
-                    'idvt_result' => $organisation->idvt_result,
-                    'idvt_errors' => $organisation->idvt_errors,
-                    'idvt_completed_at' => $organisation->idvt_completed_at,
-                    'idvt_result_perc' => $organisation->idvt_result_perc
-                ]
-            );
+        // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+        if (!$organisation || !Gate::allows('view', $organisation)) {
+            return $this->NotFoundResponse();
         }
 
-        return $this->NotFoundResponse();
+        return $this->OKResponse(
+            [
+                'id' => $organisation->id,
+                'idvt_result' => $organisation->idvt_result,
+                'idvt_errors' => $organisation->idvt_errors,
+                'idvt_completed_at' => $organisation->idvt_completed_at,
+                'idvt_result_perc' => $organisation->idvt_result_perc
+            ]
+        );
     }
 
     /**
@@ -652,21 +680,30 @@ class OrganisationController extends Controller
     {
         try {
             $input = $request->all();
+            $user = $request->user();
+            $restriction = $this->restrictionFor($user);
+
+            $matching = Organisation::organisationMatching($input['organisation_name'], $input['lead_applicant_email']);
+            $emailInUse = Organisation::where('lead_applicant_email', $input['lead_applicant_email'])
+                ->where('organisation_name', '!=', $input['organisation_name']);
 
             // Guards against recreating an existing Organisation via this endpoint.
-            if (Organisation::organisationMatching($input['organisation_name'], $input['lead_applicant_email'])->exists()) {
+            if ((clone $matching)->visibleTo($user)->exists()) {
                 return $this->ConflictResponse('duplicate'); // "This Org already exists, no need to re-create it"
             }
 
             // Guards against creating a new Organisation with an email that already exists on a different Organisation.
-            if (Organisation::where('lead_applicant_email', $input['lead_applicant_email'])
-                ->where('organisation_name', '!=', $input['organisation_name'])->exists()
-            ) {
+            if ((clone $emailInUse)->visibleTo($user)->exists()) {
                 return $this->ConflictResponse('email_in_use'); // "This Org already exists with a different name, so use the row-invite to rename it at invite time"
             }
 
+            $hiddenMatch = $matching->first() ?? $emailInUse->first();
+            if ($hiddenMatch) {
+                return $this->pendingApprovalConflict($user, $hiddenMatch);
+            }
+
             // This Organisation does not exist, so create it as unclaimed.
-            $organisation = Organisation::create([
+            $organisation = new Organisation([
                 'organisation_name' => $input['organisation_name'],
                 'lead_applicant_email' => $input['lead_applicant_email'],
                 'address_1' => '',
@@ -704,6 +741,8 @@ class OrganisationController extends Controller
                 'ico_date_registered' => $input['ico_date_registered'] ?? null,
                 'ico_expiry_date' => $input['ico_expiry_date'] ?? null,
             ]);
+            // Mass assignment protects the fields above; only the server-set restriction bypasses it
+            $organisation->forceFill($restriction)->save();
 
             $organisation->setState(State::STATE_ORGANISATION_INVITED_BY_ADMIN);
 
@@ -717,9 +756,16 @@ class OrganisationController extends Controller
     {
         try {
             $input = $request->all();
+            $user = $request->user();
+            $restriction = $this->restrictionFor($user);
 
             if (isset($input['lead_applicant_email'])) {
-                $existingOrganisation = Organisation::where('lead_applicant_email', $input['lead_applicant_email'])->first();
+                $emailMatch = Organisation::where('lead_applicant_email', $input['lead_applicant_email']);
+                $existingOrganisation = (clone $emailMatch)->visibleTo($user)->first();
+                $hiddenMatch = $existingOrganisation ? null : $emailMatch->first();
+                if ($hiddenMatch) {
+                    return $this->pendingApprovalConflict($user, $hiddenMatch);
+                }
                 if ($existingOrganisation) {
                     if ($existingOrganisation->unclaimed === false) {
                         return $this->ConflictResponse('claimed_duplicate'); // "This Org already exists and is claimed, no need to re-invite it"
@@ -730,7 +776,7 @@ class OrganisationController extends Controller
                     return $this->ErrorResponse();
                 }
 
-                $newOrganisation = Organisation::create([
+                $newOrganisation = new Organisation([
                     'organisation_name' => $input['organisation_name'],
                     'lead_applicant_email' => $input['lead_applicant_email'],
                     'address_1' => '',
@@ -768,6 +814,8 @@ class OrganisationController extends Controller
                     'ico_date_registered' => $input['ico_date_registered'] ?? null,
                     'ico_expiry_date' => $input['ico_expiry_date'] ?? null,
                 ]);
+                // Mass assignment protects the fields above; only the server-set restriction bypasses it
+                $newOrganisation->forceFill($restriction)->save();
                 $newOrganisation->setState(State::STATE_ORGANISATION_INVITED_BY_NONADMIN);
 
                 return $this->CreatedResponse($newOrganisation->id); // New Organisation created with this name and email, return the ID for the superadmin to invite them
@@ -778,7 +826,12 @@ class OrganisationController extends Controller
             }
 
             // Email not provided, so we can only match on name. If an existing org exists with this name, return its ID for the superadmin to invite them. Otherwise create a new unclaimed org and return its ID for the superadmin to invite them.
-            $matchedOrganisation = Organisation::where('organisation_name', $input['organisation_name'])->first();
+            $nameMatch = Organisation::where('organisation_name', $input['organisation_name']);
+            $matchedOrganisation = (clone $nameMatch)->visibleTo($user)->first();
+            $hiddenMatch = $matchedOrganisation ? null : $nameMatch->first();
+            if ($hiddenMatch) {
+                return $this->pendingApprovalConflict($user, $hiddenMatch);
+            }
             if ($matchedOrganisation) {
                 if ($matchedOrganisation->unclaimed === false) {
                     return $this->ConflictResponse('claimed_duplicate_without_email'); // "This Org already exists and is claimed, no need to re-invite it"
@@ -789,7 +842,7 @@ class OrganisationController extends Controller
                 return $this->ErrorResponse();
             }
 
-            $newOrganisation = Organisation::create([
+            $newOrganisation = new Organisation([
                 'organisation_name' => $input['organisation_name'],
                 'address_1' => '',
                 'address_2' => '',
@@ -826,12 +879,61 @@ class OrganisationController extends Controller
                 'ico_date_registered' => $input['ico_date_registered'] ?? null,
                 'ico_expiry_date' => $input['ico_expiry_date'] ?? null,
             ]);
+            // Mass assignment protects the fields above; only the server-set restriction bypasses it
+            $newOrganisation->forceFill($restriction)->save();
             $newOrganisation->setState(State::STATE_ORGANISATION_PLACEHOLDER);
 
             return $this->CreatedResponse($newOrganisation->id); // New Organisation created with this name and no email, return the ID for the superadmin to invite them
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
+    }
+
+    /**
+     * For a duplicate check that matched only an Organisation the User can't see, which means
+     * it's restricted and awaiting approval. Admins are told it's wanted so the User isn't left
+     * stuck, and the same code is returned whatever matched, so nothing more is revealed
+     * about the hidden Organisation.
+     */
+    private function pendingApprovalConflict(User $user, Organisation $organisation): JsonResponse
+    {
+        // Retries would otherwise fill admins' notifications with copies, so skip any admin
+        // who still has this User's request for this Organisation unread
+        $alreadyNotified = DatabaseNotification::query()
+            ->where('type', RestrictedOrganisationRequested::class)
+            ->where('notifiable_type', (new User())->getMorphClass())
+            ->whereNull('read_at')
+            ->where('data->details->organisation_id', $organisation->id)
+            ->where('data->details->requester_id', $user->id)
+            ->select('notifiable_id');
+
+        $userAdmins = User::where('user_group', User::GROUP_ADMINS)
+            ->whereNotIn('id', $alreadyNotified)
+            ->select(['id'])
+            ->get();
+        Notification::send($userAdmins, new RestrictedOrganisationRequested($user, $organisation));
+
+        return $this->ConflictResponse('pending_approval');
+    }
+
+    /**
+     * A non-admin's new Organisation is hidden from other Users until system approved, see
+     * Organisation::scopeVisibleTo. Saved in the same insert, so the Organisation is never
+     * briefly visible before it is restricted.
+     *
+     * @return array{is_restricted?: bool, created_by_custodian_id?: int|null, created_by_user_id?: int}
+     */
+    private function restrictionFor(?User $user): array
+    {
+        if (!$user || $user->isAdmin()) {
+            return [];
+        }
+
+        return [
+            'is_restricted' => true,
+            'created_by_custodian_id' => $user->custodian_user?->custodian_id,
+            'created_by_user_id' => $user->id,
+        ];
     }
 
     /**
@@ -1398,7 +1500,12 @@ class OrganisationController extends Controller
     public function countCertifications(GetCountCertifications $request, int $id): JsonResponse
     {
         try {
-            $organisation = Organisation::findOrFail($id);
+            $organisation = Organisation::find($id);
+
+            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+            if (!$organisation || !Gate::allows('view', $organisation)) {
+                return $this->NotFoundResponse();
+            }
 
             $counts = count(array_filter([
                 $organisation->dsptk_certified,
@@ -1463,7 +1570,7 @@ class OrganisationController extends Controller
      *      ),
      *      @OA\Response(
      *          response=404,
-     *          description="Not found response",
+     *          description="Not found response, or the Organisation is restricted and not visible to the user",
      *           @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
@@ -1472,6 +1579,13 @@ class OrganisationController extends Controller
      */
     public function getProjects(GetProject $request, int $organisationId): JsonResponse
     {
+        $organisation = Organisation::find($organisationId);
+
+        // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+        if (!$organisation || !Gate::allows('view', $organisation)) {
+            return $this->NotFoundResponse();
+        }
+
         $projects = Project::searchViaRequest()
             ->applySorting()
             ->filterByCommon()
@@ -1554,7 +1668,7 @@ class OrganisationController extends Controller
      *      ),
      *      @OA\Response(
      *          response=404,
-     *          description="Not found response",
+     *          description="Not found response, or the Organisation is restricted and not visible to the user",
      *           @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
@@ -1563,6 +1677,13 @@ class OrganisationController extends Controller
      */
     public function getSponsorshipsProjects(GetProject $request, int $organisationId): JsonResponse
     {
+        $organisation = Organisation::find($organisationId);
+
+        // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+        if (!$organisation || !Gate::allows('view', $organisation)) {
+            return $this->NotFoundResponse();
+        }
+
         $perPage = $request->get('per_page');
 
         $projects = Project::searchViaRequest()
@@ -1659,7 +1780,7 @@ class OrganisationController extends Controller
      *      ),
      *      @OA\Response(
      *          response=404,
-     *          description="Not found response",
+     *          description="Not found response, or the Organisation is restricted and not visible to the user",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="not found"),
      *          )
@@ -1669,7 +1790,13 @@ class OrganisationController extends Controller
     public function getUsers(GetUser $request, int $organisationId): JsonResponse
     {
         try {
-            $org = Organisation::findOrFail($organisationId);
+            $org = Organisation::find($organisationId);
+
+            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+            if (!$org || !Gate::allows('view', $org)) {
+                return $this->NotFoundResponse();
+            }
+
             if (!Gate::allows('viewDetailed', $org)) {
                 return $this->ForbiddenResponse();
             }
@@ -1741,7 +1868,7 @@ class OrganisationController extends Controller
      *      ),
      *      @OA\Response(
      *          response=404,
-     *          description="Not found response",
+     *          description="Not found response, or the Organisation is restricted and not visible to the user",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="not found")
      *          )
@@ -1751,7 +1878,13 @@ class OrganisationController extends Controller
     public function getDelegates(GetDelegate $request, int $organisationId): JsonResponse
     {
         try {
-            $org = Organisation::findOrFail($organisationId);
+            $org = Organisation::find($organisationId);
+
+            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+            if (!$org || !Gate::allows('view', $org)) {
+                return $this->NotFoundResponse();
+            }
+
             if (!Gate::allows('viewDetailed', $org)) {
                 return $this->ForbiddenResponse();
             }
@@ -1783,6 +1916,13 @@ class OrganisationController extends Controller
     public function countUsers(GetCountUsers $request, int $id): JsonResponse
     {
         try {
+            $organisation = Organisation::find($id);
+
+            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+            if (!$organisation || !Gate::allows('view', $organisation)) {
+                return $this->NotFoundResponse();
+            }
+
             $count = Affiliation::where('organisation_id', $id)->count();
 
             if ($count && $count > 0) {
@@ -1871,7 +2011,14 @@ class OrganisationController extends Controller
     {
         try {
             // Checked before anything else, so outsiders cannot use this to probe which emails exist.
-            if (!Gate::allows('inviteUser', Organisation::findOrFail($id))) {
+            $organisation = Organisation::find($id);
+
+            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+            if (!$organisation || !Gate::allows('view', $organisation)) {
+                return $this->NotFoundResponse();
+            }
+
+            if (!Gate::allows('inviteUser', $organisation)) {
                 return $this->ForbiddenResponse();
             }
 
@@ -1970,7 +2117,13 @@ class OrganisationController extends Controller
             $loggedInUserId = $request->user()->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();
 
-            $organisation = Organisation::where('id', $organisationId)->firstOrFail();
+            $organisation = Organisation::find($organisationId);
+
+            // 404 rather than 403, so a restricted Organisation's existence isn't revealed. The invite
+            // ability, not view, so the researcher who just created it can still ask the superadmin.
+            if (!$organisation || !Gate::allows('invite', $organisation)) {
+                return $this->NotFoundResponse();
+            }
 
             if ($organisation->lead_applicant_email && User::where(["email" => $organisation->lead_applicant_email, "unclaimed" => 0])->exists()) {
                 return $this->ConflictResponse();
@@ -2081,6 +2234,14 @@ class OrganisationController extends Controller
     public function custodianInviteUser(OrganisationInviteUser $request, int $id): JsonResponse
     {
         try {
+            $organisation = Organisation::find($id);
+
+            // 404 rather than 403, so a restricted Organisation's existence isn't revealed. Checked
+            // first, so the email conflict check can't reveal a hidden Organisation either.
+            if (!$organisation || !Gate::allows('view', $organisation)) {
+                return $this->NotFoundResponse();
+            }
+
             $input = $request->all();
             if (User::where("email", $input['email'])->exists()) {
                 return $this->ConflictResponse();
@@ -2162,12 +2323,20 @@ class OrganisationController extends Controller
     public function invite(OrganisationInvite $request, int $id): JsonResponse
     {
         try {
-            $organisation = Organisation::where('id', $id)->first();
-            if (!$organisation) {
-                return response()->json([
-                    'message' => 'Organisation not found.',
-                ], 404);
+            // With SroRequirementEnabled off this invites as superadmin and system approves
+            // the Organisation, so only admins may call it. The FE only calls it as a
+            // non-admin when the flag is on.
+            if (!Feature::active('SroRequirementEnabled') && !Gate::allows('admin')) {
+                return $this->ForbiddenResponse();
             }
+
+            $organisation = Organisation::find($id);
+
+            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+            if (!$organisation || !Gate::allows('invite', $organisation)) {
+                return $this->NotFoundResponse();
+            }
+
             $unclaimedUser = RMC::createUnclaimedUser([
                 'firstname' => '',
                 'lastname' => '',
@@ -2218,7 +2387,8 @@ class OrganisationController extends Controller
 
             return response()->json([
                 'message' => 'success',
-                'data' => $organisation,
+                // Only the ID for a creator who can't otherwise see the Organisation
+                'data' => Gate::allows('view', $organisation) ? $organisation : $organisation->id,
             ], 201);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -2229,6 +2399,13 @@ class OrganisationController extends Controller
     public function resendInvite(ResendInvite $request, int $id)
     {
         try {
+            $organisation = Organisation::find($id);
+
+            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+            if (!$organisation || !Gate::allows('view', $organisation)) {
+                return $this->NotFoundResponse();
+            }
+
             $loggedInUserId = $request->user()?->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();
 
@@ -2252,12 +2429,6 @@ class OrganisationController extends Controller
                 '$inviteId' => $pendingInvites->id,
             ];
 
-            $organisation = Organisation::where('id', $id)->first();
-
-            if (is_null($organisation)) {
-                throw new Exception('Organisation not found');
-            }
-
             if ($organisation->getState() !== State::STATE_ORGANISATION_REGISTERED) {
                 $organisation->setState(State::STATE_ORGANISATION_INVITED_BY_ADMIN);
             }
@@ -2280,6 +2451,13 @@ class OrganisationController extends Controller
     public function countPresentProjects(GetCountPresentProject $request, int $id): JsonResponse
     {
         try {
+            $organisation = Organisation::find($id);
+
+            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+            if (!$organisation || !Gate::allows('view', $organisation)) {
+                return $this->NotFoundResponse();
+            }
+
             $projectCount = Project::whereHas('organisations', function ($query) use ($id) {
                 $query->where('organisations.id', $id);
             })
@@ -2302,6 +2480,13 @@ class OrganisationController extends Controller
     public function countPastProjects(GetCountPastProject $request, int $id): JsonResponse
     {
         try {
+            $organisation = Organisation::find($id);
+
+            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+            if (!$organisation || !Gate::allows('view', $organisation)) {
+                return $this->NotFoundResponse();
+            }
+
             $projectCount = Project::whereHas('organisations', function ($query) use ($id) {
                 $query->where('organisations.id', $id);
             })
@@ -2433,7 +2618,7 @@ class OrganisationController extends Controller
      *      ),
      *      @OA\Response(
      *          response=404,
-     *          description="No registries found for this organisation",
+     *          description="No registries found for this organisation, or the Organisation is restricted and not visible to the user",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="No registries found for this organisation")
      *          )
@@ -2443,6 +2628,13 @@ class OrganisationController extends Controller
     public function getRegistries(GetRegistry $request, int $id): JsonResponse
     {
         try {
+            $organisation = Organisation::find($id);
+
+            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+            if (!$organisation || !Gate::allows('view', $organisation)) {
+                return $this->NotFoundResponse();
+            }
+
             $showPending = $request->boolean("show_pending");
             // Leavers stay in the Organisation's records; each user is shown with their latest affiliation.
             $affiliationIds = Affiliation::where('organisation_id', $id)->filterByState()->pluck('id');
@@ -2546,7 +2738,7 @@ class OrganisationController extends Controller
      *
      *     @OA\Response(
      *         response=404,
-     *         description="Organisation not found",
+     *         description="Organisation not found, or the Organisation is restricted and not visible to the user",
      *         @OA\JsonContent(
      *             @OA\Property(property="message", type="string", example="Organisation not found")
      *         )
@@ -2556,8 +2748,14 @@ class OrganisationController extends Controller
     public function getStatus(GetStatus $request, int $id): JsonResponse
     {
         try {
-            $organisation = Organisation::with('modelState.state')
-            ->findOrFail($id);
+            $organisation = Organisation::find($id);
+
+            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+            if (!$organisation || !Gate::allows('view', $organisation)) {
+                return $this->NotFoundResponse();
+            }
+
+            $organisation->load('modelState.state');
             return $this->OKResponse($organisation->modelState);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -2843,7 +3041,7 @@ class OrganisationController extends Controller
      *      ),
      *      @OA\Response(
      *          response=404,
-     *          description="File not found",
+     *          description="File not found, or the Organisation is restricted and not visible to the user",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="File not found"),
      *          ),
@@ -2853,7 +3051,13 @@ class OrganisationController extends Controller
     public function getSroDeclaration(GetSroDeclaration $request, int $organisationId)
     {
         try {
-            $org = Organisation::findOrFail($organisationId);
+            $org = Organisation::find($organisationId);
+
+            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+            if (!$org || !Gate::allows('view', $org)) {
+                return $this->NotFoundResponse();
+            }
+
             if (!Gate::allows('viewDetailed', $org)) {
                 return $this->ForbiddenResponse();
             }
@@ -2926,12 +3130,25 @@ class OrganisationController extends Controller
      *              @OA\Property(property="message", type="string", example="forbidden"),
      *          ),
      *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="The Organisation is restricted and not visible to the user",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="not found"),
+     *          ),
+     *      ),
      * )
      */
     public function getSroDeclarationDetails(GetSroDeclarationDetails $request, int $organisationId): JsonResponse
     {
         try {
-            $org = Organisation::findOrFail($organisationId);
+            $org = Organisation::find($organisationId);
+
+            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+            if (!$org || !Gate::allows('view', $org)) {
+                return $this->NotFoundResponse();
+            }
+
             if (!Gate::allows('viewDetailed', $org)) {
                 return $this->ForbiddenResponse();
             }

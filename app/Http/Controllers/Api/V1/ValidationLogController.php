@@ -16,6 +16,7 @@ use Illuminate\Http\JsonResponse;
 use App\Models\ProjectHasCustodian;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\ValidationLogs\GetValidationLog;
 use App\Http\Requests\ValidationLogs\UpdateValidationLog;
 use App\Http\Requests\ValidationLogs\UpdateByCustodianValidationLog;
@@ -188,6 +189,13 @@ class ValidationLogController extends Controller
         int $custodianId,
         int $organisationId,
     ): JsonResponse {
+        $organisation = Organisation::find($organisationId);
+
+        // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+        if (!$organisation || !Gate::allows('view', $organisation)) {
+            return $this->NotFoundResponse();
+        }
+
         $withDisabled = $request->boolean("show_disabled");
         try {
             $logs = ValidationLog::where('entity_type', Custodian::class)

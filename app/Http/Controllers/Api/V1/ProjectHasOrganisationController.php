@@ -6,6 +6,7 @@ use Exception;
 use App\Http\Traits\Responses;
 use App\Traits\CommonFunctions;
 use App\Http\Controllers\Controller;
+use App\Models\Organisation;
 use App\Models\ProjectHasOrganisation;
 use App\Http\Requests\ProjectHasOrganisations\GetProjectHasOrganisation;
 
@@ -48,7 +49,7 @@ class ProjectHasOrganisationController extends Controller
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="Project-organisation relationship not found",
+     *         description="Project-organisation relationship not found, or the Organisation is restricted and not visible to the user",
      *         @OA\JsonContent(
      *             type="object",
      *             @OA\Property(property="message", type="string", example="Not found")
@@ -74,7 +75,10 @@ class ProjectHasOrganisationController extends Controller
             ])
                 ->where([
                     'id' => $id,
-                ])->first();
+                ])
+                // A restricted Organisation the User can't see is treated as not found
+                ->whereIn('organisation_id', Organisation::visibleIdsFor($request->user()))
+                ->first();
 
             if (!$phu) {
                 return $this->NotFoundResponse();

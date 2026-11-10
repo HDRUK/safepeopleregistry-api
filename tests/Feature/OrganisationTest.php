@@ -810,7 +810,7 @@ class OrganisationTest extends TestCase
     {
         $email = fake()->unique()->safeEmail();
 
-        $unclaimed = $this->createOrganisationBeforeSuperadminInvitation($this->user, [
+        $unclaimed = $this->createOrganisationBeforeSuperadminInvitation($this->admin, [
             'lead_applicant_email' => $email,
             'ods_id' => 'ORIGINAL',
         ]);
@@ -836,7 +836,7 @@ class OrganisationTest extends TestCase
 
     public function test_reinviting_an_unclaimed_organisation_before_superadmin_invitation_without_an_email_is_a_conflict(): void
     {
-        $unclaimed = $this->createOrganisationBeforeSuperadminInvitation($this->user, [
+        $unclaimed = $this->createOrganisationBeforeSuperadminInvitation($this->admin, [
             'ods_id' => 'ORIGINAL',
         ]);
         $organisationCount = Organisation::count();
@@ -875,7 +875,7 @@ class OrganisationTest extends TestCase
     {
         $email = fake()->unique()->safeEmail();
 
-        $original = $this->createOrganisationBeforeSuperadminInvitation($this->user, [
+        $original = $this->createOrganisationBeforeSuperadminInvitation($this->admin, [
             'lead_applicant_email' => $email,
         ]);
         $organisationCount = Organisation::count();
@@ -2073,9 +2073,8 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . "/{$organisationIdTest}"
             );
 
-        $response->assertStatus(400);
-        $message = $response->decodeResponseJson()['message'];
-        $this->assertEquals('Invalid argument(s)', $message);
+        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
+        $response->assertStatus(404);
     }
 
     public function test_the_application_cannot_get_organisations_idvt(): void
@@ -2089,9 +2088,8 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . "/{$organisationIdTest}/idvt"
             );
 
-        $response->assertStatus(400);
-        $message = $response->decodeResponseJson()['message'];
-        $this->assertEquals('Invalid argument(s)', $message);
+        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
+        $response->assertStatus(404);
     }
 
     public function test_the_application_cannot_get_organisations_count_certifications(): void
@@ -2105,9 +2103,8 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . "/{$organisationIdTest}/counts/certifications"
             );
 
-        $response->assertStatus(400);
-        $message = $response->decodeResponseJson()['message'];
-        $this->assertEquals('Invalid argument(s)', $message);
+        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
+        $response->assertStatus(404);
     }
 
     public function test_the_application_cannot_get_organisations_count_users(): void
@@ -2121,9 +2118,8 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . "/{$organisationIdTest}/counts/users"
             );
 
-        $response->assertStatus(400);
-        $message = $response->decodeResponseJson()['message'];
-        $this->assertEquals('Invalid argument(s)', $message);
+        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
+        $response->assertStatus(404);
     }
 
     public function test_the_application_cannot_get_organisations_count_projects_present(): void
@@ -2137,9 +2133,8 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . "/{$organisationIdTest}/counts/projects/present"
             );
 
-        $response->assertStatus(400);
-        $message = $response->decodeResponseJson()['message'];
-        $this->assertEquals('Invalid argument(s)', $message);
+        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
+        $response->assertStatus(404);
     }
 
     public function test_the_application_cannot_get_organisations_count_projects_past(): void
@@ -2153,9 +2148,8 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . "/{$organisationIdTest}/counts/projects/past"
             );
 
-        $response->assertStatus(400);
-        $message = $response->decodeResponseJson()['message'];
-        $this->assertEquals('Invalid argument(s)', $message);
+        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
+        $response->assertStatus(404);
     }
 
     public function test_the_application_cannot_get_organisations_projects_present(): void
@@ -2169,9 +2163,8 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . "/{$organisationIdTest}/projects/present"
             );
 
-        $response->assertStatus(400);
-        $message = $response->decodeResponseJson()['message'];
-        $this->assertEquals('Invalid argument(s)', $message);
+        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
+        $response->assertStatus(404);
     }
 
     public function test_the_application_cannot_get_organisations_projects_past(): void
@@ -2185,9 +2178,8 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . "/{$organisationIdTest}/projects/past"
             );
 
-        $response->assertStatus(400);
-        $message = $response->decodeResponseJson()['message'];
-        $this->assertEquals('Invalid argument(s)', $message);
+        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
+        $response->assertStatus(404);
     }
 
     public function test_the_application_cannot_get_organisations_projects_future(): void
@@ -2201,9 +2193,8 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . "/{$organisationIdTest}/projects/future"
             );
 
-        $response->assertStatus(400);
-        $message = $response->decodeResponseJson()['message'];
-        $this->assertEquals('Invalid argument(s)', $message);
+        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
+        $response->assertStatus(404);
     }
 
     public function test_the_application_cannot_get_organisations_projects(): void
@@ -2217,9 +2208,8 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . "/{$organisationIdTest}/projects"
             );
 
-        $response->assertStatus(400);
-        $message = $response->decodeResponseJson()['message'];
-        $this->assertEquals('Invalid argument(s)', $message);
+        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
+        $response->assertStatus(404);
     }
 
     public function test_the_application_cannot_get_organisations_users(): void
@@ -2233,9 +2223,8 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . "/{$organisationIdTest}/users"
             );
 
-        $response->assertStatus(400);
-        $message = $response->decodeResponseJson()['message'];
-        $this->assertEquals('Invalid argument(s)', $message);
+        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
+        $response->assertStatus(404);
     }
 
     public function test_the_application_cannot_get_organisations_delegates(): void
@@ -2249,9 +2238,8 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . "/{$organisationIdTest}/delegates"
             );
 
-        $response->assertStatus(400);
-        $message = $response->decodeResponseJson()['message'];
-        $this->assertEquals('Invalid argument(s)', $message);
+        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
+        $response->assertStatus(404);
     }
 
     public function test_the_application_cannot_get_organisations_registries(): void
@@ -2265,9 +2253,8 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . "/{$organisationIdTest}/registries"
             );
 
-        $response->assertStatus(400);
-        $message = $response->decodeResponseJson()['message'];
-        $this->assertEquals('Invalid argument(s)', $message);
+        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
+        $response->assertStatus(404);
     }
 
     public function test_the_application_cannot_get_organisations_validate_ror(): void
@@ -2303,9 +2290,8 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . "/{$organisationIdTest}/invite",
             );
 
-        $response->assertStatus(400);
-        $message = $response->decodeResponseJson()['message'];
-        $this->assertEquals('Invalid argument(s)', $message);
+        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
+        $response->assertStatus(404);
     }
 
     public function test_the_application_cannot_get_organisations_invite_user(): void
@@ -2329,9 +2315,8 @@ class OrganisationTest extends TestCase
                 ],
             );
 
-        $response->assertStatus(400);
-        $message = $response->decodeResponseJson()['message'];
-        $this->assertEquals('Invalid argument(s)', $message);
+        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
+        $response->assertStatus(404);
     }
 
     public function test_the_application_cannot_update_organisations(): void

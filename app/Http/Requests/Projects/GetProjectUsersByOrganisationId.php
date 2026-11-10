@@ -19,10 +19,11 @@ class GetProjectUsersByOrganisationId extends BaseFormRequest
                 'integer',
                 'exists:projects,id',
             ],
+            // No exists rule: the controller returns 404 for a missing ID, as it does for a
+            // restricted one, so the response doesn't reveal which restricted IDs exist
             'organisationId' => [
                 'required',
                 'integer',
-                'exists:organisations,id',
             ],
         ];
     }

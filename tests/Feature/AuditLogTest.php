@@ -204,8 +204,7 @@ class AuditLogTest extends TestCase
                 self::TEST_URL . "organisations/{$organisationIdTest}/history"
             );
 
-        $response->assertStatus(400);
-        $message = $response->decodeResponseJson()['message'];
-        $this->assertEquals('Invalid argument(s)', $message);
+        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
+        $response->assertStatus(404);
     }
 }

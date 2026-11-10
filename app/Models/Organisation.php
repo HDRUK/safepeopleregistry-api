@@ -440,6 +440,9 @@ class Organisation extends Model
     protected $guarded = [
         'system_approved',
         'system_approved_at',
+        'is_restricted',
+        'created_by_custodian_id',
+        'created_by_user_id',
     ];
 
     protected $casts = [
@@ -454,6 +457,7 @@ class Organisation extends Model
         'iso_expiry_date' => 'date:Y-m-d',
         'dsptk_expiry_date' => 'date:Y-m-d',
         'system_approved' => 'boolean',
+        'is_restricted' => 'boolean',
     ];
 
     protected static array $searchableColumns = [
@@ -475,6 +479,10 @@ class Organisation extends Model
             'idvt_completed_at',
             'permissions',
             'files',
+            // is_restricted is returned: the web needs it to tell which unapproved
+            // Organisations the API let a researcher see (see scopeVisibleTo)
+            'created_by_custodian_id',
+            'created_by_user_id',
          ];
 
     protected $appends = [
@@ -696,6 +704,73 @@ class Organisation extends Model
             'organisation_name' => $organisationName,
             'lead_applicant_email' => $leadApplicantEmail,
         ]);
+    }
+
+    /**
+     * Organisations the given User can see. A restricted Organisation (created by a
+     * non-admin) is hidden until system approved, except from admins, the Custodian
+     * that created it and the Users whose current Organisation it is.
+     */
+    public function scopeVisibleTo(Builder $query, User $user): Builder
+    {
+        if ($user->isAdmin()) {
+            return $query;
+        }
+
+        return $query->where(fn (Builder $q) => $q
+            ->where($query->qualifyColumn('is_restricted'), false)
+            ->orWhere($query->qualifyColumn('system_approved'), true)
+            ->when(
+                $user->custodian_user?->custodian_id,
+                fn (Builder $q, $custodianId) => $q->orWhere($query->qualifyColumn('created_by_custodian_id'), $custodianId)
+            )
+            ->when(
+                $user->organisation_id,
+                fn (Builder $q, $organisationId) => $q->orWhere($query->qualifyColumn('id'), $organisationId)
+            )
+            ->when(
+                $user->registry_id,
+                fn (Builder $q, $registryId) => $q->orWhereIn(
+                    $query->qualifyColumn('id'),
+                    Affiliation::query()
+                        ->where('registry_id', $registryId)
+                        ->where('current_employer', true)
+                        ->select('organisation_id')
+                )
+            ));
+    }
+
+    /**
+     * Single-record form of scopeVisibleTo, so policies apply the same rule as lists.
+     */
+    public function isVisibleTo(User $user): bool
+    {
+        // Most Organisations are visible to everyone, so skip the query when that's already known.
+        // Strict checks, so a partially loaded model (attributes null) falls through to the query.
+        if ($user->isAdmin() || $this->is_restricted === false || $this->system_approved === true) {
+            return true;
+        }
+
+        return static::query()->visibleTo($user)->whereKey($this->getKey())->exists();
+    }
+
+    /**
+     * Whether /invite has been called for this Organisation, which creates its organisation
+     * User. Its state can't tell: /unclaimed already sets it to invited.
+     */
+    public function hasBeenInvited(): bool
+    {
+        return User::where('organisation_id', $this->id)->exists();
+    }
+
+    /**
+     * IDs of the Organisations the User can see, for filtering related records with whereIn.
+     *
+     * @return Builder<Organisation>
+     */
+    public static function visibleIdsFor(User $user): Builder
+    {
+        return self::query()->visibleTo($user)->select('id');
     }
 
     /**
@@ -938,6 +1013,14 @@ class Organisation extends Model
     public function modelState(): MorphOne
     {
         return $this->morphOne(ModelState::class, 'stateable');
+    }
+
+    /**
+     * @return BelongsTo<Custodian, $this>
+     */
+    public function createdByCustodian(): BelongsTo
+    {
+        return $this->belongsTo(Custodian::class, 'created_by_custodian_id');
     }
 
     public function getEvaluationAttribute()

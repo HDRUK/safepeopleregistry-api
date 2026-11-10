@@ -411,6 +411,7 @@ Route::middleware('auth:api')
         Route::controller(OrganisationController::class)->group(function () {
             // Read
             Route::get('/', 'index');
+            Route::get('/ror/{ror}', 'validateRor');
             Route::get('/{id}', 'show');
             Route::get('/{id}/status', 'getStatus');
             Route::get('/{id}/idvt', 'idvt');
@@ -426,7 +427,6 @@ Route::middleware('auth:api')
             Route::get('/{id}/users', 'getUsers');
             Route::get('/{id}/delegates', 'getDelegates');
             Route::get('/{id}/registries', 'getRegistries');
-            Route::get('/ror/{ror}', 'validateRor');
             Route::get('/{id}/sro_declaration', 'getSroDeclaration');
             Route::get('/{id}/sro_declaration/details', 'getSroDeclarationDetails');
 
@@ -451,7 +451,8 @@ Route::middleware('auth:api')
             Route::delete('/{id}', 'destroy');
             Route::delete('/{id}/delegates/{userId}', 'removeDelegate');
 
-            Route::get('/{id}/history', [AuditLogController::class, 'showOrganisationHistory'])->whereNumber('id');
+            Route::get('/{id}/history', [AuditLogController::class, 'showOrganisationHistory'])
+                ->whereNumber('id');
 
             Route::patch('/{id}/sponsorships/statuses', 'updateSponsorshipStatuses');
 

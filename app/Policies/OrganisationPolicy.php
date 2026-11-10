@@ -23,8 +23,31 @@ class OrganisationPolicy
         return $this->update($user, $organisation);
     }
 
+    /**
+     * Visibility lives in Organisation::scopeVisibleTo so lists and single records agree.
+     */
+    public function view(User $user, Organisation $organisation): bool
+    {
+        return $organisation->isVisibleTo($user);
+    }
+
+    /**
+     * Anyone who can see the Organisation, plus the User who created a restricted one until it
+     * has been invited: with SroRequirementEnabled on, a researcher invites the Organisation
+     * they've just added before their affiliation to it exists.
+     */
+    public function invite(User $user, Organisation $organisation): bool
+    {
+        return $this->view($user, $organisation)
+            || ($organisation->created_by_user_id === $user->id && !$organisation->hasBeenInvited());
+    }
+
     public function viewDetailed(User $user, Organisation $organisation): bool
     {
+        if (!$this->view($user, $organisation)) {
+            return false;
+        }
+
         return $user->isAdmin() || $user->inGroup([User::GROUP_CUSTODIANS]) ||
             ($user->inGroup([User::GROUP_ORGANISATIONS]) && $user->organisation_id === $organisation->id);
     }

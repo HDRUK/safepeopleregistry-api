@@ -633,7 +633,14 @@ class CustodianController extends Controller
 
         $projects = Project::searchViaRequest()
             ->applySorting()
-            ->with(['organisations', 'modelState.state'])
+            ->with([
+                // Restricted Organisations the User can't see are left out of each Project
+                'organisations' => fn ($query) => $query->whereIn(
+                    'organisations.id',
+                    Organisation::visibleIdsFor($request->user())
+                ),
+                'modelState.state',
+            ])
             ->filterByCommon()
             ->filterByState()
             ->whereHas('custodians', function ($query) use ($custodianId) {
@@ -1137,6 +1144,7 @@ class CustodianController extends Controller
             ->whereHas('project.custodians', function ($query) use ($custodianId) {
                 $query->where('custodian_id', $custodianId);
             })
+            ->whereIn('organisation_id', Organisation::visibleIdsFor($request->user()))
             ->when(!empty($searchName), function ($query) use ($searchName) {
                 $query->where(function ($subQuery) use ($searchName) {
                     $subQuery->whereHas('project', function ($q) use ($searchName) {
@@ -1331,7 +1339,7 @@ class CustodianController extends Controller
      *      ),
      *      @OA\Response(
      *          response=404,
-     *          description="Organisation users not found",
+     *          description="Organisation users not found, or the Organisation is restricted and not visible to the user",
      *          @OA\JsonContent(
      *              type="object",
      *              @OA\Property(property="message", type="string", example="Organisation users not found")
@@ -1341,6 +1349,13 @@ class CustodianController extends Controller
      */
     public function getOrganisationUsers(GetOrganisationUser $request, int $custodianId, int $organisationId): JsonResponse
     {
+        $organisation = Organisation::find($organisationId);
+
+        // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+        if (!$organisation || !Gate::allows('view', $organisation)) {
+            return $this->NotFoundResponse();
+        }
+
         $users = User::searchViaRequest()
                     ->applySorting()
                     ->with([

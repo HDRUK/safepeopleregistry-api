@@ -106,8 +106,7 @@ class AffiliationController extends Controller
                     $query->select(
                         'id',
                         'organisation_name',
-                        'unclaimed',
-                        'lead_applicant_email'
+                        'unclaimed'
                     );
                 },
             ]
@@ -183,8 +182,7 @@ class AffiliationController extends Controller
      *                  @OA\Property(property="organisation", type="object",
      *                      @OA\Property(property="id", type="integer", example=100),
      *                      @OA\Property(property="organisation_name", type="string", example="Example Org"),
-     *                      @OA\Property(property="unclaimed", type="boolean", example=false),
-     *                      @OA\Property(property="lead_applicant_email", type="string", example="lead@example.org")
+     *                      @OA\Property(property="unclaimed", type="boolean", example=false)
      *                  )
      *              )
      *          )
@@ -218,8 +216,7 @@ class AffiliationController extends Controller
                     $query->select(
                         'id',
                         'organisation_name',
-                        'unclaimed',
-                        'lead_applicant_email'
+                        'unclaimed'
                     );
                 },
             ]
