@@ -22,6 +22,7 @@ use App\Http\Traits\Responses;
 use App\Models\ProjectHasUser;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Collection;
 use App\Traits\TracksModelChanges;
 use App\Models\ProjectHasCustodian;
 use App\Http\Controllers\Controller;
@@ -646,6 +647,7 @@ class ProjectController extends Controller
                 'modelState',
                 'registry.affiliations',
                 'registry.affiliations.organisation',
+                'registry.affiliations.modelState.state',
                 'registry.projectUsers.role',
                 'registry.projectUsers.affiliation'
             ])->first();
@@ -653,7 +655,7 @@ class ProjectController extends Controller
         $idCounter = 1;
         $visibleOrganisationIds = $this->visibleOrganisationIds($request->user(), $user->registry->affiliations);
 
-        $expandedUser = $user->registry->affiliations->map(function ($affiliation) use ($user, $id, $visibleOrganisationIds, &$idCounter) {
+        $expandedUser = $this->getSelectableProjectAffiliations($user, $id)->map(function ($affiliation) use ($user, $id, $visibleOrganisationIds, &$idCounter) {
             return $this->formatProjectUserAffiliation($affiliation, $user, $id, $idCounter++, $visibleOrganisationIds);
         });
 
@@ -690,6 +692,7 @@ class ProjectController extends Controller
                 'modelState',
                 'registry.affiliations',
                 'registry.affiliations.organisation',
+                'registry.affiliations.modelState.state',
                 'registry.projectUsers.role',
                 'registry.projectUsers.affiliation'
             ])
@@ -702,20 +705,7 @@ class ProjectController extends Controller
         );
 
         $expandedUsers = $users->flatMap(function ($user) use ($projectId, $visibleOrganisationIds, &$idCounter) {
-            $projectAffiliations = $user->registry->affiliations
-                ->filter(function ($affiliation) use ($user, $projectId) {
-                    return $user->registry->projectUsers->contains(function ($projectUser) use ($affiliation, $projectId) {
-                        return $projectUser->affiliation_id == $affiliation->id
-                            && $projectUser->project_id == $projectId; // Added project check
-                    });
-                });
-
-            // If no affiliations for this project
-            if ($projectAffiliations->isEmpty()) {
-                $projectAffiliations = $user->registry->affiliations; // or return empty, depends on your needs
-            }
-
-            return $projectAffiliations->map(function ($affiliation) use ($user, $projectId, $visibleOrganisationIds, &$idCounter) {
+            return $this->getSelectableProjectAffiliations($user, $projectId)->map(function ($affiliation) use ($user, $projectId, $visibleOrganisationIds, &$idCounter) {
                 return $this->formatProjectUserAffiliation($affiliation, $user, $projectId, $idCounter++, $visibleOrganisationIds);
             });
         });
@@ -1253,6 +1243,10 @@ class ProjectController extends Controller
             $registryIds = $users->pluck('registry_id')->unique();
             $registries = Registry::with('user')->whereIn('id', $registryIds)->get()->keyBy('id');
 
+            if (!$this->addsOnlyCurrentAffiliations($users)) {
+                return $this->UnprocessableContent('Users can only be added to a project through one of their current affiliations.');
+            }
+
             \DB::transaction(function () use ($users, $registries, $projectId) {
                 foreach ($users as $entry) {
                     $registry = $registries->get($entry['registry_id']);
@@ -1299,6 +1293,34 @@ class ProjectController extends Controller
         } catch (Exception $e) {
             return $this->ErrorResponse();
         }
+    }
+
+    /**
+     * Whether every user being added to the project, or moved to another affiliation, is added
+     * through a current affiliation of their own.
+     */
+    private function addsOnlyCurrentAffiliations(Collection $users): bool
+    {
+        $existing = ProjectHasUser::whereIn('id', $users->pluck('project_user_id')->filter())->get()->keyBy('id');
+        $affiliations = Affiliation::with('modelState.state')
+            ->whereIn('id', $users->pluck('affiliation_id')->filter())
+            ->get()
+            ->keyBy('id');
+
+        return $users->every(function ($entry) use ($existing, $affiliations) {
+            $isAdding = !empty($entry['role']['id'])
+                && $existing->get($entry['project_user_id'] ?? null)?->affiliation_id != $entry['affiliation_id'];
+
+            if (!$isAdding) {
+                return true;
+            }
+
+            $affiliation = $affiliations->get($entry['affiliation_id']);
+
+            return $affiliation
+                && $affiliation->registry_id == $entry['registry_id']
+                && $affiliation->isCurrent();
+        });
     }
 
     // removed or not used
@@ -1526,6 +1548,25 @@ class ProjectController extends Controller
             ->pluck('id')
             ->flip()
             ->all();
+    }
+
+    /**
+     * The affiliations a user is on the project through, kept as history even once ended, plus their
+     * current ones, through which they can be added. A user who left can only re-join through a new one.
+     */
+    private function getSelectableProjectAffiliations(User $user, int $projectId): Collection
+    {
+        $affiliations = $user->registry->affiliations;
+
+        return $affiliations
+            ->filter(function (Affiliation $affiliation) use ($user, $projectId) {
+                return $affiliation->isCurrent()
+                    || $user->registry->projectUsers->contains(function ($projectUser) use ($affiliation, $projectId) {
+                        return $projectUser->affiliation_id == $affiliation->id
+                            && $projectUser->project_id == $projectId;
+                    });
+            })
+            ->values();
     }
 
     /**

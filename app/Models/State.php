@@ -99,6 +99,7 @@ class State extends Model
     public const STATE_PROJECT_DECLINED_APPROVAL = 'project_declined_approval';
 
     public const STATE_AFFILIATION_LEFT = 'affiliation_left'; // left organisation
+    public const STATE_AFFILIATION_NEVER_VERIFIED = 'affiliation_never_verified'; // ended before the email was ever verified
 
     public const STATE_MORE_USER_INFO_REQ_ESCALATION_MANAGER = 'more_user_info_req_escalation_manager'; // Escalation [to Validation Manager]
     public const STATE_MORE_ORG_INFO_REQ_ESCALATION_MANAGER = 'more_org_info_req_escalation_manager'; // Escalation [to Validation Manager]
@@ -152,6 +153,7 @@ class State extends Model
         self::STATE_PROJECT_IN_PROGRESS,
         self::STATE_PROJECT_DECLINED_APPROVAL,
         self::STATE_AFFILIATION_LEFT,
+        self::STATE_AFFILIATION_NEVER_VERIFIED,
         self::STATE_MORE_USER_INFO_REQ_ESCALATION_MANAGER,
         self::STATE_MORE_ORG_INFO_REQ_ESCALATION_MANAGER,
         self::STATE_MORE_USER_INFO_REQ_ESCALATION_COMMITTEE,

@@ -11,6 +11,7 @@ use App\Models\DebugLog;
 use App\Models\ActionLog;
 use App\Jobs\OrcIDScanner;
 use App\Models\Affiliation;
+use Laravel\Pennant\Feature;
 use App\Models\Organisation;
 use App\Models\PendingInvite;
 use App\Traits\TracksModelChanges;
@@ -148,14 +149,16 @@ class UserObserver
                 );
             }
         }
-        // Needs to be revisited, Removes system approval if any change is made to the SRO.
+        // if SroRequirementEnabled, this removes system approval if any change is made to the SRO.
         // Or in other words Unexpected State detected. Enjoy your permanent vacation from access.
-        // // send email to admin if user->is_sro
-        // if ($user->is_sro && !empty($changes)) {
-        //     Organisation::where('id', $user->organisation_id)->update([
-        //         'system_approved' => 0,
-        //     ]);
-        // }
+        // TODO: when SroRequirementEnabled is turned back on, understand specifically which changes should trigger this, and which should not.
+        if (Feature::active('SroRequirementEnabled')) {
+            if ($user->is_sro && !empty($changes)) {
+                Organisation::where('id', $user->organisation_id)->update([
+                    'system_approved' => 0,
+                ]);
+            }
+        };
 
         if ($user->consent_scrape && filled($user->orc_id) && ($user->isDirty('orc_id') || $user->isDirty('consent_scrape'))) {
             // The OrcID scanner has been temporarily stopped.

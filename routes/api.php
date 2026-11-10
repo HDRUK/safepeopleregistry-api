@@ -250,6 +250,7 @@ Route::middleware(['auth:api'])
         Route::get('/{id}/organisations/{organisationId}/users', 'getOrganisationUsers')
             ->middleware('organisation.visible:organisationId');
         Route::get('/{id}/projectUsers/{projectUserId}/statuses', 'getStatusesUsers');
+        Route::get('/{id}/access_revocations', 'getAccessRevocations');
 
         // Write
         Route::post('/', 'store');
@@ -259,6 +260,7 @@ Route::middleware(['auth:api'])
 
         // Update
         Route::put('/{id}', 'update');
+        Route::put('/{id}/access_revocations/{custodianProjectUserId}', 'confirmAccessRevoked');
         // cannot find the method in this controller
         // Route::patch('/{id}/rules', 'updateCustodianRules');
 
@@ -432,7 +434,7 @@ Route::middleware('auth:api')
                 Route::get('/{id}/users', 'getUsers');
                 Route::get('/{id}/delegates', 'getDelegates');
                 Route::get('/{id}/registries', 'getRegistries');
-                Route::get('/{id}/sro_declaration','getSroDeclaration');
+                Route::get('/{id}/sro_declaration', 'getSroDeclaration');
                 Route::get('/{id}/sro_declaration/details', 'getSroDeclarationDetails');
             });
 
@@ -508,6 +510,7 @@ Route::middleware('auth:api')
         Route::get('{registryId}/organisation/{organisationId}', 'getOrganisationAffiliation');
         Route::post('{registryId}', 'storeByRegistryId'); //
         Route::put('{id}', 'update');
+        Route::put('{id}/end_date', 'updateEndDate');
         Route::delete('{id}', 'destroy');
 
         // I think this is a wrong format

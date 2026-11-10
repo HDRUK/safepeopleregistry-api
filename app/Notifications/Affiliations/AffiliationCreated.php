@@ -39,7 +39,7 @@ class AffiliationCreated extends Notification
      */
     public function toDatabase($notifiable)
     {
-        return [
+        $data = [
             'message' => $this->generateMessage(),
             'details' => [
                 'new' => $this->getAffiliationDetails($this->affiliation),
@@ -47,6 +47,16 @@ class AffiliationCreated extends Notification
             ],
             'time' => now(),
         ];
+
+        // The web app turns this into a button, so the Organisation can go straight to the user's profile
+        if ($this->affiliationRequest && $this->for === 'organisation' && $this->user) {
+            $data['link'] = [
+                'type' => 'organisation_user',
+                'id' => $this->user->id,
+            ];
+        }
+
+        return $data;
     }
 
     public function generateMessage()
@@ -57,7 +67,7 @@ class AffiliationCreated extends Notification
                     return "You send an affiliation request to Organisation {$this->affiliation->organisation->organisation_name}.";
 
                 case 'organisation':
-                    return "You have been sent an affiliation request from Person {$this->user->first_name} {$this->user->last_name}. [Button: Go to User profile]";
+                    return "You have been sent an affiliation request from Person {$this->user->first_name} {$this->user->last_name}.";
 
                 case 'custodian':
                     return "Person {$this->user->first_name} {$this->user->last_name} sent an affiliation request to Organisation {$this->affiliation->organisation->organisation_name}.";

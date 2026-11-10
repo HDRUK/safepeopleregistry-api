@@ -41,3 +41,11 @@ Route::get('/checking_organisation_automated_flags', function (Request $request)
         'message' => 'ok',
     ], 200);
 });
+
+Route::get('/checking_affiliations', function (Request $request) {
+    Artisan::call('app:checking-affiliations');
+
+    return response()->json([
+        'message' => 'ok',
+    ], 200);
+});

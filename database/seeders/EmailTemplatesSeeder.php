@@ -1723,6 +1723,207 @@ class EmailTemplatesSeeder extends Seeder
                       </mjml >',
             'buttons' => '',
           ],
+          [
+            'identifier' => 'affiliation_ending_soon_user',
+            'subject' => 'Safe People Registry | Your affiliation with [[organisation.organisation_name]] ends on [[affiliation.end_date]]',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#f6dff1" width="600px" >
+
+                          ' . $this->titleBar('Affiliation ending soon') . '
+
+                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                                <mj-text align="left" padding="20px 0px 20px 0px">
+                                  Hello [[recipient_first_name]],
+                                  <div><br></div>
+                                  Your affiliation with <b>[[organisation.organisation_name]]</b> on the [[env(APP_NAME)]] ends on <b>[[affiliation.end_date]]</b>.
+                                  <div><br></div>
+                                  When it ends, you will be recorded as having left [[organisation.organisation_name]], and you will leave any projects you are on through this affiliation. The Data Custodians of those projects will be told.
+                                  <div><br></div>
+                                  If this end date is wrong, please update it from your Affiliations page, or contact [[organisation.organisation_name]] directly.
+                                  <div><br></div>
+                                  Thanks,
+                                  <div><br></div>
+                                  [[env(APP_NAME)]] Team
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
+                              <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/user/profile/affiliations" padding="10px 15px 15px 15px">
+                                  Go to my Affiliations
+                                </mj-button>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+
+                        </mj-body>
+                      </mjml >',
+            'buttons' => '',
+          ],
+          [
+            'identifier' => 'affiliation_ended_user',
+            'subject' => 'Safe People Registry | Your affiliation with [[organisation.organisation_name]] has ended',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#f6dff1" width="600px" >
+
+                          ' . $this->titleBar('Affiliation ended') . '
+
+                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                                <mj-text align="left" padding="20px 0px 20px 0px">
+                                  Hello [[recipient_first_name]],
+                                  <div><br></div>
+                                  Your affiliation with <b>[[organisation.organisation_name]]</b> ended on <b>[[affiliation.end_date]]</b>, and has been recorded on the [[env(APP_NAME)]].
+                                  <div><br></div>
+                                  You have left any projects you were on through this affiliation, and their Data Custodians have been told. Your affiliation history has been kept.
+                                  <div><br></div>
+                                  If you are still at [[organisation.organisation_name]], please add a new affiliation from your Affiliations page. If you think this is a mistake, please contact [[organisation.organisation_name]] directly, or email us at [[env(SUPPORT_EMAIL)]].
+                                  <div><br></div>
+                                  Thanks,
+                                  <div><br></div>
+                                  [[env(APP_NAME)]] Team
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
+                              <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/user/profile/affiliations" padding="10px 15px 15px 15px">
+                                  Go to my Affiliations
+                                </mj-button>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+
+                        </mj-body>
+                      </mjml >',
+            'buttons' => '',
+          ],
+          [
+            'identifier' => 'affiliation_ended_organisation',
+            'subject' => 'Safe People Registry | [[user_first_name]] [[user_last_name]] has left [[organisation.organisation_name]]',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#f6dff1" width="600px" >
+
+                          ' . $this->titleBar('User has left') . '
+
+                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                                <mj-text align="left" padding="20px 0px 20px 0px">
+                                  Hello [[recipient_first_name]],
+                                  <div><br></div>
+                                  [[user_first_name]] [[user_last_name]] left <b>[[organisation.organisation_name]]</b> on <b>[[affiliation.end_date]]</b>. This was recorded on the [[env(APP_NAME)]] on [[affiliation.end_date_recorded_at]].
+                                  <div><br></div>
+                                  They have left any projects they were on through this affiliation, and the Data Custodians of those projects have been told. Their affiliation history with your Organisation has been kept.
+                                  <div><br></div>
+                                  If you think this is a mistake, please email us at [[env(SUPPORT_EMAIL)]].
+                                  <div><br></div>
+                                  Thanks,
+                                  <div><br></div>
+                                  [[env(APP_NAME)]] Team
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
+                              <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/organisation/profile/user-administration/employees-and-students" padding="10px 15px 15px 15px">
+                                  Go to Employees and Students
+                                </mj-button>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+
+                        </mj-body>
+                      </mjml >',
+            'buttons' => '',
+          ],
+          [
+            'identifier' => 'affiliation_ended_custodian',
+            'subject' => 'Safe People Registry | Action required: revoke data access for [[user_first_name]] [[user_last_name]]',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#f6dff1" width="600px" >
+
+                          ' . $this->titleBar('Action required: revoke access') . '
+
+                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                                <mj-text align="left" padding="20px 0px 20px 0px">
+                                  Hello [[recipient_first_name]],
+                                  <div><br></div>
+                                  [[user_first_name]] [[user_last_name]] left <b>[[organisation.organisation_name]]</b> on <b>[[affiliation.end_date]]</b> (recorded on [[affiliation.end_date_recorded_at]]). As they were on project <b>[[project.title]]</b> through this affiliation, they have now left that project on the [[env(APP_NAME)]].
+                                  <div><br></div>
+                                  <b>This does not revoke any access to data they hold outside the [[env(APP_NAME)]].</b> Please revoke any data access they still have for this project, then confirm you have done so from your [[env(APP_NAME)]] home page.
+                                  <div><br></div>
+                                  Thanks,
+                                  <div><br></div>
+                                  [[env(APP_NAME)]] Team
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
+                              <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/data-custodian/profile/home" padding="10px 15px 15px 15px">
+                                  Confirm access revoked
+                                </mj-button>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+
+                        </mj-body>
+                      </mjml >',
+            'buttons' => '',
+          ],
+          [
+            'identifier' => 'affiliation_access_revocation_reminder',
+            'subject' => 'Safe People Registry | Reminder: revoke data access for [[user_first_name]] [[user_last_name]]',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#f6dff1" width="600px" >
+
+                          ' . $this->titleBar('Reminder: revoke access') . '
+
+                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                                <mj-text align="left" padding="20px 0px 20px 0px">
+                                  Hello [[recipient_first_name]],
+                                  <div><br></div>
+                                  [[user_first_name]] [[user_last_name]] left <b>[[organisation.organisation_name]]</b> on <b>[[affiliation.end_date]]</b>, and so left project <b>[[project.title]]</b>. No one at your Data Custodian has yet confirmed that their data access has been revoked.
+                                  <div><br></div>
+                                  <b>Please revoke any data access they still have for this project</b>, then confirm you have done so from your [[env(APP_NAME)]] home page.
+                                  <div><br></div>
+                                  Thanks,
+                                  <div><br></div>
+                                  [[env(APP_NAME)]] Team
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 0px 0px 20px">
+                              <mj-column border="none" background-color="#f2f2f2" vertical-align="top" padding="0px">
+                                <mj-button align="left" background-color="#bd10e0" color="#ffffff" font-weight="normal" border-radius="3px" line-height="120%" target="_blank" vertical-align="middle" border="none" text-align="center" href="[[env(PORTAL_URL)]]/data-custodian/profile/home" padding="10px 15px 15px 15px">
+                                  Confirm access revoked
+                                </mj-button>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+
+                        </mj-body>
+                      </mjml >',
+            'buttons' => '',
+          ],
         ];
 
         foreach ($templates as $template) {

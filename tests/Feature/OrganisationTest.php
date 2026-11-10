@@ -98,7 +98,7 @@ class OrganisationTest extends TestCase
             'organisation_id' => 1,
             'file_id' => 1
         ]);
-        $response=$this->actingAs($this->user)
+        $response = $this->actingAs($this->user)
             ->json(
                 'GET',
                 self::TEST_URL . '/' . '1'. '/sro_declaration'
@@ -118,12 +118,12 @@ class OrganisationTest extends TestCase
             'organisation_id' => 1,
             'file_id' => 1
         ]);
-        $response=$this->actingAs($this->custodian_admin)
+        $response = $this->actingAs($this->custodian_admin)
             ->json(
                 'GET',
                 self::TEST_URL . '/' . '1'. '/sro_declaration'
             );
-        
+
         $response->assertStatus(200);
     }
 
@@ -148,7 +148,7 @@ class OrganisationTest extends TestCase
         $response->assertStatus(404);
     }
 
-    public function test_sro_declaration_cannot_be_downloaded_if_file_not_processed():void
+    public function test_sro_declaration_cannot_be_downloaded_if_file_not_processed(): void
     {
         Storage::fake('local_scan_scanned');
         $organisation = Organisation::factory()->create();

@@ -528,7 +528,7 @@ class Organisation extends Model
                 ]
             );
 
-            if ( (int)$model->unclaimed === 0) {
+            if ((int)$model->unclaimed === 0) {
                 $model->setState(State::STATE_INVITED);
                 $model->save();
             }
@@ -941,8 +941,7 @@ class Organisation extends Model
 
     public function scopeGetCurrentAffiliations($query, $id)
     {
-        return Affiliation::where('organisation_id', $id)->where('to', '=', '')
-            ->orWhereNull('to');
+        return Affiliation::where('organisation_id', $id)->current();
     }
 
     /**
