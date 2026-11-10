@@ -154,6 +154,14 @@ class AffiliationController extends Controller
      *          example=100,
      *          @OA\Schema(type="integer")
      *      ),
+     *      @OA\Parameter(
+     *          name="affiliation_id",
+     *          in="query",
+     *          required=false,
+     *          description="A specific affiliation of the user to this Organisation. Without it, the current one, else the latest, is returned.",
+     *          example=12,
+     *          @OA\Schema(type="integer")
+     *      ),
      *      @OA\Response(
      *          response=200,
      *          description="Success",
@@ -224,8 +232,12 @@ class AffiliationController extends Controller
             )
             ->latest('id');
 
-        // A user who left and re-joined has several; the current one, else the latest, is shown.
-        $affiliation = (clone $query)->current()->first() ?? $query->first();
+        // A user can have several affiliations to the Organisation at once, so one can be asked for by id.
+        // Otherwise the current one, else the latest, is shown.
+        $affiliationId = $request->integer('affiliation_id') ?: null;
+        $affiliation = $affiliationId
+            ? $query->whereKey($affiliationId)->first()
+            : ((clone $query)->current()->first() ?? $query->first());
 
 
         return response()->json([
