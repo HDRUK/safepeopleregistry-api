@@ -20,6 +20,7 @@ use App\Traits\FilterManager;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Hdruk\LaravelHubspotManager\Traits\HasHubspotContact;
+use Hdruk\LaravelHubspotManager\Support\OnHubspotDelete;
 
 /**
  * @OA\Schema (
@@ -498,19 +499,8 @@ class User extends Authenticatable
 
     public function toHubspotProperties(): array
     {
-        // We are defensive here, handling multiple possible environment names,
-        // so as not to be tripped over by some unexpected environment name in a future deployment.
-        $env_map = [
-            'development' => self::HUBSPOT_PREFIX . '_development',
-            'dev' => self::HUBSPOT_PREFIX . '_development',
-            'preprod' => self::HUBSPOT_PREFIX . '_preproduction',
-            'preproduction' => self::HUBSPOT_PREFIX . '_preproduction',
-            'prod' => self::HUBSPOT_PREFIX . '_production',
-            'production' => self::HUBSPOT_PREFIX . '_production',
-        ];
-
-        // Environments not in the map (e.g. testing, local) send no environment flag.
-        $env_property = $env_map[app()->environment()] ?? null;
+        $env_property = $this->hubspotEnvironmentProperty();
+        $persona_property = $this->hubspotPersonaProperty();
 
         $group_map = [
             self::GROUP_USERS => 'Researcher/Innovator (User)',
@@ -523,9 +513,47 @@ class User extends Authenticatable
             'firstname' => $this->first_name,
             'lastname' => $this->last_name,
             ...($env_property !== null ? [$env_property => true] : []),
-            ...($env_property === self::HUBSPOT_PREFIX . '_production'
-                ? [self::HUBSPOT_PREFIX . '__prod_persona' => $group_map[$this->user_group] ?? null]
-                : []),
+            ...($persona_property !== null ? [$persona_property => $group_map[$this->user_group] ?? null] : []),
         ];
+    }
+
+    public function onHubspotDelete(): OnHubspotDelete
+    {
+        $toClear = array_filter([
+            $this->hubspotEnvironmentProperty(),
+            $this->hubspotPersonaProperty(),
+        ]);
+
+        return OnHubspotDelete::clearProperties(...$toClear);
+    }
+
+    /**
+     * The HubSpot property flagging which environment this contact belongs to,
+     * or null for environments not in the map (e.g. testing, local).
+     */
+    private function hubspotEnvironmentProperty(): ?string
+    {
+        // We are defensive here, handling multiple possible environment names,
+        // so as not to be tripped over by some unexpected environment name in a future deployment.
+        $env_map = [
+            'development' => self::HUBSPOT_PREFIX . '_development',
+            'dev' => self::HUBSPOT_PREFIX . '_development',
+            'preprod' => self::HUBSPOT_PREFIX . '_preproduction',
+            'preproduction' => self::HUBSPOT_PREFIX . '_preproduction',
+            'prod' => self::HUBSPOT_PREFIX . '_production',
+            'production' => self::HUBSPOT_PREFIX . '_production',
+        ];
+
+        return $env_map[app()->environment()] ?? null;
+    }
+
+    /**
+     * The HubSpot persona property, which only exists in production.
+     */
+    private function hubspotPersonaProperty(): ?string
+    {
+        return $this->hubspotEnvironmentProperty() === self::HUBSPOT_PREFIX . '_production'
+            ? self::HUBSPOT_PREFIX . '__prod_persona'
+            : null;
     }
 }
