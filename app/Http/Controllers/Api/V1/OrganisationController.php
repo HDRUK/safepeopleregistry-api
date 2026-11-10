@@ -2118,7 +2118,10 @@ class OrganisationController extends Controller
             $loggedInUser = User::where('id', $loggedInUserId)->first();
 
             $organisation = Organisation::find($organisationId);
-            if (!$organisation) {
+
+            // 404 rather than 403, so a restricted Organisation's existence isn't revealed. The invite
+            // ability, not view, so the researcher who just created it can still ask the superadmin.
+            if (!$organisation || !Gate::allows('invite', $organisation)) {
                 return $this->NotFoundResponse();
             }
 

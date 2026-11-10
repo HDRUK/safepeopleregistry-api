@@ -13,6 +13,7 @@ use App\Models\ProjectHasCustodian;
 use App\Models\ProjectHasOrganisation;
 use App\Models\Registry;
 use App\Models\User;
+use App\Notifications\OrganisationRequested;
 use App\Notifications\RestrictedOrganisationRequested;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
@@ -58,11 +59,15 @@ class OrganisationVisibilityTest extends TestCase
         ]);
     }
 
-    private function createOrganisationAs(User $actor): Organisation
+    /**
+     * @param  array<string, string>  $payload
+     */
+    private function createOrganisationAs(User $actor, array $payload = []): Organisation
     {
         $response = $this->actingAs($actor)
             ->json('POST', self::TEST_URL . '/unclaimed_before_superadmin_invitation', [
                 'organisation_name' => fake()->unique()->company(),
+                ...$payload,
             ]);
 
         $response->assertStatus(201);
@@ -696,6 +701,7 @@ class OrganisationVisibilityTest extends TestCase
                 'email' => 'invitee@example.com',
             ]],
             'resend invite' => ['PATCH', "{$org}/resendInvite"],
+            'invite to contact superadmin' => ['POST', "{$org}/invite_to_contact_superadmin"],
             'custodian validation logs' => ['GET', '/api/v1/custodians/{custodian}/organisations/{organisation}/validation_logs'],
             'custodian organisation users' => ['GET', '/api/v1/custodians/{custodian}/organisations/{organisation}/users'],
             'project organisation users' => ['GET', '/api/v1/projects/{project}/organisations/{organisation}/users'],
@@ -713,6 +719,7 @@ class OrganisationVisibilityTest extends TestCase
         bool $visibleMayBe404 = false,
     ): void {
         Queue::fake();
+        Notification::fake();
         $organisation = $this->createOrganisationAs($this->custodian_admin);
         $projectId = Project::factory()->create()->id;
 
@@ -732,5 +739,38 @@ class OrganisationVisibilityTest extends TestCase
         $unknown = $request($this->otherCustodian, Organisation::max('id') + 1000)->assertStatus(404);
 
         $this->assertSame($unknown->json(), $hidden->json());
+    }
+
+    public function test_another_users_restricted_organisation_cannot_be_put_forward_to_the_superadmin(): void
+    {
+        $organisation = $this->createOrganisationAs($this->custodian_admin, [
+            'lead_applicant_email' => 'lead.applicant@example.com',
+        ]);
+        Queue::fake();
+        Notification::fake();
+
+        foreach ([$this->otherCustodian, $this->researcherWithRegistry()] as $actor) {
+            $this->actingAs($actor)
+                ->json('POST', self::TEST_URL . "/{$organisation->id}/invite_to_contact_superadmin")
+                ->assertStatus(404);
+        }
+
+        Queue::assertNotPushed(SendEmailJob::class);
+        Notification::assertNotSentTo($this->admin, OrganisationRequested::class);
+    }
+
+    public function test_a_researcher_can_put_forward_the_restricted_organisation_they_created(): void
+    {
+        $organisation = $this->createOrganisationAs($this->researcher);
+        Notification::fake();
+
+        // Hidden from its creator, so the endpoint has to use the invite ability rather than view
+        $this->assertFalse($organisation->isVisibleTo($this->researcher));
+
+        $this->actingAs($this->researcher)
+            ->json('POST', self::TEST_URL . "/{$organisation->id}/invite_to_contact_superadmin")
+            ->assertStatus(200);
+
+        Notification::assertSentTo($this->admin, OrganisationRequested::class);
     }
 }
