@@ -14,10 +14,11 @@ class GetDelegate extends BaseFormRequest
     public function rules(): array
     {
         return [
+            // No exists rule: the controller returns 404 for a missing ID, as it does for a
+            // restricted one, so the response doesn't reveal which restricted IDs exist
             'id' => [
                 'required',
                 'integer',
-                'exists:organisations,id',
             ],
         ];
     }

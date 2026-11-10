@@ -1349,6 +1349,13 @@ class CustodianController extends Controller
      */
     public function getOrganisationUsers(GetOrganisationUser $request, int $custodianId, int $organisationId): JsonResponse
     {
+        $organisation = Organisation::find($organisationId);
+
+        // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+        if (!$organisation || !Gate::allows('view', $organisation)) {
+            return $this->NotFoundResponse();
+        }
+
         $users = User::searchViaRequest()
                     ->applySorting()
                     ->with([

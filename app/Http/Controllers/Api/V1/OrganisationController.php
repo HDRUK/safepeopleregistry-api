@@ -30,7 +30,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
-use App\Exceptions\NotFoundException;
 use App\Models\ProjectHasSponsorship;
 use RegistryManagementController as RMC;
 use App\Models\OrganisationHasDepartment;
@@ -283,7 +282,14 @@ class OrganisationController extends Controller
     {
         $this->decisionEvaluator = new DES([DecisionModelType::ORG_VALIDATION_RULES]);
 
-        $organisation = Organisation::with([
+        $organisation = Organisation::find($id);
+
+        // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+        if (!$organisation || !Gate::allows('view', $organisation)) {
+            return $this->NotFoundResponse();
+        }
+
+        $organisation->load([
             'departments',
             'subsidiaries',
             'permissions',
@@ -299,21 +305,25 @@ class OrganisationController extends Controller
             'sector',
             'files',
             'claimedSro.departments',
-        ])->findOrFail($id)->append('has_claimed_sro');
+        ])->append('has_claimed_sro');
 
         $organisation->setRelation('pendingSro', $this->pendingSro($organisation, $membership));
 
-        if ($organisation) {
-            $organisation['rules'] = $this->decisionEvaluator->evaluate($organisation);
-            return $this->OKResponse($organisation);
-        }
+        $organisation['rules'] = $this->decisionEvaluator->evaluate($organisation);
 
-        throw new NotFoundException();
+        return $this->OKResponse($organisation);
     }
 
     // No swagger, internal call
     public function pastProjects(GetPastProject $request, int $id): JsonResponse
     {
+        $organisation = Organisation::find($id);
+
+        // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+        if (!$organisation || !Gate::allows('view', $organisation)) {
+            return $this->NotFoundResponse();
+        }
+
         $projects = Project::with('organisations')
             ->where('start_date', '<', Carbon::now())
             ->where('end_date', '<', Carbon::now())
@@ -325,6 +335,13 @@ class OrganisationController extends Controller
     // No swagger, internal call
     public function presentProjects(GetPresentProject $request, int $id): JsonResponse
     {
+        $organisation = Organisation::find($id);
+
+        // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+        if (!$organisation || !Gate::allows('view', $organisation)) {
+            return $this->NotFoundResponse();
+        }
+
         $projects = Project::with('organisations')
             ->where('start_date', '<=', Carbon::now())
             ->where('end_date', '>=', Carbon::now())
@@ -336,6 +353,13 @@ class OrganisationController extends Controller
     // No swagger, internal call
     public function futureProjects(GetFutureProject $request, int $id): JsonResponse
     {
+        $organisation = Organisation::find($id);
+
+        // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+        if (!$organisation || !Gate::allows('view', $organisation)) {
+            return $this->NotFoundResponse();
+        }
+
         $projects = Project::with('organisations')
             ->where('start_date', '>', Carbon::now())
             ->where('end_date', '>', Carbon::now())
@@ -397,21 +421,22 @@ class OrganisationController extends Controller
      */
     public function idvt(GetOrganisationIdvt $request, int $id): JsonResponse
     {
-        $organisation = Organisation::findOrFail($id);
+        $organisation = Organisation::find($id);
 
-        if ($organisation) {
-            return $this->OKResponse(
-                [
-                    'id' => $organisation->id,
-                    'idvt_result' => $organisation->idvt_result,
-                    'idvt_errors' => $organisation->idvt_errors,
-                    'idvt_completed_at' => $organisation->idvt_completed_at,
-                    'idvt_result_perc' => $organisation->idvt_result_perc
-                ]
-            );
+        // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+        if (!$organisation || !Gate::allows('view', $organisation)) {
+            return $this->NotFoundResponse();
         }
 
-        return $this->NotFoundResponse();
+        return $this->OKResponse(
+            [
+                'id' => $organisation->id,
+                'idvt_result' => $organisation->idvt_result,
+                'idvt_errors' => $organisation->idvt_errors,
+                'idvt_completed_at' => $organisation->idvt_completed_at,
+                'idvt_result_perc' => $organisation->idvt_result_perc
+            ]
+        );
     }
 
     /**
@@ -1475,7 +1500,12 @@ class OrganisationController extends Controller
     public function countCertifications(GetCountCertifications $request, int $id): JsonResponse
     {
         try {
-            $organisation = Organisation::findOrFail($id);
+            $organisation = Organisation::find($id);
+
+            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+            if (!$organisation || !Gate::allows('view', $organisation)) {
+                return $this->NotFoundResponse();
+            }
 
             $counts = count(array_filter([
                 $organisation->dsptk_certified,
@@ -1549,6 +1579,13 @@ class OrganisationController extends Controller
      */
     public function getProjects(GetProject $request, int $organisationId): JsonResponse
     {
+        $organisation = Organisation::find($organisationId);
+
+        // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+        if (!$organisation || !Gate::allows('view', $organisation)) {
+            return $this->NotFoundResponse();
+        }
+
         $projects = Project::searchViaRequest()
             ->applySorting()
             ->filterByCommon()
@@ -1640,6 +1677,13 @@ class OrganisationController extends Controller
      */
     public function getSponsorshipsProjects(GetProject $request, int $organisationId): JsonResponse
     {
+        $organisation = Organisation::find($organisationId);
+
+        // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+        if (!$organisation || !Gate::allows('view', $organisation)) {
+            return $this->NotFoundResponse();
+        }
+
         $perPage = $request->get('per_page');
 
         $projects = Project::searchViaRequest()
@@ -1746,7 +1790,13 @@ class OrganisationController extends Controller
     public function getUsers(GetUser $request, int $organisationId): JsonResponse
     {
         try {
-            $org = Organisation::findOrFail($organisationId);
+            $org = Organisation::find($organisationId);
+
+            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+            if (!$org || !Gate::allows('view', $org)) {
+                return $this->NotFoundResponse();
+            }
+
             if (!Gate::allows('viewDetailed', $org)) {
                 return $this->ForbiddenResponse();
             }
@@ -1828,7 +1878,13 @@ class OrganisationController extends Controller
     public function getDelegates(GetDelegate $request, int $organisationId): JsonResponse
     {
         try {
-            $org = Organisation::findOrFail($organisationId);
+            $org = Organisation::find($organisationId);
+
+            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+            if (!$org || !Gate::allows('view', $org)) {
+                return $this->NotFoundResponse();
+            }
+
             if (!Gate::allows('viewDetailed', $org)) {
                 return $this->ForbiddenResponse();
             }
@@ -1860,6 +1916,13 @@ class OrganisationController extends Controller
     public function countUsers(GetCountUsers $request, int $id): JsonResponse
     {
         try {
+            $organisation = Organisation::find($id);
+
+            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+            if (!$organisation || !Gate::allows('view', $organisation)) {
+                return $this->NotFoundResponse();
+            }
+
             $count = Affiliation::where('organisation_id', $id)->count();
 
             if ($count && $count > 0) {
@@ -1948,7 +2011,14 @@ class OrganisationController extends Controller
     {
         try {
             // Checked before anything else, so outsiders cannot use this to probe which emails exist.
-            if (!Gate::allows('inviteUser', Organisation::findOrFail($id))) {
+            $organisation = Organisation::find($id);
+
+            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+            if (!$organisation || !Gate::allows('view', $organisation)) {
+                return $this->NotFoundResponse();
+            }
+
+            if (!Gate::allows('inviteUser', $organisation)) {
                 return $this->ForbiddenResponse();
             }
 
@@ -2047,7 +2117,10 @@ class OrganisationController extends Controller
             $loggedInUserId = $request->user()->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();
 
-            $organisation = Organisation::where('id', $organisationId)->firstOrFail();
+            $organisation = Organisation::find($organisationId);
+            if (!$organisation) {
+                return $this->NotFoundResponse();
+            }
 
             if ($organisation->lead_applicant_email && User::where(["email" => $organisation->lead_applicant_email, "unclaimed" => 0])->exists()) {
                 return $this->ConflictResponse();
@@ -2158,6 +2231,14 @@ class OrganisationController extends Controller
     public function custodianInviteUser(OrganisationInviteUser $request, int $id): JsonResponse
     {
         try {
+            $organisation = Organisation::find($id);
+
+            // 404 rather than 403, so a restricted Organisation's existence isn't revealed. Checked
+            // first, so the email conflict check can't reveal a hidden Organisation either.
+            if (!$organisation || !Gate::allows('view', $organisation)) {
+                return $this->NotFoundResponse();
+            }
+
             $input = $request->all();
             if (User::where("email", $input['email'])->exists()) {
                 return $this->ConflictResponse();
@@ -2315,6 +2396,13 @@ class OrganisationController extends Controller
     public function resendInvite(ResendInvite $request, int $id)
     {
         try {
+            $organisation = Organisation::find($id);
+
+            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+            if (!$organisation || !Gate::allows('view', $organisation)) {
+                return $this->NotFoundResponse();
+            }
+
             $loggedInUserId = $request->user()?->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();
 
@@ -2338,12 +2426,6 @@ class OrganisationController extends Controller
                 '$inviteId' => $pendingInvites->id,
             ];
 
-            $organisation = Organisation::where('id', $id)->first();
-
-            if (is_null($organisation)) {
-                throw new Exception('Organisation not found');
-            }
-
             if ($organisation->getState() !== State::STATE_ORGANISATION_REGISTERED) {
                 $organisation->setState(State::STATE_ORGANISATION_INVITED_BY_ADMIN);
             }
@@ -2366,6 +2448,13 @@ class OrganisationController extends Controller
     public function countPresentProjects(GetCountPresentProject $request, int $id): JsonResponse
     {
         try {
+            $organisation = Organisation::find($id);
+
+            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+            if (!$organisation || !Gate::allows('view', $organisation)) {
+                return $this->NotFoundResponse();
+            }
+
             $projectCount = Project::whereHas('organisations', function ($query) use ($id) {
                 $query->where('organisations.id', $id);
             })
@@ -2388,6 +2477,13 @@ class OrganisationController extends Controller
     public function countPastProjects(GetCountPastProject $request, int $id): JsonResponse
     {
         try {
+            $organisation = Organisation::find($id);
+
+            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+            if (!$organisation || !Gate::allows('view', $organisation)) {
+                return $this->NotFoundResponse();
+            }
+
             $projectCount = Project::whereHas('organisations', function ($query) use ($id) {
                 $query->where('organisations.id', $id);
             })
@@ -2529,6 +2625,13 @@ class OrganisationController extends Controller
     public function getRegistries(GetRegistry $request, int $id): JsonResponse
     {
         try {
+            $organisation = Organisation::find($id);
+
+            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+            if (!$organisation || !Gate::allows('view', $organisation)) {
+                return $this->NotFoundResponse();
+            }
+
             $showPending = $request->boolean("show_pending");
             // Leavers stay in the Organisation's records; each user is shown with their latest affiliation.
             $affiliationIds = Affiliation::where('organisation_id', $id)->filterByState()->pluck('id');
@@ -2642,8 +2745,14 @@ class OrganisationController extends Controller
     public function getStatus(GetStatus $request, int $id): JsonResponse
     {
         try {
-            $organisation = Organisation::with('modelState.state')
-            ->findOrFail($id);
+            $organisation = Organisation::find($id);
+
+            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+            if (!$organisation || !Gate::allows('view', $organisation)) {
+                return $this->NotFoundResponse();
+            }
+
+            $organisation->load('modelState.state');
             return $this->OKResponse($organisation->modelState);
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -2939,7 +3048,13 @@ class OrganisationController extends Controller
     public function getSroDeclaration(GetSroDeclaration $request, int $organisationId)
     {
         try {
-            $org = Organisation::findOrFail($organisationId);
+            $org = Organisation::find($organisationId);
+
+            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+            if (!$org || !Gate::allows('view', $org)) {
+                return $this->NotFoundResponse();
+            }
+
             if (!Gate::allows('viewDetailed', $org)) {
                 return $this->ForbiddenResponse();
             }
@@ -3024,7 +3139,13 @@ class OrganisationController extends Controller
     public function getSroDeclarationDetails(GetSroDeclarationDetails $request, int $organisationId): JsonResponse
     {
         try {
-            $org = Organisation::findOrFail($organisationId);
+            $org = Organisation::find($organisationId);
+
+            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+            if (!$org || !Gate::allows('view', $org)) {
+                return $this->NotFoundResponse();
+            }
+
             if (!Gate::allows('viewDetailed', $org)) {
                 return $this->ForbiddenResponse();
             }

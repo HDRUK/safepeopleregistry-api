@@ -37,8 +37,6 @@ class OrganisationVisibilityTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        // Restricted Organisations are hidden from single-record routes by middleware
-        $this->enableMiddleware();
         $this->withUsers(withCustodianUser: true);
 
         $custodianUser = CustodianUser::factory()->create([
@@ -654,5 +652,85 @@ class OrganisationVisibilityTest extends TestCase
         $this->actingAs($this->otherCustodian)
             ->json('PATCH', self::TEST_URL . "/{$organisation->id}/resendInvite")
             ->assertStatus(404);
+    }
+
+    /**
+     * Each route takes the Organisation ID ({organisation}) and, where needed, the acting
+     * User's Custodian ({custodian}) or a Project ({project}).
+     *
+     * @return array<string, array{0: string, 1: string, 2?: array<string, string>, 3?: bool}>
+     */
+    public static function singleOrganisationRoutes(): array
+    {
+        $org = self::TEST_URL . '/{organisation}';
+
+        return [
+            'show' => ['GET', $org],
+            'status' => ['GET', "{$org}/status"],
+            'idvt' => ['GET', "{$org}/idvt"],
+            'count certifications' => ['GET', "{$org}/counts/certifications"],
+            'count users' => ['GET', "{$org}/counts/users"],
+            'count present projects' => ['GET', "{$org}/counts/projects/present"],
+            'count past projects' => ['GET', "{$org}/counts/projects/past"],
+            'present projects' => ['GET', "{$org}/projects/present"],
+            'past projects' => ['GET', "{$org}/projects/past"],
+            'future projects' => ['GET', "{$org}/projects/future"],
+            'projects' => ['GET', "{$org}/projects"],
+            'sponsorship projects' => ['GET', "{$org}/projects/sponsorships"],
+            'users' => ['GET', "{$org}/users"],
+            'delegates' => ['GET', "{$org}/delegates"],
+            'registries' => ['GET', "{$org}/registries"],
+            // 404s for a visible Organisation too until it has a declaration
+            'sro declaration' => ['GET', "{$org}/sro_declaration", [], true],
+            'sro declaration details' => ['GET', "{$org}/sro_declaration/details"],
+            'history' => ['GET', "{$org}/history"],
+            'custodian invite user' => ['POST', "{$org}/custodian_invite_user", [
+                'first_name' => 'Jane',
+                'last_name' => 'Doe',
+                'email' => 'invitee@example.com',
+            ]],
+            // The creating Custodian isn't a member, so sees the inviteUser policy's 403 rather than 404
+            'invite user' => ['POST', "{$org}/invite_user", [
+                'first_name' => 'Jane',
+                'last_name' => 'Doe',
+                'email' => 'invitee@example.com',
+            ]],
+            'resend invite' => ['PATCH', "{$org}/resendInvite"],
+            'custodian validation logs' => ['GET', '/api/v1/custodians/{custodian}/organisations/{organisation}/validation_logs'],
+            'custodian organisation users' => ['GET', '/api/v1/custodians/{custodian}/organisations/{organisation}/users'],
+            'project organisation users' => ['GET', '/api/v1/projects/{project}/organisations/{organisation}/users'],
+        ];
+    }
+
+    /**
+     * @param  array<string, string>  $payload
+     */
+    #[DataProvider('singleOrganisationRoutes')]
+    public function test_a_hidden_organisation_looks_the_same_as_an_unknown_one(
+        string $method,
+        string $url,
+        array $payload = [],
+        bool $visibleMayBe404 = false,
+    ): void {
+        Queue::fake();
+        $organisation = $this->createOrganisationAs($this->custodian_admin);
+        $projectId = Project::factory()->create()->id;
+
+        $request = fn (User $actor, int $organisationId) => $this->actingAs($actor)->json($method, strtr($url, [
+            '{organisation}' => $organisationId,
+            '{custodian}' => $actor->custodian_user->custodian_id,
+            '{project}' => $projectId,
+        ]), $payload);
+
+        // The creating Custodian can see it, which proves the route exists and the 404s below come
+        // from the visibility check rather than routing
+        if (!$visibleMayBe404) {
+            $this->assertNotSame(404, $request($this->custodian_admin, $organisation->id)->status());
+        }
+
+        $hidden = $request($this->otherCustodian, $organisation->id)->assertStatus(404);
+        $unknown = $request($this->otherCustodian, Organisation::max('id') + 1000)->assertStatus(404);
+
+        $this->assertSame($unknown->json(), $hidden->json());
     }
 }

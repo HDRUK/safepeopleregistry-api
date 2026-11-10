@@ -540,6 +540,13 @@ class ProjectController extends Controller
      */
     public function getProjectUsersByOrganisationId(GetProjectUsersByOrganisationId $request, int $projectId, int $organisationId): JsonResponse
     {
+        $organisation = Organisation::find($organisationId);
+
+        // 404 rather than 403, so a restricted Organisation's existence isn't revealed
+        if (!$organisation || !Gate::allows('view', $organisation)) {
+            return $this->NotFoundResponse();
+        }
+
         $projectUsers = ProjectHasUser::with([
             'registry.user',
             'role',
