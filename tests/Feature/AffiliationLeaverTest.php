@@ -22,6 +22,7 @@ use App\Notifications\Affiliations\AffiliationEndingSoon;
 use App\Notifications\Affiliations\AffiliationEndDateRecorded;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
+use Spatie\Activitylog\Models\Activity;
 use KeycloakGuard\ActingAsKeycloakUser;
 use Tests\Traits\Authorisation;
 
@@ -429,6 +430,29 @@ class AffiliationLeaverTest extends TestCase
         Queue::assertNothingPushed();
     }
 
+    public function test_the_deployment_step_renames_leaver_activity_events_logged_before_this_release(): void
+    {
+        $log = fn (string $logName, string $description, string $event = 'updated') => Activity::create([
+            'log_name' => $logName,
+            'description' => $description,
+            'event' => $event,
+        ]);
+        $revoked = $log('custodian_has_project_has_user', 'access revoked');
+        $ended = $log('affiliation', 'affiliation ended');
+        $legacy = $log('affiliation', 'legacy affiliation ended');
+        $recorded = $log('affiliation', 'end date recorded');
+        $unrelated = $log('affiliation', 'updated');
+
+        $step = require base_path('database/deployment-steps/2026_11_09_100000_rename_leaver_activity_log_events.php');
+        $step->handle();
+
+        $this->assertEquals('access_revoked', $revoked->refresh()->event);
+        $this->assertEquals('ended', $ended->refresh()->event);
+        $this->assertEquals('ended', $legacy->refresh()->event);
+        $this->assertEquals('end_date_recorded', $recorded->refresh()->event);
+        $this->assertEquals('updated', $unrelated->refresh()->event);
+    }
+
     public function test_the_scheduler_warns_once_that_an_affiliation_is_ending_soon(): void
     {
         $affiliation = $this->createAffiliation(State::STATE_AFFILIATION_APPROVED, [
@@ -483,6 +507,65 @@ class AffiliationLeaverTest extends TestCase
             ->assertStatus(404);
     }
 
+    public function test_a_confirmed_access_revocation_is_in_the_users_history(): void
+    {
+        $affiliation = $this->createAffiliation(State::STATE_AFFILIATION_APPROVED);
+        $projectUser = $this->addToProject($affiliation);
+        $this->recordEndDate($this->delegate, $affiliation, Carbon::today()->toDateString())->assertStatus(200);
+
+        $this->actingAs($this->custodian_admin)
+            ->json('PUT', "/api/v1/custodians/{$this->custodianId}/access_revocations/{$projectUser->id}")
+            ->assertStatus(200);
+
+        $projectTitle = $projectUser->projectHasUser->project->title;
+
+        foreach ([$this->custodian_admin, $this->delegate, $this->researcher] as $viewer) {
+            $response = $this->actingAs($viewer)
+                ->json('GET', "/api/v1/users/{$this->researcher->id}/history");
+
+            $response->assertStatus(200);
+            $revocation = collect($response->decodeResponseJson()['data'])
+                ->firstWhere('event', 'access_revoked');
+
+            $this->assertNotNull($revocation, "Viewer {$viewer->id} cannot see the revocation");
+            $this->assertEquals($this->custodian_admin->id, $revocation['causer']['id']);
+            $this->assertEquals($this->researcher->id, $revocation['subject']['id']);
+            $this->assertEquals($projectTitle, $revocation['properties']['project_title']);
+        }
+    }
+
+    public function test_a_confirmed_access_revocation_is_hidden_from_those_with_no_part_in_it(): void
+    {
+        $affiliation = $this->createAffiliation(State::STATE_AFFILIATION_APPROVED);
+        $projectUser = $this->addToProject($affiliation);
+        $this->recordEndDate($this->delegate, $affiliation, Carbon::today()->toDateString())->assertStatus(200);
+
+        $this->actingAs($this->custodian_admin)
+            ->json('PUT', "/api/v1/custodians/{$this->custodianId}/access_revocations/{$projectUser->id}")
+            ->assertStatus(200);
+
+        $otherCustodianUser = CustodianUser::factory()->create(['custodian_id' => Custodian::factory()->create()->id]);
+        $viewers = [
+            'another Custodian' => User::factory()->create([
+                'user_group' => User::GROUP_CUSTODIANS,
+                'custodian_user_id' => $otherCustodianUser->id,
+            ]),
+            'another Organisation' => $this->createOrganisationUser(Organisation::factory()->create()),
+            'another user' => $this->createResearcher(),
+        ];
+
+        foreach ($viewers as $who => $viewer) {
+            $response = $this->actingAs($viewer)
+                ->json('GET', "/api/v1/users/{$this->researcher->id}/history");
+
+            $response->assertStatus(200);
+            $this->assertNull(
+                collect($response->decodeResponseJson()['data'])->firstWhere('event', 'access_revoked'),
+                "{$who} can see the revocation"
+            );
+        }
+    }
+
     public function test_another_custodian_cannot_confirm_access_revocations(): void
     {
         $affiliation = $this->createAffiliation(State::STATE_AFFILIATION_APPROVED);
@@ -501,6 +584,55 @@ class AffiliationLeaverTest extends TestCase
             ->assertStatus(403);
 
         $this->assertNull($projectUser->refresh()->access_revoked_at);
+    }
+
+    public function test_an_organisation_can_view_each_of_a_users_active_affiliations(): void
+    {
+        // e.g. a secondment alongside employment, the first ending soon
+        $ending = $this->createAffiliation(State::STATE_AFFILIATION_APPROVED, [
+            'to' => Carbon::today()->addDays(3)->toDateString(),
+        ]);
+        $added = $this->createAffiliation(State::STATE_AFFILIATION_PENDING);
+        $otherOrganisations = Affiliation::factory()->create([
+            'organisation_id' => Organisation::factory()->create()->id,
+            'registry_id' => $this->researcher->registry_id,
+        ]);
+
+        $get = fn (?int $affiliationId = null) => $this->actingAs($this->delegate)
+            ->json(
+                'GET',
+                self::TEST_URL . "/{$this->researcher->registry_id}/organisation/{$this->organisation->id}"
+                    . ($affiliationId ? "?affiliation_id={$affiliationId}" : '')
+            )
+            ->assertStatus(200)
+            ->decodeResponseJson()['data'];
+
+        $this->assertEquals($added->id, $get()['id']);
+        $this->assertEquals($ending->id, $get($ending->id)['id']);
+        $this->assertEquals($added->id, $get($added->id)['id']);
+        $this->assertNull($get($otherOrganisations->id));
+    }
+
+    public function test_an_organisation_lists_each_of_a_users_affiliations(): void
+    {
+        $employee = $this->createAffiliation(State::STATE_AFFILIATION_APPROVED);
+        $honorary = $this->createAffiliation(State::STATE_AFFILIATION_PENDING);
+        Affiliation::factory()->create([
+            'organisation_id' => Organisation::factory()->create()->id,
+            'registry_id' => $this->researcher->registry_id,
+        ]);
+
+        $users = $this->actingAs($this->delegate)
+            ->json('GET', "/api/v1/organisations/{$this->organisation->id}/registries")
+            ->assertStatus(200)
+            ->decodeResponseJson()['data']['data'];
+
+        $user = collect($users)->firstWhere('id', $this->researcher->id);
+
+        $this->assertEquals(
+            [$honorary->id, $employee->id],
+            array_column($user['registry']['affiliations'], 'id')
+        );
     }
 
     public function test_users_can_only_be_added_to_a_project_through_a_current_affiliation(): void

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use DB;
 use Str;
 use Http;
 use Keycloak;
@@ -77,7 +76,6 @@ use App\Traits\OrganisationsProjectUtils;
 use App\Notifications\Organisations\OrganisationUpdateProfile;
 use App\Http\Requests\Organisations\OrganisationUpdateApprover;
 use App\Http\Requests\Organisations\GetStatus;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class OrganisationController extends Controller
 {
@@ -715,7 +713,7 @@ class OrganisationController extends Controller
         }
     }
 
-     public function storeUnclaimedBeforeSuperadminInvitation(Request $request): JsonResponse
+    public function storeUnclaimedBeforeSuperadminInvitation(Request $request): JsonResponse
     {
         try {
             $input = $request->all();
@@ -2446,7 +2444,9 @@ class OrganisationController extends Controller
     {
         try {
             $showPending = $request->boolean("show_pending");
-            // Leavers stay in the Organisation's records; each user is shown with their latest affiliation.
+            // Leavers stay in the Organisation's records. A user can have several affiliations to the
+            // Organisation at once (e.g. employee and honorary contract), so each user is returned with
+            // all of them, latest first, for the Organisation to view and act on individually.
             $affiliationIds = Affiliation::where('organisation_id', $id)->filterByState()->pluck('id');
 
             $users = User::searchViaRequest()
@@ -2454,7 +2454,7 @@ class OrganisationController extends Controller
                 ->with([
                     'registry.affiliations' => function ($q) use ($affiliationIds, $id) {
                         $q->whereIn('id', $affiliationIds)
-                          ->where('organisation_id', $id)->latest('id')->limit(1);
+                          ->where('organisation_id', $id)->latest('id');
                     },
                     'registry.affiliations.modelState.state',
                     'modelState.state'
@@ -2862,9 +2862,9 @@ class OrganisationController extends Controller
             $file = $org->latestSroDeclaration();
 
             if (!$file) {
-                return $this->NotFoundResponse();            
+                return $this->NotFoundResponse();
             }
-            
+
             if ($file->status !== FILE::FILE_STATUS_PROCESSED) {
                 return $this->NotFoundResponse();
             }
