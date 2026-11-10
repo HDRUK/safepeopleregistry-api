@@ -283,6 +283,44 @@ class OrganisationVisibilityTest extends TestCase
             ->assertJsonMissingPath('data.data.0.organisation.lead_applicant_email');
     }
 
+    // A custodian can still find and add the researcher, but isn't told the name of
+    // an Organisation they aren't allowed to see
+    public function test_project_users_hide_the_name_of_a_restricted_organisation_until_approved(): void
+    {
+        $organisation = $this->createOrganisationAs($this->researcher);
+        $this->affiliate($this->researcher, $organisation, currentEmployer: true);
+
+        $project = Project::factory()->create();
+        ProjectHasCustodian::create([
+            'project_id' => $project->id,
+            'custodian_id' => $this->otherCustodian->custodian_user->custodian_id,
+        ]);
+
+        $organisationNames = fn (string $url) => collect(
+            $this->actingAs($this->otherCustodian)
+                ->json('GET', $url)
+                ->assertStatus(200)
+                ->json(str_contains($url, '?') ? 'data.data' : 'data')
+        )->where('user_id', $this->researcher->id)->pluck('organisation_name');
+
+        $listUrl = "/api/v1/projects/{$project->id}/all_users?per_page=1000";
+        $userUrl = "/api/v1/projects/{$project->id}/all_users/{$this->researcher->id}";
+
+        foreach ([$listUrl, $userUrl] as $url) {
+            $names = $organisationNames($url);
+            $this->assertNotEmpty($names, "The researcher is still listed by {$url}");
+            $this->assertNotContains($organisation->organisation_name, $names, $url);
+        }
+
+        $this->actingAs($this->admin)
+            ->json('PUT', self::TEST_URL . "/{$organisation->id}/approved", ['system_approved' => true])
+            ->assertSuccessful();
+
+        foreach ([$listUrl, $userUrl] as $url) {
+            $this->assertContains($organisation->organisation_name, $organisationNames($url), $url);
+        }
+    }
+
     private function linkToProjectOfCustodian(Organisation $organisation, int $custodianId): ProjectHasOrganisation
     {
         $project = Project::factory()->create();
