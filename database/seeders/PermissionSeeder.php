@@ -77,6 +77,11 @@ class PermissionSeeder extends Seeder
                 'description' => 'approver'
             ],
             [
+                'name' => 'CUSTODIAN_READ_ONLY',
+                'enabled' => 1,
+                'description' => 'read only'
+            ],
+            [
                 'name' => 'CUSTODIAN_KEYCARD_CREATE',
                 'enabled' => 1,
             ],

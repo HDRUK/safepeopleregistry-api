@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
+use App\Enums\CustodianRole;
 use App\Models\CustodianUser;
-use App\Models\CustodianUserHasPermission;
 use App\Models\User;
 
 class CustodianUserPolicy
@@ -19,11 +19,20 @@ class CustodianUserPolicy
 
     public function create(User $user): bool
     {
+        if ($this->isCustodianReadOnly($user)) {
+            return false;
+        }
+
         return $this->isCustodianAdmin($user) || $this->isCustodianApprover($user);
     }
 
     public function update(User $user, CustodianUser $custodianUser): bool
     {
+        // Read-only wins, even if bad data also gives the user ADMIN or APPROVER.
+        if ($this->isCustodianReadOnly($user)) {
+            return false;
+        }
+
         if (! $this->sameCustodian($user, $custodianUser)) {
             return false;
         }
@@ -33,7 +42,7 @@ class CustodianUserPolicy
         }
 
         // A CUSTODIAN_APPROVER may manage other custodian users, but not a CUSTODIAN_ADMIN.
-        return $this->isCustodianApprover($user) && ! $this->custodianUserHasPermission($custodianUser->id, 'CUSTODIAN_ADMIN');
+        return $this->isCustodianApprover($user) && ! $custodianUser->hasPermission(CustodianRole::Admin->value);
     }
 
     public function delete(User $user, CustodianUser $custodianUser): bool
@@ -48,21 +57,17 @@ class CustodianUserPolicy
 
     private function isCustodianAdmin(User $user): bool
     {
-        return $user->custodian_user_id
-            && $this->custodianUserHasPermission($user->custodian_user_id, 'CUSTODIAN_ADMIN');
+        return $user->custodian_user?->hasPermission(CustodianRole::Admin->value) === true;
     }
 
     private function isCustodianApprover(User $user): bool
     {
-        return $user->custodian_user_id
-            && $this->custodianUserHasPermission($user->custodian_user_id, 'CUSTODIAN_APPROVER');
+        return $user->custodian_user?->hasPermission(CustodianRole::Approver->value) === true;
     }
 
-    private function custodianUserHasPermission(int $custodianUserId, string $permissionName): bool
+    private function isCustodianReadOnly(User $user): bool
     {
-        return CustodianUserHasPermission::where('custodian_user_id', $custodianUserId)
-            ->whereHas('permission', fn ($query) => $query->where('name', $permissionName))
-            ->exists();
+        return $user->custodian_user?->isReadOnly() === true;
     }
 
     private function sameCustodian(User $user, CustodianUser $custodianUser): bool
