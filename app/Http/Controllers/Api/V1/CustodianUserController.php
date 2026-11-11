@@ -17,6 +17,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
 use RegistryManagementController as RMC;
 use App\Models\CustodianUserHasPermission;
+use App\Enums\CustodianRole;
+use App\Exceptions\CustodianRoleConflictException;
 use App\Http\Requests\CustodianUsers\GetCustodianUser;
 use App\Http\Requests\CustodianUsers\DeleteCustodianUser;
 use App\Http\Requests\CustodianUsers\InviteCustodianUser;
@@ -194,6 +196,13 @@ class CustodianUserController extends Controller
             }
 
             $input = $request->all();
+
+            if (isset($input['permissions']) && $this->containsMultipleRoles((array) $input['permissions'])) {
+                return response()->json([
+                    'message' => CustodianRoleConflictException::MESSAGE,
+                ], Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
+
             $loggedInUser =  $request->user();
 
             $loggedInUserId =  $loggedInUser->id;
@@ -443,6 +452,12 @@ class CustodianUserController extends Controller
                 return $this->ForbiddenResponse();
             }
 
+            if (isset($input['permissions']) && $this->containsMultipleRoles((array) $input['permissions'])) {
+                return response()->json([
+                    'message' => CustodianRoleConflictException::MESSAGE,
+                ], Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
+
             $custodianUser->first_name = isset($input['first_name']) ? $input['first_name'] : $custodianUser->first_name;
             $custodianUser->last_name = isset($input['last_name']) ? $input['last_name'] : $custodianUser->last_name;
             $custodianUser->email = isset($input['email']) ? $input['email'] : $custodianUser->email;
@@ -617,5 +632,18 @@ class CustodianUserController extends Controller
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
+    }
+
+    /**
+     * Whether these permission ids include more than one role. Custodian roles are
+     * mutually exclusive (the CustodianUserHasPermission model also refuses a second role).
+     *
+     * @param  array<int, int|string>  $permissionIds
+     */
+    private function containsMultipleRoles(array $permissionIds): bool
+    {
+        return Permission::whereIn('id', $permissionIds)
+            ->whereIn('name', CustodianRole::permissionNames())
+            ->count() > 1;
     }
 }

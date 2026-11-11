@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\CustodianRole;
-use App\Exceptions\CustodianRoleConflictException;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -50,32 +48,6 @@ class CustodianUserHasPermission extends Model
         'custodian_user_id',
         'permission_id',
     ];
-
-    /**
-     * Custodian roles are mutually exclusive. Every row in this table is created through this
-     * model, so refusing a second role here covers controllers, seeders and anything else.
-     * Rows that aren't roles (e.g. CUSTODIAN_KEYCARD_*) are unaffected.
-     */
-    protected static function booted(): void
-    {
-        static::creating(function (CustodianUserHasPermission $row): void {
-            $permission = Permission::find($row->permission_id);
-
-            if (! $permission || CustodianRole::tryFrom($permission->name) === null) {
-                return;
-            }
-
-            $holdsAnotherRole = static::query()
-                ->where('custodian_user_id', $row->custodian_user_id)
-                ->where('permission_id', '!=', $permission->id)
-                ->whereHas('permission', fn ($query) => $query->whereIn('name', CustodianRole::permissionNames()))
-                ->exists();
-
-            if ($holdsAnotherRole) {
-                throw new CustodianRoleConflictException();
-            }
-        });
-    }
 
     /**
      * Get the permission associated with this custodian user.
