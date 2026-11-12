@@ -125,7 +125,7 @@ class ValidationCheckController extends Controller
             return $this->ForbiddenResponse();
         }
 
-        $input =$request->only(app(ValidationCheck::class)->getFillable());
+        $input = $request->only(app(ValidationCheck::class)->getFillable());
 
         $check = ValidationCheck::create($input);
 
