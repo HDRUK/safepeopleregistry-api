@@ -103,7 +103,7 @@ class ValidationLogCommentTest extends TestCase
             'validation_log_id' => ValidationLog::first()->id
         ];
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())->actingAs($this->user)
             ->json(
                 'POST',
                 self::TEST_URL,
@@ -149,7 +149,7 @@ class ValidationLogCommentTest extends TestCase
             'comment' => 'updated comment',
         ];
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())->actingAs($this->user)
             ->json(
                 'PUT',
                 self::TEST_URL . '/' . $comment->id,
@@ -241,7 +241,7 @@ class ValidationLogCommentTest extends TestCase
         ]);
 
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())->actingAs($this->user)
             ->json(
                 'DELETE',
                 self::TEST_URL . '/' . $comment->id,

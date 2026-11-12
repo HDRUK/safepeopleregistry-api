@@ -6,6 +6,7 @@ use App\Exceptions\NotFoundException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AssignOrganisationPermissionToFrom;
 use App\Http\Requests\AssignUserPermissionToFrom;
+use App\Http\Traits\Responses;
 use App\Models\Custodian;
 use App\Models\Organisation;
 use App\Models\OrganisationHasCustodianPermission;
@@ -16,10 +17,12 @@ use App\Traits\CommonFunctions;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class PermissionController extends Controller
 {
     use CommonFunctions;
+    use Responses;
 
     /**
      * @OA\Get(
@@ -157,6 +160,10 @@ class PermissionController extends Controller
 
     public function assignOrganisationPermissionsToFrom(AssignOrganisationPermissionToFrom $request): JsonResponse
     {
+        if (! Gate::allows('notReadOnly')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $input = $request->all();
 
@@ -191,6 +198,10 @@ class PermissionController extends Controller
 
     public function assignUserPermissionsToFrom(AssignUserPermissionToFrom $request): JsonResponse
     {
+        if (! Gate::allows('notReadOnly')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $input = $request->all();
 

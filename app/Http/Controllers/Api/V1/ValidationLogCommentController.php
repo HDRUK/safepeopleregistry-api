@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\ValidationLogComment;
@@ -94,6 +95,10 @@ class ValidationLogCommentController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+        if (! Gate::allows('notReadOnly')) {
+            return $this->ForbiddenResponse();
+        }
+
         $validated = $request->validate([
             'validation_log_id' => 'required|exists:validation_logs,id',
             'user_id' => 'required|exists:users,id',
@@ -157,6 +162,10 @@ class ValidationLogCommentController extends Controller
      */
     public function update(UpdateValidationLogComment $request, $id): JsonResponse
     {
+        if (! Gate::allows('notReadOnly')) {
+            return $this->ForbiddenResponse();
+        }
+
         $validated = $request->validate([
             'comment' => 'required|string',
         ]);
@@ -210,6 +219,10 @@ class ValidationLogCommentController extends Controller
      */
     public function destroy(DeleteValidationLogComment $request, int $id): JsonResponse
     {
+        if (! Gate::allows('notReadOnly')) {
+            return $this->ForbiddenResponse();
+        }
+
         $comment = ValidationLogComment::find($id);
         if (!$comment) {
             return $this->NotFoundResponse();

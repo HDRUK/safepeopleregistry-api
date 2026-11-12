@@ -33,7 +33,7 @@ class PermissionTest extends TestCase
         $permissions = Permission::all();
         $permToAdd = fake()->randomElement($permissions);
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())->actingAs($this->user)
             ->json(
                 'POST',
                 $url,

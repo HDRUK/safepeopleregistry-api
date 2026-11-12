@@ -9,6 +9,7 @@ use App\Models\Custodian;
 use Illuminate\Http\Request;
 use App\Models\ProjectDetail;
 use App\Http\Traits\Responses;
+use Illuminate\Support\Facades\Gate;
 use App\Traits\CommonFunctions;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
@@ -159,6 +160,10 @@ class ProjectDetailController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+        if (! Gate::allows('notReadOnly')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $input = $request->only(app(ProjectDetail::class)->getFillable());
             $input['datasets'] = $this->safeJsonArray($input['datasets'] ?? []);
@@ -235,6 +240,10 @@ class ProjectDetailController extends Controller
      */
     public function update(UpdateProjectDetail $request, int $id): JsonResponse
     {
+        if (! Gate::allows('notReadOnly')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $input = $request->only(app(ProjectDetail::class)->getFillable());
             $projectDetail = ProjectDetail::where('id', $id)->first();
@@ -299,6 +308,10 @@ class ProjectDetailController extends Controller
      */
     public function destroy(DeleteProjectDetail $request, int $id): JsonResponse
     {
+        if (! Gate::allows('notReadOnly')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             ProjectDetail::where('id', $id)->delete();
             return $this->OKResponse(null);

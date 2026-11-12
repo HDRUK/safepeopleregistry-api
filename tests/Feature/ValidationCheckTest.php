@@ -13,6 +13,7 @@ class ValidationCheckTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->withUsers(true);
         ValidationCheck::truncate();
     }
 
@@ -64,7 +65,7 @@ class ValidationCheckTest extends TestCase
             'enabled' => 1
         ];
 
-        $response = $this->postJson(self::TEST_URL, $payload);
+        $response = $this->actingAs($this->custodian_admin)->postJson(self::TEST_URL, $payload);
 
         $response->assertCreated()
             ->assertJson([
@@ -92,7 +93,7 @@ class ValidationCheckTest extends TestCase
             'description' => 'updated_description',
         ];
 
-        $response = $this->putJson(self::TEST_URL . "/{$check->id}", $payload);
+        $response = $this->actingAs($this->custodian_admin)->putJson(self::TEST_URL . "/{$check->id}", $payload);
 
         $response->assertOk()
             ->assertJson([
@@ -129,7 +130,7 @@ class ValidationCheckTest extends TestCase
     {
         $check = ValidationCheck::factory()->create();
 
-        $response = $this->deleteJson(self::TEST_URL . "/{$check->id}");
+        $response = $this->actingAs($this->custodian_admin)->deleteJson(self::TEST_URL . "/{$check->id}");
 
         $response->assertOk();
         $this->assertDatabaseMissing('validation_checks', ['id' => $check->id]);

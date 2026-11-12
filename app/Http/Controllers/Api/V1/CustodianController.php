@@ -485,6 +485,10 @@ class CustodianController extends Controller
      */
     public function push(Request $request): JsonResponse
     {
+        if (! Gate::allows('notReadOnly')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $projectsAddedCount = 0;
             $organisationsAddedCount = 0;
@@ -705,6 +709,10 @@ class CustodianController extends Controller
      */
     public function addProject(GetCustodian $request, int $custodianId): JsonResponse
     {
+        if (! Gate::allows('notReadOnly')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $input = $request->only(app(Project::class)->getFillable());
 
