@@ -14,6 +14,7 @@ use App\Models\Permission;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Testing\TestResponse;
 use KeycloakGuard\ActingAsKeycloakUser;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
@@ -67,6 +68,31 @@ class CustodianReadOnlyTest extends TestCase
             ->assertStatus(201);
 
         $this->assertInviteEmailSent('custodian_invite_read_only');
+    }
+
+    public function test_bulk_store_accepts_read_only(): void
+    {
+        $this->bulkStore('read-only-bulk@example.com', CustodianRole::ReadOnly->value)
+            ->assertStatus(201);
+
+        $created = CustodianUser::where('email', 'read-only-bulk@example.com')
+            ->where('custodian_id', $this->custodian->id)
+            ->firstOrFail();
+
+        $this->assertTrue($created->isReadOnly());
+        $this->assertFalse($created->hasPermission(CustodianRole::Admin->value));
+        $this->assertFalse($created->hasPermission(CustodianRole::Approver->value));
+    }
+
+    public function test_bulk_store_still_rejects_permissions_that_are_not_roles(): void
+    {
+        $this->bulkStore('keycard-bulk@example.com', 'CUSTODIAN_KEYCARD_CREATE')
+            ->assertStatus(422)
+            ->assertJson([
+                'message' => 'permission must be one of CUSTODIAN_ADMIN, CUSTODIAN_APPROVER or CUSTODIAN_READ_ONLY',
+            ]);
+
+        $this->assertDatabaseMissing('custodian_users', ['email' => 'keycard-bulk@example.com']);
     }
 
     public function test_read_only_cannot_update_the_custodian(): void
@@ -203,6 +229,22 @@ class CustodianReadOnlyTest extends TestCase
         }
 
         return $invitee;
+    }
+
+    /**
+     * The bulk route is server-to-server: the Custodian is found from the x-client-id header, not a
+     * signed-in user. Middleware is off in tests, so the signed payload check doesn't run.
+     */
+    private function bulkStore(string $email, string $permission): TestResponse
+    {
+        return $this->json('POST', '/api/v1/custodian_users/bulk', [
+            'users' => [[
+                'first_name' => 'Jane',
+                'last_name' => 'Doe',
+                'email' => $email,
+                'permission' => $permission,
+            ]],
+        ], ['x-client-id' => $this->custodian->client_id]);
     }
 
     private function assertInviteEmailSent(string $identifier): void

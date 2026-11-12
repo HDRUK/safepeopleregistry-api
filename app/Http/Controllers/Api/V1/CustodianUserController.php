@@ -276,7 +276,7 @@ class CustodianUserController extends Controller
      *                      @OA\Property(
      *                      property="permission",
      *                      type="string",
-     *                       enum={"CUSTODIAN_ADMIN","CUSTODIAN_APPROVER"},
+     *                       enum={"CUSTODIAN_ADMIN","CUSTODIAN_APPROVER","CUSTODIAN_READ_ONLY"},
      *                       example="CUSTODIAN_ADMIN"
      *                      )
      *                  )
@@ -323,10 +323,10 @@ class CustodianUserController extends Controller
 
                 if (
                     !isset($userInput['permission']) ||
-                    !in_array($userInput['permission'], ['CUSTODIAN_ADMIN', 'CUSTODIAN_APPROVER'])
+                    !in_array($userInput['permission'], CustodianRole::permissionNames(), true)
                 ) {
                     return response()->json([
-                        'message' => 'permission must be either CUSTODIAN_ADMIN or CUSTODIAN_APPROVER'
+                        'message' => 'permission must be one of CUSTODIAN_ADMIN, CUSTODIAN_APPROVER or CUSTODIAN_READ_ONLY'
                     ], Response::HTTP_UNPROCESSABLE_ENTITY);
                 }
 
