@@ -1028,7 +1028,7 @@ class CustodianController extends Controller
     public function getAccessRevocations(GetCustodian $request, int $custodianId): JsonResponse
     {
         $custodian = Custodian::findOrFail($custodianId);
-        if (! Gate::allows('update', $custodian)) {
+        if (! Gate::allows('viewMembersOnly', $custodian)) {
             return $this->ForbiddenResponse();
         }
 
