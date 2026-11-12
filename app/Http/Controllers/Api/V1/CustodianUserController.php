@@ -507,9 +507,6 @@ class CustodianUserController extends Controller
                 return $this->ForbiddenResponse();
             }
 
-            $custodianUserPermissions = CustodianUserHasPermission::where('custodian_user_id', $id)->first();
-            $permissions = Permission::where('id', $custodianUserPermissions->permission_id)->first();
-
             /**
              * Observer is also creating the keycloak user
              */
@@ -522,14 +519,13 @@ class CustodianUserController extends Controller
                 'invited_by' => $request->user()->id,
             ]);
 
-            $emailIdentifier = '';
-            if ($permissions->name === 'CUSTODIAN_ADMIN') {
-                $emailIdentifier = 'custodian_invite_administrator';
-            }
-
-            if ($permissions->name === 'CUSTODIAN_APPROVER') {
-                $emailIdentifier = 'custodian_invite_approver';
-            }
+            // Look for the role rather than the first permission row, which could be a KEYCARD permission
+            $emailIdentifier = match (true) {
+                $custodianUser->hasPermission(CustodianRole::ReadOnly->value) => 'custodian_invite_read_only',
+                $custodianUser->hasPermission(CustodianRole::Admin->value) => 'custodian_invite_administrator',
+                $custodianUser->hasPermission(CustodianRole::Approver->value) => 'custodian_invite_approver',
+                default => '',
+            };
 
             $input = [
                 'type' => 'CUSTODIAN_USER',

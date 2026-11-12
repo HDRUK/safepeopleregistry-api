@@ -4,12 +4,16 @@ namespace Tests\Feature;
 
 use App\Enums\ActionLogType;
 use App\Enums\CustodianRole;
+use App\Jobs\SendEmailJob;
 use App\Models\ActionLog;
 use App\Models\Custodian;
 use App\Models\CustodianModelConfig;
 use App\Models\CustodianUser;
+use App\Models\CustodianUserHasPermission;
+use App\Models\Permission;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Queue;
 use KeycloakGuard\ActingAsKeycloakUser;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
@@ -42,6 +46,27 @@ class CustodianReadOnlyTest extends TestCase
 
         [$this->readOnly] = $this->makeCustodianUserActor($this->custodian->id, CustodianRole::ReadOnly->value);
         [$this->approver] = $this->makeCustodianUserActor($this->custodian->id, CustodianRole::Approver->value);
+    }
+
+    public function test_inviting_a_read_only_user_sends_the_read_only_invite_email(): void
+    {
+        $invitee = $this->makeInvitee([CustodianRole::ReadOnly->value]);
+
+        $this->as($this->custodian_admin)->json('POST', "/api/v1/custodian_users/invite/{$invitee->id}")
+            ->assertStatus(201);
+
+        $this->assertInviteEmailSent('custodian_invite_read_only');
+    }
+
+    public function test_the_invite_email_follows_the_role_not_the_first_permission_row(): void
+    {
+        // A KEYCARD permission stored before the role must not decide which email is sent
+        $invitee = $this->makeInvitee(['CUSTODIAN_KEYCARD_CREATE', CustodianRole::ReadOnly->value]);
+
+        $this->as($this->custodian_admin)->json('POST', "/api/v1/custodian_users/invite/{$invitee->id}")
+            ->assertStatus(201);
+
+        $this->assertInviteEmailSent('custodian_invite_read_only');
     }
 
     public function test_read_only_cannot_update_the_custodian(): void
@@ -159,6 +184,35 @@ class CustodianReadOnlyTest extends TestCase
 
         $this->as($this->readOnly)->json('PUT', "/api/v1/custodian_config/{$config->id}", [])
             ->assertStatus(403);
+    }
+
+    /**
+     * A custodian user who hasn't signed up yet, holding the given permissions in the order given.
+     *
+     * @param  array<int, string>  $permissionNames
+     */
+    private function makeInvitee(array $permissionNames): CustodianUser
+    {
+        $invitee = CustodianUser::factory()->create(['custodian_id' => $this->custodian->id]);
+
+        foreach ($permissionNames as $name) {
+            CustodianUserHasPermission::create([
+                'custodian_user_id' => $invitee->id,
+                'permission_id' => Permission::where('name', $name)->firstOrFail()->id,
+            ]);
+        }
+
+        return $invitee;
+    }
+
+    private function assertInviteEmailSent(string $identifier): void
+    {
+        // The job's template is private, so read it from inside the job. EmailTemplate declares a
+        // public $identifier property that hides the stored value, so use getAttribute().
+        Queue::assertPushed(
+            SendEmailJob::class,
+            fn (SendEmailJob $job) => (fn () => $this->template?->getAttribute('identifier'))->call($job) === $identifier
+        );
     }
 
     private function as(User $user): self
