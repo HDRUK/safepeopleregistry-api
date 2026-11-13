@@ -4,10 +4,12 @@ namespace Tests\Feature;
 
 use App\Enums\CustodianRole;
 use App\Exceptions\CustodianRoleConflictException;
+use App\Models\Custodian;
 use App\Models\CustodianUser;
 use App\Models\CustodianUserHasPermission;
 use App\Models\Permission;
 use App\Models\User;
+use Illuminate\Support\Facades\Http;
 use KeycloakGuard\ActingAsKeycloakUser;
 use Tests\TestCase;
 use Tests\Traits\Authorisation;
@@ -127,6 +129,30 @@ class CustodianRoleExclusivityTest extends TestCase
 
         $this->assertSame(2, CustodianUserHasPermission::where('custodian_user_id', $approver->id)->count());
         $this->assertTrue($approver->fresh()->hasPermission(CustodianRole::Approver->value));
+    }
+
+    public function test_inviting_a_custodian_whose_contact_already_holds_another_role_is_a_422(): void
+    {
+        // The invite reuses the custodian user with the contact email and makes them ADMIN
+        $contact = CustodianUser::factory()->create(['custodian_id' => $this->custodianId]);
+        CustodianUserHasPermission::create([
+            'custodian_user_id' => $contact->id,
+            'permission_id' => $this->permissionId(CustodianRole::Approver),
+        ]);
+        $custodian = Custodian::factory()->create(['contact_email' => $contact->email]);
+
+        // Every observer runs once they're on; the user observer would call Keycloak
+        Http::fake();
+        $this->enableObservers();
+
+        $this->actingAsKeycloakUser($this->admin, $this->getMockedKeycloakPayload())
+            ->actingAs($this->admin)
+            ->json('POST', "/api/v1/custodians/{$custodian->id}/invite")
+            ->assertStatus(422)
+            ->assertJson(['message' => CustodianRoleConflictException::MESSAGE]);
+
+        $this->assertTrue($contact->fresh()->hasPermission(CustodianRole::Approver->value));
+        $this->assertFalse($contact->fresh()->hasPermission(CustodianRole::Admin->value));
     }
 
     private function permissionId(CustodianRole $role): int
