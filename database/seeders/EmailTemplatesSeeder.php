@@ -1962,6 +1962,36 @@ class EmailTemplatesSeeder extends Seeder
             'buttons' => '',
           ],
           [
+            // To every user of the project's Custodians when a user is added to a project through an affiliation
+            'identifier' => 'project_user_added_custodian',
+            'subject' => 'Safe People Registry | [[user_first_name]] [[user_last_name]] has joined a project',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#f6dff1" width="600px" >
+
+                          ' . $this->titleBar('User joined a project') . '
+
+                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                                <mj-text align="left" padding="20px 0px 20px 0px">
+                                  Hello [[recipient_first_name]],
+                                  <div><br></div>
+                                  [[user_first_name]] [[user_last_name]] has been added to project <b>[[project.title]]</b> through their affiliation with <b>[[organisation.organisation_name]]</b>.
+                                  <div><br></div>
+                                  Thanks,
+                                  <div><br></div>
+                                  [[env(APP_NAME)]] Team
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+
+                        </mj-body>
+                      </mjml >',
+            'buttons' => '',
+          ],
+          [
             'identifier' => 'affiliation_access_revocation_reminder',
             'subject' => 'Safe People Registry | Reminder: revoke data access for [[user_first_name]] [[user_last_name]]',
             'body' => '<mjml>
