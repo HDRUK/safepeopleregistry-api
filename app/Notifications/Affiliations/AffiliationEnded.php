@@ -60,6 +60,7 @@ class AffiliationEnded extends Notification implements ShouldQueue
                 : "Your affiliation with Organisation {$organisationName} ended on {$endDate}.",
             NotificationAudience::Organisation => "Person {$userName} left Organisation {$organisationName} on {$endDate}.",
             NotificationAudience::Custodian => "Person {$userName} left Organisation {$organisationName} on {$endDate}, so has left project {$this->project?->title}. You must revoke any data access they still have, then confirm this in the Safe People Registry.",
+            NotificationAudience::CustodianReadOnly => "Person {$userName} left Organisation {$organisationName} on {$endDate}, so has left project {$this->project?->title}. Your administrators and approvers have been asked to revoke any data access they still have.",
         };
     }
 }

@@ -1931,6 +1931,37 @@ class EmailTemplatesSeeder extends Seeder
             'buttons' => '',
           ],
           [
+            'identifier' => 'affiliation_ended_custodian_read_only',
+            'subject' => 'Safe People Registry | [[user_first_name]] [[user_last_name]] has left a project',
+            'body' => '<mjml>
+                        ' . $this->mjmlHead . '
+                        <mj-body background-color="#f6dff1" width="600px" >
+
+                          ' . $this->titleBar('User left a project') . '
+
+                          <mj-wrapper background-color="#ffffff" border="none" direction="ltr" text-align="center" padding="0px 20px 20px 0px">
+                            <mj-section border="none" direction="ltr" text-align="left" padding="0px 20px">
+                              <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+                                <mj-text align="left" padding="20px 0px 20px 0px">
+                                  Hello [[recipient_first_name]],
+                                  <div><br></div>
+                                  [[user_first_name]] [[user_last_name]] left <b>[[organisation.organisation_name]]</b> on <b>[[affiliation.end_date]]</b> (recorded on [[affiliation.end_date_recorded_at]]). As they were on project <b>[[project.title]]</b> through this affiliation, they have now left that project on the [[env(APP_NAME)]].
+                                  <div><br></div>
+                                  Your Data Custodian\'s administrators and approvers have been asked to revoke any data access they still have.
+                                  <div><br></div>
+                                  Thanks,
+                                  <div><br></div>
+                                  [[env(APP_NAME)]] Team
+                                </mj-text>
+                              </mj-column>
+                            </mj-section>
+                          </mj-wrapper>
+
+                        </mj-body>
+                      </mjml >',
+            'buttons' => '',
+          ],
+          [
             'identifier' => 'affiliation_access_revocation_reminder',
             'subject' => 'Safe People Registry | Reminder: revoke data access for [[user_first_name]] [[user_last_name]]',
             'body' => '<mjml>

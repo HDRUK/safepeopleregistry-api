@@ -62,6 +62,14 @@ class AffiliationLeaverTest extends TestCase
         );
     }
 
+    private function assertEmailTemplateSentTo(User $recipient, string $identifier): void
+    {
+        // The job's template is private. EmailTemplate's public $identifier property hides the stored value,
+        // so read it with getAttribute()
+        Queue::assertPushed(SendEmailJob::class, fn (SendEmailJob $job) => $job->to['id'] === $recipient->id
+            && (fn () => $this->template?->getAttribute('identifier'))->call($job) === $identifier);
+    }
+
     private function createOrganisationUser(Organisation $organisation): User
     {
         return User::factory()->create([
@@ -158,6 +166,27 @@ class AffiliationLeaverTest extends TestCase
         $this->assertEmailsSentTo($this->researcher, 1);
         $this->assertEmailsSentTo($this->delegate, 1);
         $this->assertEmailsSentTo($this->custodian_admin, 1);
+    }
+
+    public function test_read_only_custodian_users_are_told_a_user_left_without_being_asked_to_act(): void
+    {
+        [$readOnly] = $this->makeCustodianUserActor($this->custodianId, CustodianRole::ReadOnly->value);
+        $affiliation = $this->createAffiliation(State::STATE_AFFILIATION_APPROVED);
+        $this->addToProject($affiliation);
+
+        $this->recordEndDate($this->delegate, $affiliation, Carbon::today()->subWeek()->toDateString())
+            ->assertStatus(200);
+
+        // Read-only users: told, not asked to revoke or confirm
+        Notification::assertSentTo($readOnly, AffiliationEnded::class, fn (AffiliationEnded $notification) =>
+            str_contains($notification->generateMessage(), 'have been asked to revoke')
+            && ! str_contains($notification->generateMessage(), 'You must'));
+        $this->assertEmailTemplateSentTo($readOnly, 'affiliation_ended_custodian_read_only');
+
+        // Users who can act: unchanged
+        Notification::assertSentTo($this->custodian_admin, AffiliationEnded::class, fn (AffiliationEnded $notification) =>
+            str_contains($notification->generateMessage(), 'You must revoke'));
+        $this->assertEmailTemplateSentTo($this->custodian_admin, 'affiliation_ended_custodian');
     }
 
     public function test_a_user_recording_a_future_end_date_does_not_end_the_affiliation_yet(): void
