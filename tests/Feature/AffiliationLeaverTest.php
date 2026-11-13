@@ -25,11 +25,14 @@ use Illuminate\Support\Facades\Queue;
 use Spatie\Activitylog\Models\Activity;
 use KeycloakGuard\ActingAsKeycloakUser;
 use Tests\Traits\Authorisation;
+use Tests\Traits\CustodianActors;
+use App\Enums\CustodianRole;
 
 class AffiliationLeaverTest extends TestCase
 {
     use Authorisation;
     use ActingAsKeycloakUser;
+    use CustodianActors;
 
     public const TEST_URL = '/api/v1/affiliations';
 
@@ -479,6 +482,20 @@ class AffiliationLeaverTest extends TestCase
 
         $this->assertNotNull($projectUser->refresh()->access_revocation_reminded_at);
         $this->assertEmailsSentTo($this->custodian_admin, 1);
+    }
+
+    public function test_the_revocation_reminder_only_goes_to_custodian_users_who_can_confirm(): void
+    {
+        [$readOnly] = $this->makeCustodianUserActor($this->custodianId, CustodianRole::ReadOnly->value);
+        $affiliation = $this->createAffiliation(State::STATE_AFFILIATION_APPROVED);
+        $projectUser = $this->addToProject($affiliation);
+        $projectUser->access_revocation_required_at = Carbon::now()->subDays(8);
+        $projectUser->save();
+
+        $this->artisan('app:checking-affiliations')->assertExitCode(0);
+
+        $this->assertEmailsSentTo($this->custodian_admin, 1);
+        Queue::assertNotPushed(SendEmailJob::class, fn (SendEmailJob $job) => $job->to['id'] === $readOnly->id);
     }
 
     public function test_a_custodian_can_list_and_confirm_access_revocations(): void

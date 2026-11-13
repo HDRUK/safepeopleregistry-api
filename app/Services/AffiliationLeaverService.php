@@ -7,7 +7,9 @@ use App\Models\User;
 use App\Models\State;
 use App\Models\Affiliation;
 use App\Models\CustodianUser;
+use App\Models\CustodianUserHasPermission;
 use App\Models\CustodianHasProjectUser;
+use App\Enums\CustodianRole;
 use App\Enums\AffiliationEndDateSource;
 use App\Enums\NotificationAudience;
 use App\Traits\UserLeftProjectWebhook;
@@ -196,7 +198,8 @@ class AffiliationLeaverService
             return;
         }
 
-        foreach ($this->getCustodianUsers($projectUser->custodian_id) as $custodianUser) {
+        // Only users who can confirm the revocation; read-only users can't
+        foreach ($this->getCustodianUsers($projectUser->custodian_id, readOnly: false) as $custodianUser) {
             TriggerEmail::spawnEmail([
                 'type' => 'AFFILIATION_ACCESS_REVOCATION_REMINDER',
                 'identifier' => 'affiliation_access_revocation_reminder',
@@ -366,11 +369,21 @@ class AffiliationLeaverService
     /**
      * @return Collection<int, User>
      */
-    private function getCustodianUsers(int $custodianId): Collection
+    /**
+     * The Custodian's users. $readOnly narrows them to CUSTODIAN_READ_ONLY users (true) or to everyone
+     * else (false); null returns all of them.
+     */
+    private function getCustodianUsers(int $custodianId, ?bool $readOnly = null): Collection
     {
+        $readOnlyCustodianUserIds = CustodianUserHasPermission::query()
+            ->whereHas('permission', fn ($query) => $query->where('name', CustodianRole::ReadOnly->value))
+            ->select('custodian_user_id');
+
         return User::query()
             ->where('user_group', User::GROUP_CUSTODIANS)
             ->whereIn('custodian_user_id', CustodianUser::where('custodian_id', $custodianId)->select('id'))
+            ->when($readOnly === true, fn ($query) => $query->whereIn('custodian_user_id', $readOnlyCustodianUserIds))
+            ->when($readOnly === false, fn ($query) => $query->whereNotIn('custodian_user_id', $readOnlyCustodianUserIds))
             ->get();
     }
 }
