@@ -17,10 +17,13 @@ class CustodianModelConfigPolicy
         return null;
     }
 
+    /**
+     * Any custodian role (admin, approver or read-only) in the same Custodian can view config;
+     * only admins change it.
+     */
     public function viewByCustodian(User $user, int $custodianId): bool
     {
-        return $this->belongsToCustodian($user, $custodianId)
-            && ($this->isCustodianAdmin($user) || $this->isCustodianApprover($user));
+        return $this->belongsToCustodian($user, $custodianId) && $user->custodian_user?->hasAnyRole() === true;
     }
 
     public function view(User $user, CustodianModelConfig $config): bool
@@ -64,11 +67,6 @@ class CustodianModelConfigPolicy
     private function isCustodianAdmin(User $user): bool
     {
         return $user->custodian_user?->hasPermission(CustodianRole::Admin->value) === true;
-    }
-
-    private function isCustodianApprover(User $user): bool
-    {
-        return $user->custodian_user?->hasPermission(CustodianRole::Approver->value) === true;
     }
 
     private function isCustodianReadOnly(User $user): bool

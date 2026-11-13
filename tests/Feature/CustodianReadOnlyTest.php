@@ -223,6 +223,25 @@ class CustodianReadOnlyTest extends TestCase
         $this->assertDatabaseHas('custodian_users', ['email' => $payload['email']]);
     }
 
+    public function test_read_only_can_view_their_custodians_config(): void
+    {
+        $this->as($this->readOnly)->json('GET', "/api/v1/custodian_config/{$this->custodian->id}")
+            ->assertStatus(200);
+        $this->as($this->readOnly)
+            ->json('GET', "/api/v1/custodian_config/{$this->custodian->id}/decision_models?decision_model_type=decision_models")
+            ->assertStatus(200);
+
+        // Only their own Custodian's
+        [$outsider] = $this->makeCustodianUserActor(Custodian::factory()->create()->id, CustodianRole::ReadOnly->value);
+        $this->as($outsider)->json('GET', "/api/v1/custodian_config/{$this->custodian->id}")
+            ->assertStatus(403);
+
+        // A custodian user with no role (only a KEYCARD permission) still can't
+        [$noRole] = $this->makeCustodianUserActor($this->custodian->id, 'CUSTODIAN_KEYCARD_CREATE');
+        $this->as($noRole)->json('GET', "/api/v1/custodian_config/{$this->custodian->id}")
+            ->assertStatus(403);
+    }
+
     public function test_read_only_cannot_update_custodian_config(): void
     {
         $config = CustodianModelConfig::factory()->create([

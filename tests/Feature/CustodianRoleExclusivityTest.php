@@ -119,6 +119,23 @@ class CustodianRoleExclusivityTest extends TestCase
         $this->assertTrue($colleague->fresh()->isReadOnly());
     }
 
+    public function test_has_any_role_is_true_only_for_a_custodian_role(): void
+    {
+        [, $readOnly] = $this->makeCustodianUserActor($this->custodianId, CustodianRole::ReadOnly->value);
+        $this->assertTrue($readOnly->hasAnyRole());
+
+        // A KEYCARD permission isn't a role
+        $keycardOnly = CustodianUser::factory()->create(['custodian_id' => $this->custodianId]);
+        CustodianUserHasPermission::create([
+            'custodian_user_id' => $keycardOnly->id,
+            'permission_id' => Permission::where('name', 'CUSTODIAN_KEYCARD_CREATE')->firstOrFail()->id,
+        ]);
+        $this->assertFalse($keycardOnly->hasAnyRole());
+
+        $noPermissions = CustodianUser::factory()->create(['custodian_id' => $this->custodianId]);
+        $this->assertFalse($noPermissions->hasAnyRole());
+    }
+
     public function test_a_second_role_cannot_be_added_directly(): void
     {
         [, $approver] = $this->makeCustodianUserActor($this->custodianId, CustodianRole::Approver->value);

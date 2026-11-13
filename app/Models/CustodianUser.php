@@ -139,6 +139,19 @@ class CustodianUser extends Model
     }
 
     /**
+     * Whether this Custodian User holds any custodian role (see CustodianRole). KEYCARD_*
+     * permissions aren't roles.
+     */
+    public function hasAnyRole(): bool
+    {
+        $this->loadMissing('userPermissions.permission');
+
+        return $this->userPermissions->contains(
+            fn (CustodianUserHasPermission $row) => in_array($row->permission?->name, CustodianRole::permissionNames(), true)
+        );
+    }
+
+    /**
      * Read-only Custodian Users can view but not change data. This deliberately ignores the
      * CustodianReadOnlyEnabled flag: turning the flag off must never give them write access.
      */
