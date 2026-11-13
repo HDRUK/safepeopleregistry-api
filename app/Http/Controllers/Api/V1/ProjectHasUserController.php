@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use Exception;
 use App\Http\Traits\Responses;
+use Illuminate\Support\Facades\Gate;
 use App\Models\ProjectHasUser;
 use App\Traits\CommonFunctions;
 use App\Http\Controllers\Controller;
@@ -128,6 +129,10 @@ class ProjectHasUserController extends Controller
      */
     public function delete(DeleteProjectHasUser $request, int $id)
     {
+        if (! Gate::allows('notReadOnly')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $data = ProjectHasUser::where('id', $id);
 

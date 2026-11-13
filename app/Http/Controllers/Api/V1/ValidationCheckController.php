@@ -6,6 +6,7 @@ use Exception;
 use App\Models\Custodian;
 use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
+use Illuminate\Support\Facades\Gate;
 use App\Models\ValidationCheck;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
@@ -120,6 +121,10 @@ class ValidationCheckController extends Controller
      */
     public function store(CreateValidationCheckRequest $request): JsonResponse
     {
+        if (! Gate::allows('notReadOnly')) {
+            return $this->ForbiddenResponse();
+        }
+
         $input = $request->only(app(ValidationCheck::class)->getFillable());
 
         $check = ValidationCheck::create($input);
@@ -172,6 +177,10 @@ class ValidationCheckController extends Controller
      */
     public function update(UpdateValidationCheck $request, $id): JsonResponse
     {
+        if (! Gate::allows('notReadOnly')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $loggedInUserId = $request->user()?->id;
             $input = $request->only(app(ValidationCheck::class)->getFillable());
@@ -236,6 +245,10 @@ class ValidationCheckController extends Controller
      */
     public function destroy(DeleteValidationCheck $request, int $id): JsonResponse
     {
+        if (! Gate::allows('notReadOnly')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $check = ValidationCheck::find($id);
             if (!$check) {
@@ -346,6 +359,10 @@ class ValidationCheckController extends Controller
      */
     public function createCustodianValidationChecks(Request $request, int $custodianId): JsonResponse
     {
+        if (! Gate::allows('notReadOnly')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $custodian = Custodian::find($custodianId);
             if (!$custodian) {

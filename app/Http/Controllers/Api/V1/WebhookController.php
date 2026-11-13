@@ -8,6 +8,7 @@ use App\Models\EmailLog;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Http\Traits\Responses;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\JsonResponse;
 use App\Models\WebhookEventTrigger;
 use App\Http\Controllers\Controller;
@@ -178,6 +179,10 @@ class WebhookController extends Controller
      */
     public function createReceiver(Request $request): JsonResponse
     {
+        if (! Gate::allows('notReadOnly')) {
+            return $this->ForbiddenResponse();
+        }
+
         $request->validate([
             'custodian_id' => 'required|exists:custodians,id',
             'url' => 'required|url',
@@ -248,6 +253,10 @@ class WebhookController extends Controller
      */
     public function updateReceiver(UpdateReceiverByCustodian $request, int $custodianId): JsonResponse
     {
+        if (! Gate::allows('notReadOnly')) {
+            return $this->ForbiddenResponse();
+        }
+
         $request->validate([
             'id' => 'required|exists:custodian_webhook_receivers,id',
             'url' => 'required|url',
@@ -314,6 +323,10 @@ class WebhookController extends Controller
      */
     public function deleteReceiver(DeleteReceiverByCustodian $request, int $custodianId): JsonResponse
     {
+        if (! Gate::allows('notReadOnly')) {
+            return $this->ForbiddenResponse();
+        }
+
         $request->validate([
             'id' => 'required|exists:custodian_webhook_receivers,id',
         ]);

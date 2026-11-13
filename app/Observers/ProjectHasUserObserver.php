@@ -19,6 +19,7 @@ use Carbon\Carbon;
 use App\Notifications\ProjectHasUser\ProjectHasUserCreatedEntityUser;
 use App\Notifications\ProjectHasUser\ProjectHasUserCreatedEntityOrganisation;
 use App\Notifications\ProjectHasUser\ProjectHasUserCreatedEntityCustodian;
+use TriggerEmail;
 
 use function activity;
 
@@ -254,6 +255,15 @@ class ProjectHasUserObserver
                     );
 
                     Notification::send($custodianUser['user'], $custodianNotification);
+                    TriggerEmail::spawnEmail([
+                        'type' => 'PROJECT_USER_ADDED_CUSTODIAN',
+                        'identifier' => 'project_user_added_custodian',
+                        'to' => $custodianUser['user']->id,
+                        'by' => -1,
+                        'for' => $user->id,
+                        'affiliationId' => $affiliation->id,
+                        'projectId' => $project->id,
+                    ]);
                 }
             }
         }

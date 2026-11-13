@@ -17,6 +17,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
 use RegistryManagementController as RMC;
 use App\Models\CustodianUserHasPermission;
+use App\Enums\CustodianRole;
+use App\Exceptions\CustodianRoleConflictException;
+use Laravel\Pennant\Feature;
 use App\Http\Requests\CustodianUsers\GetCustodianUser;
 use App\Http\Requests\CustodianUsers\DeleteCustodianUser;
 use App\Http\Requests\CustodianUsers\InviteCustodianUser;
@@ -27,6 +30,8 @@ class CustodianUserController extends Controller
 {
     use NotificationCustodianManager;
     use Responses;
+
+    private const READ_ONLY_DISABLED_MESSAGE = 'Read-only access is not enabled';
 
     /**
      * @OA\Get(
@@ -194,6 +199,17 @@ class CustodianUserController extends Controller
             }
 
             $input = $request->all();
+
+            if (isset($input['permissions']) && $this->containsMultipleRoles((array) $input['permissions'])) {
+                return response()->json([
+                    'message' => CustodianRoleConflictException::MESSAGE,
+                ], Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
+
+            if (isset($input['permissions']) && $this->assignsReadOnlyWhileDisabled((array) $input['permissions'])) {
+                return $this->UnprocessableContent(self::READ_ONLY_DISABLED_MESSAGE);
+            }
+
             $loggedInUser =  $request->user();
 
             $loggedInUserId =  $loggedInUser->id;
@@ -267,7 +283,7 @@ class CustodianUserController extends Controller
      *                      @OA\Property(
      *                      property="permission",
      *                      type="string",
-     *                       enum={"CUSTODIAN_ADMIN","CUSTODIAN_APPROVER"},
+     *                       enum={"CUSTODIAN_ADMIN","CUSTODIAN_APPROVER","CUSTODIAN_READ_ONLY"},
      *                       example="CUSTODIAN_ADMIN"
      *                      )
      *                  )
@@ -314,11 +330,15 @@ class CustodianUserController extends Controller
 
                 if (
                     !isset($userInput['permission']) ||
-                    !in_array($userInput['permission'], ['CUSTODIAN_ADMIN', 'CUSTODIAN_APPROVER'])
+                    !in_array($userInput['permission'], CustodianRole::permissionNames(), true)
                 ) {
                     return response()->json([
-                        'message' => 'permission must be either CUSTODIAN_ADMIN or CUSTODIAN_APPROVER'
+                        'message' => 'permission must be one of CUSTODIAN_ADMIN, CUSTODIAN_APPROVER or CUSTODIAN_READ_ONLY'
                     ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                }
+
+                if ($userInput['permission'] === CustodianRole::ReadOnly->value && $this->readOnlyDisabled()) {
+                    return $this->UnprocessableContent(self::READ_ONLY_DISABLED_MESSAGE);
                 }
 
                 $existingUser = CustodianUser::where('email', $userInput['email'])
@@ -443,6 +463,17 @@ class CustodianUserController extends Controller
                 return $this->ForbiddenResponse();
             }
 
+            if (isset($input['permissions']) && $this->containsMultipleRoles((array) $input['permissions'])) {
+                return response()->json([
+                    'message' => CustodianRoleConflictException::MESSAGE,
+                ], Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
+
+            // Checked before the permission rows below are deleted, so the user's current role decides
+            if (isset($input['permissions']) && $this->assignsReadOnlyWhileDisabled((array) $input['permissions'], $custodianUser)) {
+                return $this->UnprocessableContent(self::READ_ONLY_DISABLED_MESSAGE);
+            }
+
             $custodianUser->first_name = isset($input['first_name']) ? $input['first_name'] : $custodianUser->first_name;
             $custodianUser->last_name = isset($input['last_name']) ? $input['last_name'] : $custodianUser->last_name;
             $custodianUser->email = isset($input['email']) ? $input['email'] : $custodianUser->email;
@@ -466,6 +497,9 @@ class CustodianUserController extends Controller
             }
 
             if ($custodianUser->save()) {
+                // Role checks above may have loaded the permissions as they were before this update
+                $custodianUser->unsetRelation('userPermissions');
+
                 return response()->json([
                     'message' => 'success',
                     'data' => $custodianUser,
@@ -492,8 +526,10 @@ class CustodianUserController extends Controller
                 return $this->ForbiddenResponse();
             }
 
-            $custodianUserPermissions = CustodianUserHasPermission::where('custodian_user_id', $id)->first();
-            $permissions = Permission::where('id', $custodianUserPermissions->permission_id)->first();
+            // Before the unclaimed user is created, so a refused invite leaves nothing behind
+            if ($custodianUser->isReadOnly() && $this->readOnlyDisabled()) {
+                return $this->UnprocessableContent(self::READ_ONLY_DISABLED_MESSAGE);
+            }
 
             /**
              * Observer is also creating the keycloak user
@@ -507,14 +543,13 @@ class CustodianUserController extends Controller
                 'invited_by' => $request->user()->id,
             ]);
 
-            $emailIdentifier = '';
-            if ($permissions->name === 'CUSTODIAN_ADMIN') {
-                $emailIdentifier = 'custodian_invite_administrator';
-            }
-
-            if ($permissions->name === 'CUSTODIAN_APPROVER') {
-                $emailIdentifier = 'custodian_invite_approver';
-            }
+            // Look for the role rather than the first permission row, which could be a KEYCARD permission
+            $emailIdentifier = match (true) {
+                $custodianUser->hasPermission(CustodianRole::ReadOnly->value) => 'custodian_invite_read_only',
+                $custodianUser->hasPermission(CustodianRole::Admin->value) => 'custodian_invite_administrator',
+                $custodianUser->hasPermission(CustodianRole::Approver->value) => 'custodian_invite_approver',
+                default => '',
+            };
 
             $input = [
                 'type' => 'CUSTODIAN_USER',
@@ -525,6 +560,9 @@ class CustodianUserController extends Controller
             ];
 
             TriggerEmail::spawnEmail($input);
+
+            // The role lookup above loads the permissions; keep them out of the response
+            $custodianUser->unsetRelation('userPermissions');
 
             return response()->json([
                 'message' => 'success',
@@ -617,5 +655,38 @@ class CustodianUserController extends Controller
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
+    }
+
+    /**
+     * Whether these permission ids include more than one role. Custodian roles are
+     * mutually exclusive (the CustodianUserHasPermission model also refuses a second role).
+     *
+     * @param  array<int, int|string>  $permissionIds
+     */
+    private function containsMultipleRoles(array $permissionIds): bool
+    {
+        return Permission::whereIn('id', $permissionIds)
+            ->whereIn('name', CustodianRole::permissionNames())
+            ->count() > 1;
+    }
+
+    private function readOnlyDisabled(): bool
+    {
+        return ! Feature::active('CustodianReadOnlyEnabled');
+    }
+
+    /**
+     * While CustodianReadOnlyEnabled is off nobody becomes read-only. A user who already is
+     * ($existing) keeps the role, so their other details can still be edited.
+     */
+    private function assignsReadOnlyWhileDisabled(array $permissionIds, ?CustodianUser $existing = null): bool
+    {
+        if (! $this->readOnlyDisabled() || $existing?->isReadOnly() === true) {
+            return false;
+        }
+
+        return Permission::whereIn('id', $permissionIds)
+            ->where('name', CustodianRole::ReadOnly->value)
+            ->exists();
     }
 }

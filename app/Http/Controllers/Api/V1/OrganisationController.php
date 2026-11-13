@@ -563,6 +563,10 @@ class OrganisationController extends Controller
 
     public function createOrgWithUser(Request $request): JsonResponse
     {
+        if (! Gate::allows('notReadOnly')) {
+            return $this->ForbiddenResponse();
+        }
+
         $input = $request->all();
 
         $orgExists = Organisation::where('lead_applicant_email', $input['lead_applicant_email'])->exists();
@@ -650,6 +654,10 @@ class OrganisationController extends Controller
 
     public function storeUnclaimed(StoreUnclaimedOrganisation $request): JsonResponse
     {
+        if (! Gate::allows('notReadOnly')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $input = $request->all();
 
@@ -715,6 +723,10 @@ class OrganisationController extends Controller
 
     public function storeUnclaimedBeforeSuperadminInvitation(Request $request): JsonResponse
     {
+        if (! Gate::allows('notReadOnly')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $input = $request->all();
 
@@ -1964,6 +1976,10 @@ class OrganisationController extends Controller
 
     public function inviteToContactSuperadmin(OrganisationInviteUser $request, int $organisationId): JsonResponse
     {
+        if (! Gate::allows('notReadOnly')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $input = $request->all();
 
@@ -2080,6 +2096,10 @@ class OrganisationController extends Controller
      */
     public function custodianInviteUser(OrganisationInviteUser $request, int $id): JsonResponse
     {
+        if (! Gate::allows('notReadOnly')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $input = $request->all();
             if (User::where("email", $input['email'])->exists()) {
@@ -2161,6 +2181,10 @@ class OrganisationController extends Controller
     // This is the endpoint that the superadmin invitation triggers
     public function invite(OrganisationInvite $request, int $id): JsonResponse
     {
+        if (! Gate::allows('notReadOnly')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $organisation = Organisation::where('id', $id)->first();
             if (!$organisation) {
@@ -2228,6 +2252,10 @@ class OrganisationController extends Controller
     //Hide from swagger docs
     public function resendInvite(ResendInvite $request, int $id)
     {
+        if (! Gate::allows('notReadOnly')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $loggedInUserId = $request->user()?->id;
             $loggedInUser = User::where('id', $loggedInUserId)->first();
@@ -2706,6 +2734,10 @@ class OrganisationController extends Controller
 
     public function updateSponsorshipStatuses(UpdateSponsorshipStatus $request, int $id)
     {
+        if (! Gate::allows('notReadOnly')) {
+            return $this->ForbiddenResponse();
+        }
+
         $input = $request->all();
         $loggedInUserId = $request->user()->id;
 

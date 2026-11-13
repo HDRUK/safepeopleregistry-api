@@ -6,12 +6,9 @@ use Tests\TestCase;
 use App\Models\Custodian;
 use App\Models\CustodianUser;
 use App\Models\CustodianModelConfig;
-use App\Models\CustodianUserHasPermission;
-use App\Models\Permission;
-use App\Models\User;
 use App\Traits\CommonFunctions;
-use Illuminate\Support\Str;
 use Tests\Traits\Authorisation;
+use Tests\Traits\CustodianActors;
 use KeycloakGuard\ActingAsKeycloakUser;
 
 class CustodianModelConfigTest extends TestCase
@@ -19,6 +16,7 @@ class CustodianModelConfigTest extends TestCase
     use Authorisation;
     use ActingAsKeycloakUser;
     use CommonFunctions;
+    use CustodianActors;
 
     public const TEST_URL = '/api/v1/custodian_config';
 
@@ -27,41 +25,6 @@ class CustodianModelConfigTest extends TestCase
         parent::setUp();
         $this->withUsers(true);
         $this->grantCustodianAdmin(CustodianUser::find($this->custodian_admin->custodian_user_id));
-    }
-
-    private function grantCustodianAdmin(CustodianUser $custodianUser): void
-    {
-        $permission = Permission::where('name', 'CUSTODIAN_ADMIN')->firstOrFail();
-
-        CustodianUserHasPermission::firstOrCreate([
-            'custodian_user_id' => $custodianUser->id,
-            'permission_id' => $permission->id,
-        ]);
-    }
-
-    /**
-     * Create a User + linked CustodianUser in the given custodian, holding the given permission.
-     *
-     * @return array{0: User, 1: CustodianUser}
-     */
-    private function makeCustodianUserActor(int $custodianId, string $permissionName): array
-    {
-        $custodianUser = CustodianUser::factory()->create(['custodian_id' => $custodianId]);
-        $user = User::factory()->create([
-            'user_group' => User::GROUP_CUSTODIANS,
-            'email' => $custodianUser->email,
-            'keycloak_id' => (string) Str::uuid(),
-            'custodian_user_id' => $custodianUser->id,
-            'unclaimed' => 0,
-        ]);
-
-        $permission = Permission::where('name', $permissionName)->firstOrFail();
-        CustodianUserHasPermission::create([
-            'custodian_user_id' => $custodianUser->id,
-            'permission_id' => $permission->id,
-        ]);
-
-        return [$user, $custodianUser];
     }
 
     public function test_the_application_can_show_custodian_config_by_custodian_id(): void

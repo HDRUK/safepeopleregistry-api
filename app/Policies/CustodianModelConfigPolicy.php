@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
+use App\Enums\CustodianRole;
 use App\Models\CustodianModelConfig;
-use App\Models\CustodianUserHasPermission;
 use App\Models\User;
 
 class CustodianModelConfigPolicy
@@ -17,10 +17,13 @@ class CustodianModelConfigPolicy
         return null;
     }
 
+    /**
+     * Any custodian role (admin, approver or read-only) in the same Custodian can view config;
+     * only admins change it.
+     */
     public function viewByCustodian(User $user, int $custodianId): bool
     {
-        return $this->belongsToCustodian($user, $custodianId)
-            && ($this->isCustodianAdmin($user) || $this->isCustodianApprover($user));
+        return $this->belongsToCustodian($user, $custodianId) && $user->custodian_user?->hasAnyRole() === true;
     }
 
     public function view(User $user, CustodianModelConfig $config): bool
@@ -30,12 +33,12 @@ class CustodianModelConfigPolicy
 
     public function create(User $user, int $custodianId): bool
     {
-        return $this->belongsToCustodian($user, $custodianId) && $this->isCustodianAdmin($user);
+        return $this->canManage($user, $custodianId);
     }
 
     public function update(User $user, CustodianModelConfig $config): bool
     {
-        return $this->belongsToCustodian($user, $config->custodian_id) && $this->isCustodianAdmin($user);
+        return $this->canManage($user, $config->custodian_id);
     }
 
     public function delete(User $user, CustodianModelConfig $config): bool
@@ -45,26 +48,30 @@ class CustodianModelConfigPolicy
 
     public function updateByCustodian(User $user, int $custodianId): bool
     {
+        return $this->canManage($user, $custodianId);
+    }
+
+    /**
+     * Only a CUSTODIAN_ADMIN of the same Custodian may change config. Read-only wins,
+     * even if bad data also gives the user ADMIN.
+     */
+    private function canManage(User $user, int $custodianId): bool
+    {
+        if ($this->isCustodianReadOnly($user)) {
+            return false;
+        }
+
         return $this->belongsToCustodian($user, $custodianId) && $this->isCustodianAdmin($user);
     }
 
     private function isCustodianAdmin(User $user): bool
     {
-        return $user->custodian_user_id
-            && $this->custodianUserHasPermission($user->custodian_user_id, 'CUSTODIAN_ADMIN');
+        return $user->custodian_user?->hasPermission(CustodianRole::Admin->value) === true;
     }
 
-    private function isCustodianApprover(User $user): bool
+    private function isCustodianReadOnly(User $user): bool
     {
-        return $user->custodian_user_id
-            && $this->custodianUserHasPermission($user->custodian_user_id, 'CUSTODIAN_APPROVER');
-    }
-
-    private function custodianUserHasPermission(int $custodianUserId, string $permissionName): bool
-    {
-        return CustodianUserHasPermission::where('custodian_user_id', $custodianUserId)
-            ->whereHas('permission', fn ($query) => $query->where('name', $permissionName))
-            ->exists();
+        return $user->custodian_user?->isReadOnly() === true;
     }
 
     private function belongsToCustodian(User $user, int $custodianId): bool

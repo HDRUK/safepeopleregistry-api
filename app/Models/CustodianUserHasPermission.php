@@ -26,7 +26,7 @@ use Illuminate\Database\Eloquent\Model;
  *     )
  * )
  *
- * @property-read \App\Models\Permission $permission
+ * @property-read \App\Models\Permission|null $permission
  * @property int $custodian_user_id
  * @property int $permission_id
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CustodianUserHasPermission newModelQuery()

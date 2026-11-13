@@ -6,8 +6,11 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\State;
 use App\Models\Affiliation;
+use App\Models\Project;
 use App\Models\CustodianUser;
+use App\Models\CustodianUserHasPermission;
 use App\Models\CustodianHasProjectUser;
+use App\Enums\CustodianRole;
 use App\Enums\AffiliationEndDateSource;
 use App\Enums\NotificationAudience;
 use App\Traits\UserLeftProjectWebhook;
@@ -196,7 +199,8 @@ class AffiliationLeaverService
             return;
         }
 
-        foreach ($this->getCustodianUsers($projectUser->custodian_id) as $custodianUser) {
+        // Only users who can confirm the revocation; read-only users can't
+        foreach ($this->getCustodianUsers($projectUser->custodian_id, readOnly: false) as $custodianUser) {
             TriggerEmail::spawnEmail([
                 'type' => 'AFFILIATION_ACCESS_REVOCATION_REMINDER',
                 'identifier' => 'affiliation_access_revocation_reminder',
@@ -344,17 +348,13 @@ class AffiliationLeaverService
         foreach ($projectUsers as $projectUser) {
             $project = $projectUser->projectHasUser->project;
 
-            foreach ($this->getCustodianUsers($projectUser->custodian_id) as $custodianUser) {
-                Notification::send($custodianUser, new AffiliationEnded($user, $affiliation, NotificationAudience::Custodian, $project));
-                TriggerEmail::spawnEmail([
-                    'type' => 'AFFILIATION_ENDED_CUSTODIAN',
-                    'identifier' => 'affiliation_ended_custodian',
-                    'to' => $custodianUser->id,
-                    'by' => -1,
-                    'for' => $user->id,
-                    'affiliationId' => $affiliation->id,
-                    'projectId' => $project?->id,
-                ]);
+            // Users who can act are asked to revoke and confirm; read-only users are only told
+            foreach ($this->getCustodianUsers($projectUser->custodian_id, readOnly: false) as $custodianUser) {
+                $this->notifyCustodianUserOfLeaver($custodianUser, $user, $affiliation, $project, NotificationAudience::Custodian, 'affiliation_ended_custodian');
+            }
+
+            foreach ($this->getCustodianUsers($projectUser->custodian_id, readOnly: true) as $custodianUser) {
+                $this->notifyCustodianUserOfLeaver($custodianUser, $user, $affiliation, $project, NotificationAudience::CustodianReadOnly, 'affiliation_ended_custodian_read_only');
             }
         }
 
@@ -363,14 +363,45 @@ class AffiliationLeaverService
         }
     }
 
+    private function notifyCustodianUserOfLeaver(
+        User $custodianUser,
+        User $leaver,
+        Affiliation $affiliation,
+        ?Project $project,
+        NotificationAudience $audience,
+        string $emailIdentifier
+    ): void {
+        Notification::send($custodianUser, new AffiliationEnded($leaver, $affiliation, $audience, $project));
+        TriggerEmail::spawnEmail([
+            'type' => 'AFFILIATION_ENDED_CUSTODIAN',
+            'identifier' => $emailIdentifier,
+            'to' => $custodianUser->id,
+            'by' => -1,
+            'for' => $leaver->id,
+            'affiliationId' => $affiliation->id,
+            'projectId' => $project?->id,
+        ]);
+    }
+
     /**
+     * The Custodian's CUSTODIAN_READ_ONLY users ($readOnly true), or everyone else ($readOnly false).
+     *
      * @return Collection<int, User>
      */
-    private function getCustodianUsers(int $custodianId): Collection
+    private function getCustodianUsers(int $custodianId, bool $readOnly): Collection
     {
+        $readOnlyCustodianUserIds = CustodianUserHasPermission::query()
+            ->whereHas('permission', fn ($query) => $query->where('name', CustodianRole::ReadOnly->value))
+            ->select('custodian_user_id');
+
         return User::query()
             ->where('user_group', User::GROUP_CUSTODIANS)
             ->whereIn('custodian_user_id', CustodianUser::where('custodian_id', $custodianId)->select('id'))
+            ->when(
+                $readOnly,
+                fn ($query) => $query->whereIn('custodian_user_id', $readOnlyCustodianUserIds),
+                fn ($query) => $query->whereNotIn('custodian_user_id', $readOnlyCustodianUserIds)
+            )
             ->get();
     }
 }

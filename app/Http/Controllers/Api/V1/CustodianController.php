@@ -8,6 +8,7 @@ use TriggerEmail;
 use App\Models\User;
 use App\Models\Project;
 use App\Models\Custodian;
+use App\Exceptions\CustodianRoleConflictException;
 use App\Models\Permission;
 use App\Models\State;
 use Illuminate\Support\Str;
@@ -485,6 +486,10 @@ class CustodianController extends Controller
      */
     public function push(Request $request): JsonResponse
     {
+        if (! Gate::allows('notReadOnly')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $projectsAddedCount = 0;
             $organisationsAddedCount = 0;
@@ -705,6 +710,10 @@ class CustodianController extends Controller
      */
     public function addProject(GetCustodian $request, int $custodianId): JsonResponse
     {
+        if (! Gate::allows('notReadOnly')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $input = $request->only(app(Project::class)->getFillable());
 
@@ -1028,7 +1037,7 @@ class CustodianController extends Controller
     public function getAccessRevocations(GetCustodian $request, int $custodianId): JsonResponse
     {
         $custodian = Custodian::findOrFail($custodianId);
-        if (! Gate::allows('update', $custodian)) {
+        if (! Gate::allows('viewMembersOnly', $custodian)) {
             return $this->ForbiddenResponse();
         }
 
@@ -1469,6 +1478,9 @@ class CustodianController extends Controller
                 'message' => 'success',
                 'data' => $custodian,
             ], 201);
+        } catch (CustodianRoleConflictException $e) {
+            // The contact already holds another custodian role; let it render as a 422
+            throw $e;
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
