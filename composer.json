@@ -15,7 +15,7 @@
         "guzzlehttp/guzzle": "^7.2",
         "hdruk/laravel-job-failed-slack-notification": "^1.0",
         "hdruk/laravel-mjml": "^3.0",
-        "hdruk/laravel-hubspot-manager": "*",
+        "hdruk/laravel-hubspot-manager": "^1.0",
         "laravel/framework": "^12.0",
         "laravel/horizon": "^5.29",
         "laravel/octane": "^2.8.1",

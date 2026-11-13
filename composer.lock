@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ca7ec43d982b5f67c53c2a758b6b1366",
+    "content-hash": "1add3a3fa07b4e968d1c81824acebae5",
     "packages": [
         {
             "name": "brick/math",
@@ -2162,7 +2162,7 @@
         },
         {
             "name": "hdruk/laravel-hubspot-manager",
-            "version": "dev-dev",
+            "version": "1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/HDRUK/laravel-hubspot-manager.git",
@@ -2186,7 +2186,6 @@
                 "orchestra/testbench": "^9.0 || ^10.0",
                 "phpunit/phpunit": "^10.0 || ^11.0"
             },
-            "default-branch": true,
             "type": "library",
             "extra": {
                 "laravel": {
@@ -2211,6 +2210,13 @@
             "scripts": {
                 "test": [
                     "vendor/bin/phpunit"
+                ],
+                "analyse": [
+                    "phpstan analyse --memory-limit=1G"
+                ],
+                "check": [
+                    "@analyse",
+                    "@test"
                 ]
             },
             "license": [
@@ -2224,7 +2230,7 @@
             ],
             "description": "A laravel extension to make use of HubSpot user management",
             "support": {
-                "source": "https://github.com/HDRUK/laravel-hubspot-manager/tree/dev",
+                "source": "https://github.com/HDRUK/laravel-hubspot-manager/tree/1.0.0",
                 "issues": "https://github.com/HDRUK/laravel-hubspot-manager/issues"
             },
             "time": "2026-11-13T15:14:55+00:00"
