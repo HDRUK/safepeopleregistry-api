@@ -59,9 +59,21 @@ A global Pennant flag, **on by default**.
 
 Inviting a read-only user sends the `custodian_invite_read_only` email. The template is chosen from the user's role, not their first permission row.
 
-The deployment step `2026_11_12_120000_reseed_email_templates_custodian_read_only` adds the template to existing databases.
-
 Changing an existing user's role sends no email, the same as any role change.
+
+## Notifications
+
+Read-only users are kept informed, but are never asked to do something they can't do.
+
+| Event | Administrators and approvers | Read-only users |
+|---|---|---|
+| A user on one of the Custodian's projects leaves their organisation | `affiliation_ended_custodian` email and `AffiliationEnded` notification: revoke their data access, then confirm | `affiliation_ended_custodian_read_only` email and `AffiliationEnded` notification (`NotificationAudience::CustodianReadOnly`): for information; administrators and approvers have been asked to revoke |
+| A revocation is still unconfirmed (weekly reminder) | `affiliation_access_revocation_reminder` email | Not sent |
+| A user is added to one of the Custodian's projects through an affiliation | `project_user_added_custodian` email and in-app notification | The same |
+
+`AffiliationLeaverService::getCustodianUsers()` separates the two groups. The new-joiner email is sent from `ProjectHasUserObserver`, once for each project user added.
+
+The deployment step `2026_11_12_120000_reseed_email_templates_custodian_notifications` adds the new email templates to existing databases.
 
 ## Tests
 
@@ -72,3 +84,5 @@ Changing an existing user's role sends no email, the same as any role change.
 | `CustodianRoleExclusivityTest` | The 422s, the observer, `KEYCARD_*` unaffected, read-only wins with bad data |
 | `CustodianReadOnlyFeatureFlagTest` | The flag's seeder entry, migration and rollback; writes blocked while off; nobody becomes read-only while off |
 | `CustodianReadOnlyRouteCoverageTest` | Every write method in covered controllers is classified |
+| `AffiliationLeaverTest` | Read-only users get the information-only leaving email and notification, and no revocation reminders |
+| `ProjectUserJoinedEmailTest` | Every custodian user is emailed when a user joins one of their projects |
