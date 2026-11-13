@@ -4,7 +4,7 @@ namespace App\Enums;
 
 /**
  * Roles a Custodian User can hold. Each value is the name of its row in `permissions`.
- * A Custodian User holds at most one role (enforced in CustodianUserHasPermission).
+ * A Custodian User holds at most one role (enforced by CustodianUserHasPermissionObserver).
  * Other permissions, such as CUSTODIAN_KEYCARD_*, can sit alongside a role.
  */
 enum CustodianRole: string

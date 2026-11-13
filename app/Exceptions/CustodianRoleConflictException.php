@@ -8,7 +8,7 @@ use Illuminate\Http\Response;
 
 /**
  * Thrown when a Custodian User would end up holding more than one role
- * (see CustodianUser::ROLE_PERMISSIONS). Roles are mutually exclusive.
+ * (see CustodianRole::permissionNames()). Roles are mutually exclusive.
  */
 class CustodianRoleConflictException extends Exception
 {
