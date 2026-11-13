@@ -2162,16 +2162,16 @@
         },
         {
             "name": "hdruk/laravel-hubspot-manager",
-            "version": "1.0.0",
+            "version": "1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/HDRUK/laravel-hubspot-manager.git",
-                "reference": "e7b360447652a81d8b31ac8923c5f927cc3467b9"
+                "reference": "f3a3574bf0e2767ede29bf9db17fa020273c3c50"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/HDRUK/laravel-hubspot-manager/zipball/e7b360447652a81d8b31ac8923c5f927cc3467b9",
-                "reference": "e7b360447652a81d8b31ac8923c5f927cc3467b9",
+                "url": "https://api.github.com/repos/HDRUK/laravel-hubspot-manager/zipball/f3a3574bf0e2767ede29bf9db17fa020273c3c50",
+                "reference": "f3a3574bf0e2767ede29bf9db17fa020273c3c50",
                 "shasum": ""
             },
             "require": {
@@ -2230,10 +2230,10 @@
             ],
             "description": "A laravel extension to make use of HubSpot user management",
             "support": {
-                "source": "https://github.com/HDRUK/laravel-hubspot-manager/tree/1.0.0",
+                "source": "https://github.com/HDRUK/laravel-hubspot-manager/tree/1.0.1",
                 "issues": "https://github.com/HDRUK/laravel-hubspot-manager/issues"
             },
-            "time": "2026-11-13T15:14:55+00:00"
+            "time": "2026-11-13T17:39:32+00:00"
         },
         {
             "name": "hdruk/laravel-job-failed-slack-notification",
