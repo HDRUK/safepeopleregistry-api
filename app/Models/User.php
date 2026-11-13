@@ -21,6 +21,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Hdruk\LaravelHubspotManager\Traits\HasHubspotContact;
 use Hdruk\LaravelHubspotManager\Support\HubspotOwnership;
+use LogicException;
 
 /**
  * @OA\Schema (
@@ -519,7 +520,17 @@ class User extends Authenticatable
 
     public function hubspotOwnership(): HubspotOwnership
     {
-        return HubspotOwnership::owns(...array_filter([$this->hubspotEnvironmentProperty(), $this->hubspotPersonaProperty()]));
+        $env_property = $this->hubspotEnvironmentProperty()
+            ?? throw new LogicException(
+                "No HubSpot environment property for '" . app()->environment() . "'. "
+                . 'Add it to the environment map, or set HUBSPOT_INTEGRATION_ENABLED=false.'
+            );
+        $persona_property = $this->hubspotPersonaProperty();
+
+        return HubspotOwnership::owns(
+            $env_property,
+            ...($persona_property !== null ? [$persona_property] : []),
+        );
     }
 
     /**
