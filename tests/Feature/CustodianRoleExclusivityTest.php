@@ -102,6 +102,23 @@ class CustodianRoleExclusivityTest extends TestCase
         $this->assertFalse($approver->hasPermission(CustodianRole::Approver->value));
     }
 
+    public function test_changing_a_role_does_not_return_the_old_permissions(): void
+    {
+        // An approver editing someone loads the target's permissions in the policy, before update replaces them
+        [$approverActor] = $this->makeCustodianUserActor($this->custodianId, CustodianRole::Approver->value);
+        [, $colleague] = $this->makeCustodianUserActor($this->custodianId, CustodianRole::Approver->value);
+
+        $this->actingAsKeycloakUser($approverActor, $this->getMockedKeycloakPayload())
+            ->actingAs($approverActor)
+            ->json('PUT', self::TEST_URL . '/' . $colleague->id, [
+                'permissions' => [$this->permissionId(CustodianRole::ReadOnly)],
+            ])
+            ->assertStatus(200)
+            ->assertJsonMissingPath('data.user_permissions');
+
+        $this->assertTrue($colleague->fresh()->isReadOnly());
+    }
+
     public function test_a_second_role_cannot_be_added_directly(): void
     {
         [, $approver] = $this->makeCustodianUserActor($this->custodianId, CustodianRole::Approver->value);

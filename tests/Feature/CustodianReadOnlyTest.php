@@ -54,8 +54,10 @@ class CustodianReadOnlyTest extends TestCase
     {
         $invitee = $this->makeInvitee([CustodianRole::ReadOnly->value]);
 
+        // Looking up the role to pick the email must not add permissions to the response
         $this->as($this->custodian_admin)->json('POST', "/api/v1/custodian_users/invite/{$invitee->id}")
-            ->assertStatus(201);
+            ->assertStatus(201)
+            ->assertJsonMissingPath('data.user_permissions');
 
         $this->assertInviteEmailSent('custodian_invite_read_only');
     }

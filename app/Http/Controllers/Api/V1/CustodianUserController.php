@@ -497,6 +497,9 @@ class CustodianUserController extends Controller
             }
 
             if ($custodianUser->save()) {
+                // Role checks above may have loaded the permissions as they were before this update
+                $custodianUser->unsetRelation('userPermissions');
+
                 return response()->json([
                     'message' => 'success',
                     'data' => $custodianUser,
@@ -557,6 +560,9 @@ class CustodianUserController extends Controller
             ];
 
             TriggerEmail::spawnEmail($input);
+
+            // The role lookup above loads the permissions; keep them out of the response
+            $custodianUser->unsetRelation('userPermissions');
 
             return response()->json([
                 'message' => 'success',
