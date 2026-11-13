@@ -2166,22 +2166,24 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/HDRUK/laravel-hubspot-manager.git",
-                "reference": "728f0bc6371ed0b774b6ce4980595f5fadd2224a"
+                "reference": "e7b360447652a81d8b31ac8923c5f927cc3467b9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/HDRUK/laravel-hubspot-manager/zipball/728f0bc6371ed0b774b6ce4980595f5fadd2224a",
-                "reference": "728f0bc6371ed0b774b6ce4980595f5fadd2224a",
+                "url": "https://api.github.com/repos/HDRUK/laravel-hubspot-manager/zipball/e7b360447652a81d8b31ac8923c5f927cc3467b9",
+                "reference": "e7b360447652a81d8b31ac8923c5f927cc3467b9",
                 "shasum": ""
             },
             "require": {
-                "illuminate/bus": "^10.0 || ^11.0 || ^12.0",
-                "illuminate/http": "^10.0 || ^11.0 || ^12.0",
-                "illuminate/queue": "^10.0 || ^11.0 || ^12.0",
-                "illuminate/support": "^10.0 || ^11.0 || ^12.0"
+                "illuminate/bus": "^11.0 || ^12.0",
+                "illuminate/cache": "^11.0 || ^12.0",
+                "illuminate/http": "^11.0 || ^12.0",
+                "illuminate/queue": "^11.0 || ^12.0",
+                "illuminate/support": "^11.0 || ^12.0"
             },
             "require-dev": {
-                "orchestra/testbench": "^8.0 || ^9.0 || ^10.0",
+                "larastan/larastan": "^2.0 || ^3.0",
+                "orchestra/testbench": "^9.0 || ^10.0",
                 "phpunit/phpunit": "^10.0 || ^11.0"
             },
             "default-branch": true,
@@ -2225,7 +2227,7 @@
                 "source": "https://github.com/HDRUK/laravel-hubspot-manager/tree/dev",
                 "issues": "https://github.com/HDRUK/laravel-hubspot-manager/issues"
             },
-            "time": "2026-09-14T08:37:37+00:00"
+            "time": "2026-11-13T15:14:55+00:00"
         },
         {
             "name": "hdruk/laravel-job-failed-slack-notification",

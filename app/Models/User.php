@@ -20,7 +20,7 @@ use App\Traits\FilterManager;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Hdruk\LaravelHubspotManager\Traits\HasHubspotContact;
-use Hdruk\LaravelHubspotManager\Support\OnHubspotDelete;
+use Hdruk\LaravelHubspotManager\Support\HubspotOwnership;
 
 /**
  * @OA\Schema (
@@ -517,14 +517,9 @@ class User extends Authenticatable
         ];
     }
 
-    public function onHubspotDelete(): OnHubspotDelete
+    public function hubspotOwnership(): HubspotOwnership
     {
-        $toClear = array_filter([
-            $this->hubspotEnvironmentProperty(),
-            $this->hubspotPersonaProperty(),
-        ]);
-
-        return OnHubspotDelete::clearProperties(...$toClear);
+        return HubspotOwnership::owns(...array_filter([$this->hubspotEnvironmentProperty(), $this->hubspotPersonaProperty()]));
     }
 
     /**
