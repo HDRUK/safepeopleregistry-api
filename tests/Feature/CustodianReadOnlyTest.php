@@ -10,6 +10,7 @@ use App\Models\Custodian;
 use App\Models\CustodianModelConfig;
 use App\Models\CustodianUser;
 use App\Models\CustodianUserHasPermission;
+use App\Models\PendingInvite;
 use App\Models\Permission;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
@@ -106,8 +107,15 @@ class CustodianReadOnlyTest extends TestCase
 
     public function test_read_only_cannot_invite_for_the_custodian(): void
     {
+        $invitesBefore = PendingInvite::count();
+
         $this->as($this->readOnly)->json('POST', "/api/v1/custodians/{$this->custodian->id}/invite")
             ->assertStatus(403);
+        $this->assertSame($invitesBefore, PendingInvite::count());
+
+        $this->as($this->approver)->json('POST', "/api/v1/custodians/{$this->custodian->id}/invite")
+            ->assertStatus(201);
+        $this->assertGreaterThan($invitesBefore, PendingInvite::count());
     }
 
     public function test_read_only_can_list_access_revocations_but_cannot_confirm_or_approve(): void
@@ -160,11 +168,17 @@ class CustodianReadOnlyTest extends TestCase
 
     public function test_read_only_cannot_invite_users(): void
     {
-        $this->as($this->readOnly)->json('POST', '/api/v1/users/invite', [
+        $payload = [
             'first_name' => 'Jane',
             'last_name' => 'Doe',
-            'email' => 'jane.doe@example.com',
-        ])->assertStatus(403);
+            'email' => 'read-only-invite-test@example.com',
+        ];
+
+        $this->as($this->readOnly)->json('POST', '/api/v1/users/invite', $payload)->assertStatus(403);
+        $this->assertDatabaseMissing('users', ['email' => $payload['email']]);
+
+        $this->as($this->approver)->json('POST', '/api/v1/users/invite', $payload)->assertSuccessful();
+        $this->assertDatabaseHas('users', ['email' => $payload['email']]);
     }
 
     public function test_read_only_cannot_update_a_peer_but_can_update_themselves(): void
@@ -193,11 +207,18 @@ class CustodianReadOnlyTest extends TestCase
 
     public function test_read_only_cannot_create_custodian_users(): void
     {
-        $this->as($this->readOnly)->json('POST', '/api/v1/custodian_users', [
+        $payload = [
             'first_name' => 'Jane',
             'last_name' => 'Doe',
-            'email' => 'jane.doe@example.com',
-        ])->assertStatus(403);
+            'email' => 'read-only-custodian-user-test@example.com',
+            'permissions' => [Permission::where('name', CustodianRole::Approver->value)->firstOrFail()->id],
+        ];
+
+        $this->as($this->readOnly)->json('POST', '/api/v1/custodian_users', $payload)->assertStatus(403);
+        $this->assertDatabaseMissing('custodian_users', ['email' => $payload['email']]);
+
+        $this->as($this->approver)->json('POST', '/api/v1/custodian_users', $payload)->assertStatus(201);
+        $this->assertDatabaseHas('custodian_users', ['email' => $payload['email']]);
     }
 
     public function test_read_only_cannot_update_custodian_config(): void
@@ -208,8 +229,15 @@ class CustodianReadOnlyTest extends TestCase
             'active' => 1,
         ]);
 
-        $this->as($this->readOnly)->json('PUT', "/api/v1/custodian_config/{$config->id}", [])
+        $this->as($this->readOnly)->json('PUT', "/api/v1/custodian_config/{$config->id}", ['active' => 0])
             ->assertStatus(403);
+        $this->assertSame(1, (int) $config->fresh()->active);
+
+        // Only a CUSTODIAN_ADMIN may change config
+        [$admin] = $this->makeCustodianUserActor($this->custodian->id, CustodianRole::Admin->value);
+        $this->as($admin)->json('PUT', "/api/v1/custodian_config/{$config->id}", ['active' => 0])
+            ->assertStatus(200);
+        $this->assertSame(0, (int) $config->fresh()->active);
     }
 
     /**

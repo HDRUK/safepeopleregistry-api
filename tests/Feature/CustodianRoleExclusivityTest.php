@@ -5,10 +5,12 @@ namespace Tests\Feature;
 use App\Enums\CustodianRole;
 use App\Exceptions\CustodianRoleConflictException;
 use App\Models\Custodian;
+use App\Models\CustodianModelConfig;
 use App\Models\CustodianUser;
 use App\Models\CustodianUserHasPermission;
 use App\Models\Permission;
 use App\Models\User;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Http;
 use KeycloakGuard\ActingAsKeycloakUser;
 use Tests\TestCase;
@@ -129,6 +131,37 @@ class CustodianRoleExclusivityTest extends TestCase
 
         $this->assertSame(2, CustodianUserHasPermission::where('custodian_user_id', $approver->id)->count());
         $this->assertTrue($approver->fresh()->hasPermission(CustodianRole::Approver->value));
+    }
+
+    public function test_read_only_wins_when_bad_data_also_gives_a_user_admin(): void
+    {
+        // Observers are off here, so the exclusivity check doesn't stop the second role: bad data on purpose
+        [$both, $bothCustodianUser] = $this->makeCustodianUserActor($this->custodianId, CustodianRole::ReadOnly->value);
+        CustodianUserHasPermission::create([
+            'custodian_user_id' => $bothCustodianUser->id,
+            'permission_id' => $this->permissionId(CustodianRole::Admin),
+        ]);
+        $this->assertTrue($bothCustodianUser->fresh()->hasPermission(CustodianRole::Admin->value));
+
+        [, $colleague] = $this->makeCustodianUserActor($this->custodianId, CustodianRole::Approver->value);
+        $config = CustodianModelConfig::factory()->create([
+            'custodian_id' => $this->custodianId,
+            'decision_model_id' => 1,
+            'active' => 1,
+        ]);
+
+        $abilities = [
+            'create custodian user' => ['create', CustodianUser::class],
+            'update custodian user' => ['update', $colleague],
+            'create config' => ['create', [CustodianModelConfig::class, $this->custodianId]],
+            'update config' => ['update', $config],
+        ];
+
+        foreach ($abilities as $label => [$ability, $arguments]) {
+            // A plain admin passes, so a refusal below comes from the read-only role
+            $this->assertTrue(Gate::forUser($this->custodianAdmin)->allows($ability, $arguments), "Admin: {$label}");
+            $this->assertTrue(Gate::forUser($both)->denies($ability, $arguments), "Admin + read-only: {$label}");
+        }
     }
 
     public function test_inviting_a_custodian_whose_contact_already_holds_another_role_is_a_422(): void
