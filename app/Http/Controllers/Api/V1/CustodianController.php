@@ -8,6 +8,7 @@ use TriggerEmail;
 use App\Models\User;
 use App\Models\Project;
 use App\Models\Custodian;
+use App\Enums\CustodianRole;
 use App\Exceptions\CustodianRoleConflictException;
 use App\Models\Permission;
 use App\Models\State;
@@ -1377,6 +1378,12 @@ class CustodianController extends Controller
             $custodian = Custodian::where('id', $id)->first();
             if (! Gate::allows('update', $custodian)) {
                 return $this->ForbiddenResponse();
+            }
+
+            // The contact is made ADMIN below. Refuse before writing anything if they already hold another role
+            $existingContact = CustodianUser::where('email', $custodian['contact_email'])->first();
+            if ($existingContact?->hasAnyRole() && ! $existingContact->hasPermission(CustodianRole::Admin->value)) {
+                throw new CustodianRoleConflictException();
             }
 
             $unclaimedUser = RMC::createUnclaimedUser([

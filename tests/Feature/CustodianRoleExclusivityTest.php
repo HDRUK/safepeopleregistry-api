@@ -220,6 +220,31 @@ class CustodianRoleExclusivityTest extends TestCase
 
         $this->assertTrue($contact->fresh()->hasPermission(CustodianRole::Approver->value));
         $this->assertFalse($contact->fresh()->hasPermission(CustodianRole::Admin->value));
+
+        // The conflict is found before the invite writes anything
+        $this->assertDatabaseMissing('users', ['email' => $contact->email]);
+        $this->assertDatabaseMissing('custodian_model_configs', ['custodian_id' => $custodian->id]);
+    }
+
+    public function test_reinviting_a_custodian_whose_contact_is_already_admin_succeeds(): void
+    {
+        $contact = CustodianUser::factory()->create(['custodian_id' => $this->custodianId]);
+        CustodianUserHasPermission::create([
+            'custodian_user_id' => $contact->id,
+            'permission_id' => $this->permissionId(CustodianRole::Admin),
+        ]);
+        $custodian = Custodian::factory()->create(['contact_email' => $contact->email]);
+
+        // Every observer runs once they're on; the user observer would call Keycloak
+        Http::fake();
+        $this->enableObservers();
+
+        $this->actingAsKeycloakUser($this->admin, $this->getMockedKeycloakPayload())
+            ->actingAs($this->admin)
+            ->json('POST', "/api/v1/custodians/{$custodian->id}/invite")
+            ->assertStatus(201);
+
+        $this->assertTrue($contact->fresh()->hasPermission(CustodianRole::Admin->value));
     }
 
     private function permissionId(CustodianRole $role): int
