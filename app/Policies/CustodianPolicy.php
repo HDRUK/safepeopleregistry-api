@@ -30,20 +30,15 @@ class CustodianPolicy
         ]) || optional($user->custodian_user)->custodian_id === $custodian->id;
     }
 
-
     public function viewMembersOnly(User $user, Custodian $custodian): bool
     {
         return $user->isAdmin() || $this->isMember($user, $custodian);
     }
 
-
     public function update(User $user, Custodian $custodian): bool
     {
-        if ($user->isAdmin()) {
-            return true;
-        }
-
-        return $this->isMember($user, $custodian) && $user->custodian_user?->isReadOnly() !== true;
+        return $user->isAdmin()
+            || ($this->isMember($user, $custodian) && $user->custodian_user?->isReadOnly() !== true);
     }
 
     public function delete(User $user, Custodian $custodian): bool
