@@ -1382,7 +1382,7 @@ class CustodianController extends Controller
 
             // The contact is made ADMIN below. Refuse before writing anything if they already hold another role
             $existingContact = CustodianUser::where('email', $custodian['contact_email'])->first();
-            if ($existingContact?->hasAnyRole() && ! $existingContact->hasPermission(CustodianRole::Admin->value)) {
+            if ($existingContact?->hasAnyRole() && ! $existingContact->hasPermission(CustodianRole::Admin)) {
                 throw new CustodianRoleConflictException();
             }
 

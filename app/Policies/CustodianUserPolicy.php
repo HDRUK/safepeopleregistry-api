@@ -42,7 +42,7 @@ class CustodianUserPolicy
         }
 
         // A CUSTODIAN_APPROVER may manage other custodian users, but not a CUSTODIAN_ADMIN.
-        return $this->isCustodianApprover($user) && ! $custodianUser->hasPermission(CustodianRole::Admin->value);
+        return $this->isCustodianApprover($user) && ! $custodianUser->hasPermission(CustodianRole::Admin);
     }
 
     public function delete(User $user, CustodianUser $custodianUser): bool
@@ -57,12 +57,12 @@ class CustodianUserPolicy
 
     private function isCustodianAdmin(User $user): bool
     {
-        return $user->custodian_user?->hasPermission(CustodianRole::Admin->value) === true;
+        return $user->custodian_user?->hasPermission(CustodianRole::Admin) === true;
     }
 
     private function isCustodianApprover(User $user): bool
     {
-        return $user->custodian_user?->hasPermission(CustodianRole::Approver->value) === true;
+        return $user->custodian_user?->hasPermission(CustodianRole::Approver) === true;
     }
 
     private function isCustodianReadOnly(User $user): bool

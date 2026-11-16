@@ -83,8 +83,8 @@ class CustodianReadOnlyTest extends TestCase
             ->firstOrFail();
 
         $this->assertTrue($created->isReadOnly());
-        $this->assertFalse($created->hasPermission(CustodianRole::Admin->value));
-        $this->assertFalse($created->hasPermission(CustodianRole::Approver->value));
+        $this->assertFalse($created->hasPermission(CustodianRole::Admin));
+        $this->assertFalse($created->hasPermission(CustodianRole::Approver));
     }
 
     public function test_bulk_store_still_rejects_permissions_that_are_not_roles(): void

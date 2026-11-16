@@ -126,14 +126,14 @@ class CustodianUser extends Model
     }
 
     /**
-     * Whether this Custodian User holds the named permission. Queries each time rather than
+     * Whether this Custodian User holds the given role. Queries each time rather than
      * caching the relation, so a role change later in the request is seen and the permissions
      * aren't attached to the model (and so to a response).
      */
-    public function hasPermission(string $name): bool
+    public function hasPermission(CustodianRole $role): bool
     {
         return $this->userPermissions()
-            ->whereHas('permission', fn ($query) => $query->where('name', $name))
+            ->whereHas('permission', fn ($query) => $query->where('name', $role->value))
             ->exists();
     }
 
@@ -154,7 +154,7 @@ class CustodianUser extends Model
      */
     public function isReadOnly(): bool
     {
-        return $this->hasPermission(CustodianRole::ReadOnly->value);
+        return $this->hasPermission(CustodianRole::ReadOnly);
     }
 
     /**

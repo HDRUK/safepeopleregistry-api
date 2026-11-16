@@ -66,7 +66,7 @@ class CustodianModelConfigPolicy
 
     private function isCustodianAdmin(User $user): bool
     {
-        return $user->custodian_user?->hasPermission(CustodianRole::Admin->value) === true;
+        return $user->custodian_user?->hasPermission(CustodianRole::Admin) === true;
     }
 
     private function isCustodianReadOnly(User $user): bool

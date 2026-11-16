@@ -118,7 +118,7 @@ class CustodianReadOnlyFeatureFlagTest extends TestCase
             ->json('PUT', "/api/v1/custodian_users/{$approver->id}", $payload)
             ->assertStatus(422)
             ->assertJson(['message' => self::DISABLED_MESSAGE]);
-        $this->assertTrue($approver->fresh()->hasPermission(CustodianRole::Approver->value));
+        $this->assertTrue($approver->fresh()->hasPermission(CustodianRole::Approver));
         $this->assertFalse($approver->fresh()->isReadOnly());
 
         Feature::activate(self::FLAG);

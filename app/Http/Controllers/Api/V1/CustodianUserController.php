@@ -542,9 +542,9 @@ class CustodianUserController extends Controller
 
             // Look for the role rather than the first permission row, which could be a KEYCARD permission
             $emailIdentifier = match (true) {
-                $custodianUser->hasPermission(CustodianRole::ReadOnly->value) => 'custodian_invite_read_only',
-                $custodianUser->hasPermission(CustodianRole::Admin->value) => 'custodian_invite_administrator',
-                $custodianUser->hasPermission(CustodianRole::Approver->value) => 'custodian_invite_approver',
+                $custodianUser->hasPermission(CustodianRole::ReadOnly) => 'custodian_invite_read_only',
+                $custodianUser->hasPermission(CustodianRole::Admin) => 'custodian_invite_administrator',
+                $custodianUser->hasPermission(CustodianRole::Approver) => 'custodian_invite_approver',
                 default => '',
             };
 

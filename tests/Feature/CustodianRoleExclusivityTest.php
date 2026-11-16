@@ -76,8 +76,8 @@ class CustodianRoleExclusivityTest extends TestCase
             ->assertJson(['message' => CustodianRoleConflictException::MESSAGE]);
 
         $approver = $approver->fresh();
-        $this->assertTrue($approver->hasPermission(CustodianRole::Approver->value));
-        $this->assertFalse($approver->hasPermission(CustodianRole::ReadOnly->value));
+        $this->assertTrue($approver->hasPermission(CustodianRole::Approver));
+        $this->assertFalse($approver->hasPermission(CustodianRole::ReadOnly));
     }
 
     public function test_a_custodian_users_role_can_be_changed(): void
@@ -98,8 +98,8 @@ class CustodianRoleExclusivityTest extends TestCase
         $response->assertStatus(200);
 
         $approver = $approver->fresh();
-        $this->assertTrue($approver->hasPermission(CustodianRole::ReadOnly->value));
-        $this->assertFalse($approver->hasPermission(CustodianRole::Approver->value));
+        $this->assertTrue($approver->hasPermission(CustodianRole::ReadOnly));
+        $this->assertFalse($approver->hasPermission(CustodianRole::Approver));
     }
 
     public function test_changing_a_role_does_not_return_the_old_permissions(): void
@@ -122,7 +122,7 @@ class CustodianRoleExclusivityTest extends TestCase
     public function test_role_checks_see_a_role_change_on_the_same_instance(): void
     {
         [, $custodianUser] = $this->makeCustodianUserActor($this->custodianId, CustodianRole::Approver->value);
-        $this->assertTrue($custodianUser->hasPermission(CustodianRole::Approver->value));
+        $this->assertTrue($custodianUser->hasPermission(CustodianRole::Approver));
 
         CustodianUserHasPermission::where('custodian_user_id', $custodianUser->id)->delete();
         CustodianUserHasPermission::create([
@@ -130,8 +130,8 @@ class CustodianRoleExclusivityTest extends TestCase
             'permission_id' => $this->permissionId(CustodianRole::Admin),
         ]);
 
-        $this->assertTrue($custodianUser->hasPermission(CustodianRole::Admin->value));
-        $this->assertFalse($custodianUser->hasPermission(CustodianRole::Approver->value));
+        $this->assertTrue($custodianUser->hasPermission(CustodianRole::Admin));
+        $this->assertFalse($custodianUser->hasPermission(CustodianRole::Approver));
         // Checking a role doesn't attach the permissions to the model, so it can't change a response
         $this->assertFalse($custodianUser->relationLoaded('userPermissions'));
     }
@@ -181,7 +181,7 @@ class CustodianRoleExclusivityTest extends TestCase
         ]);
 
         $this->assertSame(2, CustodianUserHasPermission::where('custodian_user_id', $approver->id)->count());
-        $this->assertTrue($approver->fresh()->hasPermission(CustodianRole::Approver->value));
+        $this->assertTrue($approver->fresh()->hasPermission(CustodianRole::Approver));
     }
 
     public function test_read_only_wins_when_bad_data_also_gives_a_user_admin(): void
@@ -192,7 +192,7 @@ class CustodianRoleExclusivityTest extends TestCase
             'custodian_user_id' => $bothCustodianUser->id,
             'permission_id' => $this->permissionId(CustodianRole::Admin),
         ]);
-        $this->assertTrue($bothCustodianUser->fresh()->hasPermission(CustodianRole::Admin->value));
+        $this->assertTrue($bothCustodianUser->fresh()->hasPermission(CustodianRole::Admin));
 
         [, $colleague] = $this->makeCustodianUserActor($this->custodianId, CustodianRole::Approver->value);
         $config = CustodianModelConfig::factory()->create([
@@ -235,8 +235,8 @@ class CustodianRoleExclusivityTest extends TestCase
             ->assertStatus(422)
             ->assertJson(['message' => CustodianRoleConflictException::MESSAGE]);
 
-        $this->assertTrue($contact->fresh()->hasPermission(CustodianRole::Approver->value));
-        $this->assertFalse($contact->fresh()->hasPermission(CustodianRole::Admin->value));
+        $this->assertTrue($contact->fresh()->hasPermission(CustodianRole::Approver));
+        $this->assertFalse($contact->fresh()->hasPermission(CustodianRole::Admin));
 
         // The conflict is found before the invite writes anything
         $this->assertDatabaseMissing('users', ['email' => $contact->email]);
@@ -261,7 +261,7 @@ class CustodianRoleExclusivityTest extends TestCase
             ->json('POST', "/api/v1/custodians/{$custodian->id}/invite")
             ->assertStatus(201);
 
-        $this->assertTrue($contact->fresh()->hasPermission(CustodianRole::Admin->value));
+        $this->assertTrue($contact->fresh()->hasPermission(CustodianRole::Admin));
     }
 
     private function permissionId(CustodianRole $role): int

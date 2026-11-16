@@ -5,7 +5,7 @@ Custodian users with the `CUSTODIAN_READ_ONLY` role can see everything their Cus
 ## The role
 
 - **Custodian roles** are rows in `custodian_user_has_permissions` that point to `permissions`. There are three: `CUSTODIAN_ADMIN`, `CUSTODIAN_APPROVER` and `CUSTODIAN_READ_ONLY`. They're listed in `App\Enums\CustodianRole`.
-- **Checking a role:** `CustodianUser::hasPermission($name)` and `CustodianUser::isReadOnly()`. `isReadOnly()` ignores the feature flag, deliberately.
+- **Checking a role:** `CustodianUser::hasPermission(CustodianRole $role)` and `CustodianUser::isReadOnly()`. `isReadOnly()` ignores the feature flag, deliberately.
 - **Adding the permission:** the deployment step `2026_11_11_120000_add_custodian_read_only_permission` adds it to existing databases, and `PermissionSeeder` adds it to fresh ones.
 
 ### Roles are mutually exclusive
