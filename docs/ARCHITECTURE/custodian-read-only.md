@@ -79,13 +79,16 @@ The deployment step `2026_11_12_120000_reseed_email_templates_custodian_notifica
 
 ## Tests
 
-| Test | Covers |
-|---|---|
-| `CustodianReadOnlyTest` | Policy refusals, what read-only users can still do, the invite email, bulk store |
-| `CustodianReadOnlyGateTest` | The `notReadOnly` gate, one route per controller: a read-only user is refused and an approver succeeds |
-| `CustodianRoleExclusivityTest` | The 422s, the observer, `KEYCARD_*` unaffected, read-only wins with bad data |
-| `CustodianReadOnlyFeatureFlagTest` | The flag's seeder entry, migration and rollback; writes blocked while off; nobody becomes read-only while off |
-| `CustodianReadOnlyRouteCoverageTest` | Every write method in covered controllers is classified |
-| `AffiliationLeaverTest` | Read-only users get the information-only leaving email and notification, and no revocation reminders; a missing read-only template doesn't stop a user leaving |
-| `ProjectUserJoinedEmailTest` | Every custodian user is emailed when a user joins one of their projects; a missing template doesn't stop the user joining |
-| `CustodianNotificationEmailTemplatesStepTest` | The deployment step adds the templates, and fails if they can't be seeded |
+The tests are the source of truth for what's covered. Start with `tests/Feature/CustodianReadOnly*Test.php`
+and `CustodianRoleExclusivityTest`; other tests that use a read-only user live alongside the feature they cover
+(`grep -rl "CustodianRole::ReadOnly" tests` finds them).
+
+What they're there to guarantee:
+
+- **Read-only users can't write**, through policies or the `notReadOnly` gate, and an approver can still do the same thing.
+- **Read-only users keep what they're allowed**: reading, their own profile, notifications and checklist items.
+- **Every write method in a covered controller is classified.** `CustodianReadOnlyRouteCoverageTest` fails CI when one
+  is added without saying how read-only users are treated, so this one keeps itself current.
+- **Roles stay exclusive**, and read-only wins if bad data gives someone two roles.
+- **The feature flag never loosens access**: turning it off stops anyone becoming read-only, but never lets read-only users write.
+- **Read-only users are told, never asked to act**, and an information-only email failing never blocks the action.
