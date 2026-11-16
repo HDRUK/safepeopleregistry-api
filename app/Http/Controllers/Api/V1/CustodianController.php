@@ -1133,7 +1133,7 @@ class CustodianController extends Controller
 
         $searchName = $request->input('name');
 
-        $projectUsers = ProjectHasOrganisation::with([
+        $projectOrganisations = ProjectHasOrganisation::with([
             'organisation.sroOfficer',
             'project',
         ])
@@ -1156,7 +1156,7 @@ class CustodianController extends Controller
             })
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
-        return $this->OKResponse($projectUsers);
+        return $this->OKResponse($projectOrganisations);
     }
 
 

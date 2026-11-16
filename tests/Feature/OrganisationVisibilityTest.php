@@ -276,6 +276,26 @@ class OrganisationVisibilityTest extends TestCase
         $this->assertContains($organisation->id, $projectOrganisationIds());
     }
 
+    public function test_a_restricted_organisation_is_left_out_of_another_custodians_project_organisations_until_approved(): void
+    {
+        $organisation = $this->createOrganisationAs($this->researcher);
+        $otherCustodianId = $this->otherCustodian->custodian_user->custodian_id;
+        $this->linkToProjectOfCustodian($organisation, $otherCustodianId);
+
+        $listedOrganisationIds = fn () => $this->actingAs($this->otherCustodian)
+            ->json('GET', "/api/v1/custodians/{$otherCustodianId}/organisations")
+            ->assertStatus(200)
+            ->json('data.data.*.organisation_id');
+
+        $this->assertNotContains($organisation->id, $listedOrganisationIds());
+
+        $this->actingAs($this->admin)
+            ->json('PUT', self::TEST_URL . "/{$organisation->id}/approved", ['system_approved' => true])
+            ->assertSuccessful();
+
+        $this->assertContains($organisation->id, $listedOrganisationIds());
+    }
+
     public function test_a_restricted_organisation_is_left_out_of_a_users_projects_until_approved(): void
     {
         $organisation = $this->createOrganisationAs($this->researcher);
