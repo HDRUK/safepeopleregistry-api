@@ -76,7 +76,6 @@ class ProjectHasOrganisationController extends Controller
                 ->where([
                     'id' => $id,
                 ])
-                // A restricted Organisation the User can't see is treated as not found
                 ->whereIn('organisation_id', Organisation::visibleIdsFor($request->user()))
                 ->first();
 

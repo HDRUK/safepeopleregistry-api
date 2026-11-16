@@ -223,8 +223,6 @@ class CustodianHasProjectOrganisationController extends Controller
                     'project_has_organisation_id' => $projectOrganisationId,
                     'custodian_id' => $custodianId
                 ])
-                // Matches index: a restricted Organisation the User can't see is treated as not
-                // found (the existing null response), so its existence isn't revealed
                 ->whereHas('projectOrganisation', fn ($query) => $query->whereIn(
                     'organisation_id',
                     Organisation::visibleIdsFor($request->user())

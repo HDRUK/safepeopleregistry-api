@@ -284,7 +284,6 @@ class OrganisationController extends Controller
 
         $organisation = Organisation::find($id);
 
-        // 404 rather than 403, so a restricted Organisation's existence isn't revealed
         if (!$organisation || !Gate::allows('view', $organisation)) {
             return $this->NotFoundResponse();
         }
@@ -319,7 +318,6 @@ class OrganisationController extends Controller
     {
         $organisation = Organisation::find($id);
 
-        // 404 rather than 403, so a restricted Organisation's existence isn't revealed
         if (!$organisation || !Gate::allows('view', $organisation)) {
             return $this->NotFoundResponse();
         }
@@ -337,7 +335,6 @@ class OrganisationController extends Controller
     {
         $organisation = Organisation::find($id);
 
-        // 404 rather than 403, so a restricted Organisation's existence isn't revealed
         if (!$organisation || !Gate::allows('view', $organisation)) {
             return $this->NotFoundResponse();
         }
@@ -355,7 +352,6 @@ class OrganisationController extends Controller
     {
         $organisation = Organisation::find($id);
 
-        // 404 rather than 403, so a restricted Organisation's existence isn't revealed
         if (!$organisation || !Gate::allows('view', $organisation)) {
             return $this->NotFoundResponse();
         }
@@ -423,7 +419,6 @@ class OrganisationController extends Controller
     {
         $organisation = Organisation::find($id);
 
-        // 404 rather than 403, so a restricted Organisation's existence isn't revealed
         if (!$organisation || !Gate::allows('view', $organisation)) {
             return $this->NotFoundResponse();
         }
@@ -741,7 +736,6 @@ class OrganisationController extends Controller
                 'ico_date_registered' => $input['ico_date_registered'] ?? null,
                 'ico_expiry_date' => $input['ico_expiry_date'] ?? null,
             ]);
-            // Mass assignment protects the fields above; only the server-set restriction bypasses it
             $organisation->forceFill($restriction)->save();
 
             $organisation->setState(State::STATE_ORGANISATION_INVITED_BY_ADMIN);
@@ -814,7 +808,6 @@ class OrganisationController extends Controller
                     'ico_date_registered' => $input['ico_date_registered'] ?? null,
                     'ico_expiry_date' => $input['ico_expiry_date'] ?? null,
                 ]);
-                // Mass assignment protects the fields above; only the server-set restriction bypasses it
                 $newOrganisation->forceFill($restriction)->save();
                 $newOrganisation->setState(State::STATE_ORGANISATION_INVITED_BY_NONADMIN);
 
@@ -879,7 +872,6 @@ class OrganisationController extends Controller
                 'ico_date_registered' => $input['ico_date_registered'] ?? null,
                 'ico_expiry_date' => $input['ico_expiry_date'] ?? null,
             ]);
-            // Mass assignment protects the fields above; only the server-set restriction bypasses it
             $newOrganisation->forceFill($restriction)->save();
             $newOrganisation->setState(State::STATE_ORGANISATION_PLACEHOLDER);
 
@@ -890,15 +882,10 @@ class OrganisationController extends Controller
     }
 
     /**
-     * For a duplicate check that matched only an Organisation the User can't see, which means
-     * it's restricted and awaiting approval. Admins are told it's wanted so the User isn't left
-     * stuck, and the same code is returned whatever matched, so nothing more is revealed
-     * about the hidden Organisation.
+     * The same code is returned whatever matched, so nothing more is revealed about the hidden Organisation.
      */
     private function pendingApprovalConflict(User $user, Organisation $organisation): JsonResponse
     {
-        // Retries would otherwise fill admins' notifications with copies, so skip any admin
-        // who still has this User's request for this Organisation unread
         $alreadyNotified = DatabaseNotification::query()
             ->where('type', RestrictedOrganisationRequested::class)
             ->where('notifiable_type', (new User())->getMorphClass())
@@ -917,9 +904,7 @@ class OrganisationController extends Controller
     }
 
     /**
-     * A non-admin's new Organisation is hidden from other Users until system approved, see
-     * Organisation::scopeVisibleTo. Saved in the same insert, so the Organisation is never
-     * briefly visible before it is restricted.
+     * Saved in the same insert, so the Organisation is never briefly visible before it is restricted.
      *
      * @return array{is_restricted?: bool, created_by_custodian_id?: int|null, created_by_user_id?: int}
      */
@@ -1502,7 +1487,6 @@ class OrganisationController extends Controller
         try {
             $organisation = Organisation::find($id);
 
-            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
             if (!$organisation || !Gate::allows('view', $organisation)) {
                 return $this->NotFoundResponse();
             }
@@ -1581,7 +1565,6 @@ class OrganisationController extends Controller
     {
         $organisation = Organisation::find($organisationId);
 
-        // 404 rather than 403, so a restricted Organisation's existence isn't revealed
         if (!$organisation || !Gate::allows('view', $organisation)) {
             return $this->NotFoundResponse();
         }
@@ -1679,7 +1662,6 @@ class OrganisationController extends Controller
     {
         $organisation = Organisation::find($organisationId);
 
-        // 404 rather than 403, so a restricted Organisation's existence isn't revealed
         if (!$organisation || !Gate::allows('view', $organisation)) {
             return $this->NotFoundResponse();
         }
@@ -1792,7 +1774,6 @@ class OrganisationController extends Controller
         try {
             $org = Organisation::find($organisationId);
 
-            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
             if (!$org || !Gate::allows('view', $org)) {
                 return $this->NotFoundResponse();
             }
@@ -1880,7 +1861,6 @@ class OrganisationController extends Controller
         try {
             $org = Organisation::find($organisationId);
 
-            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
             if (!$org || !Gate::allows('view', $org)) {
                 return $this->NotFoundResponse();
             }
@@ -1918,7 +1898,6 @@ class OrganisationController extends Controller
         try {
             $organisation = Organisation::find($id);
 
-            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
             if (!$organisation || !Gate::allows('view', $organisation)) {
                 return $this->NotFoundResponse();
             }
@@ -2013,7 +1992,6 @@ class OrganisationController extends Controller
             // Checked before anything else, so outsiders cannot use this to probe which emails exist.
             $organisation = Organisation::find($id);
 
-            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
             if (!$organisation || !Gate::allows('view', $organisation)) {
                 return $this->NotFoundResponse();
             }
@@ -2119,8 +2097,7 @@ class OrganisationController extends Controller
 
             $organisation = Organisation::find($organisationId);
 
-            // 404 rather than 403, so a restricted Organisation's existence isn't revealed. The invite
-            // ability, not view, so the researcher who just created it can still ask the superadmin.
+            // The invite ability, not view, so the researcher who just created it can still ask the superadmin
             if (!$organisation || !Gate::allows('invite', $organisation)) {
                 return $this->NotFoundResponse();
             }
@@ -2236,8 +2213,7 @@ class OrganisationController extends Controller
         try {
             $organisation = Organisation::find($id);
 
-            // 404 rather than 403, so a restricted Organisation's existence isn't revealed. Checked
-            // first, so the email conflict check can't reveal a hidden Organisation either.
+            // Checked first, so the email conflict check can't reveal a hidden Organisation
             if (!$organisation || !Gate::allows('view', $organisation)) {
                 return $this->NotFoundResponse();
             }
@@ -2332,7 +2308,6 @@ class OrganisationController extends Controller
 
             $organisation = Organisation::find($id);
 
-            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
             if (!$organisation || !Gate::allows('invite', $organisation)) {
                 return $this->NotFoundResponse();
             }
@@ -2387,7 +2362,6 @@ class OrganisationController extends Controller
 
             return response()->json([
                 'message' => 'success',
-                // Only the ID for a creator who can't otherwise see the Organisation
                 'data' => Gate::allows('view', $organisation) ? $organisation : $organisation->id,
             ], 201);
         } catch (Exception $e) {
@@ -2401,7 +2375,6 @@ class OrganisationController extends Controller
         try {
             $organisation = Organisation::find($id);
 
-            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
             if (!$organisation || !Gate::allows('view', $organisation)) {
                 return $this->NotFoundResponse();
             }
@@ -2453,7 +2426,6 @@ class OrganisationController extends Controller
         try {
             $organisation = Organisation::find($id);
 
-            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
             if (!$organisation || !Gate::allows('view', $organisation)) {
                 return $this->NotFoundResponse();
             }
@@ -2482,7 +2454,6 @@ class OrganisationController extends Controller
         try {
             $organisation = Organisation::find($id);
 
-            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
             if (!$organisation || !Gate::allows('view', $organisation)) {
                 return $this->NotFoundResponse();
             }
@@ -2630,7 +2601,6 @@ class OrganisationController extends Controller
         try {
             $organisation = Organisation::find($id);
 
-            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
             if (!$organisation || !Gate::allows('view', $organisation)) {
                 return $this->NotFoundResponse();
             }
@@ -2750,7 +2720,6 @@ class OrganisationController extends Controller
         try {
             $organisation = Organisation::find($id);
 
-            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
             if (!$organisation || !Gate::allows('view', $organisation)) {
                 return $this->NotFoundResponse();
             }
@@ -3053,7 +3022,6 @@ class OrganisationController extends Controller
         try {
             $org = Organisation::find($organisationId);
 
-            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
             if (!$org || !Gate::allows('view', $org)) {
                 return $this->NotFoundResponse();
             }
@@ -3144,7 +3112,6 @@ class OrganisationController extends Controller
         try {
             $org = Organisation::find($organisationId);
 
-            // 404 rather than 403, so a restricted Organisation's existence isn't revealed
             if (!$org || !Gate::allows('view', $org)) {
                 return $this->NotFoundResponse();
             }

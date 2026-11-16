@@ -237,7 +237,6 @@ class OrganisationVisibilityTest extends TestCase
         $this->actingAs($this->otherCustodian)->json('GET', $projectOrganisationUrl)->assertStatus(404);
         $this->actingAs($this->researcher)->json('GET', $projectOrganisationUrl)->assertStatus(404);
         $this->actingAs($this->admin)->json('GET', $projectOrganisationUrl)->assertStatus(200);
-        // Same as an unknown project organisation, so the restricted one's existence isn't revealed
         $this->actingAs($this->otherCustodian)->json('GET', $custodianApprovalUrl)
             ->assertStatus(200)
             ->assertJsonPath('data', null);
@@ -286,8 +285,6 @@ class OrganisationVisibilityTest extends TestCase
             ->assertJsonMissingPath('data.data.0.organisation.lead_applicant_email');
     }
 
-    // A custodian can still find and add the researcher, but isn't told the name of
-    // an Organisation they aren't allowed to see
     public function test_project_users_hide_the_name_of_a_restricted_organisation_until_approved(): void
     {
         $organisation = $this->createOrganisationAs($this->researcher);
@@ -352,8 +349,6 @@ class OrganisationVisibilityTest extends TestCase
             ->assertJsonMissingPath('data.created_by_user_id');
     }
 
-    // The web lets a researcher pick an unapproved Organisation when the API returned
-    // it because it is restricted, i.e. they may see it (e.g. their current employer)
     public function test_a_researcher_is_told_their_current_employer_is_restricted(): void
     {
         $organisation = $this->createOrganisationAs($this->researcher);
@@ -419,7 +414,6 @@ class OrganisationVisibilityTest extends TestCase
         $this->assertSame(!$sroRequirement && $asAdmin, $organisation->fresh()->system_approved);
     }
 
-    // The flag-on create flow: /unclaimed, then /invite
     private function createUnclaimedOrganisationAs(User $actor): Organisation
     {
         $response = $this->actingAs($actor)
@@ -471,14 +465,12 @@ class OrganisationVisibilityTest extends TestCase
         });
     }
 
-    // A researcher's "Organisation not listed?" flow invites before their affiliation exists
     public function test_a_researcher_can_invite_the_restricted_organisation_they_created_once(): void
     {
         $this->withSroRequirement(true, function () {
             $organisation = $this->createUnclaimedOrganisationAs($this->researcher);
             $this->assertSame($this->researcher->id, $organisation->created_by_user_id);
 
-            // Only the ID, as the researcher can't otherwise see the Organisation
             $this->invite($this->researcher, $organisation->id)
                 ->assertStatus(201)
                 ->assertJsonPath('data', $organisation->id);
@@ -539,8 +531,6 @@ class OrganisationVisibilityTest extends TestCase
         ];
     }
 
-    // The custodian can't see, open or attach the match, so they're told it's awaiting
-    // approval and admins are told it's wanted, rather than leaving them stuck
     #[DataProvider('hiddenDuplicatePayloads')]
     public function test_requesting_another_custodians_restricted_organisation_notifies_admins(bool $withEmail): void
     {
@@ -555,7 +545,6 @@ class OrganisationVisibilityTest extends TestCase
         $count = Organisation::count();
         Notification::fake();
 
-        // Same code whatever matched, so nothing more about the hidden Organisation is revealed
         $this->requestOrganisation($this->otherCustodian, $withEmail
             ? ['organisation_name' => fake()->unique()->company(), 'lead_applicant_email' => $email]
             : $payload)
@@ -579,16 +568,13 @@ class OrganisationVisibilityTest extends TestCase
             ->assertStatus(409)
             ->assertJsonPath('data', 'pending_approval');
 
-        // Including the researcher re-submitting their own, which they can't see
         $retry($this->researcher);
         $retry($this->researcher);
         $this->assertSame(1, $notices());
 
-        // A different requester is a separate notice
         $retry($this->otherCustodian);
         $this->assertSame(2, $notices());
 
-        // Once read, a later retry is worth telling the admin about again
         $this->admin->unreadNotifications()->update(['read_at' => now()]);
         $retry($this->researcher);
         $this->assertSame(1, $notices());
@@ -660,9 +646,6 @@ class OrganisationVisibilityTest extends TestCase
     }
 
     /**
-     * Each route takes the Organisation ID ({organisation}) and, where needed, the acting
-     * User's Custodian ({custodian}) or a Project ({project}).
-     *
      * @return array<string, array{0: string, 1: string, 2?: array<string, string>, 3?: bool}>
      */
     public static function singleOrganisationRoutes(): array

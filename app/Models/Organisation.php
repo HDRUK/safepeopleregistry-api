@@ -706,11 +706,6 @@ class Organisation extends Model
         ]);
     }
 
-    /**
-     * Organisations the given User can see. A restricted Organisation (created by a
-     * non-admin) is hidden until system approved, except from admins, the Custodian
-     * that created it and the Users whose current Organisation it is.
-     */
     public function scopeVisibleTo(Builder $query, User $user): Builder
     {
         if ($user->isAdmin()) {
@@ -740,12 +735,8 @@ class Organisation extends Model
             ));
     }
 
-    /**
-     * Single-record form of scopeVisibleTo, so policies apply the same rule as lists.
-     */
     public function isVisibleTo(User $user): bool
     {
-        // Most Organisations are visible to everyone, so skip the query when that's already known.
         // Strict checks, so a partially loaded model (attributes null) falls through to the query.
         if ($user->isAdmin() || $this->is_restricted === false || $this->system_approved === true) {
             return true;
@@ -755,8 +746,7 @@ class Organisation extends Model
     }
 
     /**
-     * Whether /invite has been called for this Organisation, which creates its organisation
-     * User. Its state can't tell: /unclaimed already sets it to invited.
+     * Its state can't tell: /unclaimed already sets it to invited.
      */
     public function hasBeenInvited(): bool
     {
@@ -764,8 +754,6 @@ class Organisation extends Model
     }
 
     /**
-     * IDs of the Organisations the User can see, for filtering related records with whereIn.
-     *
      * @return Builder<Organisation>
      */
     public static function visibleIdsFor(User $user): Builder

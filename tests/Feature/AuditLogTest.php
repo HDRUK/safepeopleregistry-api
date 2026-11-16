@@ -204,7 +204,6 @@ class AuditLogTest extends TestCase
                 self::TEST_URL . "organisations/{$organisationIdTest}/history"
             );
 
-        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
         $response->assertStatus(404);
     }
 }

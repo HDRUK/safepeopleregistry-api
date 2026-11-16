@@ -542,7 +542,6 @@ class ProjectController extends Controller
     {
         $organisation = Organisation::find($organisationId);
 
-        // 404 rather than 403, so a restricted Organisation's existence isn't revealed
         if (!$organisation || !Gate::allows('view', $organisation)) {
             return $this->NotFoundResponse();
         }
@@ -1536,9 +1535,6 @@ class ProjectController extends Controller
     }
 
     /**
-     * The Organisations on these affiliations that the viewer may see, keyed by id for
-     * constant-time lookups. One query, limited to the Organisations already loaded.
-     *
      * @param  \Illuminate\Support\Collection<int, Affiliation>  $affiliations
      * @return array<int, int>
      */
@@ -1577,8 +1573,6 @@ class ProjectController extends Controller
     }
 
     /**
-     * A restricted Organisation the viewer can't see has its name withheld.
-     *
      * @param  array<int, int>  $visibleOrganisationIds  From visibleOrganisationIds()
      */
     public function formatProjectUserAffiliation(Affiliation $affiliation, User $user, int $projectId, $idCounter, array $visibleOrganisationIds): array

@@ -2073,7 +2073,6 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . "/{$organisationIdTest}"
             );
 
-        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
         $response->assertStatus(404);
     }
 
@@ -2088,7 +2087,6 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . "/{$organisationIdTest}/idvt"
             );
 
-        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
         $response->assertStatus(404);
     }
 
@@ -2103,7 +2101,6 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . "/{$organisationIdTest}/counts/certifications"
             );
 
-        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
         $response->assertStatus(404);
     }
 
@@ -2118,7 +2115,6 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . "/{$organisationIdTest}/counts/users"
             );
 
-        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
         $response->assertStatus(404);
     }
 
@@ -2133,7 +2129,6 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . "/{$organisationIdTest}/counts/projects/present"
             );
 
-        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
         $response->assertStatus(404);
     }
 
@@ -2148,7 +2143,6 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . "/{$organisationIdTest}/counts/projects/past"
             );
 
-        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
         $response->assertStatus(404);
     }
 
@@ -2163,7 +2157,6 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . "/{$organisationIdTest}/projects/present"
             );
 
-        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
         $response->assertStatus(404);
     }
 
@@ -2178,7 +2171,6 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . "/{$organisationIdTest}/projects/past"
             );
 
-        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
         $response->assertStatus(404);
     }
 
@@ -2193,7 +2185,6 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . "/{$organisationIdTest}/projects/future"
             );
 
-        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
         $response->assertStatus(404);
     }
 
@@ -2208,7 +2199,6 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . "/{$organisationIdTest}/projects"
             );
 
-        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
         $response->assertStatus(404);
     }
 
@@ -2223,7 +2213,6 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . "/{$organisationIdTest}/users"
             );
 
-        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
         $response->assertStatus(404);
     }
 
@@ -2238,7 +2227,6 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . "/{$organisationIdTest}/delegates"
             );
 
-        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
         $response->assertStatus(404);
     }
 
@@ -2253,7 +2241,6 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . "/{$organisationIdTest}/registries"
             );
 
-        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
         $response->assertStatus(404);
     }
 
@@ -2290,7 +2277,6 @@ class OrganisationTest extends TestCase
                 self::TEST_URL . "/{$organisationIdTest}/invite",
             );
 
-        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
         $response->assertStatus(404);
     }
 
@@ -2315,7 +2301,6 @@ class OrganisationTest extends TestCase
                 ],
             );
 
-        // 404, the same as for a restricted Organisation, so the response doesn't reveal which exist
         $response->assertStatus(404);
     }
 

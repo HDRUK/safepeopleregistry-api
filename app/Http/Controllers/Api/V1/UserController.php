@@ -833,7 +833,6 @@ class UserController extends Controller
             ->filterByState()
             ->filterByCommon()
             ->with([
-                // Restricted Organisations the User can't see are left out of each Project
                 'organisations' => fn ($query) => $query->whereIn(
                     'organisations.id',
                     Organisation::visibleIdsFor($request->user())

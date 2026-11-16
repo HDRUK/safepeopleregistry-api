@@ -7,10 +7,6 @@ use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
-/**
- * Tells admins a User tried to add an Organisation that matches a restricted one they
- * can't see, so they're waiting on its approval.
- */
 class RestrictedOrganisationRequested extends Notification
 {
     use Queueable;
@@ -21,17 +17,11 @@ class RestrictedOrganisationRequested extends Notification
     ) {
     }
 
-    /**
-     * Specify the delivery channels.
-     */
     public function via($notifiable)
     {
         return ['database'];
     }
 
-    /**
-     * Store the notification in the database.
-     */
     public function toDatabase($notifiable)
     {
         return [

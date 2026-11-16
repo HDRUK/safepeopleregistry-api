@@ -211,7 +211,6 @@ class AuditLogController extends Controller
         $loggedInUser = User::where('id', $loggedInUserId)->first();
         $organisation = Organisation::find($id);
 
-        // 404 rather than 403, so a restricted Organisation's existence isn't revealed
         if (!$organisation || !Gate::allows('view', $organisation)) {
             return $this->NotFoundResponse();
         }

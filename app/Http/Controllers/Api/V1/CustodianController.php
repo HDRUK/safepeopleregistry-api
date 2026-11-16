@@ -634,7 +634,6 @@ class CustodianController extends Controller
         $projects = Project::searchViaRequest()
             ->applySorting()
             ->with([
-                // Restricted Organisations the User can't see are left out of each Project
                 'organisations' => fn ($query) => $query->whereIn(
                     'organisations.id',
                     Organisation::visibleIdsFor($request->user())
@@ -1351,7 +1350,6 @@ class CustodianController extends Controller
     {
         $organisation = Organisation::find($organisationId);
 
-        // 404 rather than 403, so a restricted Organisation's existence isn't revealed
         if (!$organisation || !Gate::allows('view', $organisation)) {
             return $this->NotFoundResponse();
         }

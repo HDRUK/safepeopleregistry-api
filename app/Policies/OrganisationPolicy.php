@@ -23,9 +23,6 @@ class OrganisationPolicy
         return $this->update($user, $organisation);
     }
 
-    /**
-     * Visibility lives in Organisation::scopeVisibleTo so lists and single records agree.
-     */
     public function view(User $user, Organisation $organisation): bool
     {
         return $organisation->isVisibleTo($user);
