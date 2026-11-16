@@ -126,29 +126,26 @@ class CustodianUser extends Model
     }
 
     /**
-     * Whether this Custodian User holds the named permission. Loads the permissions
-     * once, so repeated checks in a request don't query again.
+     * Whether this Custodian User holds the named permission. Queries each time rather than
+     * caching the relation, so a role change later in the request is seen and the permissions
+     * aren't attached to the model (and so to a response).
      */
     public function hasPermission(string $name): bool
     {
-        $this->loadMissing('userPermissions.permission');
-
-        return $this->userPermissions->contains(
-            fn (CustodianUserHasPermission $row) => $row->permission?->name === $name
-        );
+        return $this->userPermissions()
+            ->whereHas('permission', fn ($query) => $query->where('name', $name))
+            ->exists();
     }
 
     /**
      * Whether this Custodian User holds any custodian role (see CustodianRole). KEYCARD_*
-     * permissions aren't roles.
+     * permissions aren't roles. Queries each time, like hasPermission().
      */
     public function hasAnyRole(): bool
     {
-        $this->loadMissing('userPermissions.permission');
-
-        return $this->userPermissions->contains(
-            fn (CustodianUserHasPermission $row) => in_array($row->permission?->name, CustodianRole::permissionNames(), true)
-        );
+        return $this->userPermissions()
+            ->whereHas('permission', fn ($query) => $query->whereIn('name', CustodianRole::permissionNames()))
+            ->exists();
     }
 
     /**

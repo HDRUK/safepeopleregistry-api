@@ -119,6 +119,23 @@ class CustodianRoleExclusivityTest extends TestCase
         $this->assertTrue($colleague->fresh()->isReadOnly());
     }
 
+    public function test_role_checks_see_a_role_change_on_the_same_instance(): void
+    {
+        [, $custodianUser] = $this->makeCustodianUserActor($this->custodianId, CustodianRole::Approver->value);
+        $this->assertTrue($custodianUser->hasPermission(CustodianRole::Approver->value));
+
+        CustodianUserHasPermission::where('custodian_user_id', $custodianUser->id)->delete();
+        CustodianUserHasPermission::create([
+            'custodian_user_id' => $custodianUser->id,
+            'permission_id' => $this->permissionId(CustodianRole::Admin),
+        ]);
+
+        $this->assertTrue($custodianUser->hasPermission(CustodianRole::Admin->value));
+        $this->assertFalse($custodianUser->hasPermission(CustodianRole::Approver->value));
+        // Checking a role doesn't attach the permissions to the model, so it can't change a response
+        $this->assertFalse($custodianUser->relationLoaded('userPermissions'));
+    }
+
     public function test_has_any_role_is_true_only_for_a_custodian_role(): void
     {
         [, $readOnly] = $this->makeCustodianUserActor($this->custodianId, CustodianRole::ReadOnly->value);
