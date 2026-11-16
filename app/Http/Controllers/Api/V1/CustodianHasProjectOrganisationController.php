@@ -106,10 +106,7 @@ class CustodianHasProjectOrganisationController extends Controller
                 }
             ])
                 ->where('custodian_id', $custodianId)
-                ->whereHas('projectOrganisation', fn ($query) => $query->whereIn(
-                    'organisation_id',
-                    Organisation::visibleIdsFor($request->user())
-                ))
+                ->visibleTo($request->user())
                 ->when(!empty($searchName), function ($query) use ($searchName) {
                     $query->where(function ($subQuery) use ($searchName) {
 
@@ -223,10 +220,7 @@ class CustodianHasProjectOrganisationController extends Controller
                     'project_has_organisation_id' => $projectOrganisationId,
                     'custodian_id' => $custodianId
                 ])
-                ->whereHas('projectOrganisation', fn ($query) => $query->whereIn(
-                    'organisation_id',
-                    Organisation::visibleIdsFor($request->user())
-                ))
+                ->visibleTo($request->user())
                 ->first();
 
             return $this->OKResponse($puhca);

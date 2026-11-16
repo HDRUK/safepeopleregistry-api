@@ -6,7 +6,6 @@ use Exception;
 use App\Http\Traits\Responses;
 use App\Traits\CommonFunctions;
 use App\Http\Controllers\Controller;
-use App\Models\Organisation;
 use App\Models\ProjectHasOrganisation;
 use App\Http\Requests\ProjectHasOrganisations\GetProjectHasOrganisation;
 
@@ -76,7 +75,7 @@ class ProjectHasOrganisationController extends Controller
                 ->where([
                     'id' => $id,
                 ])
-                ->whereIn('organisation_id', Organisation::visibleIdsFor($request->user()))
+                ->visibleTo($request->user())
                 ->first();
 
             if (!$phu) {
