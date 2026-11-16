@@ -20,6 +20,7 @@ use App\Enums\AffiliationEndDateSource;
 use App\Notifications\Affiliations\AffiliationEnded;
 use App\Notifications\Affiliations\AffiliationEndingSoon;
 use App\Notifications\Affiliations\AffiliationEndDateRecorded;
+use Hdruk\LaravelMjml\Models\EmailTemplate;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 use Spatie\Activitylog\Models\Activity;
@@ -186,6 +187,22 @@ class AffiliationLeaverTest extends TestCase
         // Users who can act: unchanged
         Notification::assertSentTo($this->custodian_admin, AffiliationEnded::class, fn (AffiliationEnded $notification) =>
             str_contains($notification->generateMessage(), 'You must revoke'));
+        $this->assertEmailTemplateSentTo($this->custodian_admin, 'affiliation_ended_custodian');
+    }
+
+    public function test_a_missing_read_only_email_template_does_not_stop_a_user_leaving(): void
+    {
+        EmailTemplate::where('identifier', 'affiliation_ended_custodian_read_only')->forceDelete();
+        [$readOnly] = $this->makeCustodianUserActor($this->custodianId, CustodianRole::ReadOnly->value);
+        $affiliation = $this->createAffiliation(State::STATE_AFFILIATION_APPROVED);
+        $this->addToProject($affiliation);
+
+        $this->recordEndDate($this->delegate, $affiliation, Carbon::today()->subWeek()->toDateString())
+            ->assertStatus(200);
+
+        $this->assertSame(State::STATE_AFFILIATION_LEFT, $affiliation->fresh()->getState());
+        // Read-only users are still told in the app, and users who can act still get their email
+        Notification::assertSentTo($readOnly, AffiliationEnded::class);
         $this->assertEmailTemplateSentTo($this->custodian_admin, 'affiliation_ended_custodian');
     }
 

@@ -13,6 +13,7 @@ use App\Models\ProjectHasOrganisation;
 use App\Traits\ValidationManager;
 use App\Traits\UserLeftProjectWebhook;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use App\Models\CustodianHasProjectUser;
 use Illuminate\Support\Facades\Notification;
 use Carbon\Carbon;
@@ -255,15 +256,26 @@ class ProjectHasUserObserver
                     );
 
                     Notification::send($custodianUser['user'], $custodianNotification);
-                    TriggerEmail::spawnEmail([
-                        'type' => 'PROJECT_USER_ADDED_CUSTODIAN',
-                        'identifier' => 'project_user_added_custodian',
-                        'to' => $custodianUser['user']->id,
-                        'by' => -1,
-                        'for' => $user->id,
-                        'affiliationId' => $affiliation->id,
-                        'projectId' => $project->id,
-                    ]);
+
+                    // The email only repeats the in-app notification, so a failure mustn't stop the user joining
+                    try {
+                        TriggerEmail::spawnEmail([
+                            'type' => 'PROJECT_USER_ADDED_CUSTODIAN',
+                            'identifier' => 'project_user_added_custodian',
+                            'to' => $custodianUser['user']->id,
+                            'by' => -1,
+                            'for' => $user->id,
+                            'affiliationId' => $affiliation->id,
+                            'projectId' => $project->id,
+                        ]);
+                    } catch (\Throwable $e) {
+                        Log::warning('Project user added email not sent', [
+                            'identifier' => 'project_user_added_custodian',
+                            'recipient_user_id' => $custodianUser['user']->id,
+                            'project_id' => $project->id,
+                            'error' => $e->getMessage(),
+                        ]);
+                    }
                 }
             }
         }

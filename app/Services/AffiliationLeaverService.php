@@ -20,6 +20,7 @@ use App\Notifications\Affiliations\AffiliationEndingSoon;
 use App\Notifications\Affiliations\AffiliationEndDateRecorded;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use TriggerEmail;
 
@@ -372,7 +373,7 @@ class AffiliationLeaverService
         string $emailIdentifier
     ): void {
         Notification::send($custodianUser, new AffiliationEnded($leaver, $affiliation, $audience, $project));
-        TriggerEmail::spawnEmail([
+        $email = [
             'type' => 'AFFILIATION_ENDED_CUSTODIAN',
             'identifier' => $emailIdentifier,
             'to' => $custodianUser->id,
@@ -380,7 +381,25 @@ class AffiliationLeaverService
             'for' => $leaver->id,
             'affiliationId' => $affiliation->id,
             'projectId' => $project?->id,
-        ]);
+        ];
+
+        if ($audience !== NotificationAudience::CustodianReadOnly) {
+            TriggerEmail::spawnEmail($email);
+
+            return;
+        }
+
+        // Read-only users are only being told, so a failed email mustn't stop the user leaving
+        try {
+            TriggerEmail::spawnEmail($email);
+        } catch (\Throwable $e) {
+            Log::warning('Affiliation ended email not sent', [
+                'identifier' => $emailIdentifier,
+                'recipient_user_id' => $custodianUser->id,
+                'affiliation_id' => $affiliation->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     /**

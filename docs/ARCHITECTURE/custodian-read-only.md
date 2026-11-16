@@ -73,7 +73,9 @@ Read-only users are kept informed, but are never asked to do something they can'
 
 `AffiliationLeaverService::getCustodianUsers()` separates the two groups. The new-joiner email is sent from `ProjectHasUserObserver`, once for each project user added.
 
-The deployment step `2026_11_12_120000_reseed_email_templates_custodian_notifications` adds the new email templates to existing databases.
+The new-joiner email and the read-only leaving email only repeat an in-app notification, so they're sent on a best-effort basis. If one can't be sent (for example, its template is missing), the failure is logged as a warning and the user is still added to the project or still leaves. The email to administrators and approvers, which asks them to act, isn't wrapped this way.
+
+The deployment step `2026_11_12_120000_reseed_email_templates_custodian_notifications` adds the new email templates to existing databases. It doesn't catch seeding errors, so a failure halts the deploy and the step runs again next time.
 
 ## Tests
 
@@ -84,5 +86,6 @@ The deployment step `2026_11_12_120000_reseed_email_templates_custodian_notifica
 | `CustodianRoleExclusivityTest` | The 422s, the observer, `KEYCARD_*` unaffected, read-only wins with bad data |
 | `CustodianReadOnlyFeatureFlagTest` | The flag's seeder entry, migration and rollback; writes blocked while off; nobody becomes read-only while off |
 | `CustodianReadOnlyRouteCoverageTest` | Every write method in covered controllers is classified |
-| `AffiliationLeaverTest` | Read-only users get the information-only leaving email and notification, and no revocation reminders |
-| `ProjectUserJoinedEmailTest` | Every custodian user is emailed when a user joins one of their projects |
+| `AffiliationLeaverTest` | Read-only users get the information-only leaving email and notification, and no revocation reminders; a missing read-only template doesn't stop a user leaving |
+| `ProjectUserJoinedEmailTest` | Every custodian user is emailed when a user joins one of their projects; a missing template doesn't stop the user joining |
+| `CustodianNotificationEmailTemplatesStepTest` | The deployment step adds the templates, and fails if they can't be seeded |
