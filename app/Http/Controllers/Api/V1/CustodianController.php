@@ -634,10 +634,7 @@ class CustodianController extends Controller
         $projects = Project::searchViaRequest()
             ->applySorting()
             ->with([
-                'organisations' => fn ($query) => $query->whereIn(
-                    'organisations.id',
-                    Organisation::visibleIdsFor($request->user())
-                ),
+                'organisations' => fn ($query) => $query->visibleTo($request->user()),
                 'modelState.state',
             ])
             ->filterByCommon()

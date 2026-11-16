@@ -6,11 +6,14 @@ use App\Jobs\SendEmailJob;
 use App\Models\Affiliation;
 use App\Models\Custodian;
 use App\Models\CustodianHasProjectOrganisation;
+use App\Models\CustodianHasProjectUser;
 use App\Models\CustodianUser;
 use App\Models\Organisation;
 use App\Models\Project;
 use App\Models\ProjectHasCustodian;
 use App\Models\ProjectHasOrganisation;
+use App\Models\ProjectHasUser;
+use App\Models\ProjectRole;
 use App\Models\Registry;
 use App\Models\User;
 use App\Notifications\OrganisationRequested;
@@ -262,6 +265,43 @@ class OrganisationVisibilityTest extends TestCase
         $projectOrganisationIds = fn () => $this->actingAs($this->otherCustodian)
             ->json('GET', "/api/v1/custodians/{$otherCustodianId}/projects?per_page=1000")
             ->assertStatus(200)
+            ->json('data.data.*.organisations.*.id');
+
+        $this->assertNotContains($organisation->id, $projectOrganisationIds());
+
+        $this->actingAs($this->admin)
+            ->json('PUT', self::TEST_URL . "/{$organisation->id}/approved", ['system_approved' => true])
+            ->assertSuccessful();
+
+        $this->assertContains($organisation->id, $projectOrganisationIds());
+    }
+
+    public function test_a_restricted_organisation_is_left_out_of_a_users_projects_until_approved(): void
+    {
+        $organisation = $this->createOrganisationAs($this->researcher);
+        $otherCustodianId = $this->otherCustodian->custodian_user->custodian_id;
+        $projectOrganisation = $this->linkToProjectOfCustodian($organisation, $otherCustodianId);
+
+        $affiliation = Affiliation::factory()->create([
+            'organisation_id' => $organisation->id,
+            'registry_id' => $this->researcher->registry_id,
+            'current_employer' => true,
+        ]);
+        $projectHasUser = ProjectHasUser::create([
+            'project_id' => $projectOrganisation->project_id,
+            'user_digital_ident' => $this->researcher->registry->digi_ident,
+            'project_role_id' => ProjectRole::first()->id,
+            'affiliation_id' => $affiliation->id,
+        ]);
+        CustodianHasProjectUser::create([
+            'project_has_user_id' => $projectHasUser->id,
+            'custodian_id' => $otherCustodianId,
+        ]);
+
+        $projectOrganisationIds = fn () => $this->actingAs($this->otherCustodian)
+            ->json('GET', "/api/v1/users/{$this->researcher->id}/projects")
+            ->assertStatus(200)
+            ->assertJsonPath('data.data.0.id', $projectOrganisation->project_id)
             ->json('data.data.*.organisations.*.id');
 
         $this->assertNotContains($organisation->id, $projectOrganisationIds());
