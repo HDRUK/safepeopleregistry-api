@@ -39,7 +39,7 @@ down.
 ## Horizon configuration
 
 `config/horizon.php` defines one supervisor (`supervisor-1`) on the `default`
-queue: `tries=3`, `backoff=5`, `timeout=120`, auto-balancing (the same
+queue: `tries=3`, `backoff=5`, `timeout=90`, auto-balancing (the same
 retry settings the old `queue:work` command used). Process counts vary per
 `APP_ENV`: `prod`, `preprod`, `dev`, `local`.
 
