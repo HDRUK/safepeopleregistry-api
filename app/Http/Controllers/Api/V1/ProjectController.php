@@ -767,7 +767,7 @@ class ProjectController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 
@@ -864,7 +864,7 @@ class ProjectController extends Controller
      */
     public function update(UpdateProject $request, int $id): JsonResponse
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 
@@ -932,7 +932,7 @@ class ProjectController extends Controller
 
     public function resendSponsorshipRequest(SponsorshipResendRequest $request, int $projectId, int $organisationId)
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 
@@ -1133,7 +1133,7 @@ class ProjectController extends Controller
      */
     public function MakePrimaryContact(MakePrimaryContact $request, int $projectId, int $registryId): JsonResponse
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 
@@ -1246,7 +1246,7 @@ class ProjectController extends Controller
      */
     public function updateAllProjectUsers(UpdateAllProjectUsers $request, int $projectId): JsonResponse
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 
@@ -1421,7 +1421,7 @@ class ProjectController extends Controller
      */
     public function destroy(DeleteProject $request, int $id): JsonResponse
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 
@@ -1522,7 +1522,7 @@ class ProjectController extends Controller
 
     public function updateProjectUser(UpdateProjectUser $request, int $projectId, int $registryId): JsonResponse
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 

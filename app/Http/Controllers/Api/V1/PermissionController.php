@@ -160,7 +160,7 @@ class PermissionController extends Controller
 
     public function assignOrganisationPermissionsToFrom(AssignOrganisationPermissionToFrom $request): JsonResponse
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 
@@ -198,7 +198,7 @@ class PermissionController extends Controller
 
     public function assignUserPermissionsToFrom(AssignUserPermissionToFrom $request): JsonResponse
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 

@@ -15,7 +15,7 @@ class TriggerEmailController extends Controller
 
     public function spawnEmail(Request $request): JsonResponse
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 

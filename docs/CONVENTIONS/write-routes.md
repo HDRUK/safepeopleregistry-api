@@ -15,12 +15,13 @@ A write route is any non-GET route behind `auth:api`. Custodian users can hold t
          return false;
      }
      ```
-   - If the route has no other authorisation check, use the `notReadOnly` gate as the first statement in the method:
+   - If the route has no other authorisation check, use the `write` gate as the first statement in the method:
      ```php
-     if (! Gate::allows('notReadOnly')) {
+     if (Gate::denies('write')) {
          return $this->ForbiddenResponse();
      }
      ```
+     The gate only enforces the read-only restriction. It passes for everyone else, so it is not a substitute for a real permission check.
    - Never base the check on the `CustodianReadOnlyEnabled` feature flag. Read-only users are refused whatever the flag says.
 3. **Classify the method in `tests/Feature/CustodianReadOnlyRouteCoverageTest.php`.**
    - If the controller is on `COVERED_CONTROLLERS`, add `ShortController@method` to `REFUSES_READ_ONLY`, `CUSTODIANS_CANNOT_USE` or `ALLOWED`. CI fails until you do.

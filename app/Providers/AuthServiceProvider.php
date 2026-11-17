@@ -52,9 +52,8 @@ class AuthServiceProvider extends ServiceProvider
             return $user->user_group === User::GROUP_ADMINS;
         });
 
-        // Refuses CUSTODIAN_READ_ONLY users. For write routes that have no other authorisation
-        // check; routes with a policy refuse read-only users in the policy instead.
-        Gate::define('notReadOnly', function (User $user) {
+
+        Gate::define('write', function (User $user) {
             return $user->custodian_user?->isReadOnly() !== true;
         });
     }

@@ -121,7 +121,7 @@ class ValidationCheckController extends Controller
      */
     public function store(CreateValidationCheckRequest $request): JsonResponse
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 
@@ -177,7 +177,7 @@ class ValidationCheckController extends Controller
      */
     public function update(UpdateValidationCheck $request, $id): JsonResponse
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 
@@ -245,7 +245,7 @@ class ValidationCheckController extends Controller
      */
     public function destroy(DeleteValidationCheck $request, int $id): JsonResponse
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 
@@ -359,7 +359,7 @@ class ValidationCheckController extends Controller
      */
     public function createCustodianValidationChecks(Request $request, int $custodianId): JsonResponse
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 

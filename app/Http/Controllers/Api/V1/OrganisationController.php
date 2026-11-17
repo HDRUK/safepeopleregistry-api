@@ -563,7 +563,7 @@ class OrganisationController extends Controller
 
     public function createOrgWithUser(Request $request): JsonResponse
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 
@@ -654,7 +654,7 @@ class OrganisationController extends Controller
 
     public function storeUnclaimed(StoreUnclaimedOrganisation $request): JsonResponse
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 
@@ -723,7 +723,7 @@ class OrganisationController extends Controller
 
     public function storeUnclaimedBeforeSuperadminInvitation(Request $request): JsonResponse
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 
@@ -1976,7 +1976,7 @@ class OrganisationController extends Controller
 
     public function inviteToContactSuperadmin(OrganisationInviteUser $request, int $organisationId): JsonResponse
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 
@@ -2096,7 +2096,7 @@ class OrganisationController extends Controller
      */
     public function custodianInviteUser(OrganisationInviteUser $request, int $id): JsonResponse
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 
@@ -2181,7 +2181,7 @@ class OrganisationController extends Controller
     // This is the endpoint that the superadmin invitation triggers
     public function invite(OrganisationInvite $request, int $id): JsonResponse
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 
@@ -2252,7 +2252,7 @@ class OrganisationController extends Controller
     //Hide from swagger docs
     public function resendInvite(ResendInvite $request, int $id)
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 
@@ -2734,7 +2734,7 @@ class OrganisationController extends Controller
 
     public function updateSponsorshipStatuses(UpdateSponsorshipStatus $request, int $id)
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 

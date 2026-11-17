@@ -160,7 +160,7 @@ class ProjectDetailController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 
@@ -240,7 +240,7 @@ class ProjectDetailController extends Controller
      */
     public function update(UpdateProjectDetail $request, int $id): JsonResponse
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 
@@ -308,7 +308,7 @@ class ProjectDetailController extends Controller
      */
     public function destroy(DeleteProjectDetail $request, int $id): JsonResponse
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 

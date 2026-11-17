@@ -40,7 +40,7 @@ There's no middleware and no global `Gate::before`. Each write is refused where 
    - `UserPolicy::invite`.
    - `ActionLogPolicy::update`, for Custodian action logs only.
    - `CustodianUserPolicy` and `CustodianModelConfigPolicy` write abilities.
-2. **The `notReadOnly` gate** (`AuthServiceProvider`). Where a write has no other authorisation check, the controller method starts with `Gate::allows('notReadOnly')`. The gate refuses read-only users and allows everyone else.
+2. **The `write` gate** (`AuthServiceProvider`). Where a write has no other authorisation check, the controller method starts with `if (Gate::denies('write'))`. The gate refuses read-only users and allows everyone else, so it only enforces the read-only restriction and is not a general write permission.
 
 `tests/Feature/CustodianReadOnlyRouteCoverageTest.php` lists every write method in the controllers custodian users work with, and how each one treats read-only users. CI fails when a write method is added to one of those controllers without being classified.
 
@@ -85,7 +85,7 @@ and `CustodianRoleExclusivityTest`; other tests that use a read-only user live a
 
 What they're there to guarantee:
 
-- **Read-only users can't write**, through policies or the `notReadOnly` gate, and an approver can still do the same thing.
+- **Read-only users can't write**, through policies or the `write` gate, and an approver can still do the same thing.
 - **Read-only users keep what they're allowed**: reading, their own profile, notifications and checklist items.
 - **Every write method in a covered controller is classified.** `CustodianReadOnlyRouteCoverageTest` fails CI when one
   is added without saying how read-only users are treated, so this one keeps itself current.

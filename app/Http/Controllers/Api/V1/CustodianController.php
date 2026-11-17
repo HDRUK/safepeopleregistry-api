@@ -487,7 +487,7 @@ class CustodianController extends Controller
      */
     public function push(Request $request): JsonResponse
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 
@@ -711,7 +711,7 @@ class CustodianController extends Controller
      */
     public function addProject(GetCustodian $request, int $custodianId): JsonResponse
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 

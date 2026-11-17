@@ -45,7 +45,7 @@ class CustodianReadOnlyRouteCoverageTest extends TestCase
     ];
 
     /**
-     * A policy ability or the notReadOnly gate returns 403 for read-only users.
+     * A policy ability or the write gate returns 403 for read-only users.
      *
      * @var array<int, string>
      */
@@ -69,7 +69,7 @@ class CustodianReadOnlyRouteCoverageTest extends TestCase
         'CustodianModelConfigController@updateDecisionModels',
         // UserPolicy::invite
         'UserController@invite',
-        // notReadOnly gate
+        // write gate
         'CustodianController@addProject',
         'CustodianController@push',
         'OrganisationController@createOrgWithUser',

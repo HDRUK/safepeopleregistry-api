@@ -129,7 +129,7 @@ class ProjectHasUserController extends Controller
      */
     public function delete(DeleteProjectHasUser $request, int $id)
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 

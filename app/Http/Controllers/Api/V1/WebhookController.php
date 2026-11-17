@@ -179,7 +179,7 @@ class WebhookController extends Controller
      */
     public function createReceiver(Request $request): JsonResponse
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 
@@ -253,7 +253,7 @@ class WebhookController extends Controller
      */
     public function updateReceiver(UpdateReceiverByCustodian $request, int $custodianId): JsonResponse
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 
@@ -323,7 +323,7 @@ class WebhookController extends Controller
      */
     public function deleteReceiver(DeleteReceiverByCustodian $request, int $custodianId): JsonResponse
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 

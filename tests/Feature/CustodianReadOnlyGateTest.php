@@ -23,7 +23,7 @@ use Tests\Traits\Authorisation;
 use Tests\Traits\CustodianActors;
 
 /**
- * The notReadOnly gate guards write routes that have no other authorisation check.
+ * The write gate guards write routes that have no other authorisation check.
  *
  * Each test sends the same valid request twice: a CUSTODIAN_READ_ONLY user is refused and nothing
  * is written, then a CUSTODIAN_APPROVER in the same Custodian succeeds. The approver half shows the
@@ -56,10 +56,10 @@ class CustodianReadOnlyGateTest extends TestCase
 
     public function test_the_gate_only_refuses_read_only_custodian_users(): void
     {
-        $this->assertTrue(Gate::forUser($this->readOnly)->denies('notReadOnly'));
-        $this->assertTrue(Gate::forUser($this->approver)->allows('notReadOnly'));
-        $this->assertTrue(Gate::forUser($this->admin)->allows('notReadOnly'));
-        $this->assertTrue(Gate::forUser($this->user)->allows('notReadOnly'));
+        $this->assertTrue(Gate::forUser($this->readOnly)->denies('write'));
+        $this->assertTrue(Gate::forUser($this->approver)->allows('write'));
+        $this->assertTrue(Gate::forUser($this->admin)->allows('write'));
+        $this->assertTrue(Gate::forUser($this->user)->allows('write'));
     }
 
     public function test_validation_log_comments(): void

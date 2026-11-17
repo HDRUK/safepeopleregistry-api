@@ -250,7 +250,7 @@ class ValidationLogController extends Controller
      */
     public function updateCustodianValidationLogs(UpdateByCustodianValidationLog $request, int $custodianId): JsonResponse
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 
@@ -407,7 +407,7 @@ class ValidationLogController extends Controller
      */
     public function update(UpdateValidationLog $request, $id): JsonResponse
     {
-        if (! Gate::allows('notReadOnly')) {
+        if (Gate::denies('write')) {
             return $this->ForbiddenResponse();
         }
 
