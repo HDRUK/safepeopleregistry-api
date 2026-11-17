@@ -633,7 +633,10 @@ class CustodianController extends Controller
 
         $projects = Project::searchViaRequest()
             ->applySorting()
-            ->with(['organisations', 'modelState.state'])
+            ->with([
+                'organisations' => fn ($query) => $query->visibleTo($request->user()),
+                'modelState.state',
+            ])
             ->filterByCommon()
             ->filterByState()
             ->whereHas('custodians', function ($query) use ($custodianId) {
@@ -1130,13 +1133,14 @@ class CustodianController extends Controller
 
         $searchName = $request->input('name');
 
-        $projectUsers = ProjectHasOrganisation::with([
+        $projectOrganisations = ProjectHasOrganisation::with([
             'organisation.sroOfficer',
             'project',
         ])
             ->whereHas('project.custodians', function ($query) use ($custodianId) {
                 $query->where('custodian_id', $custodianId);
             })
+            ->visibleTo($request->user())
             ->when(!empty($searchName), function ($query) use ($searchName) {
                 $query->where(function ($subQuery) use ($searchName) {
                     $subQuery->whereHas('project', function ($q) use ($searchName) {
@@ -1152,7 +1156,7 @@ class CustodianController extends Controller
             })
             ->paginate((int)$this->getSystemConfig('PER_PAGE'));
 
-        return $this->OKResponse($projectUsers);
+        return $this->OKResponse($projectOrganisations);
     }
 
 
@@ -1331,7 +1335,7 @@ class CustodianController extends Controller
      *      ),
      *      @OA\Response(
      *          response=404,
-     *          description="Organisation users not found",
+     *          description="Organisation users not found, or the Organisation is restricted and not visible to the user",
      *          @OA\JsonContent(
      *              type="object",
      *              @OA\Property(property="message", type="string", example="Organisation users not found")
@@ -1341,6 +1345,12 @@ class CustodianController extends Controller
      */
     public function getOrganisationUsers(GetOrganisationUser $request, int $custodianId, int $organisationId): JsonResponse
     {
+        $organisation = Organisation::find($organisationId);
+
+        if (!$organisation || !Gate::allows('view', $organisation)) {
+            return $this->NotFoundResponse();
+        }
+
         $users = User::searchViaRequest()
                     ->applySorting()
                     ->with([

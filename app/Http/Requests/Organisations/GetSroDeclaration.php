@@ -17,7 +17,6 @@ class GetSroDeclaration extends BaseFormRequest
             'id' => [
                 'required',
                 'integer',
-                'exists:organisations,id',
             ],
     ];
     }

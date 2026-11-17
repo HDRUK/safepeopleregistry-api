@@ -17,7 +17,6 @@ class GetPresentProject extends BaseFormRequest
             'id' => [
                 'required',
                 'integer',
-                'exists:organisations,id',
             ],
         ];
     }

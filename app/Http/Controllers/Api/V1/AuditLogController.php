@@ -10,6 +10,7 @@ use App\Models\CustodianHasProjectUser;
 use App\Http\Traits\Responses;
 use App\Traits\CommonFunctions;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Gate;
 use Spatie\Activitylog\Models\Activity;
 use App\Http\Resources\ActivityResource;
 use App\Http\Requests\AuditLog\GetUserHistory;
@@ -210,7 +211,7 @@ class AuditLogController extends Controller
         $loggedInUser = User::where('id', $loggedInUserId)->first();
         $organisation = Organisation::find($id);
 
-        if (!$organisation) {
+        if (!$organisation || !Gate::allows('view', $organisation)) {
             return $this->NotFoundResponse();
         }
 

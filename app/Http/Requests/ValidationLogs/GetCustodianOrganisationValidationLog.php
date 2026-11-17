@@ -22,7 +22,6 @@ class GetCustodianOrganisationValidationLog extends BaseFormRequest
             'organisationId' => [
                 'required',
                 'integer',
-                'exists:organisations,id',
             ],
         ];
     }
