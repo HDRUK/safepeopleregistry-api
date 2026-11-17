@@ -19,6 +19,7 @@ use App\Traits\StateWorkflow;
 use App\Traits\FilterManager;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use Laravel\Pennant\Feature;
 use Hdruk\LaravelHubspotManager\Traits\HasHubspotContact;
 use Hdruk\LaravelHubspotManager\Support\HubspotOwnership;
 use LogicException;
