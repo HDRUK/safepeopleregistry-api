@@ -192,7 +192,7 @@ return [
             'memory' => 128,
             'tries' => 3,
             'backoff' => 5, // seconds between retries (matches the old queue:work --backoff=5)
-            'timeout' => 120,
+            'timeout' => 90,
             'nice' => 0,
         ],
     ],
