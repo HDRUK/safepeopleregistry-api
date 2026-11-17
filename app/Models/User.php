@@ -562,4 +562,12 @@ class User extends Authenticatable
             ? self::HUBSPOT_PREFIX . '__prod_persona'
             : null;
     }
+
+    public static function hubspotSyncEnabled(): bool
+    {
+        // An explicit 'for' scope: this function is also called
+        // in queue workers and console commands, where no user is
+        // logged in, so the scope must be global.
+        return Feature::for(null)->active('HubspotEnabled');
+    }
 }
