@@ -191,6 +191,7 @@ return [
             'maxJobs' => 0,
             'memory' => 128,
             'tries' => 3,
+            'backoff' => 5, // seconds between retries (matches the old queue:work --backoff=5)
             'timeout' => 120,
             'nice' => 0,
         ],
@@ -228,4 +229,15 @@ return [
                 'balanceCooldown' => 3,
             ],
         ],
-    ],];
+
+        // Fallback: Horizon starts NO workers for an APP_ENV it doesn't
+        // recognise. Must stay last (first wildcard match wins). See
+        // docs/ARCHITECTURE/QUEUE_WORKERS.md.
+        '*' => [
+            'supervisor-1' => [
+                'maxProcesses' => 1,
+                'minProcesses' => 1,
+            ],
+        ],
+    ],
+];
