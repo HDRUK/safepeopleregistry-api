@@ -479,8 +479,6 @@ class Organisation extends Model
             'idvt_completed_at',
             'permissions',
             'files',
-            // is_restricted is returned: the web needs it to tell which unapproved
-            // Organisations the API let a researcher see (see scopeVisibleTo)
             'created_by_custodian_id',
             'created_by_user_id',
          ];
