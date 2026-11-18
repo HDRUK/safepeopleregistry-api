@@ -15,6 +15,9 @@
   <php>
     <env name="APP_ENV" value="testing"/>
     <env name="APP_DEBUG" value="false"/>
+    <!-- Test-only key (not a secret): CI has no .env, and web-group middleware (EncryptCookies) needs one. See docs/CONVENTIONS/testing-app-key.md -->
+    <env name="APP_KEY" value="base64:qaLp2St6XQYsdzgEfhTl2keRfXHB3vMU08EyqxxeN3M=" force="true"/>
+    <server name="APP_KEY" value="base64:qaLp2St6XQYsdzgEfhTl2keRfXHB3vMU08EyqxxeN3M=" force="true"/>
     <env name="BCRYPT_ROUNDS" value="12"/>
     <env name="CACHE_DRIVER" value="array"/>
     <env name="DB_CONNECTION" value="sqlite"/>
