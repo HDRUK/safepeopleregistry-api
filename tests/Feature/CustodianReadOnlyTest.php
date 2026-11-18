@@ -87,6 +87,24 @@ class CustodianReadOnlyTest extends TestCase
         $this->assertFalse($created->hasPermission(CustodianRole::Approver));
     }
 
+    public function test_store_accepts_read_only(): void
+    {
+        $this->as($this->custodian_admin)->json('POST', '/api/v1/custodian_users', [
+            'first_name' => 'Jane',
+            'last_name' => 'Doe',
+            'email' => 'read-only-store@example.com',
+            'permissions' => [Permission::where('name', CustodianRole::ReadOnly->value)->firstOrFail()->id],
+        ])->assertStatus(201);
+
+        $created = CustodianUser::where('email', 'read-only-store@example.com')
+            ->where('custodian_id', $this->custodian->id)
+            ->firstOrFail();
+
+        $this->assertTrue($created->isReadOnly());
+        $this->assertFalse($created->hasPermission(CustodianRole::Admin));
+        $this->assertFalse($created->hasPermission(CustodianRole::Approver));
+    }
+
     public function test_bulk_store_still_rejects_permissions_that_are_not_roles(): void
     {
         $this->bulkStore('keycard-bulk@example.com', 'CUSTODIAN_KEYCARD_CREATE')
