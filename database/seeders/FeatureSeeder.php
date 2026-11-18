@@ -25,6 +25,7 @@ class FeatureSeeder extends Seeder
             ['name' => 'LinkedIdentitiesEnabled', 'value' => 'true', 'description' => 'Enable linking external identity providers (ORCID, GitHub) to a researcher account.'],
             ['name' => 'SroRequirementEnabled', 'value' => 'false', 'description' => 'Require an SRO on an Organisation account.'],
             ['name' => 'CustodianReadOnlyEnabled', 'value' => 'true', 'description' => 'Enable read-only access for custodian users. When off, read-only users are shown a notice to contact support.'],
+            ['name' => 'HubspotEnabled', 'value' => 'false', 'description' => 'Enable Hubspot integration. This overrides the HUBSPOT_INTEGRATION_ENABLED environment variable.'],
         ];
 
         foreach ($globalFeatures as $feature) {

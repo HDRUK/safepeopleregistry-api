@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\FilterManager;
 use App\Traits\SearchManager;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -166,6 +167,14 @@ class CustodianHasProjectOrganisation extends Model
     public function projectOrganisation(): BelongsTo
     {
         return $this->belongsTo(ProjectHasOrganisation::class, 'project_has_organisation_id');
+    }
+
+    public function scopeVisibleTo(Builder $query, User $user): Builder
+    {
+        return $query->whereIn(
+            $query->qualifyColumn('project_has_organisation_id'),
+            ProjectHasOrganisation::query()->visibleTo($user)->select('id')
+        );
     }
 
     /**

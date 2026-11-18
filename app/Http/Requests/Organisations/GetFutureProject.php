@@ -17,7 +17,6 @@ class GetFutureProject extends BaseFormRequest
             'id' => [
                 'required',
                 'integer',
-                'exists:organisations,id',
             ],
         ];
     }

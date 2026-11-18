@@ -204,8 +204,6 @@ class AuditLogTest extends TestCase
                 self::TEST_URL . "organisations/{$organisationIdTest}/history"
             );
 
-        $response->assertStatus(400);
-        $message = $response->decodeResponseJson()['message'];
-        $this->assertEquals('Invalid argument(s)', $message);
+        $response->assertStatus(404);
     }
 }

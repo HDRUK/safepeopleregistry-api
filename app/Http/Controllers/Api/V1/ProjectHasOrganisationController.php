@@ -48,7 +48,7 @@ class ProjectHasOrganisationController extends Controller
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="Project-organisation relationship not found",
+     *         description="Project-organisation relationship not found, or the Organisation is restricted and not visible to the user",
      *         @OA\JsonContent(
      *             type="object",
      *             @OA\Property(property="message", type="string", example="Not found")
@@ -74,7 +74,9 @@ class ProjectHasOrganisationController extends Controller
             ])
                 ->where([
                     'id' => $id,
-                ])->first();
+                ])
+                ->visibleTo($request->user())
+                ->first();
 
             if (!$phu) {
                 return $this->NotFoundResponse();
