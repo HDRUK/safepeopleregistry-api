@@ -82,6 +82,14 @@ platform (GDPR data minimisation).
 To change who can view it, edit the `viewHorizon` gate only. The login
 callback and `Horizon::auth` both use it.
 
+## Logging
+
+The `web` session cookie is a super-admin credential and the callback URL
+carries the OAuth `code`/`state`, so the global `LogRequestResponse`
+middleware skips `horizon*` and `auth/horizon/*` entirely and masks
+`cookie`/`set-cookie` headers everywhere. See
+[REQUEST_RESPONSE_LOGGING.md](REQUEST_RESPONSE_LOGGING.md).
+
 ## Tests
 
 `tests/Feature/HorizonBrowserAuthTest.php` covers the session regression,
