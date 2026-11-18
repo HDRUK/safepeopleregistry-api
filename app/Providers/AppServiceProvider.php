@@ -32,6 +32,8 @@ use App\Observers\OrganisationObserver;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
 use App\Observers\CustodianUserObserver;
+use App\Models\CustodianUserHasPermission;
+use App\Observers\CustodianUserHasPermissionObserver;
 use App\Models\OrganisationHasSubsidiary;
 use App\Observers\ProjectHasUserObserver;
 use App\Observers\ValidationCheckObserver;
@@ -73,6 +75,7 @@ class AppServiceProvider extends ServiceProvider
         Custodian::observe(CustodianObserver::class);
         CustodianModelConfig::observe(CustodianModelConfigObserver::class);
         CustodianUser::observe(CustodianUserObserver::class);
+        CustodianUserHasPermission::observe(CustodianUserHasPermissionObserver::class);
         User::observe(UserObserver::class);
         UserHasDepartments::observe(UserHasDepartmentsObserver::class);
         Organisation::observe(OrganisationObserver::class);

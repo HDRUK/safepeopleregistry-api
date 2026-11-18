@@ -8,6 +8,8 @@ use TriggerEmail;
 use App\Models\User;
 use App\Models\Project;
 use App\Models\Custodian;
+use App\Enums\CustodianRole;
+use App\Exceptions\CustodianRoleConflictException;
 use App\Models\Permission;
 use App\Models\State;
 use Illuminate\Support\Str;
@@ -485,6 +487,10 @@ class CustodianController extends Controller
      */
     public function push(Request $request): JsonResponse
     {
+        if (Gate::denies('write')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $projectsAddedCount = 0;
             $organisationsAddedCount = 0;
@@ -708,6 +714,10 @@ class CustodianController extends Controller
      */
     public function addProject(GetCustodian $request, int $custodianId): JsonResponse
     {
+        if (Gate::denies('write')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $input = $request->only(app(Project::class)->getFillable());
 
@@ -1031,7 +1041,7 @@ class CustodianController extends Controller
     public function getAccessRevocations(GetCustodian $request, int $custodianId): JsonResponse
     {
         $custodian = Custodian::findOrFail($custodianId);
-        if (! Gate::allows('update', $custodian)) {
+        if (! Gate::allows('viewMembersOnly', $custodian)) {
             return $this->ForbiddenResponse();
         }
 
@@ -1380,6 +1390,12 @@ class CustodianController extends Controller
                 return $this->ForbiddenResponse();
             }
 
+            // The contact is made ADMIN below. Refuse before writing anything if they already hold another role
+            $existingContact = CustodianUser::where('email', $custodian['contact_email'])->first();
+            if ($existingContact?->hasAnyRole() && ! $existingContact->hasPermission(CustodianRole::Admin)) {
+                throw new CustodianRoleConflictException();
+            }
+
             $unclaimedUser = RMC::createUnclaimedUser([
                 'firstname' => '',
                 'lastname' => '',
@@ -1479,6 +1495,9 @@ class CustodianController extends Controller
                 'message' => 'success',
                 'data' => $custodian,
             ], 201);
+        } catch (CustodianRoleConflictException $e) {
+            // The contact already holds another custodian role; let it render as a 422
+            throw $e;
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }

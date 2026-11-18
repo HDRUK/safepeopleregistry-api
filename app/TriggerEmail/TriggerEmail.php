@@ -776,8 +776,9 @@ class TriggerEmail
             case 'AFFILIATION_ENDED_ORGANISATION':
             case 'AFFILIATION_ENDED_CUSTODIAN':
             case 'AFFILIATION_ACCESS_REVOCATION_REMINDER':
-                // Same placeholders; the identifier picks which leaver template is sent.
-                // `to` is the recipient, `for` the user whose affiliation is ending.
+            case 'PROJECT_USER_ADDED_CUSTODIAN':
+                // Same placeholders; the identifier picks which affiliation template is sent.
+                // `to` is the recipient, `for` the user whose affiliation is ending (or who joined a project).
                 $template = EmailTemplate::where('identifier', $identifier)->first();
                 $affiliation = Affiliation::with('organisation')->findOrFail($affiliationId);
                 $recipient = User::where('id', $to)->first();

@@ -293,7 +293,7 @@ class ValidationLogTest extends TestCase
 
         $validationLogId = $validationLog['id'];
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())->actingAs($this->user)
             ->json(
                 'PUT',
                 self::TEST_URL . "validation_logs/{$validationLogId}?complete",
@@ -316,7 +316,7 @@ class ValidationLogTest extends TestCase
             $validationLog['completed_at']
         );
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())->actingAs($this->user)
             ->json(
                 'PUT',
                 self::TEST_URL . "validation_logs/{$validationLogId}?incomplete",
@@ -363,7 +363,7 @@ class ValidationLogTest extends TestCase
         $validationLogId = $validationLog['id'];
 
         // Mark as pass
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())->actingAs($this->user)
             ->json(
                 'PUT',
                 self::TEST_URL . "validation_logs/{$validationLogId}?pass",
@@ -384,7 +384,7 @@ class ValidationLogTest extends TestCase
         $this->assertEquals(1, $validationLog['manually_confirmed']);
 
         // Mark as fail
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())->actingAs($this->user)
             ->json(
                 'PUT',
                 self::TEST_URL . "validation_logs/{$validationLogId}?fail",
@@ -431,7 +431,7 @@ class ValidationLogTest extends TestCase
         $validationLogId = $validationLog['id'];
 
         // Disable the validation log
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())->actingAs($this->user)
             ->json(
                 'PUT',
                 self::TEST_URL . "validation_logs/{$validationLogId}?disable",
@@ -465,7 +465,7 @@ class ValidationLogTest extends TestCase
         $this->assertEquals(0, $validationLog['enabled']);
 
         // Re-enable it
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())->actingAs($this->user)
             ->json(
                 'PUT',
                 self::TEST_URL . "validation_logs/{$validationLogId}?enable",
@@ -524,7 +524,7 @@ class ValidationLogTest extends TestCase
             $validationLogId = $validationLog['id'];
 
             // Mark as pass
-            $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+            $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())->actingAs($this->user)
                 ->json(
                     'PUT',
                     self::TEST_URL . "validation_logs/{$validationLogId}?pass",
@@ -587,7 +587,7 @@ class ValidationLogTest extends TestCase
         ];
 
         // Disable
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())->actingAs($this->user)
             ->json(
                 'PUT',
                 self::TEST_URL . "custodians/{$this->custodian->id}/validation_logs",
@@ -623,7 +623,7 @@ class ValidationLogTest extends TestCase
         // Enable again
         $payload['enabled'] = 1;
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())->actingAs($this->user)
             ->json(
                 'PUT',
                 self::TEST_URL . "custodians/{$this->custodian->id}/validation_logs",

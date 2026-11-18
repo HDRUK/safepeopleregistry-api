@@ -27,10 +27,12 @@ class UserPolicy
             return true;
         }
 
-        // custodians can update themselves
+        // Custodian users can update users in the same Custodian, except read-only ones,
+        // who fall through to the self-update rule at the end
         if (
             $user->user_group === User::GROUP_CUSTODIANS &&
             $model->user_group === User::GROUP_CUSTODIANS &&
+            $user->custodian_user?->isReadOnly() !== true &&
             optional($user->custodian_user)->custodian_id === optional($model->custodian_user)->custodian_id
         ) {
             return true;
@@ -58,6 +60,10 @@ class UserPolicy
 
     public function invite(User $user): bool
     {
+        if ($user->custodian_user?->isReadOnly() === true) {
+            return false;
+        }
+
         return $this->viewAny($user); // same access logic as viewAny for now
     }
 

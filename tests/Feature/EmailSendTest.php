@@ -26,7 +26,7 @@ class EmailSendTest extends TestCase
     {
         Queue::assertNothingPushed();
 
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())->actingAs($this->user)
             ->json(
                 'POST',
                 self::TEST_URL,

@@ -8,7 +8,6 @@ use App\Models\Project;
 use App\Models\Registry;
 use App\Models\Custodian;
 use App\Models\Organisation;
-use Illuminate\Http\Request;
 use App\Models\ValidationLog;
 use App\Http\Traits\Responses;
 use App\Models\ProjectHasUser;
@@ -257,6 +256,10 @@ class ValidationLogController extends Controller
      */
     public function updateCustodianValidationLogs(UpdateByCustodianValidationLog $request, int $custodianId): JsonResponse
     {
+        if (Gate::denies('write')) {
+            return $this->ForbiddenResponse();
+        }
+
         $validated = $request->validate([
             'enabled' => 'required|in:0,1',
         ]);
@@ -410,6 +413,10 @@ class ValidationLogController extends Controller
      */
     public function update(UpdateValidationLog $request, $id): JsonResponse
     {
+        if (Gate::denies('write')) {
+            return $this->ForbiddenResponse();
+        }
+
         $log = ValidationLog::withDisabled()->find($id);
         if (!$log) {
             return $this->NotFoundResponse();

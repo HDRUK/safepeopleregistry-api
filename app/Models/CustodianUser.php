@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Enums\CustodianRole;
 use App\Traits\SearchManager;
 
 /**
@@ -122,6 +123,37 @@ class CustodianUser extends Model
     public function userPermissions(): HasMany
     {
         return $this->hasMany(CustodianUserHasPermission::class, 'custodian_user_id', 'id');
+    }
+
+    /**
+     * Whether this Custodian User holds the given role. Queries each time rather than
+     * caching the relation, so a role change later in the request is seen and the permissions
+     * aren't attached to the model (and so to a response).
+     */
+    public function hasPermission(CustodianRole $role): bool
+    {
+        return $this->userPermissions()
+            ->whereHas('permission', fn ($query) => $query->where('name', $role->value))
+            ->exists();
+    }
+
+    /**
+     * Whether this Custodian User holds any custodian role (see CustodianRole). KEYCARD_*
+     * permissions aren't roles. Queries each time, like hasPermission().
+     */
+    public function hasAnyRole(): bool
+    {
+        return $this->userPermissions()
+            ->whereHas('permission', fn ($query) => $query->whereIn('name', CustodianRole::permissionNames()))
+            ->exists();
+    }
+
+    /**
+     * Read-only Custodian Users can view but not change data.
+     */
+    public function isReadOnly(): bool
+    {
+        return $this->hasPermission(CustodianRole::ReadOnly);
     }
 
     /**

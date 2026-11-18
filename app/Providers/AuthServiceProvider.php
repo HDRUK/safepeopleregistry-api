@@ -51,5 +51,10 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('admin', function (User $user) {
             return $user->user_group === User::GROUP_ADMINS;
         });
+
+
+        Gate::define('write', function (User $user) {
+            return $user->custodian_user?->isReadOnly() !== true;
+        });
     }
 }

@@ -586,6 +586,10 @@ class OrganisationController extends Controller
 
     public function createOrgWithUser(Request $request): JsonResponse
     {
+        if (Gate::denies('write')) {
+            return $this->ForbiddenResponse();
+        }
+
         $input = $request->all();
 
         $orgExists = Organisation::where('lead_applicant_email', $input['lead_applicant_email'])->exists();
@@ -673,6 +677,10 @@ class OrganisationController extends Controller
 
     public function storeUnclaimed(StoreUnclaimedOrganisation $request): JsonResponse
     {
+        if (Gate::denies('write')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $input = $request->all();
             $user = $request->user();
@@ -748,6 +756,10 @@ class OrganisationController extends Controller
 
     public function storeUnclaimedBeforeSuperadminInvitation(Request $request): JsonResponse
     {
+        if (Gate::denies('write')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $input = $request->all();
             $user = $request->user();
@@ -2089,6 +2101,10 @@ class OrganisationController extends Controller
 
     public function inviteToContactSuperadmin(OrganisationInviteUser $request, int $organisationId): JsonResponse
     {
+        if (Gate::denies('write')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $input = $request->all();
 
@@ -2210,6 +2226,10 @@ class OrganisationController extends Controller
      */
     public function custodianInviteUser(OrganisationInviteUser $request, int $id): JsonResponse
     {
+        if (Gate::denies('write')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $organisation = Organisation::find($id);
 
@@ -2298,6 +2318,10 @@ class OrganisationController extends Controller
     // This is the endpoint that the superadmin invitation triggers
     public function invite(OrganisationInvite $request, int $id): JsonResponse
     {
+        if (Gate::denies('write')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             // With SroRequirementEnabled off this invites as superadmin and system approves
             // the Organisation, so only admins may call it. The FE only calls it as a
@@ -2372,6 +2396,10 @@ class OrganisationController extends Controller
     //Hide from swagger docs
     public function resendInvite(ResendInvite $request, int $id)
     {
+        if (Gate::denies('write')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $organisation = Organisation::find($id);
 
@@ -2873,6 +2901,10 @@ class OrganisationController extends Controller
 
     public function updateSponsorshipStatuses(UpdateSponsorshipStatus $request, int $id)
     {
+        if (Gate::denies('write')) {
+            return $this->ForbiddenResponse();
+        }
+
         $input = $request->all();
         $loggedInUserId = $request->user()->id;
 

@@ -38,6 +38,15 @@ class ActionLogPolicy
 
     public function update(User $user, ActionLog $actionLog): bool
     {
+        // Read-only custodian users can't tick their Custodian's checklist; their own
+        // user checklist is like their own profile, which they can still update
+        if (
+            $actionLog->entity_type->value === Custodian::class &&
+            $user->custodian_user?->isReadOnly() === true
+        ) {
+            return false;
+        }
+
         return $this->view($user, $actionLog);
     }
 }
