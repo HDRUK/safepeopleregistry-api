@@ -53,15 +53,17 @@ If you dispatch to a new queue name, add it to `supervisor-1.queue`
 
 ### Dashboard
 
-`/horizon`, behind `auth:api` and the `viewHorizon` gate in
-`app/Providers/HorizonServiceProvider.php` (admins only in `prod`, any
-authenticated user elsewhere).
+`/horizon` (note: **not** `/api/horizon`, which hits the API 404 fallback).
+Browsers sign in through a Keycloak login that creates a session on the `web`
+guard, then the `viewHorizon` gate in `app/Providers/HorizonServiceProvider.php`
+applies (super-admins only, in every environment). See
+[HORIZON_DASHBOARD_AUTH.md](HORIZON_DASHBOARD_AUTH.md).
 
 > **Data protection note:** Horizon stores job payloads in Redis (recent jobs
 > for 60 minutes, failed jobs for 7 days, per `trim` in `config/horizon.php`)
 > and shows them in the dashboard. Payloads for notification/email jobs may
-> contain personal data. Consider whether the non-prod gate and retention
-> windows are appropriate for your GDPR obligations.
+> contain personal data, which is why the dashboard is limited to super-admins.
+> Consider whether the retention windows suit your GDPR obligations.
 
 ## Background: why this changed
 
