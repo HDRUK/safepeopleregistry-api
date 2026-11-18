@@ -149,8 +149,7 @@ class CustodianUser extends Model
     }
 
     /**
-     * Read-only Custodian Users can view but not change data. This deliberately ignores the
-     * CustodianReadOnlyEnabled flag: turning the flag off must never give them write access.
+     * Read-only Custodian Users can view but not change data.
      */
     public function isReadOnly(): bool
     {

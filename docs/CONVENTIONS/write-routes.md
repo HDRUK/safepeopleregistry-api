@@ -22,7 +22,6 @@ A write route is any non-GET route behind `auth:api`. Custodian users can hold t
      }
      ```
      The gate only enforces the read-only restriction. It passes for everyone else, so it is not a substitute for a real permission check.
-   - Never base the check on the `CustodianReadOnlyEnabled` feature flag. Read-only users are refused whatever the flag says.
 3. **Classify the method in `tests/Feature/CustodianReadOnlyRouteCoverageTest.php`.**
    - If the controller is on `COVERED_CONTROLLERS`, add `ShortController@method` to `REFUSES_READ_ONLY`, `CUSTODIANS_CANNOT_USE` or `ALLOWED`. CI fails until you do.
    - **New controller with write routes:** once every write method in it fits one of those lists, add the controller to `COVERED_CONTROLLERS`. The test can't detect new controllers, so this step relies on you and the reviewer.

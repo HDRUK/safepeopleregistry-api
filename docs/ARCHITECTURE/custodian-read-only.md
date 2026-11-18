@@ -1,11 +1,11 @@
 # Custodian read-only access
 
-Custodian users with the `CUSTODIAN_READ_ONLY` role can see everything their Custodian can see, but can't change data. This page explains how the role is stored, where it's enforced and how the feature flag affects it. To add a new write route, see [Adding a write route](../CONVENTIONS/write-routes.md).
+Custodian users with the `CUSTODIAN_READ_ONLY` role can see everything their Custodian can see, but can't change data. This page explains how the role is stored and where it's enforced. To add a new write route, see [Adding a write route](../CONVENTIONS/write-routes.md).
 
 ## The role
 
 - **Custodian roles** are rows in `custodian_user_has_permissions` that point to `permissions`. There are three: `CUSTODIAN_ADMIN`, `CUSTODIAN_APPROVER` and `CUSTODIAN_READ_ONLY`. They're listed in `App\Enums\CustodianRole`.
-- **Checking a role:** `CustodianUser::hasPermission(CustodianRole $role)` and `CustodianUser::isReadOnly()`. `isReadOnly()` ignores the feature flag, deliberately.
+- **Checking a role:** `CustodianUser::hasPermission(CustodianRole $role)` and `CustodianUser::isReadOnly()`. The front end gets a user's role from `GET /v1/custodian_users/{id}`.
 - **Adding the permission:** the deployment step `2026_11_11_120000_add_custodian_read_only_permission` adds it to existing databases, and `PermissionSeeder` adds it to fresh ones.
 
 ### Roles are mutually exclusive
@@ -46,15 +46,6 @@ There's no middleware and no global `Gate::before`. Each write is refused where 
 
 Server-to-server routes, authenticated by `x-client-id` (for example `POST /v1/custodian_users/bulk`), act as the Custodian rather than as a user, so the read-only role doesn't apply to them.
 
-## The feature flag: `CustodianReadOnlyEnabled`
-
-A global Pennant flag, **on by default**.
-
-- **How the flag is added:** the migration `2026_11_12_130000_add_custodian_read_only_enabled_feature` adds it to existing databases, and `FeatureSeeder` adds it to fresh ones. A missing row reads as **off**.
-- **How the front end uses it:** like the other flags, the front end reads it from `GET /v1/features`. It gets the user's role from `GET /v1/custodian_users/{id}`. While the flag is off, it shows read-only users a "contact support" notice. The API adds no flag-specific signal.
-- **While the flag is off, nobody becomes read-only.** `store`, `update` and `bulkStore` return 422 `Read-only access is not enabled` for `CUSTODIAN_READ_ONLY`, and `invite` refuses read-only users. Users who are already read-only keep the role, so their other details can still be edited.
-- **Writes stay blocked whatever the flag says.** Turning the flag off never gives read-only users more access.
-
 ## Invites
 
 Inviting a read-only user sends the `custodian_invite_read_only` email. The template is chosen from the user's role, not their first permission row.
@@ -90,5 +81,4 @@ What they're there to guarantee:
 - **Every write method in a covered controller is classified.** `CustodianReadOnlyRouteCoverageTest` fails CI when one
   is added without saying how read-only users are treated, so this one keeps itself current.
 - **Roles stay exclusive**, and read-only wins if bad data gives someone two roles.
-- **The feature flag never loosens access**: turning it off stops anyone becoming read-only, but never lets read-only users write.
 - **Read-only users are told, never asked to act**, and an information-only email failing never blocks the action.
