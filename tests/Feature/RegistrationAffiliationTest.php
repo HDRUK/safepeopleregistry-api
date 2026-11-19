@@ -261,4 +261,96 @@ class RegistrationAffiliationTest extends TestCase
 
         $this->assertNull($this->researcher->registrationAffiliation());
     }
+
+    public function test_me_reports_a_researcher_without_an_affiliation_as_not_signed_up(): void
+    {
+        $this->getMe($this->researcher)
+            ->assertStatus(200)
+            ->assertJsonPath('data.registration_complete', false)
+            ->assertJsonPath('data.registration_affiliation', null);
+    }
+
+    public function test_me_reports_a_researcher_signed_up_once_they_add_an_affiliation_with_their_login_email(): void
+    {
+        $this->actingAs($this->researcher)
+            ->json('POST', self::AFFILIATIONS_URL . "/{$this->researcher->registry_id}", $this->affiliationPayload())
+            ->assertStatus(201);
+
+        $this->getMe($this->researcher)
+            ->assertJsonPath('data.registration_complete', true)
+            ->assertJsonPath('data.registration_affiliation', null);
+    }
+
+    public function test_me_reports_a_researcher_signed_up_only_once_they_verify_another_email(): void
+    {
+        $response = $this->actingAs($this->researcher)
+            ->json('POST', self::AFFILIATIONS_URL . "/{$this->researcher->registry_id}", $this->affiliationPayload([
+                'email' => 'researcher@university.example.com',
+            ]));
+        $affiliation = Affiliation::findOrFail($response->json('data'));
+
+        $this->getMe($this->researcher)
+            ->assertJsonPath('data.registration_complete', false)
+            ->assertJsonPath('data.registration_affiliation.id', $affiliation->id)
+            ->assertJsonPath('data.registration_affiliation.state', State::STATE_AFFILIATION_EMAIL_VERIFY)
+            ->assertJsonPath('data.registration_affiliation.email', 'researcher@university.example.com');
+
+        $this->actingAs($this->researcher)
+            ->json('PUT', self::AFFILIATIONS_URL . "/verify_email/{$affiliation->verification_code}")
+            ->assertStatus(200);
+
+        $this->getMe($this->researcher)
+            ->assertJsonPath('data.registration_complete', true)
+            ->assertJsonPath('data.registration_affiliation', null);
+    }
+
+    public function test_me_prefills_an_invited_researchers_affiliation_until_they_complete_it(): void
+    {
+        $invited = $this->createAffiliation($this->researcher, State::STATE_AFFILIATION_INFO_REQUIRED, [
+            'email' => 'researcher@example.com',
+            'member_id' => '',
+            'role' => '',
+        ]);
+
+        $this->getMe($this->researcher)
+            ->assertJsonPath('data.registration_complete', false)
+            ->assertJsonPath('data.registration_affiliation', [
+                'id' => $invited->id,
+                'state' => State::STATE_AFFILIATION_INFO_REQUIRED,
+                'organisation_id' => $this->organisation->id,
+                'organisation_name' => $this->organisation->organisation_name,
+                'email' => 'researcher@example.com',
+            ]);
+
+        $this->actingAs($this->researcher)
+            ->json('PUT', self::AFFILIATIONS_URL . "/{$invited->id}", $this->affiliationPayload())
+            ->assertStatus(200);
+
+        $this->getMe($this->researcher)
+            ->assertJsonPath('data.registration_complete', true)
+            ->assertJsonPath('data.registration_affiliation', null);
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function nonResearcherGroups(): array
+    {
+        return [
+            'organisation' => [User::GROUP_ORGANISATIONS],
+            'custodian' => [User::GROUP_CUSTODIANS],
+            'admin' => [User::GROUP_ADMINS],
+        ];
+    }
+
+    #[DataProvider('nonResearcherGroups')]
+    public function test_me_always_reports_non_researchers_as_signed_up(string $userGroup): void
+    {
+        $user = User::factory()->create(['user_group' => $userGroup, 'unclaimed' => 0]);
+
+        $this->getMe($user)
+            ->assertStatus(200)
+            ->assertJsonPath('data.registration_complete', true)
+            ->assertJsonPath('data.registration_affiliation', null);
+    }
 }
