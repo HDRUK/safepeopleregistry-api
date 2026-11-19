@@ -163,6 +163,25 @@ class RegistrationAffiliationTest extends TestCase
         $this->assertSame(State::STATE_AFFILIATION_PENDING, $affiliation->getState());
     }
 
+    public function test_another_users_code_cannot_verify_their_affiliation(): void
+    {
+        $code = (string) Str::uuid();
+        $affiliation = $this->createAffiliation($this->researcher, State::STATE_AFFILIATION_EMAIL_VERIFY, [
+            'verification_code' => $code,
+            'verification_sent_at' => Carbon::now(),
+            'is_verified' => 0,
+        ]);
+        $other = $this->createResearcher('other.researcher@example.com');
+
+        $response = $this->actingAs($other)
+            ->json('PUT', self::AFFILIATIONS_URL . "/verify_email/{$code}");
+
+        $this->assertFalse($response->isSuccessful());
+        $affiliation->refresh();
+        $this->assertFalse((bool) $affiliation->is_verified);
+        $this->assertSame(State::STATE_AFFILIATION_EMAIL_VERIFY, $affiliation->getState());
+    }
+
     /**
      * One state for each kind of outcome.
      *

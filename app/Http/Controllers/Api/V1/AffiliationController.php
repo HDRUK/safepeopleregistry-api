@@ -652,11 +652,15 @@ class AffiliationController extends Controller
     public function verifyEmail(VerificationEmail $request, string $verificationCode): JsonResponse
     {
         try {
-            $loggedInUserId = $request->user()?->id;
-            $loggedInUser = User::where('id', $loggedInUserId)->first();
+            // Only the user who owns the affiliation can verify its email.
+            $registryId = $request->user()?->registry_id;
+            if (is_null($registryId)) {
+                throw new Exception('Affiliation Not Found');
+            }
 
             $affiliation = Affiliation::with('organisation')->where([
                     'verification_code' => $verificationCode,
+                    'registry_id'       => $registryId,
                     'is_verified'       => 0,
                     'current_employer'  => 1,
                 ])
