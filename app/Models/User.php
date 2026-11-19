@@ -303,6 +303,20 @@ class User extends Authenticatable
         );
     }
 
+    public function hasCurrentAffiliation(): bool
+    {
+        if ($this->registry_id === null) {
+            return false;
+        }
+
+        return Affiliation::where('registry_id', $this->registry_id)
+            ->current()
+            ->whereHas('modelState.state', function (Builder $query) {
+                $query->whereIn('slug', Affiliation::RESEARCHER_DONE_STATES);
+            })
+            ->exists();
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\PendingInvite, \App\Models\User>
      */

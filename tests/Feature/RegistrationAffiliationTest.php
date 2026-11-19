@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 use KeycloakGuard\ActingAsKeycloakUser;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 /**
@@ -160,5 +161,62 @@ class RegistrationAffiliationTest extends TestCase
         $affiliation->refresh();
         $this->assertTrue((bool) $affiliation->is_verified);
         $this->assertSame(State::STATE_AFFILIATION_PENDING, $affiliation->getState());
+    }
+
+    /**
+     * One state for each kind of outcome.
+     *
+     * @return array<string, array{string, bool}>
+     */
+    public static function affiliationStates(): array
+    {
+        return [
+            'not filled in yet' => [State::STATE_AFFILIATION_INFO_REQUIRED, false],
+            'waiting on the researcher to verify their email' => [State::STATE_AFFILIATION_EMAIL_VERIFY, false],
+            'waiting on the organisation' => [State::STATE_AFFILIATION_PENDING, true],
+            'approved' => [State::STATE_AFFILIATION_APPROVED, true],
+            'rejected' => [State::STATE_AFFILIATION_REJECTED, false],
+            'ended' => [State::STATE_AFFILIATION_LEFT, false],
+        ];
+    }
+
+    #[DataProvider('affiliationStates')]
+    public function test_only_affiliations_the_researcher_has_provided_information_and_verified_email_address_count(string $state, bool $counts): void
+    {
+        $this->createAffiliation($this->researcher, $state);
+
+        $this->assertSame($counts, $this->researcher->hasCurrentAffiliation());
+    }
+
+    public function test_an_affiliation_whose_end_date_has_passed_does_not_count(): void
+    {
+        $this->createAffiliation($this->researcher, State::STATE_AFFILIATION_PENDING, [
+            'to' => Carbon::yesterday()->toDateString(),
+        ]);
+
+        $this->assertFalse($this->researcher->hasCurrentAffiliation());
+    }
+
+    public function test_an_affiliation_ending_in_the_future_counts(): void
+    {
+        $this->createAffiliation($this->researcher, State::STATE_AFFILIATION_PENDING, [
+            'to' => Carbon::today()->addMonth()->toDateString(),
+        ]);
+
+        $this->assertTrue($this->researcher->hasCurrentAffiliation());
+    }
+
+    public function test_a_researcher_with_no_affiliations_has_no_current_affiliation(): void
+    {
+        $this->assertFalse($this->researcher->hasCurrentAffiliation());
+    }
+
+    public function test_another_researchers_affiliation_never_counts(): void
+    {
+        $other = $this->createResearcher('other.researcher@example.com');
+        $this->createAffiliation($other, State::STATE_AFFILIATION_APPROVED);
+
+        $this->assertFalse($this->researcher->hasCurrentAffiliation());
+        $this->assertTrue($other->hasCurrentAffiliation());
     }
 }
