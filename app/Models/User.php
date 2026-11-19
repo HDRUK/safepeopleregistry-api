@@ -317,6 +317,23 @@ class User extends Authenticatable
             ->exists();
     }
 
+    public function registrationAffiliation(): ?Affiliation
+    {
+        if ($this->registry_id === null) {
+            return null;
+        }
+
+        $inState = fn (string $state) => Affiliation::with('organisation')
+            ->where('registry_id', $this->registry_id)
+            ->current()
+            ->whereHas('modelState.state', function (Builder $query) use ($state) {
+                $query->where('slug', $state);
+            });
+
+        return $inState(State::STATE_AFFILIATION_EMAIL_VERIFY)->orderByDesc('id')->first()
+            ?? $inState(State::STATE_AFFILIATION_INFO_REQUIRED)->orderBy('id')->first();
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\PendingInvite, \App\Models\User>
      */

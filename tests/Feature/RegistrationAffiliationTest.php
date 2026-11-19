@@ -219,4 +219,46 @@ class RegistrationAffiliationTest extends TestCase
         $this->assertFalse($this->researcher->hasCurrentAffiliation());
         $this->assertTrue($other->hasCurrentAffiliation());
     }
+
+    public function test_there_is_no_registration_affiliation_when_nothing_needs_acting_on(): void
+    {
+        $this->createAffiliation($this->researcher, State::STATE_AFFILIATION_PENDING);
+
+        $this->assertNull($this->researcher->registrationAffiliation());
+    }
+
+    public function test_the_registration_affiliation_is_the_invited_one_with_its_organisation(): void
+    {
+        $invited = $this->createAffiliation($this->researcher, State::STATE_AFFILIATION_INFO_REQUIRED);
+
+        $affiliation = $this->researcher->registrationAffiliation();
+
+        $this->assertSame($invited->id, $affiliation?->id);
+        $this->assertTrue($affiliation->relationLoaded('organisation'));
+        $this->assertSame($this->organisation->id, $affiliation->organisation->id);
+    }
+
+    public function test_an_affiliation_waiting_on_email_verification_comes_before_an_invited_one(): void
+    {
+        $this->createAffiliation($this->researcher, State::STATE_AFFILIATION_INFO_REQUIRED);
+        $awaitingVerification = $this->createAffiliation($this->researcher, State::STATE_AFFILIATION_EMAIL_VERIFY);
+
+        $this->assertSame($awaitingVerification->id, $this->researcher->registrationAffiliation()?->id);
+    }
+
+    public function test_the_oldest_invited_affiliation_comes_first(): void
+    {
+        $oldest = $this->createAffiliation($this->researcher, State::STATE_AFFILIATION_INFO_REQUIRED);
+        $this->createAffiliation($this->researcher, State::STATE_AFFILIATION_INFO_REQUIRED);
+
+        $this->assertSame($oldest->id, $this->researcher->registrationAffiliation()?->id);
+    }
+
+    public function test_another_researchers_affiliation_is_never_the_registration_affiliation(): void
+    {
+        $other = $this->createResearcher('other.researcher@example.com');
+        $this->createAffiliation($other, State::STATE_AFFILIATION_INFO_REQUIRED);
+
+        $this->assertNull($this->researcher->registrationAffiliation());
+    }
 }
