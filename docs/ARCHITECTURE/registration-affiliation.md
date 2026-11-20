@@ -69,6 +69,8 @@ The verification link goes to the affiliation's professional email. The research
 
 A caller with no registry (an organisation, custodian or admin user) never matches.
 
+When nothing matches, it returns **404**. That covers an unknown, expired, already used or someone else's code. The web app treats any failed response the same way, so it doesn't depend on the status code.
+
 ## Deploying
 
 - **Deploy the API before the web app.** The web app treats a missing `registration_complete` as complete, so deploying in the other order doesn't lock anyone out. It just means the step doesn't appear until the API is live.
@@ -79,4 +81,3 @@ A caller with no registry (an organisation, custodian or admin user) never match
 
 - **Resend has no rate limit of its own.** Only the global API limit applies (`RATE_LIMIT`, 10,000 a minute by default). A per-route throttle on the resend route would stop repeated emails to one address.
 - **The organisation on an invited affiliation isn't locked by the API.** The web app shows it read-only, but `AffiliationController::update` accepts a different `organisation_id` while the affiliation is still `affiliation_info_required`.
-- **`verifyEmail` returns a 500 when no affiliation matches.** That covers an unknown, expired or someone else's code. A 404 would be more accurate.

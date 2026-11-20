@@ -655,7 +655,7 @@ class AffiliationController extends Controller
             // Only the user who owns the affiliation can verify its email.
             $registryId = $request->user()?->registry_id;
             if (is_null($registryId)) {
-                throw new Exception('Affiliation Not Found');
+                return $this->NotFoundResponse();
             }
 
             $affiliation = Affiliation::with('organisation')->where([
@@ -666,8 +666,9 @@ class AffiliationController extends Controller
                 ])
                 ->where('verification_sent_at', '>=', now()->subMinutes((int)config('speedi.system.otp_affiliation_validity_minutes')))
                 ->first();
+            // Unknown, expired, already used, or someone else's code.
             if (is_null($affiliation)) {
-                throw new Exception('Affiliation Not Found');
+                return $this->NotFoundResponse();
             }
 
             $organisationId = $affiliation->organisation_id;

@@ -176,7 +176,30 @@ class RegistrationAffiliationTest extends TestCase
         $response = $this->actingAs($other)
             ->json('PUT', self::AFFILIATIONS_URL . "/verify_email/{$code}");
 
-        $this->assertFalse($response->isSuccessful());
+        $response->assertNotFound();
+        $affiliation->refresh();
+        $this->assertFalse((bool) $affiliation->is_verified);
+        $this->assertSame(State::STATE_AFFILIATION_EMAIL_VERIFY, $affiliation->getState());
+    }
+
+    public function test_a_user_without_a_registry_cannot_verify_an_affiliation(): void
+    {
+        $code = (string) Str::uuid();
+        $affiliation = $this->createAffiliation($this->researcher, State::STATE_AFFILIATION_EMAIL_VERIFY, [
+            'verification_code' => $code,
+            'verification_sent_at' => Carbon::now(),
+            'is_verified' => 0,
+        ]);
+        $organisationUser = User::factory()->create([
+            'user_group' => User::GROUP_ORGANISATIONS,
+            'organisation_id' => $this->organisation->id,
+            'registry_id' => null,
+        ]);
+
+        $response = $this->actingAs($organisationUser)
+            ->json('PUT', self::AFFILIATIONS_URL . "/verify_email/{$code}");
+
+        $response->assertNotFound();
         $affiliation->refresh();
         $this->assertFalse((bool) $affiliation->is_verified);
         $this->assertSame(State::STATE_AFFILIATION_EMAIL_VERIFY, $affiliation->getState());
