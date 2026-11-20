@@ -198,6 +198,19 @@ class Affiliation extends Model
     ];
 
     /**
+     * States in which the user has done everything they can: what is left is for the Organisation.
+     * A current affiliation in one of these is what makes a researcher fully signed up. It is an
+     * allowlist, so a new state does not count until it is added here.
+     */
+    public const RESEARCHER_DONE_STATES = [
+        State::STATE_AFFILIATION_ORGANISATION_INVITED,
+        State::STATE_AFFILIATION_ACCOUNT_IN_PROGRESS,
+        State::STATE_AFFILIATION_REVIEW,
+        State::STATE_AFFILIATION_PENDING,
+        State::STATE_AFFILIATION_APPROVED,
+    ];
+
+    /**
      * States in which the user has never verified their professional email, so an affiliation
      * that ends here becomes "never verified" rather than "left".
      */

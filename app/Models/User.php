@@ -303,6 +303,37 @@ class User extends Authenticatable
         );
     }
 
+    public function hasCurrentAffiliation(): bool
+    {
+        if ($this->registry_id === null) {
+            return false;
+        }
+
+        return Affiliation::where('registry_id', $this->registry_id)
+            ->current()
+            ->whereHas('modelState.state', function (Builder $query) {
+                $query->whereIn('slug', Affiliation::RESEARCHER_DONE_STATES);
+            })
+            ->exists();
+    }
+
+    public function registrationAffiliation(): ?Affiliation
+    {
+        if ($this->registry_id === null) {
+            return null;
+        }
+
+        $inState = fn (string $state) => Affiliation::with('organisation')
+            ->where('registry_id', $this->registry_id)
+            ->current()
+            ->whereHas('modelState.state', function (Builder $query) use ($state) {
+                $query->where('slug', $state);
+            });
+
+        return $inState(State::STATE_AFFILIATION_EMAIL_VERIFY)->orderByDesc('id')->first()
+            ?? $inState(State::STATE_AFFILIATION_INFO_REQUIRED)->orderBy('id')->first();
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\PendingInvite, \App\Models\User>
      */

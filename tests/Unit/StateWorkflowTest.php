@@ -194,7 +194,9 @@ class StateWorkflowTest extends TestCase
         $verificationCode = $affiliation->verification_code;
         $organisationId = $affiliation->organisation_id;
 
+        // Only the affiliation's owner can verify its email, so the request must carry that user.
         $response = $this->actingAsKeycloakUser($this->user)
+            ->actingAs($this->user)
             ->json(
                 'PUT',
                 "/api/v1/affiliations/verify_email/{$verificationCode}",
