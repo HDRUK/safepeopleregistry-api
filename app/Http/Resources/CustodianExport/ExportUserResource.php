@@ -27,6 +27,7 @@ class ExportUserResource extends JsonResource
             'digi_ident' => $this->digi_ident,
             'first_name' => $this->user?->first_name,
             'last_name' => $this->user?->last_name,
+            'orcid' => $this->user?->orc_id,
             'identity_verified' => (bool) $this->identity?->idvt_success,
             'affiliations' => $this->affiliations
                 ->map(fn (Affiliation $affiliation) => self::exportAffiliation($affiliation))

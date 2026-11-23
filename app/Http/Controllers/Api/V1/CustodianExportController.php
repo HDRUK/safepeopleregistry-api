@@ -103,6 +103,7 @@ class CustodianExportController extends Controller
      *                          @OA\Property(property="digi_ident", type="string"),
      *                          @OA\Property(property="first_name", type="string"),
      *                          @OA\Property(property="last_name", type="string"),
+     *                          @OA\Property(property="orcid", type="string", nullable=true, example="0000-0002-1825-0097"),
      *                          @OA\Property(property="identity_verified", type="boolean"),
      *                          @OA\Property(property="affiliations", type="array", description="Every affiliation the user has had, past and present", @OA\Items(
      *                              @OA\Property(property="id", type="integer", example=12),
@@ -166,7 +167,7 @@ class CustodianExportController extends Controller
         $users = Registry::query()
             ->whereHas('projectUsers.custodianHasProjectUser', $onlyThisCustodian)
             ->with([
-                'user:id,registry_id,first_name,last_name',
+                'user:id,registry_id,first_name,last_name,orc_id',
                 'identity:id,registry_id,idvt_success',
                 'affiliations.organisation:id,organisation_name',
                 'affiliations.modelState.state',

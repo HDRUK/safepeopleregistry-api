@@ -131,6 +131,7 @@ class CustodianExportTest extends TestCase
 
         $this->assertSame($this->onlyA->user->first_name, $user['first_name']);
         $this->assertSame($this->onlyA->user->last_name, $user['last_name']);
+        $this->assertSame('0000-0002-1825-0097', $user['orcid']);
         $this->assertTrue($user['identity_verified']);
         $this->assertSame('employment', $user['affiliations'][0]['relationship']);
         $this->assertSame('Exported training', $user['trainings'][0]['training_name']);
@@ -238,6 +239,7 @@ class CustodianExportTest extends TestCase
             'user_group' => User::GROUP_USERS,
             'first_name' => $name,
             'email' => "{$name}@example.com",
+            'orc_id' => '0000-0002-1825-0097',
         ]);
         // IdentityFactory sets a column (idvt_result) that no longer exists
         Identity::create([
