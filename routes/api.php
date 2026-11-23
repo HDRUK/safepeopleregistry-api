@@ -255,6 +255,7 @@ Route::middleware(['auth:api'])
         Route::post('/push', 'push');
         Route::post('/{id}/invite', 'invite');
         Route::post('/{id}/projects', 'addProject');
+        Route::post('/{id}/credentials/rotate', 'rotateCredentials');
 
         // Update
         Route::put('/{id}', 'update');

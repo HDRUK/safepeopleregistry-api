@@ -51,17 +51,18 @@ class LogRequestResponse
         return $response;
     }
 
-    /**
-     * Horizon dashboard traffic is never logged: its session cookie is a
-     * super-admin credential, the Keycloak callback carries an OAuth `code`
-     * and `state`, and Horizon API responses contain job payloads (PII).
-     * See docs/ARCHITECTURE/REQUEST_RESPONSE_LOGGING.md.
-     */
     protected function shouldSkip(Request $request): bool
     {
         $horizonPath = trim(config('horizon.path', 'horizon'), '/');
 
-        return $request->is($horizonPath, $horizonPath . '/*', 'auth/horizon', 'auth/horizon/*');
+        return $request->is(
+            $horizonPath,
+            $horizonPath . '/*',
+            'auth/horizon',
+            'auth/horizon/*',
+            // The response carries the Custodian's new API key
+            'api/v1/custodians/*/credentials/rotate',
+        );
     }
 
     protected function maskSensitive($data)

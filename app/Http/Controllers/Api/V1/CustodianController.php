@@ -31,6 +31,7 @@ use Illuminate\Support\Facades\Gate;
 use App\Models\ProjectHasOrganisation;
 use App\Models\CustodianHasProjectUser;
 use App\Traits\SearchManagerCollection;
+use App\Traits\Notifications\NotificationCustodianManager;
 use App\Models\CustodianWebhookReceiver;
 use RegistryManagementController as RMC;
 use App\Models\CustodianUserHasPermission;
@@ -56,6 +57,7 @@ class CustodianController extends Controller
     use CommonFunctions;
     use Responses;
     use SearchManagerCollection;
+    use NotificationCustodianManager;
 
     /**
      * @OA\Get(
@@ -1383,6 +1385,80 @@ class CustodianController extends Controller
         }
 
         return $this->NotFoundResponse();
+    }
+
+    /**
+     * @OA\Post(
+     *      path="/api/v1/custodians/{id}/credentials/rotate",
+     *      operationId="custodianRotateCredentials",
+     *      x={"internal"="true"},
+     *      tags={"Custodian"},
+     *      summary="Custodian@rotateCredentials",
+     *      description="Replaces the Custodian's API key (unique_identifier), used to sign machine-to-machine requests and outbound webhooks. The old key stops working immediately. Admins and non-read-only members of the Custodian only.",
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="Custodian ID",
+     *         required=true,
+     *         example="1",
+     *         @OA\Schema(type="integer"),
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Success",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="success"),
+     *              @OA\Property(property="data", type="object",
+     *                  @OA\Property(property="client_id", type="string", example="0b0a5c1e-6f0e-4c5e-9a4b-0d9e5f3c2a1b"),
+     *                  @OA\Property(property="unique_identifier", type="string", example="aBcDeFgHiJkLmNoPqRsTuVwXyZ0123456789ABCD")
+     *              )
+     *          ),
+     *      ),
+     *      @OA\Response(
+     *          response=400,
+     *          description="Invalid argument(s)",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response=403,
+     *          description="Forbidden",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message", type="string", example="forbidden")
+     *          )
+     *      )
+     * )
+     */
+    public function rotateCredentials(GetCustodian $request, int $id): JsonResponse
+    {
+        $user = $request->user();
+        if (!$user instanceof User) {
+            return $this->UnauthorisedResponse();
+        }
+
+        $custodian = Custodian::findOrFail($id);
+        if (!Gate::allows('update', $custodian)) {
+            return $this->ForbiddenResponse();
+        }
+
+        $custodian->update(['unique_identifier' => Str::random(40)]);
+
+        // Records who and when, never the key itself
+        activity()
+            ->causedBy($user)
+            ->performedOn($custodian)
+            ->event('credentials_rotated')
+            ->useLog('custodian_credentials')
+            ->log('Custodian API key rotated');
+
+        $this->notifyOnCredentialsRotated($user, $custodian);
+
+        return $this->OKResponse([
+            'client_id' => $custodian->client_id,
+            'unique_identifier' => $custodian->unique_identifier,
+        ]);
     }
 
     //Hide from swagger docs

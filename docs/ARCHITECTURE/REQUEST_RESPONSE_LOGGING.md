@@ -23,6 +23,7 @@ Requests are skipped completely (no log entry) when the path matches:
 
 - `{horizon.path}` and `{horizon.path}/*` (default `horizon`): Horizon API responses contain queued job payloads, which may include personal data.
 - `auth/horizon` and `auth/horizon/*`: the Keycloak callback URL carries the OAuth `code` and `state`, which would end up in the logged `url` and `body`.
+- `api/v1/custodians/*/credentials/rotate`: the response body carries the Custodian's new API key (`unique_identifier`), the secret used to sign machine-to-machine requests.
 
 See [HORIZON_DASHBOARD_AUTH.md](HORIZON_DASHBOARD_AUTH.md).
 

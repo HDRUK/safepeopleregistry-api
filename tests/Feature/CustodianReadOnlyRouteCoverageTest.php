@@ -54,6 +54,7 @@ class CustodianReadOnlyRouteCoverageTest extends TestCase
         'CustodianController@confirmAccessRevoked',
         'CustodianController@destroy',
         'CustodianController@invite',
+        'CustodianController@rotateCredentials',
         'CustodianController@update',
         'CustodianHasProjectOrganisationController@update',
         'CustodianHasProjectUserController@update',
