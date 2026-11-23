@@ -156,6 +156,10 @@ class CustodianController extends Controller
 
         $custodian = Custodian::findOrFail($id);
         if ($custodian) {
+            if (Gate::allows('viewMembersOnly', $custodian)) {
+                $custodian->makeVisible('unique_identifier');
+            }
+
             return response()->json([
                 'message' => 'success',
                 'data' => $custodian,
