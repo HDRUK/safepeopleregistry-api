@@ -97,6 +97,15 @@ class LogRequestResponseTest extends TestCase
         Log::shouldNotHaveReceived('info');
     }
 
+    public function test_custodian_export_requests_are_not_logged(): void
+    {
+        Log::spy();
+
+        $this->runMiddleware(Request::create('/api/v1/custodian/export/users?page=1', 'GET'));
+
+        Log::shouldNotHaveReceived('info');
+    }
+
     // Happy path: ordinary API traffic is still logged
 
     public function test_ordinary_requests_are_still_logged_with_non_sensitive_detail(): void

@@ -62,6 +62,8 @@ class LogRequestResponse
             'auth/horizon/*',
             // The response carries the Custodian's new API key
             'api/v1/custodians/*/credentials/rotate',
+            // Responses are bulk researcher data
+            'api/v1/custodian/export/*',
         );
     }
 
