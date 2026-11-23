@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\V1\RegistryController;
 use App\Http\Controllers\Api\V1\TrainingController;
 use App\Http\Controllers\Api\V1\ActionLogController;
 use App\Http\Controllers\Api\V1\CustodianController;
+use App\Http\Controllers\Api\V1\CustodianExportController;
 use App\Http\Controllers\Api\V1\EducationController;
 use App\Http\Controllers\Api\V1\DepartmentController;
 use App\Http\Controllers\Api\V1\ExperienceController;
@@ -68,6 +69,13 @@ Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1
 Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1/validate', [UserController::class, 'validateUserRequest']);
 Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1/custodian_users/bulk', [CustodianUserController::class, 'bulkStore']);
 Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1/project_users/bulk', [ProjectController::class, 'bulkInviteProjectUsers']);
+
+Route::middleware(['check.custodian.access', 'verify.custodian.signed.request', 'throttle.verified.custodian'])
+    ->prefix('v1/custodian/export')
+    ->controller(CustodianExportController::class)
+    ->group(function () {
+        Route::get('/projects', 'projects');
+    });
 
 
 // --- AUTH ---
