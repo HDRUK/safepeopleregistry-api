@@ -75,6 +75,7 @@ Route::middleware(['check.custodian.access', 'verify.custodian.signed.request', 
     ->controller(CustodianExportController::class)
     ->group(function () {
         Route::get('/projects', 'projects');
+        Route::get('/users', 'users');
     });
 
 
