@@ -32,6 +32,8 @@ return [
         'registry_salt_2' => env('REGISTRY_SALT_2'),
         'custodian_salt_1' => env('CUSTODIAN_SALT_1'),
         'custodian_salt_2' => env('CUSTODIAN_SALT_2'),
+        // Seconds a signed machine-to-machine request stays valid, either side of server time
+        'custodian_signature_tolerance' => (int) env('CUSTODIAN_SIGNATURE_TOLERANCE', 300),
         // System configuration
         'idvt_supplier_secret_key' => env('IDVT_SUPPLIER_SECRET_KEY'),
         // Keycloak configuration
