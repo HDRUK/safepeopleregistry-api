@@ -7,10 +7,6 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
-/**
- * Tells a Custodian's members that its API key (unique_identifier) was replaced, so anything
- * that signs requests or verifies webhooks with the old key must be updated.
- */
 class CustodianCredentialsRotated extends Notification implements ShouldQueue
 {
     use Queueable;

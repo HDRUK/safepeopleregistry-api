@@ -89,7 +89,6 @@ class LogRequestResponseTest extends TestCase
 
     public function test_custodian_secret_rotation_requests_are_not_logged(): void
     {
-        // The response body carries the Custodian's new machine-to-machine secret
         Log::spy();
 
         $this->runMiddleware(Request::create('/api/v1/custodians/1/credentials/rotate', 'POST'));

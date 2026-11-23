@@ -18,10 +18,6 @@ use Tests\TestCase;
 use Tests\Traits\Authorisation;
 use Tests\Traits\CustodianActors;
 
-/**
- * A Custodian's admins and non-read-only members can replace its machine-to-machine secret
- * (unique_identifier), e.g. after a leak. The old secret must stop working straight away.
- */
 class CustodianCredentialRotationTest extends TestCase
 {
     use Authorisation;
@@ -76,7 +72,6 @@ class CustodianCredentialRotationTest extends TestCase
         $this->rotateAs($this->readOnly, $this->custodian)->assertStatus(403);
         $this->assertSame($secret, $this->custodian->fresh()->unique_identifier);
 
-        // Shows the 403 came from the read-only check, not from anything else in the request
         $this->rotateAs($this->approver, $this->custodian)->assertStatus(200);
         $this->assertNotSame($secret, $this->custodian->fresh()->unique_identifier);
     }

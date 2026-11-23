@@ -101,10 +101,6 @@ class Custodian extends Model
         'idvt_required' => 'boolean',
     ];
 
-    /**
-     * `unique_identifier` is the secret custodians sign machine-to-machine requests with.
-     * It is only revealed to the Custodian's own members and admins, see CustodianController@show.
-     */
     protected $hidden = [
         'calculated_hash',
         'unique_identifier',

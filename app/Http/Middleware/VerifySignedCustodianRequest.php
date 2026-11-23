@@ -9,14 +9,6 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * Authenticates a Custodian's server. The caller signs "{timestamp}\n{METHOD}\n{path}\n{sorted query}"
- * with its unique_identifier and sends x-client-id, x-timestamp and x-signature. A signature is
- * only valid for that exact request and within the tolerance window, so it can't be replayed.
- *
- * On success the Custodian is bound to the request as the `custodian` attribute. Controllers
- * must scope by that, never by a custodian id taken from the path or query.
- */
 class VerifySignedCustodianRequest
 {
     use Responses;

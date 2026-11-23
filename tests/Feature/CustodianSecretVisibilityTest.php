@@ -11,10 +11,6 @@ use Tests\TestCase;
 use Tests\Traits\Authorisation;
 use Tests\Traits\CustodianActors;
 
-/**
- * A Custodian's `unique_identifier` is the shared secret used to sign machine-to-machine
- * requests, so it must only be returned to admins and members of that Custodian.
- */
 class CustodianSecretVisibilityTest extends TestCase
 {
     use Authorisation;

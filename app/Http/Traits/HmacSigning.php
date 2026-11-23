@@ -23,9 +23,6 @@ trait HmacSigning
     }
 
     /**
-     * The string a Custodian signs for a machine-to-machine request. Query parameters are
-     * sorted by key and RFC 3986 encoded, so their order in the URL doesn't matter.
-     *
      * @param array<string, mixed> $query
      */
     public function buildCanonicalRequest(string $timestamp, string $method, string $path, array $query): string

@@ -11,11 +11,6 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
-/**
- * Machine-to-machine requests are signed over "{timestamp}\n{METHOD}\n{path}\n{sorted query}"
- * with the Custodian's unique_identifier, so a captured request can't be replayed later or
- * pointed at a different URL.
- */
 class VerifySignedCustodianRequestTest extends TestCase
 {
     use HmacSigning;
