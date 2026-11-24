@@ -84,6 +84,22 @@ class CustodianExportTest extends TestCase
         $this->assertSame($badSignature->json(), $unknown->json());
     }
 
+    public function test_the_export_routes_are_rate_limited_per_custodian_after_signature_checks(): void
+    {
+        config(['speedi.system.custodian_export_rate_limit' => 1]);
+
+        foreach (range(1, 2) as $attempt) {
+            $this->getJson(self::PROJECTS_PATH, [
+                'x-client-id' => $this->custodianA->client_id,
+                'x-timestamp' => (string) now()->timestamp,
+                'x-signature' => 'not-a-valid-signature',
+            ])->assertStatus(401);
+        }
+
+        $this->export($this->custodianA, self::PROJECTS_PATH)->assertStatus(200);
+        $this->export($this->custodianA, self::PROJECTS_PATH)->assertStatus(429)->assertHeader('Retry-After');
+    }
+
     public function test_a_custodian_only_sees_its_own_projects(): void
     {
         $ids = collect($this->export($this->custodianA, self::PROJECTS_PATH)->assertStatus(200)->json('data.data'))
