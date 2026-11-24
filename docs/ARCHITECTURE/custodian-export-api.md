@@ -22,7 +22,7 @@ A Custodian only ever receives its own data. It is identified by its signed cred
 A Custodian signs requests with two values stored on its `Custodian` record and shown on the Home tab of its profile in the portal:
 
 - **Client id** (`client_id`): identifies the Custodian and is sent on every request. It isn't a secret.
-- **API key** (`unique_identifier`): the shared secret used to sign requests. Never send it, and keep it out of source control and logs. It is only returned to the Custodian's own admins and members (`CustodianController@show`). The same key signs the Registry's outbound webhooks to the Custodian.
+- **API key** (`unique_identifier`): the shared secret used to sign requests. Never send it, and keep it out of source control and logs. It is only returned to the Custodian's own admins and members, and to system admins (`CustodianController@show`), and in the response when the key is rotated. The same key signs the Registry's outbound webhooks to the Custodian.
 
 ## Signing a request
 
@@ -43,8 +43,9 @@ Query string rules:
 - Encode them per RFC 3986 (`%20` for a space, not `+`), joined with `&`.
 - With no parameters, the last line is empty, so the string ends with `\n`.
 - The URL you request may list parameters in any order. Only the signed string must be sorted.
+- Only send the parameters `ExportCustodianData` accepts. The server signs the query as PHP parses it, and PHP renames `.` and spaces in parameter names to `_`, so a request with any other parameter named that way fails with 401.
 
-A signature is only valid for that exact method, path and query, and only near the Registry's current time. Sign every request, including each page, separately. A response's `next_page_url` keeps the query you sent, including `per_page`, so to fetch the next page, sign its path and query like any other request.
+A signature is only valid for that exact method, path and query, and only near the Registry's current time. Within that window, a captured request can be replayed unchanged, though it can't be altered or pointed at another URL, so always send requests over HTTPS. Sign every request, including each page, separately. A response's `next_page_url` keeps the query you sent, including `per_page`, so to fetch the next page, sign its path and query like any other request.
 
 ### Worked example
 
@@ -98,7 +99,7 @@ Fields are allow-listed, so nothing is exported unless a resource in `app/Http/R
 
 ## Errors and limits
 
-- **400:** a query parameter outside the rules in `ExportCustodianData`.
+- **400:** `page` or `per_page` outside the rules in `ExportCustodianData`. Other query parameters are ignored, not rejected.
 - **401:** missing headers get their own message. An unknown client id, an out-of-window timestamp, a disabled Custodian or a mismatched signature all return the same generic response, so it doesn't reveal whether a client id exists or which check failed. This depends on `verify.custodian.signed.request` being listed before `check.custodian.access` on the export routes, because that middleware's messages do distinguish them. `test_an_unknown_client_id_gets_the_same_response_as_a_bad_signature` fails if the order changes.
 - **429:** the per-Custodian rate limit was exceeded. Wait for the number of seconds in the `Retry-After` header. Only correctly signed requests count towards the limit, so anyone who knows a client id can't use it up.
 
