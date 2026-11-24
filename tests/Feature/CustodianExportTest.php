@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\Api\V1\CustodianExportController;
 use App\Http\Traits\HmacSigning;
 use App\Models\Accreditation;
 use App\Models\Affiliation;
@@ -17,6 +18,7 @@ use App\Models\Training;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
@@ -61,6 +63,24 @@ class CustodianExportTest extends TestCase
         return [
             'projects' => [self::PROJECTS_PATH],
             'users' => [self::USERS_PATH],
+        ];
+    }
+
+    #[DataProvider('exportActions')]
+    public function test_an_export_route_wired_without_request_signing_refuses_the_request(string $action): void
+    {
+        Route::get('/test/unsigned-export', [CustodianExportController::class, $action]);
+
+        $this->getJson('/test/unsigned-export')
+            ->assertStatus(401)
+            ->assertExactJson(['message' => 'unauthorised', 'data' => null]);
+    }
+
+    public static function exportActions(): array
+    {
+        return [
+            'projects' => ['projects'],
+            'users' => ['users'],
         ];
     }
 

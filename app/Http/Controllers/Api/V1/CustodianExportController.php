@@ -64,7 +64,10 @@ class CustodianExportController extends Controller
      */
     public function projects(ExportCustodianData $request): JsonResponse
     {
-        $custodian = $this->custodian($request);
+        $custodian = $request->attributes->get('custodian');
+        if (!$custodian instanceof Custodian) {
+            return $this->UnauthorisedResponse();
+        }
 
         $projects = $custodian->projects()
             ->with('modelState.state')
@@ -162,7 +165,11 @@ class CustodianExportController extends Controller
      */
     public function users(ExportCustodianData $request): JsonResponse
     {
-        $custodian = $this->custodian($request);
+        $custodian = $request->attributes->get('custodian');
+        if (!$custodian instanceof Custodian) {
+            return $this->UnauthorisedResponse();
+        }
+
         $onlyThisCustodian = fn ($query) => $query->where('custodian_id', $custodian->id);
         $linkedToThisCustodian = fn ($query) => $query
             ->whereHas('project')
@@ -194,16 +201,6 @@ class CustodianExportController extends Controller
         return $this->OKResponse(
             $users->through(fn (Registry $registry) => (new ExportUserResource($registry))->resolve($request))
         );
-    }
-
-    private function custodian(Request $request): Custodian
-    {
-        $custodian = $request->attributes->get('custodian');
-        if (!$custodian instanceof Custodian) {
-            abort(401);
-        }
-
-        return $custodian;
     }
 
     private function perPage(Request $request): int

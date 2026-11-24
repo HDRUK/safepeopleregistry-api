@@ -51,7 +51,9 @@ class ThrottleVerifiedCustodianTest extends TestCase
 
     public function test_requests_are_refused_when_no_custodian_has_been_verified(): void
     {
-        $this->getJson(self::UNVERIFIED_PATH)->assertStatus(401);
+        $this->getJson(self::UNVERIFIED_PATH)
+            ->assertStatus(401)
+            ->assertExactJson(['message' => 'unauthorised', 'data' => null]);
     }
 
     public function test_the_limit_applies_per_custodian_not_per_ip(): void
