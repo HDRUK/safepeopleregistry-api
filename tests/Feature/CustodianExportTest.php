@@ -108,6 +108,22 @@ class CustodianExportTest extends TestCase
         $this->assertSame([$this->projectA->id], array_column($both['projects'], 'project_id'));
     }
 
+    public function test_deleted_projects_and_users_only_on_them_are_not_exported(): void
+    {
+        $deletedProject = $this->projectFor($this->custodianA);
+        $onlyOnDeleted = $this->makeResearcher('only-on-deleted');
+        $this->addToProject($onlyOnDeleted, $deletedProject, $this->custodianA, State::STATE_PENDING);
+        $this->addToProject($this->onlyA, $deletedProject, $this->custodianA, State::STATE_PENDING);
+        $deletedProject->delete();
+
+        $users = collect($this->export($this->custodianA, self::USERS_PATH)->assertStatus(200)->json('data.data'));
+        $onlyA = $users->firstWhere('digi_ident', $this->onlyA->digi_ident);
+
+        $this->assertNotContains($onlyOnDeleted->digi_ident, $users->pluck('digi_ident'));
+        $this->assertSame([$this->projectA->id], array_column($onlyA['projects'], 'project_id'));
+        $this->assertNotContains(null, $users->pluck('projects')->flatten(1)->pluck('project_id'));
+    }
+
     public function test_the_export_contains_no_contact_or_identity_document_details(): void
     {
         $content = $this->export($this->custodianA, self::USERS_PATH)->assertStatus(200)->getContent();

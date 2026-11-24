@@ -163,9 +163,12 @@ class CustodianExportController extends Controller
     {
         $custodian = $this->custodian($request);
         $onlyThisCustodian = fn ($query) => $query->where('custodian_id', $custodian->id);
+        $linkedToThisCustodian = fn ($query) => $query
+            ->whereHas('project')
+            ->whereHas('custodianHasProjectUser', $onlyThisCustodian);
 
         $users = Registry::query()
-            ->whereHas('projectUsers.custodianHasProjectUser', $onlyThisCustodian)
+            ->whereHas('projectUsers', $linkedToThisCustodian)
             ->with([
                 'user:id,registry_id,first_name,last_name,orc_id',
                 'identity:id,registry_id,idvt_success',
@@ -173,7 +176,7 @@ class CustodianExportController extends Controller
                 'affiliations.modelState.state',
                 'trainings',
                 'accreditations',
-                'projectUsers' => fn ($query) => $query->whereHas('custodianHasProjectUser', $onlyThisCustodian),
+                'projectUsers' => $linkedToThisCustodian,
                 'projectUsers.project:id,unique_id,title',
                 'projectUsers.role:id,name',
                 'projectUsers.affiliation.organisation:id,organisation_name',
