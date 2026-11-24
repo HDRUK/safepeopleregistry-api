@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 class LogRequestResponse
 {
     // List of sensitive fields (body keys and header names) to mask
-    protected $sensitiveFields = ['password', 'token', 'access_token', 'authorization', 'cookie', 'set-cookie'];
+    protected $sensitiveFields = ['password', 'token', 'access_token', 'authorization', 'cookie', 'set-cookie', 'unique_identifier'];
     // Max body length to log
     protected $maxBodyLength = 2048;
 
@@ -36,7 +36,7 @@ class LogRequestResponse
 
         // Log the outgoing response
         $responseBody = method_exists($response, 'getContent') ? $response->getContent() : null;
-        $responseBody = $this->truncateBody($responseBody);
+        $responseBody = $this->truncateBody($this->maskJsonBody($responseBody));
         $outgoing = [
             'status' => $response->getStatusCode(),
             'headers' => $this->maskSensitive($response->headers->all()),
@@ -79,6 +79,17 @@ class LogRequestResponse
             }
         }
         return $data;
+    }
+
+    protected function maskJsonBody(mixed $body): mixed
+    {
+        if (!is_string($body)) {
+            return $body;
+        }
+
+        $decoded = json_decode($body, true);
+
+        return is_array($decoded) ? $this->maskSensitive($decoded) : $body;
     }
 
     protected function truncateBody($body)

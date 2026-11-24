@@ -6,7 +6,7 @@ Because it sees every request, it must never write credentials or other sensitiv
 
 ## What is masked
 
-Values are replaced with `***` for any body key or header name (case-insensitive) in `$sensitiveFields`:
+Values are replaced with `***` for any key in the request body or a JSON response body, and any header name (case-insensitive), that is in `$sensitiveFields`:
 
 | Field | Why |
 |---|---|
@@ -14,8 +14,9 @@ Values are replaced with `***` for any body key or header name (case-insensitive
 | `authorization` | Keycloak Bearer tokens |
 | `cookie` | Request session cookies. The `web` session cookie is a super-admin credential for Horizon. |
 | `set-cookie` | Response cookies, which issue those same sessions |
+| `unique_identifier` | A Custodian's API key, which `GET /v1/custodians/{id}` returns to the Custodian's own members. See [custodian-export-api.md](custodian-export-api.md). |
 
-Response headers are masked as well as request headers.
+Response headers are masked as well as request headers. Response bodies that aren't JSON are logged as they are.
 
 ## What is not logged at all
 

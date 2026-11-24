@@ -67,6 +67,21 @@ class LogRequestResponseTest extends TestCase
         $this->assertStringNotContainsString('super-secret-session-id', json_encode($context));
     }
 
+    public function test_custodian_api_key_in_a_response_body_is_masked(): void
+    {
+        Log::spy();
+        $response = new Response(json_encode([
+            'message' => 'success',
+            'data' => ['id' => 1, 'name' => 'Example Custodian', 'unique_identifier' => 'secret-api-key-value'],
+        ]), 200);
+
+        $this->runMiddleware(Request::create('/api/v1/custodians/1', 'GET'), $response);
+
+        $context = $this->loggedContext();
+        $this->assertStringNotContainsString('secret-api-key-value', json_encode($context));
+        $this->assertStringContainsString('Example Custodian', $context['response']['body']);
+    }
+
     public static function unloggedPaths(): array
     {
         return [
