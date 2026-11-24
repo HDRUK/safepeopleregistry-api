@@ -65,14 +65,14 @@ class VerifySignedCustodianRequestTest extends TestCase
 
     public function test_a_replayed_request_older_than_the_tolerance_is_rejected(): void
     {
-        $headers = $this->signedHeaders(['page' => '1'], timestamp: (string) now()->subSeconds(301)->timestamp);
+        $headers = $this->signedHeaders(['page' => '1'], timestamp: (string) Carbon::now()->subSeconds(301)->timestamp);
 
         $this->send(['page' => '1'], $headers)->assertStatus(401);
     }
 
     public function test_a_timestamp_too_far_in_the_future_is_rejected(): void
     {
-        $headers = $this->signedHeaders(['page' => '1'], timestamp: (string) now()->addSeconds(301)->timestamp);
+        $headers = $this->signedHeaders(['page' => '1'], timestamp: (string) Carbon::now()->addSeconds(301)->timestamp);
 
         $this->send(['page' => '1'], $headers)->assertStatus(401);
     }
@@ -121,7 +121,7 @@ class VerifySignedCustodianRequestTest extends TestCase
 
     public function test_a_timestamp_at_the_edge_of_the_tolerance_is_accepted(): void
     {
-        $headers = $this->signedHeaders(['page' => '1'], timestamp: (string) now()->subSeconds(300)->timestamp);
+        $headers = $this->signedHeaders(['page' => '1'], timestamp: (string) Carbon::now()->subSeconds(300)->timestamp);
 
         $this->send(['page' => '1'], $headers)->assertStatus(200);
     }
@@ -129,7 +129,7 @@ class VerifySignedCustodianRequestTest extends TestCase
     public function test_a_signature_built_from_the_documented_canonical_string_is_accepted(): void
     {
         // Built by hand, not with the shared helper, so this pins the spec custodians implement
-        $timestamp = (string) now()->timestamp;
+        $timestamp = (string) Carbon::now()->timestamp;
         $canonical = $timestamp . "\nGET\n" . self::TEST_PATH . "\npage=2&per_page=50";
         $signature = base64_encode(hash_hmac('sha256', $canonical, $this->custodian->unique_identifier, true));
 
@@ -150,7 +150,7 @@ class VerifySignedCustodianRequestTest extends TestCase
         ?string $secret = null,
         string $path = self::TEST_PATH,
     ): array {
-        $timestamp ??= (string) now()->timestamp;
+        $timestamp ??= (string) Carbon::now()->timestamp;
 
         return [
             'x-client-id' => $this->custodian->client_id,

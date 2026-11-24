@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Http\Traits\HmacSigning;
 use App\Models\Custodian;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Testing\TestResponse;
@@ -40,7 +41,7 @@ class ThrottleVerifiedCustodianTest extends TestCase
         foreach (range(1, 3) as $attempt) {
             $this->getJson(self::TEST_PATH, [
                 'x-client-id' => $this->custodianA->client_id,
-                'x-timestamp' => (string) now()->timestamp,
+                'x-timestamp' => (string) Carbon::now()->timestamp,
                 'x-signature' => 'not-a-valid-signature',
             ])->assertStatus(401);
         }
@@ -64,7 +65,7 @@ class ThrottleVerifiedCustodianTest extends TestCase
 
     private function signedGet(Custodian $custodian): TestResponse
     {
-        $timestamp = (string) now()->timestamp;
+        $timestamp = (string) Carbon::now()->timestamp;
 
         return $this->getJson(self::TEST_PATH, [
             'x-client-id' => $custodian->client_id,

@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
@@ -36,7 +37,7 @@ class CustodianCredentialsRotated extends Notification implements ShouldQueue
                 'first_name' => $this->rotatedBy->first_name,
                 'last_name' => $this->rotatedBy->last_name,
             ],
-            'time' => now(),
+            'time' => Carbon::now(),
         ];
     }
 

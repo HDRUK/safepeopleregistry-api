@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Http\Traits\HmacSigning;
 use App\Http\Traits\Responses;
 use App\Models\Custodian;
+use Carbon\Carbon;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,7 +27,7 @@ class VerifySignedCustodianRequest
 
         // Every other failure gets the same response, so callers can't probe which check failed
         if (!ctype_digit($timestamp)
-            || abs(now()->timestamp - (int) $timestamp) > config('speedi.system.custodian_signature_tolerance')) {
+            || abs(Carbon::now()->timestamp - (int) $timestamp) > config('speedi.system.custodian_signature_tolerance')) {
             return $this->UnauthorisedResponse();
         }
 

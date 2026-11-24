@@ -15,6 +15,7 @@ use App\Models\Registry;
 use App\Models\State;
 use App\Models\Training;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -73,7 +74,7 @@ class CustodianExportTest extends TestCase
     {
         $headers = fn (string $clientId) => [
             'x-client-id' => $clientId,
-            'x-timestamp' => (string) now()->timestamp,
+            'x-timestamp' => (string) Carbon::now()->timestamp,
             'x-signature' => 'not-a-valid-signature',
         ];
 
@@ -91,7 +92,7 @@ class CustodianExportTest extends TestCase
         foreach (range(1, 2) as $attempt) {
             $this->getJson(self::PROJECTS_PATH, [
                 'x-client-id' => $this->custodianA->client_id,
-                'x-timestamp' => (string) now()->timestamp,
+                'x-timestamp' => (string) Carbon::now()->timestamp,
                 'x-signature' => 'not-a-valid-signature',
             ])->assertStatus(401);
         }
@@ -259,7 +260,7 @@ class CustodianExportTest extends TestCase
      */
     private function export(Custodian $custodian, string $path, array $query = []): TestResponse
     {
-        $timestamp = (string) now()->timestamp;
+        $timestamp = (string) Carbon::now()->timestamp;
 
         return $this->getJson($path . ($query ? '?' . http_build_query($query) : ''), [
             'x-client-id' => $custodian->client_id,

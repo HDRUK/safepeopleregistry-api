@@ -8,6 +8,7 @@ use App\Models\Custodian;
 use App\Models\CustodianUser;
 use App\Models\User;
 use App\Notifications\CustodianCredentialsRotated;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
@@ -177,7 +178,7 @@ class CustodianCredentialRotationTest extends TestCase
      */
     private function signedHeaders(string $path, string $secret): array
     {
-        $timestamp = (string) now()->timestamp;
+        $timestamp = (string) Carbon::now()->timestamp;
 
         return [
             'x-client-id' => $this->custodian->client_id,
