@@ -44,7 +44,7 @@ Query string rules:
 - With no parameters, the last line is empty, so the string ends with `\n`.
 - The URL you request may list parameters in any order. Only the signed string must be sorted.
 
-A signature is only valid for that exact method, path and query, and only near the Registry's current time. Sign every request, including each page, separately.
+A signature is only valid for that exact method, path and query, and only near the Registry's current time. Sign every request, including each page, separately. A response's `next_page_url` keeps the query you sent, including `per_page`, so to fetch the next page, sign its path and query like any other request.
 
 ### Worked example
 

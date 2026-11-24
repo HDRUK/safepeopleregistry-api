@@ -69,7 +69,8 @@ class CustodianExportController extends Controller
         $projects = $custodian->projects()
             ->with('modelState.state')
             ->orderBy('projects.id')
-            ->paginate($this->perPage($request));
+            ->paginate($this->perPage($request))
+            ->withQueryString();
 
         $this->audit($custodian, 'projects', $projects);
 
@@ -185,7 +186,8 @@ class CustodianExportController extends Controller
                 'projectUsers.custodianHasProjectUser.modelState.state',
             ])
             ->orderBy('id')
-            ->paginate($this->perPage($request));
+            ->paginate($this->perPage($request))
+            ->withQueryString();
 
         $this->audit($custodian, 'users', $users);
 

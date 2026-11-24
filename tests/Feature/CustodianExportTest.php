@@ -193,6 +193,19 @@ class CustodianExportTest extends TestCase
         $this->assertCount(2, $user['affiliations']);
     }
 
+    #[DataProvider('exportPaths')]
+    public function test_pagination_links_keep_the_page_size(string $path): void
+    {
+        $this->projectFor($this->custodianA);
+
+        $nextPage = $this->export($this->custodianA, $path, ['per_page' => '1'])
+            ->assertStatus(200)
+            ->json('data.next_page_url');
+
+        $this->assertStringContainsString('per_page=1', $nextPage);
+        $this->assertStringContainsString('page=2', $nextPage);
+    }
+
     public function test_users_are_paginated(): void
     {
         $this->export($this->custodianA, self::USERS_PATH, ['per_page' => '1'])
