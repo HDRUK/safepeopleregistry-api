@@ -134,7 +134,7 @@ class CustodianExportTest extends TestCase
             $this->assertStringNotContainsString($registry->affiliations->first()->member_id, $content);
         }
 
-        foreach (['ABCDE123456A99AA 12', '"123456789"', '123 Road', 'AB12 3CD', '1977-07-25', 'PASSPORT-NOT-EXPORTED', 'CERT-NOT-EXPORTED', 'ACCREDITATION-ID-NOT-EXPORTED'] as $value) {
+        foreach (['ABCDE123456A99AA 12', '"123456789"', '123 Road', 'AB12 3CD', '1901-02-03', 'PASSPORT-NOT-EXPORTED', 'CERT-NOT-EXPORTED', 'ACCREDITATION-ID-NOT-EXPORTED'] as $value) {
             $this->assertStringNotContainsString($value, $content);
         }
     }
@@ -290,7 +290,7 @@ class CustodianExportTest extends TestCase
             'registry_id' => $registry->id,
             'address_1' => '123 Road',
             'postcode' => 'AB12 3CD',
-            'dob' => '1977-07-25',
+            'dob' => '1901-02-03',
             'idvt_success' => 1,
             'idvt_document_number' => 'PASSPORT-NOT-EXPORTED',
         ]);
