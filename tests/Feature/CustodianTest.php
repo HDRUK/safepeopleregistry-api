@@ -352,38 +352,6 @@ class CustodianTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_the_application_can_get_custodians_by_unique_identifier(): void
-    {
-        $custodianCreated = Custodian::first();
-
-        $response = $this->actingAs($this->custodian_admin)
-            ->json(
-                'GET',
-                self::TEST_URL . '/identifier/' . $custodianCreated->unique_identifier
-            );
-
-        $response->assertStatus(200);
-        $this->assertArrayHasKey('data', $response);
-
-        $content = $response->decodeResponseJson()['data'];
-
-        $this->assertEquals($content['name'], $custodianCreated->name);
-    }
-
-
-    public function test_the_application_cannot_get_custodians_by_unique_identifier(): void
-    {
-        $response = $this->actingAs($this->custodian_admin)
-            ->json(
-                'GET',
-                self::TEST_URL . '/identifier/uniqueIdentifierForTest'
-            );
-
-        $response->assertStatus(400);
-        $message = $response->decodeResponseJson()['message'];
-        $this->assertEquals('Invalid argument(s)', $message);
-    }
-
     public function test_the_application_can_receive_custodian_pushes_with_valid_key(): void
     {
         $user = $this->user;

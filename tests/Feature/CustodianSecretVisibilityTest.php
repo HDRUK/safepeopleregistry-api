@@ -61,12 +61,16 @@ class CustodianSecretVisibilityTest extends TestCase
             ->assertJsonMissingPath('data.unique_identifier');
     }
 
-    public function test_looking_up_a_custodian_by_identifier_does_not_return_the_secret(): void
+    public function test_a_custodian_cannot_be_looked_up_by_its_secret(): void
     {
-        $this->as($this->organisation_admin)
-            ->json('GET', self::TEST_URL . '/identifier/' . $this->custodian->unique_identifier)
-            ->assertStatus(200)
-            ->assertJsonMissingPath('data.unique_identifier');
+        $validKey = $this->as($this->organisation_admin)
+            ->json('GET', self::TEST_URL . '/identifier/' . $this->custodian->unique_identifier);
+        $unknownKey = $this->as($this->organisation_admin)
+            ->json('GET', self::TEST_URL . '/identifier/not-a-real-key');
+
+        $validKey->assertStatus(404);
+        $unknownKey->assertStatus(404);
+        $this->assertSame($unknownKey->getContent(), $validKey->getContent());
     }
 
     public function test_a_member_can_see_their_own_custodians_secret(): void

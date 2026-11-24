@@ -44,7 +44,6 @@ use App\Http\Requests\Custodians\DeleteCustodian;
 use App\Http\Requests\Custodians\GetStatusAndUser;
 use App\Http\Requests\Custodians\GetOrganisationUser;
 use App\Http\Requests\Custodians\GetProjectsByCustodian;
-use App\Http\Requests\Custodians\GetCustodianByUniqueIdentifier;
 
 /**
  * @OA\Tag(
@@ -162,69 +161,6 @@ class CustodianController extends Controller
                 $custodian->makeVisible('unique_identifier');
             }
 
-            return response()->json([
-                'message' => 'success',
-                'data' => $custodian,
-            ], 200);
-        }
-
-        return response()->json([
-            'message' => 'not found',
-            'data' => null,
-        ], 404);
-    }
-
-    /**
-     * @OA\Get(
-     *      path="/api/v1/custodians/identifier/{id}",
-     *      operationId="custodianShowByUniqueIdentifier",
-     *      x={"internal"="true"},
-     *      summary="Return a Custodian entry by Unique Identifier",
-     *      description="Return an Custodian entry by Unique Identifier",
-     *      tags={"Custodian"},
-     *      summary="Custodian@showByUniqueIdentifier",
-     *      security={{"bearerAuth":{}}},
-     *      @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="Custodian Unique Identifier",
-     *         required=true,
-     *         example="c3eddb33-db74-4ea7-961a-778740f17e25",
-     *         @OA\Schema(
-     *            type="string",
-     *            description="Custodian Unique Identifier",
-     *         ),
-     *      ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Success",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string"),
-     *              @OA\Property(property="data",
-     *                  ref="#/components/schemas/Custodian"
-     *              )
-     *          ),
-     *      ),
-     *      @OA\Response(
-     *          response=400,
-     *          description="Invalid argument(s)",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="Invalid argument(s)"),
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response=404,
-     *          description="Not found response",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="not found"),
-     *          )
-     *      )
-     * )
-     */
-    public function showByUniqueIdentifier(GetCustodianByUniqueIdentifier $request, string $uniqueIdentifier): JsonResponse
-    {
-        $custodian = Custodian::where('unique_identifier', $uniqueIdentifier)->first();
-        if ($custodian) {
             return response()->json([
                 'message' => 'success',
                 'data' => $custodian,
