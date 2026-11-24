@@ -55,6 +55,20 @@ class CustodianCredentialRotationTest extends TestCase
         $this->assertSame($secret, $this->custodian->fresh()->unique_identifier);
     }
 
+    public function test_an_unknown_custodian_gets_the_same_response_as_one_the_user_cannot_rotate(): void
+    {
+        $unknownId = Custodian::max('id') + 1000;
+
+        $forbidden = $this->rotateAs($this->organisation_admin, $this->custodian);
+        $unknown = $this->actingAsKeycloakUser($this->organisation_admin, $this->getMockedKeycloakPayload())
+            ->actingAs($this->organisation_admin)
+            ->json('POST', "/api/v1/custodians/{$unknownId}/credentials/rotate");
+
+        $forbidden->assertStatus(403);
+        $this->assertSame($forbidden->status(), $unknown->status());
+        $this->assertSame($forbidden->json(), $unknown->json());
+    }
+
     public function test_a_member_of_another_custodian_cannot_rotate_this_custodians_secret(): void
     {
         $secret = $this->custodian->unique_identifier;

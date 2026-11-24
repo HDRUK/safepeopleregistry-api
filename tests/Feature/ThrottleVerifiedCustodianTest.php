@@ -26,7 +26,7 @@ class ThrottleVerifiedCustodianTest extends TestCase
         config(['speedi.system.custodian_export_rate_limit' => 2]);
 
         // The api group is what makes Laravel re-sort ThrottleRequests ahead of route middleware
-        Route::middleware(['api', 'check.custodian.access', 'verify.custodian.signed.request', 'throttle.verified.custodian'])
+        Route::middleware(['api', 'verify.custodian.signed.request', 'check.custodian.access', 'throttle.verified.custodian'])
             ->get(self::TEST_PATH, fn (): JsonResponse => response()->json(['ok' => true]));
         Route::middleware(['api', 'throttle.verified.custodian'])
             ->get(self::UNVERIFIED_PATH, fn (): JsonResponse => response()->json(['ok' => true]));

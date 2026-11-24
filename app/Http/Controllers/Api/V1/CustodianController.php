@@ -1416,36 +1416,28 @@ class CustodianController extends Controller
      *          ),
      *      ),
      *      @OA\Response(
-     *          response=400,
-     *          description="Invalid argument(s)",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message", type="string", example="Invalid argument(s)")
-     *          )
-     *      ),
-     *      @OA\Response(
      *          response=403,
-     *          description="Forbidden",
+     *          description="Forbidden, or the Custodian doesn't exist",
      *          @OA\JsonContent(
      *              @OA\Property(property="message", type="string", example="forbidden")
      *          )
      *      )
      * )
      */
-    public function rotateCredentials(GetCustodian $request, int $id): JsonResponse
+    public function rotateCredentials(Request $request, int $id): JsonResponse
     {
         $user = $request->user();
         if (!$user instanceof User) {
             return $this->UnauthorisedResponse();
         }
 
-        $custodian = Custodian::findOrFail($id);
-        if (!Gate::allows('update', $custodian)) {
+        $custodian = Custodian::find($id);
+        if (!$custodian || !Gate::allows('update', $custodian)) {
             return $this->ForbiddenResponse();
         }
 
         $custodian->update(['unique_identifier' => Str::random(40)]);
 
-        // Records who and when, never the key itself
         activity()
             ->causedBy($user)
             ->performedOn($custodian)

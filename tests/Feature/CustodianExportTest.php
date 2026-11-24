@@ -69,6 +69,21 @@ class CustodianExportTest extends TestCase
         $this->getJson($path, ['x-client-id' => $this->custodianA->client_id])->assertStatus(401);
     }
 
+    public function test_an_unknown_client_id_gets_the_same_response_as_a_bad_signature(): void
+    {
+        $headers = fn (string $clientId) => [
+            'x-client-id' => $clientId,
+            'x-timestamp' => (string) now()->timestamp,
+            'x-signature' => 'not-a-valid-signature',
+        ];
+
+        $unknown = $this->getJson(self::PROJECTS_PATH, $headers('00000000-0000-0000-0000-000000000000'));
+        $badSignature = $this->getJson(self::PROJECTS_PATH, $headers($this->custodianA->client_id));
+
+        $unknown->assertStatus(401);
+        $this->assertSame($badSignature->json(), $unknown->json());
+    }
+
     public function test_a_custodian_only_sees_its_own_projects(): void
     {
         $ids = collect($this->export($this->custodianA, self::PROJECTS_PATH)->assertStatus(200)->json('data.data'))

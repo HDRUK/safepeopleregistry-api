@@ -99,7 +99,7 @@ Fields are allow-listed, so nothing is exported unless a resource in `app/Http/R
 ## Errors and limits
 
 - **400:** a query parameter outside the rules in `ExportCustodianData`.
-- **401:** missing headers or an unknown client id (each with its own message, from `CustodianAuthenticationMiddleware` and `VerifySignedCustodianRequest`). An out-of-window timestamp, a disabled Custodian or a mismatched signature all return the same generic response, so it doesn't reveal which check failed.
+- **401:** missing headers get their own message. An unknown client id, an out-of-window timestamp, a disabled Custodian or a mismatched signature all return the same generic response, so it doesn't reveal whether a client id exists or which check failed. This depends on `verify.custodian.signed.request` being listed before `check.custodian.access` on the export routes, because that middleware's messages do distinguish them. `test_an_unknown_client_id_gets_the_same_response_as_a_bad_signature` fails if the order changes.
 - **429:** the per-Custodian rate limit was exceeded. Wait for the number of seconds in the `Retry-After` header. Only correctly signed requests count towards the limit, so anyone who knows a client id can't use it up.
 
 ## Rotating the API key

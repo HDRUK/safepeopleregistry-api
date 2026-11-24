@@ -70,7 +70,7 @@ Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1
 Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1/custodian_users/bulk', [CustodianUserController::class, 'bulkStore']);
 Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1/project_users/bulk', [ProjectController::class, 'bulkInviteProjectUsers']);
 
-Route::middleware(['check.custodian.access', 'verify.custodian.signed.request', 'throttle.verified.custodian'])
+Route::middleware(['verify.custodian.signed.request', 'check.custodian.access', 'throttle.verified.custodian'])
     ->prefix('v1/custodian/export')
     ->controller(CustodianExportController::class)
     ->group(function () {
@@ -264,7 +264,7 @@ Route::middleware(['auth:api'])
         Route::post('/push', 'push');
         Route::post('/{id}/invite', 'invite');
         Route::post('/{id}/projects', 'addProject');
-        Route::post('/{id}/credentials/rotate', 'rotateCredentials');
+        Route::post('/{id}/credentials/rotate', 'rotateCredentials')->whereNumber('id');
 
         // Update
         Route::put('/{id}', 'update');

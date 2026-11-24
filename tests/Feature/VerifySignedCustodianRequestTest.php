@@ -25,7 +25,7 @@ class VerifySignedCustodianRequestTest extends TestCase
         $this->withMiddleware();
         Carbon::setTestNow(Carbon::create(2026, 11, 23, 12));
 
-        Route::middleware(['check.custodian.access', 'verify.custodian.signed.request'])
+        Route::middleware(['verify.custodian.signed.request', 'check.custodian.access'])
             ->get(self::TEST_PATH, fn (Request $request): JsonResponse => response()->json([
                 'custodian_id' => $request->attributes->get('custodian')->id,
             ]));
