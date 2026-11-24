@@ -67,6 +67,16 @@ class LogRequestResponseTest extends TestCase
         $this->assertStringNotContainsString('super-secret-session-id', json_encode($context));
     }
 
+    public function test_json_response_bodies_without_sensitive_fields_are_logged_unchanged(): void
+    {
+        Log::spy();
+        $body = '{"name": "a/b", "count": 1}';
+
+        $this->runMiddleware(Request::create('/api/v1/organisations', 'GET'), new Response($body, 200));
+
+        $this->assertSame($body, $this->loggedContext()['response']['body']);
+    }
+
     public function test_custodian_api_key_in_a_response_body_is_masked(): void
     {
         Log::spy();

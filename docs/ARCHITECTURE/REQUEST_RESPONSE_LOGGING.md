@@ -16,7 +16,7 @@ Values are replaced with `***` for any key in the request body or a JSON respons
 | `set-cookie` | Response cookies, which issue those same sessions |
 | `unique_identifier` | A Custodian's API key, which `GET /v1/custodians/{id}` returns to the Custodian's own members. See [custodian-export-api.md](custodian-export-api.md). |
 
-Response headers are masked as well as request headers. Response bodies that aren't JSON are logged as they are.
+Response headers are masked as well as request headers. A response body is only decoded and masked if it contains one of those field names as a JSON key; every other response body is logged as it is, which avoids decoding large responses on every request.
 
 ## What is not logged at all
 

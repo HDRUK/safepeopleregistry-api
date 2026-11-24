@@ -83,13 +83,20 @@ class LogRequestResponse
 
     protected function maskJsonBody(mixed $body): mixed
     {
-        if (!is_string($body)) {
+        if (!is_string($body) || !$this->containsSensitiveKey($body)) {
             return $body;
         }
 
         $decoded = json_decode($body, true);
 
         return is_array($decoded) ? $this->maskSensitive($decoded) : $body;
+    }
+
+    protected function containsSensitiveKey(string $body): bool
+    {
+        $fields = array_map(fn (string $field) => preg_quote($field, '/'), $this->sensitiveFields);
+
+        return preg_match('/"(' . implode('|', $fields) . ')"/i', $body) === 1;
     }
 
     protected function truncateBody($body)
