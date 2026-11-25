@@ -832,7 +832,10 @@ class UserController extends Controller
             ->applySorting()
             ->filterByState()
             ->filterByCommon()
-            ->with(['organisations', 'modelState.state'])
+            ->with([
+                'organisations' => fn ($query) => $query->visibleTo($request->user()),
+                'modelState.state',
+            ])
             ->custodianHasProjectUser($userDigitalIdent)
             ->whereHas(
                 'custodianHasProjectUser',

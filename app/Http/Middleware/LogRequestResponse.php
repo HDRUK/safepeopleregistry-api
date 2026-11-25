@@ -8,13 +8,17 @@ use Illuminate\Support\Facades\Log;
 
 class LogRequestResponse
 {
-    // List of sensitive fields to mask
-    protected $sensitiveFields = ['password', 'token', 'access_token', 'authorization'];
+    // List of sensitive fields (body keys and header names) to mask
+    protected $sensitiveFields = ['password', 'token', 'access_token', 'authorization', 'cookie', 'set-cookie'];
     // Max body length to log
     protected $maxBodyLength = 2048;
 
     public function handle(Request $request, Closure $next)
     {
+        if ($this->shouldSkip($request)) {
+            return $next($request);
+        }
+
         // Mask sensitive fields in request body
         $body = $this->maskSensitive($request->all());
         $body = $this->truncateBody($body);
@@ -35,7 +39,7 @@ class LogRequestResponse
         $responseBody = $this->truncateBody($responseBody);
         $outgoing = [
             'status' => $response->getStatusCode(),
-            'headers' => $response->headers->all(),
+            'headers' => $this->maskSensitive($response->headers->all()),
             'body' => $responseBody,
         ];
 
@@ -45,6 +49,19 @@ class LogRequestResponse
         ]);
 
         return $response;
+    }
+
+    /**
+     * Horizon dashboard traffic is never logged: its session cookie is a
+     * super-admin credential, the Keycloak callback carries an OAuth `code`
+     * and `state`, and Horizon API responses contain job payloads (PII).
+     * See docs/ARCHITECTURE/REQUEST_RESPONSE_LOGGING.md.
+     */
+    protected function shouldSkip(Request $request): bool
+    {
+        $horizonPath = trim(config('horizon.path', 'horizon'), '/');
+
+        return $request->is($horizonPath, $horizonPath . '/*', 'auth/horizon', 'auth/horizon/*');
     }
 
     protected function maskSensitive($data)

@@ -271,7 +271,39 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'success',
-            'data' => $user,
+            'data' => [
+                ...$user->toArray(),
+                ...$this->registrationStatus($user),
+            ],
         ], Response::HTTP_OK);
+    }
+
+    /**
+     * Whether the user is fully signed up, and the affiliation the registration step should act on.
+     * Only researchers need an affiliation, so everyone else is always signed up.
+     *
+     * @return array{registration_complete: bool, registration_affiliation: array<string, mixed>|null}
+     */
+    private function registrationStatus(User $user): array
+    {
+        if ($user->user_group !== User::GROUP_USERS) {
+            return [
+                'registration_complete' => true,
+                'registration_affiliation' => null,
+            ];
+        }
+
+        $affiliation = $user->registrationAffiliation();
+
+        return [
+            'registration_complete' => $user->hasCurrentAffiliation(),
+            'registration_affiliation' => $affiliation === null ? null : [
+                'id' => $affiliation->id,
+                'state' => $affiliation->getState(),
+                'organisation_id' => $affiliation->organisation_id,
+                'organisation_name' => $affiliation->organisation?->organisation_name,
+                'email' => $affiliation->email,
+            ],
+        ];
     }
 }

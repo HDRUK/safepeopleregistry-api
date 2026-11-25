@@ -17,7 +17,6 @@ class GetOrganisation extends BaseFormRequest
             'id' => [
                 'required',
                 'integer',
-                'exists:organisations,id',
             ],
         ];
     }

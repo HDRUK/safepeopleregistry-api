@@ -34,7 +34,7 @@ class CustodianHasProjectOrganisationController extends Controller
      *      x={"internal"="true"},
      *      tags={"Custodian Project Organisations"},
      *      summary="List all project organisations associated with a custodian",
-     *      description="Returns a list of all custodian project organisation approvals for a specific custodian",
+     *      description="Returns a list of all custodian project organisation approvals for a specific custodian. Approvals whose Organisation is restricted and not visible to the user are omitted.",
      *      security={{"bearerAuth":{}}},
      *      @OA\Parameter(
      *          name="custodianId",
@@ -106,6 +106,7 @@ class CustodianHasProjectOrganisationController extends Controller
                 }
             ])
                 ->where('custodian_id', $custodianId)
+                ->visibleTo($request->user())
                 ->when(!empty($searchName), function ($query) use ($searchName) {
                     $query->where(function ($subQuery) use ($searchName) {
 
@@ -164,7 +165,7 @@ class CustodianHasProjectOrganisationController extends Controller
      *      ),
      *      @OA\Response(
      *          response=200,
-     *          description="Successful operation",
+     *          description="Successful operation. data is null if there is no approval for this project organisation, or its Organisation is restricted and not visible to the user",
      *          @OA\JsonContent(
      *              type="object",
      *              @OA\Property(property="message", type="string", example="success"),
@@ -218,7 +219,9 @@ class CustodianHasProjectOrganisationController extends Controller
                 ->where([
                     'project_has_organisation_id' => $projectOrganisationId,
                     'custodian_id' => $custodianId
-                ])->first();
+                ])
+                ->visibleTo($request->user())
+                ->first();
 
             return $this->OKResponse($puhca);
         } catch (Exception $e) {

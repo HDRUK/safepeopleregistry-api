@@ -14,7 +14,9 @@ class Authenticate extends Middleware
      */
     public function handle($request, Closure $next, ...$guards)
     {
-        if ($request->is('horizon') || $request->is('horizon/*')) {
+        $horizonPath = trim(config('horizon.path'), '/');
+
+        if ($request->is($horizonPath) || $request->is($horizonPath . '/*')) {
             return $this->handleHorizonAuth($request, $next, $guards);
         }
 
@@ -22,18 +24,27 @@ class Authenticate extends Middleware
     }
 
     /**
-     * Handle Horizon authentication via the standard Keycloak guard.
-     * Token must be supplied as a Bearer header — never via a URL query parameter.
+     * Handle Horizon authentication via a server-side session (web guard).
+     *
+     * Browsers can't send a Keycloak Bearer header, so the session is created by
+     * the Keycloak authorization-code login in HorizonAuthController. Tokens are
+     * never accepted via a URL query parameter.
      */
     protected function handleHorizonAuth(Request $request, Closure $next, array $guards)
     {
-        $guard = $guards[0] ?? 'api';
+        $guard = $guards[0] ?? 'web';
 
         if (Auth::guard($guard)->check()) {
+            Auth::shouldUse($guard);
+
             return $next($request);
         }
 
-        return redirect()->away(config('speedi.system.portal_url'));
+        if ($request->expectsJson()) {
+            abort(401);
+        }
+
+        return redirect()->guest(route('horizon.login'));
     }
 
     /**

@@ -106,8 +106,7 @@ class AffiliationController extends Controller
                     $query->select(
                         'id',
                         'organisation_name',
-                        'unclaimed',
-                        'lead_applicant_email'
+                        'unclaimed'
                     );
                 },
             ]
@@ -183,8 +182,7 @@ class AffiliationController extends Controller
      *                  @OA\Property(property="organisation", type="object",
      *                      @OA\Property(property="id", type="integer", example=100),
      *                      @OA\Property(property="organisation_name", type="string", example="Example Org"),
-     *                      @OA\Property(property="unclaimed", type="boolean", example=false),
-     *                      @OA\Property(property="lead_applicant_email", type="string", example="lead@example.org")
+     *                      @OA\Property(property="unclaimed", type="boolean", example=false)
      *                  )
      *              )
      *          )
@@ -218,8 +216,7 @@ class AffiliationController extends Controller
                     $query->select(
                         'id',
                         'organisation_name',
-                        'unclaimed',
-                        'lead_applicant_email'
+                        'unclaimed'
                     );
                 },
             ]
@@ -655,18 +652,23 @@ class AffiliationController extends Controller
     public function verifyEmail(VerificationEmail $request, string $verificationCode): JsonResponse
     {
         try {
-            $loggedInUserId = $request->user()?->id;
-            $loggedInUser = User::where('id', $loggedInUserId)->first();
+            // Only the user who owns the affiliation can verify its email.
+            $registryId = $request->user()?->registry_id;
+            if (is_null($registryId)) {
+                return $this->NotFoundResponse();
+            }
 
             $affiliation = Affiliation::with('organisation')->where([
                     'verification_code' => $verificationCode,
+                    'registry_id'       => $registryId,
                     'is_verified'       => 0,
                     'current_employer'  => 1,
                 ])
                 ->where('verification_sent_at', '>=', now()->subMinutes((int)config('speedi.system.otp_affiliation_validity_minutes')))
                 ->first();
+            // Unknown, expired, already used, or someone else's code.
             if (is_null($affiliation)) {
-                throw new Exception('Affiliation Not Found');
+                return $this->NotFoundResponse();
             }
 
             $organisationId = $affiliation->organisation_id;

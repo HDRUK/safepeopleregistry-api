@@ -17,7 +17,6 @@ class OrganisationInviteUser extends BaseFormRequest
             'id' => [
                 'required',
                 'integer',
-                'exists:organisations,id',
             ],
             // The invitee's expected end date, if the Organisation knows it.
             'to' => [

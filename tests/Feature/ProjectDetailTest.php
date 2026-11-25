@@ -187,7 +187,7 @@ class ProjectDetailTest extends TestCase
 
     public function test_the_application_can_create_project_details(): void
     {
-        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())
+        $response = $this->actingAsKeycloakUser($this->user, $this->getMockedKeycloakPayload())->actingAs($this->user)
             ->json(
                 'POST',
                 self::TEST_URL,

@@ -540,6 +540,12 @@ class ProjectController extends Controller
      */
     public function getProjectUsersByOrganisationId(GetProjectUsersByOrganisationId $request, int $projectId, int $organisationId): JsonResponse
     {
+        $organisation = Organisation::find($organisationId);
+
+        if (!$organisation || !Gate::allows('view', $organisation)) {
+            return $this->NotFoundResponse();
+        }
+
         $projectUsers = ProjectHasUser::with([
             'registry.user',
             'role',
@@ -653,9 +659,10 @@ class ProjectController extends Controller
             ])->first();
 
         $idCounter = 1;
+        $visibleOrganisationIds = $this->visibleOrganisationIds($request->user(), $user->registry->affiliations);
 
-        $expandedUser = $this->getSelectableProjectAffiliations($user, $id)->map(function ($affiliation) use ($user, $id, &$idCounter) {
-            return $this->formatProjectUserAffiliation($affiliation, $user, $id, $idCounter++);
+        $expandedUser = $this->getSelectableProjectAffiliations($user, $id)->map(function ($affiliation) use ($user, $id, $visibleOrganisationIds, &$idCounter) {
+            return $this->formatProjectUserAffiliation($affiliation, $user, $id, $idCounter++, $visibleOrganisationIds);
         });
 
         return $this->OKResponse($expandedUser);
@@ -698,10 +705,14 @@ class ProjectController extends Controller
             ->get();
 
         $idCounter = 1;
+        $visibleOrganisationIds = $this->visibleOrganisationIds(
+            $request->user(),
+            $users->flatMap(fn ($user) => $user->registry->affiliations)
+        );
 
-        $expandedUsers = $users->flatMap(function ($user) use ($projectId, &$idCounter) {
-            return $this->getSelectableProjectAffiliations($user, $projectId)->map(function ($affiliation) use ($user, $projectId, &$idCounter) {
-                return $this->formatProjectUserAffiliation($affiliation, $user, $projectId, $idCounter++);
+        $expandedUsers = $users->flatMap(function ($user) use ($projectId, $visibleOrganisationIds, &$idCounter) {
+            return $this->getSelectableProjectAffiliations($user, $projectId)->map(function ($affiliation) use ($user, $projectId, $visibleOrganisationIds, &$idCounter) {
+                return $this->formatProjectUserAffiliation($affiliation, $user, $projectId, $idCounter++, $visibleOrganisationIds);
             });
         });
 
@@ -767,6 +778,10 @@ class ProjectController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+        if (Gate::denies('write')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $input = $request->only(app(Project::class)->getFillable());
             $project = Project::create($input);
@@ -860,6 +875,10 @@ class ProjectController extends Controller
      */
     public function update(UpdateProject $request, int $id): JsonResponse
     {
+        if (Gate::denies('write')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $loggedInUserId = $request->user()?->id;
             $input = $request->only(app(Project::class)->getFillable());
@@ -924,6 +943,10 @@ class ProjectController extends Controller
 
     public function resendSponsorshipRequest(SponsorshipResendRequest $request, int $projectId, int $organisationId)
     {
+        if (Gate::denies('write')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $loggedInUserId = $request->user()?->id;
 
@@ -1121,6 +1144,10 @@ class ProjectController extends Controller
      */
     public function MakePrimaryContact(MakePrimaryContact $request, int $projectId, int $registryId): JsonResponse
     {
+        if (Gate::denies('write')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $input = $request->all();
 
@@ -1230,6 +1257,10 @@ class ProjectController extends Controller
      */
     public function updateAllProjectUsers(UpdateAllProjectUsers $request, int $projectId): JsonResponse
     {
+        if (Gate::denies('write')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             $input = $request->all();
             $inputUsers = $input['users'];
@@ -1401,6 +1432,10 @@ class ProjectController extends Controller
      */
     public function destroy(DeleteProject $request, int $id): JsonResponse
     {
+        if (Gate::denies('write')) {
+            return $this->ForbiddenResponse();
+        }
+
         try {
             Project::where('id', $id)->delete();
 
@@ -1498,6 +1533,10 @@ class ProjectController extends Controller
 
     public function updateProjectUser(UpdateProjectUser $request, int $projectId, int $registryId): JsonResponse
     {
+        if (Gate::denies('write')) {
+            return $this->ForbiddenResponse();
+        }
+
         $validated = $request->validate([
             'project_role_id' => 'nullable|integer|exists:project_roles,id',
             'primary_contact' => 'nullable|boolean',
@@ -1524,6 +1563,25 @@ class ProjectController extends Controller
     }
 
     /**
+     * @param  \Illuminate\Support\Collection<int, Affiliation>  $affiliations
+     * @return array<int, int>
+     */
+    private function visibleOrganisationIds(User $viewer, \Illuminate\Support\Collection $affiliations): array
+    {
+        $organisationIds = $affiliations->pluck('organisation_id')->filter()->unique()->values();
+
+        if ($organisationIds->isEmpty()) {
+            return [];
+        }
+
+        return Organisation::visibleIdsFor($viewer)
+            ->whereIn('id', $organisationIds)
+            ->pluck('id')
+            ->flip()
+            ->all();
+    }
+
+    /**
      * The affiliations a user is on the project through, kept as history even once ended, plus their
      * current ones, through which they can be added. A user who left can only re-join through a new one.
      */
@@ -1542,7 +1600,10 @@ class ProjectController extends Controller
             ->values();
     }
 
-    public function formatProjectUserAffiliation(Affiliation $affiliation, User $user, int $projectId, $idCounter): array
+    /**
+     * @param  array<int, int>  $visibleOrganisationIds  From visibleOrganisationIds()
+     */
+    public function formatProjectUserAffiliation(Affiliation $affiliation, User $user, int $projectId, $idCounter, array $visibleOrganisationIds): array
     {
         $matchingProjectUser = $user->registry->projectUsers
             ->first(function ($projectUser) use ($projectId, $affiliation) {
@@ -1560,7 +1621,9 @@ class ProjectController extends Controller
             'email' => $user->email,
             'professional_email' => $affiliation->email,
             'affiliation_id' => $affiliation->id,
-            'organisation_name' => $affiliation->organisation?->organisation_name,
+            'organisation_name' => isset($visibleOrganisationIds[$affiliation->organisation_id])
+                ? $affiliation->organisation?->organisation_name
+                : null,
             'role' => $matchingProjectUser?->role,
         ];
     }

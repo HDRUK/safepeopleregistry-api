@@ -17,7 +17,6 @@ class GetDelegate extends BaseFormRequest
             'id' => [
                 'required',
                 'integer',
-                'exists:organisations,id',
             ],
         ];
     }

@@ -18,7 +18,6 @@ class GetCountPastProject extends BaseFormRequest
             'id' => [
                 'required',
                 'integer',
-                'exists:organisations,id',
             ],
         ];
     }

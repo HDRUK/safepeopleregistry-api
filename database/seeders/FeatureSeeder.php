@@ -24,6 +24,7 @@ class FeatureSeeder extends Seeder
             ['name' => 'EnterpriseSAMLSSOEnabled', 'value' => 'false', 'description' => 'Enable enterprise SAML SSO: admin approval workflow, Custodian/Organisation Admin self-service connection requests, and the domain-lookup sign-in step.'],
             ['name' => 'LinkedIdentitiesEnabled', 'value' => 'true', 'description' => 'Enable linking external identity providers (ORCID, GitHub) to a researcher account.'],
             ['name' => 'SroRequirementEnabled', 'value' => 'false', 'description' => 'Require an SRO on an Organisation account.'],
+            ['name' => 'HubspotEnabled', 'value' => 'false', 'description' => 'Enable Hubspot integration. This overrides the HUBSPOT_INTEGRATION_ENABLED environment variable.'],
         ];
 
         foreach ($globalFeatures as $feature) {

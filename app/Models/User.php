@@ -19,6 +19,10 @@ use App\Traits\StateWorkflow;
 use App\Traits\FilterManager;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use Laravel\Pennant\Feature;
+use Hdruk\LaravelHubspotManager\Traits\HasHubspotContact;
+use Hdruk\LaravelHubspotManager\Support\HubspotOwnership;
+use LogicException;
 
 /**
  * @OA\Schema (
@@ -120,6 +124,7 @@ class User extends Authenticatable
     use StateWorkflow;
     use FilterManager;
     use LogsActivity;
+    use HasHubspotContact;
 
     public const GROUP_USERS = 'USERS';
     public const GROUP_ORGANISATIONS = 'ORGANISATIONS';
@@ -130,6 +135,8 @@ class User extends Authenticatable
     public const GROUP_KC_ORGANISATIONS = '\Organisations';
     public const GROUP_KC_CUSTODIANS = '\Custodians';
     public const GROUP_KC_ADMINS = '\Admins';
+
+    private const HUBSPOT_PREFIX = 'safe_people_registry';
 
     protected static array $transitions = [
         State::STATE_REGISTERED => [
@@ -294,6 +301,37 @@ class User extends Authenticatable
         return $this->belongsTo(
             Registry::class
         );
+    }
+
+    public function hasCurrentAffiliation(): bool
+    {
+        if ($this->registry_id === null) {
+            return false;
+        }
+
+        return Affiliation::where('registry_id', $this->registry_id)
+            ->current()
+            ->whereHas('modelState.state', function (Builder $query) {
+                $query->whereIn('slug', Affiliation::RESEARCHER_DONE_STATES);
+            })
+            ->exists();
+    }
+
+    public function registrationAffiliation(): ?Affiliation
+    {
+        if ($this->registry_id === null) {
+            return null;
+        }
+
+        $inState = fn (string $state) => Affiliation::with('organisation')
+            ->where('registry_id', $this->registry_id)
+            ->current()
+            ->whereHas('modelState.state', function (Builder $query) use ($state) {
+                $query->where('slug', $state);
+            });
+
+        return $inState(State::STATE_AFFILIATION_EMAIL_VERIFY)->orderByDesc('id')->first()
+            ?? $inState(State::STATE_AFFILIATION_INFO_REQUIRED)->orderBy('id')->first();
     }
 
     /**
@@ -490,5 +528,78 @@ class User extends Authenticatable
     public static function getTransitions(): array
     {
         return static::$transitions;
+    }
+
+    public function toHubspotProperties(): array
+    {
+        $env_property = $this->hubspotEnvironmentProperty();
+        $persona_property = $this->hubspotPersonaProperty();
+
+        $group_map = [
+            self::GROUP_USERS => 'Researcher/Innovator (User)',
+            self::GROUP_ORGANISATIONS => 'Organisation - employing or educating the researcher/innovator',
+            self::GROUP_CUSTODIANS => 'Data Custodian',
+        ];
+
+        return [
+            'email'     => $this->email,
+            'firstname' => $this->first_name,
+            'lastname' => $this->last_name,
+            ...($env_property !== null ? [$env_property => true] : []),
+            ...($persona_property !== null ? [$persona_property => $group_map[$this->user_group] ?? null] : []),
+        ];
+    }
+
+    public function hubspotOwnership(): HubspotOwnership
+    {
+        $env_property = $this->hubspotEnvironmentProperty()
+            ?? throw new LogicException(
+                "No HubSpot environment property for '" . app()->environment() . "'. "
+                . 'Add it to the environment map, or set HUBSPOT_INTEGRATION_ENABLED=false.'
+            );
+        $persona_property = $this->hubspotPersonaProperty();
+
+        return HubspotOwnership::owns(
+            $env_property,
+            ...($persona_property !== null ? [$persona_property] : []),
+        );
+    }
+
+    /**
+     * The HubSpot property flagging which environment this contact belongs to,
+     * or null for environments not in the map (e.g. testing, local).
+     */
+    private function hubspotEnvironmentProperty(): ?string
+    {
+        // We are defensive here, handling multiple possible environment names,
+        // so as not to be tripped over by some unexpected environment name in a future deployment.
+        $env_map = [
+            'development' => self::HUBSPOT_PREFIX . '_development',
+            'dev' => self::HUBSPOT_PREFIX . '_development',
+            'preprod' => self::HUBSPOT_PREFIX . '_preproduction',
+            'preproduction' => self::HUBSPOT_PREFIX . '_preproduction',
+            'prod' => self::HUBSPOT_PREFIX . '_production',
+            'production' => self::HUBSPOT_PREFIX . '_production',
+        ];
+
+        return $env_map[app()->environment()] ?? null;
+    }
+
+    /**
+     * The HubSpot persona property, which only exists in production.
+     */
+    private function hubspotPersonaProperty(): ?string
+    {
+        return $this->hubspotEnvironmentProperty() === self::HUBSPOT_PREFIX . '_production'
+            ? self::HUBSPOT_PREFIX . '__prod_persona'
+            : null;
+    }
+
+    public static function hubspotSyncEnabled(): bool
+    {
+        // An explicit 'for' scope: this function is also called
+        // in queue workers and console commands, where no user is
+        // logged in, so the scope must be global.
+        return Feature::for(null)->active('HubspotEnabled');
     }
 }
