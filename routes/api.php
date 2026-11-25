@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\V1\RegistryController;
 use App\Http\Controllers\Api\V1\TrainingController;
 use App\Http\Controllers\Api\V1\ActionLogController;
 use App\Http\Controllers\Api\V1\CustodianController;
+use App\Http\Controllers\Api\V1\CustodianExportController;
 use App\Http\Controllers\Api\V1\EducationController;
 use App\Http\Controllers\Api\V1\DepartmentController;
 use App\Http\Controllers\Api\V1\ExperienceController;
@@ -68,6 +69,14 @@ Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1
 Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1/validate', [UserController::class, 'validateUserRequest']);
 Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1/custodian_users/bulk', [CustodianUserController::class, 'bulkStore']);
 Route::middleware(['check.custodian.access', 'verify.signed.payload'])->post('v1/project_users/bulk', [ProjectController::class, 'bulkInviteProjectUsers']);
+
+Route::middleware(['verify.custodian.signed.request', 'check.custodian.access', 'throttle.verified.custodian'])
+    ->prefix('v1/custodian/export')
+    ->controller(CustodianExportController::class)
+    ->group(function () {
+        Route::get('/projects', 'projects');
+        Route::get('/users', 'users');
+    });
 
 
 // --- AUTH ---
@@ -239,7 +248,6 @@ Route::middleware(['auth:api'])
         // Read
         Route::get('/', 'index');
         Route::get('/{id}', 'show');
-        Route::get('/identifier/{uniqueIdentifier}', 'showByUniqueIdentifier');
         Route::get('/{id}/projects', 'getProjects');
         Route::get('/{id}/users/{userId}/projects', 'getUserProjects');
         Route::get('/{id}/organisations', 'getProjectsOrganisations');
@@ -255,6 +263,7 @@ Route::middleware(['auth:api'])
         Route::post('/push', 'push');
         Route::post('/{id}/invite', 'invite');
         Route::post('/{id}/projects', 'addProject');
+        Route::post('/{id}/credentials/rotate', 'rotateCredentials')->whereNumber('id');
 
         // Update
         Route::put('/{id}', 'update');

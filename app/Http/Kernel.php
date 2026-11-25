@@ -71,6 +71,8 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'check.custodian.access' => \App\Http\Middleware\CustodianAuthenticationMiddleware::class,
         'verify.signed.payload' => \App\Http\Middleware\VerifySignedPayload::class,
+        'verify.custodian.signed.request' => \App\Http\Middleware\VerifySignedCustodianRequest::class,
+        'throttle.verified.custodian' => \App\Http\Middleware\ThrottleVerifiedCustodian::class,
         'verify.gateway.signature' => \App\Http\Middleware\VerifyGatewayHandoffSignature::class,
         'feature' => \Laravel\Pennant\Middleware\EnsureFeaturesAreActive::class,
     ];

@@ -67,6 +67,31 @@ class LogRequestResponseTest extends TestCase
         $this->assertStringNotContainsString('super-secret-session-id', json_encode($context));
     }
 
+    public function test_json_response_bodies_without_sensitive_fields_are_logged_unchanged(): void
+    {
+        Log::spy();
+        $body = '{"name": "a/b", "count": 1}';
+
+        $this->runMiddleware(Request::create('/api/v1/organisations', 'GET'), new Response($body, 200));
+
+        $this->assertSame($body, $this->loggedContext()['response']['body']);
+    }
+
+    public function test_custodian_api_key_in_a_response_body_is_masked(): void
+    {
+        Log::spy();
+        $response = new Response(json_encode([
+            'message' => 'success',
+            'data' => ['id' => 1, 'name' => 'Example Custodian', 'unique_identifier' => 'secret-api-key-value'],
+        ]), 200);
+
+        $this->runMiddleware(Request::create('/api/v1/custodians/1', 'GET'), $response);
+
+        $context = $this->loggedContext();
+        $this->assertStringNotContainsString('secret-api-key-value', json_encode($context));
+        $this->assertStringContainsString('Example Custodian', $context['response']['body']);
+    }
+
     public static function unloggedPaths(): array
     {
         return [
@@ -83,6 +108,24 @@ class LogRequestResponseTest extends TestCase
         Log::spy();
 
         $this->runMiddleware(Request::create($uri, 'GET'));
+
+        Log::shouldNotHaveReceived('info');
+    }
+
+    public function test_custodian_secret_rotation_requests_are_not_logged(): void
+    {
+        Log::spy();
+
+        $this->runMiddleware(Request::create('/api/v1/custodians/1/credentials/rotate', 'POST'));
+
+        Log::shouldNotHaveReceived('info');
+    }
+
+    public function test_custodian_export_requests_are_not_logged(): void
+    {
+        Log::spy();
+
+        $this->runMiddleware(Request::create('/api/v1/custodian/export/users?page=1', 'GET'));
 
         Log::shouldNotHaveReceived('info');
     }

@@ -22,6 +22,37 @@ trait HmacSigning
         return hash_equals($expectedSignature, $signature);
     }
 
+    /**
+     * @param array<string, mixed> $query
+     */
+    public function buildCanonicalRequest(string $timestamp, string $method, string $path, array $query): string
+    {
+        ksort($query);
+
+        return implode("\n", [
+            $timestamp,
+            strtoupper($method),
+            $path,
+            http_build_query($query, '', '&', PHP_QUERY_RFC3986),
+        ]);
+    }
+
+    /**
+     * @param array<string, mixed> $query
+     */
+    public function generateCanonicalRequestSignature(
+        string $timestamp,
+        string $method,
+        string $path,
+        array $query,
+        string $secretKey,
+    ): string {
+        return $this->generateBase64RawSignature(
+            $this->buildCanonicalRequest($timestamp, $method, $path, $query),
+            $secretKey
+        );
+    }
+
     public function generateSignature(string $payload, string $secretKey): string
     {
         return strtolower(hash_hmac('sha256', $payload, $secretKey));

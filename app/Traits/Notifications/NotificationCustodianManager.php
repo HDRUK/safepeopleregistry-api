@@ -19,6 +19,8 @@ use App\Notifications\CustodianUserStatusUpdate;
 use App\Notifications\CustodianProjectStateUpdate;
 use App\Notifications\CustodianAddSponsorToProject;
 use App\Notifications\CustodianConfigurationUpdate;
+use App\Notifications\CustodianCredentialsRotated;
+use App\Models\Custodian;
 use App\Notifications\CustodianProjectDetailsUpdate;
 use App\Notifications\CustodianOrganisationStatusUpdate;
 use App\Notifications\CustodianConfigurationManualChecksAdded;
@@ -382,6 +384,19 @@ trait NotificationCustodianManager
             } else {
                 Notification::send($userCustodian, new CustodianConfigurationUpdate($loggedInUser, 'custodian'));
             }
+        }
+    }
+
+    public function notifyOnCredentialsRotated(User $rotatedBy, Custodian $custodian): void
+    {
+        $members = User::whereIn(
+            'custodian_user_id',
+            CustodianUser::where('custodian_id', $custodian->id)->pluck('id')
+        )->get();
+
+        foreach ($members as $member) {
+            $for = (int) $member->id === (int) $rotatedBy->id ? 'current_custodian' : 'custodian';
+            Notification::send($member, new CustodianCredentialsRotated($rotatedBy, $for));
         }
     }
 

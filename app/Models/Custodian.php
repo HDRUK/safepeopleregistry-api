@@ -103,6 +103,7 @@ class Custodian extends Model
 
     protected $hidden = [
         'calculated_hash',
+        'unique_identifier',
     ];
 
     public const ACTION_COMPLETE_CONFIGURATION = 'complete_configuration';

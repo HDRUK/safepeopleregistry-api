@@ -6,7 +6,7 @@ Because it sees every request, it must never write credentials or other sensitiv
 
 ## What is masked
 
-Values are replaced with `***` for any body key or header name (case-insensitive) in `$sensitiveFields`:
+Values are replaced with `***` for any key in the request body or a JSON response body, and any header name (case-insensitive), that is in `$sensitiveFields`:
 
 | Field | Why |
 |---|---|
@@ -14,8 +14,9 @@ Values are replaced with `***` for any body key or header name (case-insensitive
 | `authorization` | Keycloak Bearer tokens |
 | `cookie` | Request session cookies. The `web` session cookie is a super-admin credential for Horizon. |
 | `set-cookie` | Response cookies, which issue those same sessions |
+| `unique_identifier` | A Custodian's API key, which `GET /v1/custodians/{id}` returns to the Custodian's own members. See [custodian-export-api.md](custodian-export-api.md). |
 
-Response headers are masked as well as request headers.
+Response headers are masked as well as request headers. A response body is only decoded and masked if it contains one of those field names as a JSON key; every other response body is logged as it is, which avoids decoding large responses on every request.
 
 ## What is not logged at all
 
@@ -23,6 +24,8 @@ Requests are skipped completely (no log entry) when the path matches:
 
 - `{horizon.path}` and `{horizon.path}/*` (default `horizon`): Horizon API responses contain queued job payloads, which may include personal data.
 - `auth/horizon` and `auth/horizon/*`: the Keycloak callback URL carries the OAuth `code` and `state`, which would end up in the logged `url` and `body`.
+- `api/v1/custodians/*/credentials/rotate`: the response body carries the Custodian's new API key (`unique_identifier`), the secret used to sign machine-to-machine requests.
+- `api/v1/custodian/export/*`: the response body is a bulk export of researcher data. Instead, `CustodianExportController` writes a `CustodianExport` log entry for each request, holding the custodian id, endpoint, page, page size and row count.
 
 See [HORIZON_DASHBOARD_AUTH.md](HORIZON_DASHBOARD_AUTH.md).
 

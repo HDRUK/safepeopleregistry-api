@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 class LogRequestResponse
 {
     // List of sensitive fields (body keys and header names) to mask
-    protected $sensitiveFields = ['password', 'token', 'access_token', 'authorization', 'cookie', 'set-cookie'];
+    protected $sensitiveFields = ['password', 'token', 'access_token', 'authorization', 'cookie', 'set-cookie', 'unique_identifier'];
     // Max body length to log
     protected $maxBodyLength = 2048;
 
@@ -36,7 +36,7 @@ class LogRequestResponse
 
         // Log the outgoing response
         $responseBody = method_exists($response, 'getContent') ? $response->getContent() : null;
-        $responseBody = $this->truncateBody($responseBody);
+        $responseBody = $this->truncateBody($this->maskJsonBody($responseBody));
         $outgoing = [
             'status' => $response->getStatusCode(),
             'headers' => $this->maskSensitive($response->headers->all()),
@@ -51,17 +51,20 @@ class LogRequestResponse
         return $response;
     }
 
-    /**
-     * Horizon dashboard traffic is never logged: its session cookie is a
-     * super-admin credential, the Keycloak callback carries an OAuth `code`
-     * and `state`, and Horizon API responses contain job payloads (PII).
-     * See docs/ARCHITECTURE/REQUEST_RESPONSE_LOGGING.md.
-     */
     protected function shouldSkip(Request $request): bool
     {
         $horizonPath = trim(config('horizon.path', 'horizon'), '/');
 
-        return $request->is($horizonPath, $horizonPath . '/*', 'auth/horizon', 'auth/horizon/*');
+        return $request->is(
+            $horizonPath,
+            $horizonPath . '/*',
+            'auth/horizon',
+            'auth/horizon/*',
+            // The response carries the Custodian's new API key
+            'api/v1/custodians/*/credentials/rotate',
+            // Responses are bulk researcher data
+            'api/v1/custodian/export/*',
+        );
     }
 
     protected function maskSensitive($data)
@@ -76,6 +79,24 @@ class LogRequestResponse
             }
         }
         return $data;
+    }
+
+    protected function maskJsonBody(mixed $body): mixed
+    {
+        if (!is_string($body) || !$this->containsSensitiveKey($body)) {
+            return $body;
+        }
+
+        $decoded = json_decode($body, true);
+
+        return is_array($decoded) ? $this->maskSensitive($decoded) : $body;
+    }
+
+    protected function containsSensitiveKey(string $body): bool
+    {
+        $fields = array_map(fn (string $field) => preg_quote($field, '/'), $this->sensitiveFields);
+
+        return preg_match('/"(' . implode('|', $fields) . ')"/i', $body) === 1;
     }
 
     protected function truncateBody($body)
