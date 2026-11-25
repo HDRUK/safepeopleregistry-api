@@ -1,3 +1,17 @@
+## [1.40.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.39.0...v1.40.0) (2026-11-25)
+
+### ✨ Features
+
+* **REGISTRY-2812:** Add Hubspot integration (#857) ([09699a0](https://github.com/HDRUK/safepeopleregistry-api/commit/09699a0e5ffc44c47cd59901bae6ef63eb2eaa73))
+* **REGISTRY-2937:** Restrict Custodian Ability to see organisations to those approved by superadmin or ones they created (#851) ([514e3ad](https://github.com/HDRUK/safepeopleregistry-api/commit/514e3ada0aafc2d8bc7927c6637d8e3423c4883e))
+* **REGISTRY-3070:** Researchers must add a current affiliation to finish signing up (#861) ([0d7b493](https://github.com/HDRUK/safepeopleregistry-api/commit/0d7b493296af19adc459d3771de81a43f5d85b4a))
+* **REGISTRY-3072:** Create Read-Only Permission for Custodians and update notification emails (#856) ([a82dcb5](https://github.com/HDRUK/safepeopleregistry-api/commit/a82dcb55e93ae0173b2c6c4ae6447117ff672165))
+* **REGISTRY-3079:** Implements horizon to monitor job queue (#859) ([3466ba0](https://github.com/HDRUK/safepeopleregistry-api/commit/3466ba0596337ceb8dd4f5e0f6379c592e19012e))
+
+### 🐛 Bug Fixes
+
+* **REGISTRY-9999:** Prevents horizon from being blocked by auth and r… (#860) ([a37c78a](https://github.com/HDRUK/safepeopleregistry-api/commit/a37c78ac58f0394aeda2a73f44d87dbd2ccd5759))
+
 ## [1.39.0](https://github.com/HDRUK/safepeopleregistry-api/compare/v1.38.0...v1.39.0) (2026-11-10)
 
 ### ✨ Features
